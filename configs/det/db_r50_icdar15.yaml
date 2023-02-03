@@ -1,0 +1,30 @@
+model:
+  type: det
+  transform: null
+  backbone:
+    name: det_resnet50
+    pretrained: False
+  neck:
+    name: FPN
+    out_channels: 256
+    #use_asf: True
+  head:
+    name: ConvHead 
+    out_channels: 2
+    k: 50
+
+scheduler: 
+  name: "cosine_decay"
+  min_lr: 0.0
+  lr: 0.1
+  warmup_epochs: 4
+  decay_epochs: 96
+
+optimizer:
+  name: "momentum"
+  filter_bias_and_bn: True
+  momentum: 0.9
+  weight_decay: 0.0001
+  loss_scale: 1024
+  use_nesterov: False
+

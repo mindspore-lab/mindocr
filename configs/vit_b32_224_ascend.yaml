@@ -1,0 +1,61 @@
+# system 
+mode: 0
+distribute: True
+num_parallel_workers: 8
+val_while_train: True
+val_interval: 1
+
+# dataset
+dataset: "imagenet"
+data_dir: "/path/to/imagenet"
+shuffle: True
+dataset_download: False
+batch_size: 256
+drop_remainder: True
+
+# augmentation 
+image_resize: 224
+scale: [0.08, 1.0]
+ratio: [0.75, 1.333]
+hflip: 0.5
+interpolation: "bicubic"
+re_prob: 0.1
+mixup: 0.2
+cutmix: 1.0
+cutmix_prob: 1.0
+crop_pct: 0.875
+color_jitter: [0.4, 0.4, 0.4]
+auto_augment: "randaug-m7-mstd0.5"
+
+# model
+model: "vit_b_32_224"
+drop_rate: 0.1 
+drop_path_rate: 0.1 
+num_classes: 1000
+pretrained: False
+ckpt_path: ""
+keep_checkpoint_max: 10
+ckpt_save_policy: "top_k"
+ckpt_save_dir: "./ckpt"
+epoch_size: 600
+dataset_sink_mode: True
+amp_level: "O2"
+
+# loss
+loss: "CE"
+loss_scale: 1024.0
+label_smoothing: 0.1
+
+# lr scheduler
+scheduler: "warmup_cosine_decay"
+lr: 0.003 
+min_lr: 1e-6
+warmup_epochs: 32
+decay_epochs: 568
+lr_epoch_stair: False
+
+# optimizer
+opt: "adamw"
+weight_decay: 0.025
+filter_bias_and_bn: True
+use_nesterov: False
