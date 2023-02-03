@@ -1,26 +1,25 @@
 # Model Writing Guideline
 
-## How to add an ocr model in MindOCR
+## How to Add a New Model in MindOCR
 
-1. Decompose the model into these modules: backbone, (neck,) head. Neck is usually not involved in recognition tasks.
+1. Decompose the model into 3 (or 2) modules: backbone, (neck,) head. Neck is usually not involved in recognition tasks.
 
 2. For each module:
    
-	a. if the required module exists in MindOCR already, skip to the next moduel since you can invoke `build_{module}()` to get the module. 
+	a. if it is implemented in MindOCR, skip since you can get the module by the `build_{module}` function . 
 
-	b. if not, following API design to develop this module, referring to the code and the guideline below.
+	b. if not, please implement it and follow the [module format guideline](#format-guideline-for-writing-a-new-module)
 
 3. Define your model in two ways 
-	a. Write a model py file under `mindocr/models/`, which includes the model class and specification functions. Users can invoke your model easily by giving the model name in this way, such as `model = build_model('dbnet_r50', pretrained=True)` 
 
- 	   Please follow the guideline below for model py writing.
+	a. Write a model py file, which includes the model class and specification functions. Please follow the [model format guideline](#format-guideline-for-model-py-file). It is to allows users to invoke a pre-defined model easily, such as `model = build_model('dbnet_r50', pretrained=True)`  .
 
-	b. Specify the detailed architecture configuration in a yaml file. Users can modify the archtecture easily in this way. Please follow the guideline below for yaml writing.
+	b. Config the architecture in a yaml file. Please follow the [yaml format guideline](#format-guideline-for-yaml-file) . It is to allows users to modify a base architecture quickly in yaml file. 
 
 4. Test it, by running `test_model.py`
 	
 
-## Format Guideline for Writng a New Module
+## Format Guideline for Writing a New Module
 
 ### Backbone
 * File naming format: `models/backbones/{task}_{backbone}.py`, e.g, `det_resnet.py`   (since the same backbone for det and rec may differ, the task prefix is necessary)
@@ -73,15 +72,12 @@ optimizer:
   
 ```
 
-
-## Format Guideline for Arch Config in Yaml File
+## Format Guideline for Yaml File
 
 To define/config the model architecture in yaml file, you should follow the keys in the following examples.
 
 
 - For models with a neck. 
-
-R is short for Required. D - Depends on model 
 
 ``` python
 model: 				# R 
@@ -111,3 +107,4 @@ model:				# R
     out_channels: 30		# D
 ```
 
+(R is short for Required. D - Depends on model)
