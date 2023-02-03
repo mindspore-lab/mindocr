@@ -3,6 +3,10 @@ A toolbox of OCR models, algorithms, and pipelines based on MindSpore
 
 
 ## Dev and Test
+
+### Dev your model
+Please follow this [guideline](./mindocr/models/README.md)
+
 ### Test model writing
 
 Change the model name and yaml path for your model in `tests/ut/test_models`, e.g.
