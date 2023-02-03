@@ -48,7 +48,7 @@
 * Class `construct` return: no limitation, define by model need, and match the loss func 
 
 
-Note: it there is no neck in the model architecture like crnn, you can skip it. `BaseModel` will select the last feature in features (List(Tensor)) output by Backbone, and forward it Head.
+**Note:** if there is no neck in the model architecture like crnn, you can skip writing for neck. `BaseModel` will select the last feature of the features (List(Tensor)) output by Backbone, and forward it Head module.
 
 
 ## Format Guideline for Model Py File
@@ -59,17 +59,21 @@ Note: it there is no neck in the model architecture like crnn, you can skip it. 
 * Spec. function naming: `{model_class_name}_{specifiation}.py`, e.g. `def dbnet_r50()` (Note: no need to add task prefix assuming no one model can solve any two tasks)
 * Spec. function args: (pretrained=False, **kwargs), e.g. `def dbnet_r50(pretrained=False, **kwargs)`. 
 * Spec. function return: model (nn.Cell), which is the model instance
+* Spec. function decorator: MUST add @register_model decorator, which is to register the model to the supported model list.
 
-> Note: Once you define a model specification in model py, you can use this specified architecture in the yaml file for training or inference as follows. 
+**Note:** Once you finish writing the model specification function, you should be able to use it in the yaml file for training or inference as follows,
 
  ``` python
+# in a yaml file
 model:				
   name: dbnet_r50	   	# model specificatio function name	
   pretrained: False
+```
 
-optimizer:
-  ...
-  
+or, use it via the `build_model` func. 
+ ``` python
+# in a python script
+model = build_model('dbnet_r50', pretrained=False)
 ```
 
 ## Format Guideline for Yaml File
