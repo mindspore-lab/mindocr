@@ -49,7 +49,6 @@ def test_model_by_yaml(yaml_fp='configs/det/db_r50_icdar15.yaml'):
     with open(yaml_fp) as fp:
         config  = yaml.safe_load(fp)    
     model_config = config['model']
-
     model = build_model(model_config)
 
     '''
@@ -70,8 +69,6 @@ def test_model_by_yaml(yaml_fp='configs/det/db_r50_icdar15.yaml'):
             
             }
     '''
-
-    model = build_model(model_config)
 
     _infer_dummy(model)
 
