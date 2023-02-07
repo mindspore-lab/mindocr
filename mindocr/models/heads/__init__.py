@@ -1,8 +1,8 @@
 from .conv_head import ConvHead
-#from .ctc_head import ctc_head
+from .ctc_head import CTCHead
 
 __all__ = ['build_head']
-support_heads = ['ConvHead']
+support_heads = ['ConvHead', 'CTCHead']
 
 
 def build_head(head_name, **kwargs):

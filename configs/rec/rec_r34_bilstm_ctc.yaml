@@ -1,0 +1,33 @@
+model:
+  type: rec
+  transform: null
+  backbone:
+    name: rec_resnet34
+    pretrained: False
+  neck:
+    name: BiLSTM
+    out_channels: 512
+    hidden_size: 256
+    batch_size: 8
+    num_layers: 2
+    dropout: 0.0
+    bidirectional: True
+  head:
+    name: CTCHead 
+    out_channels: 37
+
+scheduler: 
+  name: "cosine_decay"
+  min_lr: 0.0
+  lr: 0.1
+  warmup_epochs: 4
+  decay_epochs: 96
+
+optimizer:
+  name: "momentum"
+  filter_bias_and_bn: True
+  momentum: 0.9
+  weight_decay: 0.0001
+  loss_scale: 1024
+  use_nesterov: False
+
