@@ -82,5 +82,5 @@ def test_model_by_yaml(yaml_fp='configs/det/db_r50_icdar15.yaml'):
 if __name__ == '__main__':    
     #test_registry()
     #test_backbone()
-    test_model_by_name('dbnet_r50')
-    test_model_by_yaml('configs/det/db_r50_icdar15.yaml')
+    test_model_by_name('crnn_r34')
+    # test_model_by_yaml('configs/det/db_r50_icdar15.yaml')

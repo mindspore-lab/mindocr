@@ -1,4 +1,3 @@
-import mindspore 
 from mindspore import nn
 
 class ConvHead(nn.Cell):
