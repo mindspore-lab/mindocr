@@ -24,7 +24,6 @@ class DecodeImage(object):
         # TODO: use more efficient image loader, numpy?
         # TODO: why float32 in modelzoo. uint8 is more efficient
         img = cv2.imread(data['img_path'], 1 if self.img_mode != 'GRAY' else 0).astype('float32') 
-
         if self.img_mode == 'RGB':
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
@@ -45,14 +44,19 @@ def ResizeByGrid(object):
 
     def __call__(self, data):
         img = data['image']
-        polys = data['polys']
+        if polys in data:
+            polys = data['polys']
+        else:
+            polys = None
         
         denominator = self.denominator
         w_scale = math.ceil(img.shape[1] / denominator) * denominator / img.shape[1]
         h_scale = math.ceil(img.shape[0] / denominator) * denominator / img.shape[0]
         img = cv2.resize(img, dsize=None, fx=w_scale, fy=h_scale)
+
         if polys is None:
             return img
+
         if isTrain:
             new_polys = []
             for poly in polys:
