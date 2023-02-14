@@ -1,7 +1,15 @@
+from __future__ import absolute_import
+from __future__ import division
+
 import cv2
 import math
 from .random_crop_data import EastRandomCropData
 import numpy as np
+from PIL import Image
+from mindcv.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
+
+#IMAGENET_DEFAULT_MEAN = [0.485 * 255, 0.456 * 255, 0.406 * 255]
+#IMAGENET_DEFAULT_STD = [0.229 * 255, 0.224 * 255, 0.225 * 255]
 
 # default mean/std from ImageNet in RGB order
 DEFAULT_MEAN = [0.485, 0.456, 0.406]
@@ -44,12 +52,50 @@ class DecodeImage(object):
         data['ori_image'] = img.copy() 
         return data
 
+class NormalizeImage(object):
+    """ normalize image, substract mean, divide std
+    input image: by default, np.uint8, [0, 255], HWC format
+    return image: float32 numpy array 
+    """
+
+    def __init__(self, mean=None, std=None, is_hwc=True, img_mode='BGR', **kwargs):
+        if isinstance(scale, str):
+            scale = eval(scale)
+        mean = mean if mean is not None else IMAGENET_DEFAULT_MEAN
+        std = std if std is not None else IMAGENET_DEFAULT_STD
+        # By default, imagnet MEAN and STD is in RGB order. inverse if input image is in BGR mode
+        if img_mode == 'BGR':
+            mean = mean[::-1]
+            std = std[::-1]
+
+        shape = (3, 1, 1) if not is_hwc else (1, 1, 3)
+        self.mean = np.array(mean).reshape(shape).astype('float32')
+        self.std = np.array(std).reshape(shape).astype('float32')
+
+    def __call__(self, data):
+        img = data['image']
+        if isinstance(img, Image.Image):
+            img = np.array(img)
+        assert isinstance(img,
+                          np.ndarray), "invalid input 'img' in NormalizeImage"
+        data['image'] = (
+            img.astype('float32') - self.mean) / self.std
+        return data
 
 
-class TextDetTransform():
-    def __init__():
+class ToCHWImage(object):
+    """ convert hwc image to chw image
+    """
+
+    def __init__(self, **kwargs):
         pass
 
+    def __call__(self, data):
+        img = data['image']
+        if isinstance(img, Image.Image):
+            img = np.array(img)
+        data['image'] = img.transpose((2, 0, 1))
+        return data
 
 
 def create_transforms():

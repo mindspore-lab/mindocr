@@ -1,3 +1,9 @@
+from __future__ import absolute_import
+from __future__ import division
+
+import sys
+sys.path.append('.')
+
 from typing import Union, List
 import random
 import json
@@ -5,7 +11,7 @@ import os
 import numpy as np
 from addict import Dict
 from mindocr.data.transforms.transforms_factory import DecodeImage
-from mindocr.data.transforms.mz_db_transforms import MZSimpleNorm, ResizeByGrid, RandomScaleByShortSide, MZRandomCropData, MZMakeSegDetectionData, MZMakeBorderMap, MZRandomColorAdjust
+from mindocr.data.transforms.mz_db_transforms import MZNormToTensor, MZResizeByGrid, MZRandomScaleByShortSide, MZRandomCropData, MZMakeSegDetectionData, MZMakeBorderMap, MZRandomColorAdjust
 from mindocr.data.transforms.iaa_augment import IaaAugment
 from mindocr.data.transforms.random_crop_data import EastRandomCropData
 
@@ -122,6 +128,9 @@ class DetDataset(object):
             polys,
             texts,
             ignore_tags, # 
+            mask, binary mask for text region
+            thresh_mask, 
+            thresh_map, threshold map
 
     Notes: 
         1. Dataset file structure should follow:
@@ -236,28 +245,23 @@ def create_transforms_from_modelzoo_dbnet(is_train=True):
         pipeline = [
                     {'DecodeImage': {'img_mode': 'BGR', 'to_float32': False}},
                     {'DetLabelEncode': None}, #TODO: check diff from model zoo get_boxes
-                    {'ResizeByGrid': {'denominator': 32, 'transform_polys': False}},
-                    {'RandomScaleByShortSide': {'short_side': 736}},
+                    {'MZResizeByGrid': {'denominator': 32, 'transform_polys': True}}, # prev in modelzoo, it doesn't transform polys
+                    {'MZRandomScaleByShortSide': {'short_side': 736}},
                     {'IaaAugment': {'augmenter_args':
-                        [{
-                            'type': 'Affine',
+                        [{'type': 'Affine',
+                            'args': {'rotate': [-10, 10]}
+                        }, 
+                        {'type': 'Fliplr',
                             'args': {
-                                'rotate': [-10, 10]
-                            }
-                        }, {
-                            'type': 'Fliplr',
-                            'args': {
-                                'p': 0.5
-                            }
+                                'p': 0.5}
                         },
-                        ]
-                        }
+                        ]}
                     },
                     {'MZRandomCropData': 
                             {'max_tries':100, 
                             'min_crop_side_ratio': 0.1,
                             'crop_size': (640, 640)}},
-                    {'ResizeByGrid': {'denominator': 32, 'transform_polys': True}},
+                    {'MZResizeByGrid': {'denominator': 32, 'transform_polys': True}},
                     {'MZMakeSegDetectionData', 
                             {'min_text_size': 8,
                             'shrink_ratio': 0.4}},
@@ -267,42 +271,73 @@ def create_transforms_from_modelzoo_dbnet(is_train=True):
                         'thresh_max': 0.7,
                     }},
                     {'MZRandomColorAdjust': {'brightness': 32.0 / 255, 'saturation':0.5, 'to_numpy':True}},
+                    {'MZNormToTensor': {}},
                     ]
     else:
         pass
-    
+
+    return pipeline
+
+
 
 if __name__=='__main__':
-    data_dir = '/Users/Samit/Data/datasets/ic15/det/train'
-    annot_file = '/Users/Samit/Data/datasets/ic15/det/train/train_icdar2015_label.txt'
+    #data_dir = '/Users/Samit/Data/datasets/ic15/det/train'
+    #annot_file = '/Users/Samit/Data/datasets/ic15/det/train/train_icdar2015_label.txt'
+    data_dir = '/data/ocr_datasets/ic15/text_localization/train'
+    annot_file = '/data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt'
     transform_dict = [
                     {'DecodeImage': {'img_mode': 'BGR', 'to_float32': False}},
                     {'DetLabelEncode': None}, #TODO: check diff from model zoo get_boxes
-                    {'ResizeByGrid': {'denominator': 32}},
-                    {'RandomScaleByShortSide': {'short_side': 736}},
+                    {'MZResizeByGrid': {'denominator': 32}},
+                    {'MZRandomScaleByShortSide': {'short_side': 736}},
                     #{'EastRandomCropData': {'max_tries': 100, 'min_crop_side_ratio': 0.1, 'size': (640, 640)}}
-                    #{'MZRandomCropData': {'max_tries':100,  'min_crop_side_ratio': 0.1, 'crop_size': (640, 640)}},
-                    {'ResizeByGrid': {'denominator': 32, 'transform_polys': True}},
+                    {'MZRandomCropData': {'max_tries':100,  'min_crop_side_ratio': 0.1, 'crop_size': (640, 640)}},
+                    {'MZResizeByGrid': {'denominator': 32, 'transform_polys': True}},
+                    {'MZMakeSegDetectionData': 
+                            {'min_text_size': 8,
+                            'shrink_ratio': 0.4}},
+                    {'MZMakeBorderMap': {
+                        'shrink_ratio': 0.4,
+                        'thresh_min': 0.3,
+                        'thresh_max': 0.7,
+                    }},
                     # color_jitter w/ bgr or rgb param, convert to PIL?
                     {'MZRandomColorAdjust': {'brightness': 32.0 / 255, 'saturation':0.5, 'to_numpy':True}},
                     # reduce mean, div std
+                    #{'MZNormToTensor': {}},
                     ]
     ds = DetDataset(data_dir, annot_file, 0.5, transform_pipeline=transform_dict, is_train=True, 
-                    shuffle=True)
+                    shuffle=False)
 
-    #import matplotlib.pyplot as plt
     from mindocr.utils.visualize import show_img, draw_bboxes, show_imgs
     print('num data: ', len(ds))
-    for i in range(1):
+    for i in [223]:
         data = ds.__getitem__(i)
-        print(data['image'])
         print(data.keys())
         #print(data['image'])
+        print(data['img_path'])
         print(data['image'].shape)
         print(data['polys']) 
         print(data['texts']) 
+        #print(data['mask']) 
+        #print(data['thresh_map']) 
+        #print(data['thresh_mask']) 
+        for k in data:
+            print(k, data[k])
+            if isinstance(data[k], np.ndarray):
+                print(data[k].shape)
+            
+            
         #show_img(data['image'], 'BGR')
         #result_img1 = draw_bboxes(data['ori_image'], data['polys'])
-        result_img2 = draw_bboxes(data['image'], data['polys'])
-        show_img(result_img2)
-        #show_imgs([result_img1, result_img2])
+        img_polys = draw_bboxes(data['image'], data['polys'])
+        #show_img(result_img2, show=False, save_path='/data/det_trans.png')
+        
+        mask_polys= draw_bboxes(data['mask'], data['polys'])
+        thrmap_polys= draw_bboxes(data['thresh_map'], data['polys'])
+        thrmask_polys= draw_bboxes(data['thresh_mask'], data['polys'])
+        show_imgs([img_polys, mask_polys, thrmap_polys, thrmask_polys], show=False, save_path='/data/ocr_ic15_debug.png')
+        
+        # TODO: check transformed image and label correctness
+        
+

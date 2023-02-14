@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from __future__ import division
+
 import cv2
 import numpy as np
 import imgaug.augmenters as aug_img
@@ -7,7 +10,11 @@ import warnings
 import pyclipper
 from shapely.geometry import Polygon
 import numpy as np
-from mindspore.dataset.vision import RandomColorAdjust, ToPIL #ToTensor, 
+from mindspore.dataset.vision import RandomColorAdjust, ToPIL, ToTensor
+from mindcv.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
+
+#IMAGENET_DEFAULT_MEAN = [0.485 * 255, 0.456 * 255, 0.406 * 255]
+#IMAGENET_DEFAULT_STD = [0.229 * 255, 0.224 * 255, 0.225 * 255]
 
 class MZRandomColorAdjust():
     def __init__(self, brightness=32.0 / 255, saturation=0.5, to_numpy=False):
@@ -27,18 +34,28 @@ class MZRandomColorAdjust():
 
         return data
 
-class MZSimpleNorm():
-    # TODO: by default, image deocde op (using cv2) output in BGR mode. but the default mean in ImageNet is in RGB mode.
-    def __init__(self, mean=[122.67891434, 116.66876762, 104.00698793]):
+class MZNormToTensor():
+    # TODO: by default, image deocde op (using cv2) output in BGR mode. but the default mean in ImageNet is in RGB mode. But in both ppocr and mmocr, they ignore this difference.
+    ''' substract mean, divdied by 255.0, HWC to CHW
+    input: np or PIL, in HWC format
+    outpu: normalized image, numpy float32 in CHW format
+    '''
+    def __init__(self, mean=IMAGENET_DEFAULT_MEAN):
         self.mean = np.array(mean)
+        self.to_tensor = ToTensor()
     
     def __call__(self, data):
-        data['image'] = data['image'] - self.mean
+        image = data['image']
+        image = image - self.mean
+        image = self.to_tensor(image)
+
+        data['image'] = image
+        
         return data
 
 ######################################## transforms adopted from ModelZoo DBNet ####################################
 #TODO: This can be problematic. In ModelZoo original = resize(img), (720, 1280) resized to (736, 1280), but polys are not parsed and transformed. Fixing dataset bugs?
-class ResizeByGrid(object):
+class MZResizeByGrid(object):
     '''
     resize image by ratio so that it's shape is align to grid of denominator
     required key in data: img in shape of (h, w, c) 
@@ -258,7 +275,7 @@ class MZRandomCropData:
         # If the num of attempts exceeds 'max_tries', return the whole img.
         return 0, 0, w, h
 
-class RandomScaleByShortSide():
+class MZRandomScaleByShortSide():
     def __init__(self, short_side):
         self.short_side = short_side
 
@@ -426,7 +443,7 @@ class MZMakeBorderMap:
         data['thresh_map'] = thresh_map
         data['thresh_mask'] = thresh_mask
 
-        return img, thresh_map, thresh_mask
+        return data 
 
     def draw_border_map(self, polygon, canvas, mask):
         polygon = np.array(polygon)
