@@ -21,16 +21,17 @@ class EastRandomCropData():
     def __call__(self, data: dict) -> dict:
         """
         从scales中随机选择一个尺度，对图片和文本框进行缩放
-        :param data: {'img':,'text_polys':,'texts':,'ignore_tags':}
+        :param data: {'img':,'polys':,'texts':,'ignore_tags':}
         :return:
         """
-        im = data['img']
-        text_polys = data['text_polys']
+        im = data['image']
+        text_polys = data['polys']
         ignore_tags = data['ignore_tags']
         texts = data['texts']
         all_care_polys = [text_polys[i] for i, tag in enumerate(ignore_tags) if not tag]
         # 计算crop区域
         crop_x, crop_y, crop_w, crop_h = self.crop_area(im, all_care_polys)
+        print('crop area: ',crop_x, crop_y, crop_w, crop_h)
         # crop 图片 保持比例填充
         scale_w = self.size[0] / crop_w
         scale_h = self.size[1] / crop_h
@@ -56,8 +57,8 @@ class EastRandomCropData():
                 text_polys_crop.append(poly)
                 ignore_tags_crop.append(tag)
                 texts_crop.append(text)
-        data['img'] = img
-        data['text_polys'] = np.float32(text_polys_crop)
+        data['image'] = img
+        data['polys'] = np.float32(text_polys_crop)
         data['ignore_tags'] = ignore_tags_crop
         data['texts'] = texts_crop
         return data

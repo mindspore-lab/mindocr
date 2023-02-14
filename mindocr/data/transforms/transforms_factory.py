@@ -1,5 +1,11 @@
-import cv2 
+import cv2
+import math
 from .random_crop_data import EastRandomCropData
+import numpy as np
+
+# default mean/std from ImageNet in RGB order
+DEFAULT_MEAN = [0.485, 0.456, 0.406]
+DEFAULT_STD = [0.229, 0.224, 0.225]
 
 def transform(data, ops=None):
     """ transform """
@@ -18,57 +24,27 @@ class DecodeImage(object):
     def __init__(self, img_mode='BGR', channel_first=False, to_float32=False, **kwargs):
         self.img_mode = img_mode 
         self.to_float32 = to_float32
-        self.channel_first = channel_first 
+        self.channel_first = channel_first
 
     def __call__(self, data):
         # TODO: use more efficient image loader, numpy?
         # TODO: why float32 in modelzoo. uint8 is more efficient
-        img = cv2.imread(data['img_path'], 1 if self.img_mode != 'GRAY' else 0).astype('float32') 
+        
+        img = cv2.imread(data['img_path'], cv2.IMREAD_COLOR if self.img_mode != 'GRAY' else cv2.IMREAD_GRAYSCALE)
+        
         if self.img_mode == 'RGB':
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         if self.channel_first:
             img = img.transpose((2, 0, 1))
 
+        if self.to_float32:
+            img = img.astype('float32')
         data['image'] = img
-
+        data['ori_image'] = img.copy() 
         return data
 
-def ResizeByGrid(object):
-    '''
-    resize image by ratio so that it's shape is align to grid of denominator
-    required key in data: img in shape of (h, w, c) 
-    '''
-    def __init__(self, denominator=32, isTrain=True):
-        self.denominator = denominator
 
-    def __call__(self, data):
-        img = data['image']
-        if polys in data:
-            polys = data['polys']
-        else:
-            polys = None
-        
-        denominator = self.denominator
-        w_scale = math.ceil(img.shape[1] / denominator) * denominator / img.shape[1]
-        h_scale = math.ceil(img.shape[0] / denominator) * denominator / img.shape[0]
-        img = cv2.resize(img, dsize=None, fx=w_scale, fy=h_scale)
-
-        if polys is None:
-            return img
-
-        if isTrain:
-            new_polys = []
-            for poly in polys:
-                poly[:, 0] = poly[:, 0] * w_scale
-                poly[:, 1] = poly[:, 1] * h_scale
-                new_polys.append(poly)
-            polys = new_polys
-        else:
-            polys[:, :, 0] = polys[:, :, 0] * w_scale
-            polys[:, :, 1] = polys[:, :, 1] * h_scale
-        return img, polys
-    
 
 class TextDetTransform():
     def __init__():
