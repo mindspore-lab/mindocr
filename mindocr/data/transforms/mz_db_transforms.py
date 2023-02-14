@@ -1,3 +1,6 @@
+'''
+transforms adopted from model zoo.
+'''
 from __future__ import absolute_import
 from __future__ import division
 
@@ -34,12 +37,14 @@ class MZRandomColorAdjust():
 
         return data
 
-class MZNormToTensor():
-    # TODO: by default, image deocde op (using cv2) output in BGR mode. but the default mean in ImageNet is in RGB mode. But in both ppocr and mmocr, they ignore this difference.
-    ''' substract mean, divdied by 255.0, HWC to CHW
+class MZIrregularNormToCHW():
+    ''' substract mean, divdied by 255.0 instead of the std of Imagenet. HWC to CHW
     input: np or PIL, in HWC format
-    outpu: normalized image, numpy float32 in CHW format
+    output: normalized image, numpy float32 in CHW format
+
+    WARNING: this op can be problematic.
     '''
+    # TODO: by default, image deocde op (using cv2) output in BGR mode. but the default mean in ImageNet is in RGB mode. But in both ppocr and mmocr, they ignore this difference.
     def __init__(self, mean=IMAGENET_DEFAULT_MEAN):
         self.mean = np.array(mean)
         self.to_tensor = ToTensor()
@@ -50,6 +55,40 @@ class MZNormToTensor():
         image = self.to_tensor(image)
 
         data['image'] = image
+        
+        return data
+
+
+class MZScalePad():
+    '''
+    scale image and polys with short side, then pad to eval_size.
+    input image format: hwc     
+    '''
+    def __init__(self, eval_size=[736, 1280]):
+        self.eval_size = eval_size
+
+    def __call__(self, data):
+        img = data['image']
+        if 'polys' in data:
+            polys = data['polys']
+        else:
+            polys = None
+        eval_size = self.eval_size
+
+        h, w, c = img.shape
+        s_h = eval_size[0] / h
+        s_w = eval_size[1] / w
+        scale = min(s_h, s_w)
+        new_h = int(scale * h)
+        new_w = int(scale * w)
+        img = cv2.resize(img, (new_w, new_h))
+        padimg = np.zeros((eval_size[0], eval_size[1], c), img.dtype)
+        padimg[:new_h, :new_w, :] = img
+
+        data['image'] = padimg
+        if polys is not None:
+            polys = polys * scale
+            data['polys'] = polys
         
         return data
 
@@ -425,23 +464,23 @@ class MZMakeBorderMap:
         required keys:
             image, polys, ignore_tags
         added keys:
-            thresh_map, thresh_mask
+            threshold_map, threshold_mask
         """
         img = data['image']
         polys = data['polys']
         dontcare = data['ignore_tags']  
 
-        thresh_map = np.zeros(img.shape[:2], dtype=np.float32)
-        thresh_mask = np.zeros(img.shape[:2], dtype=np.float32)
+        threshold_map = np.zeros(img.shape[:2], dtype=np.float32)
+        threshold_mask = np.zeros(img.shape[:2], dtype=np.float32)
 
         for i in range(len(polys)):
             if dontcare[i]:
                 continue
-            self.draw_border_map(polys[i], thresh_map, mask=thresh_mask)
-        thresh_map = thresh_map * (self.thresh_max - self.thresh_min) + self.thresh_min
+            self.draw_border_map(polys[i], threshold_map, mask=threshold_mask)
+        threshold_map = threshold_map * (self.thresh_max - self.thresh_min) + self.thresh_min
 
-        data['thresh_map'] = thresh_map
-        data['thresh_mask'] = thresh_mask
+        data['threshold_map'] = threshold_map
+        data['threshold_mask'] = threshold_mask
 
         return data 
 

@@ -10,8 +10,9 @@ import json
 import os
 import numpy as np
 from addict import Dict
-from mindocr.data.transforms.transforms_factory import DecodeImage
-from mindocr.data.transforms.mz_db_transforms import MZNormToTensor, MZResizeByGrid, MZRandomScaleByShortSide, MZRandomCropData, MZMakeSegDetectionData, MZMakeBorderMap, MZRandomColorAdjust
+
+from mindocr.data.transforms.transforms_factory import DecodeImage, NormalizeImage, ToCHWImage, MakeBorderMap, MakeShrinkMap
+from mindocr.data.transforms.mz_db_transforms import MZIrregularNormToCHW, MZResizeByGrid, MZRandomScaleByShortSide, MZRandomCropData, MZMakeSegDetectionData, MZMakeBorderMap, MZRandomColorAdjust, MZScalePad
 from mindocr.data.transforms.iaa_augment import IaaAugment
 from mindocr.data.transforms.random_crop_data import EastRandomCropData
 
@@ -74,6 +75,8 @@ def create_transforms(transform_pipeline: List[dict], global_config=None):
         transform_pipeline (list of dict): a dict list defining the transformation pipeline. Fo each dict, the key is
             a transform class name, the value is a dict encoding the class init params and values.
             e.g. [{'DecodeImage': {'img_mode': 'BGR', 'channel_first': False}}]
+    Returns:
+        list of data transformation functions
     """
     assert isinstance(transform_pipeline, list), ('transform_pipeline config should be a list')
     transforms = []
@@ -129,8 +132,8 @@ class DetDataset(object):
             texts,
             ignore_tags, # 
             mask, binary mask for text region
-            thresh_mask, 
-            thresh_map, threshold map
+            threshold_mask, 
+            threshold_map, threshold map
 
     Notes: 
         1. Dataset file structure should follow:
@@ -240,11 +243,21 @@ class DetDataset(object):
         return data
 
 
-def create_transforms_from_modelzoo_dbnet(is_train=True):
-    if is_train:
+def transforms_dbnet_icdar15(phase='train'):
+    '''
+    Get pre-defined transform config for dbnet on icdar15 dataset.
+    Args:
+        phase: train, eval, infer 
+
+    Returns:
+        list of dict for data transformation pipeline, which can be convert to functions by 'create_transforms' 
+    '''
+    if phase == 'train':
         pipeline = [
-                    {'DecodeImage': {'img_mode': 'BGR', 'to_float32': False}},
-                    {'DetLabelEncode': None}, #TODO: check diff from model zoo get_boxes
+                    {'DecodeImage': {
+                        'img_mode': 'BGR', 
+                        'to_float32': False}},
+                    {'DetLabelEncode': None}, 
                     {'MZResizeByGrid': {'denominator': 32, 'transform_polys': True}}, # prev in modelzoo, it doesn't transform polys
                     {'MZRandomScaleByShortSide': {'short_side': 736}},
                     {'IaaAugment': {'augmenter_args':
@@ -262,20 +275,56 @@ def create_transforms_from_modelzoo_dbnet(is_train=True):
                             'min_crop_side_ratio': 0.1,
                             'crop_size': (640, 640)}},
                     {'MZResizeByGrid': {'denominator': 32, 'transform_polys': True}},
-                    {'MZMakeSegDetectionData', 
-                            {'min_text_size': 8,
-                            'shrink_ratio': 0.4}},
-                    {'MZMakeBorderMap': {
-                        'shrink_ratio': 0.4,
-                        'thresh_min': 0.3,
-                        'thresh_max': 0.7,
+                    #{'MakeBorderMap': 
+                    {'MZMakeBorderMap': 
+                        {'min_text_size': 8, 'shrink_ratio': 0.4}},
+                    #{'MakeShrinkMap': 
+                    {'MZMakeSegDetectionData': 
+                        {'shrink_ratio': 0.4, 'thresh_min': 0.3, 'thresh_max': 0.7,
                     }},
                     {'MZRandomColorAdjust': {'brightness': 32.0 / 255, 'saturation':0.5, 'to_numpy':True}},
-                    {'MZNormToTensor': {}},
+                    #{'MZIrregularNormToCHW': None},
+                    {'NormalizeImage': {
+                        'bgr_to_rgb': True,
+                        'is_hwc': True,
+                        'mean' : [123.675, 116.28, 103.53],
+                        'std' : [58.395, 57.12, 57.375],
+                        }
+                    },
+                    {'ToCHWImage': None}
+                    ]
+
+    elif phase=='eval':
+        pipeline = [
+                    {'DecodeImage': {'img_mode': 'BGR', 'to_float32': False}},
+                    {'DetLabelEncode': None}, 
+                    {'MZResizeByGrid': {'denominator': 32, 'transform_polys': True}}, # prev in modelzoo, it doesn't transform polys
+
+                    {'MZScalePad': {'eval_size': [736, 1280]}},                     
+                    {'NormalizeImage': {
+                        'bgr_to_rgb': True,
+                        'is_hwc': True,
+                        'mean' : [123.675, 116.28, 103.53],
+                        'std' : [58.395, 57.12, 57.375],
+                        }
+                    },
+                    {'ToCHWImage': None}
+
                     ]
     else:
-        pass
-
+        pipeline = [
+                    {'DecodeImage': {'img_mode': 'BGR', 'to_float32': False}},
+                    {'MZResizeByGrid': {'denominator': 32, 'transform_polys': True}}, 
+                    {'MZScalePad': {'eval_size': [736, 1280]}},                     
+                    {'NormalizeImage': {
+                        'bgr_to_rgb': True,
+                        'is_hwc': True,
+                        'mean' : [123.675, 116.28, 103.53],
+                        'std' : [58.395, 57.12, 57.375],
+                        }
+                    },
+                    {'ToCHWImage': None}
+                    ]
     return pipeline
 
 
@@ -285,9 +334,9 @@ if __name__=='__main__':
     #annot_file = '/Users/Samit/Data/datasets/ic15/det/train/train_icdar2015_label.txt'
     data_dir = '/data/ocr_datasets/ic15/text_localization/train'
     annot_file = '/data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt'
-    transform_dict = [
+    transform_pipeline = [
                     {'DecodeImage': {'img_mode': 'BGR', 'to_float32': False}},
-                    {'DetLabelEncode': None}, #TODO: check diff from model zoo get_boxes
+                    {'DetLabelEncode': None},
                     {'MZResizeByGrid': {'denominator': 32}},
                     {'MZRandomScaleByShortSide': {'short_side': 736}},
                     #{'EastRandomCropData': {'max_tries': 100, 'min_crop_side_ratio': 0.1, 'size': (640, 640)}}
@@ -306,10 +355,11 @@ if __name__=='__main__':
                     # reduce mean, div std
                     #{'MZNormToTensor': {}},
                     ]
-    ds = DetDataset(data_dir, annot_file, 0.5, transform_pipeline=transform_dict, is_train=True, 
-                    shuffle=False)
+    transform_pipeline = transforms_dbnet_icdar15(phase='train') 
+    ds = DetDataset(data_dir, annot_file, 0.5, transform_pipeline=transform_pipeline, is_train=True, shuffle=False)
 
-    from mindocr.utils.visualize import show_img, draw_bboxes, show_imgs
+
+    from mindocr.utils.visualize import show_img, draw_bboxes, show_imgs, recover_image
     print('num data: ', len(ds))
     for i in [223]:
         data = ds.__getitem__(i)
@@ -320,8 +370,8 @@ if __name__=='__main__':
         print(data['polys']) 
         print(data['texts']) 
         #print(data['mask']) 
-        #print(data['thresh_map']) 
-        #print(data['thresh_mask']) 
+        #print(data['threshold_map']) 
+        #print(data['threshold_mask']) 
         for k in data:
             print(k, data[k])
             if isinstance(data[k], np.ndarray):
@@ -330,13 +380,13 @@ if __name__=='__main__':
             
         #show_img(data['image'], 'BGR')
         #result_img1 = draw_bboxes(data['ori_image'], data['polys'])
-        img_polys = draw_bboxes(data['image'], data['polys'])
+        img_polys = draw_bboxes(recover_image(data['image']), data['polys'])
         #show_img(result_img2, show=False, save_path='/data/det_trans.png')
         
-        mask_polys= draw_bboxes(data['mask'], data['polys'])
-        thrmap_polys= draw_bboxes(data['thresh_map'], data['polys'])
-        thrmask_polys= draw_bboxes(data['thresh_mask'], data['polys'])
-        show_imgs([img_polys, mask_polys, thrmap_polys, thrmask_polys], show=False, save_path='/data/ocr_ic15_debug.png')
+        mask_polys= draw_bboxes(data['shrink_mask'], data['polys'])
+        thrmap_polys= draw_bboxes(data['threshold_map'], data['polys'])
+        thrmask_polys= draw_bboxes(data['threshold_mask'], data['polys'])
+        show_imgs([img_polys, mask_polys, thrmap_polys, thrmask_polys], show=False, save_path='/data/ocr_ic15_debug2.png')
         
         # TODO: check transformed image and label correctness
         
