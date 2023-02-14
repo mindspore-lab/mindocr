@@ -115,10 +115,9 @@ class DetDataset(object):
     The annotaiton format is required to aligned to paddle, which can be done using the `converter.py` script.
 
     Args:
-        dataset_config: dict with the following keys, 
-            - data_dir, Required
-            - label_file_list, Required
-            - shuffle, Optional, if not given, shuffle = is_train
+        data_dir, Required
+        label_file_list, Required
+        shuffle, Optional, if not given, shuffle = is_train
         transform_pipeline: list of dict, key - transform class name, value - a dict of param config.
                     e.g., [{'DecodeImage': {'img_mode': 'BGR', 'channel_first': False}}]
             -       if None, default transform pipeline for text detection will be taken.
@@ -131,7 +130,8 @@ class DetDataset(object):
             polys,
             texts,
             ignore_tags, # 
-            mask, binary mask for text region
+            shrink_mask, binary mask for text region
+            shrink_map, 
             threshold_mask, 
             threshold_map, threshold map
 
