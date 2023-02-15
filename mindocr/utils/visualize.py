@@ -2,8 +2,9 @@ import cv2
 import numpy as np
 from typing import Union, List
 import matplotlib.pyplot as plt
+from mindcv.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 
-def show_img(img: np.array, img_mode='BGR', title='img'):
+def show_img(img: np.array, img_mode='BGR', title='img', show=True, save_path=None):
     color = (len(img.shape) == 3 and img.shape[-1] == 3)
     if img_mode == 'BGR':
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -11,9 +12,12 @@ def show_img(img: np.array, img_mode='BGR', title='img'):
     plt.figure()
     plt.title('{}_{}'.format(title, 0))
     plt.imshow(img, cmap=None if color else 'gray')
-    plt.show()
+    if show:
+        plt.show()
+    if save_path is not None:
+        plt.savefig(save_path, bbox_inches='tight', dpi=300)
 
-def show_imgs(imgs: List[np.array], img_mode='BGR', title='img'):
+def show_imgs(imgs: List[np.array], img_mode='BGR', title='img', show=True, save_path=None):
     #if len(imgs.shape) not in [2, 4]:
     #    imgs = np.expand_dims(imgs, axis=0)
     plt.figure()
@@ -25,7 +29,11 @@ def show_imgs(imgs: List[np.array], img_mode='BGR', title='img'):
         plt.subplot(num_images, 1, i+1)
         plt.title('{}_{}'.format(title, i))
         plt.imshow(img, cmap=None if color else 'gray')
-    plt.show()
+    if show:
+        plt.show()
+
+    if save_path is not None:
+        plt.savefig(save_path, bbox_inches='tight', dpi=300)
 
 def draw_bboxes(image: Union[str, np.array], bboxes: np.array, color=(255, 0, 0), thickness=2):
     ''' image can be str or np.array for image in 'BGR' colorm mode. '''
@@ -39,3 +47,26 @@ def draw_bboxes(image: Union[str, np.array], bboxes: np.array, color=(255, 0, 0)
         box = box.astype(int)
         cv2.polylines(image, [box], True, color, thickness)
     return image 
+
+def recover_image(img, mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD, is_chw=True, to_bgr=True):
+    ''' 
+    recover normalized image for visualization
+    img: must be in rgb mode'''
+    if img.dtype == 'uint8':
+        return img
+
+    if is_chw: 
+        img = img.transpose((1, 2, 0))
+
+    mean = np.array(mean, dtype=np.float32)
+    std = np.array(std, dtype=np.float32)
+    
+    img = (img * std) + mean
+
+    if to_bgr: 
+        img = img[..., [2,1,0]]
+    img = img.astype(np.uint8) 
+
+    #print(img.max(), img.min())
+    return img
+

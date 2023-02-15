@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 from __future__ import division
 
+from typing import List
+import json
 import cv2
 import math
 import pyclipper
@@ -8,9 +10,13 @@ from shapely.geometry import Polygon
 import numpy as np
 from PIL import Image
 
-from mindcv.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
-from .random_crop_data import EastRandomCropData
+from mindocr.data.transforms.iaa_augment import IaaAugment
 
+from mindcv.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
+
+from mindocr.data.transforms.mz_db_transforms import MZIrregularNormToCHW, MZResizeByGrid, MZRandomScaleByShortSide, MZRandomCropData, MZMakeSegDetectionData, MZMakeBorderMap, MZRandomColorAdjust, MZScalePad
+
+from .random_crop_data import EastRandomCropData
 #IMAGENET_DEFAULT_MEAN = [0.485 * 255, 0.456 * 255, 0.406 * 255]
 #IMAGENET_DEFAULT_STD = [0.229 * 255, 0.224 * 255, 0.225 * 255]
 
@@ -261,6 +267,58 @@ class MakeShrinkMap(object):
             q = p
         return area / 2.0
 
+class DetLabelEncode(object):
+    def __init__(self, **kwargs):
+        pass
+
+    def order_points_clockwise(self, pts):
+        rect = np.zeros((4, 2), dtype="float32")
+        s = pts.sum(axis=1)
+        rect[0] = pts[np.argmin(s)]
+        rect[2] = pts[np.argmax(s)]
+        tmp = np.delete(pts, (np.argmin(s), np.argmax(s)), axis=0)
+        diff = np.diff(np.array(tmp), axis=1)
+        rect[1] = tmp[np.argmin(diff)]
+        rect[3] = tmp[np.argmax(diff)]
+        return rect
+
+    def expand_points_num(self, boxes):
+        max_points_num = 0
+        for box in boxes:
+            if len(box) > max_points_num:
+                max_points_num = len(box)
+        ex_boxes = []
+        for box in boxes:
+            ex_box = box + [box[-1]] * (max_points_num - len(box))
+            ex_boxes.append(ex_box)
+        return ex_boxes
+
+    def __call__(self, data):
+        label = data['label']
+        label = json.loads(label)
+        nBox = len(label)
+        boxes, txts, txt_tags = [], [], []
+        for bno in range(0, nBox):
+            box = label[bno]['points']
+            txt = label[bno]['transcription']
+            boxes.append(box)
+            txts.append(txt)
+            if txt in ['*', '###']:
+                txt_tags.append(True)
+            else:
+                txt_tags.append(False)
+        if len(boxes) == 0:
+            return None
+        boxes = self.expand_points_num(boxes)
+        boxes = np.array(boxes, dtype=np.float32)
+        txt_tags = np.array(txt_tags, dtype=np.bool)
+
+        data['polys'] = boxes
+        data['texts'] = txts
+        data['ignore_tags'] = txt_tags
+        return data
+
+
 
 class DecodeImage(object):
     '''
@@ -272,7 +330,7 @@ class DecodeImage(object):
         self.channel_first = channel_first
 
     def __call__(self, data):
-        # TODO: use more efficient image loader, numpy?
+        # TODO: use more efficient image loader, read binary, then decode?
         # TODO: why float32 in modelzoo. uint8 is more efficient
         
         img = cv2.imread(data['img_path'], cv2.IMREAD_COLOR if self.img_mode != 'GRAY' else cv2.IMREAD_GRAYSCALE)
@@ -286,7 +344,7 @@ class DecodeImage(object):
         if self.to_float32:
             img = img.astype('float32')
         data['image'] = img
-        data['ori_image'] = img.copy() 
+        #data['ori_image'] = img.copy() 
         return data
 
 class NormalizeImage(object):
@@ -337,27 +395,70 @@ class ToCHWImage(object):
         data['image'] = img.transpose((2, 0, 1))
         return data
 
+class FilterKeys(object):
+    ''' 
+    Args: 
+        output_keys (list): the keys in data dict that are expected to output for dataloader
+    
+    Call:
+        input: data dict
+        output: data tuple corresponding to the `output_keys` 
+    '''
+    def __init__(self, output_keys: List, **kwargs):
+        self.output_keys = output_keys
 
-def create_transforms():
+    def __call__(self, data):
+        # TOOD: add assert for inexisted keys
+        out = []
+        for k in self.output_keys:
+            assert k in data, f'key {k} does not exists in data, availabe keys are {data.keys()}'
+            out.append(data[k])
+        #data_tuple = tuple(data[k] for k in self.output_keys if )
+
+        return tuple(out)
+
+# TODO: use class with __call__, to perform transformation 
+def create_transforms(transform_pipeline, global_config=None):
     """
-    create operators based on the config
+    Create a squence of callable transforms.
 
     Args:
-        params(list): a dict list, used to create some operators
-
-
-    Return:
-        callable 
+        transform_pipeline (List): list of callable instances or dicts where each key is a transformation class name, and its value are the args. 
+            e.g. [{'DecodeImage': {'img_mode': 'BGR', 'channel_first': False}}]
+                 [DecodeImage(img_mode='BGR')]
+                    
+    Returns:
+        list of data transformation functions
     """
-    assert isinstance(op_param_list, list), ('operator config should be a list')
-    ops = []
-    for operator in op_param_list:
-        assert isinstance(operator,
-                          dict) and len(operator) == 1, "yaml format error"
-        op_name = list(operator)[0]
-        param = {} if operator[op_name] is None else operator[op_name]
+    assert isinstance(transform_pipeline, list), (f'transform_pipeline config should be a list, but {type(transform_pipeline)} detected')
 
-        op = eval(op_name)(**param)
-        ops.append(op)
-    return ops
+    transforms = []
+    for transform_config in transform_pipeline:
+        #assert isinstance(transform_config,dict) and len(transform_config) == 1, "yaml format error in transforms"
+        if isinstance(transform_config, dict): 
+            cls_name = list(transform_config.keys())[0]
+            param = {} if transform_config[cls_name] is None else transform_config[cls_name]
+            # TODO: assert undefined transform class
+            #print(cls_name)
+            transform = eval(cls_name)(**param)
+            transforms.append(transform)
+        elif callable(transform_config):
+            transforms.append(transform_config)
+        else:
+            raise TypeError('transform_config must be a dict or a callable instance')
+
+        if global_config is not None:
+            param.update(global_config)
+    return transforms
+
+def run_transforms(data, transforms=None):
+    """ transform """
+    if transforms is None:
+        transforms = []
+    for transform in transforms:
+        data = transform(data)
+        if data is None:
+            return None
+    return data
+
 
