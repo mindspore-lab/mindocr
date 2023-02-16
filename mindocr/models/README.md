@@ -16,7 +16,11 @@
 
 	b. Config the architecture in a yaml file. Please follow the [yaml format guideline](#format-guideline-for-yaml-file) . It is to allows users to modify a base architecture quickly in yaml file. 
 
-4. Test it, by running `test_model.py`
+4. To verify the correctness of the written model, please run `test_model.py`
+
+``` shell
+python tests/ut/test_model.py --config /path/to/yaml_config_file
+```
 	
 
 ## Format Guideline for Writing a New Module
@@ -45,7 +49,7 @@
 * Class naming: **{HeadName}** e.g. `class DBHead`
 * Class `__init__` args: MUST contain `in_channels` param as the first position, e.g. `__init__(self, in_channels, out_channels=2, **kwargs)`.  
 * Class `construct` args: feature (Tensor)
-* Class `construct` return: no limitation, define by model need, and match the loss func 
+* Class `construct` return: prediction (dict), e.g., {'maps': out, 'score': score},  which should match the loss function.
 
 
 **Note:** if there is no neck in the model architecture like crnn, you can skip writing for neck. `BaseModel` will select the last feature of the features (List(Tensor)) output by Backbone, and forward it Head module.
