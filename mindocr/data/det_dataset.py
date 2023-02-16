@@ -1,17 +1,13 @@
 from __future__ import absolute_import
 from __future__ import division
 
-import sys
-sys.path.append('.')
-
 from typing import Union, List
 import random
 import os
 import numpy as np
 from addict import Dict
 
-from mindocr.data.transforms.transforms_factory import create_transforms
-from mindocr.data.transforms.transforms_factory import run_transforms
+from .transforms.transforms_factory import create_transforms, run_transforms
 
 # TODO: inherit from BaseDataset
 class DetDataset(object):
@@ -259,48 +255,3 @@ def transforms_dbnet_icdar15(phase='train'):
                     {'ToCHWImage': None}
                     ]
     return pipeline
-
-
-
-if __name__=='__main__':
-    #data_dir = '/Users/Samit/Data/datasets/ic15/det/train'
-    #annot_file = '/Users/Samit/Data/datasets/ic15/det/train/train_icdar2015_label.txt'
-    data_dir = '/data/ocr_datasets/ic15/text_localization/train'
-    annot_file = '/data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt'
-    transform_pipeline = transforms_dbnet_icdar15(phase='train') 
-    ds = DetDataset(data_dir, annot_file, 0.5, transform_pipeline=transform_pipeline, is_train=True, shuffle=False)
-
-
-    from mindocr.utils.visualize import show_img, draw_bboxes, show_imgs, recover_image
-    print('num data: ', len(ds))
-    for i in [223]:
-        data_tuple = ds.__getitem__(i)
-        
-        # recover data from tuple to dict
-        data = {k:data_tuple[i] for i, k in enumerate(ds.get_column_names())}
-
-        print(data.keys())
-        #print(data['image'])
-        print(data['img_path'])
-        print(data['image'].shape)
-        print(data['polys']) 
-        print(data['texts']) 
-        #print(data['mask']) 
-        #print(data['threshold_map']) 
-        #print(data['threshold_mask']) 
-        for k in data:
-            print(k, data[k])
-            if isinstance(data[k], np.ndarray):
-                print(data[k].shape)
-            
-        #show_img(data['image'], 'BGR')
-        #result_img1 = draw_bboxes(data['ori_image'], data['polys'])
-        img_polys = draw_bboxes(recover_image(data['image']), data['polys'])
-        #show_img(result_img2, show=False, save_path='/data/det_trans.png')
-        
-        mask_polys= draw_bboxes(data['shrink_mask'], data['polys'])
-        thrmap_polys= draw_bboxes(data['threshold_map'], data['polys'])
-        thrmask_polys= draw_bboxes(data['threshold_mask'], data['polys'])
-        show_imgs([img_polys, mask_polys, thrmap_polys, thrmask_polys], show=False, save_path='/data/ocr_ic15_debug2.png')
-        
-        # TODO: check transformed image and label correctness

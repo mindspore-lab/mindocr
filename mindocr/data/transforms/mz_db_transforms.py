@@ -420,7 +420,7 @@ class MZMakeSegDetectionData:
                 shrunk = np.array(shrunk[0]).reshape(-1, 2)
                 cv2.fillPoly(gt[0], [shrunk.astype(np.int32)], 1)
         
-        data['mask'] = mask
+        data['shrink_mask'] = mask
         return data
 
     def validate_polygons(self, polygons, ignore_tags, h, w):

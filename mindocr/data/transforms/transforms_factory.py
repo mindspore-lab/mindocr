@@ -10,11 +10,11 @@ from shapely.geometry import Polygon
 import numpy as np
 from PIL import Image
 
-from mindocr.data.transforms.iaa_augment import IaaAugment
+from .iaa_augment import IaaAugment
 
 from mindcv.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 
-from mindocr.data.transforms.mz_db_transforms import MZIrregularNormToCHW, MZResizeByGrid, MZRandomScaleByShortSide, MZRandomCropData, MZMakeSegDetectionData, MZMakeBorderMap, MZRandomColorAdjust, MZScalePad
+from .mz_db_transforms import MZIrregularNormToCHW, MZResizeByGrid, MZRandomScaleByShortSide, MZRandomCropData, MZMakeSegDetectionData, MZMakeBorderMap, MZRandomColorAdjust, MZScalePad
 
 from .random_crop_data import EastRandomCropData
 #IMAGENET_DEFAULT_MEAN = [0.485 * 255, 0.456 * 255, 0.406 * 255]
