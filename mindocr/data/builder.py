@@ -12,29 +12,29 @@ from mindocr.data.transforms.transforms_factory import create_transforms
 support_dataset_types = ['DetDataset', 'RecDataset']
 
 
-def build_dataset(dataset_config: dict, 
-                    loader_config: dict, 
-                    num_shards=None, 
-                    shard_id=None, 
-                    is_train=True, 
+def build_dataset(dataset_config: dict,
+                    loader_config: dict,
+                    num_shards=None,
+                    shard_id=None,
+                    is_train=True,
                     **kwargs):
     '''
     Args:
         dataset_config (dict): config dict for the dataset, required keys:
             type: dataset type, 'DetDataset', 'RecDataset'
-            image_dir: directory of data, 
+            image_dir: directory of data,
                 image folder path for detection task
                 lmdb folder path for lmdb dataset
                 co
             annot_file (optional for recognition): annotation file path
             transform_pipeline (list[dict]): config dict for image and label transformation
-            
+
     Return:
         data loader, for feeding data batch to network
     '''
     # create transforms
     #transforms = create_transforms(transform_config)
-    
+
     # build datasets
     dataset_class_name = dataset_config.pop('type')
     assert dataset_class_name in support_dataset_types, "Invalid dataset name"
@@ -48,15 +48,15 @@ def build_dataset(dataset_config: dict,
     # create batch loader
     dataset_column_names = dataset.get_column_names()
     print('dataset columns: ', dataset_column_names)
-    ds = ms.dataset.GeneratorDataset(dataset, 
+    ds = ms.dataset.GeneratorDataset(dataset,
                         column_names=dataset_column_names,
 			num_parallel_workers=loader_config['num_workers'],
-                        num_shards=num_shards, 
+                        num_shards=num_shards,
                         shard_id=shard_id,
                         shuffle=loader_config['shuffle'])
-    
+
     # TODO: set default value for drop_remainder and max_rowsize
-    dataloader = ds.batch(loader_config['batch_size'], 
+    dataloader = ds.batch(loader_config['batch_size'],
                     #per_batch_map=,
                     #input_columns=dataset_column_names,
                     drop_remainder=loader_config['drop_remainder'],
@@ -67,7 +67,7 @@ def build_dataset(dataset_config: dict,
 
 
 if __name__ == "__main__":
-    # det 
+    # det
     data_dir = '/data/ocr_datasets/ic15/text_localization/train'
     annot_file = '/data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt'
 
@@ -80,8 +80,8 @@ if __name__ == "__main__":
             'transform_pipeline':
                 [
                     {'DecodeImage': {'img_mode': 'BGR', 'to_float32': False}},
-                    {'MZResizeByGrid': {'denominator': 32, 'transform_polys': True}}, 
-                    {'MZScalePad': {'eval_size': [736, 1280]}},                     
+                    {'MZResizeByGrid': {'denominator': 32, 'transform_polys': True}},
+                    {'MZScalePad': {'eval_size': [736, 1280]}},
                     {'NormalizeImage': {
                         'bgr_to_rgb': True,
                         'is_hwc': True,
@@ -101,8 +101,8 @@ if __name__ == "__main__":
             'max_rowsize': 6,
             'num_workers': 2,
             }
-    
-    dl = build_dataset(dataset_config, loader_config, is_train=True) 
+
+    dl = build_dataset(dataset_config, loader_config, is_train=True)
 
     #batch = next(dl.create_tuple_iterator())
     batch = next(dl.create_dict_iterator())
