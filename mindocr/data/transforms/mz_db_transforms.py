@@ -96,11 +96,11 @@ class MZScalePad():
 #TODO: This can be problematic. In ModelZoo original = resize(img), (720, 1280) resized to (736, 1280), but polys are not parsed and transformed. Fixing dataset bugs?
 class MZResizeByGrid(object):
     '''
-    resize image by ratio so that it's shape is align to grid of denominator
+    resize image by ratio so that it's shape is align to grid of divisor
     required key in data: img in shape of (h, w, c) 
     '''
-    def __init__(self, denominator=32, transform_polys=True, is_train=True):
-        self.denominator = denominator
+    def __init__(self, divisor=32, transform_polys=True, is_train=True):
+        self.divisor = divisor
         self.is_train = is_train
         self.transform_polys = transform_polys
 
@@ -111,9 +111,9 @@ class MZResizeByGrid(object):
         else:
             polys = None
         
-        denominator = self.denominator
-        w_scale = math.ceil(img.shape[1] / denominator) * denominator / img.shape[1]
-        h_scale = math.ceil(img.shape[0] / denominator) * denominator / img.shape[0]
+        divisor = self.divisor
+        w_scale = math.ceil(img.shape[1] / divisor) * divisor / img.shape[1]
+        h_scale = math.ceil(img.shape[0] / divisor) * divisor / img.shape[0]
         img = cv2.resize(img, dsize=None, fx=w_scale, fy=h_scale)
         data['image'] = img
 
@@ -330,7 +330,7 @@ class MZRandomScaleByShortSide():
         polys, max_points = solve_polys(polys)
         h, w = img.shape[0:2]
 
-        print(h, w, polys, max_points)
+        #print(h, w, polys, max_points)
 
         # polys -> polys' scale w.r.t original.
         polys_scale = []
@@ -360,7 +360,7 @@ class MZRandomScaleByShortSide():
         #new_polys = (polys_scale * ([img.shape[1], img.shape[0]] * max_points)).reshape((polys.shape[0], polys.shape[1] // 2, 2))
 
         new_polys = polys_scale * ([img.shape[1], img.shape[0]])
-        print(new_polys.shape, )
+        #print(new_polys.shape, )
 
         data['image'] = img
         data['polys'] = new_polys
@@ -387,7 +387,8 @@ class MZMakeSegDetectionData:
         required keys:
             image, polys, ignore_tags
         added keys:
-            mask
+            shrink_map: text region bit map
+            shrink_mask: ignore mask, pexels where value is 1 indicates no contribution to loss
         """
         img = data['image']
         polys = data['polys']
@@ -420,6 +421,7 @@ class MZMakeSegDetectionData:
                 shrunk = np.array(shrunk[0]).reshape(-1, 2)
                 cv2.fillPoly(gt[0], [shrunk.astype(np.int32)], 1)
         
+        data['shrink_map'] = gt
         data['shrink_mask'] = mask
         return data
 

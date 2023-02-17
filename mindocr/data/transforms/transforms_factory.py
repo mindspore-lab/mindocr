@@ -318,7 +318,73 @@ class DetLabelEncode(object):
         data['ignore_tags'] = txt_tags
         return data
 
+class RecLabelEncode(object):
+    """ Convert between text-label and text-index """
 
+    def __init__(self,
+                 max_text_length,
+                 character_dict_path=None,
+                 use_space_char=False,
+                 lower=False):
+
+        self.max_text_len = max_text_length
+        self.beg_str = "sos"
+        self.end_str = "eos"
+        self.lower = lower
+
+        if character_dict_path is None:
+            logger = get_logger()
+            logger.warning(
+                "The character_dict_path is None, model can only recognize number and lower letters"
+            )
+            self.character_str = "0123456789abcdefghijklmnopqrstuvwxyz"
+            dict_character = list(self.character_str)
+            self.lower = True
+        else:
+            self.character_str = []
+            with open(character_dict_path, "rb") as fin:
+                lines = fin.readlines()
+                for line in lines:
+                    line = line.decode('utf-8').strip("\n").strip("\r\n")
+                    self.character_str.append(line)
+            if use_space_char:
+                self.character_str.append(" ")
+            dict_character = list(self.character_str)
+        dict_character = self.add_special_char(dict_character)
+        self.dict = {}
+        for i, char in enumerate(dict_character):
+            self.dict[char] = i
+        self.character = dict_character
+
+class CTCLabelEncode(RecLabelEncode):
+    """ Convert between text-label and text-index """
+
+    def __init__(self,
+                 max_text_length,
+                 character_dict_path=None,
+                 use_space_char=False,
+                 **kwargs):
+        super().__init__(
+            max_text_length, character_dict_path, use_space_char)
+
+    def __call__(self, data):
+        text = data['label']
+        text = self.encode(text)
+        if text is None:
+            return None
+        data['length'] = np.array(len(text))
+        text = text + [0] * (self.max_text_len - len(text))
+        data['label'] = np.array(text)
+
+        label = [0] * len(self.character)
+        for x in text:
+            label[x] += 1
+        data['label_ace'] = np.array(label)
+        return data
+
+    def add_special_char(self, dict_character):
+        dict_character = ['blank'] + dict_character
+        return dict_character 
 
 class DecodeImage(object):
     '''
@@ -462,3 +528,85 @@ def run_transforms(data, transforms=None):
     return data
 
 
+def transforms_dbnet_icdar15(phase='train'):
+    '''
+    Get pre-defined transform config for dbnet on icdar15 dataset.
+    Args:
+        phase: train, eval, infer 
+    Returns:
+        list of dict for data transformation pipeline, which can be convert to functions by 'create_transforms' 
+    '''
+    if phase == 'train':
+        pipeline = [
+                    {'DecodeImage': {
+                        'img_mode': 'BGR', 
+                        'to_float32': False}},
+                    {'DetLabelEncode': None}, 
+                    {'MZResizeByGrid': {'denominator': 32, 'transform_polys': True}}, # prev in modelzoo, it doesn't transform polys
+                    {'MZRandomScaleByShortSide': {'short_side': 736}},
+                    {'IaaAugment': {'augmenter_args':
+                        [{'type': 'Affine',
+                            'args': {'rotate': [-10, 10]}
+                        }, 
+                        {'type': 'Fliplr',
+                            'args': {
+                                'p': 0.5}
+                        },
+                        ]}
+                    },
+                    {'MZRandomCropData': 
+                            {'max_tries':100, 
+                            'min_crop_side_ratio': 0.1,
+                            'crop_size': (640, 640)}},
+                    {'MZResizeByGrid': {'denominator': 32, 'transform_polys': True}},
+                    #{'MakeShrinkMap': 
+                    {'MZMakeSegDetectionData': 
+                        {'min_text_size': 8, 'shrink_ratio': 0.4}},
+                    #{'MakeBorderMap': 
+                    {'MZMakeBorderMap': 
+                        {'shrink_ratio': 0.4, 'thresh_min': 0.3, 'thresh_max': 0.7,
+                    }},
+                    {'MZRandomColorAdjust': {'brightness': 32.0 / 255, 'saturation':0.5, 'to_numpy':True}},
+                    #{'MZIrregularNormToCHW': None},
+                    {'NormalizeImage': {
+                        'bgr_to_rgb': True,
+                        'is_hwc': True,
+                        'mean' : [123.675, 116.28, 103.53],
+                        'std' : [58.395, 57.12, 57.375],
+                        }
+                    },
+                    {'ToCHWImage': None}
+                    ]
+
+    elif phase=='eval':
+        pipeline = [
+                    {'DecodeImage': {'img_mode': 'BGR', 'to_float32': False}},
+                    {'DetLabelEncode': None}, 
+                    {'MZResizeByGrid': {'denominator': 32, 'transform_polys': True}}, # prev in modelzoo, it doesn't transform polys
+
+                    {'MZScalePad': {'eval_size': [736, 1280]}},                     
+                    {'NormalizeImage': {
+                        'bgr_to_rgb': True,
+                        'is_hwc': True,
+                        'mean' : [123.675, 116.28, 103.53],
+                        'std' : [58.395, 57.12, 57.375],
+                        }
+                    },
+                    {'ToCHWImage': None}
+
+                    ]
+    else:
+        pipeline = [
+                    {'DecodeImage': {'img_mode': 'BGR', 'to_float32': False}},
+                    {'MZResizeByGrid': {'denominator': 32, 'transform_polys': True}}, 
+                    {'MZScalePad': {'eval_size': [736, 1280]}},                     
+                    {'NormalizeImage': {
+                        'bgr_to_rgb': True,
+                        'is_hwc': True,
+                        'mean' : [123.675, 116.28, 103.53],
+                        'std' : [58.395, 57.12, 57.375],
+                        }
+                    },
+                    {'ToCHWImage': None}
+                    ]
+    return 
