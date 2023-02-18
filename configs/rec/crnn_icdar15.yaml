@@ -1,0 +1,87 @@
+system:
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: False 
+  amp_level: 'O0'
+  seed: 42
+
+common:
+  character_dict_path: &character_dict_path mindocr/utils/dict/en_dict.txt
+  max_text_length: &max_text_length 25
+  infer_mode: &infer_mode False
+  use_space_char: &use_space_char False
+
+model:
+  type: rec
+  transform: null
+  backbone:
+    name: mindcv.resnet50
+    pretrained: False
+  neck:
+    name: LSTM
+    out_channels: 256
+    bias: False
+    use_asf: False # enable it for DB++ 
+  head:
+    name: CTCHead 
+    k: 50
+    bias: False
+    adaptive: True
+    serial: False
+
+loss:
+  name: L1BalanceCELoss  
+  eps: 0.000001 
+  l1_scale: 10
+  bce_scale: 5 
+  bce_replace: bceloss
+
+scheduler: 
+  scheduler: "cosine_decay"
+  min_lr: 0.00001
+  lr: 0.001
+  num_epochs: 300
+  warmup_epochs: 0
+  decay_epochs: 280
+
+optimizer:
+  opt: "momentum"
+  filter_bias_and_bn: True
+  momentum: 0.9
+  weight_decay: 0.0001
+  loss_scale: 1.0
+  use_nesterov: False
+
+train:
+  dataset_sink_mode: False
+  dataset:
+    type: RecDataset
+    data_dir: /data/ocr_datasets/ic15/word_recognition/ch4_training_word_images_gt
+    label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
+    sample_ratios: [1.0]
+    shuffle: False
+    transform_pipeline:
+      - DecodeImage: 
+          img_mode: BGR
+          to_float32: False
+      - CTCLabelEncode: 
+          max_text_length: *max_text_length 
+          character_dict_path: *character_dict_path
+          use_space_char: *use_space_char
+      - NormalizeImage: 
+          bgr_to_rgb: True
+          is_hwc: True
+          mean : [123.675, 116.28, 103.53]
+          std : [58.395, 57.12, 57.375]
+      - ToCHWImage: 
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
+    output_keys: ['image', 'label', 'length'] #'img_path'] 
+    num_keys_to_net: 1 # num inputs for network forward func
+    #keys_for_loss: 4 # num labels for loss func
+     
+  loader:
+      shuffle: True # TODO: tbc
+      batch_size: 16
+      drop_remainder: True
+      max_rowsize: 6
+      num_workers: 4
+
