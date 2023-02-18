@@ -300,9 +300,15 @@ class MakeShrinkMap(object):
 
 
 # random crop algorithm similar to https://github.com/argman/EAST
+# TODO: check randomness, seems to crop the same region every time
 class EastRandomCropData():
     '''
     Code adopted from https://github1s.com/WenmuZhou/DBNet.pytorch/blob/master/data_loader/modules/random_crop_data.py
+
+    Randomly select a region and crop images to a target size and make sure
+    to contain text region. This transform may break up text instances, and for
+    broken text instances, we will crop it's bbox and polygon coordinates. This
+    transform is recommend to be used in segmentation-based network.
     '''
     def __init__(self, size=(640, 640), max_tries=50, min_crop_side_ratio=0.1, require_original_image=False, keep_ratio=True):
         self.size = size

@@ -17,18 +17,26 @@ __all__ = ['DecodeImage', 'NormalizeImage', 'ToCHWImage', 'PackLoaderInputs']
 
 class DecodeImage(object):
     '''
-    img_mode: 'BGR', 'RGB', 'GRAY'
+    img_mode (str): The channel order of the output, 'BGR' and 'RGB'. Default to 'BGR'.
+    channel_first (bool): if True, image shpae is CHW. If False, HWC. Default to False
+
     '''
-    def __init__(self, img_mode='BGR', channel_first=False, to_float32=False, **kwargs):
+    def __init__(self, img_mode='BGR', channel_first=False, to_float32=False, ignore_orientation=False, **kwargs):
         self.img_mode = img_mode
         self.to_float32 = to_float32
         self.channel_first = channel_first
+        self.flag = cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR if ignore_orientation else cv2.IMREAD_COLOR
 
     def __call__(self, data):
         # TODO: use more efficient image loader, read binary, then decode?
         # TODO: why float32 in modelzoo. uint8 is more efficient
 
-        img = cv2.imread(data['img_path'], cv2.IMREAD_COLOR if self.img_mode != 'GRAY' else cv2.IMREAD_GRAYSCALE)
+        #img = cv2.imread(data['img_path'], self.flag)
+        # read from buffer is faster?
+        with open(data['img_path'], 'rb') as f:
+                img = f.read()
+        img = np.frombuffer(img, dtype='uint8')
+        img = cv2.imdecode(img, self.flag)
 
         if self.img_mode == 'RGB':
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
