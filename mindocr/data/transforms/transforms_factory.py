@@ -356,6 +356,34 @@ class RecLabelEncode(object):
             self.dict[char] = i
         self.character = dict_character
 
+    def add_special_char(self, dict_character):
+        return dict_character
+
+    def encode(self, text):
+        """convert text-label into text-index.
+        input:
+            text: text labels of each image. [batch_size]
+
+        output:
+            text: concatenated text index for CTCLoss.
+                    [sum(text_lengths)] = [text_index_0 + text_index_1 + ... + text_index_(n - 1)]
+            length: length of each text. [batch_size]
+        """
+        if len(text) == 0 or len(text) > self.max_text_len:
+            return None
+        if self.lower:
+            text = text.lower()
+        text_list = []
+        for char in text:
+            if char not in self.dict:
+                # logger = get_logger()
+                # logger.warning('{} is not in dict'.format(char))
+                continue
+            text_list.append(self.dict[char])
+        if len(text_list) == 0:
+            return None
+        return text_list
+
 class CTCLabelEncode(RecLabelEncode):
     """ Convert between text-label and text-index """
 
@@ -500,21 +528,23 @@ def create_transforms(transform_pipeline, global_config=None):
 
     transforms = []
     for transform_config in transform_pipeline:
-        #assert isinstance(transform_config,dict) and len(transform_config) == 1, "yaml format error in transforms"
         if isinstance(transform_config, dict): 
-            cls_name = list(transform_config.keys())[0]
-            param = {} if transform_config[cls_name] is None else transform_config[cls_name]
+            assert len(transform_config) == 1, "yaml format error in transforms"
+            trans_name = list(transform_config.keys())[0]
+            param = {} if transform_config[trans_name] is None else transform_config[trans_name]
+            #  TODO: not each transform needs global config
+            if global_config is not None:
+                param.update(global_config)
             # TODO: assert undefined transform class
-            #print(cls_name)
-            transform = eval(cls_name)(**param)
+
+            print(trans_name, param)
+            transform = eval(trans_name)(**param)
             transforms.append(transform)
         elif callable(transform_config):
             transforms.append(transform_config)
         else:
             raise TypeError('transform_config must be a dict or a callable instance')
-
-        if global_config is not None:
-            param.update(global_config)
+        print(global_config)
     return transforms
 
 def run_transforms(data, transforms=None):

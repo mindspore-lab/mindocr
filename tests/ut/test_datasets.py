@@ -8,7 +8,9 @@ import numpy as np
 import mindspore as ms
 import mindocr
 from mindocr.data import build_dataset
-from mindocr.data.det_dataset import DetDataset, transforms_dbnet_icdar15 
+from mindocr.data.det_dataset import DetDataset
+from mindocr.data.transforms.transforms_factory import transforms_dbnet_icdar15 
+from mindocr.data.rec_dataset import RecDataset 
 from mindspore import load_checkpoint, load_param_into_net
 
 #@pytest.mark.parametrize('model_name', all_model_names)
@@ -26,7 +28,7 @@ def test_build_dataset():
             'transform_pipeline':
                 [
                     {'DecodeImage': {'img_mode': 'BGR', 'to_float32': False}},
-                    {'MZResizeByGrid': {'denominator': 32, 'transform_polys': True}},
+                    {'MZResizeByGrid': {'divisor': 32, 'transform_polys': True}},
                     {'MZScalePad': {'eval_size': [736, 1280]}},
                     {'NormalizeImage': {
                         'bgr_to_rgb': True,
@@ -60,7 +62,7 @@ def test_det_dataset():
     data_dir = '/data/ocr_datasets/ic15/text_localization/train'
     annot_file = '/data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt'
     transform_pipeline = transforms_dbnet_icdar15(phase='train') 
-    ds = DetDataset(data_dir, annot_file, 0.5, transform_pipeline=transform_pipeline, is_train=True, shuffle=False)
+    ds = DetDataset(is_train=True, data_dir=data_dir, annot_files=annot_file, sample_ratios=0.5, transform_pipeline=transform_pipeline, shuffle=False)
 
 
     from mindocr.utils.visualize import show_img, draw_bboxes, show_imgs, recover_image
@@ -97,6 +99,23 @@ def test_det_dataset():
         
         # TODO: check transformed image and label correctness
 
+def test_rec_dataset(visualize=True):
+    yaml_fp = 'configs/rec/crnn_icdar15.yaml'
+    with open(yaml_fp) as fp:
+        cfg = yaml.safe_load(fp)    
+    dl = build_dataset(
+            cfg['train']['dataset'], 
+            cfg['train']['loader'],
+            #cfg['common'],
+            is_train=True)
+
+    batch = next(dl.create_dict_iterator())
+    print(len(batch))
+    for item in batch:
+        print(item.shape)
+
+
 if __name__ == '__main__':
-    test_build_dataset()
-    test_det_dataset()
+    #test_build_dataset()
+    #test_det_dataset()
+    test_rec_dataset()

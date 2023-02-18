@@ -10,7 +10,7 @@ support_dataset_types = ['BaseDataset', 'DetDataset', 'RecDataset']
 
 def build_dataset(dataset_config: dict,
                     loader_config: dict,
-                    common_config: dict=None,
+                    #common_config: dict=None,
                     num_shards=None,
                     shard_id=None,
                     is_train=True,
@@ -48,7 +48,7 @@ def build_dataset(dataset_config: dict,
 
     #print('dataset config', dataset_config)
     
-    dataset_args = dict(is_train=is_train, **dataset_config, global_config=common_config)
+    dataset_args = dict(is_train=is_train, **dataset_config) #, global_config=common_config)
     dataset = dataset_class(**dataset_args)
     #dataset = dataset_class(dataset_config['data_dir'], dataset_config['label_files'], dataset_config['sample_ratios'], dataset_config['shuffle'], dataset_config['transforms'], is_train=is_train, exclude_output_columns=dataset_config['exclude_output_columns'])
 

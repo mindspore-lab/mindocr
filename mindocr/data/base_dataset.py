@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+#from __future__ import absolute_import
 from __future__ import division
 
 from typing import Union, List
@@ -50,10 +50,11 @@ class BaseDataset(object):
             shuffle: bool = None,
             transform_pipeline: List[dict] = None, 
             output_keys: List[str] = None,
-            global_config: dict = None,
+            #global_config: dict = None,
             **kwargs
             ):
         self.data_dir = data_dir
+        assert isinstance(shuffle, bool), f'type error of {shuffle}'
         shuffle = shuffle if shuffle is not None else is_train
         
         # load data
@@ -63,7 +64,7 @@ class BaseDataset(object):
 
         # create transform
         if transform_pipeline is not None:
-            self.transforms = create_transforms(transform_pipeline, global_config=global_config)
+            self.transforms = create_transforms(transform_pipeline) #, global_config=global_config)
         else:
             raise ValueError('No transform pipeline is specified!')
 
@@ -117,17 +118,16 @@ class BaseDataset(object):
         # read annotation files
         data_lines = []
         for idx, annot_file in enumerate(label_files):
-            with open(annot_file, "r") as f:
+            with open(annot_file, "r", encoding='utf-8') as f:
                 lines = f.readlines()
-                if shuffle: #or sample_ratios[idx] < 1.0
-                    # TODO: control random seed outside
-                    #random.seed(self.seed)
+                if shuffle:
                     lines = random.sample(lines,
                                           round(len(lines) * sample_ratios[idx]))
                 else:
                     lines = lines[:round(len(lines) * sample_ratios[idx])]
                 data_lines.extend(lines)
-
+                print(lines[:5])
+        # print(data_lines)
         # parse each line of annotation
         data_list = []
         for data_line in data_lines:
@@ -143,6 +143,9 @@ class BaseDataset(object):
         data = {}
         file_name, annot_str = data_line.strip().split('\t')
         img_path= os.path.join(self.data_dir, file_name)
+
+        #if os.path.exists(img_path):
+        #    print('------->', img_path)
         assert os.path.exists(img_path), "{} does not exist!".format(img_path)
 
         data['img_path'] = img_path 

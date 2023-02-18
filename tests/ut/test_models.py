@@ -17,23 +17,41 @@ print('Registered models: ', all_model_names)
 all_yamls = glob.glob('configs/*/*.yaml') 
 print('All config yamls: ', all_yamls)
 
-def _infer_dummy(model):
+def _infer_dummy(model, verbose=True):
     import mindspore as ms
     import time
     import numpy as np
 
     bs = 8
-    x = ms.Tensor(np.random.rand(bs, 3, 640, 640), dtype=ms.float32)
+    c, h, w = 3, 640, 640
+    print(f'net input shape: ', bs, c, h, w)
+    x = ms.Tensor(np.random.rand(bs, c, h, w), dtype=ms.float32)
     ms.set_context(mode=ms.PYNATIVE_MODE)
 
     def predict(model, x):
         start = time.time()
         y = model(x)
         print(time.time()-start)
-        print(y.shape)
         return y
 
-    out = predict(model, x)
+    def predict_parts(model, x):
+        bout = model.backbone(x)
+        print('backbone output feature shapes: ')
+        for ftr in bout:
+            print('\t', ftr.shape)
+        nout = model.neck(bout)
+        print('neck output shape: ', nout.shape)
+        hout = model.head(nout)
+        print('head output shape: ')
+        for k in hout:
+            print('\r', k, hout[k].shape)
+
+        return hout
+        
+    if verbose:
+        out = predict_parts(model, x)
+    else:
+        out = predict(model, x)
     return out
 
 @pytest.mark.parametrize('model_name', all_model_names)
@@ -80,7 +98,12 @@ def test_model_by_yaml(yaml_fp='configs/det/db_r50_icdar15.yaml'):
     '''
   
 if __name__ == '__main__':    
+    import argparse
+    parser = argparse.ArgumentParser(description='model config', add_help=False)
+    parser.add_argument('-c', '--config', type=str, default='configs/det/db_r50_icdar15.yaml',
+                               help='YAML config file specifying default arguments (default='')')
+    args = parser.parse_args()
     #test_registry()
     #test_backbone()
-    test_model_by_name('dbnet_r50')
-    test_model_by_yaml('configs/det/db_r50_icdar15.yaml')
+    #test_model_by_name('dbnet_r50')
+    test_model_by_yaml(args.config)
