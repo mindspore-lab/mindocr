@@ -49,8 +49,10 @@ train:
   dataset_sink_mode: False
   dataset:
     type: DetDataset
-    data_dir: /data/ocr_datasets/ic15/text_localization/train
-    label_files: /data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt
+    #data_dir: /data/ocr_datasets/ic15/text_localization/train
+    #label_files: /data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt
+    data_dir: /Users/Samit/Data/datasets/ic15/det/train
+    label_files: /Users/Samit/Data/datasets/ic15/det/train/train_icdar2015_label.txt
     sample_ratios: [1.0]
     shuffle: True
     transform_pipeline:
@@ -106,5 +108,5 @@ train:
       batch_size: 16
       drop_remainder: True
       max_rowsize: 6
-      num_workers: 4
+      num_workers: 2
 

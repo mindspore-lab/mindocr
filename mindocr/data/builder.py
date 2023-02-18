@@ -3,8 +3,6 @@ import mindspore as ms
 from addict import Dict
 from .det_dataset import DetDataset
 from .rec_dataset import RecDataset
-#from transforms.transforms_factory import create_transforms
-#from .rec_dataset import RecLMDBDataset, RecTextDataset
 
 support_dataset_types = ['BaseDataset', 'DetDataset', 'RecDataset']
 

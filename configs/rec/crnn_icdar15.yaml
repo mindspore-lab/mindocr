@@ -55,8 +55,10 @@ train:
   dataset_sink_mode: False
   dataset:
     type: RecDataset
-    data_dir: /data/ocr_datasets/ic15/word_recognition/ch4_training_word_images_gt
-    label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
+    data_dir: /Users/Samit/Data/datasets/ic15/rec/ch4_training_word_images_gt
+    label_files: /Users/Samit/Data/datasets/ic15/rec/rec_gt_train.txt
+    #data_dir: /data/ocr_datasets/ic15/word_recognition/ch4_training_word_images_gt
+    #label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
     sample_ratios: [1.0]
     shuffle: False
     transform_pipeline:
@@ -67,10 +69,15 @@ train:
           max_text_length: *max_text_length 
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
-      - NormalizeImage: 
+      - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize. 
+          image_shape: [32, 100] # H, W
+          infer_mode: *infer_mode
+          character_dict_path: *character_dict_path
+          padding: True # aspect ratio will be preserved if true.
+      - NormalizeImage:  # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec. 
           bgr_to_rgb: True
           is_hwc: True
-          mean : [123.675, 116.28, 103.53]
+          mean : [123.675, 116.28, 103.53] 
           std : [58.395, 57.12, 57.375]
       - ToCHWImage: 
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
@@ -83,5 +90,4 @@ train:
       batch_size: 16
       drop_remainder: True
       max_rowsize: 6
-      num_workers: 4
-
+      num_workers: 2
