@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="155379e1-132a-4980-972a-419d20d011d0" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/tools/infer/text/args.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/infer/text/args.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tools/infer/text/predict_det.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/infer/text/predict_det.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/infer/text/predict_rec.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/infer/text/predict_rec.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/infer/text/predict_system.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/infer/text/predict_system.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -16,10 +17,10 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tools/infer/text/predict_det.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="703">
-              <caret line="37" column="47" selection-start-line="37" selection-start-column="47" selection-end-line="37" selection-end-column="47" />
+            <state relative-caret-position="258">
+              <caret line="33" column="14" selection-start-line="33" selection-start-column="14" selection-end-line="33" selection-end-column="14" />
               <folding>
-                <element signature="e#49#53#0" expanded="true" />
+                <element signature="e#54#82#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -28,8 +29,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mindocr/utils/visualize.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="592">
-              <caret line="37" column="4" selection-start-line="37" selection-start-column="4" selection-end-line="37" selection-end-column="4" />
+            <state relative-caret-position="1292">
+              <caret line="72" lean-forward="true" selection-start-line="72" selection-end-line="72" />
             </state>
           </provider>
         </entry>
@@ -40,28 +41,28 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mindocr/data/transforms/transforms_factory.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-239">
-              <caret line="418" lean-forward="true" selection-start-line="418" selection-end-line="418" />
-              <folding>
-                <element signature="e#0#38#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tools/infer/text/args.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="228">
-              <caret line="12" selection-start-line="12" selection-end-line="12" />
+              <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tools/infer/text/predict_rec.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="829">
+              <caret line="57" column="13" lean-forward="true" selection-start-line="57" selection-start-column="13" selection-end-line="57" selection-end-column="13" />
+              <folding>
+                <element signature="e#56#84#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mindocr/data/rec_dataset.py">
           <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
@@ -90,7 +91,14 @@
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tools/infer/text/predict_system.py">
-          <provider selected="true" editor-type-id="text-editor" />
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="715">
+              <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
+              <folding>
+                <element signature="e#70#98#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
         </entry>
       </file>
     </leaf>
@@ -116,9 +124,9 @@
       <list>
         <option value="$PROJECT_DIR$/tools/visual/visual_det_box.py" />
         <option value="$PROJECT_DIR$/tools/visual/visual_txt.py" />
+        <option value="$PROJECT_DIR$/tools/infer/text/args.py" />
         <option value="$PROJECT_DIR$/tools/infer/text/predict_rec.py" />
         <option value="$PROJECT_DIR$/tools/infer/text/predict_system.py" />
-        <option value="$PROJECT_DIR$/tools/infer/text/args.py" />
         <option value="$PROJECT_DIR$/tools/infer/text/predict_det.py" />
       </list>
     </option>
@@ -204,8 +212,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-2" y="24" width="1440" height="826" extended-state="6" />
-    <editor active="true" />
+    <frame x="-3" y="24" width="1440" height="826" extended-state="6" />
     <layout>
       <window_info id="Favorites" side_tool="true" />
       <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49863762" visible="true" weight="0.24964234" />
@@ -245,24 +252,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tools/infer/text/args.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="12" selection-start-line="12" selection-end-line="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mindocr/utils/visualize.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="592">
-          <caret line="37" column="4" selection-start-line="37" selection-start-column="4" selection-end-line="37" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mindocr/data/transforms/mz_db_transforms.py">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tools/infer/text/predict_rec.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/mindocr/models/base_model.py">
@@ -284,15 +274,54 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tools/infer/text/predict_system.py">
+    <entry file="file://$PROJECT_DIR$/mindocr/data/rec_dataset.py">
       <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mindocr/utils/visualize.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1292">
+          <caret line="72" lean-forward="true" selection-start-line="72" selection-end-line="72" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tools/infer/text/args.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="228">
+          <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1442" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tools/infer/text/predict_system.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="715">
+          <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="53" />
+          <folding>
+            <element signature="e#70#98#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tools/infer/text/predict_rec.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="829">
+          <caret line="57" column="13" lean-forward="true" selection-start-line="57" selection-start-column="13" selection-end-line="57" selection-end-column="13" />
+          <folding>
+            <element signature="e#56#84#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/tools/infer/text/predict_det.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="703">
-          <caret line="37" column="47" selection-start-line="37" selection-start-column="47" selection-end-line="37" selection-end-column="47" />
+        <state relative-caret-position="258">
+          <caret line="33" column="14" selection-start-line="33" selection-start-column="14" selection-end-line="33" selection-end-column="14" />
           <folding>
-            <element signature="e#49#53#0" expanded="true" />
+            <element signature="e#54#82#0" expanded="true" />
           </folding>
         </state>
       </provider>
