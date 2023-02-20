@@ -64,18 +64,21 @@ class RecLabelEncode(object):
                     [sum(text_lengths)] = [text_index_0 + text_index_1 + ... + text_index_(n - 1)]
             length: length of each text. [batch_size]
         """
+        # TODO: returning None will lead to dataset generator fail
         if len(text) == 0 or len(text) > self.max_text_len:
             return None
         if self.lower:
             text = text.lower()
         text_list = []
+
+        # TODO: for char not in the dictionary, skipping may lead to None data. Use a char replacement? refer to mmocr 
         for char in text:
             if char not in self.dict:
-                # logger = get_logger()
-                # logger.warning('{} is not in dict'.format(char))
+                print('WARNING: {} is not in dict'.format(char))
                 continue
             text_list.append(self.dict[char])
         if len(text_list) == 0:
+
             return None
         return text_list
 
@@ -96,23 +99,26 @@ class CTCLabelEncode(RecLabelEncode):
         required keys:
             label -> (str), raw label 
         modified keys:
-            label -> (numpy array), sequence of character indices padding to max_text_length 
+            label -> (numpy array), sequence of character indices padding to max_text_length in shape (sequence_len) 
         added keys:
             label_ace
         '''
         data['text'] = data['label']
         text = data['label']
         text = self.encode(text)
+        # TODO: return None will lead to data gen fail. but is it proper to set all 0's?
         if text is None:
-            return None
+            text = []
+            #return None
+
         data['length'] = np.array(len(text))
         text = text + [0] * (self.max_text_len - len(text))
-        data['label'] = np.array(text)
+        data['label'] = np.array(text, dtype=np.int32)
 
         label = [0] * len(self.character)
         for x in text:
             label[x] += 1
-        data['label_ace'] = np.array(label)
+        data['label_ace'] = np.array(label, dtype=np.int32)
         return data
 
     def add_special_char(self, dict_character):

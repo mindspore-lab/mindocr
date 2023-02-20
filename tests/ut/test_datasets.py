@@ -62,6 +62,17 @@ def test_build_dataset(task='det', verbose=True):
 
     with open(yaml_fp) as fp:
         cfg = yaml.safe_load(fp)
+    
+    if task == 'rec':
+        from mindocr.postprocess.rec_postprocess import CTCLabelDecode
+        dict_path = cfg['common']['character_dict_path']
+        # read dict path and get class nums
+        rec_info = CTCLabelDecode(character_dict_path=dict_path)
+        num_classes = len(rec_info.character)
+        #config['model']['head']['out_channels'] = num_classes
+        print('=> num classes (characters): ', num_classes)
+
+
     dataset_config = cfg['train']['dataset']
     loader_config = cfg['train']['loader']
 

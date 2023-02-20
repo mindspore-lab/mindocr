@@ -1,8 +1,9 @@
 import inspect
 from .det_loss import L1BalanceCELoss
+from .rec_loss import CTCLoss 
 
 
-support_losses = ['L1BalanceCELoss']
+support_losses = ['L1BalanceCELoss', 'CTCLoss']
 
 def build_loss(name, **kwargs):
     '''

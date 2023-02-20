@@ -1,40 +1,42 @@
 system:
-  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  mode: 1 # 0 for graph mode, 1 for pynative mode in MindSpore
   distribute: False 
   amp_level: 'O0'
   seed: 42
 
 common:
   character_dict_path: &character_dict_path mindocr/utils/dict/en_dict.txt
-  max_text_length: &max_text_length 25
+  num_classes: &num_classes 64 # TODO: retreive this value from dictionary
+  max_text_length: &max_text_length 23
   infer_mode: &infer_mode False
   use_space_char: &use_space_char False
+  batch_size: &batch_size 32
 
 model:
   type: rec
   transform: null
   backbone:
-    name: resnet34@mindcv
+    name: rec_vgg7 #resnet34@mindcv
     pretrained: False
   neck:
     name: RNNEncoder
     hidden_size: 256 
   head:
     name: CTCHead 
+    out_channels: *num_classes 
 
 loss:
-  name: L1BalanceCELoss  
-  eps: 0.000001 
-  l1_scale: 10
-  bce_scale: 5 
-  bce_replace: bceloss
+  name: CTCLoss 
+  pred_seq_len: 24 # TODO: this should be probed from the network output.
+  max_label_length: *max_text_length  # this value should be smaller than pre_seq_len
+  batch_size: *batch_size
 
 scheduler: 
   scheduler: "cosine_decay"
-  min_lr: 0.00001
+  min_lr: 0.000001
   lr: 0.001
   num_epochs: 300
-  warmup_epochs: 0
+  warmup_epochs: 10
   decay_epochs: 280
 
 optimizer:
@@ -43,18 +45,18 @@ optimizer:
   momentum: 0.9
   weight_decay: 0.0001
   loss_scale: 1.0
-  use_nesterov: False
+  use_nesterov: True 
 
 train:
   dataset_sink_mode: False
   dataset:
     type: RecDataset
-    data_dir: /Users/Samit/Data/datasets/ic15/rec/ch4_training_word_images_gt
-    label_files: /Users/Samit/Data/datasets/ic15/rec/rec_gt_train.txt
-    #data_dir: /data/ocr_datasets/ic15/word_recognition/ch4_training_word_images_gt
-    #label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
+    #data_dir: /Users/Samit/Data/datasets/ic15/rec/ch4_training_word_images_gt
+    #label_files: /Users/Samit/Data/datasets/ic15/rec/rec_gt_train.txt
+    data_dir: /data/ocr_datasets/ic15/word_recognition/ch4_training_word_images_gt
+    label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
     sample_ratios: [1.0]
-    shuffle: False
+    shuffle: True
     transform_pipeline:
       - DecodeImage: 
           img_mode: BGR
@@ -75,13 +77,13 @@ train:
           std : [58.395, 57.12, 57.375]
       - ToCHWImage: 
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
-    output_keys: ['image', 'label', 'length'] #'img_path'] 
+    output_keys: ['image', 'label'] #, 'length'] #'img_path'] 
     num_keys_to_net: 1 # num inputs for network forward func
     #keys_for_loss: 4 # num labels for loss func
      
   loader:
       shuffle: True # TODO: tbc
-      batch_size: 16
+      batch_size: *batch_size
       drop_remainder: True
       max_rowsize: 6
       num_workers: 2
