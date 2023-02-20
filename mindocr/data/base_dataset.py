@@ -19,7 +19,7 @@ class BaseDataset(object):
         transform_pipeline: list of dict, key - transform class name, value - a dict of param config.
                     e.g., [{'DecodeImage': {'img_mode': 'BGR', 'channel_first': False}}]
             -       if None, default transform pipeline for text detection will be taken.
-        output_keys (list): indicates the keys in data dict that are expected to output for dataloader. if None, all data keys will be used for return. 
+        output_keys (list): required, indicates the keys in data dict that are expected to output for dataloader. if None, all data keys will be used for return. 
         global_config: additional info, used in data transformation, possible keys:
             - character_dict_path
             

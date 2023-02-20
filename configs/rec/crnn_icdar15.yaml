@@ -14,19 +14,13 @@ model:
   type: rec
   transform: null
   backbone:
-    name: mindcv.resnet50
+    name: resnet34@mindcv
     pretrained: False
   neck:
-    name: LSTM
-    out_channels: 256
-    bias: False
-    use_asf: False # enable it for DB++ 
+    name: RNNEncoder
+    hidden_size: 256 
   head:
     name: CTCHead 
-    k: 50
-    bias: False
-    adaptive: True
-    serial: False
 
 loss:
   name: L1BalanceCELoss  

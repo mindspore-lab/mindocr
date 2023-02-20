@@ -17,10 +17,11 @@ from mindcv.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 #IMAGENET_DEFAULT_MEAN = [0.485 * 255, 0.456 * 255, 0.406 * 255]
 #IMAGENET_DEFAULT_STD = [0.229 * 255, 0.224 * 255, 0.225 * 255]
 
-__all__ = ['MZRandomColorAdjust', 'MZScalePad', 'MZResizeByGrid', 'MZRandomCropData', 
+__all__ = ['MZRandomColorAdjust', 'MZScalePad', 'MZResizeByGrid', 'MZRandomCropData',
             'MZRandomScaleByShortSide', 'MZMakeSegDetectionData', 'MZMakeBorderMap', 'MZIncorrectNormToCHW']
 
 # TODO: the input pixel value is in range [0, 255] or [0, 1]?
+# TODO: Does it support BGR mode?
 class MZRandomColorAdjust():
     def __init__(self, brightness=32.0 / 255, saturation=0.5, to_numpy=False):
         self.colorjitter = RandomColorAdjust(brightness=brightness, saturation=saturation)
@@ -28,7 +29,7 @@ class MZRandomColorAdjust():
 
     def __call__(self, data):
         '''
-        required keys: image, numpy RGB format
+        required keys: image, numpy RGB format. (TODO: check BGR format support)
         modified keys: image, PIL / numpy
         '''
         img = data['image']

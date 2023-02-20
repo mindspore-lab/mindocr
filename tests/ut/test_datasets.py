@@ -20,9 +20,9 @@ def test_build_dataset(task='det', verbose=True):
     # TODO: download sample test data automatically
     #data_dir = '/data/ocr_datasets/ic15/text_localization/train'
     #annot_file = '/data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt'
+    '''
     data_dir = '/Users/Samit/Data/datasets/ic15/det/train'
     annot_file = '/Users/Samit/Data/datasets/ic15/det/train/train_icdar2015_label.txt'
-    '''
     dataset_config = {
             'type': 'DetDataset',
             'data_dir': data_dir,
@@ -68,7 +68,7 @@ def test_build_dataset(task='det', verbose=True):
     dl = build_dataset(dataset_config, loader_config, is_train=True)
 
     #batch = next(dl.create_tuple_iterator())
-    num_tries = 100
+    num_tries = 1
     start = time.time()
     for i in range(num_tries):
         batch = next(dl.create_dict_iterator())

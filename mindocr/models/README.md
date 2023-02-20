@@ -31,7 +31,7 @@ python tests/ut/test_model.py --config /path/to/yaml_config_file
 * Class `__init__` args: no limitation, define by model need.
 * Class attributes: MUST contain `out_channels` (List), to describe channels of each output features. e.g. `self.out_channels=[256, 512, 1024, 2048]`
 * Class `construct` args: x (Tensor)
-* Class `construct` return: features (List[Tensor]) for features extracted from different layers in the backbone, feature dim order `[bs, channels, …]` 
+* Class `construct` return: features (List[Tensor]) for features extracted from different layers in the backbone, feature dim order `[bs, channels, …]`. Expect shape of each feature: `[bs, channels, H, W]`
 
 ### Neck
 
@@ -49,7 +49,7 @@ python tests/ut/test_model.py --config /path/to/yaml_config_file
 * Class naming: **{HeadName}** e.g. `class DBHead`
 * Class `__init__` args: MUST contain `in_channels` param as the first position, e.g. `__init__(self, in_channels, out_channels=2, **kwargs)`.  
 * Class `construct` args: feature (Tensor)
-* Class `construct` return: prediction (dict), e.g., {'maps': out, 'score': score},  which should match the loss function.
+* Class `construct` return: prediction Union[Tensor, dict]. If there are multiple outputs, e.g., {'maps': out, 'score': score},  which should match the loss function.
 
 
 **Note:** if there is no neck in the model architecture like crnn, you can skip writing for neck. `BaseModel` will select the last feature of the features (List(Tensor)) output by Backbone, and forward it Head module.

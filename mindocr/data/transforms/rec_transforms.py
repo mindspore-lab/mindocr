@@ -9,10 +9,13 @@ import cv2
 import math
 import numpy as np
 
-__all__ = ['RecLabelEncode', 'CTCLabelEncode', 'RecResizeImg']
+__all__ = ['CTCLabelEncode', 'RecResizeImg']
 
+# TODO: check
 class RecLabelEncode(object):
-    """ Convert between text-label and text-index """
+    """ Convert between text-label and text-index 
+    Adopted from paddle
+    """
 
     def __init__(self,
                  max_text_length,
@@ -26,8 +29,7 @@ class RecLabelEncode(object):
         self.lower = lower
 
         if character_dict_path is None:
-            logger = get_logger()
-            logger.warning(
+            print(
                 "The character_dict_path is None, model can only recognize number and lower letters"
             )
             self.character_str = "0123456789abcdefghijklmnopqrstuvwxyz"
@@ -77,6 +79,7 @@ class RecLabelEncode(object):
             return None
         return text_list
 
+# TODO: check
 class CTCLabelEncode(RecLabelEncode):
     """ Convert between text-label and text-index """
 
@@ -89,6 +92,14 @@ class CTCLabelEncode(RecLabelEncode):
             max_text_length, character_dict_path, use_space_char)
 
     def __call__(self, data):
+        '''
+        required keys:
+            label -> (str), raw label 
+        modified keys:
+            label -> (numpy array), sequence of character indices padding to max_text_length 
+        added keys:
+            label_ace
+        '''
         data['text'] = data['label']
         text = data['label']
         text = self.encode(text)
@@ -107,6 +118,7 @@ class CTCLabelEncode(RecLabelEncode):
     def add_special_char(self, dict_character):
         dict_character = ['blank'] + dict_character
         return dict_character
+
 
 # TODO: reorganize the code for different resize transformation in rec task
 def resize_norm_img(img,
