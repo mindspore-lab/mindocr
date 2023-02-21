@@ -42,7 +42,7 @@ class RecLabelEncode(object):
                 for line in lines:
                     line = line.decode('utf-8').strip("\n").strip("\r\n")
                     self.character_str.append(line)
-            if use_space_char:
+            if use_space_char and ' ' not in self.character_str:
                 self.character_str.append(" ")
             dict_character = list(self.character_str)
         dict_character = self.add_special_char(dict_character)
