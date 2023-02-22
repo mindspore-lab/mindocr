@@ -5,9 +5,9 @@ system:
   seed: 42
 
 common:
-  character_dict_path: &character_dict_path mindocr/utils/dict/en_dict.txt
+  character_dict_path: &character_dict_path  #mindocr/utils/dict/en_dict.txt
   num_classes: &num_classes 64 # TODO: retreive this value from dictionary
-  max_text_length: &max_text_length 23
+  max_text_len: &max_text_len 23
   infer_mode: &infer_mode False
   use_space_char: &use_space_char False
   batch_size: &batch_size 32
@@ -28,7 +28,7 @@ model:
 loss:
   name: CTCLoss 
   pred_seq_len: 24 # TODO: this should be probed from the network output.
-  max_label_length: *max_text_length  # this value should be smaller than pre_seq_len
+  max_label_len: *max_text_len  # this value should be smaller than pre_seq_len
   batch_size: *batch_size
 
 scheduler: 
@@ -51,18 +51,18 @@ train:
   dataset_sink_mode: False
   dataset:
     type: RecDataset
-    #data_dir: /Users/Samit/Data/datasets/ic15/rec/ch4_training_word_images_gt
-    #label_files: /Users/Samit/Data/datasets/ic15/rec/rec_gt_train.txt
-    data_dir: /data/ocr_datasets/ic15/word_recognition/ch4_training_word_images_gt
-    label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
+    data_dir: /Users/Samit/Data/datasets/ic15/rec/ch4_training_word_images_gt
+    label_files: /Users/Samit/Data/datasets/ic15/rec/rec_gt_train.txt
+    #data_dir: /data/ocr_datasets/ic15/word_recognition/ch4_training_word_images_gt
+    #label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
     sample_ratios: [1.0]
     shuffle: True
     transform_pipeline:
       - DecodeImage: 
           img_mode: BGR
           to_float32: False
-      - CTCLabelEncode: 
-          max_text_length: *max_text_length 
+      - RecCTCLabelEncode:
+          max_text_len: *max_text_len 
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
       - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize. 

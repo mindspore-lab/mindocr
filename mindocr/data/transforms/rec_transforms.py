@@ -9,167 +9,132 @@ import cv2
 import math
 import numpy as np
 
-__all__ = ['CTCLabelEncode', 'RecResizeImg']
+__all__ = ['RecCTCLabelEncode', 'RecResizeImg']
 
-def RecCTCLabelEncode():
+class RecCTCLabelEncode(object):
     ''' Convert text label (str) to a sequence of character indices according to the char dictionary
-
     Note: It uses the index of the last char in dict to do the fixed-length padding.
 
     Args:
-        max_text_length: to pad the label text to a fixed length (max_text_length) of text for ctc loss computate.
-        character_dict_path: path to dictionary
-        dict_append_space_char: to support recognition space char in the text 
-        padding_blank_idx: 
+        max_text_len: to pad the label text to a fixed length (max_text_len) of text for ctc loss computate.
+        character_dict_path: path to dictionary, if None, a dictionary containing 36 chars (i.e., "0123456789abcdefghijklmnopqrstuvwxyz") will be used.
+        use_space_char(bool): if True, add space char to the dict to recognize the space in between two words
+        blank_at_last(bool): padding with blank index (not the space index). If True, a blank/padding token will be appended to the end of the dictionary, so that blank_index = num_chars, where num_chars is the number of character in the dictionary including space char if used. If False, blank token will be inserted in the beginning of the dictionary, so blank_index=0.
+        lower (bool): if True, all upper-case chars in the label text will be converted to lower case. Set to be True if dictionary only contains lower-case chars. Set to be False if not and want to recognition both upper-case and lower-case.
 
-        
+    Attributes:
+        blank_idx: the index of the blank token for padding
+        num_valid_chars: the number of valid characters (including space char if used) in the dictionary
+        num_classes: the number of classes (which valid characters char and the speical token for blank padding). so num_classes = num_valid_chars + 1
+
+
     '''
-    def __init__(self, 
-                max_text_length, 
+    def __init__(self,
+                max_text_len=23,
                 character_dict_path=None,
-                dict_add_space_char=False,
-                padding_blank='last',
+                use_space_char=False,
+                blank_at_last=True,
                 lower=False,
-                #dict_add_start_token=False,
-                #dict_add_end_token=False,
-                #start_token= '<BOS>',
-                #end_token= '<EOS>',
-                ): 
-        self.max_text_len = max_text_length
+                #start_token='<BOS>',
+                #end_token='<EOS>',
+                #unkown_token='',
+                ):
+        self.max_text_len = max_text_len
+        self.space_idx = None
+        self.lower = lower
+
+        # read dict
         if character_dict_path is None:
-            lower_en_dict ={c:idx for idx, c in enumerate("0123456789abcdefghijklmnopqrstuvwxyz ")}
-            self.dict = lower_en_dict
+            char_list = [c for c in  "0123456789abcdefghijklmnopqrstuvwxyz"]
+
             self.lower = True
             print("INFO: The character_dict_path is None, model can only recognize number and lower letters")
         else:
             # TODO: this is commonly used in other modules, wrap into a func or class.
             # parse char dictionary
             char_list = []
-            with open(character_dit_path, 'r') as f:
+            with open(character_dict_path, 'r') as f:
                 for line in f:
-                    c = line.rstrip('\n\r'))
+                    c = line.rstrip('\n\r')
                     char_list.append(c)
-            if dict_add_blank and ' ' not in char_list:
+        # add space char if set
+        if use_space_char:
+            if ' ' not in char_list:
                 char_list.append(' ')
-            self.dict = {c:idx for idx, c enumerate(char_list)}
-        self.num_chars = 
-            
-
-    def __call__():
-
-# TODO: check
-class RecLabelEncode(object):
-    """ Convert between text-label and text-index 
-    Adopted from paddle
-    """
-
-    def __init__(self,
-                 max_text_length,
-                 character_dict_path=None,
-                 use_space_char=False,
-                 lower=False):
-
-        self.max_text_len = max_text_length
-        self.beg_str = "sos"
-        self.end_str = "eos"
-        self.lower = lower
-
-        if character_dict_path is None:
-            print(
-                "The character_dict_path is None, model can only recognize number and lower letters"
-            )
-            self.character_str = "0123456789abcdefghijklmnopqrstuvwxyz"
-            dict_character = list(self.character_str)
-            self.lower = True
+            self.space_idx = len(char_list) - 1
         else:
-            self.character_str = []
-            with open(character_dict_path, "rb") as fin:
-                lines = fin.readlines()
-                for line in lines:
-                    line = line.decode('utf-8').strip("\n").strip("\r\n")
-                    self.character_str.append(line)
-            if use_space_char and ' ' not in self.character_str:
-                self.character_str.append(" ")
-            dict_character = list(self.character_str)
-        dict_character = self.add_special_char(dict_character)
-        self.dict = {}
-        for i, char in enumerate(dict_character):
-            self.dict[char] = i
-        self.character = dict_character
+            if ' ' in char_list:
+                print("WARNING: The dict still contains space char in dict although use_space_char is set to be False, because the space char is coded in the dictionary file ", character_dict_path)
 
-    def add_special_char(self, dict_character):
-        return dict_character
+        self.num_valid_chars = len(char_list) # the number of valid chars (including space char if used)
 
-    def encode(self, text):
-        """convert text-label into text-index.
-        input:
-            text: text labels of each image. [batch_size]
+        # add blank token for padding
+        if blank_at_last:
+            # the index of a char in dict is [0, num_chars-1], blank index is set to num_chars
+            char_list.append('<PAD>')
+            self.blank_idx = self.num_valid_chars
+        else:
+            char_list = ['<PAD>'] + char_list
+            self.blank_idx = 0
 
-        output:
-            text: concatenated text index for CTCLoss.
-                    [sum(text_lengths)] = [text_index_0 + text_index_1 + ... + text_index_(n - 1)]
-            length: length of each text. [batch_size]
-        """
-        # TODO: returning None will lead to dataset generator fail
+        self.dict = {c:idx for idx, c in enumerate(char_list)}
+
+        self.num_classes = len(self.dict)
+
+    def str2idx(self, text):
+        '''
+        Encode text (string) to a squence of char indices
+        Args:
+            text (str): text string
+        Returns:
+            char_indices (List[int]): char index seq
+        '''
         if len(text) == 0 or len(text) > self.max_text_len:
             return None
         if self.lower:
             text = text.lower()
-        text_list = []
 
-        # TODO: for char not in the dictionary, skipping may lead to None data. Use a char replacement? refer to mmocr 
+        char_indices = []
+        # TODO: for char not in the dictionary, skipping may lead to None data. Use a char replacement? refer to mmocr
         for char in text:
             if char not in self.dict:
-                print('WARNING: {} is not in dict'.format(char))
+                #print('WARNING: {} is not in dict'.format(char))
                 continue
-            text_list.append(self.dict[char])
-        if len(text_list) == 0:
-
+            char_indices.append(self.dict[char])
+        if len(char_indices) == 0:
+            print('WARNING: {} doesnot contain any valid char in the dict'.format(text))
             return None
-        return text_list
 
-# TODO: check
-class CTCLabelEncode(RecLabelEncode):
-    """ Convert between text-label and text-index """
+        return char_indices
 
-    def __init__(self,
-                 max_text_length,
-                 character_dict_path=None,
-                 use_space_char=False,
-                 **kwargs):
-        super().__init__(
-            max_text_length, character_dict_path, use_space_char)
-
-    def __call__(self, data):
+    def __call__(self, data: dict):
         '''
         required keys:
-            label -> (str), raw label 
+            label -> (str) text string
         modified keys:
-            label -> (numpy array), sequence of character indices padding to max_text_length in shape (sequence_len) 
+            label -> (np.ndarray, int32), sequence of character indices after  padding to max_text_len in shape (sequence_len)
         added keys:
-            label_ace
+            text -> (str) text label (stored for debugging)
+            length -> (np.int32) the number of valid chars in the encoded `label`,  where the padded chars are excluded.
         '''
-        data['text'] = data['label']
-        text = data['label']
-        text = self.encode(text)
-        # TODO: return None will lead to data gen fail. but is it proper to set all 0's?
-        if text is None:
-            text = []
+        data['text'] = data['label'][:]
+        char_indices = self.str2idx(data['label'])
+
+        if char_indices is None:
+            char_indices = []
             #return None
 
-        data['length'] = np.array(len(text))
-        text = text + [0] * (self.max_text_len - len(text))
-        data['label'] = np.array(text, dtype=np.int32)
-
+        data['length'] = np.array(len(char_indices), dtype=np.int32)
+        # padding with blank index
+        char_indices = char_indices + [self.blank_idx] * (self.max_text_len - len(char_indices))
+        data['label'] = np.array(char_indices, dtype=np.int32)
+        '''
         label = [0] * len(self.character)
         for x in text:
             label[x] += 1
         data['label_ace'] = np.array(label, dtype=np.int32)
+        '''
         return data
-
-    def add_special_char(self, dict_character):
-        dict_character = ['blank'] + dict_character
-        return dict_character
 
 
 # TODO: reorganize the code for different resize transformation in rec task
@@ -276,3 +241,44 @@ class RecResizeImg(object):
         data['image'] = norm_img
         data['valid_ratio'] = valid_ratio
         return data
+
+
+if __name__ == '__main__':
+    text = '012 ab%c'
+
+    # test dict and ctc label encode
+    trans = RecCTCLabelEncode(10, use_space_char=False)
+    inp = {'label': text}
+    out = trans(inp)
+    seq = out['label']
+    print(trans.dict)
+    gt = np.array([0, 1, 2, 10, 11 ,12] + [trans.blank_idx]*4)
+    assert trans.num_valid_chars==36
+    assert trans.num_classes==37
+    assert out['length'] ==len(text)-2, 'Not equal: {}, {}'.format(out['length'], text) # use_space_char=Flase, space and OOV char excluded
+    assert np.array_equal(seq, gt)
+    print(seq)
+
+
+    trans = RecCTCLabelEncode(max_text_len=10, use_space_char=True)
+    inp = {'label': text}
+    out = trans(inp)
+    seq = out['label']
+    print(trans.dict)
+    gt = np.array([0, 1, 2, trans.space_idx, 10, 11 ,12] + [trans.blank_idx]*3)
+    assert trans.num_valid_chars==36+1, 'num_valid_chars is {}'.format(trans.num_valid_chars)
+    assert trans.num_classes==37+1
+    assert np.array_equal(seq, gt)
+    assert out['length'] ==len(text)-1, 'Not equal: {}, {}'.format(out['length'], text) # use_space_char=True, length
+    print(seq)
+
+    trans = RecCTCLabelEncode(max_text_len=10, character_dict_path='mindocr/utils/dict/en_dict.txt', use_space_char=False)
+    inp = {'label': text}
+    out = trans(inp)
+    seq = out['label']
+    print(trans.dict)
+    gt = np.array([ 0, 1, 2, 94, 49, 50, 51, 95, 95, 95])
+    assert trans.num_valid_chars==95
+    assert trans.num_classes==96
+    assert out['length'] ==len(text), 'Not equal: {}, {}'.format(out['length'], text) # use_space_char=False, but the dict contains space, % is also in dict
+    print(seq)
