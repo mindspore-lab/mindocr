@@ -11,6 +11,52 @@ import numpy as np
 
 __all__ = ['CTCLabelEncode', 'RecResizeImg']
 
+def RecCTCLabelEncode():
+    ''' Convert text label (str) to a sequence of character indices according to the char dictionary
+
+    Note: It uses the index of the last char in dict to do the fixed-length padding.
+
+    Args:
+        max_text_length: to pad the label text to a fixed length (max_text_length) of text for ctc loss computate.
+        character_dict_path: path to dictionary
+        dict_append_space_char: to support recognition space char in the text 
+        padding_blank_idx: 
+
+        
+    '''
+    def __init__(self, 
+                max_text_length, 
+                character_dict_path=None,
+                dict_add_space_char=False,
+                padding_blank='last',
+                lower=False,
+                #dict_add_start_token=False,
+                #dict_add_end_token=False,
+                #start_token= '<BOS>',
+                #end_token= '<EOS>',
+                ): 
+        self.max_text_len = max_text_length
+        if character_dict_path is None:
+            lower_en_dict ={c:idx for idx, c in enumerate("0123456789abcdefghijklmnopqrstuvwxyz ")}
+            self.dict = lower_en_dict
+            self.lower = True
+            print("INFO: The character_dict_path is None, model can only recognize number and lower letters")
+        else:
+            # TODO: this is commonly used in other modules, wrap into a func or class.
+            # parse char dictionary
+            char_list = []
+            with open(character_dit_path, 'r') as f:
+                for line in f:
+                    c = line.rstrip('\n\r'))
+                    char_list.append(c)
+            if dict_add_blank and ' ' not in char_list:
+                char_list.append(' ')
+            self.dict = {c:idx for idx, c enumerate(char_list)}
+        self.num_chars = 
+            
+
+    def __call__():
+
 # TODO: check
 class RecLabelEncode(object):
     """ Convert between text-label and text-index 

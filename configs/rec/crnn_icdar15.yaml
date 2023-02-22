@@ -73,8 +73,8 @@ train:
       - NormalizeImage:  # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec. 
           bgr_to_rgb: True
           is_hwc: True
-          mean : [123.675, 116.28, 103.53] 
-          std : [58.395, 57.12, 57.375]
+          mean : [127.0, 127.0, 127.0] 
+          std : [127.0, 127.0, 127.0]
       - ToCHWImage: 
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
     output_keys: ['image', 'label'] #, 'length'] #'img_path'] 
