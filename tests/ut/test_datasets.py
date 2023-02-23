@@ -76,6 +76,7 @@ def test_build_dataset(task='det', verbose=True):
     loader_config = cfg['train']['loader']
 
     dl = build_dataset(dataset_config, loader_config, is_train=True)
+    num_batches = dl.get_dataset_size()
 
     #batch = next(dl.create_tuple_iterator())
     num_tries = 1

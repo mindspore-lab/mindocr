@@ -21,12 +21,12 @@ from mindspore.communication import init, get_rank, get_group_size
 from mindspore.train import LossMonitor, TimeMonitor
 from mindcv.optim import create_optimizer
 from mindcv.scheduler import create_scheduler
-from mindcv.utils.random import set_seed
 
 from mindocr.data import build_dataset
 from mindocr.models import build_model
 from mindocr.losses import build_loss
 from mindocr.utils.model_wrapper import NetWithLossWrapper
+from mindocr.utils.random import set_seed
 
 def main(cfg):
     # TODO: cfg to easy dict
@@ -77,6 +77,11 @@ def main(cfg):
     train_net = nn.TrainOneStepWithLossScaleCell(net_with_loss,
                                                  optimizer=optimizer,
                                                  scale_sense=loss_scale_manager) 
+
+    # log
+    print('-'*30)
+    print('Num batches: ', num_batches)
+    print('-'*30)
     
     # training
     loss_monitor = LossMonitor(1) #(num_batches // 10)

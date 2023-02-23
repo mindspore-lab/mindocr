@@ -111,23 +111,24 @@ class RecCTCLabelEncode(object):
         '''
         required keys:
             label -> (str) text string
-        modified keys:
-            label -> (np.ndarray, int32), sequence of character indices after  padding to max_text_len in shape (sequence_len)
+        added keys:
+            text_seq-> (np.ndarray, int32), sequence of character indices after  padding to max_text_len in shape (sequence_len)
         added keys:
             text -> (str) text label (stored for debugging)
             length -> (np.int32) the number of valid chars in the encoded `label`,  where the padded chars are excluded.
         '''
-        data['text'] = data['label'][:]
+        #if isinstance(data['label'], np.ndarray):
+        #    print(data['label'])
+        #data['text'] = data['label'][:]
         char_indices = self.str2idx(data['label'])
 
         if char_indices is None:
             char_indices = []
             #return None
-
         data['length'] = np.array(len(char_indices), dtype=np.int32)
         # padding with blank index
         char_indices = char_indices + [self.blank_idx] * (self.max_text_len - len(char_indices))
-        data['label'] = np.array(char_indices, dtype=np.int32)
+        data['text_seq'] = np.array(char_indices, dtype=np.int32)
         '''
         label = [0] * len(self.character)
         for x in text:
@@ -250,7 +251,7 @@ if __name__ == '__main__':
     trans = RecCTCLabelEncode(10, use_space_char=False)
     inp = {'label': text}
     out = trans(inp)
-    seq = out['label']
+    seq = out['text_seq']
     print(trans.dict)
     gt = np.array([0, 1, 2, 10, 11 ,12] + [trans.blank_idx]*4)
     assert trans.num_valid_chars==36
@@ -263,7 +264,7 @@ if __name__ == '__main__':
     trans = RecCTCLabelEncode(max_text_len=10, use_space_char=True)
     inp = {'label': text}
     out = trans(inp)
-    seq = out['label']
+    seq = out['text_seq']
     print(trans.dict)
     gt = np.array([0, 1, 2, trans.space_idx, 10, 11 ,12] + [trans.blank_idx]*3)
     assert trans.num_valid_chars==36+1, 'num_valid_chars is {}'.format(trans.num_valid_chars)
@@ -275,7 +276,7 @@ if __name__ == '__main__':
     trans = RecCTCLabelEncode(max_text_len=10, character_dict_path='mindocr/utils/dict/en_dict.txt', use_space_char=False)
     inp = {'label': text}
     out = trans(inp)
-    seq = out['label']
+    seq = out['text_seq']
     print(trans.dict)
     gt = np.array([ 0, 1, 2, 94, 49, 50, 51, 95, 95, 95])
     assert trans.num_valid_chars==95

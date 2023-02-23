@@ -6,7 +6,7 @@ system:
 
 common:
   character_dict_path: &character_dict_path  #mindocr/utils/dict/en_dict.txt
-  num_classes: &num_classes 64 # TODO: retreive this value from dictionary
+  num_classes: &num_classes 37 # num_chars_in_dict+1,  TODO: retreive it from dict or check correctness
   max_text_len: &max_text_len 23
   infer_mode: &infer_mode False
   use_space_char: &use_space_char False
@@ -27,7 +27,7 @@ model:
 
 loss:
   name: CTCLoss 
-  pred_seq_len: 24 # TODO: this should be probed from the network output.
+  pred_seq_len: 24 # TODO: this should be retrieved from the network output shape.
   max_label_len: *max_text_len  # this value should be smaller than pre_seq_len
   batch_size: *batch_size
 
@@ -35,9 +35,9 @@ scheduler:
   scheduler: "cosine_decay"
   min_lr: 0.000001
   lr: 0.001
-  num_epochs: 300
+  num_epochs: 100
   warmup_epochs: 10
-  decay_epochs: 280
+  decay_epochs: 90
 
 optimizer:
   opt: "momentum"
@@ -51,10 +51,10 @@ train:
   dataset_sink_mode: False
   dataset:
     type: RecDataset
-    data_dir: /Users/Samit/Data/datasets/ic15/rec/ch4_training_word_images_gt
-    label_files: /Users/Samit/Data/datasets/ic15/rec/rec_gt_train.txt
-    #data_dir: /data/ocr_datasets/ic15/word_recognition/ch4_training_word_images_gt
-    #label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
+    #data_dir: /Users/Samit/Data/datasets/ic15/rec/ch4_training_word_images_gt
+    #label_files: /Users/Samit/Data/datasets/ic15/rec/rec_gt_train.txt
+    data_dir: /data/ocr_datasets/ic15/word_recognition/ch4_training_word_images_gt
+    label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
     sample_ratios: [1.0]
     shuffle: True
     transform_pipeline:
@@ -77,7 +77,7 @@ train:
           std : [127.0, 127.0, 127.0]
       - ToCHWImage: 
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
-    output_keys: ['image', 'label'] #, 'length'] #'img_path'] 
+    output_keys: ['image', 'text_seq'] #, 'length'] #'img_path'] 
     num_keys_to_net: 1 # num inputs for network forward func
     #keys_for_loss: 4 # num labels for loss func
      
