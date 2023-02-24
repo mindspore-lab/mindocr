@@ -6,8 +6,6 @@ from __future__ import division
 
 import cv2
 import numpy as np
-import imgaug.augmenters as aug_img
-import imgaug
 import math
 import warnings
 import pyclipper
@@ -19,14 +17,19 @@ from mindcv.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 #IMAGENET_DEFAULT_MEAN = [0.485 * 255, 0.456 * 255, 0.406 * 255]
 #IMAGENET_DEFAULT_STD = [0.229 * 255, 0.224 * 255, 0.225 * 255]
 
+__all__ = ['MZRandomColorAdjust', 'MZScalePad', 'MZResizeByGrid', 'MZRandomCropData',
+            'MZRandomScaleByShortSide', 'MZMakeSegDetectionData', 'MZMakeBorderMap', 'MZIncorrectNormToCHW']
+
+# TODO: the input pixel value is in range [0, 255] or [0, 1]?
+# TODO: Does it support BGR mode?
 class MZRandomColorAdjust():
     def __init__(self, brightness=32.0 / 255, saturation=0.5, to_numpy=False):
         self.colorjitter = RandomColorAdjust(brightness=brightness, saturation=saturation)
         self.to_numpy = to_numpy
-        
+
     def __call__(self, data):
         '''
-        required keys: image, numpy RGB format
+        required keys: image, numpy RGB format. (TODO: check BGR format support)
         modified keys: image, PIL / numpy
         '''
         img = data['image']
@@ -37,7 +40,7 @@ class MZRandomColorAdjust():
 
         return data
 
-class MZIrregularNormToCHW():
+class MZIncorrectNormToCHW():
     ''' substract mean, divdied by 255.0 instead of the std of Imagenet. HWC to CHW
     input: np or PIL, in HWC format
     output: normalized image, numpy float32 in CHW format
@@ -48,21 +51,21 @@ class MZIrregularNormToCHW():
     def __init__(self, mean=IMAGENET_DEFAULT_MEAN):
         self.mean = np.array(mean)
         self.to_tensor = ToTensor()
-    
+
     def __call__(self, data):
         image = data['image']
         image = image - self.mean
         image = self.to_tensor(image)
 
         data['image'] = image
-        
+
         return data
 
 
 class MZScalePad():
     '''
     scale image and polys with short side, then pad to eval_size.
-    input image format: hwc     
+    input image format: hwc
     '''
     def __init__(self, eval_size=[736, 1280]):
         self.eval_size = eval_size
@@ -89,18 +92,17 @@ class MZScalePad():
         if polys is not None:
             polys = polys * scale
             data['polys'] = polys
-        
+
         return data
 
-######################################## transforms adopted from ModelZoo DBNet ####################################
 #TODO: This can be problematic. In ModelZoo original = resize(img), (720, 1280) resized to (736, 1280), but polys are not parsed and transformed. Fixing dataset bugs?
 class MZResizeByGrid(object):
     '''
-    resize image by ratio so that it's shape is align to grid of denominator
-    required key in data: img in shape of (h, w, c) 
+    resize image by ratio so that it's shape is align to grid of divisor
+    required key in data: img in shape of (h, w, c)
     '''
-    def __init__(self, denominator=32, transform_polys=True, is_train=True):
-        self.denominator = denominator
+    def __init__(self, divisor=32, transform_polys=True, is_train=True):
+        self.divisor = divisor
         self.is_train = is_train
         self.transform_polys = transform_polys
 
@@ -110,10 +112,10 @@ class MZResizeByGrid(object):
             polys = data['polys']
         else:
             polys = None
-        
-        denominator = self.denominator
-        w_scale = math.ceil(img.shape[1] / denominator) * denominator / img.shape[1]
-        h_scale = math.ceil(img.shape[0] / denominator) * denominator / img.shape[0]
+
+        divisor = self.divisor
+        w_scale = math.ceil(img.shape[1] / divisor) * divisor / img.shape[1]
+        h_scale = math.ceil(img.shape[0] / divisor) * divisor / img.shape[0]
         img = cv2.resize(img, dsize=None, fx=w_scale, fy=h_scale)
         data['image'] = img
 
@@ -130,7 +132,7 @@ class MZResizeByGrid(object):
         else:
             polys[:, :, 0] = polys[:, :, 0] * w_scale
             polys[:, :, 1] = polys[:, :, 1] * h_scale
-        
+
         data['polys'] = polys
         return data
 
@@ -191,7 +193,7 @@ class MZRandomCropData:
             if not self.is_poly_outside_rect(poly, 0, 0, w, h):
                 new_polys.append(poly)
                 new_dontcare.append(dontcare[i])
- 
+
         data['image'] = img
         data['polys'] = new_polys
         data['ignore_tags'] = new_dontcare
@@ -330,14 +332,14 @@ class MZRandomScaleByShortSide():
         polys, max_points = solve_polys(polys)
         h, w = img.shape[0:2]
 
-        print(h, w, polys, max_points)
+        #print(h, w, polys, max_points)
 
         # polys -> polys' scale w.r.t original.
         polys_scale = []
         for poly in polys:
             poly = np.asarray(poly)
             #poly = poly / ([w * 1.0, h * 1.0] * max_points)
-            poly = poly / [w * 1.0, h * 1.0] 
+            poly = poly / [w * 1.0, h * 1.0]
             polys_scale.append(poly)
         polys_scale = np.array(polys_scale)
 
@@ -360,7 +362,7 @@ class MZRandomScaleByShortSide():
         #new_polys = (polys_scale * ([img.shape[1], img.shape[0]] * max_points)).reshape((polys.shape[0], polys.shape[1] // 2, 2))
 
         new_polys = polys_scale * ([img.shape[1], img.shape[0]])
-        print(new_polys.shape, )
+        #print(new_polys.shape, )
 
         data['image'] = img
         data['polys'] = new_polys
@@ -381,17 +383,18 @@ class MZMakeSegDetectionData:
         self.is_training = is_training
 
     #def process(self, img, polys, dontcare):
-    
+
     def __call__(self, data):
         """
         required keys:
             image, polys, ignore_tags
         added keys:
-            mask
+            shrink_map: text region bit map
+            shrink_mask: ignore mask, pexels where value is 1 indicates no contribution to loss
         """
         img = data['image']
         polys = data['polys']
-        dontcare = data['ignore_tags'] 
+        dontcare = data['ignore_tags']
 
         h, w = img.shape[:2]
         if self.is_training:
@@ -419,7 +422,8 @@ class MZMakeSegDetectionData:
                     continue
                 shrunk = np.array(shrunk[0]).reshape(-1, 2)
                 cv2.fillPoly(gt[0], [shrunk.astype(np.int32)], 1)
-        
+
+        data['shrink_map'] = gt
         data['shrink_mask'] = mask
         return data
 
@@ -468,7 +472,7 @@ class MZMakeBorderMap:
         """
         img = data['image']
         polys = data['polys']
-        dontcare = data['ignore_tags']  
+        dontcare = data['ignore_tags']
 
         threshold_map = np.zeros(img.shape[:2], dtype=np.float32)
         threshold_mask = np.zeros(img.shape[:2], dtype=np.float32)
@@ -482,7 +486,7 @@ class MZMakeBorderMap:
         data['threshold_map'] = threshold_map
         data['threshold_mask'] = threshold_mask
 
-        return data 
+        return data
 
     def draw_border_map(self, polygon, canvas, mask):
         polygon = np.array(polygon)
@@ -562,7 +566,3 @@ class MZMakeBorderMap:
         cv2.line(result, tuple(ex_point_2), tuple(point_2),
                  4096.0, 1, lineType=cv2.LINE_AA, shift=0)
         return ex_point_1, ex_point_2
-
-
-######################################## END transforms adopted from ModelZoo DBNet ####################################
-

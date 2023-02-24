@@ -11,6 +11,7 @@ import numpy as np
 import imgaug
 import imgaug.augmenters as iaa
 
+__all__ = ['IaaAugment']
 
 class AugmenterBuilder(object):
     def __init__(self):
