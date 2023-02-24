@@ -1,7 +1,7 @@
 # MindOCR (under development)
 A toolbox of OCR models, algorithms, and pipelines based on MindSpore
 
-## Features
+**Features:**
 
 - Unified framework to support training text detection and recogintion models
 
