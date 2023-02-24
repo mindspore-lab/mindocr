@@ -15,6 +15,8 @@ import yaml
 import argparse
 from addict import Dict
 
+import cv2
+
 import mindspore as ms
 from mindspore import nn
 from mindspore.communication import init, get_rank, get_group_size
@@ -42,8 +44,9 @@ def main(cfg):
     else:
         device_num = None
         rank_id = None
-
+    
     set_seed(cfg.system.seed, rank_id)
+    cv2.setNumThreads(2)
 
     # train pipeline
     # dataset
