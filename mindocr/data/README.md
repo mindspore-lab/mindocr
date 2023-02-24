@@ -20,7 +20,6 @@
 ## How to add your own dataset class
 
 1. Inherit from BaseDataset class  
-   - Ensure the args in __init__ are 
 
 2. Rewrite the following file and annotation parsing functions in BaseDataset.  
 
