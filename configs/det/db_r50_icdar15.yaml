@@ -100,7 +100,7 @@ train:
       - ToCHWImage: 
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
     output_keys: ['image', 'shrink_map', 'shrink_mask', 'threshold_map', 'threshold_mask'] #'img_path'] 
-    num_keys_to_net: 1 # num inputs for network forward func
+    num_keys_to_net: 1 # num inputs for network forward func in output_keys
     #keys_for_loss: 4 # num labels for loss func
      
   loader:
