@@ -1,4 +1,4 @@
-# mindocr
+# mindocr (under development)
 A toolbox of OCR models, algorithms, and pipelines based on MindSpore
 
 
