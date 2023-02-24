@@ -3,7 +3,7 @@ import argparse
 
 def get_args():
     parser = argparse.ArgumentParser(description='Arguments for inference.')
-    # TODO:add help information for each args
+
     parser.add_argument('--device', type=str, default='Ascend310P3', required=False, help='Device type.') #TODO: add choices?
     parser.add_argument('--device_id', type=int, nargs='+', default=0, required=False, help='Device id.')
     parser.add_argument('--parallel_num', type=str, default=1, required=False, help='Number of parallel inference.')
@@ -20,9 +20,9 @@ def get_args():
 
     parser.add_argument('--det_res_save_dir', type=str, default='', required=False, help='Saving dir for detection results.') #TODO
     parser.add_argument('--rec_res_save_dir', type=str, default='', required=False, help='Saving dir for recognition results.') #TODO
-    parser.add_argument('--system_res_save_dir', type=str, default='', required=False, help='Saving dir for System inference results.') #TODO
+    parser.add_argument('--pipeline_res_save_dir', type=str, default='', required=False, help='Saving dir for pipeline inference results.') #TODO
     parser.add_argument('--vis_det_save_dir', type=str, default='', required=False, help='Saving dir for visualization of detection results.') #TODO
-    parser.add_argument('--vis_system_save_dir', type=str, default='', required=False, help='Saving dir for visualization of system inference results.') #TODO
+    parser.add_argument('--vis_pipeline_save_dir', type=str, default='', required=False, help='Saving dir for visualization of pipeline inference results.') #TODO
     parser.add_argument('--vis_font_path', type=str, default='', required=False, help='Font file path for recognition model.') #TODO
 
     parser.add_argument('--show_log', type=bool, default=True, required=False, help='Whether show log when inferring.')

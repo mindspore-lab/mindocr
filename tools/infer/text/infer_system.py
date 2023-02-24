@@ -9,25 +9,21 @@ History: NA
 """
 
 import os
+import sys
 import time
-from argparse import ArgumentParser
 from collections import defaultdict
 from multiprocessing import Process, Queue
 from shutil import rmtree
 
-from src.data_type import StopSign
-from src.framework import ModuleDesc, ModuleConnectDesc, ModuleManager
-from src.processors import MODEL_DICT
-from src.utils import log, safe_load_yaml, profiling, safe_div, check_valid_dir, file_base_check, TASK_QUEUE_SIZE
+__dir__ = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(__dir__)
+sys.path.insert(0, os.path.abspath(os.path.join(__dir__, '../../..')))
 
-
-def parse_args():
-    parser = ArgumentParser()
-    parser.add_argument('--input_images_path', type=str, required=True)
-    parser.add_argument('--config_path', type=str, required=True, default='')
-    parser.add_argument('--parallel_num', type=int, required=False, default=1)
-    parser.add_argument('--infer_res_save_path', type=str, required=False, default=None)
-    return parser.parse_args()
+from args import get_args
+from deploy.mxocr.src.demo.python.src.data_type import StopSign
+from deploy.mxocr.src.demo.python.src.framework import ModuleDesc, ModuleConnectDesc, ModuleManager
+from deploy.mxocr.src.demo.python.src.processors import MODEL_DICT
+from deploy.mxocr.src.demo.python.src.utils import log, safe_load_yaml, profiling, safe_div, check_valid_dir, file_base_check, TASK_QUEUE_SIZE
 
 
 def save_path_init(path):
@@ -42,7 +38,7 @@ def image_sender(images_path, send_queue):
         send_queue.put(image_path, block=True)
 
 
-def build_pipeline(config_path, parallel_num, input_queue, infer_res_save_path):
+def build_pipeline(config_path, parallel_num, input_queue, pipeline_res_save_dir):
     config_dict = safe_load_yaml(config_path)
     module_desc_list = [ModuleDesc('HandoutProcess', 1), ModuleDesc('DecodeProcess', parallel_num), ]
 
@@ -68,7 +64,7 @@ def build_pipeline(config_path, parallel_num, input_queue, infer_res_save_path):
     log.info(f'module_size: {module_size}')
     msg_queue = Queue(module_size)
 
-    manager = ModuleManager(msg_queue, input_queue, config_path, infer_res_save_path)
+    manager = ModuleManager(msg_queue, input_queue, config_path, pipeline_res_save_dir)
     manager.register_modules(str(os.getpid()), module_desc_list, 1)
     manager.register_module_connects(str(os.getpid()), module_connect_desc_list)
 
@@ -109,24 +105,23 @@ def build_pipeline(config_path, parallel_num, input_queue, infer_res_save_path):
 
 
 def check_args(opts):
-    check_valid_dir(opts.input_images_path)
-    file_base_check(opts.config_path)
+    check_valid_dir(opts.input_images_dir)
     if opts.parallel_num < 1 or opts.parallel_num > 4:
         raise ValueError(f'parallel num must between [1,4], current: {opts.parallel_num}')
 
 
 if __name__ == '__main__':
-    args = parse_args()
+    args = get_args()
     check_args(args)
-    if args.infer_res_save_path:
-        save_path_init(args.infer_res_save_path)
+    if args.pipeline_res_save_dir:
+        save_path_init(args.pipeline_res_save_dir)
 
     task_queue = Queue(TASK_QUEUE_SIZE)
     process = Process(target=build_pipeline, args=(args.config_path, args.parallel_num, task_queue,
-                                                   args.infer_res_save_path))
+                                                   args.pipeline_res_save_dir))
     process.start()
 
-    image_sender(images_path=args.input_images_path, send_queue=task_queue)
+    image_sender(images_path=args.input_images_dir, send_queue=task_queue)
     task_queue.put(StopSign(), block=True)
     process.join()
     process.close()

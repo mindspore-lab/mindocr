@@ -1,21 +1,20 @@
 """
-Prediction pipeline for text recognition tasks.
+Prediction pipeline for text detection tasks.
 """
 from mindspore import Tensor
 
 from args import get_args
-# TODO: change trasform  crnn dir
-# TODO: change mxocr dir
-# TODO: change draw_txt dir
-from mindocr.data.rec_dataset import transforms_crnn
+from mindocr.data.det_dataset import transforms_dbnet_icdar15
 from mindocr.data.transforms.transform_factory import create_transforms, run_transforms
-from mindocr.utils.visualize import draw_txt
-from mindocr.mxocr.src.demo.python.main import build_pipeline, image_sender
+
+# from mindocr.utils.visualize import draw_bboxes
+# TODO: change mxocr dir
+# from mindocr.deploy.mxocr.src.demo.python.main import build_pipeline, image_sender
 
 
-class Recognizer(object):
+class Detector(object):
     def __init__(self, args) -> None:
-        self.rec_algorithm = args.rec_algorithm
+        self.det_algorithm = args.det_algorithm
         self.config_path = args.config_path
         self.parallel_num = args.parallel_num
         self.input_queue = args.input_queue
@@ -23,7 +22,7 @@ class Recognizer(object):
 
         self.transform_pipeline = transforms_dbnet_icdar15(is_train="infer")
         self.transforms = create_transforms(self.transform_pipeline)
-        self.post_process = create_postprocess()
+        # self.post_process = create_postprocess()
 
     def infer_mxocr(self, img: Tensor):
         """
@@ -34,25 +33,27 @@ class Recognizer(object):
 
         return
 
-
-    def __call__(self, img):
+    def __call__(self, img: Tensor):
         img = run_transforms(img, self.transforms)
         infer_res = self.infer_mxocr(img)
         res = self.post_process(infer_res)
 
         return res
 
+
 if __name__ == '__main__':
     # parse args
     args = get_args()
-    detector = Recognizer(args)
+    detector = Detector(args)
 
     # load data
 
 
     # infer
 
+
     # visualize
-    # draw_txt()
+    # draw_bboxes(image=, bboxes=, color=(255, 0, 0), thickness=2)
+
 
     # logging
