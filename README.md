@@ -29,9 +29,9 @@ python tools/train.py --config configs/rec/crnn_icdar15.yaml
 ```
 
 
-## Dev and Test A Model
+## Build and Test A New Model
 
-### Dev your model
+### Build your own model
 Please follow this [guideline](./mindocr/models/README.md)
 
 ### Test model writing
