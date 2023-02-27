@@ -15,6 +15,7 @@ def gen_rec_label(input_path, out_label):
                sep_index = line.find(',')
                img_path = line[:sep_index].strip().replace('\ufeff', '')
                label = line[sep_index+1:].strip().replace("\"", "")
+               abs_img_path = 
                outf.write(img_path + '\t' + label + '\n') 
 
 
@@ -45,7 +46,7 @@ def gen_det_label(root_path, input_dir, out_label):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--mode',
+        '--task',
         type=str,
         default="rec",
         help='Generate rec_label or det_label, can be set rec or det')
@@ -53,7 +54,7 @@ if __name__ == "__main__":
         '--root_path',
         type=str,
         default=".",
-        help='The root directory of images.Only takes effect when mode=det ')
+        help='The root directory of images.Only takes effect when task=det ')
     parser.add_argument(
         '--input_path',
         type=str,
@@ -66,9 +67,9 @@ if __name__ == "__main__":
         help='Output file name')
 
     args = parser.parse_args()
-    if args.mode == "rec":
+    if args.task == "rec":
         print("Generate rec label")
         gen_rec_label(args.input_path, args.output_label)
-    elif args.mode == "det":
+    elif args.task == "det":
         gen_det_label(args.root_path, args.input_path, args.output_label)
 

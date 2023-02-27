@@ -50,6 +50,8 @@ def build_dataset(dataset_config: dict,
     dataset = dataset_class(**dataset_args)
     #dataset = dataset_class(dataset_config['data_dir'], dataset_config['label_files'], dataset_config['sample_ratios'], dataset_config['shuffle'], dataset_config['transforms'], is_train=is_train, exclude_output_columns=dataset_config['exclude_output_columns'])
 
+    # set cv2 parallel
+
     # create batch loader
     dataset_column_names = dataset.get_column_names()
     print('==> Dataset columns: \n\t', dataset_column_names)
