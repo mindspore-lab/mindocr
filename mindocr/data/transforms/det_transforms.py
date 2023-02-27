@@ -41,6 +41,15 @@ class DetLabelEncode(object):
         return ex_boxes
 
     def __call__(self, data):
+        '''
+        required keys:
+            label (str): string containgin points and transcription in json format
+        added keys:
+            polys (np.ndarray): polygon boxes in an image, each polygon is represented by points 
+                            in shape [num_polygons, num_points, 2]
+            texts (List(str)): text string
+            ignore_tags (np.ndarray[bool]): indicators for ignorable texts (e.g., '###') 
+        '''
         label = data['label']
         label = json.loads(label)
         nBox = len(label)

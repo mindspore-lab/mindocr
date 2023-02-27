@@ -57,7 +57,7 @@ def build_dataset(dataset_config: dict,
     print('==> Dataset columns: \n\t', dataset_column_names)
     ds = ms.dataset.GeneratorDataset(dataset,
                         column_names=dataset_column_names,
-			num_parallel_workers=loader_config['num_workers'],
+			            num_parallel_workers=loader_config['num_workers'],
                         num_shards=num_shards,
                         shard_id=shard_id,
                         shuffle=loader_config['shuffle'])

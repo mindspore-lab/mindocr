@@ -3,6 +3,7 @@ system:
   distribute: False 
   amp_level: 'O0'
   seed: 42
+  val_while_train: True
 
 model:
   type: det
@@ -21,6 +22,14 @@ model:
     bias: False
     adaptive: True
     serial: False
+ 
+postprocess:
+  name: DBPostprocess
+  region_type: 'quad'
+  thresh: 0.3
+  box_thresh: 0.7 # TODO: this value is 0.55 in modelzoo and but 0.7 in paddle
+  max_candidates: 1000
+  unclip_ratio: 1.5
 
 loss:
   name: L1BalanceCELoss  
@@ -49,10 +58,10 @@ train:
   dataset_sink_mode: False
   dataset:
     type: DetDataset
-    data_dir: /data/ocr_datasets/ic15/text_localization/train
-    label_files: /data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt
-    #data_dir: /Users/Samit/Data/datasets/ic15/det/train
-    #label_files: /Users/Samit/Data/datasets/ic15/det/train/train_icdar2015_label.txt
+    #data_dir: /data/ocr_datasets/ic15/text_localization/train
+    #label_files: /data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt
+    data_dir: /Users/Samit/Data/datasets/ic15/det/train
+    label_files: /Users/Samit/Data/datasets/ic15/det/train/train_icdar2015_label.txt
     sample_ratios: [1.0]
     shuffle: True
     transform_pipeline:
@@ -107,6 +116,42 @@ train:
       shuffle: True # TODO: tbc
       batch_size: 16
       drop_remainder: True
-      max_rowsize: 6
+      max_rowsize: 6 
       num_workers: 2
+
+eval:
+  dataset_sink_mode: False
+  dataset:
+    type: DetDataset
+    #data_dir: /data/ocr_datasets/ic15/text_localization/train
+    #label_files: /data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt
+    data_dir: /Users/Samit/Data/datasets/ic15/det/test
+    label_files: /Users/Samit/Data/datasets/ic15/det/test/test_icdar2015_label.txt
+    sample_ratios: [1.0]
+    shuffle: False
+    transform_pipeline:
+      - DecodeImage: 
+          img_mode: BGR
+          to_float32: False
+      - DetLabelEncode:  
+      - MZScalePad: 
+          eval_size: [736, 1280] # h, w
+      - NormalizeImage: 
+          bgr_to_rgb: True
+          is_hwc: True
+          mean : [123.675, 116.28, 103.53]
+          std : [58.395, 57.12, 57.375]
+      - ToCHWImage: 
+    #  the order of the dataloader list, matching the network input and the labels for evalution 
+    output_keys: ['image', 'polys', 'ignore_tags'] #'shape'] #'img_path'] 
+    num_keys_to_net: 1 # num inputs for network forward func
+    num_keys_of_labels: 2 # num labels 
+     
+     
+  loader:
+      shuffle: False
+      batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
+      drop_remainder: True
+      max_rowsize: 6
+      num_workers: 1
 
