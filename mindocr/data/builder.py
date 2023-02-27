@@ -3,8 +3,9 @@ import mindspore as ms
 from addict import Dict
 from .det_dataset import DetDataset
 from .rec_dataset import RecDataset
+from .rec_lmdb_dataset import LMDBDataset
 
-support_dataset_types = ['BaseDataset', 'DetDataset', 'RecDataset']
+support_dataset_types = ['BaseDataset', 'DetDataset', 'RecDataset', 'LMDBDataset']
 
 def build_dataset(dataset_config: dict,
                     loader_config: dict,
