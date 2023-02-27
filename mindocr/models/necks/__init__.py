@@ -1,9 +1,9 @@
-from .fpn import FPN
-from .bilstm import BiLSTM
+from .fpn import FPN, DBFPN
+from .rnn import RNNEncoder
 from .select import Select
 
 __all__ = ['build_neck']
-support_necks = ['FPN', 'Select', 'BiLSTM']
+support_necks = ['FPN', 'DBFPN', 'RNNEncoder', 'Select']
 
 
 def build_neck(neck_name, **kwargs):

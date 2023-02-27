@@ -9,4 +9,5 @@ class ConvHead(nn.Cell):
         )
 
     def construct(self, x):
-        return self.conv(x)
+        return {'map': self.conv(x)}
+
