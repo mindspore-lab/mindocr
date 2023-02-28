@@ -34,9 +34,9 @@ _ms_level_to_name = {
 
 MAX_BYTES = 100 * 1024 * 1024
 BACKUP_COUNT = 10
-LOG_NAME, LOG_TYPE = "logs", "mxocr"
+LOG_NAME, LOG_TYPE = "logs", "infer_pipeline"
 LOG_ENV = "MX_OCR_LOG_LEVEL"
-MS_INSTALL_HOME_PATH = 'mindxsdk-mxocr'
+MS_INSTALL_HOME_PATH = 'mindxsdk-infer_pipeline'
 
 
 class DataFormatter(logging.Formatter):
@@ -74,7 +74,7 @@ class DataFormatter(logging.Formatter):
         :param record: Format pattern.
         :return: formatted log content according to format pattern.
         """
-        # when the Installation directory of mindxsdk-mxocr changed,
+        # when the Installation directory of mindxsdk-infer_pipeline changed,
         # ms_install_home_path must be changed
         idx = record.pathname.rfind(MS_INSTALL_HOME_PATH)
         if idx >= 0:

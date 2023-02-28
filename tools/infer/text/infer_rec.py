@@ -5,12 +5,12 @@ from mindspore import Tensor
 
 from args import get_args
 # TODO: change trasform  crnn dir
-# TODO: change mxocr dir
+# TODO: change infer_pipeline dir
 # TODO: change draw_txt dir
 from mindocr.data.rec_dataset import transforms_crnn
 from mindocr.data.transforms.transform_factory import create_transforms, run_transforms
 from mindocr.utils.visualize import draw_txt
-from mindocr.deploy.mxocr.src.demo.python.main import build_pipeline, image_sender
+from mindocr.deploy.infer_pipeline.src.demo.python.main import build_pipeline, image_sender
 
 
 class Recognizer(object):
@@ -27,7 +27,7 @@ class Recognizer(object):
 
     def infer_mxocr(self, img: Tensor):
         """
-        infer image using mxocr
+        infer image using infer_pipeline
         :param img:
         :return:
         """

@@ -20,10 +20,10 @@ sys.path.append(__dir__)
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, '../../..')))
 
 from args import get_args
-from deploy.mxocr.src.demo.python.src.data_type import StopSign
-from deploy.mxocr.src.demo.python.src.framework import ModuleDesc, ModuleConnectDesc, ModuleManager
-from deploy.mxocr.src.demo.python.src.processors import MODEL_DICT
-from deploy.mxocr.src.demo.python.src.utils import log, safe_load_yaml, profiling, safe_div, check_valid_dir, file_base_check, TASK_QUEUE_SIZE
+from deploy.infer_pipeline.src.demo.python.src.data_type import StopSign
+from deploy.infer_pipeline.src.demo.python.src.framework import ModuleDesc, ModuleConnectDesc, ModuleManager
+from deploy.infer_pipeline.src.demo.python.src.processors import MODEL_DICT
+from deploy.infer_pipeline.src.demo.python.src.utils import log, safe_load_yaml, profiling, safe_div, check_valid_dir, file_base_check, TASK_QUEUE_SIZE
 
 
 def save_path_init(path):
@@ -39,7 +39,7 @@ def image_sender(images_path, send_queue):
 
 
 def build_pipeline(config_path, parallel_num, input_queue, pipeline_res_save_dir):
-    config_dict = safe_load_yaml(config_path)
+    # config_dict = safe_load_yaml(config_path)
     module_desc_list = [ModuleDesc('HandoutProcess', 1), ModuleDesc('DecodeProcess', parallel_num), ]
 
     module_order = config_dict.get('module_order', None)

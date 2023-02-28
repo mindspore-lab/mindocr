@@ -8,8 +8,8 @@ from mindocr.data.det_dataset import transforms_dbnet_icdar15
 from mindocr.data.transforms.transform_factory import create_transforms, run_transforms
 
 # from mindocr.utils.visualize import draw_bboxes
-# TODO: change mxocr dir
-# from mindocr.deploy.mxocr.src.demo.python.main import build_pipeline, image_sender
+# TODO: change infer_pipeline dir
+# from mindocr.deploy.infer_pipeline.src.demo.python.main import build_pipeline, image_sender
 
 
 class Detector(object):
@@ -26,7 +26,7 @@ class Detector(object):
 
     def infer_mxocr(self, img: Tensor):
         """
-        infer image using mxocr
+        infer image using infer_pipeline
         :param img:
         :return:
         """
