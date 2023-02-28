@@ -18,19 +18,24 @@ class BaseModel(nn.Cell):
         backbone_name = config.backbone.pop('name')
         self.backbone = build_backbone(backbone_name, **config.backbone)
 
+        assert hasattr(self.backbone, 'out_channels'), f'Backbones are required to provide out_channels attribute, but not found in {backbone_name}'
+
         if 'neck' not in config or config.neck is None:
             neck_name = 'Select'
         else:
             neck_name = config.neck.pop('name')
         self.neck = build_neck(neck_name, in_channels=self.backbone.out_channels, **config.neck)
 
+        assert hasattr(self.neck, 'out_channels'), f'Necks are required to provide out_channels attribute, but not found in {neck_name}'
+
         head_name = config.head.pop('name')
         self.head = build_head(head_name, in_channels=self.neck.out_channels, **config.head)
+
 
         self.model_name = f'{backbone_name}_{neck_name}_{head_name}'  
 
     def construct(self, x):
-
+        # TODO: return bout, hout for debugging, using a dict.
         bout = self.backbone(x)
 
         nout = self.neck(bout)
@@ -49,6 +54,8 @@ class BaseModel(nn.Cell):
             y.update(x)
         else:
             y["head_out"] = x
+        
+        
         '''
         
         return hout

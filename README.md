@@ -1,10 +1,37 @@
-# mindocr
+# MindOCR (under development)
 A toolbox of OCR models, algorithms, and pipelines based on MindSpore
 
+**Features:**
 
-## Dev and Test
+- Unified framework to support training text detection and recogintion models
 
-### Dev your model
+
+## Quick Start (for dev)
+
+### Data preparation
+
+Download ic15 dataset.
+
+Convert to the required annotation format using `tools/data_converter/convert.py`, referring to `tools/data_converters/README.md`
+
+Change the annotation file path in the yaml file under `configs` accordingly.
+
+### Training Text Detection Model (DBNet)
+
+``` python
+python tools/train.py --config configs/det/db_r50_icdar15.yaml
+```
+
+### Text Text Recognition Model (CRNN)
+
+``` python
+python tools/train.py --config configs/rec/crnn_icdar15.yaml
+```
+
+
+## Build and Test A New Model
+
+### Build your own model
 Please follow this [guideline](./mindocr/models/README.md)
 
 ### Test model writing
