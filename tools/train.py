@@ -28,8 +28,9 @@ from mindocr.data import build_dataset
 from mindocr.models import build_model
 from mindocr.losses import build_loss
 from mindocr.postprocess import build_postprocess
+from mindocr.metrics import build_metric
 from mindocr.utils.model_wrapper import NetWithLossWrapper
-from mindocr.utils.callbacks import EvalCallback # TODO: callback in a better dir
+from mindocr.utils.callbacks import EvalSaveCallback # TODO: callback in a better dir
 from mindocr.utils.random import set_seed
 #from mindcv.utils.random import set_seed
 
@@ -63,7 +64,7 @@ def main(cfg):
 
     loader_eval = None
     # TODO: now only use device 0 to perform evaluation
-    if cfg.syste.val_while_train and rank_id in [0, None]: 
+    if cfg.system.val_while_train and rank_id in [0, None]: 
         loader_eval = build_dataset(
                 cfg['eval']['dataset'], 
                 cfg['eval']['loader'],
@@ -94,15 +95,21 @@ def main(cfg):
                                                  optimizer=optimizer,
                                                  scale_sense=loss_scale_manager) 
 
-    # postprocess TODO:
+    # postprocess, metric
     if cfg.system.val_while_train:
         postprocessor = build_postprocess(cfg['postprocess'])
         # postprocess network prediction
+        metric = build_metric(cfg['metric']) 
 
-    # metric TODO:
-
-    # build callbacks TODO:
-    eval_cb = EvalCallback(network, loader_eval, postprocessor=postprocessor, rank_id=rank_id)
+    # build callbacks
+    eval_cb = EvalSaveCallback(
+            network, 
+            loader_eval, 
+            postprocessor=postprocessor, 
+            metrics=[metric],  #TODO:
+            rank_id=rank_id,
+            ckpt_save_dir=cfg['system']['ckpt_save_dir'],
+            main_indicator=cfg['metric']['main_indicator'])
 
     # log
     print('-'*30)

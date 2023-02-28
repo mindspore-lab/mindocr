@@ -37,9 +37,9 @@ class DBPostprocess(object):
         '''
         Args: 
             pred (dict):
-                binary: text region segmentation map, with shape (N, H, W)
-                thresh: [if exists] thresh hold prediction with shape (N, H, W)
-                thresh_binary: [if exists] binarized with threshold, (N, H, W)
+                binary: text region segmentation map, with shape (N, 1, H, W)
+                thresh: [if exists] threshhold prediction with shape (N, 1, H, W)
+                thresh_binary: [if exists] binarized with threshold, (N, 1, H, W)
             data_samples: optional, data samples mapping
         Returns:
             result (dict) with keys: 
@@ -118,7 +118,8 @@ class DBPostprocess(object):
             boxes.append(box)
             scores.append(score)
         return boxes, scores
-
+    
+    # TODO: diff from paddle? if no boxes, return [] instead of [0,0,0,0]
     def boxes_from_bitmap(self, pred, _bitmap, dest_width, dest_height):
         '''
         _bitmap: single map with shape (H, W), whose values are binarized as {0, 1}
@@ -147,11 +148,7 @@ class DBPostprocess(object):
             # (4, 1, 2) -> (4, 2)
             contour = contours[index].squeeze(1)
             # Score
-            if self.score_mode == 'fast':
-                score = self.box_score_fast(pred, contour)
-            else:
-                score = self.box_score_slow(pred, contour)
-
+            score = self.box_score_fast(pred, contour)
             if self.box_thresh > score:
                 continue
             # Box's points
@@ -174,7 +171,51 @@ class DBPostprocess(object):
             box[:, 1] = np.clip(np.round(box[:, 1] / height * dest_height), 0, dest_height)
             boxes[index, :, :] = box.astype(np.int16)
             scores[index] = score
-        return boxes, scores
+        return boxes, scores 
+    # TODO: adopted from paddle
+    '''
+    def boxes_from_bitmap(self, pred, _bitmap, dest_width, dest_height):
+        bitmap = _bitmap
+        height, width = bitmap.shape
+
+        outs = cv2.findContours((bitmap * 255).astype(np.uint8), cv2.RETR_LIST,
+                                cv2.CHAIN_APPROX_SIMPLE)
+        if len(outs) == 3:
+            img, contours, _ = outs[0], outs[1], outs[2]
+        elif len(outs) == 2:
+            contours, _ = outs[0], outs[1]
+
+        num_contours = min(len(contours), self.max_candidates)
+
+        boxes = []
+        scores = []
+        for index in range(num_contours):
+            contour = contours[index]
+            points, sside = self.get_mini_boxes(contour)
+            if sside < self.min_size:
+                continue
+            points = np.array(points)
+            if self.score_mode == "fast":
+                score = self.box_score_fast(pred, points.reshape(-1, 2))
+            else:
+                score = self.box_score_slow(pred, contour)
+            if self.box_thresh > score:
+                continue
+
+            box = self.unclip(points, self.unclip_ratio).reshape(-1, 1, 2)
+            box, sside = self.get_mini_boxes(box)
+            if sside < self.min_size + 2:
+                continue
+            box = np.array(box)
+
+            box[:, 0] = np.clip(
+                np.round(box[:, 0] / width * dest_width), 0, dest_width)
+            box[:, 1] = np.clip(
+                np.round(box[:, 1] / height * dest_height), 0, dest_height)
+            boxes.append(box.astype("int32"))
+            scores.append(score)
+        return np.array(boxes, dtype="int32"), scores
+    '''
 
     def unclip(self, box, unclip_ratio=1.5):
         poly = Polygon(box)
@@ -240,4 +281,3 @@ class DBPostprocess(object):
 
         cv2.fillPoly(mask, contour.reshape(1, -1, 2).astype("int32"), 1)
         return cv2.mean(bitmap[ymin:ymax + 1, xmin:xmax + 1], mask)[0]
-

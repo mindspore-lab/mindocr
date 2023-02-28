@@ -55,11 +55,14 @@ def build_dataset(dataset_config: dict,
     # create batch loader
     dataset_column_names = dataset.get_column_names()
     print('==> Dataset columns: \n\t', dataset_column_names)
+
+    # TODO: config multiprocess and shared memory
     ds = ms.dataset.GeneratorDataset(dataset,
                         column_names=dataset_column_names,
 			            num_parallel_workers=loader_config['num_workers'],
                         num_shards=num_shards,
                         shard_id=shard_id,
+                        max_rowsize =loader_config['max_rowsize'], 
                         shuffle=loader_config['shuffle'])
 
     # TODO: set default value for drop_remainder and max_rowsize

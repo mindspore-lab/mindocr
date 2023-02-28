@@ -80,7 +80,7 @@ def transforms_dbnet_icdar15(phase='train'):
                         'img_mode': 'BGR',
                         'to_float32': False}},
                     {'DetLabelEncode': None},
-                    {'MZResizeByGrid': {'denominator': 32, 'transform_polys': True}}, # prev in modelzoo, it doesn't transform polys
+                    {'MZResizeByGrid': {'divisor': 32, 'transform_polys': True}}, # prev in modelzoo, it doesn't transform polys
                     {'MZRandomScaleByShortSide': {'short_side': 736}},
                     {'IaaAugment': {'augmenter_args':
                         [{'type': 'Affine',
@@ -96,7 +96,7 @@ def transforms_dbnet_icdar15(phase='train'):
                             {'max_tries':100,
                             'min_crop_side_ratio': 0.1,
                             'crop_size': (640, 640)}},
-                    {'MZResizeByGrid': {'denominator': 32, 'transform_polys': True}},
+                    {'MZResizeByGrid': {'divisor': 32, 'transform_polys': True}},
                     #{'MakeShrinkMap':
                     {'MZMakeSegDetectionData':
                         {'min_text_size': 8, 'shrink_ratio': 0.4}},
@@ -120,7 +120,7 @@ def transforms_dbnet_icdar15(phase='train'):
         pipeline = [
                     {'DecodeImage': {'img_mode': 'BGR', 'to_float32': False}},
                     {'DetLabelEncode': None},
-                    {'MZResizeByGrid': {'denominator': 32, 'transform_polys': True}}, # prev in modelzoo, it doesn't transform polys
+                    {'MZResizeByGrid': {'divisor': 32, 'transform_polys': True}}, # prev in modelzoo, it doesn't transform polys
 
                     {'MZScalePad': {'eval_size': [736, 1280]}},
                     {'NormalizeImage': {
@@ -136,7 +136,7 @@ def transforms_dbnet_icdar15(phase='train'):
     else:
         pipeline = [
                     {'DecodeImage': {'img_mode': 'BGR', 'to_float32': False}},
-                    {'MZResizeByGrid': {'denominator': 32, 'transform_polys': True}},
+                    {'MZResizeByGrid': {'divisor': 32, 'transform_polys': True}},
                     {'MZScalePad': {'eval_size': [736, 1280]}},
                     {'NormalizeImage': {
                         'bgr_to_rgb': True,
@@ -147,4 +147,4 @@ def transforms_dbnet_icdar15(phase='train'):
                     },
                     {'ToCHWImage': None}
                     ]
-    return
+    return pipeline

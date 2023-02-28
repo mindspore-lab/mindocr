@@ -110,7 +110,7 @@ def test_det_dataset():
     data_dir = '/data/ocr_datasets/ic15/text_localization/train'
     annot_file = '/data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt'
     transform_pipeline = transforms_dbnet_icdar15(phase='train')
-    ds = DetDataset(is_train=True, data_dir=data_dir, annot_files=annot_file, sample_ratios=0.5, transform_pipeline=transform_pipeline, shuffle=False)
+    ds = DetDataset(is_train=True, data_dir=data_dir, label_files=annot_file, sample_ratios=0.5, transform_pipeline=transform_pipeline, shuffle=False)
 
     print('num data: ', len(ds))
     for i in [223]:
@@ -142,6 +142,18 @@ def test_det_dataset():
         thrmap_polys= draw_bboxes(data['threshold_map'], data['polys'])
         thrmask_polys= draw_bboxes(data['threshold_mask'], data['polys'])
         show_imgs([img_polys, mask_polys, thrmap_polys, thrmask_polys], show=False, save_path='/data/ocr_ic15_debug2.png')
+
+        
+        np.savez('./det_db_label_samples.npz', 
+                image=data['image'],
+                polys=data['polys'],
+                texts=data['texts'],
+                ignore_tags=data['ignore_tags'],
+                shrink_map=data['shrink_map'],
+                shrink_mask=data['shrink_mask'],
+                threshold_map=data['threshold_map'],
+                threshold_mask=data['threshold_mask'],
+                )
 
         # TODO: check transformed image and label correctness
 
@@ -191,7 +203,8 @@ def test_rec_dataset(visualize=True):
 
 
 if __name__ == '__main__':
-    test_build_dataset(task='det', phase='eval', visualize=True)
+    #test_build_dataset(task='det', phase='eval', visualize=True)
+    #test_build_dataset(task='det', phase='train', visualize=False)
     #test_build_dataset(task='rec')
-    #test_det_dataset()
+    test_det_dataset()
     #test_rec_dataset()
