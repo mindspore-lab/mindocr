@@ -96,6 +96,7 @@ def main(cfg):
                                                  scale_sense=loss_scale_manager) 
 
     # postprocess, metric
+    postprocessor = None
     if cfg.system.val_while_train:
         postprocessor = build_postprocess(cfg['postprocess'])
         # postprocess network prediction

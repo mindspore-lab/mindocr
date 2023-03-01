@@ -92,7 +92,7 @@ def test_build_dataset(task='det', phase='train', verbose=True, visualize=False)
             for k,v in batch.items():
                 print(k, v.shape)
                 if len(v.shape)<=2:
-                    print(v[0])
+                    print(v)
         
         if (i == num_tries -1) and visualize:
             if task == 'det' and phase == 'eval':
@@ -205,6 +205,7 @@ def test_rec_dataset(visualize=True):
 if __name__ == '__main__':
     #test_build_dataset(task='det', phase='eval', visualize=True)
     #test_build_dataset(task='det', phase='train', visualize=False)
+    test_build_dataset(task='rec', phase='eval', visualize=False)
     #test_build_dataset(task='rec')
-    test_det_dataset()
+    #test_det_dataset()
     #test_rec_dataset()

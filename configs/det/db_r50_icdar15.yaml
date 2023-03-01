@@ -156,6 +156,6 @@ eval:
   loader:
       shuffle: False
       batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
-      drop_remainder: True
+      drop_remainder: False 
       max_rowsize: 20
       num_workers: 1
