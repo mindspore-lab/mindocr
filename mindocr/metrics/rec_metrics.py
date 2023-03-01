@@ -89,6 +89,8 @@ class RecMetric(nn.Metric):
             gt_texts = [gt_texts[i][:l] for i, l in enumerate(gt_lens)] 
         else:
             gt_texts = gt
+            if isinstance(gt_texts, ms.Tensor):
+                gt_texts = gt_texts.asnumpy()
         
         #print('2: ', gt_texts)
         for pred, label in zip(pred_texts, gt_texts):
