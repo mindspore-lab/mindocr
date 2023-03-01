@@ -1,0 +1,16 @@
+module_order: [ 'dbnet','cls','crnn' ]
+
+device: 'Ascend310'
+device_id: [ 2 ]
+
+dbnet:
+  model_path: '/home/mindocr/lianghao/ckpt/om/v2/dbnet/dbnet_dynamic_dims_100.om'
+
+cls:
+  model_path: '/home/mindocr/lianghao/ckpt/om/v2/cls_310.om'
+
+crnn:
+  model_dir: '/home/mindocr/lianghao/ckpt/om/v2/crnn/'
+  static_method: True
+  dict_path: '/home/mindocr/lianghao/ckpt/om/ppocr_keys_v1.txt'
+
