@@ -16,13 +16,15 @@ Convert to the required annotation format using `tools/data_converter/convert.py
 
 Change the annotation file path in the yaml file under `configs` accordingly.
 
-### Training Text Detection Model (DBNet)
+### Training 
+
+#### Text Detection Model (DBNet)
 
 ``` python
 python tools/train.py --config configs/det/db_r50_icdar15.yaml
 ```
 
-### Text Text Recognition Model (CRNN)
+#### Text Recognition Model (CRNN)
 
 ``` python
 python tools/train.py --config configs/rec/crnn_icdar15.yaml
