@@ -1,0 +1,16 @@
+module_order: [ 'dbnet','crnn' ]
+
+device: 'Ascend310P3'
+device_id: [ 0 ]
+
+dbnet:
+  model_path: './models/dbnet/dbnet_dy_dynamic_shape.om'
+
+crnn:
+  model_path: './models/crnn/crnn_dynamic.om'
+  static_method: False
+  dict_path: './models/crnn/ppocr_keys_v1.txt'
+  model_height: 32
+  model_min_width: 32
+  model_max_width: 4096
+

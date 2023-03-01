@@ -1,0 +1,14 @@
+module_order: [ 'dbnet','crnn' ]
+
+device: 'Ascend310P3'
+device_id: [ 0 ]
+
+dbnet:
+  model_path: './models/dbnet/dbnet_dy_dynamic_shape.om'
+
+crnn:
+  # using model_dir to input the path to the folder containing only the 'CRNN/SVTR model files
+  model_dir: './models/crnn/static'
+  static_method: True
+  dict_path: './models/crnn/ppocr_keys_v1.txt'
+
