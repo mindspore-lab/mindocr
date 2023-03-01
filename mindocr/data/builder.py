@@ -50,14 +50,19 @@ def build_dataset(dataset_config: dict,
     dataset = dataset_class(**dataset_args)
     #dataset = dataset_class(dataset_config['data_dir'], dataset_config['label_files'], dataset_config['sample_ratios'], dataset_config['shuffle'], dataset_config['transforms'], is_train=is_train, exclude_output_columns=dataset_config['exclude_output_columns'])
 
+    # set cv2 parallel
+
     # create batch loader
     dataset_column_names = dataset.get_column_names()
     print('==> Dataset columns: \n\t', dataset_column_names)
+
+    # TODO: config multiprocess and shared memory
     ds = ms.dataset.GeneratorDataset(dataset,
                         column_names=dataset_column_names,
-			num_parallel_workers=loader_config['num_workers'],
+			            num_parallel_workers=loader_config['num_workers'],
                         num_shards=num_shards,
                         shard_id=shard_id,
+                        max_rowsize =loader_config['max_rowsize'], 
                         shuffle=loader_config['shuffle'])
 
     # TODO: set default value for drop_remainder and max_rowsize

@@ -27,8 +27,12 @@ from mindcv.scheduler import create_scheduler
 from mindocr.data import build_dataset
 from mindocr.models import build_model
 from mindocr.losses import build_loss
+from mindocr.postprocess import build_postprocess
+from mindocr.metrics import build_metric
 from mindocr.utils.model_wrapper import NetWithLossWrapper
+from mindocr.utils.callbacks import EvalSaveCallback # TODO: callback in a better dir
 from mindocr.utils.random import set_seed
+#from mindcv.utils.random import set_seed
 
 def main(cfg):
     # TODO: cfg to easy dict
@@ -57,7 +61,17 @@ def main(cfg):
             shard_id=rank_id,
             is_train=True)
     num_batches = loader_train.get_dataset_size()
-    
+
+    loader_eval = None
+    # TODO: now only use device 0 to perform evaluation
+    if cfg.system.val_while_train and rank_id in [0, None]: 
+        loader_eval = build_dataset(
+                cfg['eval']['dataset'], 
+                cfg['eval']['loader'],
+                num_shards=None,
+                shard_id=rank_id,
+                is_train=False)
+
     # model
     network = build_model(cfg['model'])
     ms.amp.auto_mixed_precision(network, amp_level=cfg.system.amp_level)  
@@ -81,6 +95,23 @@ def main(cfg):
                                                  optimizer=optimizer,
                                                  scale_sense=loss_scale_manager) 
 
+    # postprocess, metric
+    postprocessor = None
+    if cfg.system.val_while_train:
+        postprocessor = build_postprocess(cfg['postprocess'])
+        # postprocess network prediction
+        metric = build_metric(cfg['metric']) 
+
+    # build callbacks
+    eval_cb = EvalSaveCallback(
+            network, 
+            loader_eval, 
+            postprocessor=postprocessor, 
+            metrics=[metric],  #TODO:
+            rank_id=rank_id,
+            ckpt_save_dir=cfg['system']['ckpt_save_dir'],
+            main_indicator=cfg['metric']['main_indicator'])
+
     # log
     print('-'*30)
     print('Num batches: ', num_batches)
@@ -91,7 +122,7 @@ def main(cfg):
     time_monitor = TimeMonitor()
 
     model = ms.Model(train_net)
-    model.train(cfg.scheduler.num_epochs, loader_train, callbacks=[loss_monitor, time_monitor],
+    model.train(cfg.scheduler.num_epochs, loader_train, callbacks=[loss_monitor, time_monitor, eval_cb],
                 dataset_sink_mode=config.train.dataset_sink_mode)
 
 

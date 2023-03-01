@@ -71,6 +71,16 @@ class MZScalePad():
         self.eval_size = eval_size
 
     def __call__(self, data):
+        '''
+        required keys:
+            image, HWC
+            (polys)
+        modified keys:
+            image
+            (polys)
+        added keys:
+            shape: [src_h, src_w, scale_ratio_h, scale_ratio_w]
+        '''
         img = data['image']
         if 'polys' in data:
             polys = data['polys']
@@ -89,10 +99,12 @@ class MZScalePad():
         padimg[:new_h, :new_w, :] = img
 
         data['image'] = padimg
+        #print('polys: ', type(polys))
         if polys is not None:
             polys = polys * scale
             data['polys'] = polys
 
+        data['shape'] = np.array([h, w, scale, scale], dtype='float32')
         return data
 
 #TODO: This can be problematic. In ModelZoo original = resize(img), (720, 1280) resized to (736, 1280), but polys are not parsed and transformed. Fixing dataset bugs?
@@ -101,9 +113,9 @@ class MZResizeByGrid(object):
     resize image by ratio so that it's shape is align to grid of divisor
     required key in data: img in shape of (h, w, c)
     '''
-    def __init__(self, divisor=32, transform_polys=True, is_train=True):
+    def __init__(self, divisor=32, transform_polys=True):
         self.divisor = divisor
-        self.is_train = is_train
+        #self.is_train = is_train
         self.transform_polys = transform_polys
 
     def __call__(self, data):
@@ -122,16 +134,20 @@ class MZResizeByGrid(object):
         if polys is None:
             return data
 
-        if self.is_train:
-            new_polys = []
+        # TODO: compute in np array, not list 
+        '''
+        #if self.is_train:
+        #    new_polys = []
             for poly in polys:
                 poly[:, 0] = poly[:, 0] * w_scale
                 poly[:, 1] = poly[:, 1] * h_scale
                 new_polys.append(poly)
             polys = new_polys
-        else:
             polys[:, :, 0] = polys[:, :, 0] * w_scale
             polys[:, :, 1] = polys[:, :, 1] * h_scale
+        '''
+        polys[:, :, 0] = polys[:, :, 0] * w_scale
+        polys[:, :, 1] = polys[:, :, 1] * h_scale
 
         data['polys'] = polys
         return data
@@ -183,6 +199,7 @@ class MZRandomCropData:
         padimg[:h, :w] = cv2.resize(img[crop_y:crop_y + crop_h, crop_x:crop_x + crop_w], (w, h))
         img = padimg
 
+        # TODO: use numpy compute, not list
         new_polys = []
         new_dontcare = []
         for i in range(len(polys)):
@@ -193,6 +210,7 @@ class MZRandomCropData:
             if not self.is_poly_outside_rect(poly, 0, 0, w, h):
                 new_polys.append(poly)
                 new_dontcare.append(dontcare[i])
+        new_polys = np.array(new_polys, dtype='float32')        
 
         data['image'] = img
         data['polys'] = new_polys
@@ -335,6 +353,7 @@ class MZRandomScaleByShortSide():
         #print(h, w, polys, max_points)
 
         # polys -> polys' scale w.r.t original.
+        # TODO: use np compute, not list
         polys_scale = []
         for poly in polys:
             poly = np.asarray(poly)
@@ -429,7 +448,7 @@ class MZMakeSegDetectionData:
 
     def validate_polygons(self, polygons, ignore_tags, h, w):
         """polygons (numpy.array, required): of shape (num_instances, num_points, 2)"""
-        if not polygons:
+        if polygons is None:
             return polygons, ignore_tags
         assert len(polygons) == len(ignore_tags)
 
