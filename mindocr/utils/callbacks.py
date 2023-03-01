@@ -38,6 +38,8 @@ class Evaluator(object):
         self.net.set_train(False)
         self.net.phase = 'eval'
         iterator = dataloader.create_tuple_iterator(num_epochs=1, output_numpy=False, do_copy=False)
+        for m in self.metrics:
+            m.clear()
 
         # debug
         #for param in self.net.get_parameters(): 

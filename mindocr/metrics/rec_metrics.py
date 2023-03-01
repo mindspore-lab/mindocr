@@ -36,7 +36,6 @@ class RecMetric(nn.Metric):
         self.lower = lower
         self.print_flag = print_flag
         
-        
         # TODO: use parsed dictionary object
         if character_dict_path is None:
             self.dict  = [c for c in  "0123456789abcdefghijklmnopqrstuvwxyz"]
