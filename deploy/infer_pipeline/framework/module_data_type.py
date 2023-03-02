@@ -12,6 +12,15 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 
+class InferModelComb(Enum):
+    DET = 1  # Detection Model
+    REC = 2  # Recognition Model
+    CLS_DET = 3  # Classifier And Detection Model
+    CLS_REC = 4  # Classifier And Recognition Model
+    DET_REC = 5  # Detection And Recognition Model
+    CLS_DET_REC = 6  # Classifier And Detection And Recognition Model
+
+
 class ConnectType(Enum):
     MODULE_CONNECT_ONE = 0
     MODULE_CONNECT_CHANNEL = 1
