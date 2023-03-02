@@ -1,6 +1,6 @@
 system:
   mode: 1 # 0 for graph mode, 1 for pynative mode in MindSpore
-  distribute: False 
+  distribute: False
   amp_level: 'O0'
   seed: 42
   val_while_train: True
@@ -11,19 +11,18 @@ model:
   transform: null
   backbone:
     name: det_resnet50
-    pretrained: True 
+    pretrained: True
   neck:
     name: DBFPN
     out_channels: 256
     bias: False
     use_asf: False # enable it for DB++ 
   head:
-    name: DBHead 
+    name: DBHead
     k: 50
     bias: False
     adaptive: True
-    serial: False
- 
+
 postprocess:
   name: DBPostprocess
   region_type: 'quad'
@@ -31,33 +30,31 @@ postprocess:
   box_thresh: 0.55 # TODO: this value is 0.55 in modelzoo and but 0.7 in paddle
   max_candidates: 1000
   unclip_ratio: 1.5
- 
+
 metric:
   name: DetMetric
-  main_indicator: hmean
+  main_indicator: f-score
 
 loss:
-  name: L1BalanceCELoss  
-  eps: 0.000001
+  name: L1BalanceCELoss
+  eps: 1.0e-6
   l1_scale: 10
-  bce_scale: 5 
+  bce_scale: 5
   bce_replace: bceloss
 
-scheduler: 
-  scheduler: "cosine_decay"
-  min_lr: 0.00001
+scheduler:
+  scheduler: polynomial_decay
+  min_lr: 0.
   lr: 0.007
-  num_epochs: 5
-  warmup_epochs: 2
-  decay_epochs: 3
+  num_epochs: 1200
+  warmup_epochs: 3
 
 optimizer:
-  opt: "momentum"
-  filter_bias_and_bn: True
+  opt: SGD
+  filter_bias_and_bn: false
   momentum: 0.9
-  weight_decay: 0.0001
+  weight_decay: 1.0e-4
   loss_scale: 1.0
-  use_nesterov: False
 
 train:
   dataset_sink_mode: False
@@ -67,32 +64,32 @@ train:
     label_files: /data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt
     #data_dir: /Users/Samit/Data/datasets/ic15/det/train
     #label_files: /Users/Samit/Data/datasets/ic15/det/train/train_icdar2015_label.txt
-    sample_ratios: [1.0]
+    sample_ratios: [ 1.0 ]
     shuffle: True
     transform_pipeline:
-      - DecodeImage: 
+      - DecodeImage:
           img_mode: BGR
           to_float32: False
-      - DetLabelEncode:  
-      - MZResizeByGrid: 
+      - DetLabelEncode:
+      - MZResizeByGrid:
           divisor: 32
           transform_polys: True # originally in modelzoo, it doesn't transform polys
-      - MZRandomScaleByShortSide: 
+      - MZRandomScaleByShortSide:
           short_side: 736
-      - IaaAugment: 
+      - IaaAugment:
           augmenter_args:
-            - {'type': 'Affine', 'args': {'rotate': [-10, 10]}}
-            - {'type': 'Fliplr', 'args': {'p': 0.5}}
-      - MZRandomCropData: 
-          max_tries: 100 
+            - { 'type': 'Affine', 'args': { 'rotate': [ -10, 10 ] } }
+            - { 'type': 'Fliplr', 'args': { 'p': 0.5 } }
+      - MZRandomCropData:
+          max_tries: 100
           min_crop_side_ratio: 0.1
-          crop_size: [640, 640]
+          crop_size: [ 640, 640 ]
       #- MZResizeByGrid:  # TODO: necessary? 640 is divisable by 32
       #        denominator: 32
       #        divisor: 32
       #    transform_polys: True
       #- MakeShrinkMap: 
-      - MZMakeSegDetectionData: 
+      - MZMakeSegDetectionData:
           min_text_size: 8
           shrink_ratio: 0.4
       #- 'MakeBorderMap': 
@@ -100,28 +97,28 @@ train:
           shrink_ratio: 0.4
           thresh_min: 0.3
           thresh_max: 0.7
-      - MZRandomColorAdjust: 
+      - MZRandomColorAdjust:
           brightness: 0.1255 #32.0 / 255
           saturation: 0.5
           to_numpy: True
       #{'MZIrregularNormToCHW': None},
-      - NormalizeImage: 
+      - NormalizeImage:
           bgr_to_rgb: True
           is_hwc: True
-          mean : [123.675, 116.28, 103.53]
-          std : [58.395, 57.12, 57.375]
-      - ToCHWImage: 
+          mean: [ 123.675, 116.28, 103.53 ]
+          std: [ 58.395, 57.12, 57.375 ]
+      - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
-    output_keys: ['image', 'shrink_map', 'shrink_mask', 'threshold_map', 'threshold_mask'] #'img_path'] 
+    output_keys: [ 'image', 'shrink_map', 'shrink_mask', 'threshold_map', 'threshold_mask' ] #'img_path']
     num_keys_to_net: 1 # num inputs for network forward func in output_keys
-    #keys_for_loss: 4 # num labels for loss func
-     
+#    keys_for_loss: 4 # num labels for loss func
+
   loader:
-      shuffle: True # TODO: tbc
-      batch_size: 16
-      drop_remainder: True
-      max_rowsize: 20
-      num_workers: 2
+    shuffle: True # TODO: tbc
+    batch_size: 20
+    drop_remainder: False
+    max_rowsize: 20
+    num_workers: 10
 
 eval:
   dataset_sink_mode: False
@@ -131,30 +128,29 @@ eval:
     label_files: /data/ocr_datasets/ic15/text_localization/test/test_icdar2015_label.txt
     #data_dir: /Users/Samit/Data/datasets/ic15/det/test
     #label_files: /Users/Samit/Data/datasets/ic15/det/test/test_icdar2015_label.txt
-    sample_ratios: [1.0]
+    sample_ratios: [ 1.0 ]
     shuffle: False
     transform_pipeline:
-      - DecodeImage: 
+      - DecodeImage:
           img_mode: BGR
           to_float32: False
-      - DetLabelEncode:  
-      - MZScalePad: 
-          eval_size: [736, 1280] # h, w
-      - NormalizeImage: 
+      - DetLabelEncode:
+      - MZScalePad:
+          eval_size: [ 736, 1280 ] # h, w
+      - NormalizeImage:
           bgr_to_rgb: True
           is_hwc: True
-          mean : [123.675, 116.28, 103.53]
-          std : [58.395, 57.12, 57.375]
-      - ToCHWImage: 
+          mean: [ 123.675, 116.28, 103.53 ]
+          std: [ 58.395, 57.12, 57.375 ]
+      - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the labels for evalution 
-    output_keys: ['image', 'polys', 'ignore_tags'] #'shape'] #'img_path'] 
+    output_keys: [ 'image', 'polys', 'ignore_tags' ] #'shape'] #'img_path']
     num_keys_to_net: 1 # num inputs for network forward func
     num_keys_of_labels: 2 # num labels 
-     
-     
+
   loader:
-      shuffle: False
-      batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
-      drop_remainder: False 
-      max_rowsize: 20
-      num_workers: 1
+    shuffle: False
+    batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
+    drop_remainder: False
+    max_rowsize: 20
+    num_workers: 1

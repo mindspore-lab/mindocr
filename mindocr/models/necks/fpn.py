@@ -1,11 +1,17 @@
-import mindspore as ms
-import mindspore.nn as nn
-from mindspore.common.initializer import HeNormal
-from mindspore.common import initializer as init
+from typing import Tuple
+from mindspore import Tensor, nn, ops
 
-from .asf import ScaleFeatureSelection
+from .asf import AdaptiveScaleFusion
 
-from mindspore import ops
+
+def _resize_nn(x: Tensor, scale: int = 0, shape: Tuple[int] = None):
+    if scale == 1 or shape == x.shape[2:]:
+        return x
+
+    if scale:
+        shape = (x.shape[2] * scale, x.shape[3] * scale)
+    return ops.ResizeNearestNeighbor(shape)(x)
+
 
 class FPN(nn.Cell):
     def __init__(self, in_channels, out_channels=256, **kwargs):
@@ -16,95 +22,42 @@ class FPN(nn.Cell):
         x1, x2, x3, x4 = x
         return x1
 
+
 class DBFPN(nn.Cell):
-    def __init__(self, in_channels, out_channels=256, 
-                 bias=False, use_asf=False, attention_type='scale_channel_spatial'):
-        '''
+    def __init__(self, in_channels, out_channels=256, weight_init='HeUniform',
+                 bias=False, use_asf=False, channel_attention=True):
+        """
         in_channels: resnet18=[64, 128, 256, 512]
                     resnet50=[2048,1024,512,256]
         out_channels: Inner channels in Conv2d
 
         bias: Whether conv layers have bias or not.
         use_asf: use ASF moduel for multi-scale feature aggregation
-        '''
-
+        """
         super().__init__()
-
         self.out_channels = out_channels
 
-        self.in5 = nn.Conv2d(in_channels[-1], out_channels, 1, has_bias=bias)
-        self.in4 = nn.Conv2d(in_channels[-2], out_channels, 1, has_bias=bias)
-        self.in3 = nn.Conv2d(in_channels[-3], out_channels, 1, has_bias=bias)
-        self.in2 = nn.Conv2d(in_channels[-4], out_channels, 1, has_bias=bias)
+        self._unify_channels = nn.CellList(
+            [nn.Conv2d(ch, out_channels, 1, pad_mode='valid', has_bias=bias, weight_init=weight_init)
+             for ch in in_channels]
+        )
 
-        self.out5 = nn.Conv2d(out_channels, out_channels // 4, 3, pad_mode="pad", padding=1, has_bias=bias)
-        self.out4 = nn.Conv2d(out_channels, out_channels // 4, 3, pad_mode="pad", padding=1, has_bias=bias)
-        self.out3 = nn.Conv2d(out_channels, out_channels // 4, 3, pad_mode="pad", padding=1, has_bias=bias)
-        self.out2 = nn.Conv2d(out_channels, out_channels // 4, 3, pad_mode="pad", padding=1, has_bias=bias)
-        
-        self.use_asf = use_asf
-        if use_asf:
-            self.concat_attention = ScaleFeatureSelection(inner_channels, inner_channels // 4,
-                                                          attention_type=attention_type)
-            self.concat_attention.weights_init(self.concat_attention)
+        self._out = nn.CellList(
+            [nn.Conv2d(out_channels, out_channels // 4, 3, padding=1, pad_mode='pad', has_bias=bias,
+                       weight_init=weight_init) for _ in range(len(in_channels))]
+        )
 
-        self.weights_init(self.in5)
-        self.weights_init(self.in4)
-        self.weights_init(self.in3)
-        self.weights_init(self.in2)
-
-        self.weights_init(self.out5)
-        self.weights_init(self.out4)
-        self.weights_init(self.out3)
-        self.weights_init(self.out2)
-
-    def weights_init(self, c):
-        for m in c.cells():
-            if isinstance(m, nn.Conv2dTranspose):
-                m.weight = init.initializer(HeNormal(), m.weight.shape)
-                m.bias = init.initializer('zeros', m.bias.shape)
-
-            elif isinstance(m, nn.Conv2d):
-                m.weight = init.initializer(HeNormal(), m.weight.shape)
-
-            elif isinstance(m, nn.BatchNorm2d):
-                m.gamma = init.initializer('ones', m.gamma.shape)
-                m.beta = init.initializer(1e-4, m.beta.shape)
+        self._fuse = AdaptiveScaleFusion(out_channels, channel_attention, weight_init) if use_asf else ops.Concat(
+            axis=1)
 
     def construct(self, features):
+        for i, uc_op in enumerate(self._unify_channels):
+            features[i] = uc_op(features[i])
 
-        # shapes for inference:
-        # [1, 64, 184, 320]
-        # [1, 128, 92, 160]
-        # [1, 256, 46, 80]
-        # [1, 512, 23, 40]
+        for i in range(2, -1, -1):
+            features[i] += _resize_nn(features[i + 1], shape=features[i].shape[2:])
 
-        c2, c3, c4, c5 = features
+        for i, out in enumerate(self._out):
+            features[i] = _resize_nn(out(features[i]), shape=features[0].shape[2:])
 
-        in5 = self.in5(c5)
-        in4 = self.in4(c4)
-        in3 = self.in3(c3)
-        in2 = self.in2(c2)
-
-        # Carry out up sampling and prepare for connection
-        up5 = ops.ResizeNearestNeighbor((in4.shape[2], in4.shape[3]))
-        up4 = ops.ResizeNearestNeighbor((in3.shape[2], in3.shape[3]))
-        up3 = ops.ResizeNearestNeighbor((in2.shape[2], in2.shape[3]))
-
-        out4 = up5(in5) + in4  # 1/16
-        out3 = up4(out4) + in3  # 1/8
-        out2 = up3(out3) + in2  # 1/4
-
-        upsample = ops.ResizeNearestNeighbor((c2.shape[2], c2.shape[3]))
-
-        # The connected results are upsampled to make them the same shape, 1/4
-        p5 = upsample(self.out5(in5))
-        p4 = upsample(self.out4(out4))
-        p3 = upsample(self.out3(out3))
-        p2 = upsample(self.out2(out2))
-
-        fuse = ops.Concat(1)((p5, p4, p3, p2))
-        if self.use_asf:
-            fuse = self.concat_attention(fuse, [p5, p4, p3, p2])
-
-        return fuse
+        return self._fuse(features[::-1])   # matching the reverse order of the original work

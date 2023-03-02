@@ -1,80 +1,39 @@
 import mindspore.nn as nn
-from mindspore.common.initializer import HeNormal
-from mindspore.common import initializer as init
-from mindspore import ops
+
 
 class DBHead(nn.Cell):
-    def __init__(self, in_channels, k=50,
-                 bias=False, adaptive=True, serial=False, training=True):
+    def __init__(self, in_channels: int, k=50, adaptive=False, bias=False, weight_init='HeUniform'):
         super().__init__()
-
-        self.k = k
-
-        self.binarize = nn.SequentialCell(
-            nn.Conv2d(in_channels, in_channels // 4, 3, pad_mode="pad", padding=1, has_bias=bias),
-            nn.BatchNorm2d(in_channels // 4),
-            nn.ReLU(),
-            nn.Conv2dTranspose(in_channels // 4, in_channels // 4, 2, stride=2, has_bias=True),
-            nn.BatchNorm2d(in_channels // 4),
-            nn.ReLU(),
-            nn.Conv2dTranspose(in_channels // 4, 1, 2, stride=2, has_bias=True),
-            nn.Sigmoid())
-
-        self.weights_init(self.binarize)
-
         self.adaptive = adaptive
 
+        self.segm = self._init_heatmap(in_channels, in_channels // 4, weight_init, bias)
         if adaptive:
-            self.thresh = self._init_thresh(in_channels, serial=serial, bias=bias)
-            self.weights_init(self.thresh)
+            self.thresh = self._init_heatmap(in_channels, in_channels // 4, weight_init, bias)
+            self.k = k
+            self.diff_bin = nn.Sigmoid()
 
-    def weights_init(self, c):
-        for m in c.cells():
-            if isinstance(m, nn.Conv2dTranspose):
-                m.weight = init.initializer(HeNormal(), m.weight.shape)
-                m.bias = init.initializer('zeros', m.bias.shape)
-
-            elif isinstance(m, nn.Conv2d):
-                m.weight = init.initializer(HeNormal(), m.weight.shape)
-
-            elif isinstance(m, nn.BatchNorm2d):
-                m.gamma = init.initializer('ones', m.gamma.shape)
-                m.beta = init.initializer(1e-4, m.beta.shape)
-
-    def _init_thresh(self, in_channels, serial=False, bias=False):
-        in_channels = in_channels
-        if serial:
-            in_channels += 1
-        self.thresh = nn.SequentialCell(
-            nn.Conv2d(in_channels, in_channels // 4, 3, pad_mode="pad", padding=1, has_bias=bias),
-            nn.BatchNorm2d(in_channels // 4),
+    @staticmethod
+    def _init_heatmap(in_channels, inter_channels, weight_init, bias):
+        return nn.SequentialCell([  # `pred` block from the original work
+            nn.Conv2d(in_channels, inter_channels, kernel_size=3, padding=1, pad_mode='pad', has_bias=bias,
+                      weight_init=weight_init),
+            nn.BatchNorm2d(inter_channels),
             nn.ReLU(),
-            nn.Conv2dTranspose(in_channels // 4, in_channels // 4, 2, stride=2, has_bias=True),
-            # size * 2
-            nn.BatchNorm2d(in_channels // 4),
+            nn.Conv2dTranspose(inter_channels, inter_channels, kernel_size=2, stride=2, pad_mode='valid', has_bias=True,
+                               weight_init=weight_init),
+            nn.BatchNorm2d(inter_channels),
             nn.ReLU(),
-            nn.Conv2dTranspose(in_channels // 4, 1, 2, stride=2, has_bias=True),
-            nn.Sigmoid())
+            nn.Conv2dTranspose(inter_channels, 1, kernel_size=2, stride=2, pad_mode='valid', has_bias=True,
+                               weight_init=weight_init),
+            nn.Sigmoid()
+        ])
 
-        return self.thresh
+    def construct(self, features):
+        pred = {'binary': self.segm(features)}
 
-    def construct(self, feature):
-        # this is the pred module, not binarization module;
-        # We do not correct the name due to the trained model.
-        binary = self.binarize(feature)
-        pred = dict()
-        pred['binary'] = binary
+        if self.adaptive:
+            pred['thresh'] = self.thresh(features)
+            pred['thresh_binary'] = self.diff_bin(
+                self.k * (pred['binary'] - pred['thresh']))  # Differentiable Binarization
 
-        #if self.adaptive and self.training:
-        thresh = self.thresh(feature)
-        pred['thresh'] = thresh
-        pred['thresh_binary'] = self.step_function(binary, thresh)
-
-        return pred 
-
-    def step_function(self, x, y):
-        """Get the binary graph through binary and threshold."""
-        reciprocal = ops.Reciprocal()
-        exp = ops.Exp()
-
-        return reciprocal(1 + exp(-self.k * (x - y)))
+        return pred
