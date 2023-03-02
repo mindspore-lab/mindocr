@@ -11,7 +11,7 @@ model:
   transform: null
   backbone:
     name: det_resnet50
-    pretrained: False
+    pretrained: True 
   neck:
     name: DBFPN
     out_channels: 256
@@ -46,10 +46,10 @@ loss:
 scheduler: 
   scheduler: "cosine_decay"
   min_lr: 0.00001
-  lr: 0.001
-  num_epochs: 300
-  warmup_epochs: 0
-  decay_epochs: 280
+  lr: 0.007
+  num_epochs: 100
+  warmup_epochs: 3
+  decay_epochs: 97
 
 optimizer:
   opt: "momentum"
@@ -75,7 +75,6 @@ train:
           to_float32: False
       - DetLabelEncode:  
       - MZResizeByGrid: 
-          #denominator: 32
           divisor: 32
           transform_polys: True # originally in modelzoo, it doesn't transform polys
       - MZRandomScaleByShortSide: 
@@ -88,10 +87,10 @@ train:
           max_tries: 100 
           min_crop_side_ratio: 0.1
           crop_size: [640, 640]
-      - MZResizeByGrid: 
-          #denominator: 32
-          divisor: 32
-          transform_polys: True
+      #- MZResizeByGrid:  # TODO: necessary? 640 is divisable by 32
+      #        denominator: 32
+      #        divisor: 32
+      #    transform_polys: True
       #- MakeShrinkMap: 
       - MZMakeSegDetectionData: 
           min_text_size: 8

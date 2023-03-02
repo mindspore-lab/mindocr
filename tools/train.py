@@ -35,7 +35,6 @@ from mindocr.utils.random import set_seed
 #from mindcv.utils.random import set_seed
 
 def main(cfg):
-    # TODO: cfg to easy dict
     # env init
     ms.set_context(mode=cfg.system.mode)
     if cfg.system.distribute:
@@ -51,6 +50,7 @@ def main(cfg):
     
     set_seed(cfg.system.seed, rank_id)
     cv2.setNumThreads(2)
+    is_main_device = rank_id in [None, 0]
 
     # train pipeline
     # dataset
@@ -64,12 +64,12 @@ def main(cfg):
 
     loader_eval = None
     # TODO: now only use device 0 to perform evaluation
-    if cfg.system.val_while_train and rank_id in [0, None]: 
+    if cfg.system.val_while_train and is_main_device: 
         loader_eval = build_dataset(
                 cfg['eval']['dataset'], 
                 cfg['eval']['loader'],
                 num_shards=None,
-                shard_id=rank_id,
+                shard_id=None,
                 is_train=False)
 
     # model
@@ -83,7 +83,6 @@ def main(cfg):
     optimizer = create_optimizer(network.trainable_params(), **cfg['optimizer'])
     
     # loss
-    # TODO: input check for loss
     loss_fn = build_loss(cfg.loss.pop('name'), **cfg['loss'])
     
     # wrap train one step cell
@@ -113,12 +112,13 @@ def main(cfg):
             main_indicator=cfg['metric']['main_indicator'])
 
     # log
-    print('-'*30)
-    print('Num batches: ', num_batches)
-    print('-'*30)
+    if is_main_device:
+        print('-'*30)
+        print('Num batches: ', num_batches)
+        print('-'*30)
     
     # training
-    loss_monitor = LossMonitor(1) #(num_batches // 10)
+    loss_monitor = LossMonitor(num_batches // 10)
     time_monitor = TimeMonitor()
 
     model = ms.Model(train_net)
