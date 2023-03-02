@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import mindspore as ms
 from mindspore import nn
 from mindspore.nn.loss.loss import LossBase
