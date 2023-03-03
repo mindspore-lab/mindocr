@@ -3,7 +3,7 @@ A toolbox of OCR models, algorithms, and pipelines based on MindSpore
 
 **Features:**
 
-- Unified framework to support training text detection and recogintion models
+- Support training and evaluation for text detection and recogintion models
 
 
 ## Quick Start (for dev)
