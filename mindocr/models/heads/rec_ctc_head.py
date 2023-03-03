@@ -1,8 +1,17 @@
+import math
 import mindspore as ms
 from mindspore import nn
 from mindspore import ops
+from mindspore.common.initializer import Uniform
 
 __all__ = ['CTCHead']
+
+
+def crnn_head_initialization(k):
+    stdv = 1.0 / math.sqrt(k * 1.0)
+    initializer = Uniform(stdv)
+    return initializer
+
 
 class CTCHead(nn.Cell):
     '''
@@ -32,6 +41,12 @@ class CTCHead(nn.Cell):
         self.out_channels = out_channels
         self.mid_channels = mid_channels
         self.return_feats = return_feats
+        
+        if weight_init == "crnn_customised":
+            weight_init = crnn_head_initialization(in_channels)
+            
+        if bias_init == "crnn_customised":
+            bias_init = crnn_head_initialization(in_channels)
 
         # TODO: paddle is not using the exact XavierUniform. It uses check which is better.
         #w_init = 'xavier_uniform'

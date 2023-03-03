@@ -126,7 +126,7 @@ class RecCTCLabelDecode(object):
             preds = preds['head_out'] # TODO: change name
 
         if isinstance(preds, ms.Tensor):
-            preds = preds.numpy()
+            preds = preds.asnumpy()
         
         preds = preds.transpose([1, 0, 2]) # [W, BS, C] -> [BS, W, C]
         pred_indices = preds.argmax(axis=-1)
