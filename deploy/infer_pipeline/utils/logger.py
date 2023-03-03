@@ -34,10 +34,10 @@ _ms_level_to_name = {
 
 MAX_BYTES = 100 * 1024 * 1024
 BACKUP_COUNT = 10
-LOG_NAME, LOG_TYPE = "logs", "mxocr"
-LOG_ENV = "MX_OCR_LOG_LEVEL"
-MS_INSTALL_HOME_PATH = 'mindxsdk-mxocr'
-
+LOG_NAME, LOG_TYPE = "logs", "mindocr"
+LOG_ENV = "MINDOCR_LOG_LEVEL"
+MS_INSTALL_HOME_PATH = 'mindocr-pipeline-infer'
+LOG_SAVE_PATH = 'MINDOCR_LOG_SAVE_PATH'
 
 class DataFormatter(logging.Formatter):
     """Log formatter"""
@@ -74,7 +74,7 @@ class DataFormatter(logging.Formatter):
         :param record: Format pattern.
         :return: formatted log content according to format pattern.
         """
-        # when the Installation directory of mindxsdk-mxocr changed,
+        # when the Installation directory of mindocr changed,
         # ms_install_home_path must be changed
         idx = record.pathname.rfind(MS_INSTALL_HOME_PATH)
         if idx >= 0:
@@ -218,12 +218,12 @@ class LoggerSystem(metaclass=SingletonType):
 
     def get_logger(self):
         logger = LOGGER(self.model_name)
-        logger.setup_logging_file(self.path, self.max_bytes, self.backup_count)
+        if self.path:
+            if not os.path.exists(self.path):
+                os.makedirs(self.path, 0o750, exist_ok=True)
+            logger.setup_logging_file(self.path, self.max_bytes, self.backup_count)
         return logger
 
-
-log_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), LOG_NAME)
-if not os.path.exists(log_path):
-    os.makedirs(log_path, 0o750, exist_ok=True)
-log = LoggerSystem(log_path, LOG_TYPE)
-logger_instance = log.get_logger()
+log_path = os.getenv(LOG_SAVE_PATH, None)
+log_system = LoggerSystem(log_path, LOG_TYPE)
+logger_instance = log_system.get_logger()

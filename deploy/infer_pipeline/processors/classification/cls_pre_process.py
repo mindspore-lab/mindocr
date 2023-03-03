@@ -104,7 +104,7 @@ class CLSPreProcess(ModuleBase):
             cls_model_inputs = self.preprocess(split_input, batch)
             send_data = ProcessData(sub_image_size=len(split_input), sub_image_list=split_input,
                                     image_path=input_data.image_path, image_total=input_data.image_total,
-                                    infer_result=split_infer_res, input_array=cls_model_inputs,
+                                    infer_result=split_infer_res, input_array=cls_model_inputs, frame=input_data.frame,
                                     sub_image_total=input_data.sub_image_total, image_name=input_data.image_name,
                                     image_id=input_data.image_id, max_wh_ratio=input_data.max_wh_ratio)
 

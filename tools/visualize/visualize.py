@@ -1,6 +1,7 @@
 """
 OCR visualization methods
 """
+import os.path
 from typing import Union, List
 from enum import Enum, unique
 
@@ -54,11 +55,28 @@ class Visualization(object):
         return image_concat
 
     def vis_crop(self, image, box_list):
-        image = Image.fromarray(image)
         image_crop = []
         for box in box_list:
-            crop = image.crop((box[0][0], box[0][1], box[2][0], box[2][1]))
-            image_crop.append(crop)
+            if box.shape != (4, 2):
+                raise ValueError("shape of crop box must be 4*2")
+            box = box.astype(np.float32)
+            img_crop_width = int(max(np.linalg.norm(box[0] - box[1]),
+                                     np.linalg.norm(box[2] - box[3])))
+            img_crop_height = int(max(np.linalg.norm(box[0] - box[3]),
+                                      np.linalg.norm(box[1] - box[2])))
+            pts_std = np.float32([[0, 0], [img_crop_width, 0],
+                                  [img_crop_width, img_crop_height],
+                                  [0, img_crop_height]])
+            m = cv2.getPerspectiveTransform(box, pts_std)
+            dst_img = cv2.warpPerspective(
+                image,
+                m, (img_crop_width, img_crop_height),
+                borderMode=cv2.BORDER_REPLICATE,
+                flags=cv2.INTER_CUBIC)
+            dst_img_height, dst_img_width = dst_img.shape[0:2]
+            if dst_img_width != 0  and dst_img_height / dst_img_width >= 1.5:
+                dst_img = np.rot90(dst_img)
+            image_crop.append(dst_img)
         return image_crop
 
     def __call__(self,
@@ -67,7 +85,7 @@ class Visualization(object):
                  text_list: List[str] = None,
                  color: tuple = (0, 0, 255),
                  thickness: int = 2,
-                 font_path: str = './simfang.ttf') -> Union[List[np.array], np.array]:
+                 font_path: str = None) -> Union[List[np.array], np.array]:
         """
         Args:
             image: single input image
@@ -82,6 +100,8 @@ class Visualization(object):
         if self.vis_mode == VisMode.bbox:
             return self.vis_bbox(image, box_list, color, thickness)
         elif self.vis_mode == VisMode.bbox_text:
+            if not font_path:
+                font_path = os.path.join(os.path.dirname(__file__), 'simfang.ttf')
             return self.vis_bbox_text(image, box_list, text_list, color, thickness, font_path)
         elif self.vis_mode == VisMode.crop:
             return self.vis_crop(image, box_list)

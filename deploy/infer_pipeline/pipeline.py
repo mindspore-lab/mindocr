@@ -6,7 +6,7 @@ from multiprocessing import Process, Queue
 from deploy.infer_pipeline.data_type import StopSign
 from deploy.infer_pipeline.framework import ModuleDesc, ModuleConnectDesc, ModuleManager, SupportedTaskOrder
 from deploy.infer_pipeline.processors import MODEL_DICT
-from deploy.infer_pipeline.utils import log, profiling, safe_div, TASK_QUEUE_SIZE
+from deploy.infer_pipeline.utils import log, profiling, safe_div, save_path_init, TASK_QUEUE_SIZE
 
 
 def image_sender(images_path, send_queue):
@@ -81,6 +81,17 @@ def build_pipeline_kernel(args, input_queue):
 
 
 def build_pipeline(args):
+    if args.res_save_dir:
+        save_path_init(args.res_save_dir)
+    if args.save_pipeline_crop_res:
+        save_path_init(args.pipeline_crop_save_dir)
+    if args.save_vis_pipeline_save_dir:
+        save_path_init(args.vis_pipeline_save_dir)
+    if args.save_vis_det_save_dir:
+        save_path_init(args.vis_det_save_dir)
+    if args.save_log_dir:
+        save_path_init(args.save_log_dir)
+
     task_queue = Queue(TASK_QUEUE_SIZE)
     process = Process(target=build_pipeline_kernel, args=(args, task_queue))
     process.start()

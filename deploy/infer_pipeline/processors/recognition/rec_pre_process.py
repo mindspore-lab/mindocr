@@ -16,7 +16,7 @@ import numpy as np
 from mindx.sdk import base
 
 from deploy.infer_pipeline.data_type.process_data import ProcessData
-from deploy.infer_pipeline.framework import ModuleBase
+from deploy.infer_pipeline.framework import ModuleBase, InferModelComb
 from deploy.infer_pipeline.utils import get_batch_list_greedy, get_hw_of_img, safe_div, get_matched_gear_hw, \
     padding_with_cv, normalize, to_chw_image, expand, padding_batch, bgr_to_gray, get_shape_info, \
     check_valid_file, check_valid_dir, NORMALIZE_SCALE, NORMALIZE_MEAN, NORMALIZE_STD
@@ -164,7 +164,7 @@ class RecPreProcess(ModuleBase):
             self.send_to_next_module(input_data)
             return
 
-        if self.task_type == 'rec':
+        if self.task_type == InferModelComb.REC:
             self.process_without_sub_image(input_data)
         else:
             self.process_with_sub_image(input_data)
@@ -178,7 +178,7 @@ class RecPreProcess(ModuleBase):
 
         send_data = ProcessData(sub_image_size=1,
                                 image_path=input_data.image_path, image_total=input_data.image_total,
-                                input_array=rec_model_inputs,
+                                input_array=rec_model_inputs, frame=input_data.frame,
                                 sub_image_total=1, image_name=input_data.image_name,
                                 image_id=input_data.image_id)
 
@@ -202,7 +202,7 @@ class RecPreProcess(ModuleBase):
 
             send_data = ProcessData(sub_image_size=min(upper_bound - start_index, batch),
                                     image_path=input_data.image_path, image_total=input_data.image_total,
-                                    infer_result=split_infer_res, input_array=rec_model_inputs,
+                                    infer_result=split_infer_res, input_array=rec_model_inputs, frame=input_data.frame,
                                     sub_image_total=input_data.sub_image_total, image_name=input_data.image_name,
                                     image_id=input_data.image_id)
 

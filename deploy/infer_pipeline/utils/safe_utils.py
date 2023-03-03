@@ -12,9 +12,9 @@ import os
 import re
 import stat
 import json
+import shutil
 
 import cv2
-from yaml import safe_load
 
 from .logger import logger_instance as log
 
@@ -129,3 +129,8 @@ def safe_img_read(path: str):
     if img is None:
         raise ValueError(f'Error! Cannot load the image of {get_safe_name(path)}')
     return img
+
+def save_path_init(path):
+    if os.path.exists(path):
+        shutil.rmtree(path)
+    os.makedirs(path, 0o750)
