@@ -33,8 +33,11 @@ class DecodeImage(object):
 
         #img = cv2.imread(data['img_path'], self.flag)
         # read from buffer is faster?
-        with open(data['img_path'], 'rb') as f:
-                img = f.read()
+        if 'img_path' in data:
+            with open(data['img_path'], 'rb') as f:
+                    img = f.read()
+        elif 'img_lmdb' in data:
+            img = data["img_lmdb"]
         img = np.frombuffer(img, dtype='uint8')
         img = cv2.imdecode(img, self.flag)
 
