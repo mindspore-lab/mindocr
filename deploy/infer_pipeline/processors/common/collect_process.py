@@ -14,26 +14,26 @@ from ctypes import c_uint64
 from multiprocessing import Manager
 
 from deploy.infer_pipeline.data_type import StopData, ProcessData, ProfilingData
-from deploy.infer_pipeline.framework.module_base import ModuleBase
+from deploy.infer_pipeline.framework import ModuleBase, InferModelComb
 from deploy.infer_pipeline.utils import safe_list_writer, log
 
-
 _RESULTS_SAVE_FILENAME = {
-    'pipline': 'pipline_results.txt',
-    'det': 'det_results.txt',
-    'rec': 'rec_results.txt',
+    InferModelComb.DET: 'det_results.txt',
+    InferModelComb.REC: 'rec_results.txt',
+    InferModelComb.DET_REC: 'pipeline_results.txt',
+    InferModelComb.DET_CLS_REC: 'pipeline_results.txt'
 }
 
 
 class CollectProcess(ModuleBase):
-    def __init__(self, config_path, msg_queue):
-        super().__init__(config_path, msg_queue)
+    def __init__(self, args, msg_queue):
+        super().__init__(args, msg_queue)
         self.without_input_queue = False
         self.image_sub_remaining = defaultdict(int)
-        self.image_pipline_res = defaultdict(list)
+        self.image_pipeline_res = defaultdict(list)
         self.infer_size = 0
         self.image_total = Manager().Value(c_uint64, 0)
-        self.task_type = "pipline"
+        self.task_type = args.task_type
         self.save_filename = _RESULTS_SAVE_FILENAME[self.task_type]
 
     def init_self_args(self):
@@ -44,7 +44,7 @@ class CollectProcess(ModuleBase):
 
     def save_results(self):
         save_filename = os.path.join(self.infer_res_save_path, self.save_filename)
-        safe_list_writer(self.image_pipline_res, save_filename)
+        safe_list_writer(self.image_pipeline_res, save_filename)
         log.info(f'save infer result to {save_filename} successfully')
 
     def result_handle(self, input_data):
@@ -60,13 +60,14 @@ class CollectProcess(ModuleBase):
             else:
                 self.infer_size += 1
 
-        if self.task_type == 'pipline':
+        if self.task_type in (InferModelComb.DET_REC, InferModelComb.DET_CLS_REC):
             for result in input_data.infer_result:
-                self.image_pipline_res[input_data.image_name].append({"transcription": result[-1], "points": result[:-1]})
-        elif self.task_type == 'det':
-            self.image_pipline_res[input_data.image_name] = input_data.infer_result[:]
-        elif self.task_type == "rec":
-            self.image_pipline_res[input_data.image_name] = input_data.infer_result
+                self.image_pipeline_res[input_data.image_name].append(
+                    {"transcription": result[-1], "points": result[:-1]})
+        elif self.task_type == InferModelComb.DET:
+            self.image_pipeline_res[input_data.image_name] = input_data.infer_result[:]
+        elif self.task_type == InferModelComb.REC:
+            self.image_pipeline_res[input_data.image_name] = input_data.infer_result
         else:
             raise NotImplementedError
 

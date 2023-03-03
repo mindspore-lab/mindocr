@@ -13,13 +13,19 @@ from enum import Enum
 
 
 class InferModelComb(Enum):
-    DET = 1  # Detection Model
-    REC = 2  # Recognition Model
-    CLS_DET = 3  # Classifier And Detection Model
-    CLS_REC = 4  # Classifier And Recognition Model
-    DET_REC = 5  # Detection And Recognition Model
-    CLS_DET_REC = 6  # Classifier And Detection And Recognition Model
+    DET = 0  # Detection Model
+    REC = 1  # Recognition Model
+    CLS = 2  # Classifier Model
+    DET_REC = 3  # Detection, Classifier And Detection Model
+    DET_CLS_REC = 4  # Detection, Recognition Model
 
+
+SupportedTaskOrder = {
+    InferModelComb.DET: [InferModelComb.DET],
+    InferModelComb.REC: [InferModelComb.REC],
+    InferModelComb.DET_REC: [InferModelComb.DET, InferModelComb.REC],
+    InferModelComb.DET_CLS_REC: [InferModelComb.DET, InferModelComb.CLS, InferModelComb.REC]
+}
 
 class ConnectType(Enum):
     MODULE_CONNECT_ONE = 0

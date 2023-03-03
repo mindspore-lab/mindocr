@@ -3,31 +3,30 @@ import time
 from collections import defaultdict
 from multiprocessing import Process, Queue
 
-from src.data_type import StopSign
-from src.framework import ModuleDesc, ModuleConnectDesc, ModuleManager
-from src.processors import MODEL_DICT
-from src.utils import log, safe_load_yaml, profiling, safe_div, TASK_QUEUE_SIZE
+from deploy.infer_pipeline.data_type import StopSign
+from deploy.infer_pipeline.framework import ModuleDesc, ModuleConnectDesc, ModuleManager, SupportedTaskOrder
+from deploy.infer_pipeline.processors import MODEL_DICT
+from deploy.infer_pipeline.utils import log, profiling, safe_div, TASK_QUEUE_SIZE
 
 
 def image_sender(images_path, send_queue):
-    input_image_list = [os.path.join(images_path, path) for path in os.listdir(images_path)]
-    for image_path in input_image_list:
-        send_queue.put(image_path, block=True)
+    if os.path.isdir(images_path):
+        input_image_list = [os.path.join(images_path, path) for path in os.listdir(images_path)]
+        for image_path in input_image_list:
+            send_queue.put(image_path, block=True)
+    else:
+        send_queue.put(images_path, block=True)
 
 
-def build(config_path, parallel_num, input_queue, infer_res_save_path):
-    config_dict = safe_load_yaml(config_path)
+def build_pipeline_kernel(args, input_queue):
+    task_type = args.task_type
+    parallel_num = args.parallel_num
     module_desc_list = [ModuleDesc('HandoutProcess', 1), ModuleDesc('DecodeProcess', parallel_num), ]
 
-    module_order = config_dict.get('module_order', None)
-    if module_order is None:
-        raise ValueError('cannot find the order of module')
+    module_order = SupportedTaskOrder[task_type]
 
     for model_name in module_order:
-        model_name = model_name.lower()
-        if model_name not in MODEL_DICT:
-            log.error(f'unsupported model {model_name}')
-            raise ValueError(f'unsupported model {model_name}')
+        model_name = model_name
         for name, count in MODEL_DICT.get(model_name, []):
             module_desc_list.append(ModuleDesc(name, count * parallel_num))
 
@@ -41,7 +40,7 @@ def build(config_path, parallel_num, input_queue, infer_res_save_path):
     log.info(f'module_size: {module_size}')
     msg_queue = Queue(module_size)
 
-    manager = ModuleManager(msg_queue, input_queue, config_path, infer_res_save_path)
+    manager = ModuleManager(msg_queue, input_queue, args)
     manager.register_modules(str(os.getpid()), module_desc_list, 1)
     manager.register_module_connects(str(os.getpid()), module_connect_desc_list)
 
@@ -83,10 +82,9 @@ def build(config_path, parallel_num, input_queue, infer_res_save_path):
 
 def build_pipeline(args):
     task_queue = Queue(TASK_QUEUE_SIZE)
-    process = Process(target=build_pipeline, args=(args.config_path, args.parallel_num, task_queue,
-                                                   args.infer_res_save_path))
+    process = Process(target=build_pipeline_kernel, args=(args, task_queue))
     process.start()
-    image_sender(images_path=args.input_images_path, send_queue=task_queue)
+    image_sender(images_path=args.input_images_dir, send_queue=task_queue)
     task_queue.put(StopSign(), block=True)
     process.join()
     process.close()

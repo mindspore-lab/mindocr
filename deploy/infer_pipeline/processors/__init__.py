@@ -11,6 +11,7 @@ History: NA
 from sys import modules
 
 from deploy.infer_pipeline.utils import log
+from deploy.infer_pipeline.framework import InferModelComb
 
 from .classification import CLSPreProcess, CLSInferProcess
 from .common import HandoutProcess, CollectProcess, DecodeProcess
@@ -23,9 +24,9 @@ REC_DESC = [('RecPreProcess', 1), ('RecInferProcess', 1), ('RecPostProcess', 1)]
 CLS_DESC = [('CLSPreProcess', 1), ('CLSInferProcess', 1)]
 
 MODEL_DICT = {
-    'dbnet': DET_DESC,
-    'crnn': REC_DESC,
-    'cls': CLS_DESC
+    InferModelComb.DET: DET_DESC,
+    InferModelComb.REC: REC_DESC,
+    InferModelComb.CLS: CLS_DESC
 }
 
 

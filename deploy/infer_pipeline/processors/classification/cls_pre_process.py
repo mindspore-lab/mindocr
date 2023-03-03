@@ -18,13 +18,13 @@ from mindx.sdk import base
 from deploy.infer_pipeline.data_type.process_data import ProcessData
 from deploy.infer_pipeline.framework import ModuleBase
 from deploy.infer_pipeline.utils import get_batch_list_greedy, get_hw_of_img, safe_div, padding_with_cv, normalize, \
-    to_chw_image, expand, padding_batch, bgr_to_gray, safe_load_yaml, get_shape_info, get_device_id, \
+    to_chw_image, expand, padding_batch, bgr_to_gray, get_shape_info, \
     check_valid_file, NORMALIZE_MEAN, NORMALIZE_STD, NORMALIZE_SCALE
 
 
 class CLSPreProcess(ModuleBase):
-    def __init__(self, config_path, msg_queue):
-        super(CLSPreProcess, self).__init__(config_path, msg_queue)
+    def __init__(self, args, msg_queue):
+        super(CLSPreProcess, self).__init__(args, msg_queue)
         self.without_input_queue = False
         self.gear_list = []
         self.batchsize_list = []
@@ -36,14 +36,10 @@ class CLSPreProcess(ModuleBase):
         self.mean = np.array(NORMALIZE_MEAN).astype(np.float32)
 
     def init_self_args(self):
+        device_id = self.args.device_id
+        model_path = self.args.cls_model_path
+
         base.mx_init()
-        config = safe_load_yaml(self.config_path)
-        cls_config = config.get('cls', {})
-        if not cls_config:
-            raise ValueError(f'cannot find the cls related config in config file')
-        device_id = get_device_id(config, 'cls')
-        device_id = device_id if isinstance(device_id, int) else device_id[0]
-        model_path = cls_config.get('model_path', '')
         if model_path and os.path.isfile(model_path):
             check_valid_file(model_path)
             model = base.model(model_path, device_id)

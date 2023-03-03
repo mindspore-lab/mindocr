@@ -8,7 +8,7 @@ Create: 2022
 History: NA
 """
 
-from .common_utils import profiling, get_device_id
+from .common_utils import profiling
 from .constant import NORMALIZE_MEAN, NORMALIZE_SCALE, NORMALIZE_STD, IMAGE_NET_IMAGE_MEAN, \
     IMAGE_NET_IMAGE_STD, MAX_PARALLEL_NUM, MIN_PARALLEL_NUM, MIN_DEVICE_ID, MAX_DEVICE_ID, TASK_QUEUE_SIZE, \
     DBNET_LIMIT_SIDE
@@ -17,5 +17,5 @@ from .cv_utils import get_hw_of_img, get_matched_gear_hw, padding_with_cv, norma
     padding_batch, bgr_to_gray, array_to_texts, get_shape_info, \
     resize_by_limit_max_side, box_score_fast, padding_with_np
 from .logger import logger_instance as log
-from .safe_utils import safe_list_writer, safe_div, safe_load_yaml, check_valid_dir, file_base_check, \
+from .safe_utils import safe_list_writer, safe_div, check_valid_dir, file_base_check, \
     check_valid_file, safe_img_read

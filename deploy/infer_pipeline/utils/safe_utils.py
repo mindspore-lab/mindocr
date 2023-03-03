@@ -72,13 +72,6 @@ def file_base_check(file_path: str) -> None:
         raise FileNotFoundError(f'the file:{base_name} is unreadable!')
 
 
-def safe_load_yaml(config_file: str) -> dict:
-    file_base_check(config_file)
-    with open(config_file, 'r') as f:
-        config_yaml = safe_load(f.read())
-    return config_yaml
-
-
 def get_safe_name(path):
     """Remove ending path separators before retrieving the basename.
 

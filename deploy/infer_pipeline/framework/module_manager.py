@@ -21,19 +21,19 @@ OutputRegisterInfo = namedtuple('OutputRegisterInfo', ['pipeline_name', 'module_
 class ModuleManager:
     MODULE_QUEUE_MAX_SIZE = 16
 
-    def __init__(self, msg_queue: Queue, task_queue: Queue, config_path: str = None, infer_res_save_path: str = None):
+    def __init__(self, msg_queue: Queue, task_queue: Queue, args):
         self.device_id = 0
         self.pipeline_map = defaultdict(lambda: defaultdict(ModulesInfo))
         self.msg_queue = msg_queue
         self.stop_manager = Queue(1)
         self.stop_manager.put('-')
-        self.config_path = config_path
+        self.args = args
         self.pipeline_name = ''
         self.process_list = []
         self.queue_list = []
         self.pipeline_queue_map = defaultdict(lambda: defaultdict(list))
         self.task_queue = task_queue
-        self.infer_res_save_path = infer_res_save_path
+        self.infer_res_save_path = args.res_save_dir
 
     @staticmethod
     def stop_module(module):
@@ -60,7 +60,7 @@ class ModuleManager:
             module_count = default_count if module_desc.module_count == -1 else module_desc.module_count
             module_info = ModulesInfo()
             for instance_id in range(module_count):
-                module_instance = processor_initiator(module_desc.module_name)(self.config_path, self.msg_queue)
+                module_instance = processor_initiator(module_desc.module_name)(self.args, self.msg_queue)
                 self.init_module_instance(module_instance, instance_id,
                                           pipeline_name,
                                           module_desc.module_name)

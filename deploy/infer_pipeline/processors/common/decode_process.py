@@ -12,12 +12,12 @@ import numpy as np
 from mindx.sdk import base, ImageProcessor
 
 from deploy.infer_pipeline.framework.module_base import ModuleBase
-from deploy.infer_pipeline.utils import safe_img_read, log, get_hw_of_img, safe_load_yaml, check_valid_file
+from deploy.infer_pipeline.utils import safe_img_read, log, get_hw_of_img, check_valid_file
 
 
 class DecodeProcess(ModuleBase):
-    def __init__(self, config_path, msg_queue):
-        super().__init__(config_path, msg_queue)
+    def __init__(self, args, msg_queue):
+        super().__init__(args, msg_queue)
         self.without_input_queue = False
         self.device = 'Ascend310P3'
         self.device_id = 0
@@ -45,8 +45,8 @@ class DecodeProcess(ModuleBase):
 
     def init_self_args(self):
         base.mx_init()
-        dic = safe_load_yaml(self.config_path)
-        self.device = dic['device']
+        self.device = self.args.device
+        self.device_id = self.args.device_id
         if self.device == 'Ascend310P3':
             self.image_processor = ImageProcessor(self.device_id)
         elif self.device == 'Ascend310':

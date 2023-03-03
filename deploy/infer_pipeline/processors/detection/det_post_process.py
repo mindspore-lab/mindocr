@@ -17,8 +17,8 @@ from deploy.infer_pipeline.utils import get_mini_boxes, unclip, construct_box, b
 
 
 class DetPostProcess(ModuleBase):
-    def __init__(self, config_path, msg_queue):
-        super(DetPostProcess, self).__init__(config_path, msg_queue)
+    def __init__(self, args, msg_queue):
+        super(DetPostProcess, self).__init__(args, msg_queue)
         self.without_input_queue = False
         self.thresh = 0.3
         self.max_candidates = 1000

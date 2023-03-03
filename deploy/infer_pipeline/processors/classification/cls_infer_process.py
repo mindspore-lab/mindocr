@@ -14,25 +14,21 @@ import numpy as np
 from mindx.sdk import base, Tensor
 
 from deploy.infer_pipeline.framework import ModuleBase
-from deploy.infer_pipeline.utils import safe_load_yaml, get_device_id, check_valid_file
+from deploy.infer_pipeline.utils import check_valid_file
 
 
 class CLSInferProcess(ModuleBase):
-    def __init__(self, config_path, msg_queue):
-        super(CLSInferProcess, self).__init__(config_path, msg_queue)
+    def __init__(self, args, msg_queue):
+        super(CLSInferProcess, self).__init__(args, msg_queue)
         self.model = None
         self.static_method = True
         self.thresh = 0.9
 
     def init_self_args(self):
+        device_id = self.args.device_id
+        model_path = self.args.cls_model_path
+
         base.mx_init()
-        config = safe_load_yaml(self.config_path)
-        cls_config = config.get('cls', {})
-        if not cls_config:
-            raise ValueError(f'cannot find the cls related config in config file')
-        device_id = get_device_id(config, 'cls')
-        device_id = device_id if isinstance(device_id, int) else device_id[self.instance_id % len(device_id)]
-        model_path = cls_config.get('model_path', '')
         if model_path and os.path.isfile(model_path):
             check_valid_file(model_path)
             self.model = base.model(model_path, device_id)

@@ -12,13 +12,13 @@ import numpy as np
 from mindx.sdk import base, Tensor
 
 from deploy.infer_pipeline.framework import ModuleBase
-from deploy.infer_pipeline.utils import safe_load_yaml, get_matched_gear_hw, padding_with_np, get_device_id,\
+from deploy.infer_pipeline.utils import get_matched_gear_hw, padding_with_np, \
     get_shape_info
 
 
 class DetInferProcess(ModuleBase):
-    def __init__(self, config_path, msg_queue):
-        super(DetInferProcess, self).__init__(config_path, msg_queue)
+    def __init__(self, args, msg_queue):
+        super(DetInferProcess, self).__init__(args, msg_queue)
         self.without_input_queue = False
         self.model = None
         self.gear_list = None
@@ -26,16 +26,11 @@ class DetInferProcess(ModuleBase):
         self.max_dot_gear = None
 
     def init_self_args(self):
-        base.mx_init()
-        config = safe_load_yaml(self.config_path)
-        dbnet_config = config.get('dbnet', {})
-        if not dbnet_config:
-            raise ValueError(f'cannot find the dbnet related config in config file')
-        model_path = dbnet_config.get('model_path', '')
+        device_id = self.args.device_id
+        model_path = self.args.det_model_path
 
-        device_id = get_device_id(config, 'dbnet')
-        device_id = [device_id] if isinstance(device_id, int) else device_id
-        self.model = base.model(model_path, device_id[self.instance_id % len(device_id)])
+        base.mx_init()
+        self.model = base.model(model_path, device_id)
 
         desc, shape_info = get_shape_info(self.model.input_shape(0), self.model.model_gear())
         if desc != "dynamic_height_width":

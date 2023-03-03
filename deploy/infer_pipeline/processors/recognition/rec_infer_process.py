@@ -14,12 +14,12 @@ import numpy as np
 from mindx.sdk import base, Tensor
 
 from deploy.infer_pipeline.framework import ModuleBase
-from deploy.infer_pipeline.utils import safe_load_yaml, get_shape_info, get_device_id, check_valid_file, check_valid_dir
+from deploy.infer_pipeline.utils import get_shape_info, check_valid_file, check_valid_dir
 
 
 class RecInferProcess(ModuleBase):
-    def __init__(self, config_path, msg_queue):
-        super(RecInferProcess, self).__init__(config_path, msg_queue)
+    def __init__(self, args, msg_queue):
+        super(RecInferProcess, self).__init__(args, msg_queue)
         self.model_list = defaultdict()
         self.static_method = True
 
@@ -38,16 +38,10 @@ class RecInferProcess(ModuleBase):
         return model
 
     def init_self_args(self):
+        device_id = self.args.device_id
+        model_path = self.args.rec_model_path
+
         base.mx_init()
-        config = safe_load_yaml(self.config_path)
-        crnn_config = config.get('crnn', {})
-        if not crnn_config:
-            raise ValueError(f'cannot find the crnn related config in config file')
-        device_id = get_device_id(config, 'crnn')
-        device_id = device_id if isinstance(device_id, int) else device_id[0]
-
-        model_path = crnn_config.get('model_dir', '') or crnn_config.get('model_path', '')
-
         if os.path.isfile(model_path):
             self.get_single_model(model_path, device_id)
 

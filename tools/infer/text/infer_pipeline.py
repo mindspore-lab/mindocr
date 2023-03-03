@@ -17,15 +17,7 @@ sys.path.append(__dir__)
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, '../../..')))
 
 from deploy.infer_pipeline.pipeline import build_pipeline
-from deploy.infer_pipeline.src.demo.python.src.utils import check_valid_dir, file_base_check
-from tools.infer.text.args import get_args
-
-
-def check_args(det_args):
-    check_valid_dir(det_args.input_images_dir)
-    file_base_check(det_args.config_path)
-    if det_args.parallel_num < 1 or det_args.parallel_num > 4:
-        raise ValueError(f'parallel num must between [1,4], current: {det_args.parallel_num}')
+from tools.infer.text.args import get_args, update_task_type
 
 
 def save_path_init(path):
@@ -35,9 +27,9 @@ def save_path_init(path):
 
 
 def build_infer_pipeline(args):
-    check_args(args)
-    if args.pipeline_res_save_dir:
-        save_path_init(args.pipeline_res_save_dir)
+    if args.res_save_dir:
+        save_path_init(args.res_save_dir)
+    args = update_task_type(args)
     build_pipeline(args)
 
 

@@ -19,8 +19,8 @@ from deploy.infer_pipeline.utils import log
 
 
 class ModuleBase(object):
-    def __init__(self, config_path, msg_queue):
-        self.config_path = config_path
+    def __init__(self, args, msg_queue):
+        self.args = args
         self.pipeline_name = ''
         self.module_name = ''
         self.without_input_queue = False

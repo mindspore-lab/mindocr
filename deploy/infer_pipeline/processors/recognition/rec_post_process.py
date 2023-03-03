@@ -11,27 +11,23 @@ import os.path
 
 import numpy as np
 
-from deploy.infer_pipeline.utils import array_to_texts, safe_load_yaml, file_base_check, log
+from deploy.infer_pipeline.utils import array_to_texts, file_base_check, log
 from deploy.infer_pipeline.framework import ModuleBase
 
 
 class RecPostProcess(ModuleBase):
-    def __init__(self, config_path, msg_queue):
-        super(RecPostProcess, self).__init__(config_path, msg_queue)
+    def __init__(self, args, msg_queue):
+        super(RecPostProcess, self).__init__(args, msg_queue)
         self.without_input_queue = False
         self.labels = [' ']
-        self.task_type = 'pipline'
+        self.task_type = args.task_type
 
     def init_self_args(self):
-        config = safe_load_yaml(self.config_path)
-        crnn_config = config.get('crnn', {})
-        if not crnn_config:
-            raise ValueError(f'cannot find the crnn related config in config file')
-        label_path = crnn_config.get('dict_path', '')
+        label_path = self.args.rec_char_dict_path
         if label_path and os.path.isfile(label_path):
             file_base_check(label_path)
         else:
-            raise FileNotFoundError('CRNN dict_path must be a file')
+            raise FileNotFoundError('rec_char_dict_path must be a file')
         with open(label_path, 'r', encoding='utf8') as f:
             for line in f.readlines():
                 line = line.strip("\n").strip("\r\n")

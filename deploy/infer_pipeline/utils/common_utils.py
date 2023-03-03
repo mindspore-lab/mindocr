@@ -26,19 +26,3 @@ def profiling(profiling_data, image_total):
                  f'send waiting time avg cost {safe_div(send_time * 1000, image_total):.2f} ms')
         log.info('----------------------------------------------------')
     log.info(f'e2e cost time per image {e2e_cost_time_per_image}ms')
-
-
-def get_device_id(config, model_name):
-    model_config = config.get(model_name, {})
-    if model_config and model_config.get('device_id', None) is not None:
-        device_id = model_config.get('device_id', None)
-    else:
-        device_id = config.get('device_id', 0)
-
-    if isinstance(device_id, list):
-        if any(device_id_ < MIN_DEVICE_ID or device_id_ > MAX_DEVICE_ID for device_id_ in device_id):
-            raise ValueError(f'device id must in [0,8], current setting is {device_id}')
-    else:
-        if device_id < MIN_DEVICE_ID or device_id > MAX_DEVICE_ID:
-            raise ValueError(f'device id must in [0,8], current setting is {device_id}')
-    return device_id

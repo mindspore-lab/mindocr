@@ -16,8 +16,8 @@ from deploy.infer_pipeline.utils import normalize, to_chw_image, \
 
 
 class DetPreProcess(ModuleBase):
-    def __init__(self, config_path, msg_queue):
-        super(DetPreProcess, self).__init__(config_path, msg_queue)
+    def __init__(self, args, msg_queue):
+        super(DetPreProcess, self).__init__(args, msg_queue)
         self.without_input_queue = False
         self.gear_list = []
         self.max_dot_gear = (0, 0)
