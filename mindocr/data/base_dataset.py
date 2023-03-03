@@ -60,6 +60,7 @@ class BaseDataset(object):
         #    label_files = os.path.join(data_dir, 'gt.txt')
         self.data_list = self.load_data_list(label_files, sample_ratios, shuffle)
 
+
         # create transform
         if transform_pipeline is not None:
             self.transforms = create_transforms(transform_pipeline) #, global_config=global_config)
@@ -124,7 +125,7 @@ class BaseDataset(object):
                 else:
                     lines = lines[:round(len(lines) * sample_ratios[idx])]
                 data_lines.extend(lines)
-                print(lines[:5])
+                #print(lines[:5])
         # print(data_lines)
         # parse each line of annotation
         data_list = []

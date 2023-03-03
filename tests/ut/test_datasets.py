@@ -15,8 +15,11 @@ from mindocr.data.transforms.transforms_factory import transforms_dbnet_icdar15
 from mindocr.data.rec_dataset import RecDataset
 from mindspore import load_checkpoint, load_param_into_net
 
+from mindocr.utils.visualize import show_img, draw_bboxes, show_imgs, recover_image
+
 @pytest.mark.parametrize('task', ['det', 'rec'])
-def test_build_dataset(task='det', verbose=True):
+#@pytest.mark.parametrize('phase', ['train', 'eval'])
+def test_build_dataset(task='det', phase='train', verbose=True, visualize=False):
     # TODO: download sample test data automatically
     #data_dir = '/data/ocr_datasets/ic15/text_localization/train'
     #annot_file = '/data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt'
@@ -71,23 +74,32 @@ def test_build_dataset(task='det', verbose=True):
         #config['model']['head']['out_channels'] = num_classes
         print('=> num classes (valid chars + special tokens): ', rec_info.num_classes)
 
+    dataset_config = cfg[phase]['dataset']
+    loader_config = cfg[phase]['loader']
 
-    dataset_config = cfg['train']['dataset']
-    loader_config = cfg['train']['loader']
-
-    dl = build_dataset(dataset_config, loader_config, is_train=True)
+    dl = build_dataset(dataset_config, loader_config, is_train=(phase=='train'))
     num_batches = dl.get_dataset_size()
 
     #batch = next(dl.create_tuple_iterator())
-    num_tries = 1
+    num_tries = 3
     start = time.time()
-    for i in range(num_tries):
-        batch = next(dl.create_dict_iterator())
+    iterator = dl.create_dict_iterator()
+    for i, batch in enumerate(iterator):
+        if i >= num_tries:
+            break
+
         if verbose:
             for k,v in batch.items():
                 print(k, v.shape)
                 if len(v.shape)<=2:
-                    print(v[0])
+                    print(v)
+        
+        if (i == num_tries -1) and visualize:
+            if task == 'det' and phase == 'eval':
+                img = batch['image'][0].asnumpy()
+                polys = batch['polys'][0].asnumpy() 
+                img_polys = draw_bboxes(recover_image(img), polys)
+                show_img(img_polys)
 
     tot = time.time() - start
     mean = tot / num_tries
@@ -98,9 +110,8 @@ def test_det_dataset():
     data_dir = '/data/ocr_datasets/ic15/text_localization/train'
     annot_file = '/data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt'
     transform_pipeline = transforms_dbnet_icdar15(phase='train')
-    ds = DetDataset(is_train=True, data_dir=data_dir, annot_files=annot_file, sample_ratios=0.5, transform_pipeline=transform_pipeline, shuffle=False)
+    ds = DetDataset(is_train=True, data_dir=data_dir, label_files=annot_file, sample_ratios=0.5, transform_pipeline=transform_pipeline, shuffle=False)
 
-    from mindocr.utils.visualize import show_img, draw_bboxes, show_imgs, recover_image
     print('num data: ', len(ds))
     for i in [223]:
         data_tuple = ds.__getitem__(i)
@@ -131,6 +142,18 @@ def test_det_dataset():
         thrmap_polys= draw_bboxes(data['threshold_map'], data['polys'])
         thrmask_polys= draw_bboxes(data['threshold_mask'], data['polys'])
         show_imgs([img_polys, mask_polys, thrmap_polys, thrmask_polys], show=False, save_path='/data/ocr_ic15_debug2.png')
+
+        
+        np.savez('./det_db_label_samples.npz', 
+                image=data['image'],
+                polys=data['polys'],
+                texts=data['texts'],
+                ignore_tags=data['ignore_tags'],
+                shrink_map=data['shrink_map'],
+                shrink_mask=data['shrink_mask'],
+                threshold_map=data['threshold_map'],
+                threshold_mask=data['threshold_mask'],
+                )
 
         # TODO: check transformed image and label correctness
 
@@ -180,7 +203,9 @@ def test_rec_dataset(visualize=True):
 
 
 if __name__ == '__main__':
-    #test_build_dataset(task='det')
-    test_build_dataset(task='rec')
+    #test_build_dataset(task='det', phase='eval', visualize=True)
+    #test_build_dataset(task='det', phase='train', visualize=False)
+    test_build_dataset(task='rec', phase='eval', visualize=False)
+    #test_build_dataset(task='rec')
     #test_det_dataset()
     #test_rec_dataset()

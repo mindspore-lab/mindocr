@@ -1,15 +1,17 @@
 system:
-  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  mode: 1 # 0 for graph mode, 1 for pynative mode in MindSpore
   distribute: False 
   amp_level: 'O0'
   seed: 42
+  val_while_train: True
+  ckpt_save_dir: './tmp_det'
 
 model:
   type: det
   transform: null
   backbone:
     name: det_resnet50
-    pretrained: False
+    pretrained: True 
   neck:
     name: DBFPN
     out_channels: 256
@@ -21,10 +23,22 @@ model:
     bias: False
     adaptive: True
     serial: False
+ 
+postprocess:
+  name: DBPostprocess
+  region_type: 'quad'
+  thresh: 0.3
+  box_thresh: 0.55 # TODO: this value is 0.55 in modelzoo and but 0.7 in paddle
+  max_candidates: 1000
+  unclip_ratio: 1.5
+ 
+metric:
+  name: DetMetric
+  main_indicator: hmean
 
 loss:
   name: L1BalanceCELoss  
-  eps: 0.000001 
+  eps: 0.000001
   l1_scale: 10
   bce_scale: 5 
   bce_replace: bceloss
@@ -32,10 +46,10 @@ loss:
 scheduler: 
   scheduler: "cosine_decay"
   min_lr: 0.00001
-  lr: 0.001
-  num_epochs: 300
-  warmup_epochs: 0
-  decay_epochs: 280
+  lr: 0.007
+  num_epochs: 100
+  warmup_epochs: 3
+  decay_epochs: 97
 
 optimizer:
   opt: "momentum"
@@ -61,7 +75,6 @@ train:
           to_float32: False
       - DetLabelEncode:  
       - MZResizeByGrid: 
-          #denominator: 32
           divisor: 32
           transform_polys: True # originally in modelzoo, it doesn't transform polys
       - MZRandomScaleByShortSide: 
@@ -74,10 +87,10 @@ train:
           max_tries: 100 
           min_crop_side_ratio: 0.1
           crop_size: [640, 640]
-      - MZResizeByGrid: 
-          #denominator: 32
-          divisor: 32
-          transform_polys: True
+      #- MZResizeByGrid:  # TODO: necessary? 640 is divisable by 32
+      #        denominator: 32
+      #        divisor: 32
+      #    transform_polys: True
       #- MakeShrinkMap: 
       - MZMakeSegDetectionData: 
           min_text_size: 8
@@ -107,6 +120,41 @@ train:
       shuffle: True # TODO: tbc
       batch_size: 16
       drop_remainder: True
-      max_rowsize: 6
+      max_rowsize: 20
       num_workers: 2
 
+eval:
+  dataset_sink_mode: False
+  dataset:
+    type: DetDataset
+    data_dir: /data/ocr_datasets/ic15/text_localization/test
+    label_files: /data/ocr_datasets/ic15/text_localization/test/test_icdar2015_label.txt
+    #data_dir: /Users/Samit/Data/datasets/ic15/det/test
+    #label_files: /Users/Samit/Data/datasets/ic15/det/test/test_icdar2015_label.txt
+    sample_ratios: [1.0]
+    shuffle: False
+    transform_pipeline:
+      - DecodeImage: 
+          img_mode: BGR
+          to_float32: False
+      - DetLabelEncode:  
+      - MZScalePad: 
+          eval_size: [736, 1280] # h, w
+      - NormalizeImage: 
+          bgr_to_rgb: True
+          is_hwc: True
+          mean : [123.675, 116.28, 103.53]
+          std : [58.395, 57.12, 57.375]
+      - ToCHWImage: 
+    #  the order of the dataloader list, matching the network input and the labels for evalution 
+    output_keys: ['image', 'polys', 'ignore_tags'] #'shape'] #'img_path'] 
+    num_keys_to_net: 1 # num inputs for network forward func
+    num_keys_of_labels: 2 # num labels 
+     
+     
+  loader:
+      shuffle: False
+      batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
+      drop_remainder: False 
+      max_rowsize: 20
+      num_workers: 1

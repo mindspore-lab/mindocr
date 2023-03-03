@@ -27,11 +27,14 @@ from mindcv.scheduler import create_scheduler
 from mindocr.data import build_dataset
 from mindocr.models import build_model
 from mindocr.losses import build_loss
+from mindocr.postprocess import build_postprocess
+from mindocr.metrics import build_metric
 from mindocr.utils.model_wrapper import NetWithLossWrapper
+from mindocr.utils.callbacks import EvalSaveCallback # TODO: callback in a better dir
 from mindocr.utils.random import set_seed
+#from mindcv.utils.random import set_seed
 
 def main(cfg):
-    # TODO: cfg to easy dict
     # env init
     ms.set_context(mode=cfg.system.mode)
     if cfg.system.distribute:
@@ -47,6 +50,7 @@ def main(cfg):
     
     set_seed(cfg.system.seed, rank_id)
     cv2.setNumThreads(2)
+    is_main_device = rank_id in [None, 0]
 
     # train pipeline
     # dataset
@@ -57,7 +61,17 @@ def main(cfg):
             shard_id=rank_id,
             is_train=True)
     num_batches = loader_train.get_dataset_size()
-    
+
+    loader_eval = None
+    # TODO: now only use device 0 to perform evaluation
+    if cfg.system.val_while_train and is_main_device: 
+        loader_eval = build_dataset(
+                cfg['eval']['dataset'], 
+                cfg['eval']['loader'],
+                num_shards=None,
+                shard_id=None,
+                is_train=False)
+
     # model
     network = build_model(cfg['model'])
     ms.amp.auto_mixed_precision(network, amp_level=cfg.system.amp_level)  
@@ -69,7 +83,6 @@ def main(cfg):
     optimizer = create_optimizer(network.trainable_params(), **cfg['optimizer'])
     
     # loss
-    # TODO: input check for loss
     loss_fn = build_loss(cfg.loss.pop('name'), **cfg['loss'])
     
     # wrap train one step cell
@@ -81,17 +94,35 @@ def main(cfg):
                                                  optimizer=optimizer,
                                                  scale_sense=loss_scale_manager) 
 
+    # postprocess, metric
+    postprocessor = None
+    if cfg.system.val_while_train:
+        postprocessor = build_postprocess(cfg['postprocess'])
+        # postprocess network prediction
+        metric = build_metric(cfg['metric']) 
+
+    # build callbacks
+    eval_cb = EvalSaveCallback(
+            network, 
+            loader_eval, 
+            postprocessor=postprocessor, 
+            metrics=[metric],  #TODO:
+            rank_id=rank_id,
+            ckpt_save_dir=cfg['system']['ckpt_save_dir'],
+            main_indicator=cfg['metric']['main_indicator'])
+
     # log
-    print('-'*30)
-    print('Num batches: ', num_batches)
-    print('-'*30)
+    if is_main_device:
+        print('-'*30)
+        print('Num batches: ', num_batches)
+        print('-'*30)
     
     # training
-    loss_monitor = LossMonitor(1) #(num_batches // 10)
+    loss_monitor = LossMonitor(num_batches // 10)
     time_monitor = TimeMonitor()
 
     model = ms.Model(train_net)
-    model.train(cfg.scheduler.num_epochs, loader_train, callbacks=[loss_monitor, time_monitor],
+    model.train(cfg.scheduler.num_epochs, loader_train, callbacks=[loss_monitor, time_monitor, eval_cb],
                 dataset_sink_mode=config.train.dataset_sink_mode)
 
 

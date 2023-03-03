@@ -13,7 +13,6 @@ __all__ = ['RecCTCLabelEncode', 'RecResizeImg']
 
 class RecCTCLabelEncode(object):
     ''' Convert text label (str) to a sequence of character indices according to the char dictionary
-    Note: It uses the index of the last char in dict to do the fixed-length padding.
 
     Args:
         max_text_len: to pad the label text to a fixed length (max_text_len) of text for ctc loss computate.
@@ -112,10 +111,12 @@ class RecCTCLabelEncode(object):
         required keys:
             label -> (str) text string
         added keys:
-            text_seq-> (np.ndarray, int32), sequence of character indices after  padding to max_text_len in shape (sequence_len)
+            text_seq-> (np.ndarray, int32), sequence of character indices after  padding to max_text_len in shape (sequence_len), where ood characters are skipped
         added keys:
-            text -> (str) text label (stored for debugging)
-            length -> (np.int32) the number of valid chars in the encoded `label`,  where the padded chars are excluded.
+            length -> (np.int32) the number of valid chars in the encoded char index sequence,  where valid means the char is in dictionary.
+            text_padded -> (str) text label padded to fixed length, to solved the dynamic shape issue in dataloader. 
+            text_length -> int, the length of original text string label
+
         '''
         #if isinstance(data['label'], np.ndarray):
         #    print(data['label'])
@@ -128,13 +129,12 @@ class RecCTCLabelEncode(object):
         data['length'] = np.array(len(char_indices), dtype=np.int32)
         # padding with blank index
         char_indices = char_indices + [self.blank_idx] * (self.max_text_len - len(char_indices))
+        # TODO: raname to char_indices
         data['text_seq'] = np.array(char_indices, dtype=np.int32)
-        '''
-        label = [0] * len(self.character)
-        for x in text:
-            label[x] += 1
-        data['label_ace'] = np.array(label, dtype=np.int32)
-        '''
+        # 
+        data['text_length'] = len(data['label']) 
+        data['text_padded'] = data['label'] + ' ' * (self.max_text_len - len(data['label']))
+
         return data
 
 
