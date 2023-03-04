@@ -3,15 +3,14 @@ Code adopted from paddle.
 TODO: overwrite
 
 '''
-
 from typing import List
 
 import numpy as np
 from mindspore import nn
 from shapely.geometry import Polygon
+from .meters import AverageMeter
 
 __all__ = ['DetMetric']
-
 
 
 def _get_intersect(pD, pG):
@@ -20,24 +19,6 @@ def _get_intersect(pD, pG):
 
 def _get_iou(pD, pG):
     return pD.intersection(pG).area / pD.union(pG).area
-
-
-class AverageMeter:
-    """Computes and stores the average and current value"""
-    def __init__(self):
-        self.reset()
-
-    def reset(self):
-        self.val = 0
-        self.avg = 0
-        self.sum = 0
-        self.count = 0
-
-    def update(self, val, n=1):
-        self.val = val
-        self.sum += val * n
-        self.count += n
-        self.avg = self.sum / self.count
 
 
 class DetectionIoUEvaluator:

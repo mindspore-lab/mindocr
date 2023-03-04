@@ -135,7 +135,7 @@ eval:
     num_keys_to_net: 1 # num inputs for network forward func
      
   loader:
-      shuffle: True # TODO: tbc
+      shuffle: False
       batch_size: 64
       drop_remainder: False
       max_rowsize: 12

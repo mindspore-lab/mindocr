@@ -20,7 +20,6 @@ from mindcv.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 __all__ = ['MZRandomColorAdjust', 'MZScalePad', 'MZResizeByGrid', 'MZRandomCropData',
             'MZRandomScaleByShortSide', 'MZMakeSegDetectionData', 'MZMakeBorderMap', 'MZIncorrectNormToCHW']
 
-# TODO: the input pixel value is in range [0, 255] or [0, 1]?
 # TODO: Does it support BGR mode?
 class MZRandomColorAdjust():
     def __init__(self, brightness=32.0 / 255, saturation=0.5, to_numpy=False):
@@ -134,18 +133,7 @@ class MZResizeByGrid(object):
         if polys is None:
             return data
 
-        # TODO: compute in np array, not list 
-        '''
         #if self.is_train:
-        #    new_polys = []
-            for poly in polys:
-                poly[:, 0] = poly[:, 0] * w_scale
-                poly[:, 1] = poly[:, 1] * h_scale
-                new_polys.append(poly)
-            polys = new_polys
-            polys[:, :, 0] = polys[:, :, 0] * w_scale
-            polys[:, :, 1] = polys[:, :, 1] * h_scale
-        '''
         polys[:, :, 0] = polys[:, :, 0] * w_scale
         polys[:, :, 1] = polys[:, :, 1] * h_scale
 
