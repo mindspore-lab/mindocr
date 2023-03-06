@@ -47,9 +47,9 @@ scheduler:
   scheduler: "cosine_decay"
   min_lr: 0.00001
   lr: 0.007
-  num_epochs: 100
-  warmup_epochs: 3
-  decay_epochs: 97
+  num_epochs: 5
+  warmup_epochs: 2
+  decay_epochs: 3
 
 optimizer:
   opt: "momentum"

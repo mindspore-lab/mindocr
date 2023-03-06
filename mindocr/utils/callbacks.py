@@ -4,12 +4,13 @@ from tqdm import tqdm
 
 import mindspore as ms
 from mindspore import save_checkpoint
-from mindspore.train.callback import Callback
+from mindspore.train.callback._callback import Callback, _handle_loss
 from mindocr.utils.visualize import show_img, draw_bboxes, show_imgs, recover_image
+from mindocr.metrics.meters import AverageMeter
+from mindocr.utils.recorder import PerfRecorder
 
 __all__ = ['Evaluator', 'EvalSaveCallback']
 
-# TODO: debug to confirm the evaluator and callback will not influence the graph compile and training result.
 class Evaluator(object):
     '''
     Args:
@@ -147,16 +148,14 @@ class EvalSaveCallback(Callback):
             run_context (RunContext): Context of the train running.
         """
         cb_params = run_context.original_args()
-        loss = cb_params.net_outputs
+        loss = _handle_loss(cb_params.net_outputs)
         cur_epoch = cb_params.cur_epoch_num
         data_sink_mode = cb_params.dataset_sink_mode
-        
-        # TODO: compute epoch-wise training loss
-        '''
+        cur_step_in_epoch = (cb_params.cur_step_num - 1) % cb_params.batch_num + 1 
         if cur_step_in_epoch == 1:
             self.loss_avg = AverageMeter()
-        self.loss_avg.update(loss)
-        '''
+        # TODO: need to stop gradient here ?
+        self.loss_avg.update(loss.asnumpy())
 
     def on_train_epoch_begin(self, run_context):
         """
@@ -177,12 +176,26 @@ class EvalSaveCallback(Callback):
         loss = cb_params.net_outputs
         cur_epoch = cb_params.cur_epoch_num
         epoch_time = (time.time() - self.epoch_start_time)
-        #loss_log = "epoch: [%s/%s], loss: %.6f, epoch time: %.3f s" % (
-        #    cur_epoch, self.config.train.total_epochs, loss[0].asnumpy(), epoch_time,
-        #    epoch_time * 1000 / self.config.steps_per_epoch)
-        #loss_log = f"epoch: {cur_epoch}, loss: {loss}, epoch time: {epoch_time}"
-        #print('INFO: ', loss_log)
-        
+        train_loss = self.loss_avg.get()
+        if isinstance(train_loss, ms.Tensor):
+            train_loss = train_loss.asnumpy()
+            
+        # TODO: add lr print 
+        '''
+        optimizer = cb_params.optimizer
+        step = optimizer.global_step
+        if optimizer.dynamic_lr:
+            cur_lr = optimizer.learning_rate(step - 1)[0].asnumpy()
+        else:
+            cur_lr = optimizer.learning_rate.asnumpy()
+        loss = self._get_loss(cb_params)
+        '''
+
+        print(
+                f"Epoch: {cur_epoch}, "
+                f"loss:{train_loss:.5f}, time:{epoch_time:.3f}s"
+            )
+
         if self.rank_id in [0, None]:
             # evaluate
             measures = self.net_evaluator.eval(self.loader_eval) 
@@ -193,9 +206,15 @@ class EvalSaveCallback(Callback):
                 self.best_perf = perf
                 save_checkpoint(self.network, os.path.join(self.ckpt_save_dir, 'best.ckpt' ))
                 print(f'=> best {self.main_indicator}: {perf}, checkpoint saved.')
+            # record results
+            if cur_epoch==1: 
+                metric_names=['loss'] + list(measures.keys()) + ['epoch_time']
+                self.rec = PerfRecorder(self.ckpt_save_dir, metric_names=metric_names)
+            self.rec.add(cur_epoch, train_loss, *list(measures.values()), epoch_time)
 
 
     def on_train_end(self, run_context):
-        if self.rank_id == 0:
+        if self.rank_id in [0, None]:
+            self.rec.save_curves() # save performance curve figure
             print(f'=> best {self.main_indicator}: {self.best_perf} \nTraining completed!')
 

@@ -27,7 +27,7 @@ class RecMetric(nn.Metric):
             ignore_space=True, 
             filter_ood=True,  
             lower=True, 
-            print_flag=True, 
+            print_flag=False, 
             **kwargs):
         super().__init__()
         self.clear()

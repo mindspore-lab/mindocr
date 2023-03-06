@@ -1,10 +1,9 @@
 '''
-Runnable draft version
+Model training 
 
 TODO:
-    1. allow overwrite yaml config with args  
-    1. model saving policy
-    2. eval while training 
+    1. top-k model saving policy
+    2. logging
     ...
 '''
 import sys
@@ -31,8 +30,7 @@ from mindocr.postprocess import build_postprocess
 from mindocr.metrics import build_metric
 from mindocr.utils.model_wrapper import NetWithLossWrapper
 from mindocr.utils.callbacks import EvalSaveCallback # TODO: callback in a better dir
-from mindocr.utils.random import set_seed
-#from mindcv.utils.random import set_seed
+from mindocr.utils.seed import set_seed
 
 def main(cfg):
     # env init
@@ -118,7 +116,7 @@ def main(cfg):
         print('-'*30)
     
     # training
-    loss_monitor = LossMonitor(num_batches // 10)
+    loss_monitor = LossMonitor(10) #num_batches // 10)
     time_monitor = TimeMonitor()
 
     model = ms.Model(train_net)
