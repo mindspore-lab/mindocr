@@ -2,8 +2,7 @@ import inspect
 from .det_loss import L1BalanceCELoss
 from .rec_loss import CTCLoss 
 
-
-support_losses = ['L1BalanceCELoss', 'CTCLoss']
+supported_losses = ['L1BalanceCELoss', 'CTCLoss']
 
 def build_loss(name, **kwargs):
     '''
@@ -11,7 +10,7 @@ def build_loss(name, **kwargs):
         name: loss name, exactly the same as one of the supported loss class names
         
     '''
-    assert name in support_losses, f'Invalid loss name {name}, support losses are {support_losses}'
+    assert name in supported_losses, f'Invalid loss name {name}, support losses are {supported_losses}'
 
     loss_fn = eval(name)(**kwargs)
 
@@ -19,6 +18,3 @@ def build_loss(name, **kwargs):
     print('==> Loss func input args: \n\t', inspect.signature(loss_fn.construct))
 
     return loss_fn
-        
-    
-    

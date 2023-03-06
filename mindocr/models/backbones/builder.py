@@ -4,32 +4,29 @@ from .mindcv_wrapper import MindCVBackboneWrapper
 
 __all__ = ['build_backbone']
 
-#support_backbones = _backbone_entrypoints.keys()
-#support_backbone_classes = _backbone_class_entrypoints.keys()
-
-def build_backbone(name, **kwargs): #config: dict):
+def build_backbone(name, **kwargs):
     '''
     Args:
-        config (dict): config dict of the backbone including backbone name and hyper-params for the backbone.
-            name:
-            pretrained:
-            other hyper-params for the backbone:
+        name (string): the backbone name, which can be a registered backbone class name 
+                        or a registered backbone (function) name.   
+        kwargs: input args for the backbone 
+           1) if `name` is in the registered backbones (e.g. det_resnet50), kwargs include args for backbone creating likes `pretrained`   
+           2) if `name` is in the registered backbones class (e.g. DetResNet50), kwargs include args for the backbone configuration like `layers`.  
 
     Return:
         nn.Cell for backbone moduel
 
-    forward input: Tensor,
-    forward output: List[Tensor],
+    Construct:
+        Input: Tensor
+        Output: List[Tensor]
 
     Example:
-        >>> # configure from model name
-        >>> cfg = dict(name='det_resnet50', pretrained=True)
-        >>> backbone = build_backbone(cfg)
-        >>> #
+        >>> # build using backbone function name
+        >>> backbone = build_backbone('det_resnet50', pretrained=True)
+        >>> # build using backbone class name
         >>> cfg_from_class  = dict(name='DetResNet', layers=[3,4,6,3])
         >>> backbone = build_backbone(cfg_from_class)
         >>> print(backbone)
-
     '''
     #name = config.pop('name')
     #kwargs = {k:v for k,v in config.items() if v is not None}

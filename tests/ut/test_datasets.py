@@ -204,8 +204,8 @@ def test_rec_dataset(visualize=True):
 
 if __name__ == '__main__':
     #test_build_dataset(task='det', phase='eval', visualize=True)
-    #test_build_dataset(task='det', phase='train', visualize=False)
-    test_build_dataset(task='rec', phase='eval', visualize=False)
+    test_build_dataset(task='det', phase='train', visualize=False)
+    #test_build_dataset(task='rec', phase='eval', visualize=False)
     #test_build_dataset(task='rec')
     #test_det_dataset()
     #test_rec_dataset()

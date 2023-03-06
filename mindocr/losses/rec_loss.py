@@ -10,8 +10,8 @@ from mindspore.common import dtype as mstype
 from mindspore import ops 
 import numpy as np
 
-# TODO: check diff from pytorch/paddle CTCLoss
-# TODO: check use CTCLoss v2. Self-implement if necessary
+__all__ = ['CTCLoss']
+
 # TODO: support label_weights for imbalance data
 class CTCLoss(LossBase):
     """
