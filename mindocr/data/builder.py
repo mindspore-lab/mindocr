@@ -47,31 +47,33 @@ def build_dataset(dataset_config: dict,
 
     #print('dataset config', dataset_config)
     
-    dataset_args = dict(is_train=is_train, **dataset_config) #, global_config=common_config)
+    dataset_args = dict(is_train=is_train, **dataset_config) 
     dataset = dataset_class(**dataset_args)
-    #dataset = dataset_class(dataset_config['data_dir'], dataset_config['label_files'], dataset_config['sample_ratios'], dataset_config['shuffle'], dataset_config['transforms'], is_train=is_train, exclude_output_columns=dataset_config['exclude_output_columns'])
-
-    # set cv2 parallel
 
     # create batch loader
     dataset_column_names = dataset.get_column_names()
     print('==> Dataset columns: \n\t', dataset_column_names)
+    
+    # TODO: the optimal value for prefetch. * num_workers?
+    #ms.dataset.config.set_prefetch_size(int(loader_config['batch_size']))
+    #print('prfectch size:', ms.dataset.config.get_prefetch_size())
 
     # TODO: config multiprocess and shared memory
     ds = ms.dataset.GeneratorDataset(dataset,
                         column_names=dataset_column_names,
-			            num_parallel_workers=loader_config['num_workers'],
+			num_parallel_workers=loader_config['num_workers'],
                         num_shards=num_shards,
                         shard_id=shard_id,
+                        python_multiprocessing=True,
                         max_rowsize =loader_config['max_rowsize'], 
                         shuffle=loader_config['shuffle'])
 
     # TODO: set default value for drop_remainder and max_rowsize
     dataloader = ds.batch(loader_config['batch_size'],
-                    #per_batch_map=,
-                    #input_columns=dataset_column_names,
                     drop_remainder=loader_config['drop_remainder'],
-                    max_rowsize=loader_config['max_rowsize'])
+                    max_rowsize=loader_config['max_rowsize'],
+                    #num_parallel_workers=loader_config['num_workers'],
+                    )
 
     #steps_pre_epoch = dataset.get_dataset_size()
     return dataloader

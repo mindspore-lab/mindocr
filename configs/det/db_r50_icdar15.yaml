@@ -117,7 +117,7 @@ train:
     #keys_for_loss: 4 # num labels for loss func
      
   loader:
-      shuffle: True # TODO: tbc
+      shuffle: True
       batch_size: 16
       drop_remainder: True
       max_rowsize: 20

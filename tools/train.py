@@ -47,14 +47,14 @@ def main(cfg):
         rank_id = None
     
     set_seed(cfg.system.seed, rank_id)
-    cv2.setNumThreads(2)
+    cv2.setNumThreads(2) # TODO: proper value
     is_main_device = rank_id in [None, 0]
 
     # train pipeline
     # dataset
     loader_train = build_dataset(
             cfg.train.dataset, 
-            cfg.train.loader],
+            cfg.train.loader,
             num_shards=device_num,
             shard_id=rank_id,
             is_train=True)
@@ -106,7 +106,7 @@ def main(cfg):
             postprocessor=postprocessor, 
             metrics=[metric], 
             rank_id=rank_id,
-            ckpt_save_dir=cfg.system.ckpt_save_dir],
+            ckpt_save_dir=cfg.system.ckpt_save_dir,
             main_indicator=cfg.metric.main_indicator)
 
     # log
@@ -118,7 +118,7 @@ def main(cfg):
             f'Num batches: {num_batches}\n'
             f'Optimizer: {cfg.optimizer.opt}\n'
             f'Scheduler: {cfg.scheduler.scheduler}\n'
-            f'LR: {cfg.scheduler.lr}\n'
+            f'LR: {cfg.scheduler.lr}'
                 )
         if 'name' in cfg.model:
             print(f'Model: {cfg.model.name}')
