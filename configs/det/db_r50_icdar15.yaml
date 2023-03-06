@@ -74,7 +74,7 @@ train:
           img_mode: BGR
           to_float32: False
       - DetLabelEncode:  
-      - MZResizeByGrid:  # TODO: this is very time consuming and lead to overtime warning
+      - MZResizeByGrid:
           divisor: 32
           transform_polys: True
       - MZRandomScaleByShortSide: 
@@ -105,8 +105,8 @@ train:
           std : [58.395, 57.12, 57.375]
       - ToCHWImage: 
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
-    #output_keys: ['image', 'shrink_map', 'shrink_mask', 'threshold_map', 'threshold_mask'] #'img_path'] 
-    output_keys: ['image'] #'img_path'] 
+    output_keys: ['image', 'shrink_map', 'shrink_mask', 'threshold_map', 'threshold_mask'] #'img_path'] 
+    #output_keys: ['image'] # for debug op performance
     num_keys_to_net: 1 # num inputs for network forward func in output_keys
     #keys_for_loss: 4 # num labels for loss func
      
