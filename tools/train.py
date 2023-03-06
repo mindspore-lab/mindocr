@@ -53,8 +53,8 @@ def main(cfg):
     # train pipeline
     # dataset
     loader_train = build_dataset(
-            cfg['train']['dataset'], 
-            cfg['train']['loader'],
+            cfg.train.dataset, 
+            cfg.train.loader],
             num_shards=device_num,
             shard_id=rank_id,
             is_train=True)
@@ -64,14 +64,14 @@ def main(cfg):
     # TODO: now only use device 0 to perform evaluation
     if cfg.system.val_while_train and is_main_device: 
         loader_eval = build_dataset(
-                cfg['eval']['dataset'], 
-                cfg['eval']['loader'],
+                cfg.eval.dataset, 
+                cfg.eval.loader,
                 num_shards=None,
                 shard_id=None,
                 is_train=False)
 
     # model
-    network = build_model(cfg['model'])
+    network = build_model(cfg.model)
     ms.amp.auto_mixed_precision(network, amp_level=cfg.system.amp_level)  
 
     # scheduler 
@@ -95,25 +95,40 @@ def main(cfg):
     # postprocess, metric
     postprocessor = None
     if cfg.system.val_while_train:
-        postprocessor = build_postprocess(cfg['postprocess'])
+        postprocessor = build_postprocess(cfg.postprocess)
         # postprocess network prediction
-        metric = build_metric(cfg['metric']) 
+        metric = build_metric(cfg.metric) 
 
     # build callbacks
     eval_cb = EvalSaveCallback(
             network, 
             loader_eval, 
             postprocessor=postprocessor, 
-            metrics=[metric],  #TODO:
+            metrics=[metric], 
             rank_id=rank_id,
-            ckpt_save_dir=cfg['system']['ckpt_save_dir'],
-            main_indicator=cfg['metric']['main_indicator'])
+            ckpt_save_dir=cfg.system.ckpt_save_dir],
+            main_indicator=cfg.metric.main_indicator)
 
     # log
     if is_main_device:
         print('-'*30)
-        print('Num batches: ', num_batches)
+        print(
+            f'Num devices: {device_num if device_num is not None else 1}\n'
+            f'Num epochs: {cfg.scheduler.num_epochs}\n'
+            f'Num batches: {num_batches}\n'
+            f'Optimizer: {cfg.optimizer.opt}\n'
+            f'Scheduler: {cfg.scheduler.scheduler}\n'
+            f'LR: {cfg.scheduler.lr}\n'
+                )
+        if 'name' in cfg.model:
+            print(f'Model: {cfg.model.name}')
+        else:
+            print(f'Model: {cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}')
         print('-'*30)
+        # save args used for training
+        with open(os.path.join(cfg.system.ckpt_save_dir, 'args.yaml'), 'w') as f:
+            args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False)
+            f.write(args_text)
     
     # training
     loss_monitor = LossMonitor(10) #num_batches // 10)
@@ -121,7 +136,7 @@ def main(cfg):
 
     model = ms.Model(train_net)
     model.train(cfg.scheduler.num_epochs, loader_train, callbacks=[loss_monitor, time_monitor, eval_cb],
-                dataset_sink_mode=config.train.dataset_sink_mode)
+                dataset_sink_mode=cfg.train.dataset_sink_mode)
 
 
 def parse_args():
@@ -131,6 +146,7 @@ def parse_args():
     args = parser.parse_args()
 
     return args
+
 
 if __name__ == '__main__':
     # argpaser

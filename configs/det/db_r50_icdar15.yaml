@@ -46,21 +46,21 @@ loss:
 scheduler: 
   scheduler: "cosine_decay"
   min_lr: 0.00001
-  lr: 0.007
-  num_epochs: 5
-  warmup_epochs: 2
-  decay_epochs: 3
+  lr: 0.001
+  num_epochs: 1200
+  warmup_epochs: 20
+  decay_epochs: 1180
 
 optimizer:
-  opt: "momentum"
+  opt: "adamw"
   filter_bias_and_bn: True
   momentum: 0.9
-  weight_decay: 0.0001
+  weight_decay: 0.001
   loss_scale: 1.0
-  use_nesterov: False
+  #use_nesterov: False
 
 train:
-  dataset_sink_mode: False
+  dataset_sink_mode: True 
   dataset:
     type: DetDataset
     data_dir: /data/ocr_datasets/ic15/text_localization/train
@@ -158,3 +158,11 @@ eval:
       drop_remainder: False 
       max_rowsize: 20
       num_workers: 1
+
+modelarts: # for running on modelarts or openi
+   enable_modelarts: False
+   data_url: /cache/data/  # path to dataset
+   multi_data_url: /cache/data/ # path to multi dataset 
+   ckpt_url: /cache/output/  # pretrained model path
+   train_url: /cache/output/ # model save folder
+   
