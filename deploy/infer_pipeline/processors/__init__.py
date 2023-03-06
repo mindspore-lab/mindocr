@@ -15,8 +15,8 @@ from deploy.infer_pipeline.framework import InferModelComb
 
 from .classification import CLSPreProcess, CLSInferProcess
 from .common import HandoutProcess, CollectProcess, DecodeProcess
-from .detection import DetPreProcess, DetInferProcess, DetPostProcess
-from .recognition import RecPreProcess, RecInferProcess, RecPostProcess
+from .detection import DetPreProcess, DetInferProcess, DetPostProcess, SUPPORT_DET_MODEL
+from .recognition import RecPreProcess, RecInferProcess, RecPostProcess, SUPPORT_REC_MODEL
 
 
 DET_DESC = [('DetPreProcess', 1), ('DetInferProcess', 1), ('DetPostProcess', 1)]

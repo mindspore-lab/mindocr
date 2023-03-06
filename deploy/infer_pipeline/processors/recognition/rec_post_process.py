@@ -12,7 +12,7 @@ import os.path
 import numpy as np
 
 from deploy.infer_pipeline.utils import array_to_texts, file_base_check, log
-from deploy.infer_pipeline.framework import ModuleBase
+from deploy.infer_pipeline.framework import ModuleBase, InferModelComb
 
 
 class RecPostProcess(ModuleBase):
@@ -49,7 +49,7 @@ class RecPostProcess(ModuleBase):
 
         rec_result = array_to_texts(output_array, self.labels, input_data.sub_image_size)
 
-        if self.task_type == 'rec':
+        if self.task_type == InferModelComb.REC:
             input_data.infer_result = rec_result
         else:
             for coord, text in zip(input_data.infer_result, rec_result):

@@ -18,4 +18,4 @@ from .cv_utils import get_hw_of_img, get_matched_gear_hw, padding_with_cv, norma
     resize_by_limit_max_side, box_score_fast, padding_with_np
 from .logger import logger_instance as log
 from .safe_utils import safe_list_writer, safe_div, check_valid_dir, file_base_check, \
-    check_valid_file, safe_img_read
+    check_valid_file, safe_img_read, save_path_init

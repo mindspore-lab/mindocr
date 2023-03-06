@@ -94,7 +94,7 @@ class DetPostProcess(ModuleBase):
             if score < self.score_thresh:
                 continue
             points = box.flatten().tolist()
-            infer_res_list.append(points[2:] + points[:2])
+            infer_res_list.append(points[:8])
             sub_image = get_rotate_crop_image(image, np.array(box, dtype=np.float32))
             h, w = get_hw_of_img(sub_image)
             max_wh_ratio = max(max_wh_ratio, safe_div(w, h))
@@ -107,7 +107,11 @@ class DetPostProcess(ModuleBase):
         input_data.sub_image_size = len(sub_image_list)
 
         input_data.output_array = None
-        input_data.frame = None
+
+        if not (self.args.save_pipeline_crop_res
+                or self.args.save_vis_det_save_dir
+                or self.args.save_vis_pipeline_save_dir):
+            input_data.frame = None
 
         if not sub_image_list:
             input_data.skip = True
