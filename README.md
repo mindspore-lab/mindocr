@@ -4,6 +4,7 @@ A toolbox of OCR models, algorithms, and pipelines based on MindSpore
 **Features:**
 
 - Support training and evaluation for text detection and recogintion models
+- Performance tracking during training (by default, results are be saved in `ckpt_save_dir/result.log`)
 
 
 ## Quick Start (for dev)
