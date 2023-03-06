@@ -28,6 +28,7 @@ class DBHead(nn.Cell):
             nn.Sigmoid()
         ])
 
+
     def construct(self, features):
         pred = {'binary': self.segm(features)}
 

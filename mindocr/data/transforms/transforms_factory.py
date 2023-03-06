@@ -11,6 +11,7 @@ from .rec_transforms import *
 from .modelzoo_transforms import *
 from .iaa_augment import *
 
+__all__ = ['create_transforms', 'run_transforms', 'transforms_dbnet_icdar15']
 
 # TODO: use class with __call__, to perform transformation
 def create_transforms(transform_pipeline, global_config=None):
@@ -50,7 +51,6 @@ def create_transforms(transform_pipeline, global_config=None):
 
 
 def run_transforms(data, transforms=None, verbose=False):
-    """ transform """
     if transforms is None:
         transforms = []
     for i, transform in enumerate(transforms):

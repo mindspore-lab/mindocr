@@ -1,5 +1,7 @@
 from .base_dataset import BaseDataset
 
+__all__ = ['DetDataset']
+
 class DetDataset(BaseDataset):
     """Data iterator for detection datasets including ICDAR15 dataset. 
     The annotaiton format is required to aligned to paddle, which can be done using the `converter.py` script.

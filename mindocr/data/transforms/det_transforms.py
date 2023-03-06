@@ -1,5 +1,6 @@
 '''
 transform for text detection tasks.
+TODO: rewrite copied code
 '''
 from typing import List
 import json
@@ -507,4 +508,3 @@ class PSERandomCrop():
                 imgs[idx] = imgs[idx][i:i + th, j:j + tw]
         data['imgs'] = imgs
         return data
-

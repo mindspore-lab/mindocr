@@ -6,7 +6,9 @@ import mindspore as ms
 import mindspore.numpy as mnp
 
 
-class L1BalancedCELoss(nn.LossBase):
+__all__ = ['L1BalanceCELoss']
+
+class L1BalanceCELoss(nn.LossBase):
     """
     Balanced CrossEntropy Loss on `binary`,
     MaskL1Loss on `thresh`,

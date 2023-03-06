@@ -4,15 +4,19 @@ import os
 
 from .transforms.transforms_factory import create_transforms, run_transforms
 
+__all__ = ['BaseDataset']
+
 class BaseDataset(object):
     """Data iterator for ocr datasets including ICDAR15 dataset. 
     The annotaiton format is required to aligned to paddle, which can be done using the `converter.py` script.
 
     Args:
-        is_train: 
-        data_dir: 
-        label_files, 
-        shuffle, Optional, if not given, shuffle = is_train
+        is_train (bool): whether it is in training stage 
+        data_dir (str):  directory to the image data
+        label_files (Union[str, List[str]]): (list of) path to the label file(s), 
+            where each line in the label fle contains the image file name and its ocr annotation.   
+        sample_ratios (Union[float, List[float]]): sample ratios for the data items in label files 
+        shuffle(bool): Optional, if not given, shuffle = is_train
         transform_pipeline: list of dict, key - transform class name, value - a dict of param config.
                     e.g., [{'DecodeImage': {'img_mode': 'BGR', 'channel_first': False}}]
             -       if None, default transform pipeline for text detection will be taken.
@@ -27,15 +31,15 @@ class BaseDataset(object):
 
     Notes: 
         1. Dataset file structure should follow:
-            data_dir
-            ├── images/
+            split
+            ├── data_dir/
             │  │   ├── 000001.jpg
             │  │   ├── 000002.jpg
             │  │   ├── ... 
             ├── annotation_file.txt
         2. Annotation format should follow (img path and annotation are seperated by tab):
             # image path relative to the data_dir\timage annotation information encoded by json.dumps
-            ch4_test_images/img_61.jpg\t[{"transcription": "MASA", "points": [[310, 104], [416, 141], [418, 216], [312, 179]]}, {...}]   
+            img_61.jpg\t[{"transcription": "MASA", "points": [[310, 104], [416, 141], [418, 216], [312, 179]]}, {...}]   
     """
     def __init__(self, 
             is_train: bool = True, 
@@ -48,8 +52,14 @@ class BaseDataset(object):
             #global_config: dict = None,
             **kwargs
             ):
+        # check arg validation 
         self.data_dir = data_dir
         assert isinstance(shuffle, bool), f'type error of {shuffle}'
+        if isinstance(label_files, str):
+            label_files = [label_files]
+        for f in label_files:
+            if not os.path.exists(f):
+                raise ValueError(f"{f} not existed. Please check this path in yaml for is_train={is_train} mode")
         shuffle = shuffle if shuffle is not None else is_train
         
         # load data
@@ -106,8 +116,6 @@ class BaseDataset(object):
         Returns:
             data (List[dict]): A list of annotation dict, which contains keys: img_path, annot...
         '''
-        if isinstance(label_files, str):
-            label_files = [label_files]
         if isinstance(sample_ratios, float):
             sample_ratios = [sample_ratios for _ in label_files]
 

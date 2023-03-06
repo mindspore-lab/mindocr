@@ -1,8 +1,5 @@
 from typing import List, Union
 import cv2
-import math
-import pyclipper
-from shapely.geometry import Polygon
 import numpy as np
 from PIL import Image
 
@@ -11,7 +8,8 @@ from mindcv.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 __all__ = ['DecodeImage', 'NormalizeImage', 'ToCHWImage', 'PackLoaderInputs']
 
 
-class DecodeImage:
+# TODO: use mindspore C.decode for efficiency
+class DecodeImage(object):
     """
     img_mode (str): The channel order of the output, 'BGR' and 'RGB'. Default to 'BGR'.
     channel_first (bool): if True, image shpae is CHW. If False, HWC. Default to False
@@ -23,10 +21,7 @@ class DecodeImage:
         self.flag = cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR if ignore_orientation else cv2.IMREAD_COLOR
 
     def __call__(self, data):
-        # TODO: use more efficient image loader, read binary, then decode?
-        # TODO: why float32 in modelzoo. uint8 is more efficient
-
-        # img = cv2.imread(data['img_path'], self.flag)
+        #img = cv2.imread(data['img_path'], self.flag)
         # read from buffer is faster?
         if 'img_path' in data:
             with open(data['img_path'], 'rb') as f:
@@ -120,11 +115,9 @@ class PackLoaderInputs:
         self.output_keys = output_keys
 
     def __call__(self, data):
-        # TODO: add assert for inexisted keys
         out = []
         for k in self.output_keys:
             assert k in data, f'key {k} does not exists in data, availabe keys are {data.keys()}'
             out.append(data[k])
-        # data_tuple = tuple(data[k] for k in self.output_keys if )
 
         return tuple(out)

@@ -57,7 +57,7 @@ optimizer:
   loss_scale: 1.0
 
 train:
-  dataset_sink_mode: False
+  dataset_sink_mode: True 
   dataset:
     type: DetDataset
     data_dir: /data/ocr_datasets/ic15/text_localization/train
@@ -84,15 +84,9 @@ train:
           max_tries: 100
           min_crop_side_ratio: 0.1
           crop_size: [ 640, 640 ]
-      #- MZResizeByGrid:  # TODO: necessary? 640 is divisable by 32
-      #        denominator: 32
-      #        divisor: 32
-      #    transform_polys: True
-      #- MakeShrinkMap: 
       - MZMakeSegDetectionData:
           min_text_size: 8
           shrink_ratio: 0.4
-      #- 'MakeBorderMap': 
       - MZMakeBorderMap:
           shrink_ratio: 0.4
           thresh_min: 0.3
@@ -101,7 +95,6 @@ train:
           brightness: 0.1255 #32.0 / 255
           saturation: 0.5
           to_numpy: True
-      #{'MZIrregularNormToCHW': None},
       - NormalizeImage:
           bgr_to_rgb: True
           is_hwc: True
@@ -109,7 +102,8 @@ train:
           std: imagenet
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
-    output_keys: [ 'image', 'shrink_map', 'shrink_mask', 'threshold_map', 'threshold_mask' ] #'img_path']
+    output_keys: ['image', 'shrink_map', 'shrink_mask', 'threshold_map', 'threshold_mask'] #'img_path'] 
+    #output_keys: ['image'] # for debug op performance
     num_keys_to_net: 1 # num inputs for network forward func in output_keys
 #    keys_for_loss: 4 # num labels for loss func
 
@@ -118,7 +112,7 @@ train:
     batch_size: 20
     drop_remainder: False
     max_rowsize: 20
-    num_workers: 10
+    num_workers: 10 # TODO: may lead to OOM
 
 eval:
   dataset_sink_mode: False
@@ -151,6 +145,13 @@ eval:
   loader:
     shuffle: False
     batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
-    drop_remainder: False
+    drop_remainder: False 
     max_rowsize: 20
     num_workers: 1
+
+modelarts: # TODO: for running on modelarts or openi. Not making effect currently.
+   enable_modelarts: False
+   data_url: /cache/data/  # path to dataset
+   multi_data_url: /cache/data/ # path to multi dataset 
+   ckpt_url: /cache/output/  # pretrained model path
+   train_url: /cache/output/ # model save folder
