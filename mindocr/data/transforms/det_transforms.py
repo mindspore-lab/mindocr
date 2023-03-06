@@ -1,5 +1,6 @@
 '''
 transform for text detection tasks.
+TODO: rewrite copied code
 '''
 from __future__ import absolute_import
 from __future__ import division
@@ -510,4 +511,3 @@ class PSERandomCrop():
                 imgs[idx] = imgs[idx][i:i + th, j:j + tw]
         data['imgs'] = imgs
         return data
-

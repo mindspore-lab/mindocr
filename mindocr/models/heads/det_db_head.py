@@ -9,6 +9,8 @@ class DBHead(nn.Cell):
         super().__init__()
 
         self.k = k
+        self.adaptive = adaptive
+        self.training = training
 
         self.binarize = nn.SequentialCell(
             nn.Conv2d(in_channels, in_channels // 4, 3, pad_mode="pad", padding=1, has_bias=bias),
@@ -22,7 +24,6 @@ class DBHead(nn.Cell):
 
         self.weights_init(self.binarize)
 
-        self.adaptive = adaptive
 
         if adaptive:
             self.thresh = self._init_thresh(in_channels, serial=serial, bias=bias)
@@ -59,6 +60,15 @@ class DBHead(nn.Cell):
         return self.thresh
 
     def construct(self, feature):
+        '''
+        Args:
+            feature (tensor): feature tensor
+        Returns:
+            pred: A dict which contains predictions.
+                thresh: The threshold prediction
+                binary: The text segmentation prediction.
+                thresh_binary: Value produced by `step_function(binary - thresh)`.
+        '''
         # this is the pred module, not binarization module;
         # We do not correct the name due to the trained model.
         binary = self.binarize(feature)
@@ -66,9 +76,11 @@ class DBHead(nn.Cell):
         pred['binary'] = binary
 
         #if self.adaptive and self.training:
-        thresh = self.thresh(feature)
-        pred['thresh'] = thresh
-        pred['thresh_binary'] = self.step_function(binary, thresh)
+        # TODO: use binary or thresh to do inference
+        if self.training:
+            thresh = self.thresh(feature)
+            pred['thresh'] = thresh
+            pred['thresh_binary'] = self.step_function(binary, thresh)
 
         return pred 
 

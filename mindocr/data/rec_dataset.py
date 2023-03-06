@@ -3,6 +3,8 @@ from __future__ import division
 
 from .base_dataset import BaseDataset
 
+__all__ = ['RecDataset']
+
 class RecDataset(BaseDataset):
     """Data iterator for recogition datasets including ICDAR15 dataset.
     The annotaiton format is required to aligned to paddle, which can be done using the `converter.py` script.

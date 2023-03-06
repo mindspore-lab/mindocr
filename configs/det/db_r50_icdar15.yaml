@@ -63,10 +63,10 @@ train:
   dataset_sink_mode: True 
   dataset:
     type: DetDataset
-    data_dir: /data/ocr_datasets/ic15/text_localization/train
-    label_files: /data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt
-    #data_dir: /Users/Samit/Data/datasets/ic15/det/train
-    #label_files: /Users/Samit/Data/datasets/ic15/det/train/train_icdar2015_label.txt
+    #data_dir: /data/ocr_datasets/ic15/text_localization/train/ch4_training_images
+    #label_files: /data/ocr_datasets/ic15/text_localization/train/det_gt.txt
+    data_dir: /Users/Samit/Data/datasets/ic15/det/train/ch4_training_images
+    label_files: /Users/Samit/Data/datasets/ic15/det/train/det_gt.txt
     sample_ratios: [1.0]
     shuffle: True
     transform_pipeline:
@@ -74,9 +74,9 @@ train:
           img_mode: BGR
           to_float32: False
       - DetLabelEncode:  
-      - MZResizeByGrid: 
+      - MZResizeByGrid:  # TODO: this is very time consuming and lead to overtime warning
           divisor: 32
-          transform_polys: True # originally in modelzoo, it doesn't transform polys
+          transform_polys: True
       - MZRandomScaleByShortSide: 
           short_side: 736
       - IaaAugment: 
@@ -87,15 +87,9 @@ train:
           max_tries: 100 
           min_crop_side_ratio: 0.1
           crop_size: [640, 640]
-      #- MZResizeByGrid:  # TODO: necessary? 640 is divisable by 32
-      #        denominator: 32
-      #        divisor: 32
-      #    transform_polys: True
-      #- MakeShrinkMap: 
       - MZMakeSegDetectionData: 
           min_text_size: 8
           shrink_ratio: 0.4
-      #- 'MakeBorderMap': 
       - MZMakeBorderMap:
           shrink_ratio: 0.4
           thresh_min: 0.3
@@ -104,7 +98,6 @@ train:
           brightness: 0.1255 #32.0 / 255
           saturation: 0.5
           to_numpy: True
-      #{'MZIrregularNormToCHW': None},
       - NormalizeImage: 
           bgr_to_rgb: True
           is_hwc: True
@@ -112,7 +105,8 @@ train:
           std : [58.395, 57.12, 57.375]
       - ToCHWImage: 
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
-    output_keys: ['image', 'shrink_map', 'shrink_mask', 'threshold_map', 'threshold_mask'] #'img_path'] 
+    #output_keys: ['image', 'shrink_map', 'shrink_mask', 'threshold_map', 'threshold_mask'] #'img_path'] 
+    output_keys: ['image'] #'img_path'] 
     num_keys_to_net: 1 # num inputs for network forward func in output_keys
     #keys_for_loss: 4 # num labels for loss func
      
@@ -121,16 +115,16 @@ train:
       batch_size: 16
       drop_remainder: True
       max_rowsize: 20
-      num_workers: 2
+      num_workers: 1
 
 eval:
   dataset_sink_mode: False
   dataset:
     type: DetDataset
-    data_dir: /data/ocr_datasets/ic15/text_localization/test
-    label_files: /data/ocr_datasets/ic15/text_localization/test/test_icdar2015_label.txt
-    #data_dir: /Users/Samit/Data/datasets/ic15/det/test
-    #label_files: /Users/Samit/Data/datasets/ic15/det/test/test_icdar2015_label.txt
+    #data_dir: /data/ocr_datasets/ic15/text_localization/test/ch4_test_images
+    #label_files: /data/ocr_datasets/ic15/text_localization/test/det_gt.txt
+    data_dir: /Users/Samit/Data/datasets/ic15/det/test/ch4_test_images
+    label_files: /Users/Samit/Data/datasets/ic15/det/test/det_gt.txt
     sample_ratios: [1.0]
     shuffle: False
     transform_pipeline:

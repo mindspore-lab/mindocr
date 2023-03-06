@@ -4,7 +4,6 @@ Model training
 TODO:
     1. top-k model saving policy
     2. logging
-    ...
 '''
 import sys
 sys.path.append('.')
@@ -156,6 +155,7 @@ if __name__ == '__main__':
     with open(yaml_fp) as fp:
         config  = yaml.safe_load(fp)    
     config = Dict(config)
+    print(config)
     
     # main train and eval
     main(config)

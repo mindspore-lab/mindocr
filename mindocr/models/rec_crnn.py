@@ -4,6 +4,8 @@ from .base_model import BaseModel
 from ._registry import register_model
 
 
+__all__ = ['CRNN', 'crnn_r34', 'crnn_vgg7']
+
 class CRNN(BaseModel):
     def __init__(self, config):
         BaseModel.__init__(self, config)

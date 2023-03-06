@@ -1,75 +1,84 @@
 '''
-Code adopted from https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/gen_label.py
+Script to convert data annotation format for ocr model training
+
+Example:
+>>> python tools/dataset_converters/convert.py \
+        --dataset_name  ic15 \
+        --task det \
+        --image_dir /path/to/ic15/det/train/ch4_training_images \
+        --label_dir /path/to/ic15/det/train/ch4_training_localization_transcription_gt
+
+>>> python tools/dataset_converters/convert.py \
+        --dataset_name  ic15 \
+        --task rec \
+        --label_dir /path/to/ic15/rec/ch4_training_word_images_gt
 '''
 
-import os
 import argparse
-import json
 
+import os
+from ic15 import IC15_Converter
 
-def gen_rec_label(input_path, out_label):
-   with open(out_label, 'w') as outf:
-       with open(input_path, 'r') as f:
-           for line in f:
-               # , may occur in text
-               sep_index = line.find(',')
-               img_path = line[:sep_index].strip().replace('\ufeff', '')
-               label = line[sep_index+1:].strip().replace("\"", "")
-               abs_img_path = 
-               outf.write(img_path + '\t' + label + '\n') 
+supported_datasets = ['ic15']
 
+def convert(dataset_name, task, image_dir, label_path, output_path=None, path_mode='relative'):
+    '''
+    image_dir: path to the images
+    label_path: path to the annotation, support folder path or file path
+    output_path: path to save the converted annotation. If None, the file will be saved as '{task}_gt.txt' along with `label_path`
 
-def gen_det_label(root_path, input_dir, out_label):
-    with open(out_label, 'w') as out_file:
-        for label_file in os.listdir(input_dir):
-            img_path = root_path + label_file[3:-4] + ".jpg"
-            label = []
-            with open(
-                    os.path.join(input_dir, label_file), 'r',
-                    encoding='utf-8-sig') as f:
-                for line in f.readlines():
-                    tmp = line.strip("\n\r").replace("\xef\xbb\xbf",
-                                                     "").split(',')
-                    points = tmp[:8]
-                    s = []
-                    for i in range(0, len(points), 2):
-                        b = points[i:i + 2]
-                        b = [int(t) for t in b]
-                        s.append(b)
-                    result = {"transcription": tmp[8], "points": s}
-                    label.append(result)
+    '''
+    if dataset_name in supported_datasets:
+        if output_path=='':
+            output_path = None
+        if output_path is None:
+            root_dir = '/'.join(label_path.split('/')[:-1])
+            output_path = os.path.join(root_dir, f'{task}_gt.txt')
+        assert path_mode in ['relative', 'abs'], f'Invalid mode: {path_mode}'
 
-            out_file.write(img_path + '\t' + json.dumps(
-                label, ensure_ascii=False) + '\n')
+        class_name = dataset_name.upper() + '_Converter'
+        cvt = eval(class_name)()
+        cvt.convert(task, image_dir, label_path, output_path)
+        print('Conversion complete.')
+        print(f'Result saved in {output_path}')
+
+    else:
+        raise ValueError(f'{dataset_name} is not supported for conversion, supported datasets are {supported_datasets}')
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        '--dataset_name',
+        type=str,
+        default="ic15",
+        help='The name for the dataset to be converted, valid choices: ic15')
+    parser.add_argument(
         '--task',
         type=str,
-        default="rec",
-        help='Generate rec_label or det_label, can be set rec or det')
+        default="det",
+        help='Target task, text detection or recognition, valid choices: det, rec')
     parser.add_argument(
-        '--root_path',
+        '--image_dir',
         type=str,
-        default=".",
-        help='The root directory of images.Only takes effect when task=det ')
+        default="./ic15/det/images/",
+        help='Directory to the images of the dataset')
     parser.add_argument(
-        '--input_path',
+        '--label_dir',
         type=str,
-        default=".",
-        help='Input_label or input path to be converted')
+        default="./ic15/det/annotation/",
+        help='Directory of the labels (if many), or path to the label file (if one) of the dataset')
     parser.add_argument(
-        '--output_label',
+        '--output_path',
         type=str,
-        default="out_label.txt",
-        help='Output file name')
+        default="",
+        help='Path to save the converted annotation. If None, it will be saved as {task}_gt.txt along with label_dir')
+    parser.add_argument(
+        '--path_mode',
+        type=str,
+        default='relative',
+        help='If abs, the image path in the output annotation file will be an absolute path. If relative, it will be a relative path related to the image dir ')
 
     args = parser.parse_args()
-    if args.task == "rec":
-        print("Generate rec label")
-        gen_rec_label(args.input_path, args.output_label)
-    elif args.task == "det":
-        gen_det_label(args.root_path, args.input_path, args.output_label)
 
+    convert(args.dataset_name, args.task, args.image_dir, args.label_dir, args.output_path)
