@@ -111,7 +111,7 @@ def main(cfg):
 
     # log
     if is_main_device:
-        print('-'*30)
+        print('='*40)
         print(
             f'Num devices: {device_num if device_num is not None else 1}\n'
             f'Num epochs: {cfg.scheduler.num_epochs}\n'
@@ -124,7 +124,7 @@ def main(cfg):
             print(f'Model: {cfg.model.name}')
         else:
             print(f'Model: {cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}')
-        print('-'*30)
+        print('='*40)
         # save args used for training
         with open(os.path.join(cfg.system.ckpt_save_dir, 'args.yaml'), 'w') as f:
             args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False)
