@@ -1,35 +1,32 @@
-'''
+"""
 Code adopted from https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/gen_label.py
-'''
-
-import os
+"""
+from pathlib import Path
 import argparse
 import json
 
 
 def gen_rec_label(input_path, out_label):
-   with open(out_label, 'w') as outf:
-       with open(input_path, 'r') as f:
-           for line in f:
-               # , may occur in text
-               sep_index = line.find(',')
-               img_path = line[:sep_index].strip().replace('\ufeff', '')
-               label = line[sep_index+1:].strip().replace("\"", "")
-               abs_img_path = 
-               outf.write(img_path + '\t' + label + '\n') 
+    with open(out_label, 'w') as outf:
+        with open(input_path, 'r') as f:
+            for line in f:
+                # , may occur in text
+                sep_index = line.find(',')
+                img_path = line[:sep_index].strip().replace('\ufeff', '')
+                label = line[sep_index + 1:].strip().replace("\"", "")
+                abs_img_path =
+                outf.write(img_path + '\t' + label + '\n')
 
 
-def gen_det_label(root_path, input_dir, out_label):
+def gen_det_label(image_dir, label_dir, out_label):
+    label_dir = Path(label_dir)
     with open(out_label, 'w') as out_file:
-        for label_file in os.listdir(input_dir):
-            img_path = root_path + label_file[3:-4] + ".jpg"
+        for img_path in Path(image_dir).iterdir():
+            label_path = label_dir / f'gt_{img_path.stem}.txt'
             label = []
-            with open(
-                    os.path.join(input_dir, label_file), 'r',
-                    encoding='utf-8-sig') as f:
+            with open(label_path, 'r', encoding='utf-8-sig') as f:
                 for line in f.readlines():
-                    tmp = line.strip("\n\r").replace("\xef\xbb\xbf",
-                                                     "").split(',')
+                    tmp = line.strip("\n\r").replace("\xef\xbb\xbf", "").split(',')
                     points = tmp[:8]
                     s = []
                     for i in range(0, len(points), 2):
@@ -39,8 +36,7 @@ def gen_det_label(root_path, input_dir, out_label):
                     result = {"transcription": tmp[8], "points": s}
                     label.append(result)
 
-            out_file.write(img_path + '\t' + json.dumps(
-                label, ensure_ascii=False) + '\n')
+            out_file.write(str(img_path) + '\t' + json.dumps(label, ensure_ascii=False) + '\n')
 
 
 if __name__ == "__main__":
@@ -54,7 +50,7 @@ if __name__ == "__main__":
         '--root_path',
         type=str,
         default=".",
-        help='The root directory of images.Only takes effect when task=det ')
+        help='The root directory of images. Only takes effect when task=det')
     parser.add_argument(
         '--input_path',
         type=str,
@@ -72,4 +68,3 @@ if __name__ == "__main__":
         gen_rec_label(args.input_path, args.output_label)
     elif args.task == "det":
         gen_det_label(args.root_path, args.input_path, args.output_label)
-

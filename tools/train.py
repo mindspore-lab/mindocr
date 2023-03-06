@@ -1,5 +1,5 @@
 '''
-Model training 
+Model training
 
 TODO:
     1. top-k model saving policy
@@ -7,6 +7,7 @@ TODO:
     ...
 '''
 import sys
+
 sys.path.append('.')
 
 import os
@@ -45,7 +46,7 @@ def main(cfg):
     else:
         device_num = None
         rank_id = None
-    
+
     set_seed(cfg.system.seed, rank_id)
     cv2.setNumThreads(2)
     is_main_device = rank_id in [None, 0]
@@ -53,68 +54,63 @@ def main(cfg):
     # train pipeline
     # dataset
     loader_train = build_dataset(
-            cfg['train']['dataset'], 
-            cfg['train']['loader'],
-            num_shards=device_num,
-            shard_id=rank_id,
-            is_train=True)
+        cfg['train']['dataset'],
+        cfg['train']['loader'],
+        num_shards=device_num,
+        shard_id=rank_id,
+        is_train=True)
     num_batches = loader_train.get_dataset_size()
 
     loader_eval = None
     # TODO: now only use device 0 to perform evaluation
-    if cfg.system.val_while_train and is_main_device: 
+    if cfg.system.val_while_train and is_main_device:
         loader_eval = build_dataset(
-                cfg['eval']['dataset'], 
-                cfg['eval']['loader'],
-                num_shards=None,
-                shard_id=None,
-                is_train=False)
+            cfg['eval']['dataset'],
+            cfg['eval']['loader'],
+            num_shards=None,
+            shard_id=None,
+            is_train=False)
 
     # model
     network = build_model(cfg['model'])
-    ms.amp.auto_mixed_precision(network, amp_level=cfg.system.amp_level)  
+    ms.amp.auto_mixed_precision(network, amp_level=cfg.system.amp_level)
 
-    # scheduler 
     lr_scheduler = create_scheduler(num_batches, **cfg['scheduler'])
-    
-    # optimizer
-    optimizer = create_optimizer(network.trainable_params(), **cfg['optimizer'])
-    
-    # loss
+    optimizer = create_optimizer(network.trainable_params(), lr=lr_scheduler, **cfg['optimizer'])
     loss_fn = build_loss(cfg.loss.pop('name'), **cfg['loss'])
-    
+
     # wrap train one step cell
-    #net_with_loss = DBNetWithLossCell(network, loss_fn)
+    # net_with_loss = DBNetWithLossCell(network, loss_fn)
     net_with_loss = NetWithLossWrapper(network, loss_fn)
 
     loss_scale_manager = nn.FixedLossScaleUpdateCell(loss_scale_value=cfg.optimizer.loss_scale)
     train_net = nn.TrainOneStepWithLossScaleCell(net_with_loss,
                                                  optimizer=optimizer,
-                                                 scale_sense=loss_scale_manager) 
+                                                 scale_sense=loss_scale_manager)
 
     # postprocess, metric
     postprocessor = None
     if cfg.system.val_while_train:
         postprocessor = build_postprocess(cfg['postprocess'])
         # postprocess network prediction
-        metric = build_metric(cfg['metric']) 
+        metric = build_metric(cfg['metric'])
 
-    # build callbacks
+        # build callbacks
     eval_cb = EvalSaveCallback(
-            network, 
-            loader_eval, 
-            postprocessor=postprocessor, 
-            metrics=[metric],  #TODO:
-            rank_id=rank_id,
-            ckpt_save_dir=cfg['system']['ckpt_save_dir'],
-            main_indicator=cfg['metric']['main_indicator'])
+        network,
+        loader_eval,
+        postprocessor=postprocessor,
+        metrics=[metric],  # TODO:
+        rank_id=rank_id,
+        ckpt_save_dir=cfg['system']['ckpt_save_dir'],
+        main_indicator=cfg['metric']['main_indicator'])
 
     # log
     if is_main_device:
-        print('-'*30)
+        print('-' * 30)
         print('Num batches: ', num_batches)
-        print('-'*30)
-    
+        print('-' * 30)
+
     # training
     loss_monitor = LossMonitor(10) #num_batches // 10)
     time_monitor = TimeMonitor()
@@ -127,19 +123,20 @@ def main(cfg):
 def parse_args():
     parser = argparse.ArgumentParser(description='Training Config', add_help=False)
     parser.add_argument('-c', '--config', type=str, default='',
-                               help='YAML config file specifying default arguments (default='')')
+                        help='YAML config file specifying default arguments (default='')')
     args = parser.parse_args()
 
     return args
 
+
 if __name__ == '__main__':
     # argpaser
     # TODO: allow modify yaml config values by argparser
-    args = parse_args()  
+    args = parse_args()
     yaml_fp = args.config
     with open(yaml_fp) as fp:
-        config  = yaml.safe_load(fp)    
+        config = yaml.safe_load(fp)
     config = Dict(config)
-    
+
     # main train and eval
     main(config)

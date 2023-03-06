@@ -105,8 +105,8 @@ train:
       - NormalizeImage:
           bgr_to_rgb: True
           is_hwc: True
-          mean: [ 123.675, 116.28, 103.53 ]
-          std: [ 58.395, 57.12, 57.375 ]
+          mean: imagenet
+          std: imagenet
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
     output_keys: [ 'image', 'shrink_map', 'shrink_mask', 'threshold_map', 'threshold_mask' ] #'img_path']
@@ -140,8 +140,8 @@ eval:
       - NormalizeImage:
           bgr_to_rgb: True
           is_hwc: True
-          mean: [ 123.675, 116.28, 103.53 ]
-          std: [ 58.395, 57.12, 57.375 ]
+          mean: imagenet
+          std: imagenet
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the labels for evalution 
     output_keys: [ 'image', 'polys', 'ignore_tags' ] #'shape'] #'img_path']
