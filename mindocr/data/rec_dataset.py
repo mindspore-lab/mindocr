@@ -1,6 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-
 from .base_dataset import BaseDataset
 
 __all__ = ['RecDataset']

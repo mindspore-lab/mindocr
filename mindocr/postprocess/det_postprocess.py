@@ -47,7 +47,7 @@ class DBPostprocess(object):
                 scores: np.ndarray of shape (N, K), score for each box
         '''
         if isinstance(pred, dict):
-            pred = pred[self.dest][:, 0, :, :]
+            pred: ms.Tensor = pred[self.dest].squeeze(1)
         else:
             dest_dict = {'binary': 0, 'thresh': 1, 'thresh_binary': 2}
             idx = dest_dict[self.dest]

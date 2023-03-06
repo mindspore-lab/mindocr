@@ -2,9 +2,6 @@
 transform for text detection tasks.
 TODO: rewrite copied code
 '''
-from __future__ import absolute_import
-from __future__ import division
-
 from typing import List
 import json
 import cv2

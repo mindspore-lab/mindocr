@@ -2,11 +2,6 @@
 This code is refer from:
 https://github.com/WenmuZhou/DBNet.pytorch/blob/master/data_loader/modules/iaa_augment.py
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import numpy as np
 import imgaug
 import imgaug.augmenters as iaa

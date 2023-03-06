@@ -1,24 +1,23 @@
-'''
+"""
 Code adopted from paddle.
 TODO: overwrite
-
-'''
+"""
 from typing import List
 
 import numpy as np
 from mindspore import nn
 from shapely.geometry import Polygon
-from .meters import AverageMeter
+from sklearn.metrics import recall_score, precision_score, f1_score
 
 __all__ = ['DetMetric']
 
 
-def _get_intersect(pD, pG):
-    return pD.intersection(pG).area
+def _get_intersect(pd, pg):
+    return pd.intersection(pg).area
 
 
-def _get_iou(pD, pG):
-    return pD.intersection(pG).area / pD.union(pG).area
+def _get_iou(pd, pg):
+    return pd.intersection(pg).area / pd.union(pg).area
 
 
 class DetectionIoUEvaluator:
@@ -26,7 +25,7 @@ class DetectionIoUEvaluator:
         self._min_iou = min_iou
         self._min_intersect = min_intersect
 
-    def evaluate_image(self, gt: List[dict], preds: List[np.ndarray]):
+    def __call__(self, gt: List[dict], preds: List[np.ndarray]):
         # filter invalid groundtruth polygons and split them into useful and ignored
         gt_polys, gt_ignore = [], []
         for sample in gt:
@@ -56,66 +55,25 @@ class DetectionIoUEvaluator:
                 else:
                     det_polys.append(poly)
 
-        pairs = []
-        det_match = 0
-        iou_mat = np.zeros([1, 1])
-        if gt_polys and det_polys:
+        det_labels = [0] * len(gt_polys)
+        if det_polys:
             iou_mat = np.zeros([len(gt_polys), len(det_polys)])
             det_rect_mat = np.zeros(len(det_polys), np.int8)
 
-            for gt_idx in range(len(gt_polys)):
-                for det_idx in range(len(det_polys)):
-                    if det_rect_mat[det_idx] == 0:  # the match is not found yet
+            for det_idx in range(len(det_polys)):
+                if det_rect_mat[det_idx] == 0:  # the match is not found yet
+                    for gt_idx in range(len(gt_polys)):
                         iou_mat[gt_idx, det_idx] = _get_iou(det_polys[det_idx], gt_polys[gt_idx])
                         if iou_mat[gt_idx, det_idx] > self._min_iou:
                             # Mark the visit arrays
                             det_rect_mat[det_idx] = 1
-                            det_match += 1
-                            pairs.append({'gt': gt_idx, 'det': det_idx})
+                            det_labels[gt_idx] = 1
                             break
+                    else:
+                        det_labels.append(1)
 
-        if not gt_polys:
-            recall = 1.
-            precision = 0. if det_polys else 1.
-        else:
-            recall = det_match / len(gt_polys)
-            precision = det_match / len(det_polys) if det_polys else 0.
-        hmean = 0. if (precision + recall) == 0 else \
-                2. * precision * recall / (precision + recall)
-
-        return {
-            'precision': precision,
-            'recall': recall,
-            'hmean': hmean,
-            'pairs': pairs,
-            'iou_mat': [] if len(det_polys) > 100 else iou_mat.tolist(),
-            'gt_polys': gt_polys,
-            'det_polys': det_polys,
-            'gt_num': len(gt_polys),
-            'det_num': len(det_polys),
-            'gt_ignore': gt_ignore,
-            'det_ignore': det_ignore,
-            'det_matched': det_match
-        }
-
-    def combine_results(self, results):
-        num_global_care_gt = 0
-        num_global_care_det = 0
-        matched_sum = 0
-        for result in results:
-            num_global_care_gt += result['gt_num']
-            num_global_care_det += result['det_num']
-            matched_sum += result['det_matched']
-
-        method_recall = 0 if num_global_care_gt == 0 else float(
-            matched_sum) / num_global_care_gt
-        method_precision = 0 if num_global_care_det == 0 else float(
-            matched_sum) / num_global_care_det
-        methodHmean = 0 if method_recall + method_precision == 0 else 2 * method_recall * method_precision / \
-                                                                      (method_recall + method_precision)
-        method_metrics = {'precision': method_precision,
-                          'recall': method_recall, 'hmean': methodHmean}
-        return method_metrics
+        gt_labels = [1] * len(gt_polys) + [0] * (len(det_labels) - len(gt_polys))
+        return gt_labels, det_labels
 
 
 class QuadMetric:
@@ -123,101 +81,86 @@ class QuadMetric:
         self.is_output_polygon = is_output_polygon
         self.evaluator = DetectionIoUEvaluator()
 
-    def measure(self, batch, output, box_thresh=0.7):
-        '''
+    def __call__(self, batch, output, box_thresh=0.7):
+        """
         batch: (image, polygons, ignore_tags)
             image: numpy array of shape (N, C, H, W).
             polys: numpy array of shape (N, K, 4, 2), the polygons of objective regions.
-            dontcare: numpy array of shape (N, K), indicates whether a region is ignorable or not.
+            ignore: numpy array of shape (N, K), indicates whether a region is ignorable or not.
         output: (polygons, ...)
-        '''
+        """
         gt_polys = batch['polys'].astype(np.float32)
         gt_ignore_info = batch['ignore']
         pred_polys = np.array(output[0])
         pred_scores = np.array(output[1])
 
-        result = []
+        gt_labels, det_labels = [], []
         for sample_id in range(len(gt_polys)):
             gt = [{'polys': gt_polys[sample_id][j], 'ignore': gt_ignore_info[sample_id][j]}
                   for j in range(len(gt_polys[sample_id]))]
             if self.is_output_polygon:
-                pred = [sample for sample in pred_polys[sample_id]]    # TODO: why polygons are not filtered?
+                pred = [sample for sample in pred_polys[sample_id]]     # TODO: why are polygons not filtered?
             else:
                 pred = [pred_polys[sample_id][j].astype(np.int32)
                         for j in range(pred_polys[sample_id].shape[0]) if pred_scores[sample_id][j] >= box_thresh]
-            result.append(self.evaluator.evaluate_image(gt, pred))
-        return result
 
+            gt_label, det_label = self.evaluator(gt, pred)
+            gt_labels.append(gt_label)
+            det_labels.append(det_label)
+        return gt_labels, det_labels
 
     def validate_measure(self, batch, output):
-        return self.measure(batch, output, box_thresh=0.55)     # TODO: why is here a fixed threshold and different from the above?
+        return self(batch, output, box_thresh=0.55)  # TODO: why is here a fixed threshold and different from the above?
 
-    def gather_measure(self, raw_metrics):
-        raw_metrics = [image_metrics for image_metrics in raw_metrics]
 
-        result = self.evaluator.combine_results(raw_metrics)
-
-        precision = AverageMeter()
-        recall = AverageMeter()
-        hmean = AverageMeter()
-
-        precision.update(result['precision'], n=len(raw_metrics))
-        recall.update(result['recall'], n=len(raw_metrics))
-        hmean_score = 2 * precision.val * recall.val / (precision.val + recall.val + 1e-8)
-        hmean.update(hmean_score)
-
-        return {
-            'precision': precision,
-            'recall': recall,
-            'hmean': hmean
-        }
-
-# TODO: improve the efficiency ? 
+# TODO: improve the efficiency ?
 class DetMetric(nn.Metric):
-    def __init__(self, use_iou_rotate=False, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__()
         self.clear()
 
     def clear(self):
         self._metric = QuadMetric()
-        self._raw_metrics = []
+        self._gt_labels, self._det_labels = [], []
 
     def update(self, *inputs):
-        '''
+        """
         compute metric on a batch of data
 
-        Args: 
+        Args:
             inputs (tuple): contain two elements preds, gt
-                    preds (dict): prediction output by postprocess, required keys: 
+                    preds (dict): prediction output by postprocess, required keys:
                         - polygons
                         - scores
                     gt (tuple): ground truth, order defined by output_keys in eval dataloader
-        '''
+        """
         preds, gts = inputs
-        pred_polys, scores = preds['polygons'], preds['scores']
-        gt_polys, ignore_tags = gts # defined by out_keys in eval dataloader 
-        
-        if not isinstance(gt_polys, np.ndarray):
-            gt_polys = gt_polys.asnumpy()
-            ignore_tags = ignore_tags.asnumpy()
+        polys, ignore = gts
+        boxes, scores = preds['polygons'], preds['scores']
+        gt = {'polys': polys.asnumpy(), 'ignore': ignore.asnumpy()}
 
-        gt = {'polys': gt_polys, 'ignore': ignore_tags}
-        self._raw_metrics.extend(self._metric.validate_measure(gt, (pred_polys, scores)))
+        gt_labels, det_labels = self._metric.validate_measure(gt, (boxes, scores))
+        self._gt_labels.extend(gt_labels)
+        self._det_labels.extend(det_labels)
 
     def eval(self):
-        '''
-        Evaluate by aggregting results from batch update
+        """
+        Evaluate by aggregating results from batch update
 
-        Returns: dict, average precision, recall, hmean of all samples 
+        Returns: dict, average precision, recall, f1-score of all samples
             precision: precision,
             recall: recall,
-            hmean: hmean
-        '''
-        measures = self._metric.gather_measure(self._raw_metrics)
+            f-score: f-score
+        """
+        # flatten predictions and labels into 1D-array
+        self._det_labels = np.array([l for label in self._det_labels for l in label])
+        self._gt_labels = np.array([l for label in self._gt_labels for l in label])
+        return {
+            'recall': recall_score(self._gt_labels, self._det_labels),
+            'precision': precision_score(self._gt_labels, self._det_labels),
+            'f-score': f1_score(self._gt_labels, self._det_labels)
+        }
 
-        avg_measures = {k:v.avg for k, v in measures.items()}
-        return avg_measures
 
-if  __name__ == '__main__':
+if __name__ == '__main__':
     m = DetMetric()
-
