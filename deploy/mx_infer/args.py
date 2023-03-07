@@ -2,9 +2,13 @@ import argparse
 import os
 import itertools
 
+from deploy.mx_infer.utils import log
 from deploy.mx_infer.framework.module_data_type import InferModelComb
 from deploy.mx_infer.processors import SUPPORT_DET_MODEL, SUPPORT_REC_MODEL
 
+
+def str2bool(v):
+    return v.lower() in ("true", "t", "1")
 
 def get_args():
     parser = argparse.ArgumentParser(description='Arguments for inference.')
@@ -36,30 +40,24 @@ def get_args():
                         help='Saving dir for visualization of pipeline inference results.')
     parser.add_argument('--vis_font_path', type=str, default='', required=False,
                         help='Font file path for recognition model.')
-    parser.add_argument('--save_pipeline_crop_res', type=bool, default=False, required=False,
+    parser.add_argument('--save_pipeline_crop_res', type=str2bool, default=False, required=False,
                         help='Whether save the images cropped during pipeline.')
     parser.add_argument('--pipeline_crop_save_dir', type=str, required=False,
                         help='Saving dir for images cropped during pipeline.')
 
-    parser.add_argument('--show_log', type=bool, default=False, required=False,
+    parser.add_argument('--show_log', type=str2bool, default=False, required=False,
                         help='Whether show log when inferring.')
     parser.add_argument('--save_log_dir', type=str, required=False, help='Log saving dir.')
 
     args = parser.parse_args()
-    update_env_os(args)
+    setup_logger(args)
     args = update_task_args(args)
     check_args(args)
     return args
 
 
-def update_env_os(args):
-    if not args.show_log:
-        os.environ['MINDOCR_LOG_LEVEL'] = '2'  # WARNING
-    else:
-        os.environ['MINDOCR_LOG_LEVEL'] = '1'  # INFO
-
-    if args.save_log_dir:
-        os.environ['MINDOCR_LOG_SAVE_PATH'] = args.save_log_dir
+def setup_logger(args):
+    log.init_logger(args.show_log, args.save_log_dir)
 
 
 def update_task_args(args):

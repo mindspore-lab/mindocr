@@ -24,10 +24,9 @@ _ms_level_to_name = {
 
 MAX_BYTES = 100 * 1024 * 1024
 BACKUP_COUNT = 10
-LOG_NAME, LOG_TYPE = "logs", "mindocr"
+LOG_TYPE = "mindocr"
 LOG_ENV = "MINDOCR_LOG_LEVEL"
-MS_INSTALL_HOME_PATH = 'mindocr-pipeline-infer'
-LOG_SAVE_PATH = 'MINDOCR_LOG_SAVE_PATH'
+INFER_INSTALL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')) + "/"
 
 
 class DataFormatter(logging.Formatter):
@@ -65,12 +64,9 @@ class DataFormatter(logging.Formatter):
         :param record: Format pattern.
         :return: formatted log content according to format pattern.
         """
-        # when the Installation directory of mindocr changed,
-        # ms_install_home_path must be changed
-        idx = record.pathname.rfind(MS_INSTALL_HOME_PATH)
-        if idx >= 0:
+        if record.pathname.startswith(INFER_INSTALL_PATH):
             # Get the relative path
-            record.filepath = record.pathname[idx:]
+            record.filepath = record.pathname[len(INFER_INSTALL_PATH):]
         elif "/" in record.pathname:
             record.filepath = record.pathname.strip().split("/")[-1]
         else:
@@ -93,13 +89,14 @@ def _filter_env_level():
 
 
 class LOGGER(logging.Logger):
-    def __init__(self, logger_name):
+    def __init__(self, logger_name, log_level=logging.WARNING):
         super(LOGGER, self).__init__(logger_name)
         self.model_name = logger_name
         self.data_formatter = DataFormatter(self.model_name, self._get_formatter())
-        self.log_level = _name_to_log_level.get(_ms_level_to_name.get(_filter_env_level()))
+        self.console_log_level = _name_to_log_level.get(
+            _ms_level_to_name.get(_filter_env_level())) if log_level is None else log_level
         console = logging.StreamHandler(sys.stdout)
-        console.setLevel(level=self.log_level)
+        console.setLevel(level=self.console_log_level)
         console.setFormatter(self.data_formatter)
         self.addHandler(console)
 
@@ -148,8 +145,8 @@ class LOGGER(logging.Logger):
         log_fn = os.path.join(log_dir, log_file_name)
         fh = RotatingLogFileHandler(log_fn, 'a', max_size, backup_cnt)
         fh.setFormatter(self.data_formatter)
+        fh.setLevel(logging.INFO)
         self.addHandler(fh)
-        self.setLevel(self.log_level)
 
     def filter_log_str(self, msg) -> str:
         def _check_str(need_check_str):
@@ -201,21 +198,19 @@ class SingletonType(type):
 
 
 class LoggerSystem(metaclass=SingletonType):
-    def __init__(self, path, model_name, max_size=MAX_BYTES, backup_cnt=BACKUP_COUNT):
-        self.path = path
+    def __init__(self, model_name=LOG_TYPE, max_size=MAX_BYTES, backup_cnt=BACKUP_COUNT):
         self.model_name = model_name
         self.max_bytes = max_size
         self.backup_count = backup_cnt
+        self.logger = None
 
-    def get_logger(self):
-        logger = LOGGER(self.model_name)
-        if self.path:
-            if not os.path.exists(self.path):
-                os.makedirs(self.path, 0o750, exist_ok=True)
-            logger.setup_logging_file(self.path, self.max_bytes, self.backup_count)
-        return logger
+    def init_logger(self, show_info_log=False, save_path=None):
+        self.logger = LOGGER(self.model_name, logging.INFO if show_info_log else logging.WARNING)
+        if save_path:
+            self.logger.setup_logging_file(save_path, self.max_bytes, self.backup_count)
+
+    def __getattr__(self, item):
+        return object.__getattribute__(self.logger, item)
 
 
-log_path = os.getenv(LOG_SAVE_PATH, None)
-log_system = LoggerSystem(log_path, LOG_TYPE)
-logger_instance = log_system.get_logger()
+logger_instance = LoggerSystem(LOG_TYPE)

@@ -2,18 +2,22 @@ import os
 import time
 from collections import defaultdict
 from multiprocessing import Process, Queue
-
+import tqdm
 from deploy.mx_infer.data_type import StopSign
 from deploy.mx_infer.framework import ModuleDesc, ModuleConnectDesc, ModuleManager, SupportedTaskOrder
 from deploy.mx_infer.processors import MODEL_DICT
 from deploy.mx_infer.utils import log, profiling, safe_div, save_path_init, TASK_QUEUE_SIZE
 
 
-def image_sender(images_path, send_queue):
+def image_sender(images_path, send_queue, show_progressbar):
     if os.path.isdir(images_path):
         input_image_list = [os.path.join(images_path, path) for path in os.listdir(images_path)]
-        for image_path in input_image_list:
-            send_queue.put(image_path, block=True)
+        if show_progressbar:
+            for image_path in tqdm.tqdm(input_image_list, desc="send image to pipeline"):
+                send_queue.put(image_path, block=True)
+        else:
+            for image_path in input_image_list:
+                send_queue.put(image_path, block=True)
     else:
         send_queue.put(images_path, block=True)
 
@@ -90,12 +94,13 @@ def build_pipeline(args):
     if args.save_vis_det_save_dir:
         save_path_init(args.vis_det_save_dir)
     if args.save_log_dir:
-        save_path_init(args.save_log_dir)
+        save_path_init(args.save_log_dir, exist_ok=True)
 
     task_queue = Queue(TASK_QUEUE_SIZE)
     process = Process(target=build_pipeline_kernel, args=(args, task_queue))
     process.start()
-    image_sender(images_path=args.input_images_dir, send_queue=task_queue)
+    image_sender(images_path=args.input_images_dir, send_queue=task_queue,
+                 show_progressbar=False if args.show_log else True)
     task_queue.put(StopSign(), block=True)
     process.join()
     process.close()

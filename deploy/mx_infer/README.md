@@ -267,6 +267,6 @@ SVTR和CRNN在自动分档时会产生多个模型文件，使用自动挑选工
 | vis_font_path          | vis_pipeline_save_dir中绘制图片的字体文件路径（默认采用simfang.ttf） | False    |
 | save_pipeline_crop_res | 检测+分类+识别/检测+识别的任务中，是否保存检测结果           | False    |
 | pipeline_crop_save_dir | save_pipeline_crop_res为True时，检测结果的文件夹，保存检测后裁剪的图片 | False    |
-| show_log               | 是否打印日志（暂未完全支持，默认打印INFO级别日志）           | False    |
-| save_log_dir           | 日志保存文件夹（暂未完全支持）                               | False    |
+| show_log               | 是否打印日志                                                 | False    |
+| save_log_dir           | 日志保存文件夹                                               | False    |
 
