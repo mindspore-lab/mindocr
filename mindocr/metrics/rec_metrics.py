@@ -100,11 +100,11 @@ class RecMetric(nn.Metric):
                 pred = pred.replace(' ', '')
                 label = label.replace(' ', '')
 
-            if self.filter_ood: # filter out of dictionary characters
-                label = ''.join([c for c in label if c in self.dict]) 
-
             if self.lower: # convert to lower case
                 label = label.lower()
+
+            if self.filter_ood: # filter out of dictionary characters
+                label = ''.join([c for c in label if c in self.dict]) 
 
             if self.print_flag:
                 print(pred, " :: ", label)

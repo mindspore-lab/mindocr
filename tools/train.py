@@ -2,8 +2,8 @@
 Model training
 
 TODO:
-    1. top-k model saving policy
-    2. logging
+    1. default arg values
+    2. top-k model saving policy
 '''
 import sys
 
@@ -29,6 +29,7 @@ from mindocr.losses import build_loss
 from mindocr.postprocess import build_postprocess
 from mindocr.metrics import build_metric
 from mindocr.utils.model_wrapper import NetWithLossWrapper
+from mindocr.utils.train_step_wrapper import TrainOneStepWrapper 
 from mindocr.utils.callbacks import EvalSaveCallback # TODO: callback in a better dir
 from mindocr.utils.seed import set_seed
 
@@ -83,6 +84,7 @@ def main(cfg):
     net_with_loss = NetWithLossWrapper(network, loss_fn)
 
     loss_scale_manager = nn.FixedLossScaleUpdateCell(loss_scale_value=cfg.optimizer.loss_scale)
+
     train_net = nn.TrainOneStepWithLossScaleCell(net_with_loss,
                                                  optimizer=optimizer,
                                                  scale_sense=loss_scale_manager)
@@ -113,7 +115,8 @@ def main(cfg):
             f'Num batches: {num_batches}\n'
             f'Optimizer: {cfg.optimizer.opt}\n'
             f'Scheduler: {cfg.scheduler.scheduler}\n'
-            f'LR: {cfg.scheduler.lr}'
+            f'LR: {cfg.scheduler.lr} \n'
+            f'drop_overflow_update: {cfg.system.drop_overflow_update}'
                 )
         if 'name' in cfg.model:
             print(f'Model: {cfg.model.name}')
