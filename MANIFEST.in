@@ -1,1 +1,1 @@
-recursive-include tools/visualize *.ttf
+recursive-include tools/utils *.ttf
