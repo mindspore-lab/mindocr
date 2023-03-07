@@ -1,12 +1,9 @@
-"""Loss functions.
-modified from modelzoo DBNet.
-"""
 from mindspore import nn, ops
 import mindspore as ms
 import mindspore.numpy as mnp
 
-
 __all__ = ['L1BalancedCELoss']
+
 
 class L1BalancedCELoss(nn.LossBase):
     """

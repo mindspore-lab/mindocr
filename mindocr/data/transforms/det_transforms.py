@@ -1,18 +1,21 @@
-'''
+"""
 transform for text detection tasks.
 TODO: rewrite copied code
-'''
-from typing import List
+"""
+import random
+import warnings
+
 import json
 import cv2
-import pyclipper
 from shapely.geometry import Polygon
 import numpy as np
-import random
 
-__all__ = ['DetLabelEncode', 'MakeBorderMap', 'MakeShrinkMap', 'EastRandomCropData', 'PSERandomCrop']
+from ...utils.dbnet_utils import expand_poly
 
-class DetLabelEncode(object):
+__all__ = ['DetLabelEncode', 'BorderMap', 'ShrunkBinaryMap', 'EastRandomCropData', 'PSERandomCrop']
+
+
+class DetLabelEncode:
     def __init__(self, **kwargs):
         pass
 
@@ -39,15 +42,15 @@ class DetLabelEncode(object):
         return ex_boxes
 
     def __call__(self, data):
-        '''
+        """
         required keys:
             label (str): string containgin points and transcription in json format
         added keys:
-            polys (np.ndarray): polygon boxes in an image, each polygon is represented by points 
+            polys (np.ndarray): polygon boxes in an image, each polygon is represented by points
                             in shape [num_polygons, num_points, 2]
             texts (List(str)): text string
-            ignore_tags (np.ndarray[bool]): indicators for ignorable texts (e.g., '###') 
-        '''
+            ignore_tags (np.ndarray[bool]): indicators for ignorable texts (e.g., '###')
+        """
         label = data['label']
         label = json.loads(label)
         nBox = len(label)
@@ -73,251 +76,139 @@ class DetLabelEncode(object):
         return data
 
 
-class MakeBorderMap(object):
-    def __init__(self,
-                 shrink_ratio=0.4,
-                 thresh_min=0.3,
-                 thresh_max=0.7,
-                 **kwargs):
-        self.shrink_ratio = shrink_ratio
-        self.thresh_min = thresh_min
-        self.thresh_max = thresh_max
+# FIXME:
+#  RuntimeWarning: invalid value encountered in sqrt result = np.sqrt(a_sq * b_sq * sin_sq / c_sq)
+#  RuntimeWarning: invalid value encountered in true_divide cos = (a_sq + b_sq - c_sq) / (2 * np.sqrt(a_sq * b_sq))
+warnings.filterwarnings("ignore")
+class BorderMap:
+    def __init__(self, shrink_ratio=0.4, thresh_min=0.3, thresh_max=0.7):
+        self._shrink_ratio = shrink_ratio
+        self._thresh_min = thresh_min
+        self._thresh_max = thresh_max
+        self._dist_coef = 1 - self._shrink_ratio ** 2
 
     def __call__(self, data):
+        border = np.zeros(data['image'].shape[:2], dtype=np.float32)
+        mask = np.zeros(data['image'].shape[:2], dtype=np.float32)
 
-        img = data['image']
-        text_polys = data['polys']
-        ignore_tags = data['ignore_tags']
+        for i in range(len(data['polys'])):
+            if not data['ignore_tags'][i]:
+                self._draw_border(data['polys'][i], border, mask=mask)
+        border = border * (self._thresh_max - self._thresh_min) + self._thresh_min
 
-        canvas = np.zeros(img.shape[:2], dtype=np.float32)
-        mask = np.zeros(img.shape[:2], dtype=np.float32)
-
-        for i in range(len(text_polys)):
-            if ignore_tags[i]:
-                continue
-            self.draw_border_map(text_polys[i], canvas, mask=mask)
-        canvas = canvas * (self.thresh_max - self.thresh_min) + self.thresh_min
-
-        data['threshold_map'] = canvas
-        data['threshold_mask'] = mask
+        data['thresh_map'] = border
+        data['thresh_mask'] = mask
         return data
 
-    def draw_border_map(self, polygon, canvas, mask):
-        polygon = np.array(polygon)
-        assert polygon.ndim == 2
-        assert polygon.shape[1] == 2
+    def _draw_border(self, np_poly, border, mask):
+        # draw mask
+        poly = Polygon(np_poly)
+        distance = self._dist_coef * poly.area / poly.length
+        padded_polygon = np.array(expand_poly(np_poly, distance)[0], dtype=np.int32)
+        cv2.fillPoly(mask, [padded_polygon], 1.0)
 
-        polygon_shape = Polygon(polygon)
-        if polygon_shape.area <= 0:
-            return
-        distance = polygon_shape.area * (
-            1 - np.power(self.shrink_ratio, 2)) / polygon_shape.length
-        subject = [tuple(l) for l in polygon]
-        padding = pyclipper.PyclipperOffset()
-        padding.AddPath(subject, pyclipper.JT_ROUND, pyclipper.ET_CLOSEDPOLYGON)
+        # draw border
+        min_vals, max_vals = np.min(padded_polygon, axis=0), np.max(padded_polygon, axis=0)
+        width, height = max_vals - min_vals + 1
+        np_poly -= min_vals
 
-        padded_polygon = np.array(padding.Execute(distance)[0])
-        cv2.fillPoly(mask, [padded_polygon.astype(np.int32)], 1.0)
+        xs = np.broadcast_to(np.linspace(0, width - 1, num=width).reshape(1, width), (height, width))
+        ys = np.broadcast_to(np.linspace(0, height - 1, num=height).reshape(height, 1), (height, width))
 
-        xmin = padded_polygon[:, 0].min()
-        xmax = padded_polygon[:, 0].max()
-        ymin = padded_polygon[:, 1].min()
-        ymax = padded_polygon[:, 1].max()
-        width = xmax - xmin + 1
-        height = ymax - ymin + 1
+        distance_map = [self._distance(xs, ys, p1, p2) for p1, p2 in zip(np_poly, np.roll(np_poly, 1, axis=0))]
+        distance_map = np.clip(np.array(distance_map, dtype=np.float32) / distance, 0, 1).min(axis=0)   # NOQA
 
-        polygon[:, 0] = polygon[:, 0] - xmin
-        polygon[:, 1] = polygon[:, 1] - ymin
+        min_valid = np.clip(min_vals, 0, np.array(border.shape[::-1]) - 1)  # shape reverse order: w, h
+        max_valid = np.clip(max_vals, 0, np.array(border.shape[::-1]) - 1)
 
-        xs = np.broadcast_to(
-            np.linspace(
-                0, width - 1, num=width).reshape(1, width), (height, width))
-        ys = np.broadcast_to(
-            np.linspace(
-                0, height - 1, num=height).reshape(height, 1), (height, width))
+        border[min_valid[1]: max_valid[1] + 1, min_valid[0]: max_valid[0] + 1] = np.fmax(
+            1 - distance_map[min_valid[1] - min_vals[1]: max_valid[1] - max_vals[1] + height,
+                             min_valid[0] - min_vals[0]: max_valid[0] - max_vals[0] + width],
+            border[min_valid[1]: max_valid[1] + 1, min_valid[0]: max_valid[0] + 1]
+        )
 
-        distance_map = np.zeros(
-            (polygon.shape[0], height, width), dtype=np.float32)
-        for i in range(polygon.shape[0]):
-            j = (i + 1) % polygon.shape[0]
-            absolute_distance = self._distance(xs, ys, polygon[i], polygon[j])
-            distance_map[i] = np.clip(absolute_distance / distance, 0, 1)
-        distance_map = distance_map.min(axis=0)
-
-        xmin_valid = min(max(0, xmin), canvas.shape[1] - 1)
-        xmax_valid = min(max(0, xmax), canvas.shape[1] - 1)
-        ymin_valid = min(max(0, ymin), canvas.shape[0] - 1)
-        ymax_valid = min(max(0, ymax), canvas.shape[0] - 1)
-        canvas[ymin_valid:ymax_valid + 1, xmin_valid:xmax_valid + 1] = np.fmax(
-            1 - distance_map[ymin_valid - ymin:ymax_valid - ymax + height,
-                             xmin_valid - xmin:xmax_valid - xmax + width],
-            canvas[ymin_valid:ymax_valid + 1, xmin_valid:xmax_valid + 1])
-
-    def _distance(self, xs, ys, point_1, point_2):
-        '''
-        compute the distance from point to a line
+    @staticmethod
+    def _distance(xs, ys, point_1, point_2):
+        """
+        compute the distance from each point to a line
         ys: coordinates in the first axis
         xs: coordinates in the second axis
         point_1, point_2: (x, y), the end of the line
-        '''
-        height, width = xs.shape[:2]
-        square_distance_1 = np.square(xs - point_1[0]) + np.square(ys - point_1[
-            1])
-        square_distance_2 = np.square(xs - point_2[0]) + np.square(ys - point_2[
-            1])
-        square_distance = np.square(point_1[0] - point_2[0]) + np.square(
-            point_1[1] - point_2[1])
+        """
+        a_sq = np.square(xs - point_1[0]) + np.square(ys - point_1[1])
+        b_sq = np.square(xs - point_2[0]) + np.square(ys - point_2[1])
+        c_sq = np.square(point_1[0] - point_2[0]) + np.square(point_1[1] - point_2[1])
 
-        cosin = (square_distance - square_distance_1 - square_distance_2) / (
-            2 * np.sqrt(square_distance_1 * square_distance_2))
-        square_sin = 1 - np.square(cosin)
-        square_sin = np.nan_to_num(square_sin)
-        result = np.sqrt(square_distance_1 * square_distance_2 * square_sin /
-                         square_distance)
+        cos = (a_sq + b_sq - c_sq) / (2 * np.sqrt(a_sq * b_sq))
+        sin_sq = np.nan_to_num(1 - np.square(cos))
+        result = np.sqrt(a_sq * b_sq * sin_sq / c_sq)
 
-        result[cosin <
-               0] = np.sqrt(np.fmin(square_distance_1, square_distance_2))[cosin
-                                                                           < 0]
-        # self.extend_line(point_1, point_2, result)
+        result[cos >= 0] = np.sqrt(np.fmin(a_sq, b_sq))[cos >= 0]
         return result
 
-    def extend_line(self, point_1, point_2, result, shrink_ratio):
-        ex_point_1 = (int(
-            round(point_1[0] + (point_1[0] - point_2[0]) * (1 + shrink_ratio))),
-                      int(
-                          round(point_1[1] + (point_1[1] - point_2[1]) * (
-                              1 + shrink_ratio))))
-        cv2.line(
-            result,
-            tuple(ex_point_1),
-            tuple(point_1),
-            4096.0,
-            1,
-            lineType=cv2.LINE_AA,
-            shift=0)
-        ex_point_2 = (int(
-            round(point_2[0] + (point_2[0] - point_1[0]) * (1 + shrink_ratio))),
-                      int(
-                          round(point_2[1] + (point_2[1] - point_1[1]) * (
-                              1 + shrink_ratio))))
-        cv2.line(
-            result,
-            tuple(ex_point_2),
-            tuple(point_2),
-            4096.0,
-            1,
-            lineType=cv2.LINE_AA,
-            shift=0)
-        return ex_point_1, ex_point_2
 
-class MakeShrinkMap(object):
-    r'''
+class ShrunkBinaryMap:
+    """
     Making binary mask from detection data with ICDAR format.
     Typically following the process of class `MakeICDARData`.
-
-    adopted from https://github.com/PaddlePaddle/PaddleOCR/blob/HEAD/ppocr/data/imaug/make_shrink_map.py
-    '''
-
-    def __init__(self, min_text_size=8, shrink_ratio=0.4, **kwargs):
-        self.min_text_size = min_text_size
-        self.shrink_ratio = shrink_ratio
+    """
+    def __init__(self, min_text_size=8, shrink_ratio=0.4, train=True):
+        self._min_text_size = min_text_size
+        self._shrink_ratio = shrink_ratio
+        self._train = train
+        self._dist_coef = 1 - self._shrink_ratio ** 2
 
     def __call__(self, data):
-        image = data['image']
-        text_polys = data['polys']
-        ignore_tags = data['ignore_tags']
+        if self._train:
+            self._validate_polys(data)
 
-        h, w = image.shape[:2]
-        text_polys, ignore_tags = self.validate_polygons(text_polys,
-                                                         ignore_tags, h, w)
-        gt = np.zeros((h, w), dtype=np.float32)
-        mask = np.ones((h, w), dtype=np.float32)
-        for i in range(len(text_polys)):
-            polygon = text_polys[i]
-            height = max(polygon[:, 1]) - min(polygon[:, 1])
-            width = max(polygon[:, 0]) - min(polygon[:, 0])
-            if ignore_tags[i] or min(height, width) < self.min_text_size:
-                cv2.fillPoly(mask,
-                             polygon.astype(np.int32)[np.newaxis, :, :], 0)
-                ignore_tags[i] = True
+        gt = np.zeros(data['image'].shape[:2], dtype=np.float32)
+        mask = np.ones(data['image'].shape[:2], dtype=np.float32)
+        for i in range(len(data['polys'])):
+            min_side = min(np.max(data['polys'][i], axis=0) - np.min(data['polys'][i], axis=0))
+
+            if data['ignore_tags'][i] or min_side < self._min_text_size:
+                cv2.fillPoly(mask, [data['polys'][i].astype(np.int32)], 0)
+                data['ignore_tags'][i] = True
             else:
-                polygon_shape = Polygon(polygon)
-                subject = [tuple(l) for l in polygon]
-                padding = pyclipper.PyclipperOffset()
-                padding.AddPath(subject, pyclipper.JT_ROUND,
-                                pyclipper.ET_CLOSEDPOLYGON)
-                shrinked = []
+                poly = Polygon(data['polys'][i])
+                shrunk = expand_poly(data['polys'][i], distance=-self._dist_coef * poly.area / poly.length)
 
-                # Increase the shrink ratio every time we get multiple polygon returned back
-                possible_ratios = np.arange(self.shrink_ratio, 1,
-                                            self.shrink_ratio)
-                np.append(possible_ratios, 1)
-                # print(possible_ratios)
-                for ratio in possible_ratios:
-                    # print(f"Change shrink ratio to {ratio}")
-                    distance = polygon_shape.area * (
-                        1 - np.power(ratio, 2)) / polygon_shape.length
-                    shrinked = padding.Execute(-distance)
-                    if len(shrinked) == 1:
-                        break
+                if shrunk:
+                    cv2.fillPoly(gt, [np.array(shrunk[0], dtype=np.int32)], 1)
+                else:
+                    cv2.fillPoly(mask, [data['polys'][i].astype(np.int32)], 0)
+                    data['ignore_tags'][i] = True
 
-                if shrinked == []:
-                    cv2.fillPoly(mask,
-                                 polygon.astype(np.int32)[np.newaxis, :, :], 0)
-                    ignore_tags[i] = True
-                    continue
-
-                for each_shirnk in shrinked:
-                    shirnk = np.array(each_shirnk).reshape(-1, 2)
-                    cv2.fillPoly(gt, [shirnk.astype(np.int32)], 1)
-
-        data['shrink_map'] = gt
-        data['shrink_mask'] = mask
+        data['binary_map'] = np.expand_dims(gt, axis=0)
+        data['mask'] = mask
         return data
 
-    def validate_polygons(self, polygons, ignore_tags, h, w):
-        '''
-        polygons (numpy.array, required): of shape (num_instances, num_points, 2)
-        '''
-        if len(polygons) == 0:
-            return polygons, ignore_tags
-        assert len(polygons) == len(ignore_tags)
-        for polygon in polygons:
-            polygon[:, 0] = np.clip(polygon[:, 0], 0, w - 1)
-            polygon[:, 1] = np.clip(polygon[:, 1], 0, h - 1)
+    @staticmethod
+    def _validate_polys(data):
+        data['polys'] = np.clip(data['polys'], 0, np.array(data['image'].shape[1::-1]) - 1)  # shape reverse order: w, h
 
-        for i in range(len(polygons)):
-            area = self.polygon_area(polygons[i])
-            if abs(area) < 1:
-                ignore_tags[i] = True
-            if area > 0:
-                polygons[i] = polygons[i][::-1, :]
-        return polygons, ignore_tags
-
-    def polygon_area(self, polygon):
-        """
-        compute polygon area
-        """
-        area = 0
-        q = polygon[-1]
-        for p in polygon:
-            area += p[0] * q[1] - p[1] * q[0]
-            q = p
-        return area / 2.0
+        for i in range(len(data['polys'])):
+            poly = Polygon(data['polys'][i])
+            if poly.area < 1:
+                data['ignore_tags'][i] = True
+            if not poly.exterior.is_ccw:
+                data['polys'][i] = data['polys'][i][::-1]
 
 
 # random crop algorithm similar to https://github.com/argman/EAST
 # TODO: check randomness, seems to crop the same region every time
-class EastRandomCropData():
-    '''
+class EastRandomCropData:
+    """
     Code adopted from https://github1s.com/WenmuZhou/DBNet.pytorch/blob/master/data_loader/modules/random_crop_data.py
 
     Randomly select a region and crop images to a target size and make sure
     to contain text region. This transform may break up text instances, and for
     broken text instances, we will crop it's bbox and polygon coordinates. This
     transform is recommend to be used in segmentation-based network.
-    '''
-    def __init__(self, size=(640, 640), max_tries=50, min_crop_side_ratio=0.1, require_original_image=False, keep_ratio=True):
+    """
+    def __init__(self, size=(640, 640), max_tries=50, min_crop_side_ratio=0.1, require_original_image=False,
+                 keep_ratio=True):
         self.size = size
         self.max_tries = max_tries
         self.min_crop_side_ratio = min_crop_side_ratio
@@ -337,7 +228,7 @@ class EastRandomCropData():
         all_care_polys = [text_polys[i] for i, tag in enumerate(ignore_tags) if not tag]
         # 计算crop区域
         crop_x, crop_y, crop_w, crop_h = self.crop_area(im, all_care_polys)
-        print('crop area: ',crop_x, crop_y, crop_w, crop_h)
+        print('crop area: ', crop_x, crop_y, crop_w, crop_h)
         # crop 图片 保持比例填充
         scale_w = self.size[0] / crop_w
         scale_h = self.size[1] / crop_h
@@ -461,10 +352,10 @@ class EastRandomCropData():
         return 0, 0, w, h
 
 
-class PSERandomCrop():
-    '''
+class PSERandomCrop:
+    """
     Code adopted from https://github1s.com/WenmuZhou/DBNet.pytorch/blob/master/data_loader/modules/random_crop_data.py
-    '''
+    """
     def __init__(self, size):
         self.size = size
 
