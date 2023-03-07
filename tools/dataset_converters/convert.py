@@ -14,6 +14,7 @@ Example:
         --label_dir /path/to/ic15/rec/ch4_training_word_images_gt
 '''
 
+
 import argparse
 
 import os
@@ -21,13 +22,14 @@ from ic15 import IC15_Converter
 
 supported_datasets = ['ic15']
 
-def convert(dataset_name, task, image_dir, label_path, output_path=None, path_mode='relative'):
-    '''
-    image_dir: path to the images
-    label_path: path to the annotation, support folder path or file path
-    output_path: path to save the converted annotation. If None, the file will be saved as '{task}_gt.txt' along with `label_path`
 
-    '''
+def convert(dataset_name, task, image_dir, label_path, output_path=None, path_mode='relative'):
+    """
+    Args:
+      image_dir: path to the images
+      label_path: path to the annotation, support folder path or file path
+      output_path: path to save the converted annotation. If None, the file will be saved as '{task}_gt.txt' along with `label_path`
+    """
     if dataset_name in supported_datasets:
         if output_path=='':
             output_path = None

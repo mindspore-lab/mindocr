@@ -1,4 +1,4 @@
-Thank you for your contribution to the MindCV repo.
+Thank you for your contribution to the MindOCR repo.
 Before submitting this PR, please make sure:
 
 - [ ] You have read the [Contributing Guidelines on pull requests](https://github.com/mindspore-lab/mindcv/blob/main/CONTRIBUTING.md)

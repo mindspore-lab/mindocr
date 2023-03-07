@@ -1,24 +1,19 @@
-from __future__ import absolute_import
-from __future__ import division
-
-from typing import List
+from typing import List, Union
 import cv2
 import numpy as np
 from PIL import Image
 
 from mindcv.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
-# IMAGENET_DEFAULT_MEAN = [0.485 * 255, 0.456 * 255, 0.406 * 255]
-# IMAGENET_DEFAULT_STD = [0.229 * 255, 0.224 * 255, 0.225 * 255]
 
 __all__ = ['DecodeImage', 'NormalizeImage', 'ToCHWImage', 'PackLoaderInputs']
 
+
 # TODO: use mindspore C.decode for efficiency
 class DecodeImage(object):
-    '''
+    """
     img_mode (str): The channel order of the output, 'BGR' and 'RGB'. Default to 'BGR'.
     channel_first (bool): if True, image shpae is CHW. If False, HWC. Default to False
-
-    '''
+    """
     def __init__(self, img_mode='BGR', channel_first=False, to_float32=False, ignore_orientation=False, **kwargs):
         self.img_mode = img_mode
         self.to_float32 = to_float32
@@ -30,7 +25,7 @@ class DecodeImage(object):
         # read from buffer is faster?
         if 'img_path' in data:
             with open(data['img_path'], 'rb') as f:
-                    img = f.read()
+                img = f.read()
         elif 'img_lmdb' in data:
             img = data["img_lmdb"]
         img = np.frombuffer(img, dtype='uint8')
@@ -45,17 +40,18 @@ class DecodeImage(object):
         if self.to_float32:
             img = img.astype('float32')
         data['image'] = img
-        #data['ori_image'] = img.copy()
+        # data['ori_image'] = img.copy()
         return data
 
 
-class NormalizeImage(object):
-    """ normalize image, substract mean, divide std
+class NormalizeImage:
+    """
+    normalize image, substract mean, divide std
     input image: by default, np.uint8, [0, 255], HWC format.
     return image: float32 numpy array
     """
-
-    def __init__(self, mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD, is_hwc=True, bgr_to_rgb=False, rgb_to_bgr=False, **kwargs):
+    def __init__(self, mean: Union[List[float], str] = 'imagenet', std: Union[List[float], str] = 'imagenet',
+                 is_hwc=True, bgr_to_rgb=False, rgb_to_bgr=False, **kwargs):
         # By default, imagnet MEAN and STD is in RGB order. inverse if input image is in BGR mode
         self._channel_conversion = False
         if bgr_to_rgb or rgb_to_bgr:
@@ -63,8 +59,8 @@ class NormalizeImage(object):
 
         # TODO: detect hwc or chw automatically
         shape = (3, 1, 1) if not is_hwc else (1, 1, 3)
-        self.mean = np.array(mean).reshape(shape).astype('float32')
-        self.std = np.array(std).reshape(shape).astype('float32')
+        self.mean = np.array(self._get_value(mean, 'mean')).reshape(shape).astype('float32')
+        self.std = np.array(self._get_value(std, 'std')).reshape(shape).astype('float32')
         self.is_hwc = is_hwc
 
     def __call__(self, data):
@@ -75,18 +71,26 @@ class NormalizeImage(object):
 
         if self._channel_conversion:
             if self.is_hwc:
-                img = img[..., [2,1,0]]
+                img = img[..., [2, 1, 0]]
             else:
-                img = img[[2,1,0], ...]
+                img = img[[2, 1, 0], ...]
 
-        data['image'] = (
-            img.astype('float32') - self.mean) / self.std
+        data['image'] = (img.astype('float32') - self.mean) / self.std
         return data
 
-class ToCHWImage(object):
-    """ convert hwc image to chw image
-    """
+    @staticmethod
+    def _get_value(val, name):
+        if isinstance(val, str) and val.lower() == 'imagenet':
+            assert name in ['mean', 'std']
+            return IMAGENET_DEFAULT_MEAN if name == 'mean' else IMAGENET_DEFAULT_STD
+        elif isinstance(val, list):
+            return val
+        else:
+            raise ValueError(f'Wrong {name} value: {val}')
 
+
+class ToCHWImage:
+    # convert hwc image to chw image
     def __init__(self, **kwargs):
         pass
 
@@ -97,15 +101,16 @@ class ToCHWImage(object):
         data['image'] = img.transpose((2, 0, 1))
         return data
 
-class PackLoaderInputs(object):
-    '''
+
+class PackLoaderInputs:
+    """
     Args:
         output_keys (list): the keys in data dict that are expected to output for dataloader
 
     Call:
         input: data dict
         output: data tuple corresponding to the `output_keys`
-    '''
+    """
     def __init__(self, output_keys: List, **kwargs):
         self.output_keys = output_keys
 
