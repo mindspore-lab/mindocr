@@ -21,13 +21,124 @@ MindOCR的推理工具集成了文本检测、角度分类和文字识别模块�
 
 ##### 1. paddle转onnx
 
-xxxxxxxxxxxxxxxxxxx
+将下载好的paddle模型转换成onnx模型。
+
+运行paddle2onnx工具需要依赖的三方库如下所示：
+
+| 名称               | 版本              |
+| ----------------- | ---------------  |
+| paddlepaddle      | 2.3.0|
+| paddle2onnx       | 0.9.5|
+
+**DBNet paddle模型转成onnx模型**
+
+PP-OCR server 2.0版本指令参考如下：
+
+```
+paddle2onnx --model_dir ./ch_ppocr_server_v2.0_det_infer/ --model_filename inference.pdmodel \
+            --params_filename inference.pdiparams --save_file ./ch_ppocr_server_v2.0_det_infer.onnx \
+            --opset_version 11 --enable_onnx_checker True --input_shape_dict="{'x':[-1,3,-1,-1]}"
+```
+
+Paddle PP-OCR3.0版本指令参考如下：
+```
+paddle2onnx --model_dir ./ch_PP-OCRv3_det_infer/ --model_filename inference.pdmodel \
+            --params_filename inference.pdiparams --save_file ./ch_PP-OCRv3_det_infer.onnx \
+            --opset_version 11 --enable_onnx_checker True
+```
+
+CRNN paddle模型转成onnx模型指令参考如下：
+```
+paddle2onnx --model_dir ./ch_ppocr_server_v2.0_rec_infer/ --model_filename inference.pdmodel \
+            --params_filename inference.pdiparams --save_file ./ch_ppocr_server_v2.0_rec_infer.onnx \
+            --opset_version 11 --enable_onnx_checker True --input_shape_dict="{'x':[-1,3,32,-1]}"
+```
+
+SVTR paddle模型转成onnx模型指令参考如下：
+```
+paddle2onnx --model_dir ./ch_PP-OCRv3_rec_infer/ --model_filename inference.pdmodel \
+            --params_filename inference.pdiparams --save_file ./ch_PP-OCRv3_rec_infer.onnx \
+            --opset_version 11 --enable_onnx_checker True
+```
+
+分类模型转成onnx模型指令参考如下：
+```
+paddle2onnx --model_dir ./ch_ppocr_mobile_v2.0_cls_infer --model_filename inference.pdmodel \
+            --params_filename inference.pdiparams --save_file ./ch_ppocr_mobile_v2.0_cls_infer.onnx \
+            --opset_version 11 --enable_onnx_checker True
+```
 
 ##### 2. onnx转om（模型自动分档）
 
-xxxxxxxxxxxxxxxxxxx
+将onnx模型转化为om模型。
 
+参考tools/model_converter.sh脚本执行自动串行讲onnx转om。
 
+```
+bash model_converter.sh
+```
+
+针对Cls的分档
+
+分类模型没有对HW分档，只对N进行分档，不需要在数据集上统计，参考demo/data/models/cls/atc.sh执行转换。
+
+```
+bash atc.sh
+```
+
+model_converter.sh脚本包括以下步骤：
+
+###### 2.1 识别模型插入ArgMax算子
+
+转到data/pdmodel2onnx目录下，使用算子插入工具insert_argmax，在文字识别模型（CRNN/SVTR）中插入argmax算子：
+
+  ```
+   python3 insert_argmax.py --model_path /xx/xx/ch_ppocr_server_v2.0_rec_infer.onnx --check_output_onnx True
+   python3 insert_argmax.py --model_path /xx/xx/ch_PP-OCRv3_rec_infer.onnx --check_output_onnx True
+  ```
+
+转换出来的结果位于'model_path'路径下，命名为'ch_ppocr_server_v2.0_rec_infer_argmax.onnx' 或 'ch_PP-OCRv3_rec_infer_argmax.onnx'的onnx模型文件。
+
+###### 2.2 onnx模型转om模型
+
+这里实现了Shape分档功能。例如，CRNN模型的输入Shape为(N, 3, 32, W)，在模型转换时，N和W设置了多种可选的组合，即为Shape分档。
+
+模型分档时，对于如何设置HW的组合，这里提供了一些自动化脚本，可以从数据集中自动统计，实现自动分档功能。
+
+demo/data/auto_gear/auto_gear.py提供了自动分档功能，它基于数据集统计分档参数，然后自动调用ATC工具，实现模型分档与转换。auto_gear.py有很多可选参数，详情见README，本文这里只使用默认参数。
+
+demo/data/models和demo/data/models_310目录，提供了ATC工具的例子，用户可以手动调用。
+
+###### 2.3 分档
+
+（1）v2.0的DBNet/CRNN分档
+
+```
+python auto_gear.py --image_path=/xx/xx/lsvt/images --gt_path=/xx/xx/lsvt/labels --det_onnx_path=/xx/xx/ch_ppocr_server_v2.0_det_infer.onnx --rec_onnx_path=/xx/xx/ch_ppocr_server_v2.0_rec_infer_argmax.onnx --rec_model_height=32 --soc_version=Ascend310P3 --output_path=./lsvt_om_v2
+```
+
+其中，CRNN模型的H为32，所以rec_model_height设置为32。运行结束后会在output_path目录下生成crnn和dbnet文件夹，crnn下会有多个om文件，dbnet文件夹下只有1个om文件。
+
+（2）v3.0的DBNet/SVTR分档
+
+```
+python auto_gear.py --image_path=/xx/xx/lsvt/images --gt_path=/xx/xx/lsvt/labels --det_onnx_path=/xx/xx/ch_PP-OCRv3_det_infer.onnx --rec_onnx_path=/xx/xx/ch_PP-OCRv3_rec_infer_argmax.onnx --rec_model_height=48 --soc_version=Ascend310P3 --output_path=./lsvt_om_v3
+```
+
+其中，SVTR模型的H为48，所以rec_model_height设置为48。运行结束后会在output_path目录下生成svtr和dbnet文件夹，svtr下会有多个om文件，dbnet文件夹下只有1个om文件。
+
+###### 2.4 自动选择
+
+SVTR和CRNN在自动分档时会产生多个模型文件，使用自动挑选工具auto_select自动挑选识别性能更优的om模型。
+
+在demo/data/auto_gear目录下，参考命令如下：
+
+```
+python3 auto_select.py --rec_model_path lsvt_om_v2/crnn
+python3 auto_select.py --rec_model_path lsvt_om_v3/svtr
+```
+
+完成挑选后，被选中的om文件存在rec_model_path下的selected文件夹下面，后续推理时选择该文件下的模型使用即可。
 
 #### 推理
 
