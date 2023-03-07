@@ -17,7 +17,7 @@ setup(
     license="Apache Software License 2.0",
     include_package_data=True,
     package_dir={'mindocr.mindocr': 'mindocr', 'mindocr.tools': 'tools', 'mindocr.deploy': 'deploy'},
-    entry_points={"console_scripts": ["mindocr_infer=mindocr.deploy.mx_infer.infer_pipeline:main"]},
+    entry_points={"console_scripts": ["mindocr=mindocr.deploy.mx_infer.infer_pipeline:main"]},
     install_requires=[
         "numpy >= 1.17.0",
     ],
