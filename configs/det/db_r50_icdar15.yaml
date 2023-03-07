@@ -5,6 +5,7 @@ system:
   seed: 42
   val_while_train: True
   ckpt_save_dir: './tmp_det'
+  drop_overflow_update: True
 
 model:
   type: det
