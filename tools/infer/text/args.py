@@ -2,8 +2,9 @@ import argparse
 import os
 import itertools
 
-from deploy.infer_pipeline.framework.module_data_type import InferModelComb
-from deploy.infer_pipeline.processors import SUPPORT_DET_MODEL, SUPPORT_REC_MODEL
+from deploy.mindx.framework.module_data_type import InferModelComb
+from deploy.mindx.processors import SUPPORT_DET_MODEL, SUPPORT_REC_MODEL
+
 
 def get_args():
     parser = argparse.ArgumentParser(description='Arguments for inference.')
@@ -24,7 +25,7 @@ def get_args():
     parser.add_argument('--cls_model_path', type=str, required=False, help='Classification model file path.')
     parser.add_argument('--rec_model_path', type=str, required=False, help='Recognition model file path or directory.')
     parser.add_argument('--rec_char_dict_path', type=str, required=False,
-                        help='Character dict file path fo r recognition models.')
+                        help='Character dict file path for recognition models.')
 
     parser.add_argument('--res_save_dir', type=str, default='inference_results', required=False,
                         help='Saving dir for inference results.')
@@ -107,7 +108,8 @@ def check_args(args):
         raise ValueError(f"rec_model_path must a model file or dir containing model file for recognition model.")
 
     if args.rec_model_path and (not args.rec_char_dict_path or not os.path.isfile(args.rec_char_dict_path)):
-        raise ValueError(f"rec_char_dict_path must be a dict file for .")
+        raise ValueError(
+            f"rec_char_dict_path must be a dict file for recognition model, but got '{args.rec_char_dict_path}'.")
 
     if args.parallel_num < 1 or args.parallel_num > 4:
         raise ValueError(f"parallel_num must between [1,4], current: {args.parallel_num}.")
