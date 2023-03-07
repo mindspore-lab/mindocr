@@ -42,12 +42,14 @@ def main(cfg):
         rank_id = get_rank()
         ms.set_auto_parallel_context(device_num=device_num,
                                      parallel_mode='data_parallel',
-                                     gradients_mean=True)
+                                     gradients_mean=True,
+                                     parameter_broadcast=True,
+                                     )
     else:
         device_num = None
         rank_id = None
 
-    set_seed(cfg.system.seed, rank_id)
+    set_seed(cfg.system.seed)
     cv2.setNumThreads(2) # TODO: proper value
     is_main_device = rank_id in [None, 0]
 
