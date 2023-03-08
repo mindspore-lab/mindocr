@@ -1,1 +1,5 @@
 imgaug
+numpy
+opencv-python
+pyclipper
+shapely
