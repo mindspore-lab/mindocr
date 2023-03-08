@@ -87,10 +87,12 @@ def main(cfg):
 
     loss_scale_manager = nn.FixedLossScaleUpdateCell(loss_scale_value=cfg.optimizer.loss_scale)
 
-    train_net = nn.TrainOneStepWithLossScaleCell(net_with_loss,
-                                                 optimizer=optimizer,
-                                                 scale_sense=loss_scale_manager)
-
+    train_net = TrainOneStepWrapper(net_with_loss,
+                                    optimizer=optimizer,
+                                    scale_sense=loss_scale_manager,
+                                    drop_overflow_update=cfg.system.drop_overflow_update,
+                                    verbose=True
+                                    )
     # postprocess, metric
     postprocessor = None
     if cfg.system.val_while_train:
