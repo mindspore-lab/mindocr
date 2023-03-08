@@ -7,7 +7,7 @@ def set_seed(seed=42):
     '''
     seed: seed int
 
-    Note: to ensure model init stability, rank_id is removed for seed.
+    Note: to ensure model init stability, rank_id is removed from seed.
     '''
     #if rank is None:
     #    rank = 0

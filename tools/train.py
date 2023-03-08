@@ -1,12 +1,7 @@
 '''
 Model training
-
-TODO:
-    1. default arg values
-    2. top-k model saving policy
 '''
 import sys
-
 sys.path.append('.')
 
 import os
@@ -30,7 +25,7 @@ from mindocr.postprocess import build_postprocess
 from mindocr.metrics import build_metric
 from mindocr.utils.model_wrapper import NetWithLossWrapper
 from mindocr.utils.train_step_wrapper import TrainOneStepWrapper 
-from mindocr.utils.callbacks import EvalSaveCallback # TODO: callback in a better dir
+from mindocr.utils.callbacks import EvalSaveCallback
 from mindocr.utils.seed import set_seed
 
 def main(cfg):
@@ -50,7 +45,7 @@ def main(cfg):
         rank_id = None
 
     set_seed(cfg.system.seed)
-    cv2.setNumThreads(2) # TODO: proper value
+    cv2.setNumThreads(2) # TODO: by default, num threads = num cpu cores 
     is_main_device = rank_id in [None, 0]
 
     # train pipeline
@@ -100,14 +95,14 @@ def main(cfg):
         # postprocess network prediction
         metric = build_metric(cfg.metric) 
 
-        # build callbacks
+    # build callbacks
     eval_cb = EvalSaveCallback(
             network, 
             loader_eval, 
             postprocessor=postprocessor, 
             metrics=[metric], 
             rank_id=rank_id,
-            ckpt_save_dir=cfg.system.ckpt_save_dir,
+            ckpt_save_dir=cfg.train.ckpt_save_dir,
             main_indicator=cfg.metric.main_indicator)
 
     # log
@@ -121,14 +116,14 @@ def main(cfg):
             f'Scheduler: {cfg.scheduler.scheduler}\n'
             f'LR: {cfg.scheduler.lr} \n'
             f'drop_overflow_update: {cfg.system.drop_overflow_update}'
-                )
+            )
         if 'name' in cfg.model:
             print(f'Model: {cfg.model.name}')
         else:
             print(f'Model: {cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}')
         print('='*40)
         # save args used for training
-        with open(os.path.join(cfg.system.ckpt_save_dir, 'args.yaml'), 'w') as f:
+        with open(os.path.join(cfg.train.ckpt_save_dir, 'args.yaml'), 'w') as f:
             args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False)
             f.write(args_text)
     

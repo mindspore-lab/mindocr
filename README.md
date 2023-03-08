@@ -7,6 +7,14 @@ A toolbox of OCR models, algorithms, and pipelines based on MindSpore
 - Performance tracking during training (by default, results are be saved in `ckpt_save_dir/result.log`)
 
 
+## Change log
+
+- 3.8
+1. Add evaluation script with  arg `ckpt_load_path` 
+2. Arg `ckpt_save_dir` is moved from `system` to `train` in yaml.
+3. Add drop_overflow_update control
+
+
 ## Quick Start (for dev)
 
 ### Data preparation

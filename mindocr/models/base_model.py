@@ -31,7 +31,6 @@ class BaseModel(nn.Cell):
         head_name = config.head.pop('name')
         self.head = build_head(head_name, in_channels=self.neck.out_channels, **config.head)
 
-
         self.model_name = f'{backbone_name}_{neck_name}_{head_name}'  
 
     def construct(self, x):
