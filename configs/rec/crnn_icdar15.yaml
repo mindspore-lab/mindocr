@@ -4,7 +4,6 @@ system:
   amp_level: 'O0'
   seed: 42
   val_while_train: True
-  ckpt_save_dir: './tmp_rec'
   drop_overflow_update: True
 
 common:
@@ -62,6 +61,7 @@ optimizer:
   #use_nesterov: True 
 
 train:
+  ckpt_save_dir: './tmp_rec'
   dataset_sink_mode: False
   dataset:
     type: RecDataset
@@ -99,10 +99,11 @@ train:
       shuffle: True # TODO: tbc
       batch_size: *batch_size
       drop_remainder: True
-      max_rowsize: 12
-      num_workers: 2
+      max_rowsize: 16
+      num_workers: 10
 
 eval:
+  ckpt_load_path: './tmp_rec/best.ckpt'
   dataset_sink_mode: False
   dataset:
     type: RecDataset

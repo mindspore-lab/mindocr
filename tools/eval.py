@@ -39,6 +39,8 @@ def main(cfg):
 
     if cfg.system.amp_level != 'O0':
         print('INFO: Evaluation will run in full-precision(fp32)')
+
+    # TODO: check float type conversion in official Model.eval 
     #ms.amp.auto_mixed_precision(network, amp_level='O0')  
 
     # postprocess, metric
