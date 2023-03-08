@@ -3,7 +3,7 @@ from .det_loss import L1BalancedCELoss
 from .rec_loss import CTCLoss 
 
 
-supported_losses = ['L1BalanceCELoss', 'CTCLoss']
+supported_losses = ['L1BalancedCELoss', 'CTCLoss']
 
 
 def build_loss(name, **kwargs):

@@ -94,7 +94,7 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
                 if self.ema:
                     self.ema_update()
             else:
-                print('Gradient flow-point Overflow. Skip update step.')
+                print('Gradient float-point Overflow. Skip update step.')
 
         else:
             # still optimizer even overflow
