@@ -1,12 +1,12 @@
 #!/bin/bash
-pushd ../deploy/mindx/pdmodel2onnx
+pushd ../deploy/models_utils/conversion/onnx_optim
 python insert_argmax.py --model_path=/xx/ch_ppocr_server_v2.0_rec_infer.onnx \
                         --check_output_onnx=True &
 pid1=$!
 wait $pid1
 popd
 
-pushd ../deploy/mindx/auto_gear
+pushd ../deploy/models_utils/conversion/auto_gear
 python auto_gear.py --image_path=/xx/lsvt/images \
                     --gt_path=/xx/lsvt/labels \
                     --det_onnx_path=ch_ppocr_server_v2.0_det_infer.onnx \
