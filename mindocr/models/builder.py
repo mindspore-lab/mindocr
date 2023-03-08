@@ -2,6 +2,7 @@
 build models
 '''
 from typing import Union
+from mindspore import load_checkpoint, load_param_into_net
 from ._registry import model_entrypoint, list_models, is_model
 from .base_model import BaseModel
 
@@ -20,7 +21,13 @@ def build_model(config: Union[dict, str], **kwargs): #config: Union[dict,str]):
                     backbone: dict, a dictionary containing the backbone config, the available keys are defined in backbones/builder.py
                     neck: dict,
                     head: dict,
-        kwargs: if config is a str of model name, kwargs servers as the args for the model.
+        kwargs: if config is a str of model name, kwargs contains the args for the model. 
+                
+
+    Example:
+    >>>  net = build_model(cfg['model'])
+    >>>  net = build_model(cfg['model'], ckpt_load_path='./r50_fpn_dbhead.ckpt') # build network and load checkpoint
+    >>>  net = build_model('dbnet_r50', pretrained=True)
 
     '''
     if isinstance(config, str):
@@ -43,5 +50,13 @@ def build_model(config: Union[dict, str], **kwargs): #config: Union[dict,str]):
         network = BaseModel(config)
     else:
         raise ValueError('Type error for config')
+   
+    # load checkpoint
+    if 'ckpt_load_path' in kwargs:
+        ckpt_path = kwargs['ckpt_load_path']  
+        if ckpt_path not in ['', None]:
+            print(f'INFO: Loading checkpoint from {ckpt_path}')
+            params = load_checkpoint(ckpt_path)
+            load_param_into_net(network, params)
 
     return network
