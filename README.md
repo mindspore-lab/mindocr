@@ -39,7 +39,7 @@ python tools/train.py --config configs/det/db_r50_icdar15.yaml
 python tools/train.py --config configs/rec/crnn_icdar15.yaml
 ```
 
-# Evaluation
+### Evaluation
 
 ``` python
 python tools/eval.py --config configs/det/db_r50_icdar15.yaml
