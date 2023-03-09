@@ -109,6 +109,7 @@ mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/db_r5
 ```
 > Notes: please ensure the arg `distribute` in yaml file is set True
 
+
 The training result (including checkpoints, per-epoch performance and curves) will be  saved in the directory parsed by the arg `ckpt_save_dir`, which is "./tmp_det/" by default. 
 
 #### 4. Evaluation
