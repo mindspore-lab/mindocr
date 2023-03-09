@@ -7,6 +7,7 @@
 [Introduction](#introduction) |
 [Installation](#installation) |
 [Quick Start](#quick-start) |
+[Model List](#supported-models-and-performance) |
 [Notes](#notes)
 
 
@@ -32,7 +33,7 @@ To install the dependency, please run
 pip install -r requirements.txt
 ```
 
-It s recommended to install MindSpore following the official [instructions](https://www.mindspore.cn/install) for the best fit of your machine. To enable training in distributed mode, please also install [openmpi](https://www.open-mpi.org/software/ompi/v4.0/).
+It is recommended to install MindSpore following the official [instructions](https://www.mindspore.cn/install) for the best fit of your machine. To enable training in distributed mode, please also install [openmpi](https://www.open-mpi.org/software/ompi/v4.0/).
 
 
 ### Install with PyPI
@@ -56,7 +57,7 @@ We will use **DBNet** model and **ICDAR2015** dataset for illustration, although
 
 #### 1. Data Preparation
 
-Please download the ICDAR2015 dataset from this [website](https://rrc.cvc.uab.es/?ch=4&com=downloads), then format the dataset annotation refer to [dataset_convert](tools/dataset/README.md).
+Please download the ICDAR2015 dataset from this [website](https://rrc.cvc.uab.es/?ch=4&com=downloads), then format the dataset annotation refer to [dataset_convert](tools/dataset_converters/README.md).
 
 After preparation, the data structure should be like 
 
@@ -128,23 +129,51 @@ We will use **CRNN** model and **LMDB** dataset for illustration, although other
 
 #### 1. Data Preparation
 
-Please download the LMDB dataset from ... 
+Please download the LMDB dataset from [here](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (ref: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here)).
 
-After preparation, the data structure should be like 
+There're several .zip data files:
+- `data_lmdb_release.zip` contains the entire datasets including train, valid and evaluation.
+- `validation.zip` is the union dataset for Validation
+- `evaluation.zip` contains several benchmarking datasets. 
+
+Unzip the data and after preparation, the data structure should be like 
 
 ``` text
+.
+├── train
+│   ├── MJ
+│   │   ├── data.mdb
+│   │   ├── lock.mdb
+│   ├── ST
+│   │   ├── data.mdb
+│   │   ├── lock.mdb
+└── validation
+|   ├── data.mdb
+|   ├── lock.mdb
+└── evaluation
+    ├── IC03
+    │   ├── data.mdb
+    │   ├── lock.mdb
+    ├── IC13
+    │   ├── data.mdb
+    │   ├── lock.mdb
+    └── ...
 ```
 
 #### 2. Configure Yaml
 
-Please choose a yaml config file containing the target pre-defined model and data pipeline that you want to re-use from `configs/det`. Here we choose `configs/det/vgg7_bilistm_ctc.yaml`.
+Please choose a yaml config file containing the target pre-defined model and data pipeline that you want to re-use from `configs/rec`. Here we choose `configs/rec/vgg7_bilistm_ctc.yaml`.
 
 Please change the data config args accordingly, such as
 ``` yaml
 train:
   dataset:
-    data_dir: ic15/det/train/images
-    label_files: ic15/det/train/det_gt.txt
+    type: LMDBDataset
+    data_dir: lmdb_data/rec/train/
+eval:
+  dataset:
+    type: LMDBDataset
+    data_dir: lmdb_data/rec/validation/
 ```
 
 Optionally, change `num_workers` according to the cores of CPU, and change `distribute` to True if you are to train in distributed mode.
@@ -196,10 +225,10 @@ Coming soon
 
 The supported detection  models and their performance on the test set of ICDAR2015 are as follow.
 
-| **Model** | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** |
-|-----------|--------------|----------------|------------|---------------|-------------|
-| DBNet     | ResNet-50    | ImageNet       | 81.97%     | 86.05%        | 83.96%      |
-| DBNet++   | ResNet-50    | ImageNet       | 82.02%     | 87.38%        | 84.62%      |
+| **Model** | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Config** | 
+|-----------|--------------|----------------|------------|---------------|-------------|-------------|
+| DBNet     | ResNet-50    | ImageNet       | 81.97%     | 86.05%        | 83.96%      | [YAML](configs/det/db_r50_icdar15.yaml)  | 
+| DBNet++   | ResNet-50    | ImageNet       | 82.02%     | 87.38%        | 84.62%      | [YAML](configs/det/db++_r50_icdar15.yaml)   |
 
 ### Text Recognition
 
@@ -208,8 +237,8 @@ The supported recognition models and their overall performance on the public ben
 
 | **Model** | **Backbone** | **Avg Acc**| **Config** | 
 |-----------|--------------|----------------|------------|
-| DBNet     | ResNet-50    | 80.98% 	| [YAML](configs/rec/vgg7_bilstm_ctc.yaml)    | 
-| DBNet++   | ResNet-50    | 84.64% 	| [YAML](configs/rec/r34_bilstm_ctc.yaml)     |
+| CRNN     | VGG7        | 80.98% 	| [YAML](configs/rec/vgg7_bilstm_ctc.yaml)    | 
+| CRNN     | Resnet34_vd    | 84.64% 	| [YAML](configs/rec/r34_bilstm_ctc.yaml)     |
 
 
 ## Notes
