@@ -33,7 +33,7 @@ To install the dependency, please run
 pip install -r requirements.txt
 ```
 
-It s recommended to install MindSpore following the official [instructions](https://www.mindspore.cn/install) for the best fit of your machine. To enable training in distributed mode, please also install [openmpi](https://www.open-mpi.org/software/ompi/v4.0/).
+It is recommended to install MindSpore following the official [instructions](https://www.mindspore.cn/install) for the best fit of your machine. To enable training in distributed mode, please also install [openmpi](https://www.open-mpi.org/software/ompi/v4.0/).
 
 
 ### Install with PyPI
@@ -57,7 +57,7 @@ We will use **DBNet** model and **ICDAR2015** dataset for illustration, although
 
 #### 1. Data Preparation
 
-Please download the ICDAR2015 dataset from this [website](https://rrc.cvc.uab.es/?ch=4&com=downloads), then format the dataset annotation refer to [dataset_convert](tools/dataset/README.md).
+Please download the ICDAR2015 dataset from this [website](https://rrc.cvc.uab.es/?ch=4&com=downloads), then format the dataset annotation refer to [dataset_convert](tools/dataset_converters/README.md).
 
 After preparation, the data structure should be like 
 
