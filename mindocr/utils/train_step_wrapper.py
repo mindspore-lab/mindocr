@@ -96,7 +96,7 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
             overflow = self.process_loss_scale(cond)
         else:
             overflow = False
-            cond =   False 
+            cond = False 
 
         if self.drop_overflow_update:
             # if there is no overflow, do optimize
