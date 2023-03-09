@@ -5,6 +5,8 @@ pyclipper
 shapely
 tqdm
 addict
+scikit-learn
+matplotlib
 rapidfuzz==2.13.7
 numpy==1.21.6
 opencv-python-headless==3.4.18.65
