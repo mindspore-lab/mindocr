@@ -7,6 +7,7 @@
 [Introduction](#introduction) |
 [Installation](#installation) |
 [Quick Start](#quick-start) |
+[Model List](#supported-models-and-performance) |
 [Notes](#notes)
 
 
