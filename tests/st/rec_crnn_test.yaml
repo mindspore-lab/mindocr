@@ -12,7 +12,7 @@ common:
   max_text_len: &max_text_len 23
   infer_mode: &infer_mode False
   use_space_char: &use_space_char False
-  batch_size: &batch_size 8
+  batch_size: &batch_size 2
 
 model:
   type: rec
@@ -98,7 +98,7 @@ train:
       batch_size: *batch_size
       drop_remainder: True
       max_rowsize: 16
-      num_workers: 2
+      num_workers: 1
 
 eval:
   ckpt_load_path: './tmp_rec/best.ckpt'
@@ -134,7 +134,7 @@ eval:
      
   loader:
       shuffle: False
-      batch_size: 8
+      batch_size: 1
       drop_remainder: False
       max_rowsize: 12
       num_workers: 1
