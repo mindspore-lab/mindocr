@@ -38,7 +38,7 @@ def main(cfg):
         ms.set_auto_parallel_context(device_num=device_num,
                                      parallel_mode='data_parallel',
                                      gradients_mean=True,
-                                     parameter_broadcast=True,
+                                     #parameter_broadcast=True,
                                      )
     else:
         device_num = None
