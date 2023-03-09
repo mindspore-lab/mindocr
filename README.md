@@ -38,9 +38,6 @@ It s recommended to install MindSpore following the official [instructions](http
 ### Install with PyPI
 
 Coming soon
-```shell
- pip install mindocr
-```
 
 ### Install from Source
 
@@ -83,12 +80,16 @@ After preparation, the data structure should be like
 
 Please choose a yaml config file containing the target pre-defined model and data pipeline that you want to re-use from `configs/det`. Here we choose `configs/det/db_r50_icdar15.yaml`.
 
-Please change the data config args accordingly, such as
+And change the data config args according to 
 ``` yaml
 train:
   dataset:
-    data_dir: ic15/det/train/images
-    label_files: ic15/det/train/det_gt.txt
+    data_dir: PATH/TO/TRAIN_IMAGES_DIR
+    label_files: PATH/TO/TRAIN_LABELS.txt
+eval:
+  dataset:
+    data_dir: PATH/TO/TEST_IMAGES_DIR
+    label_files: PATH/TO/TEST_LABELS.txt
 ```
 
 Optionally, change `num_workers` according to the cores of CPU, and change `distribute` to True if you are to train in distributed mode.
@@ -188,6 +189,28 @@ Coming soon
 #### Inference with native MindSpore
 
 Coming soon
+
+## Supported Models and Performance
+
+### Text Detection  
+
+The supported detection  models and their performance on the test set of ICDAR2015 are as follow.
+
+| **Model** | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Config** | 
+|-----------|--------------|----------------|------------|---------------|-------------|-------------|
+| DBNet     | ResNet-50    | ImageNet       | 81.97%     | 86.05%        | 83.96%      | [YAML](configs/det/db_r50_icdar15.yaml)  | 
+| DBNet++   | ResNet-50    | ImageNet       | 82.02%     | 87.38%        | 84.62%      | [YAML](configs/det/db++_r50_icdar15.yaml)   |
+
+### Text Recognition
+
+The supported recognition models and their overall performance on the public benchmarking datasets (IIIT, SVT, IC03, IC13, IC15, SVTP, CUTE) are as follow
+
+
+| **Model** | **Backbone** | **Avg Acc**| **Config** | 
+|-----------|--------------|----------------|------------|
+| CRNN     | VGG7        | 80.98% 	| [YAML](configs/rec/vgg7_bilstm_ctc.yaml)    | 
+| CRNN     | Resnet34_vd    | 84.64% 	| [YAML](configs/rec/r34_bilstm_ctc.yaml)     |
+
 
 ## Notes
 
