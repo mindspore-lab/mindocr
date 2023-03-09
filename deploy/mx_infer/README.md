@@ -130,14 +130,15 @@ SVTR paddle模型转成onnx模型指令参考如下：
 
 需要适配脚本对应数据和模型参数：
 
-| 参数名称          | 描述                |
-|---------------|-------------------|
-| model_path    | 需要插入argmax的模型文件路径 |
-| image_path    | 数据集图片数据路径         |
-| gt_path       | 数据集标签路径           |
-| det_onnx_path | det onnx模型路径      |
-| rec_onnx_path | rec onnx模型路径      |
-
+| 参数名称             | 描述                               |
+|------------------|----------------------------------|
+| model_path       | 需要插入argmax的模型文件路径                |
+| image_path       | 数据集图片数据路径                        |
+| gt_path          | 数据集标签路径                          |
+| det_onnx_path    | det onnx模型路径                     |
+| rec_onnx_path    | rec onnx模型路径                     |
+| soc_version      | Ascend卡的类型，可选Ascend310、Ascend310P3 |
+| rec_model_height | 识别模型的height值，CRNN为32，SVTR为48     |
   ```
   bash onnx2om.sh
   ```
