@@ -98,7 +98,7 @@ train:
       batch_size: *batch_size
       drop_remainder: True
       max_rowsize: 16
-      num_workers: 10
+      num_workers: 2
 
 eval:
   ckpt_load_path: './tmp_rec/best.ckpt'
