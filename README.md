@@ -168,6 +168,10 @@ train:
   dataset:
     type: LMDBDataset
     data_dir: lmdb_data/rec/train/
+eval:
+  dataset:
+    type: LMDBDataset
+    data_dir: lmdb_data/rec/validation/
 ```
 
 Optionally, change `num_workers` according to the cores of CPU, and change `distribute` to True if you are to train in distributed mode.
