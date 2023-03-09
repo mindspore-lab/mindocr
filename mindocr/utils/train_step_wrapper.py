@@ -83,8 +83,6 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
         
         if not self.is_cpu_device:
             status, scaling_sens = self.start_overflow_check(loss, scaling_sens)
-        else:
-            status = True
 
         scaling_sens_filled = C.ones_like(loss) * F.cast(scaling_sens, F.dtype(loss))
         grads = self.grad(self.network, weights)(*inputs, scaling_sens_filled)
@@ -93,8 +91,12 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
         grads = self.grad_reducer(grads)
 
         # get the overflow buffer
-        cond = self.get_overflow_status(status, grads)
-        overflow = self.process_loss_scale(cond)
+        if not self.is_cpu_device:
+            cond = self.get_overflow_status(status, grads)
+            overflow = self.process_loss_scale(cond)
+        else:
+            overflow = False
+
         if self.drop_overflow_update:
             # if there is no overflow, do optimize
             if not overflow :
