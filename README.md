@@ -196,10 +196,10 @@ Coming soon
 
 The supported detection  models and their performance on the test set of ICDAR2015 are as follow.
 
-| **Model** | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** |
-|-----------|--------------|----------------|------------|---------------|-------------|
-| DBNet     | ResNet-50    | ImageNet       | 81.97%     | 86.05%        | 83.96%      |
-| DBNet++   | ResNet-50    | ImageNet       | 82.02%     | 87.38%        | 84.62%      |
+| **Model** | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Config** | 
+|-----------|--------------|----------------|------------|---------------|-------------|-------------|
+| DBNet     | ResNet-50    | ImageNet       | 81.97%     | 86.05%        | 83.96%      | [YAML](configs/det/db_r50_icdar15.yaml)  | 
+| DBNet++   | ResNet-50    | ImageNet       | 82.02%     | 87.38%        | 84.62%      | [YAML](configs/det/db++_r50_icdar15.yaml)   |
 
 ### Text Recognition
 
@@ -208,8 +208,8 @@ The supported recognition models and their overall performance on the public ben
 
 | **Model** | **Backbone** | **Avg Acc**| **Config** | 
 |-----------|--------------|----------------|------------|
-| DBNet     | ResNet-50    | 80.98% 	| [YAML](configs/rec/vgg7_bilstm_ctc.yaml)    | 
-| DBNet++   | ResNet-50    | 84.64% 	| [YAML](configs/rec/r34_bilstm_ctc.yaml)     |
+| CRNN     | VGG7        | 80.98% 	| [YAML](configs/rec/vgg7_bilstm_ctc.yaml)    | 
+| CRNN     | Resnet34_vd    | 84.64% 	| [YAML](configs/rec/r34_bilstm_ctc.yaml)     |
 
 
 ## Notes
