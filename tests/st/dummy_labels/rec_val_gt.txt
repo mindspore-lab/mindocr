@@ -1,0 +1,30 @@
+word_1.png	Genaxis Theatre
+word_2.png	[06]
+word_3.png	62-03
+word_4.png	Carpark
+word_5.png	EXIT
+word_6.png	I2R
+word_7.png	fusionopolis
+word_8.png	fusionopolis
+word_9.png	Reserve
+word_10.png	CAUTION
+word_11.png	citi
+word_12.png	smrt
+word_13.png	WHY
+word_14.png	PAY
+word_15.png	FOR
+word_16.png	NOTHING?
+word_17.png	EXIT
+word_18.png	STAGE
+word_19.png	HarbourFront
+word_20.png	CC22
+word_21.png	bua
+word_22.png	Shops
+word_23.png	Gen is
+word_24.png	Theatre
+word_25.png	Place
+word_26.png	Nursing
+word_27.png	Room
+word_28.png	Fraser
+word_29.png	LIFESTYLE
+word_30.png	CHOICES

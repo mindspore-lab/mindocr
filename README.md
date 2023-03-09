@@ -1,6 +1,9 @@
 
-
 # MindOCR
+
+[![license](https://img.shields.io/github/license/mindspore-lab/mindocr.svg)](https://github.com/mindspore-lab/mindocr/blob/main/LICENSE.md)
+[![open issues](https://img.shields.io/github/issues/mindspore-lab/mindocr)](https://github.com/mindspore-lab/mindocr/issues)
+[![PRs](https://img.shields.io/badge/PRs-welcome-pink.svg)](https://github.com/mindspore-lab/mindocr/pulls)
 
 <!-- English | [中文](README_CN.md) -->
 
@@ -33,7 +36,7 @@ To install the dependency, please run
 pip install -r requirements.txt
 ```
 
-It is recommended to install MindSpore following the official [instructions](https://www.mindspore.cn/install) for the best fit of your machine. To enable training in distributed mode, please also install [openmpi](https://www.open-mpi.org/software/ompi/v4.0/).
+Additionaly, please install MindSpore(>=1.8.1) following the official [instructions](https://www.mindspore.cn/install) for the best fit of your machine. To enable training in distributed mode, please also install [openmpi](https://www.open-mpi.org/software/ompi/v4.0/).
 
 
 ### Install with PyPI
@@ -47,7 +50,7 @@ The latest version of MindOCR can be installed as follows:
 pip install git+https://github.com/mindspore-lab/mindocr.git
 ```
 
-> Notes: MindOCR is only tested on Linux on GPU/Ascend devices currently.
+> Notes: MindOCR is only tested on MindSpore>=1.8.1, Linux on GPU/Ascend devices currently.
 
 ## Quick Start
 
@@ -100,6 +103,7 @@ Optionally, change `num_workers` according to the cores of CPU, and change `dist
 To train the model, please run 
 
 ``` shell 
+# train dbnet on ic15 dataset
 python tools/train.py --config configs/det/db_r50_icdar15.yaml
 ```
 
@@ -183,6 +187,7 @@ Optionally, change `num_workers` according to the cores of CPU, and change `dist
 To train the model, please run 
 
 ``` shell 
+# train crnn on MJ+ST dataset
 python tools/train.py --config configs/rec/vgg7_bilstm_ctc.py
 ```
 
