@@ -83,6 +83,8 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
         
         if not self.is_cpu_device:
             status, scaling_sens = self.start_overflow_check(loss, scaling_sens)
+        else:
+            status = None 
 
         scaling_sens_filled = C.ones_like(loss) * F.cast(scaling_sens, F.dtype(loss))
         grads = self.grad(self.network, weights)(*inputs, scaling_sens_filled)
