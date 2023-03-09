@@ -35,7 +35,9 @@ pip install -r requirements.txt
 It s recommended to install MindSpore following the official [instructions](https://www.mindspore.cn/install) for the best fit of your machine. To enable training in distributed mode, please also install [openmpi](https://www.open-mpi.org/software/ompi/v4.0/).
 
 
-### Install with PyPI (under dev)
+### Install with PyPI
+
+Coming soon
 ```shell
  pip install mindocr
 ```
@@ -55,7 +57,7 @@ pip install git+https://github.com/mindspore-lab/mindocr.git
 
 We will use **DBNet** model and **ICDAR2015** dataset for illustration, although other models and datasets are also supported. <!--ICDAR15 is a commonly-used model and a benchmark for scene text recognition.-->
 
-* Data Preparation
+#### 1. Data Preparation
 
 Please download the ICDAR2015 dataset from this [website](https://rrc.cvc.uab.es/?ch=4&com=downloads), then format the dataset annotation refer to [dataset_convert](tools/dataset/README.md).
 
@@ -77,7 +79,7 @@ After preparation, the data structure should be like
     └── det_gt.txt
 ```
 
-* Configure Yaml
+#### 2. Configure Yaml
 
 Please choose a yaml config file containing the target pre-defined model and data pipeline that you want to re-use from `configs/det`. Here we choose `configs/det/db_r50_icdar15.yaml`.
 
@@ -91,7 +93,7 @@ train:
 
 Optionally, change `num_workers` according to the cores of CPU, and change `distribute` to True if you are to train in distributed mode.
 
-* Training
+#### 3. Training
 
 To train the model, please run 
 
@@ -109,7 +111,7 @@ mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/db_r5
 
 The training result (including checkpoints, per-epoch performance and curves) will be  saved in the directory parsed by the arg `ckpt_save_dir`, which is "./tmp_det/" by default. 
 
-* Evaluation
+#### 4. Evaluation
 
 To evaluate, please parse the checkpoint path to the arg `ckpt_load_path` in yaml config file and run 
 
@@ -122,7 +124,7 @@ python tools/eval.py --config configs/det/db_r50_icdar15.yaml
 
 We will use **CRNN** model and **LMDB** dataset for illustration, although other models and datasets are also supported. 
 
-* Data Preparation
+#### 1. Data Preparation
 
 Please download the LMDB dataset from ... 
 
@@ -131,7 +133,7 @@ After preparation, the data structure should be like
 ``` text
 ```
 
-* Configure Yaml
+#### 2. Configure Yaml
 
 Please choose a yaml config file containing the target pre-defined model and data pipeline that you want to re-use from `configs/det`. Here we choose `configs/det/vgg7_bilistm_ctc.yaml`.
 
@@ -145,7 +147,7 @@ train:
 
 Optionally, change `num_workers` according to the cores of CPU, and change `distribute` to True if you are to train in distributed mode.
 
-* Training
+#### 3. Training
 
 To train the model, please run 
 
@@ -164,7 +166,7 @@ mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/vgg7_
 
 The training result (including checkpoints, per-epoch performance and curves) will be  saved in the directory parsed by the arg `ckpt_save_dir`, which is "./tmp_det/" by default. 
 
-* Evaluation
+#### 4. Evaluation
 
 To evaluate, please parse the checkpoint path to the arg `ckpt_load_path` in yaml config file and run 
 
@@ -174,15 +176,15 @@ python tools/eval.py --config /path/to/config.yaml
 
 ### Inference and Deployment
 
-#### Inference with native MindSpore
-
-Coming soon
-
 #### Inference with MX Engine
 
 Please refer to [mx_infer](]deploy/mx_infer/README.md)
 
 #### Inference with Lite 
+
+Coming soon
+
+#### Inference with native MindSpore
 
 Coming soon
 
