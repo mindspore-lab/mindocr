@@ -35,13 +35,13 @@ def test_train_eval(task):
         image_dir = f'{data_dir}/{split}/dogs' 
         new_label_path = f'data/Canidae/{split}/{task}_gt.txt'
         img_paths = glob.glob(os.path.join(image_dir, '*.JPEG'))
-        print(len(img_paths))
+        #print(len(img_paths))
         with open(new_label_path, 'w') as f_w:
             with open(label_path, 'r') as f_r: 
                 i = 0
                 for line in f_r:
                     _, label = line.strip().split('\t')
-                    print(i)
+                    #print(i)
                     img_name = os.path.basename(img_paths[i])
                     new_img_label = img_name + '\t' + label
                     f_w.write(new_img_label + '\n')

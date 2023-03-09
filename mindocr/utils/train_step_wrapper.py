@@ -5,6 +5,8 @@ from mindspore.common import RowTensor
 from mindspore.ops import composite as C
 from mindspore.ops import functional as F
 from mindspore.ops import operations as P
+import mindspore.context as context
+
 
 _ema_op = C.MultitypeFuncGraph("grad_ema_op")
 _grad_scale = C.MultitypeFuncGraph("grad_scale")
@@ -62,6 +64,9 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
             self.weights_all = ms.ParameterTuple(list(network.get_parameters()))
             self.ema_weight = self.weights_all.clone("ema", init="same")
 
+        self.is_cpu_device = context.get_context("device_target") == 'CPU' # to support CPU run
+        print('\n====-> device: ', context.get_context("device_target") )
+
     def ema_update(self):
         """Update EMA parameters."""
         self.updates += 1
@@ -75,8 +80,9 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
         weights = self.weights
         loss = self.network(*inputs)
         scaling_sens = self.scale_sense
-
-        status, scaling_sens = self.start_overflow_check(loss, scaling_sens)
+        
+        if not self.is_cpu_device:
+            status, scaling_sens = self.start_overflow_check(loss, scaling_sens)
 
         scaling_sens_filled = C.ones_like(loss) * F.cast(scaling_sens, F.dtype(loss))
         grads = self.grad(self.network, weights)(*inputs, scaling_sens_filled)
@@ -85,8 +91,13 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
         grads = self.grad_reducer(grads)
 
         # get the overflow buffer
-        cond = self.get_overflow_status(status, grads)
-        overflow = self.process_loss_scale(cond)
+        if not self.is_cpu_device:
+            cond = self.get_overflow_status(status, grads)
+            overflow = self.process_loss_scale(cond)
+        else:
+            overflow = False
+            cond = False 
+
         if self.drop_overflow_update:
             # if there is no overflow, do optimize
             if not overflow :
