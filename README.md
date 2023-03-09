@@ -127,23 +127,47 @@ We will use **CRNN** model and **LMDB** dataset for illustration, although other
 
 #### 1. Data Preparation
 
-Please download the LMDB dataset from ... 
+Please download the LMDB dataset from [here](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (ref: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here)).
 
-After preparation, the data structure should be like 
+There're several .zip data files:
+- `data_lmdb_release.zip` contains the entire datasets including train, valid and evaluation.
+- `validation.zip` is the union dataset for Validation
+- `evaluation.zip` contains several benchmarking datasets. 
+
+Unzip the data and after preparation, the data structure should be like 
 
 ``` text
+.
+├── train
+│   ├── MJ
+│   │   ├── data.mdb
+│   │   ├── lock.mdb
+│   ├── ST
+│   │   ├── data.mdb
+│   │   ├── lock.mdb
+└── validation
+|   ├── data.mdb
+|   ├── lock.mdb
+└── evaluation
+    ├── IC03
+    │   ├── data.mdb
+    │   ├── lock.mdb
+    ├── IC13
+    │   ├── data.mdb
+    │   ├── lock.mdb
+    └── ...
 ```
 
 #### 2. Configure Yaml
 
-Please choose a yaml config file containing the target pre-defined model and data pipeline that you want to re-use from `configs/det`. Here we choose `configs/det/vgg7_bilistm_ctc.yaml`.
+Please choose a yaml config file containing the target pre-defined model and data pipeline that you want to re-use from `configs/rec`. Here we choose `configs/rec/vgg7_bilistm_ctc.yaml`.
 
 Please change the data config args accordingly, such as
 ``` yaml
 train:
   dataset:
-    data_dir: ic15/det/train/images
-    label_files: ic15/det/train/det_gt.txt
+    type: LMDBDataset
+    data_dir: lmdb_data/rec/train/
 ```
 
 Optionally, change `num_workers` according to the cores of CPU, and change `distribute` to True if you are to train in distributed mode.
