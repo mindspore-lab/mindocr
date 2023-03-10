@@ -215,7 +215,7 @@ python tools/eval.py --config /path/to/config.yaml
 
 #### Inference with MX Engine
 
-Please refer to [mx_infer](]deploy/mx_infer/README.md)
+Please refer to [mx_infer](deploy/mx_infer/README.md)
 
 #### Inference with Lite 
 
@@ -250,6 +250,8 @@ The supported recognition models and their overall performance on the public ben
 ## Notes
 
 ### Change Log
+- 2023/03/09
+1. Add system test and CI workflow.
 
 - 2023/03/08
 1. Add evaluation script with  arg `ckpt_load_path`
