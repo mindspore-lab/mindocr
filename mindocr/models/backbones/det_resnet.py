@@ -1,18 +1,20 @@
 from typing import Tuple, List
 from mindspore import Tensor
-from mindcv.models.resnet import ResNet, Bottleneck, load_pretrained, default_cfgs
+from mindcv.models.resnet import ResNet, Bottleneck, default_cfgs
+from mindcv.models.utils import load_pretrained
 from ._registry import register_backbone, register_backbone_class
 
 __all__ = ['DetResNet', 'det_resnet50']
+
 
 @register_backbone_class
 class DetResNet(ResNet):
     def __init__(self, block, layers, **kwargs):
         super().__init__(block, layers, **kwargs)
         del self.pool, self.classifier  # remove the original header to avoid confusion
-        #self.out_indices = out_indices
-        self.out_channels =[ch*block.expansion for ch in [64, 128, 256, 512]]     
-    
+        # self.out_indices = out_indices
+        self.out_channels = [ch * block.expansion for ch in [64, 128, 256, 512]]
+
     def construct(self, x: Tensor) -> List[Tensor]:
         x = self.conv1(x)
         x = self.bn1(x)
@@ -33,19 +35,19 @@ class DetResNet(ResNet):
 
         return [x1, x2, x3, x4]
 
-    #def construct(self, x: Tensor) -> List[Tensor]:
+    # def construct(self, x: Tensor) -> List[Tensor]:
     #    return self.forward_features(x)
-    
-#TODO: load pretrained weight in build_backbone or use a unify wrapper to load  
+
+
+# TODO: load pretrained weight in build_backbone or use a unify wrapper to load
 
 @register_backbone
-def det_resnet50(pretrained: bool=True, **kwargs):
+def det_resnet50(pretrained: bool = True, **kwargs):
     model = DetResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
-    
+
     # load pretrained weights
     if pretrained:
         default_cfg = default_cfgs['resnet50']
         load_pretrained(model, default_cfg)
 
     return model
-

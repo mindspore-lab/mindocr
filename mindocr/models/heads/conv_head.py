@@ -1,4 +1,3 @@
-import mindspore 
 from mindspore import nn
 
 class ConvHead(nn.Cell):
@@ -10,4 +9,5 @@ class ConvHead(nn.Cell):
         )
 
     def construct(self, x):
-        return self.conv(x)
+        return {'map': self.conv(x)}
+

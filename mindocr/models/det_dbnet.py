@@ -3,6 +3,8 @@ from mindcv.models.utils import load_pretrained
 from .base_model import BaseModel
 from ._registry import register_model
 
+__all__ = ['DBNet', 'dbnet_r50']
+
 def _cfg(url='', **kwargs):
     return {
         'url': url,
