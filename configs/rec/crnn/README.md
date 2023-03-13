@@ -7,9 +7,7 @@ Recognition and Its Application to Scene Text Recognition](https://https://arxiv
 ## Introduction
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
-Convolutional Recurrent Neural Network (CRNN) ...
-
-... [[2](#references)]
+Convolutional Recurrent Neural Network (CRNN) integrates CNN feature extraction and RNN sequence modeling as well as transcription into a unified framework. As shown in the architecture graph (Figure.1), CRNN firstly extracts a feature sequence from the input image via Convolutional Layers. After that, the image is represented by a squence extracted features, where each vector is associated with a receptive field on the input image. For futher process the feature, CRNN adopts Recurrent Layers to predict a label distribution for each frame. To map the distribution to text field, CRNN adds a Transcription Layer to translate the per-frame predictions into the final label sequence.[[1] (#reference)]
 
 <!--- Guideline: If an architecture table/figure is available in the paper, put one here and cite for intuitive illustration. -->
 
@@ -37,8 +35,8 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 | Model| Backbone| Config | Avg Accuracy | Download | 
 |----|----|----|----|----|
-| CRNN | VGG7 | [yaml]() | 80.98 | [model]() |
-| CRNN | ResNet34 | [yaml]() | 84.64 | [model]() |
+| CRNN | VGG7 | [crnn_vgg7.yaml](configs/rec/crnn/crnn_vgg7.yaml) | 80.98 | [model_weights]() |
+| CRNN | ResNet34 | [crnn_resnet34.yaml](configs/rec/crnn/crnn_resnet34.yaml) | 84.64 | [model_weights]() |
 
 
 </div>
