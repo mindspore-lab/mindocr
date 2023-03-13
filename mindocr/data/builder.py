@@ -20,9 +20,11 @@ def build_dataset(
     Args:
         dataset_config (dict): dataset reading and processing configuartion containing keys:
             - type: dataset type, 'DetDataset', 'RecDataset'
-            - data_dir Union[str, List]: folder to the dataset.
-            - label_file (optional for recognition): file path(s) to the annotation file
-            - transform_pipeline (list[dict]): config dict for image and label transformation
+            - dataset_root (str): the root directory to store the (multiple) dataset(s)
+            - data_dir (Union[str, List[str]]): directory to the data, which is a subfolder path related to `dataset_root`. For multiple datasets, it is a list of subfolder paths.
+            - label_file (Union[str, List[str]]): file path to the annotation related to the `dataset_root`. For multiple datasets, it is a list of relative file paths.
+            - transform_pipeline (list[dict]): each element corresponds to a transform operation on image and/or label
+
         loader_config (dict): dataloader configuration containing keys:
             - batch_size: batch size for data loader
             - drop_remainder: whether to drop the data in the last batch when the total of data can not be divided by the batch_size
@@ -33,13 +35,11 @@ def build_dataset(
     Return:
         data_loader (Dataset): dataloader to generate data batch
     '''
-    # build datasets
-    dataset_class_name = dataset_config.pop('type')
-    assert dataset_class_name in supported_dataset_types, "Invalid dataset name"
-    ## convert data_dir and  to abs path. TODO: do it inside dataset class init?
+
+    ## check and process dataset_root, data_dir, and label_file.
     if 'dataset_root' in dataset_config:
         if isinstance(dataset_config['data_dir'], str):
-            dataset_config['data_dir'] = os.path.join(dataset_config['dataset_root'], dataset_config['data_dir'])
+            dataset_config['data_dir'] = os.path.join(dataset_config['dataset_root'], dataset_config['data_dir']) # to absolute path
         else:
             dataset_config['data_dir'] = [os.path.join(dataset_config['dataset_root'], dd) for dd in dataset_config['data_dir']]
 
@@ -49,10 +49,10 @@ def build_dataset(
             else:
                 dataset_config['label_file'] = [os.path.join(dataset_config['dataset_root'], lf) for lf in dataset_confg['label_file']]
 
-    # get dataset class
+    # build datasets
+    dataset_class_name = dataset_config.pop('type')
+    assert dataset_class_name in supported_dataset_types, "Invalid dataset name"
     dataset_class = eval(dataset_class_name)
-
-    #print('dataset config', dataset_config)
 
     dataset_args = dict(is_train=is_train, **dataset_config)
     dataset = dataset_class(**dataset_args)
