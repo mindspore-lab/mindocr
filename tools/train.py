@@ -161,6 +161,8 @@ if __name__ == '__main__':
             print(f'INFO: datasets found: {os.listdir(dataset_root)} \n'
                   f'INFO: dataset_root is changed to {dataset_root}'
                   )
+        # update dataset root dir to cache
+        assert 'dataset_root' in config['train']['dataset'], f'`dataset_root` must be provided in the yaml file for training on ModelArts or OpenI, but not found in {yaml_fp}. Please add `dataset_root` to `train:dataset` and `eval:dataset` in the yaml file'
         config.train.dataset.dataset_root = dataset_root
         config.eval.dataset.dataset_root = dataset_root
 
