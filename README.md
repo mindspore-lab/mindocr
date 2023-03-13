@@ -250,8 +250,16 @@ The supported recognition models and their overall performance on the public ben
 ## Notes
 
 ### Change Log
-- 2023/03/09
+- 2023/03/13
 1. Add system test and CI workflow.
+2. Add modelarts adapter to allow training on OpenI platform. To train on OpenI:
+  ```text
+    i)   Create a new training task on the openi cloud platform.
+    ii)  Link the dataset (e.g., ic15_mindocr) on the webpage.
+    iii) Add run parameter `config` and write the yaml file path on the website UI interface, e.g., '/home/work/user-job-dir/V0001/configs/rec/test.yaml'
+    iv)  Add run parameter `enable_modelarts` and set True on the website UI interface.
+    v)   Fill in other blanks and launch.
+  ```
 
 - 2023/03/08
 1. Add evaluation script with  arg `ckpt_load_path`
