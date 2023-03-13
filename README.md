@@ -90,11 +90,11 @@ And change the data config args according to
 train:
   dataset:
     data_dir: PATH/TO/TRAIN_IMAGES_DIR
-    label_files: PATH/TO/TRAIN_LABELS.txt
+    label_file: PATH/TO/TRAIN_LABELS.txt
 eval:
   dataset:
     data_dir: PATH/TO/TEST_IMAGES_DIR
-    label_files: PATH/TO/TEST_LABELS.txt
+    label_file: PATH/TO/TEST_LABELS.txt
 ```
 
 Optionally, change `num_workers` according to the cores of CPU, and change `distribute` to True if you are to train in distributed mode.

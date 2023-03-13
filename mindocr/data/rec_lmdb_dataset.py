@@ -43,7 +43,7 @@ class LMDBDataset():
     def __init__(self, 
             is_train: bool = True, 
             data_dir: str = '', 
-            sample_ratios: Union[List, float] = 1.0, 
+            sample_ratio: Union[List, float] = 1.0, 
             shuffle: bool = None,
             transform_pipeline: List[dict] = None, 
             output_keys: List[str] = None,
@@ -56,7 +56,7 @@ class LMDBDataset():
         assert isinstance(shuffle, bool), f'type error of {shuffle}'
         shuffle = shuffle if shuffle is not None else is_train
 
-        sample_ratio = sample_ratios[0] if isinstance(sample_ratios, list) else sample_ratios
+        sample_ratio = sample_ratio[0] if isinstance(sample_ratio, list) else sample_ratio
         self.lmdb_sets = self.load_hierarchical_lmdb_dataset(data_dir)
         self.data_idx_order_list = self.dataset_traversal(sample_ratio, shuffle)
         

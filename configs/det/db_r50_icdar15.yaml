@@ -61,11 +61,12 @@ train:
   dataset_sink_mode: True 
   dataset:
     type: DetDataset
-    data_dir: /data/ocr_datasets/ic15/text_localization/train
-    label_files: /data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt
+    dataset_root: /data/ocr_datasets 
+    data_dir: ic15/text_localization/train
+    label_file: ic15/text_localization/train/train_icdar15_label.txt
     #data_dir: /Users/Samit/Data/datasets/ic15/det/train
-    #label_files: /Users/Samit/Data/datasets/ic15/det/train/train_icdar2015_label.txt
-    sample_ratios: [ 1.0 ]
+    #label_file: /Users/Samit/Data/datasets/ic15/det/train/train_icdar2015_label.txt
+    sample_ratio: [ 1.0 ]
     shuffle: True
     transform_pipeline:
       - DecodeImage:
@@ -119,11 +120,12 @@ eval:
   dataset_sink_mode: False
   dataset:
     type: DetDataset
-    data_dir: /data/ocr_datasets/ic15/text_localization/test
-    label_files: /data/ocr_datasets/ic15/text_localization/test/test_icdar2015_label.txt
+    dataset_root: /data/ocr_datasets 
+    data_dir: ic15/text_localization/test
+    label_file: ic15/text_localization/test/test_icdar2015_label.txt
     #data_dir: /Users/Samit/Data/datasets/ic15/det/test
-    #label_files: /Users/Samit/Data/datasets/ic15/det/test/test_icdar2015_label.txt
-    sample_ratios: [ 1.0 ]
+    #label_file: /Users/Samit/Data/datasets/ic15/det/test/test_icdar2015_label.txt
+    sample_ratio 1.0 ]
     shuffle: False
     transform_pipeline:
       - DecodeImage:

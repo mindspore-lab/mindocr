@@ -29,8 +29,8 @@ def test_build_dataset(task='det', phase='train', verbose=True, visualize=False)
     dataset_config = {
             'type': 'DetDataset',
             'data_dir': data_dir,
-            'label_files': [annot_file],
-            'sample_ratios': [1.0],
+            'label_file': [annot_file],
+            'sample_ratio: 1.0,
             'shuffle': False,
             'transform_pipeline':
                 [
@@ -61,7 +61,7 @@ def test_build_dataset(task='det', phase='train', verbose=True, visualize=False)
     if task == 'rec':
         yaml_fp = 'configs/rec/crnn_icdar15.yaml'
     else:
-        yaml_fp = 'configs/det/db_r50_icdar15.yaml'
+        yaml_fp = 'configs/det/db_test.yaml'
 
     with open(yaml_fp) as fp:
         cfg = yaml.safe_load(fp)
@@ -93,11 +93,11 @@ def test_build_dataset(task='det', phase='train', verbose=True, visualize=False)
                 print(k, v.shape)
                 if len(v.shape)<=2:
                     print(v)
-        
+
         if (i == num_tries -1) and visualize:
             if task == 'det' and phase == 'eval':
                 img = batch['image'][0].asnumpy()
-                polys = batch['polys'][0].asnumpy() 
+                polys = batch['polys'][0].asnumpy()
                 img_polys = draw_bboxes(recover_image(img), polys)
                 show_img(img_polys)
 
@@ -110,7 +110,7 @@ def test_det_dataset():
     data_dir = '/data/ocr_datasets/ic15/text_localization/train'
     annot_file = '/data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt'
     transform_pipeline = transforms_dbnet_icdar15(phase='train')
-    ds = DetDataset(is_train=True, data_dir=data_dir, label_files=annot_file, sample_ratios=0.5, transform_pipeline=transform_pipeline, shuffle=False)
+    ds = DetDataset(is_train=True, data_dir=data_dir, label_file=annot_file, sample_ratio=0.5, transform_pipeline=transform_pipeline, shuffle=False)
 
     print('num data: ', len(ds))
     for i in [223]:
@@ -143,8 +143,8 @@ def test_det_dataset():
         thrmask_polys= draw_bboxes(data['threshold_mask'], data['polys'])
         show_imgs([img_polys, mask_polys, thrmap_polys, thrmask_polys], show=False, save_path='/data/ocr_ic15_debug2.png')
 
-        
-        np.savez('./det_db_label_samples.npz', 
+
+        np.savez('./det_db_label_samples.npz',
                 image=data['image'],
                 polys=data['polys'],
                 texts=data['texts'],
@@ -167,8 +167,8 @@ def test_rec_dataset(visualize=True):
     label_path = '/Users/Samit/Data/datasets/ic15/rec/rec_gt_train.txt'
     ds = RecDataset(is_train=True,
             data_dir=data_dir,
-            label_files=label_path,
-            sample_ratios=1.0,
+            label_file=label_path,
+            sample_ratio=1.0,
             shuffle = False,
             transform_pipeline = cfg['train']['dataset']['transform_pipeline'],
             output_keys = None)

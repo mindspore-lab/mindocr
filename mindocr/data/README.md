@@ -23,6 +23,6 @@
 
 2. Rewrite the following file and annotation parsing functions in BaseDataset.  
 
-    def load_data_list(self, label_files: Union[str, List[str]], sample_ratios: Union[float, List] = 1.0,  shuffle: bool = False, **kwargs) -> List[dict]
+    def load_data_list(self, label_file: Union[str, List[str]], sample_ratio: Union[float, List] = 1.0,  shuffle: bool = False, **kwargs) -> List[dict]
 
     def _parse_annotation(self, data_line: str) -> Union[dict, List[dict]]

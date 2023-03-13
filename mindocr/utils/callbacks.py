@@ -1,6 +1,7 @@
 import os
 import time
 from tqdm import tqdm
+from typing import List
 
 import numpy as np
 import mindspore as ms
@@ -21,7 +22,7 @@ class Evaluator:
                  **kwargs):
         self.net = network
         self.postprocessor = postprocessor
-        self.metrics = metrics
+        self.metrics = metrics if isinstance(metrics, List) else [metrics]
         self.visualize = visualize
         self.verbose = verbose
         eval_loss = False
@@ -129,15 +130,18 @@ class EvalSaveCallback(Callback):
         self.rank_id = rank_id
         if rank_id in [None, 0]:
             self.network = network
-            self.net_evaluator = Evaluator(network, loss_fn, postprocessor, metrics)
             self.loader_eval = loader
             self.ckpt_save_dir = ckpt_save_dir
             if not os.path.exists(ckpt_save_dir):
                 os.makedirs(ckpt_save_dir)
-            self.main_indicator = main_indicator
-            self.best_perf = -1
+            self.best_perf = -1e8
             self._losses = []
 
+            if self.loader_eval is not None:
+                self.net_evaluator = Evaluator(network, loss_fn, postprocessor, metrics)
+                self.main_indicator = main_indicator
+            else:
+                self.main_indicator = 'train_loss'
     # def __enter__(self):
     #    pass
 
@@ -185,7 +189,7 @@ class EvalSaveCallback(Callback):
         epoch_time = (time.time() - self.epoch_start_time)
         train_loss = np.average(self._losses)
 
-        # TODO: add lr print 
+        # TODO: add lr print
         '''
         optimizer = cb_params.optimizer
         step = optimizer.global_step
@@ -203,19 +207,32 @@ class EvalSaveCallback(Callback):
 
         if self.rank_id in [0, None]:
             # evaluate
-            measures = self.net_evaluator.eval(self.loader_eval)
-            print('Performance: ', measures)
+            if self.loader_eval is not None:
+                measures = self.net_evaluator.eval(self.loader_eval)
+                print('Performance: ', measures)
 
-            perf = measures[self.main_indicator]
+                perf = measures[self.main_indicator]
+            else:
+                perf = - train_loss
+
             if perf > self.best_perf:
                 self.best_perf = perf
                 save_checkpoint(self.network, os.path.join(self.ckpt_save_dir, 'best.ckpt'))
                 print(f'=> best {self.main_indicator}: {perf}, checkpoint saved.')
+
             # record results
             if cur_epoch == 1:
-                metric_names = ['loss'] + list(measures.keys()) + ['epoch_time']
+                metric_names = ['loss']
+                if self.loader_eval is not None:
+                    metric_names +=  list(measures.keys())
+                metric_names += ['epoch_time']
                 self.rec = PerfRecorder(self.ckpt_save_dir, metric_names=metric_names)
-            self.rec.add(cur_epoch, train_loss, *list(measures.values()), epoch_time)
+            epoch_metric_values = [cur_epoch, train_loss]
+            if self.loader_eval is not None:
+                epoch_metric_values += list(measures.values())
+            epoch_metric_values += [epoch_time]
+            self.rec.add(*epoch_metric_values)
+
 
     def on_train_end(self, run_context):
         if self.rank_id in [0, None]:

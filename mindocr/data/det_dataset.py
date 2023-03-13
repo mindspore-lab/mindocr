@@ -8,7 +8,7 @@ class DetDataset(BaseDataset):
 
     Args:
         data_dir, Required
-        label_files, Required
+        label_file, Required
         shuffle, Optional, if not given, shuffle = is_train
         transform_pipeline: list of dict, key - transform class name, value - a dict of param config.
                     e.g., [{'DecodeImage': {'img_mode': 'BGR', 'channel_first': False}}]
