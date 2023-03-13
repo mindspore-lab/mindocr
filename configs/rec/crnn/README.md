@@ -7,12 +7,14 @@ Recognition and Its Application to Scene Text Recognition](https://https://arxiv
 ## Introduction
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
-Convolutional Recurrent Neural Network (CRNN) integrates CNN feature extraction and RNN sequence modeling as well as transcription into a unified framework. As shown in the architecture graph (Figure.1), CRNN firstly extracts a feature sequence from the input image via Convolutional Layers. After that, the image is represented by a squence extracted features, where each vector is associated with a receptive field on the input image. For futher process the feature, CRNN adopts Recurrent Layers to predict a label distribution for each frame. To map the distribution to text field, CRNN adds a Transcription Layer to translate the per-frame predictions into the final label sequence.[[1] (#reference)]
+Convolutional Recurrent Neural Network (CRNN) integrates CNN feature extraction and RNN sequence modeling as well as transcription into a unified framework.
+
+As shown in the architecture graph (Figure 1), CRNN firstly extracts a feature sequence from the input image via Convolutional Layers. After that, the image is represented by a squence extracted features, where each vector is associated with a receptive field on the input image. For futher process the feature, CRNN adopts Recurrent Layers to predict a label distribution for each frame. To map the distribution to text field, CRNN adds a Transcription Layer to translate the per-frame predictions into the final label sequence. [<a href="#references">1</a>]
 
 <!--- Guideline: If an architecture table/figure is available in the paper, put one here and cite for intuitive illustration. -->
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/8156835/210041797-6576b2f4-3d77-41d9-b5f0-16fed3f261d8.png" width=800 />
+  <img src="https://user-images.githubusercontent.com/26082447/224601239-a569a1d4-4b29-4fa8-804b-6690cb50caef.PNG" width=450 />
 </p>
 <p align="center">
   <em> Figure 1. Architecture of CRNN [<a href="#references">1</a>] </em>
@@ -33,17 +35,17 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 <div align="center">
 
-| Model| Backbone| Config | Avg Accuracy | Download | 
-|----|----|----|----|----|
-| CRNN | VGG7 | [crnn_vgg7.yaml](configs/rec/crnn/crnn_vgg7.yaml) | 80.98 | [model_weights]() |
+| Model| Backbone | Config | Avg Accuracy | Download | 
+|------|----------|--------|--------------|----------|
+| CRNN | VGG7     | [crnn_vgg7.yaml](configs/rec/crnn/crnn_vgg7.yaml) | 80.98 | [model_weights]() |
 | CRNN | ResNet34 | [crnn_resnet34.yaml](configs/rec/crnn/crnn_resnet34.yaml) | 84.64 | [model_weights]() |
 
 
 </div>
 
 #### Notes
-- Training data
-- Evaluation 
+- Both VGG and ResNet models are trained from scratch without any pre-training.
+- Evaluations are tested individually on each benchmark dataset, and Avg Accuracy is the average of accuracies across all sub-datasets.
 
 
 ## Quick Start
