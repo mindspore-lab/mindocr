@@ -122,7 +122,10 @@ def safe_img_read(path: str):
     return img
 
 
-def save_path_init(path):
+def save_path_init(path, exist_ok=False):
     if os.path.exists(path):
-        shutil.rmtree(path)
+        if exist_ok:
+            return
+        else:
+            shutil.rmtree(path)
     os.makedirs(path, 0o750)
