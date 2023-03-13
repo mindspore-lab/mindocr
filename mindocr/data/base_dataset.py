@@ -1,3 +1,6 @@
+#from __future__ import absolute_import
+from __future__ import division
+
 from typing import Union, List
 import random
 import os
@@ -7,66 +10,68 @@ from .transforms.transforms_factory import create_transforms, run_transforms
 __all__ = ['BaseDataset']
 
 class BaseDataset(object):
-    """Data iterator for ocr datasets including ICDAR15 dataset. 
+    """Data iterator for ocr datasets including ICDAR15 dataset.
     The annotaiton format is required to aligned to paddle, which can be done using the `converter.py` script.
 
     Args:
-        is_train (bool): whether it is in training stage 
+        is_train (bool): whether it is in training stage
         data_dir (str):  directory to the image data
-        label_files (Union[str, List[str]]): (list of) path to the label file(s), 
-            where each line in the label fle contains the image file name and its ocr annotation.   
-        sample_ratios (Union[float, List[float]]): sample ratios for the data items in label files 
+        label_file (Union[str, List[str]]): (list of) path to the label file(s),
+            where each line in the label fle contains the image file name and its ocr annotation.
+        sample_ratio (Union[float, List[float]]): sample ratios for the data items in label files
         shuffle(bool): Optional, if not given, shuffle = is_train
         transform_pipeline: list of dict, key - transform class name, value - a dict of param config.
                     e.g., [{'DecodeImage': {'img_mode': 'BGR', 'channel_first': False}}]
             -       if None, default transform pipeline for text detection will be taken.
-        output_keys (list): required, indicates the keys in data dict that are expected to output for dataloader. if None, all data keys will be used for return. 
+        output_keys (list): required, indicates the keys in data dict that are expected to output for dataloader. if None, all data keys will be used for return.
         global_config: additional info, used in data transformation, possible keys:
             - character_dict_path
-            
+
 
     Returns:
-        data (tuple): Depending on the transform pipeline, __get_item__ returns a tuple for the specified data item. 
+        data (tuple): Depending on the transform pipeline, __get_item__ returns a tuple for the specified data item.
         You can specify the `output_keys` arg to order the output data for dataloader.
 
-    Notes: 
+    Notes:
         1. Dataset file structure should follow:
             split
             ├── data_dir/
             │  │   ├── 000001.jpg
             │  │   ├── 000002.jpg
-            │  │   ├── ... 
+            │  │   ├── ...
             ├── annotation_file.txt
         2. Annotation format should follow (img path and annotation are seperated by tab):
             # image path relative to the data_dir\timage annotation information encoded by json.dumps
-            img_61.jpg\t[{"transcription": "MASA", "points": [[310, 104], [416, 141], [418, 216], [312, 179]]}, {...}]   
+            img_61.jpg\t[{"transcription": "MASA", "points": [[310, 104], [416, 141], [418, 216], [312, 179]]}, {...}]
     """
-    def __init__(self, 
-            is_train: bool = True, 
-            data_dir: str = '', 
-            label_files: Union[List, str] = '', 
-            sample_ratios: Union[List, float] = 1.0, 
+    def __init__(self,
+            is_train: bool = True,
+            data_dir: str = '',
+            label_file: Union[List, str] = '',
+            sample_ratio: Union[List, float] = 1.0,
             shuffle: bool = None,
-            transform_pipeline: List[dict] = None, 
+            transform_pipeline: List[dict] = None,
             output_keys: List[str] = None,
             #global_config: dict = None,
             **kwargs
             ):
-        # check arg validation 
+        # check arg validation
         self.data_dir = data_dir
         assert isinstance(shuffle, bool), f'type error of {shuffle}'
-        if isinstance(label_files, str):
-            label_files = [label_files]
-        for f in label_files:
+        if isinstance(label_file, str):
+            label_file = [label_file]
+        if isinstance(sample_ratio, float):
+            sample_ratio = [sample_ratio for _ in label_file]
+
+        for f in label_file:
             if not os.path.exists(f):
                 raise ValueError(f"{f} not existed. Please check this path in yaml for is_train={is_train} mode")
         shuffle = shuffle if shuffle is not None else is_train
-        
-        # load data
-        #if label_files == '':
-        #    label_files = os.path.join(data_dir, 'gt.txt')
-        self.data_list = self.load_data_list(label_files, sample_ratios, shuffle)
 
+        # load data
+        #if label_file == '':
+        #    label_file = os.path.join(data_dir, 'gt.txt')
+        self.data_list = self.load_data_list(label_file, sample_ratio, shuffle)
 
         # create transform
         if transform_pipeline is not None:
@@ -78,9 +83,9 @@ class BaseDataset(object):
         _data = self.data_list[0]
         _data = run_transforms(_data, transforms=self.transforms)
         _available_keys = list(_data.keys())
-        
+
         if output_keys is None:
-            self.output_keys = _available_keys   
+            self.output_keys = _available_keys
         else:
             self.output_keys = []
             for k in output_keys:
@@ -88,7 +93,7 @@ class BaseDataset(object):
                     self.output_keys.append(k)
                 else:
                     raise ValueError(f'Key {k} does not exist in data (available keys: {_data.keys()}). Please check the name or the completeness transformation pipeline.')
-                    
+
     def __len__(self):
         return len(self.data_list)
 
@@ -98,37 +103,35 @@ class BaseDataset(object):
 
     def __getitem__(self, index):
         data = self.data_list[index]
-        
+
         # perform transformation on data
         data = run_transforms(data, transforms=self.transforms)
-            
-        output_tuple = tuple(data[k] for k in self.output_keys) 
+
+        output_tuple = tuple(data[k] for k in self.output_keys)
 
         return output_tuple
 
-    def load_data_list(self, label_files: Union[str, List[str]], sample_ratios: Union[float, List] = 1.0,  shuffle: bool = False, **kwargs) -> List[dict]:
-        ''' Load data list from label_files which contains infomation of image paths and annotations 
+    def load_data_list(self, label_file: List[str], sample_ratio: List[float],  shuffle: bool = False, **kwargs) -> List[dict]:
+        ''' Load data list from label_file which contains infomation of image paths and annotations
         Args:
-            label_files: annotation file path(s)
-            sample_ratios: sample ratio for data items in each annotation file
+            label_file: annotation file path(s)
+            sample_ratio sample ratio for data items in each annotation file
             shuffle: shuffle the data list
 
         Returns:
             data (List[dict]): A list of annotation dict, which contains keys: img_path, annot...
         '''
-        if isinstance(sample_ratios, float):
-            sample_ratios = [sample_ratios for _ in label_files]
 
         # read annotation files
         data_lines = []
-        for idx, annot_file in enumerate(label_files):
+        for idx, annot_file in enumerate(label_file):
             with open(annot_file, "r", encoding='utf-8') as f:
                 lines = f.readlines()
                 if shuffle:
                     lines = random.sample(lines,
-                                          round(len(lines) * sample_ratios[idx]))
+                                          round(len(lines) * sample_ratio[idx]))
                 else:
-                    lines = lines[:round(len(lines) * sample_ratios[idx])]
+                    lines = lines[:round(len(lines) * sample_ratio[idx])]
                 data_lines.extend(lines)
                 #print(lines[:5])
         # print(data_lines)
@@ -139,10 +142,10 @@ class BaseDataset(object):
             data_list.append(img_annot_dict)
 
         return data_list
-        
+
     def _parse_annotation(self, data_line: str) -> Union[dict, List[dict]]:
         '''
-        Initially parse a data line string into a data dict containing input (img path) and label info (json dump). The label info will be encoded in transformation. 
+        Initially parse a data line string into a data dict containing input (img path) and label info (json dump). The label info will be encoded in transformation.
         '''
         data = {}
         file_name, annot_str = data_line.strip().split('\t')
@@ -152,8 +155,8 @@ class BaseDataset(object):
         #    print('------->', img_path)
         assert os.path.exists(img_path), "{} does not exist!".format(img_path)
 
-        data['img_path'] = img_path 
+        data['img_path'] = img_path
         data['label'] = annot_str
         # the annotation string will be futher encoded in __get_item__ to match the network loss computation, using **LabelEncode defined in transform configs
-        
+
         return data

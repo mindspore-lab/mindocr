@@ -4,7 +4,7 @@ Create and run transformations from a config or predefined transformation pipeli
 from typing import List
 import numpy as np
 
-from .general_transforms import * 
+from .general_transforms import *
 from .det_transforms import *
 from .rec_transforms import *
 # TODO: merge transforms in modelzoo to det_transforms if verified to be correct
@@ -56,8 +56,11 @@ def run_transforms(data, transforms=None, verbose=False):
     for i, transform in enumerate(transforms):
         if verbose:
             print(f'Trans {i}: ', transform)
-            print(f'\t Input: ', {k: data[k].shape for k in data if isinstance(data[k], np.ndarray)})
+            print(f'\tInput: ', {k: data[k].shape for k in data if isinstance(data[k], np.ndarray)})
         data = transform(data)
+        if verbose:
+            print(f'\tOutput: ', {k: data[k].shape for k in data if isinstance(data[k], np.ndarray)})
+
         if data is None:
             return None
     return data
