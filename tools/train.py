@@ -110,7 +110,7 @@ def main(cfg):
             postprocessor=postprocessor,
             metrics=[metric],
             rank_id=rank_id,
-            ckpt_save_dir=cfg.train.ckpt_save_dir,
+            ckpt_save_dir=cfg.system.ckpt_save_dir,
             main_indicator=cfg.metric.main_indicator)
 
     # log
@@ -131,7 +131,7 @@ def main(cfg):
             print(f'Model: {cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}')
         print('='*40)
         # save args used for training
-        with open(os.path.join(cfg.train.ckpt_save_dir, 'args.yaml'), 'w') as f:
+        with open(os.path.join(cfg.system.ckpt_save_dir, 'args.yaml'), 'w') as f:
             args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False)
             f.write(args_text)
 
