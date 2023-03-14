@@ -1,5 +1,5 @@
 system:
-  mode: 0
+  mode: 1 # 0 for graph mode, 1 for pynative mode in MindSpore
   distribute: False
   amp_level: 'O0'
   seed: 42
@@ -27,7 +27,7 @@ postprocess:
   name: DBPostprocess
   region_type: 'quad'
   thresh: 0.3
-  box_thresh: 0.55
+  box_thresh: 0.55 # TODO: this value is 0.55 in modelzoo and but 0.7 in paddle
   max_candidates: 1000
   unclip_ratio: 1.5
 
@@ -46,9 +46,8 @@ scheduler:
   scheduler: polynomial_decay
   min_lr: 0.
   lr: 0.007
-  num_epochs: 2
-  warmup_epochs: 1
-  decay_epochs: 1
+  num_epochs: 1200
+  warmup_epochs: 3
 
 optimizer:
   opt: SGD
@@ -58,16 +57,15 @@ optimizer:
   loss_scale: 1.0
 
 train:
-  ckpt_save_dir: './test_det_ckpt'
-  dataset_sink_mode: False 
+  dataset_sink_mode: True 
+  ckpt_save_dir: './tmp_det'
   dataset:
     type: DetDataset
-    dataset_root: data/Canidae/
-    data_dir: train/dogs
-    label_file: train/det_gt.txt
-    #data_dir: /Users/Samit/Data/datasets/ic15/det/train
-    #label_file: /Users/Samit/Data/datasets/ic15/det/train/train_icdar2015_label.txt
-    sample_ratio: [ 0.1 ]
+    #dataset_root: /data/ocr_datasets  
+    dataset_root: /Users/Samit/Data/datasets 
+    data_dir: ic15/det/train/ch4_training_images
+    label_file: ic15/det/train/det_gt.txt
+    sample_ratio: 1.0
     shuffle: True
     transform_pipeline:
       - DecodeImage:
@@ -112,20 +110,20 @@ train:
 
   loader:
     shuffle: True # TODO: tbc
-    batch_size: 2
+    batch_size: 20
     drop_remainder: False
     max_rowsize: 20
-    num_workers: 1 # TODO: may lead to OOM
+    num_workers: 1 # TODO: large value may lead to OOM
 
 eval:
-  ckpt_load_path: './test_det_ckpt/best.ckpt'
   dataset_sink_mode: False
   dataset:
     type: DetDataset
-    dataset_root: data/Canidae/
-    data_dir: val/dogs
-    label_file: val/det_gt.txt
-    sample_ratio: 0.1
+    #dataset_root: /data/ocr_datasets/  # needed for openi
+    dataset_root: /Users/Samit/Data/datasets 
+    data_dir: ic15/det/test/ch4_test_images
+    label_file: ic15/det/test/det_gt.txt
+    sample_ratio: 1.0
     shuffle: False
     transform_pipeline:
       - DecodeImage:
@@ -151,3 +149,10 @@ eval:
     drop_remainder: False 
     max_rowsize: 20
     num_workers: 1
+
+modelarts: # TODO: for running on modelarts or openi. Not making effect currently.
+   enable_modelarts: False
+   data_url: /cache/data/  # path to dataset
+   multi_data_url: /cache/data/ # path to multi dataset 
+   ckpt_url: /cache/output/  # pretrained model path
+   train_url: /cache/output/ # model save folder

@@ -1,4 +1,5 @@
 from typing import List
+import os
 import mindspore as ms
 from addict import Dict
 from .det_dataset import DetDataset
@@ -19,33 +20,47 @@ def build_dataset(
     Args:
         dataset_config (dict): dataset reading and processing configuartion containing keys:
             - type: dataset type, 'DetDataset', 'RecDataset'
-            - data_dir: folder to the dataset. 
-            - annot_file (optional for recognition): absolute file path to the annotation file
-            - transform_pipeline (list[dict]): config dict for image and label transformation
+            - dataset_root (str): the root directory to store the (multiple) dataset(s)
+            - data_dir (Union[str, List[str]]): directory to the data, which is a subfolder path related to `dataset_root`. For multiple datasets, it is a list of subfolder paths.
+            - label_file (Union[str, List[str]]): file path to the annotation related to the `dataset_root`. For multiple datasets, it is a list of relative file paths.
+            - transform_pipeline (list[dict]): each element corresponds to a transform operation on image and/or label
+
         loader_config (dict): dataloader configuration containing keys:
-            - batch_size: batch size for data loader 
+            - batch_size: batch size for data loader
             - drop_remainder: whether to drop the data in the last batch when the total of data can not be divided by the batch_size
         num_shards: num of devices for distributed mode
-        shard_id: device id 
-        is_train: whether it is in training stage 
+        shard_id: device id
+        is_train: whether it is in training stage
 
     Return:
-        data_loader (Dataset): dataloader to generate data batch 
+        data_loader (Dataset): dataloader to generate data batch
     '''
+
+    ## check and process dataset_root, data_dir, and label_file.
+    if 'dataset_root' in dataset_config:
+        if isinstance(dataset_config['data_dir'], str):
+            dataset_config['data_dir'] = os.path.join(dataset_config['dataset_root'], dataset_config['data_dir']) # to absolute path
+        else:
+            dataset_config['data_dir'] = [os.path.join(dataset_config['dataset_root'], dd) for dd in dataset_config['data_dir']]
+
+        if 'label_file' in dataset_config:
+            if isinstance(dataset_config['label_file'], str):
+                dataset_config['label_file'] = os.path.join(dataset_config['dataset_root'], dataset_config['label_file'])
+            else:
+                dataset_config['label_file'] = [os.path.join(dataset_config['dataset_root'], lf) for lf in dataset_confg['label_file']]
+
     # build datasets
     dataset_class_name = dataset_config.pop('type')
     assert dataset_class_name in supported_dataset_types, "Invalid dataset name"
     dataset_class = eval(dataset_class_name)
 
-    #print('dataset config', dataset_config)
-    
-    dataset_args = dict(is_train=is_train, **dataset_config) 
+    dataset_args = dict(is_train=is_train, **dataset_config)
     dataset = dataset_class(**dataset_args)
 
     # create batch loader
     dataset_column_names = dataset.get_column_names()
     print('==> Dataset columns: \n\t', dataset_column_names)
-    
+
     # TODO: the optimal value for prefetch. * num_workers?
     #ms.dataset.config.set_prefetch_size(int(loader_config['batch_size']))
     #print('prfectch size:', ms.dataset.config.get_prefetch_size())
@@ -58,7 +73,7 @@ def build_dataset(
                     num_shards=num_shards,
                     shard_id=shard_id,
                     python_multiprocessing=True,
-                    max_rowsize =loader_config['max_rowsize'], 
+                    max_rowsize =loader_config['max_rowsize'],
                     shuffle=loader_config['shuffle'],
                     )
 

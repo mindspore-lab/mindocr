@@ -41,10 +41,10 @@ class CTCHead(nn.Cell):
         self.out_channels = out_channels
         self.mid_channels = mid_channels
         self.return_feats = return_feats
-        
+
         if weight_init == "crnn_customised":
             weight_init = crnn_head_initialization(in_channels)
-            
+
         if bias_init == "crnn_customised":
             bias_init = crnn_head_initialization(in_channels)
 
@@ -75,7 +75,8 @@ class CTCHead(nn.Cell):
             h = self.dense2(h)
 
         if not self.training:
-            h = ops.softmax(h, axis=2)
+            #h = ops.softmax(h, axis=2) # not support on ms 1.8.1
+            h = ops.Softmax(axis=2)(h)
 
         pred = {'head_out': h}
         return pred

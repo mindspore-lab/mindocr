@@ -90,11 +90,11 @@ And change the data config args according to
 train:
   dataset:
     data_dir: PATH/TO/TRAIN_IMAGES_DIR
-    label_files: PATH/TO/TRAIN_LABELS.txt
+    label_file: PATH/TO/TRAIN_LABELS.txt
 eval:
   dataset:
     data_dir: PATH/TO/TEST_IMAGES_DIR
-    label_files: PATH/TO/TEST_LABELS.txt
+    label_file: PATH/TO/TEST_LABELS.txt
 ```
 
 Optionally, change `num_workers` according to the cores of CPU, and change `distribute` to True if you are to train in distributed mode.
@@ -250,8 +250,16 @@ The supported recognition models and their overall performance on the public ben
 ## Notes
 
 ### Change Log
-- 2023/03/09
+- 2023/03/13
 1. Add system test and CI workflow.
+2. Add modelarts adapter to allow training on OpenI platform. To train on OpenI:
+  ```text
+    i)   Create a new training task on the openi cloud platform.
+    ii)  Link the dataset (e.g., ic15_mindocr) on the webpage.
+    iii) Add run parameter `config` and write the yaml file path on the website UI interface, e.g., '/home/work/user-job-dir/V0001/configs/rec/test.yaml'
+    iv)  Add run parameter `enable_modelarts` and set True on the website UI interface.
+    v)   Fill in other blanks and launch.
+  ```
 
 - 2023/03/08
 1. Add evaluation script with  arg `ckpt_load_path`
