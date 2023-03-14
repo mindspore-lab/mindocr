@@ -104,6 +104,7 @@ train:
       num_workers: 8
 
 eval:
+  ckpt_load_path: ./tmp_rec/best.ckpt #path-to-checkpoint
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset

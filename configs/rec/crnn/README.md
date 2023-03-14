@@ -45,6 +45,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 #### Notes
 - Both VGG and ResNet models are trained from scratch without any pre-training.
+- The above models are trained with MJSynth (MJ) and SynthText (ST) datasets. For more data details, please refer to [Data Preparation](#dataset-preparation)
 - Evaluations are tested individually on each benchmark dataset, and Avg Accuracy is the average of accuracies across all sub-datasets.
 
 
@@ -65,11 +66,11 @@ Please download lmdb dataset for traininig and evaluation from  [here](https://w
 
 * Distributed Training
 
-It is easy to reproduce the reported results with the pre-defined training recipe. For distributed training on multiple Ascend 910 devices, please run
+It is easy to reproduce the reported results with the pre-defined training recipe. For distributed training on multiple Ascend 910 devices, please modify the configuration parameter **distribute** as **True** and run
 
 ```shell
 # distributed training on multiple GPU/Ascend devices
-mpirun -n 8 python train.py --config configs/rec/crnn/crnn_resnet34.yaml
+mpirun -n 8 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 > If the script is executed by the root user, the `--allow-run-as-root` parameter must be added to `mpirun`.
 
@@ -79,24 +80,20 @@ Similarly, you can train the model on multiple GPU devices with the above `mpiru
 
 * Standalone Training
 
-If you want to train or finetune the model on a smaller dataset without distributed training, please modify the configuration parameter *'distribute' as *False and run:
+If you want to train or finetune the model on a smaller dataset without distributed training, please modify the configuration parameter **distribute** as **False** and run:
 
 ```shell
 # standalone training on a CPU/GPU/Ascend device
-python train.py --config configs/rec/crnn/crnn_resnet34.yaml
+python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
-### Validation
+### Evaluation
 
-To validate the accuracy of the trained model, you can use `valid.py` and parse the checkpoint path with `--ckpt_path`.
+To evaluate the accuracy of the trained model, you can use `eval.py`. Please **add** an additional configuration parameter **ckpt_load_path** in `eval` section and set it to the path of the model checkpoint and then run:
 
 ```
-python validate.py --config configs/rec/crnn/crnn_resnet34.yaml --ckpt_path /path/to/ckpt
+python tools/eval.py --config configs/rec/crnn/crnn_vgg7.yaml
 ```
-
-### Deployment
-
-To deploy online inference services with the trained model efficiently, please refer to the [deployment tutorial](https://github.com/mindspore-lab/mindcv/blob/main/tutorials/deployment.md).
 
 ## References
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
