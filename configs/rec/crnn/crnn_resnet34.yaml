@@ -51,10 +51,9 @@ scheduler:
   scheduler: warmup_cosine_decay
   min_lr: 0.0
   lr: 0.0005
-  num_epochs: 1
-  warmup_epochs: 0
-  # warmup_steps: 500
-  decay_epochs: 1
+  num_epochs: 30
+  warmup_epochs: 1
+  decay_epochs: 29
 
 optimizer:
   opt: adamw
