@@ -35,10 +35,10 @@ Table Format:
 
 <div align="center">
 
-| 模型| Backbone网络 | 配置文件 | 平均准确率 | 模型下载 | 
+| 模型| 骨干网络 | 配置文件 | 平均准确率 | 模型下载 | 
 |------|----------|--------|--------------|----------|
-| CRNN | VGG7     | [crnn_vgg7.yaml](./crnn_vgg7.yaml) | 80.98 | [model_weights]() |
-| CRNN | ResNet34 | [crnn_resnet34.yaml](./crnn_resnet34.yaml) | 84.64 | [model_weights]() |
+| CRNN | VGG7     | [crnn_vgg7.yaml](./crnn_vgg7.yaml) | 82.03 | [model_weights]() |
+| CRNN | ResNet34 | [crnn_resnet34.yaml](./crnn_resnet34.yaml) | 84.45 | [model_weights]() |
 
 
 </div>

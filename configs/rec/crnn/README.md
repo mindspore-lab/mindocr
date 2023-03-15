@@ -37,8 +37,8 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 | Model| Backbone | Config | Avg Accuracy | Download | 
 |------|----------|--------|--------------|----------|
-| CRNN | VGG7     | [crnn_vgg7.yaml](./crnn_vgg7.yaml) | 80.98 | [model_weights]() |
-| CRNN | ResNet34 | [crnn_resnet34.yaml](./crnn_resnet34.yaml) | 84.64 | [model_weights]() |
+| CRNN | VGG7     | [crnn_vgg7.yaml](./crnn_vgg7.yaml) | 82.03 | [model_weights]() |
+| CRNN | ResNet34 | [crnn_resnet34.yaml](./crnn_resnet34.yaml) | 84.45 | [model_weights]() |
 
 
 </div>

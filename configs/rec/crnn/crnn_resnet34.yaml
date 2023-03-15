@@ -1,11 +1,10 @@
 system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
-  distribute: False 
+  distribute: True 
   amp_level: 'O3'
   seed: 42
   val_while_train: True
-  ckpt_save_dir: './tmp_rec'
-  drop_overflow_update: True
+  drop_overflow_update: False
 
 common:
   character_dict_path: &character_dict_path  #mindocr/utils/dict/en_dict.txt
@@ -39,7 +38,8 @@ metric:
   name: RecMetric
   main_indicator: acc
   character_dict_path: *character_dict_path
-  ignore_space: True 
+  ignore_space: True
+  print_flag: False
 
 loss:
   name: CTCLoss 
@@ -51,10 +51,10 @@ scheduler:
   scheduler: warmup_cosine_decay
   min_lr: 0.0
   lr: 0.0005
-  num_epochs: 40
-  warmup_epochs: 1
+  num_epochs: 1
+  warmup_epochs: 0
   # warmup_steps: 500
-  decay_epochs: 39
+  decay_epochs: 1
 
 optimizer:
   opt: adamw
@@ -66,10 +66,11 @@ optimizer:
   #use_nesterov: True 
 
 train:
+  ckpt_save_dir: './tmp_rec'
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
-    data_dir: /old/katekong/crnn/datasets/ocr-datasets/data_lmdb_release/training/MJ/MJ_train/
+    data_dir: path/to/datadir/train/
     # label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
     sample_ratios: [1.0]
     shuffle: True
@@ -81,11 +82,12 @@ train:
           max_text_len: *max_text_len 
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
+          lower: True
       - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize. 
           image_shape: [32, 100] # H, W
           infer_mode: *infer_mode
           character_dict_path: *character_dict_path
-          padding: True # aspect ratio will be preserved if true.
+          padding: False # aspect ratio will be preserved if true.
       - NormalizeImage:  # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec. 
           bgr_to_rgb: True
           is_hwc: True
@@ -105,10 +107,11 @@ train:
       num_workers: 8
 
 eval:
+  ckpt_load_path: './tmp_rec/best.ckpt'
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
-    data_dir: /old/katekong/crnn/datasets/ocr-datasets/validation/
+    data_dir: path/to/datadir/validation/
     # label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
     sample_ratios: [1.0]
     shuffle: False 
@@ -120,11 +123,12 @@ eval:
           max_text_len: *max_text_len 
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
+          lower: True
       - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize. 
           image_shape: [32, 100] # H, W
           infer_mode: *infer_mode
           character_dict_path: *character_dict_path
-          padding: True # aspect ratio will be preserved if true.
+          padding: False # aspect ratio will be preserved if true.
       - NormalizeImage:  # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec. 
           bgr_to_rgb: True
           is_hwc: True
