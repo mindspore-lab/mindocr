@@ -53,7 +53,7 @@ def main(cfg):
         rank_id = None
 
     set_seed(cfg.system.seed)
-    cv2.setNumThreads(2) # TODO: by default, num threads = num cpu cores
+    #cv2.setNumThreads(2) # TODO: by default, num threads = num cpu cores
     is_main_device = rank_id in [None, 0]
 
     # train pipeline
@@ -136,7 +136,7 @@ def main(cfg):
             f.write(args_text)
 
     # training
-    loss_monitor = LossMonitor(10) #num_batches // 10)
+    loss_monitor = LossMonitor(min(num_batches // 10, 100))
     time_monitor = TimeMonitor()
 
     model = ms.Model(train_net)

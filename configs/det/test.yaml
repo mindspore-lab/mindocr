@@ -57,15 +57,14 @@ optimizer:
   loss_scale: 1.0
 
 train:
-  dataset_sink_mode: True 
+  dataset_sink_mode: False 
   ckpt_save_dir: './tmp_det'
   dataset:
     type: DetDataset
-    #dataset_root: /data/ocr_datasets  
-    dataset_root: /Users/Samit/Data/datasets 
+    dataset_root: /data/ocr_datasets  
     data_dir: ic15/det/train/ch4_training_images
     label_file: ic15/det/train/det_gt.txt
-    sample_ratio: 1.0
+    sample_ratio: 0.5
     shuffle: True
     transform_pipeline:
       - DecodeImage:
@@ -103,24 +102,23 @@ train:
           std: imagenet
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
-    output_keys: ['image', 'shrink_map', 'shrink_mask', 'threshold_map', 'threshold_mask'] #'img_path'] 
+    output_keys: ['image', 'shrink_map', 'shrink_mask', 'threshold_map', 'threshold_mask'] 
     #output_keys: ['image'] # for debug op performance
     num_keys_to_net: 1 # num inputs for network forward func in output_keys
 #    keys_for_loss: 4 # num labels for loss func
 
   loader:
-    shuffle: True # TODO: tbc
-    batch_size: 20
-    drop_remainder: False
-    max_rowsize: 20
-    num_workers: 1 # TODO: large value may lead to OOM
+    shuffle: True
+    batch_size: 16
+    num_workers: 8 # TODO: large value may lead to OOM
+    prefetch_size: 16 #
+    drop_remainder: True
 
 eval:
   dataset_sink_mode: False
   dataset:
     type: DetDataset
-    #dataset_root: /data/ocr_datasets/  # needed for openi
-    dataset_root: /Users/Samit/Data/datasets 
+    dataset_root: /data/ocr_datasets/
     data_dir: ic15/det/test/ch4_test_images
     label_file: ic15/det/test/det_gt.txt
     sample_ratio: 1.0
@@ -147,12 +145,4 @@ eval:
     shuffle: False
     batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
     drop_remainder: False 
-    max_rowsize: 20
     num_workers: 1
-
-modelarts: # TODO: for running on modelarts or openi. Not making effect currently.
-   enable_modelarts: False
-   data_url: /cache/data/  # path to dataset
-   multi_data_url: /cache/data/ # path to multi dataset 
-   ckpt_url: /cache/output/  # pretrained model path
-   train_url: /cache/output/ # model save folder

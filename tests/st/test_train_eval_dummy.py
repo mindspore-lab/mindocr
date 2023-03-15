@@ -77,6 +77,8 @@ def test_train_eval(task):
     out, err = p.communicate()
     # assert ret==0, 'Validation fails'
     print(out)
+
+    p.kill()
     '''
     if check_acc:
         res = out.decode()
