@@ -13,6 +13,6 @@ python auto_gear.py --image_path=/xx/lsvt/images \
                     --rec_onnx_path=ch_ppocr_server_v2.0_rec_infer_argmax.onnx \
                     --rec_model_height=32 \
                     --soc_version=Ascend310P \
-                    --output_path=./lsvt_om_v2n &&
+                    --output_path=./lsvt_om_v2 &&
 python auto_select.py --rec_model_path=lsvt_om_v2/crnn
 popd
