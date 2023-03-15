@@ -20,7 +20,6 @@ from mindocr.utils.visualize import show_img, draw_bboxes, show_imgs, recover_im
 @pytest.mark.parametrize('task', ['det', 'rec'])
 #@pytest.mark.parametrize('phase', ['train', 'eval'])
 def test_build_dataset(task='det', phase='train', verbose=True, visualize=False):
-    # TODO: download sample test data automatically
     #data_dir = '/data/ocr_datasets/ic15/text_localization/train'
     #annot_file = '/data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt'
     '''
@@ -59,9 +58,9 @@ def test_build_dataset(task='det', phase='train', verbose=True, visualize=False)
     '''
 
     if task == 'rec':
-        yaml_fp = 'configs/rec/crnn_icdar15.yaml'
+        yaml_fp = 'configs/rec/test.yaml'
     else:
-        yaml_fp = 'configs/det/db_test.yaml'
+        yaml_fp = 'configs/det/test.yaml'
 
     with open(yaml_fp) as fp:
         cfg = yaml.safe_load(fp)
@@ -77,9 +76,11 @@ def test_build_dataset(task='det', phase='train', verbose=True, visualize=False)
     dataset_config = cfg[phase]['dataset']
     loader_config = cfg[phase]['loader']
 
+
     dl = build_dataset(dataset_config, loader_config, is_train=(phase=='train'))
     num_batches = dl.get_dataset_size()
 
+    ms.set_context(mode=0)
     #batch = next(dl.create_tuple_iterator())
     num_tries = 3
     start = time.time()

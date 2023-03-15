@@ -17,6 +17,8 @@ def build_dataset(
         **kwargs,
         ):
     '''
+    Build dataset
+
     Args:
         dataset_config (dict): dataset reading and processing configuartion containing keys:
             - type: dataset type, 'DetDataset', 'RecDataset'
@@ -34,8 +36,13 @@ def build_dataset(
 
     Return:
         data_loader (Dataset): dataloader to generate data batch
-    '''
 
+    Notes:
+        - The main data process pipeline in MindSpore contains 3 parts: 1) load data files and generate source dataset, 2) perform per-data-row mapping such as image augmentation, 3) generate batch and apply batch mapping. 
+        - Each of the three steps supports multiprocess. Detailed machenism can be seen in https://www.mindspore.cn/docs/zh-CN/r2.0.0-alpha/api_python/mindspore.dataset.html
+        - A data row is a data tuple item containing multiple elements such as (image_i, mask_i, label_i). A data column corresponds to an element in the tuple like 'image', 'label'. 
+        - The total number of `num_parallel_workers` used for data loading and processing should not be larger than the maximum threads of the CPU. Otherwise, it will lead to resource competing overhead. Especially for distributed training, `num_parallel_workers` should not be too large to avoid thread competition. 
+    '''
     ## check and process dataset_root, data_dir, and label_file.
     if 'dataset_root' in dataset_config:
         if isinstance(dataset_config['data_dir'], str):
@@ -47,7 +54,7 @@ def build_dataset(
             if isinstance(dataset_config['label_file'], str):
                 dataset_config['label_file'] = os.path.join(dataset_config['dataset_root'], dataset_config['label_file'])
             else:
-                dataset_config['label_file'] = [os.path.join(dataset_config['dataset_root'], lf) for lf in dataset_confg['label_file']]
+                dataset_config['label_file'] = [os.path.join(dataset_config['dataset_root'], lf) for lf in dataset_config['label_file']]
 
     # build datasets
     dataset_class_name = dataset_config.pop('type')
@@ -61,27 +68,45 @@ def build_dataset(
     dataset_column_names = dataset.get_column_names()
     print('==> Dataset columns: \n\t', dataset_column_names)
 
-    # TODO: the optimal value for prefetch. * num_workers?
-    #ms.dataset.config.set_prefetch_size(int(loader_config['batch_size']))
-    #print('prfectch size:', ms.dataset.config.get_prefetch_size())
+    # TODO: find optimal setting automatically according to num of CPU cores
+    num_workers = loader_config.get("num_workers", 8) # Number of subprocesses used to fetch the dataset/map data row/gen batch in parallel
+    prefetch_size = loader_config.get("prefetch_size", 16) # the length of the cache queue in the data pipeline for each worker, used to reduce waiting time. Larger value leads to more memory consumption. Default: 16 
+    max_rowsize =  loader_config.get("max_rowsize", 64) # MB of shared memory between processes to copy data
+    
+    ms.dataset.config.set_prefetch_size(prefetch_size)  
+    #print('Prefetch size: ', ms.dataset.config.get_prefetch_size())
 
-    # TODO: config multiprocess and shared memory
+    # auto tune num_workers, prefetch. (This conflicts the profiler)
+    #ms.dataset.config.set_autotune_interval(5)
+    #ms.dataset.config.set_enable_autotune(True, "./dataproc_autotune_out")  
+
+    # 1. generate source dataset (source w.r.t. the dataset.map pipeline) based on python callable numpy dataset in parallel 
     ds = ms.dataset.GeneratorDataset(
                     dataset,
                     column_names=dataset_column_names,
-                    num_parallel_workers=loader_config['num_workers'],
+                    num_parallel_workers=num_workers,
                     num_shards=num_shards,
                     shard_id=shard_id,
-                    python_multiprocessing=True,
-                    max_rowsize =loader_config['max_rowsize'],
+                    python_multiprocessing=True, # keep True to improve performace for heavy computation.
+                    max_rowsize =max_rowsize,
                     shuffle=loader_config['shuffle'],
                     )
 
-    # TODO: set default value for drop_remainder and max_rowsize
-    dataloader = ds.batch(loader_config['batch_size'],
-                    drop_remainder=loader_config['drop_remainder'],
-                    max_rowsize=loader_config['max_rowsize'],
-                    #num_parallel_workers=loader_config['num_workers'],
+    # 2. per-data-item mapping (high-performance transformation)
+    #ds = ds.map(operations=transform_list, input_columns=['image', 'label'], num_parallel_workers=8, python_multiprocessing=True)
+
+    
+    # 3. get batch of dataset by collecting batch_size consecutive data rows and apply batch operations 
+    drop_remainder = loader_config.get('drop_remainder', is_train)
+    if is_train and drop_remainder == False:
+        print('WARNING: drop_remainder should be True for training, otherwise the last batch may lead to training fail.')
+    dataloader = ds.batch(
+                    loader_config['batch_size'],
+                    drop_remainder=drop_remainder,
+                    num_parallel_workers=min(num_workers, 2), # set small value since it is lite computation. 
+                    #input_columns=input_columns,
+                    #output_columns=batch_column,
+                    #per_batch_map=per_batch_map, # uncommet to use inner-batch transformation
                     )
 
     #steps_pre_epoch = dataset.get_dataset_size()
