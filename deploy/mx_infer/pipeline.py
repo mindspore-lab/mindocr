@@ -2,7 +2,9 @@ import os
 import time
 from collections import defaultdict
 from multiprocessing import Process, Queue
+
 import tqdm
+
 from deploy.mx_infer.data_type import StopSign
 from deploy.mx_infer.framework import ModuleDesc, ModuleConnectDesc, ModuleManager, SupportedTaskOrder
 from deploy.mx_infer.processors import MODEL_DICT
@@ -10,6 +12,9 @@ from deploy.mx_infer.utils import log, profiling, safe_div, save_path_init, TASK
 
 
 def image_sender(images_path, send_queue, show_progressbar):
+    """
+    send image to input queue for pipeline
+    """
     if os.path.isdir(images_path):
         input_image_list = [os.path.join(images_path, path) for path in os.listdir(images_path)]
         if show_progressbar:
@@ -23,9 +28,12 @@ def image_sender(images_path, send_queue, show_progressbar):
 
 
 def build_pipeline_kernel(args, input_queue):
+    """
+    build and register pipeline
+    """
     task_type = args.task_type
     parallel_num = args.parallel_num
-    module_desc_list = [ModuleDesc('HandoutProcess', 1), ModuleDesc('DecodeProcess', parallel_num), ]
+    module_desc_list = [ModuleDesc('HandoutProcess', 1), ModuleDesc('DecodeProcess', parallel_num)]
 
     module_order = SupportedTaskOrder[task_type]
 
@@ -96,11 +104,15 @@ def build_pipeline(args):
     if args.save_log_dir:
         save_path_init(args.save_log_dir, exist_ok=True)
 
+    if os.path.isdir(args.input_images_dir) and not os.listdir(args.input_images_dir):
+        log.warning(f"The input_images_dir directory '{args.input_images_dir}' is empty, no image to process.")
+        return
+
     task_queue = Queue(TASK_QUEUE_SIZE)
     process = Process(target=build_pipeline_kernel, args=(args, task_queue))
     process.start()
     image_sender(images_path=args.input_images_dir, send_queue=task_queue,
-                 show_progressbar=False if args.show_log else True)
+                 show_progressbar=not args.show_log)
     task_queue.put(StopSign(), block=True)
     process.join()
     process.close()

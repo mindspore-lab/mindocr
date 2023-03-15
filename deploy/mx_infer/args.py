@@ -1,16 +1,20 @@
 import argparse
-import os
 import itertools
+import os
 
-from deploy.mx_infer.utils import log
 from deploy.mx_infer.framework.module_data_type import InferModelComb
 from deploy.mx_infer.processors import SUPPORT_DET_MODEL, SUPPORT_REC_MODEL
+from deploy.mx_infer.utils import log
 
 
 def str2bool(v):
     return v.lower() in ("true", "t", "1")
 
+
 def get_args():
+    """
+    command line parameters for inference
+    """
     parser = argparse.ArgumentParser(description='Arguments for inference.')
     parser.add_argument('--input_images_dir', type=str, required=True,
                         help='Input images dir for inference, can be dir containing multiple images or path of single '
@@ -38,7 +42,7 @@ def get_args():
                         help='Saving dir for visualization of detection results.')
     parser.add_argument('--vis_pipeline_save_dir', type=str, required=False,
                         help='Saving dir for visualization of pipeline inference results.')
-    parser.add_argument('--vis_font_path', type=str, default='', required=False,
+    parser.add_argument('--vis_font_path', type=str, required=False,
                         help='Font file path for recognition model.')
     parser.add_argument('--save_pipeline_crop_res', type=str2bool, default=False, required=False,
                         help='Whether save the images cropped during pipeline.')
@@ -57,13 +61,27 @@ def get_args():
 
 
 def setup_logger(args):
+    """
+    initialize log system
+    """
     log.init_logger(args.show_log, args.save_log_dir)
+    log.save_args(args)
 
 
 def update_task_args(args):
-    det = os.path.exists(args.det_model_path) if isinstance(args.det_model_path, str) else False
-    cls = os.path.exists(args.cls_model_path) if isinstance(args.cls_model_path, str) else False
-    rec = os.path.exists(args.rec_model_path) if isinstance(args.rec_model_path, str) else False
+    """
+    add internal parameters according to different task type
+    """
+    if args.det_model_path and not os.path.exists(args.det_model_path):
+        raise ValueError(f"The det_model_path of '{args.det_model_path}' does not exist.")
+    if args.cls_model_path and not os.path.exists(args.cls_model_path):
+        raise ValueError(f"The cls_model_path of '{args.cls_model_path}' does not exist.")
+    if args.rec_model_path and not os.path.exists(args.rec_model_path):
+        raise ValueError(f"The rec_model_path of '{args.rec_model_path}' does not exist.")
+
+    det = bool(args.det_model_path)
+    cls = bool(args.cls_model_path)
+    rec = bool(args.rec_model_path)
 
     task_map = {
         (True, False, False): InferModelComb.DET,
@@ -74,26 +92,30 @@ def update_task_args(args):
 
     task_order = (det, cls, rec)
     if task_order in task_map:
-        taks_type = task_map[task_order]
-        setattr(args, 'task_type', taks_type)
+        task_type = task_map[task_order]
+        setattr(args, 'task_type', task_type)
+        setattr(args, 'save_vis_det_save_dir', bool(args.vis_det_save_dir))
+        setattr(args, 'save_vis_pipeline_save_dir', bool(args.vis_pipeline_save_dir))
     else:
-        if not (det or cls or rec):
-            raise ValueError(f"det_model_path, cls_model_path, rec_model_path cannot be empty at the same time.")
-        elif det:
-            raise ValueError(f"rec_model_path can't be empty when det_model_path and cls_model_path are not empty.")
-        else:
-            raise ValueError(f"cls_model_path{args.cls_model_path} model does not support inference independently.")
+        unsupported_task_map = {
+            (False, False, False): "empty",
+            (True, True, False): "det+cls",
+            (False, True, False): "cls",
+            (False, True, True): "cls+rec"
+        }
 
-    setattr(args, 'save_vis_det_save_dir', True if args.vis_det_save_dir else False)
-    setattr(args, 'save_vis_pipeline_save_dir', True if args.vis_pipeline_save_dir else False)
+        raise ValueError(
+            f"Only support det, rec, det+rec and det+cls+rec, but got {unsupported_task_map[task_order]}. "
+            f"Please check model_path!")
 
     return args
 
 
 def check_args(args):
-    if not args.input_images_dir or \
-            (not os.path.isfile(args.input_images_dir) and not os.path.isdir(args.input_images_dir)) or \
-            (os.path.isdir(args.input_images_dir) and len(os.listdir(args.input_images_dir)) == 0):
+    """
+    check parameters
+    """
+    if not args.input_images_dir or not os.path.exists(args.input_images_dir):
         raise ValueError(f"input_images_dir must be dir containing multiple images or path of single image.")
 
     if args.det_model_path and not os.path.isfile(args.det_model_path):
@@ -102,8 +124,9 @@ def check_args(args):
     if args.cls_model_path and not os.path.isfile(args.cls_model_path):
         raise ValueError(f"cls_model_path must be a model file path for classification.")
 
-    if args.rec_model_path and (os.path.isdir(args.rec_model_path) and len(os.listdir(args.rec_model_path)) == 0):
-        raise ValueError(f"rec_model_path must a model file or dir containing model file for recognition model.")
+    if args.rec_model_path and (not os.path.exists(args.rec_model_path) or (
+            os.path.isdir(args.rec_model_path) and not os.listdir(args.rec_model_path))):
+        raise ValueError(f"rec_model_path must be a model file or dir containing model file for recognition model.")
 
     if args.rec_model_path and (not args.rec_char_dict_path or not os.path.isfile(args.rec_char_dict_path)):
         raise ValueError(
@@ -127,7 +150,7 @@ def check_args(args):
             f"for single detection task.")
 
     if not args.res_save_dir:
-        raise ValueError(f"res_save_dir can’t be empty.")
+        raise ValueError(f"res_save_dir can't be empty.")
 
     if args.det_algorithm not in SUPPORT_DET_MODEL:
         raise ValueError(f"det_algorithm only support {SUPPORT_DET_MODEL}, but got {args.det_algorithm}.")

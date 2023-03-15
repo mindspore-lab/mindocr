@@ -177,11 +177,9 @@ class LOGGER(logging.Logger):
         else:
             logging.error('This api just support argparse or dict, please check your input type.')
             raise Exception('This api just support argparse or dict, please check your input type.')
-        self.debug('Args:')
+        self.info('Args:')
         args_copy = args.copy()
         for key, value in args_copy.items():
-            if isinstance(value, str) and "/" in value:
-                args_copy[key] = ''
             self.info('--> %s: %s', key, self.filter_log_str(args_copy[key]))
         self.info('Finish read param')
 
