@@ -1,7 +1,3 @@
-"""
-Code adopted from paddle.
-TODO: overwrite
-"""
 from typing import List
 
 import numpy as np
@@ -76,51 +72,13 @@ class DetectionIoUEvaluator:
         return gt_labels, det_labels
 
 
-class QuadMetric:
-    def __init__(self, is_output_polygon=False):
-        self.is_output_polygon = is_output_polygon
-        self.evaluator = DetectionIoUEvaluator()
-
-    def __call__(self, batch, output, box_thresh=0.7):
-        """
-        batch: (image, polygons, ignore_tags)
-            image: numpy array of shape (N, C, H, W).
-            polys: numpy array of shape (N, K, 4, 2), the polygons of objective regions.
-            ignore: numpy array of shape (N, K), indicates whether a region is ignorable or not.
-        output: (polygons, ...)
-        """
-        gt_polys = batch['polys'].astype(np.float32)
-        gt_ignore_info = batch['ignore']
-        pred_polys = np.array(output[0])
-        pred_scores = np.array(output[1])
-
-        gt_labels, det_labels = [], []
-        for sample_id in range(len(gt_polys)):
-            gt = [{'polys': gt_polys[sample_id][j], 'ignore': gt_ignore_info[sample_id][j]}
-                  for j in range(len(gt_polys[sample_id]))]
-            if self.is_output_polygon:
-                pred = [sample for sample in pred_polys[sample_id]]     # TODO: why are polygons not filtered?
-            else:
-                pred = [pred_polys[sample_id][j].astype(np.int32)
-                        for j in range(pred_polys[sample_id].shape[0]) if pred_scores[sample_id][j] >= box_thresh]
-
-            gt_label, det_label = self.evaluator(gt, pred)
-            gt_labels.append(gt_label)
-            det_labels.append(det_label)
-        return gt_labels, det_labels
-
-    def validate_measure(self, batch, output):
-        return self(batch, output, box_thresh=0.55)  # TODO: why is here a fixed threshold and different from the above?
-
-
-# TODO: improve the efficiency ?
 class DetMetric(nn.Metric):
     def __init__(self, **kwargs):
         super().__init__()
-        self.clear()
+        self._evaluator = DetectionIoUEvaluator()
+        self._gt_labels, self._det_labels = [], []
 
     def clear(self):
-        self._metric = QuadMetric()
         self._gt_labels, self._det_labels = [], []
 
     def update(self, *inputs):
@@ -129,19 +87,17 @@ class DetMetric(nn.Metric):
 
         Args:
             inputs (tuple): contain two elements preds, gt
-                    preds (dict): prediction output by postprocess, required keys:
-                        - polygons
-                        - scores
+                    preds (list): prediction output by postprocess in the form of [[(box, score)]]
                     gt (tuple): ground truth, order defined by output_keys in eval dataloader
         """
         preds, gts = inputs
-        polys, ignore = gts
-        boxes, scores = preds['polygons'], preds['scores']
-        gt = {'polys': polys.asnumpy(), 'ignore': ignore.asnumpy()}
+        polys, ignore = gts[0].asnumpy().astype(np.float32), gts[1].asnumpy()
 
-        gt_labels, det_labels = self._metric.validate_measure(gt, (boxes, scores))
-        self._gt_labels.extend(gt_labels)
-        self._det_labels.extend(det_labels)
+        for sample_id in range(len(polys)):
+            gt = [{'polys': poly, 'ignore': ig} for poly, ig in zip(polys[sample_id], ignore[sample_id])]
+            gt_label, det_label = self._evaluator(gt, preds[sample_id][0])
+            self._gt_labels.append(gt_label)
+            self._det_labels.append(det_label)
 
     def eval(self):
         """
@@ -160,7 +116,3 @@ class DetMetric(nn.Metric):
             'precision': precision_score(self._gt_labels, self._det_labels),
             'f-score': f1_score(self._gt_labels, self._det_labels)
         }
-
-
-if __name__ == '__main__':
-    m = DetMetric()

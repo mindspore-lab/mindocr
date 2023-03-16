@@ -4,7 +4,6 @@ system:
   amp_level: 'O0'
   seed: 42
   val_while_train: True
-  ckpt_save_dir: './tmp_det'
   drop_overflow_update: True
 
 model:
@@ -17,7 +16,7 @@ model:
     name: DBFPN
     out_channels: 256
     bias: False
-    use_asf: False # enable it for DB++ 
+    use_asf: False        # enable it for DB++
   head:
     name: DBHead
     k: 50
@@ -26,11 +25,11 @@ model:
 
 postprocess:
   name: DBPostprocess
-  region_type: 'quad'
-  thresh: 0.3
-  box_thresh: 0.55 # TODO: this value is 0.55 in modelzoo and but 0.7 in paddle
+  output_polygon: False   # whether to output a polygon or a box
+  binary_thresh: 0.3      # binarization threshold
+  box_thresh: 0.6         # box score threshold
   max_candidates: 1000
-  unclip_ratio: 1.5
+  expand_ratio: 1.5       # coefficient for expanding predictions
 
 metric:
   name: DetMetric
@@ -58,24 +57,23 @@ optimizer:
   loss_scale: 1.0
 
 train:
+  ckpt_save_dir: './tmp_det'
   dataset_sink_mode: True 
   dataset:
     type: DetDataset
     dataset_root: /data/ocr_datasets 
     data_dir: ic15/text_localization/train
     label_file: ic15/text_localization/train/train_icdar15_label.txt
-    #data_dir: /Users/Samit/Data/datasets/ic15/det/train
-    #label_file: /Users/Samit/Data/datasets/ic15/det/train/train_icdar2015_label.txt
     sample_ratio: [ 1.0 ]
     shuffle: True
     transform_pipeline:
       - DecodeImage:
-          img_mode: BGR
+          img_mode: RGB
           to_float32: False
       - DetLabelEncode:
       - MZResizeByGrid:
           divisor: 32
-          transform_polys: True # originally in modelzoo, it doesn't transform polys
+          transform_polys: True
       - MZRandomScaleByShortSide:
           short_side: 736
       - IaaAugment:
@@ -86,10 +84,10 @@ train:
           max_tries: 100
           min_crop_side_ratio: 0.1
           crop_size: [ 640, 640 ]
-      - MZMakeSegDetectionData:
+      - ShrinkBinaryMap:
           min_text_size: 8
           shrink_ratio: 0.4
-      - MZMakeBorderMap:
+      - BorderMap:
           shrink_ratio: 0.4
           thresh_min: 0.3
           thresh_max: 0.7
@@ -98,23 +96,22 @@ train:
           saturation: 0.5
           to_numpy: True
       - NormalizeImage:
-          bgr_to_rgb: True
+          bgr_to_rgb: False
           is_hwc: True
           mean: imagenet
           std: imagenet
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
-    output_keys: ['image', 'shrink_map', 'shrink_mask', 'threshold_map', 'threshold_mask'] #'img_path'] 
+    output_keys: ['image', 'binary_map', 'mask', 'thresh_map', 'thresh_mask'] #'img_path']
     #output_keys: ['image'] # for debug op performance
     num_keys_to_net: 1 # num inputs for network forward func in output_keys
-#    keys_for_loss: 4 # num labels for loss func
 
   loader:
-    shuffle: True # TODO: tbc
+    shuffle: True
     batch_size: 20
     drop_remainder: False
-    max_rowsize: 20
-    num_workers: 10 # TODO: may lead to OOM
+    max_rowsize: 32
+    num_workers: 10
 
 eval:
   dataset_sink_mode: False
@@ -123,19 +120,20 @@ eval:
     dataset_root: /data/ocr_datasets 
     data_dir: ic15/text_localization/test
     label_file: ic15/text_localization/test/test_icdar2015_label.txt
-    #data_dir: /Users/Samit/Data/datasets/ic15/det/test
-    #label_file: /Users/Samit/Data/datasets/ic15/det/test/test_icdar2015_label.txt
-    sample_ratio 1.0 ]
+    sample_ratio: [ 1.0 ]
     shuffle: False
     transform_pipeline:
       - DecodeImage:
-          img_mode: BGR
+          img_mode: RGB
           to_float32: False
       - DetLabelEncode:
+      - MZResizeByGrid:
+          divisor: 32
+          transform_polys: True
       - MZScalePad:
           eval_size: [ 736, 1280 ] # h, w
       - NormalizeImage:
-          bgr_to_rgb: True
+          bgr_to_rgb: False
           is_hwc: True
           mean: imagenet
           std: imagenet
@@ -151,10 +149,3 @@ eval:
     drop_remainder: False 
     max_rowsize: 20
     num_workers: 1
-
-modelarts: # TODO: for running on modelarts or openi. Not making effect currently.
-   enable_modelarts: False
-   data_url: /cache/data/  # path to dataset
-   multi_data_url: /cache/data/ # path to multi dataset 
-   ckpt_url: /cache/output/  # pretrained model path
-   train_url: /cache/output/ # model save folder
