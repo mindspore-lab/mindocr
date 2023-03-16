@@ -23,7 +23,6 @@ class ModuleManager:
         self.queue_list = []
         self.pipeline_queue_map = defaultdict(lambda: defaultdict(list))
         self.task_queue = task_queue
-        self.infer_res_save_path = args.res_save_dir
 
     @staticmethod
     def stop_module(module):
@@ -35,7 +34,6 @@ class ModuleManager:
                                    module_name=module_name,
                                    instance_id=instance_id)
         module_instance.assign_init_args(init_args)
-        module_instance.infer_res_save_path = self.infer_res_save_path
 
     def register_modules(self, pipeline_name: str, module_desc_list: list,
                          default_count: int):

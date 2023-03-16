@@ -29,6 +29,7 @@ class CollectProcess(ModuleBase):
         self.image_total = Manager().Value(c_uint64, 0)
         self.task_type = args.task_type
         self.save_filename = _RESULTS_SAVE_FILENAME[self.task_type]
+        self.res_save_dir = args.res_save_dir
 
     def init_self_args(self):
         super().init_self_args()
@@ -63,7 +64,7 @@ class CollectProcess(ModuleBase):
         log.info(f"{image_name} is finished.")
 
     def final_text_save(self):
-        save_filename = os.path.join(self.infer_res_save_path, self.save_filename)
+        save_filename = os.path.join(self.res_save_dir, self.save_filename)
         safe_list_writer(self.image_pipeline_res, save_filename)
         log.info(f'save infer result to {save_filename} successfully')
 
