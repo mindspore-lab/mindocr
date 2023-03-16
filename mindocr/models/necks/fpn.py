@@ -37,27 +37,27 @@ class DBFPN(nn.Cell):
         super().__init__()
         self.out_channels = out_channels
 
-        self._unify_channels = nn.CellList(
+        self.unify_channels = nn.CellList(
             [nn.Conv2d(ch, out_channels, 1, pad_mode='valid', has_bias=bias, weight_init=weight_init)
              for ch in in_channels]
         )
 
-        self._out = nn.CellList(
+        self.out = nn.CellList(
             [nn.Conv2d(out_channels, out_channels // 4, 3, padding=1, pad_mode='pad', has_bias=bias,
                        weight_init=weight_init) for _ in range(len(in_channels))]
         )
 
-        self._fuse = AdaptiveScaleFusion(out_channels, channel_attention, weight_init) if use_asf else ops.Concat(
+        self.fuse = AdaptiveScaleFusion(out_channels, channel_attention, weight_init) if use_asf else ops.Concat(
             axis=1)
 
     def construct(self, features):
-        for i, uc_op in enumerate(self._unify_channels):
+        for i, uc_op in enumerate(self.unify_channels):
             features[i] = uc_op(features[i])
 
         for i in range(2, -1, -1):
             features[i] += _resize_nn(features[i + 1], shape=features[i].shape[2:])
 
-        for i, out in enumerate(self._out):
+        for i, out in enumerate(self.out):
             features[i] = _resize_nn(out(features[i]), shape=features[0].shape[2:])
 
-        return self._fuse(features[::-1])   # matching the reverse order of the original work
+        return self.fuse(features[::-1])   # matching the reverse order of the original work

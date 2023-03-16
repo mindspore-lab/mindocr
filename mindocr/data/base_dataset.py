@@ -1,6 +1,3 @@
-#from __future__ import absolute_import
-from __future__ import division
-
 from typing import Union, List
 import random
 import os
@@ -9,9 +6,10 @@ from .transforms.transforms_factory import create_transforms, run_transforms
 
 __all__ = ['BaseDataset']
 
+
 class BaseDataset(object):
     """Data iterator for ocr datasets including ICDAR15 dataset.
-    The annotaiton format is required to aligned to paddle, which can be done using the `converter.py` script.
+    The annotation format is required to aligned to paddle, which can be done using the `converter.py` script.
 
     Args:
         is_train (bool): whether it is in training stage
@@ -23,7 +21,8 @@ class BaseDataset(object):
         transform_pipeline: list of dict, key - transform class name, value - a dict of param config.
                     e.g., [{'DecodeImage': {'img_mode': 'BGR', 'channel_first': False}}]
             -       if None, default transform pipeline for text detection will be taken.
-        output_keys (list): required, indicates the keys in data dict that are expected to output for dataloader. if None, all data keys will be used for return.
+        output_keys (list): required, indicates the keys in data dict that are expected to output for dataloader.
+                            if None, all data keys will be used for return.
         global_config: additional info, used in data transformation, possible keys:
             - character_dict_path
 
@@ -45,23 +44,23 @@ class BaseDataset(object):
             img_61.jpg\t[{"transcription": "MASA", "points": [[310, 104], [416, 141], [418, 216], [312, 179]]}, {...}]
     """
     def __init__(self,
-            is_train: bool = True,
-            data_dir: str = '',
-            label_file: Union[List, str] = '',
-            sample_ratio: Union[List, float] = 1.0,
-            shuffle: bool = None,
-            transform_pipeline: List[dict] = None,
-            output_keys: List[str] = None,
-            #global_config: dict = None,
-            **kwargs
-            ):
+                 is_train: bool = True,
+                 data_dir: str = '',
+                 label_file: Union[List, str] = '',
+                 sample_ratio: Union[List, float] = 1.0,
+                 shuffle: bool = None,
+                 transform_pipeline: List[dict] = None,
+                 output_keys: List[str] = None,
+                 # global_config: dict = None,
+                 **kwargs
+                 ):
         # check arg validation
         self.data_dir = data_dir
         assert isinstance(shuffle, bool), f'type error of {shuffle}'
         if isinstance(label_file, str):
             label_file = [label_file]
         if isinstance(sample_ratio, float):
-            sample_ratio = [sample_ratio for _ in label_file]
+            sample_ratio = [sample_ratio] * len(label_file)
 
         for f in label_file:
             if not os.path.exists(f):
@@ -69,13 +68,13 @@ class BaseDataset(object):
         shuffle = shuffle if shuffle is not None else is_train
 
         # load data
-        #if label_file == '':
+        # if label_file == '':
         #    label_file = os.path.join(data_dir, 'gt.txt')
         self.data_list = self.load_data_list(label_file, sample_ratio, shuffle)
 
         # create transform
         if transform_pipeline is not None:
-            self.transforms = create_transforms(transform_pipeline) #, global_config=global_config)
+            self.transforms = create_transforms(transform_pipeline)  # , global_config=global_config)
         else:
             raise ValueError('No transform pipeline is specified!')
 
@@ -92,13 +91,14 @@ class BaseDataset(object):
                 if k in _data:
                     self.output_keys.append(k)
                 else:
-                    raise ValueError(f'Key {k} does not exist in data (available keys: {_data.keys()}). Please check the name or the completeness transformation pipeline.')
+                    raise ValueError(f'Key {k} does not exist in data (available keys: {_data.keys()}). '
+                                     'Please check the name or the completeness transformation pipeline.')
 
     def __len__(self):
         return len(self.data_list)
 
     def get_column_names(self):
-        ''' return list of names for the output data tuples'''
+        """ return list of names for the output data tuples"""
         return self.output_keys
 
     def __getitem__(self, index):
@@ -111,8 +111,9 @@ class BaseDataset(object):
 
         return output_tuple
 
-    def load_data_list(self, label_file: List[str], sample_ratio: List[float],  shuffle: bool = False, **kwargs) -> List[dict]:
-        ''' Load data list from label_file which contains infomation of image paths and annotations
+    def load_data_list(self, label_file: List[str], sample_ratio: List[float], shuffle: bool = False,
+                       **kwargs) -> List[dict]:
+        """ Load data list from label_file which contains infomation of image paths and annotations
         Args:
             label_file: annotation file path(s)
             sample_ratio sample ratio for data items in each annotation file
@@ -120,7 +121,7 @@ class BaseDataset(object):
 
         Returns:
             data (List[dict]): A list of annotation dict, which contains keys: img_path, annot...
-        '''
+        """
 
         # read annotation files
         data_lines = []
@@ -133,7 +134,7 @@ class BaseDataset(object):
                 else:
                     lines = lines[:round(len(lines) * sample_ratio[idx])]
                 data_lines.extend(lines)
-                #print(lines[:5])
+                # print(lines[:5])
         # print(data_lines)
         # parse each line of annotation
         data_list = []
@@ -144,14 +145,15 @@ class BaseDataset(object):
         return data_list
 
     def _parse_annotation(self, data_line: str) -> Union[dict, List[dict]]:
-        '''
-        Initially parse a data line string into a data dict containing input (img path) and label info (json dump). The label info will be encoded in transformation.
-        '''
+        """
+        Initially parse a data line string into a data dict containing input (img path) and label info (json dump).
+        The label info will be encoded in transformation.
+        """
         data = {}
         file_name, annot_str = data_line.strip().split('\t')
-        img_path= os.path.join(self.data_dir, file_name)
+        img_path = os.path.join(self.data_dir, file_name)
 
-        #if os.path.exists(img_path):
+        # if os.path.exists(img_path):
         #    print('------->', img_path)
         assert os.path.exists(img_path), "{} does not exist!".format(img_path)
 
