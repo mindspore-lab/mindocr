@@ -126,6 +126,5 @@ def save_path_init(path, exist_ok=False):
     if os.path.exists(path):
         if exist_ok:
             return
-        else:
-            shutil.rmtree(path)
+        shutil.rmtree(path)
     os.makedirs(path, 0o750)

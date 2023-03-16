@@ -1,9 +1,9 @@
 from collections import defaultdict, namedtuple
 from multiprocessing import Queue, Process
 
-from .module_data_type import ModulesInfo, ModuleInitArgs
 from deploy.mx_infer.processors import processor_initiator
 from deploy.mx_infer.utils import log
+from .module_data_type import ModulesInfo, ModuleInitArgs
 
 OutputRegisterInfo = namedtuple('OutputRegisterInfo', ['pipeline_name', 'module_send', 'module_recv'])
 
