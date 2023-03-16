@@ -2,6 +2,7 @@ import os
 import time
 from tqdm import tqdm
 from typing import List
+import shutil
 
 import numpy as np
 import mindspore as ms
@@ -123,30 +124,38 @@ class EvalSaveCallback(Callback):
                  loss_fn=None,
                  postprocessor=None,
                  metrics=None,
-                 rank_id=None,
+                 rank_id=0,
                  ckpt_save_dir='./',
                  main_indicator='hmean',
                  ):
         self.rank_id = rank_id
-        if rank_id in [None, 0]:
+        self.is_main_device = rank_id in [0, None]
+
+        if self.is_main_device:
             self.network = network
             self.loader_eval = loader
-            self.ckpt_save_dir = ckpt_save_dir
-            if not os.path.exists(ckpt_save_dir):
-                os.makedirs(ckpt_save_dir)
             self.best_perf = -1e8
-            self._losses = []
-
             if self.loader_eval is not None:
                 self.net_evaluator = Evaluator(network, loss_fn, postprocessor, metrics)
                 self.main_indicator = main_indicator
             else:
                 self.main_indicator = 'train_loss'
+
+            self.ckpt_save_dir = ckpt_save_dir
+            if not os.path.exists(ckpt_save_dir):
+                os.makedirs(ckpt_save_dir)
+
+            self.sync_lock_dir = os.path.join(ckpt_save_dir, 'sync_locks')
+            if os.path.exists(self.sync_lock_dir):
+                shutil.rmtree(self.sync_loc_dir) # remove previous sync lock files
+            os.makedirs(self.sync_lock_dir)
+
     # def __enter__(self):
     #    pass
 
-    # def __exit__(self, *exc_args):
-    #    pass
+    def __exit__(self, *exc_args):
+        if self.is_main_device and os.path.exists(self.sync_lock_dir):
+                shutil.rmtree(self.sync_lock_dir)
 
     def on_train_step_begin(self, run_context):
         self.step_start_time = time.time()
@@ -187,34 +196,36 @@ class EvalSaveCallback(Callback):
         loss = cb_params.net_outputs
         cur_epoch = cb_params.cur_epoch_num
         epoch_time = (time.time() - self.epoch_start_time)
-        train_loss = np.average(self._losses)
-
-        # TODO: add lr print
-        '''
-        optimizer = cb_params.optimizer
-        step = optimizer.global_step
-        if optimizer.dynamic_lr:
-            cur_lr = optimizer.learning_rate(step - 1)[0].asnumpy()
-        else:
-            cur_lr = optimizer.learning_rate.asnumpy()
-        loss = self._get_loss(cb_params)
-        '''
+        train_loss = np.average(self._losses) # TODO: aggregate training loss for multiple cards
 
         print(
             f"Epoch: {cur_epoch}, "
             f"loss:{train_loss:.5f}, time:{epoch_time:.3f}s"
         )
 
-        if self.rank_id in [0, None]:
-            # evaluate
-            if self.loader_eval is not None:
+        # evaluate only using device 0 if enabled
+        if self.loader_eval is not None:
+            sync_lock = os.path.join(self.sync_lock_dir, "run_eval_sync.lock" + str(cur_epoch)) # signal to lock other devices
+            if self.is_main_device and not os.path.exists(sync_lock):
                 measures = self.net_evaluator.eval(self.loader_eval)
+                perf = measures[self.main_indicator]
                 print('Performance: ', measures)
 
-                perf = measures[self.main_indicator]
-            else:
-                perf = - train_loss
+                try:
+                    os.mknod(sync_lock) # for linux
+                except:
+                    open(sync_lock, 'w').close() # for windows and mac
 
+            # other devices wait until evaluation ends
+            while True: # TODO: overtime check on man device
+                if os.path.exists(sync_lock):
+                    break
+                time.sleep(1)
+        else:
+            perf = - train_loss
+
+        # save models and results using card 0
+        if self.is_main_device:
             if perf > self.best_perf:
                 self.best_perf = perf
                 save_checkpoint(self.network, os.path.join(self.ckpt_save_dir, 'best.ckpt'))
@@ -233,8 +244,13 @@ class EvalSaveCallback(Callback):
             epoch_metric_values += [epoch_time]
             self.rec.add(*epoch_metric_values)
 
-
     def on_train_end(self, run_context):
-        if self.rank_id in [0, None]:
+        if self.is_main_device:
             self.rec.save_curves()  # save performance curve figure
             print(f'=> best {self.main_indicator}: {self.best_perf} \nTraining completed!')
+
+            # clear
+            if os.path.exists(self.sync_lock_dir):
+                shutil.rmtree(self.sync_lock_dir)
+
+
