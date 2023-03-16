@@ -61,7 +61,7 @@ def test_train_eval(task):
             config_fp = 'configs/det/db_r50_icdar15.yaml'
         elif task=='rec':
             #config_fp = 'configs/rec/vgg7_bilstm_ctc.yaml' # TODO: change on lmdb datasset
-            config_fp = 'configs/rec/crnn_icdar15.yaml'
+            config_fp = 'configs/rec/crnn/crnn_icdar15.yaml'
 
         with open(config_fp) as fp:
             config = yaml.safe_load(fp)
