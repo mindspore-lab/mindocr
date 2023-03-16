@@ -93,7 +93,7 @@ def expand(input_images):
     """
     if the type of input_images is numpy array,expand the first axis
     if the type of input_images is list, convert the list to numpy array
-    :param input_images: 
+    :param input_images: input image
     :return: the numpy array of shape (batchsize,channel,height,width)
     """
     if isinstance(input_images, np.ndarray):
@@ -107,9 +107,6 @@ def expand(input_images):
 def unclip(box: np.ndarray, unclip_ratio: float):
     """
     expand the box by unclip ratio
-    :param box: 
-    :param unclip_ratio: 
-    :return: 
     """
     poly = Polygon(box)
     distance = safe_div(poly.area * unclip_ratio, poly.length)
@@ -122,12 +119,6 @@ def unclip(box: np.ndarray, unclip_ratio: float):
 def construct_box(box: np.ndarray, height: int, width: int, dest_height: int, dest_width: int):
     """
     resize the box to the original size.
-    :param box: 
-    :param height: 
-    :param width: 
-    :param dest_height: 
-    :param dest_width: 
-    :return: 
     """
     try:
         box[:, 0] = np.clip(
@@ -175,7 +166,7 @@ def box_score_fast(shrink_map: np.ndarray, input_box: np.ndarray):
     using box mean score as the mean score
     :param shrink_map: the output feature map of DBNet
     :param input_box: the min boxes
-    :return: 
+    :return:
     """
     height, width = shrink_map.shape[:2]
     box = input_box.copy()
@@ -196,7 +187,7 @@ def box_score_slow(shrink_map: np.ndarray, contour: np.ndarray):
     using polyon mean score as the mean score
     :param shrink_map: the output feature map of DBNet
     :param contour: the contours
-    :return: 
+    :return:
     """
     height, width = shrink_map.shape
     contour = contour.copy()
@@ -293,14 +284,14 @@ def get_shape_info(shape: list, gears: list, nchw=True):
     else:
         batchsize, height, width, channel = shape
 
-    if channel != 1 and channel != 3:
+    if channel not in (1, 3):
         raise ValueError("model channel number must be 1 or 3")
 
     # static shape or dynamic shape without gear
     if -1 not in shape:
         return "static_shape", (batchsize, channel, height, width)
 
-    if len(gears) == 0:
+    if not gears:
         return "dynamic_shape", (batchsize, channel, height, width)
 
     # dynamic shape with gear

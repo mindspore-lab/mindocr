@@ -1,8 +1,7 @@
 from sys import modules
 
-from deploy.mx_infer.utils import log
 from deploy.mx_infer.framework import InferModelComb
-
+from deploy.mx_infer.utils import log
 from .classification import CLSPreProcess, CLSInferProcess
 from .common import HandoutProcess, CollectProcess, DecodeProcess
 from .detection import DetPreProcess, DetInferProcess, DetPostProcess, SUPPORT_DET_MODEL

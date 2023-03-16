@@ -43,59 +43,6 @@ class ConvBNLayer(nn.Cell):
         return y
 
 
-class BottleneckBlock(nn.Cell):
-    def __init__(self,
-                 in_channels,
-                 out_channels,
-                 stride,
-                 shortcut=True,
-                 if_first=False,
-                 name=None):
-        super(BottleneckBlock, self).__init__()
-
-        self.conv0 = ConvBNLayer(
-            in_channels=in_channels,
-            out_channels=out_channels,
-            kernel_size=1,
-            act=True)
-        self.conv1 = ConvBNLayer(
-            in_channels=out_channels,
-            out_channels=out_channels,
-            kernel_size=3,
-            stride=stride,
-            act=True)
-        self.conv2 = ConvBNLayer(
-            in_channels=out_channels,
-            out_channels=out_channels * 4,
-            kernel_size=1,
-            act=False)
-
-        if not shortcut:
-            self.short = ConvBNLayer(
-                in_channels=in_channels,
-                out_channels=out_channels * 4,
-                kernel_size=1,
-                stride=stride,
-                is_vd_mode=not if_first and stride[0] != 1)
-
-        self.shortcut = shortcut
-        self.relu = nn.ReLU()
-
-    def construct(self, inputs):
-        y = self.conv0(inputs)
-
-        conv1 = self.conv1(y)
-        conv2 = self.conv2(conv1)
-
-        if self.shortcut:
-            short = inputs
-        else:
-            short = self.short(inputs)
-        y = short + conv2
-        y = self.relu(y)
-        return y
-
-
 class BasicBlock(nn.Cell):
     def __init__(self,
                  in_channels,
@@ -154,16 +101,7 @@ class RecResNet(nn.Cell):
             "supported layers are {} but input layer is {}".format(
                 supported_layers, layers)
 
-        if layers == 18:
-            depth = [2, 2, 2, 2]
-        elif layers == 34 or layers == 50:
-            depth = [3, 4, 6, 3]
-        elif layers == 101:
-            depth = [3, 4, 23, 3]
-        elif layers == 152:
-            depth = [3, 8, 36, 3]
-        elif layers == 200:
-            depth = [3, 12, 48, 3]
+        depth = [3, 4, 6, 3]
         num_channels = [64, 64, 128, 256]
         num_filters = [64, 128, 256, 512]
 

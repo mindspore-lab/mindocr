@@ -38,18 +38,14 @@ class Visualization(object):
 
     def vis_bbox_text(self, image, box_list, text_list, color, thickness, font_path):
         image_bbox = self.vis_bbox(image, box_list, color, thickness)
-        # image_text = Image.new('RGB', (image_bbox.width, image_bbox.height), (255, 255, 255))
         image_text = image_bbox.copy()
-        # image_text = np.zeros((image_bbox.shape[0], image_bbox.shape[1], 3), np.uint8)
         image_text.fill(255)
         image_text = self.vis_bbox(image_text, box_list, color, thickness)
 
-        # image_bbox = Image.fromarray(cv2.cvtColor(image_bbox, cv2.COLOR_BGR2RGB))
         image_text = Image.fromarray(image_text)
         draw_text = ImageDraw.Draw(image_text)
         font = ImageFont.truetype(font_path, 20, encoding='utf-8')
         for i, text in enumerate(text_list):
-            # draw_text.polygon(box_list[i], fill='blue', outline='blue')
             draw_text.text(box_list[i][0], text, color, font)
         image_concat = np.concatenate([np.array(image_bbox), np.array(image_text)], axis=1)
         return image_concat

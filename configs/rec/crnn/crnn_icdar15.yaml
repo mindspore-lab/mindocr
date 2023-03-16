@@ -1,11 +1,10 @@
 system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
   distribute: False 
-  amp_level: 'O3'
+  amp_level: 'O0'
   seed: 42
   val_while_train: True
-  ckpt_save_dir: './tmp_rec'
-  drop_overflow_update: False
+  drop_overflow_update: True
 
 common:
   character_dict_path: &character_dict_path  #mindocr/utils/dict/en_dict.txt
@@ -19,15 +18,13 @@ model:
   type: rec
   transform: null
   backbone:
-    name: rec_vgg7
+    name: rec_vgg7 #resnet34@mindcv
     pretrained: False
   neck:
     name: RNNEncoder
     hidden_size: 256 
   head:
     name: CTCHead 
-    weight_init: crnn_customised
-    bias_init: crnn_customised
     out_channels: *num_classes 
 
 postprocess:
@@ -48,29 +45,30 @@ loss:
   batch_size: *batch_size
 
 scheduler: 
-  scheduler: warmup_cosine_decay
-  min_lr: 0.0
-  lr: 0.0005
-  num_epochs: 10
-  warmup_epochs: 0
-  decay_epochs: 10
+  scheduler: "cosine_decay"
+  min_lr: 0.000001
+  lr: 0.0001
+  num_epochs: 100
+  warmup_epochs: 10
+  decay_epochs: 90
 
 optimizer:
   opt: adamw
   filter_bias_and_bn: True
-  momentum: 0.95
+  momentum: 0.9
   weight_decay: 0.0001
-  loss_scale: 1024
-  nesterov: False
+  loss_scale: 1.0
   #use_nesterov: True 
 
 train:
+  ckpt_save_dir: './tmp_rec'
   dataset_sink_mode: False
   dataset:
-    type: LMDBDataset
-    data_dir: /old/katekong/crnn/datasets/ocr-datasets/data_lmdb_release/training/MJ/MJ_train/
-    # label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
-    sample_ratios: [1.0]
+    type: RecDataset
+    dataset_root: /data/ocr_datasets 
+    data_dir: ic15/rec/train/ch4_training_word_images_gt
+    label_file: ic15/rec/train/rec_gt.txt
+    sample_ratio: 1.0
     shuffle: True
     transform_pipeline:
       - DecodeImage: 
@@ -100,16 +98,18 @@ train:
       shuffle: True # TODO: tbc
       batch_size: *batch_size
       drop_remainder: True
-      max_rowsize: 12
+      max_rowsize: 16
       num_workers: 8
 
 eval:
+  ckpt_load_path: './tmp_rec/best.ckpt'
   dataset_sink_mode: False
   dataset:
-    type: LMDBDataset
-    data_dir: /old/katekong/crnn/datasets/ocr-datasets/validation/
-    # label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
-    sample_ratios: [1.0]
+    type: RecDataset
+    dataset_root: /data/ocr_datasets 
+    data_dir: ic15/rec/test/ch4_test_word_images_gt
+    label_file: ic15/rec/test/rec_gt.txt
+    sample_ratio: 1.0
     shuffle: False 
     transform_pipeline:
       - DecodeImage: 
@@ -135,8 +135,8 @@ eval:
     num_keys_to_net: 1 # num inputs for network forward func
      
   loader:
-      shuffle: False # TODO: tbc
-      batch_size: 64
-      drop_remainder: True
+      shuffle: False
+      batch_size: 8
+      drop_remainder: False
       max_rowsize: 12
-      num_workers: 8
+      num_workers: 2

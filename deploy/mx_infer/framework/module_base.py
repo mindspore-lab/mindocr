@@ -3,10 +3,9 @@ from abc import abstractmethod
 from ctypes import c_longdouble
 from multiprocessing import Manager
 
-from .module_data_type import ModuleInitArgs
-
 from deploy.mx_infer.data_type import ProfilingData
 from deploy.mx_infer.utils import log
+from .module_data_type import ModuleInitArgs
 
 
 class ModuleBase(object):
@@ -68,7 +67,7 @@ class ModuleBase(object):
         pass
 
     @abstractmethod
-    def init_self_args(self, ):
+    def init_self_args(self):
         self.msg_queue.put(f'{self.__class__.__name__} instance id {self.instance_id} init complete')
         log.info(f'{self.__class__.__name__} instance id {self.instance_id} init complete')
 

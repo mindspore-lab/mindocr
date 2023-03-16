@@ -9,7 +9,7 @@ from .base_dataset import BaseDataset
 
 __all__ = ['LMDBDataset']
 
-class LMDBDataset():
+class LMDBDataset(BaseDataset):
     """Data iterator for ocr datasets including ICDAR15 dataset. 
     The annotaiton format is required to aligned to paddle, which can be done using the `converter.py` script.
 
@@ -50,7 +50,6 @@ class LMDBDataset():
             #global_config: dict = None,
             **kwargs
             ):
-        super(LMDBDataset, self).__init__()
 
         self.data_dir = data_dir
         assert isinstance(shuffle, bool), f'type error of {shuffle}'
@@ -58,7 +57,7 @@ class LMDBDataset():
 
         sample_ratio = sample_ratio[0] if isinstance(sample_ratio, list) else sample_ratio
         self.lmdb_sets = self.load_hierarchical_lmdb_dataset(data_dir)
-        self.data_idx_order_list = self.dataset_traversal(sample_ratio, shuffle)
+        self.data_idx_order_list = self.get_dataset_idx_orders(sample_ratio, shuffle)
         
         # create transform
         if transform_pipeline is not None:
@@ -103,23 +102,27 @@ class LMDBDataset():
                     readahead=False,
                     meminit=False)
                 txn = env.begin(write=False)
-                num_samples = int(txn.get('num-samples'.encode()))
-                lmdb_sets[dataset_idx] = {"dirpath":dirpath, "env":env, \
-                    "txn":txn, "num_samples":num_samples}
+                data_size = int(txn.get('num-samples'.encode()))
+                lmdb_sets[dataset_idx] = {
+                    "dirpath":dirpath,
+                    "env":env,
+                    "txn":txn,
+                    "data_size":data_size
+                    }
                 dataset_idx += 1
         return lmdb_sets
 
-    def dataset_traversal(self, sample_ratio, shuffle):
-        lmdb_num = len(self.lmdb_sets)
+    def get_dataset_idx_orders(self, sample_ratio, shuffle):
+        n_lmdbs = len(self.lmdb_sets)
         total_sample_num = 0
-        for lno in range(lmdb_num):
-            total_sample_num += self.lmdb_sets[lno]['num_samples']
+        for idx in range(n_lmdbs):
+            total_sample_num += self.lmdb_sets[idx]['data_size']
         data_idx_order_list = np.zeros((total_sample_num, 2))
         beg_idx = 0
-        for lno in range(lmdb_num):
-            tmp_sample_num = self.lmdb_sets[lno]['num_samples']
+        for idx in range(n_lmdbs):
+            tmp_sample_num = self.lmdb_sets[idx]['data_size']
             end_idx = beg_idx + tmp_sample_num
-            data_idx_order_list[beg_idx:end_idx, 0] = lno
+            data_idx_order_list[beg_idx:end_idx, 0] = idx
             data_idx_order_list[beg_idx:end_idx, 1] \
                 = list(range(tmp_sample_num))
             data_idx_order_list[beg_idx:end_idx, 1] += 1
@@ -131,18 +134,6 @@ class LMDBDataset():
         data_idx_order_list = data_idx_order_list[:round(len(data_idx_order_list) * sample_ratio)]
 
         return data_idx_order_list
-
-    def get_img_data(self, value):
-        """get_img_data"""
-        if not value:
-            return None
-        imgdata = np.frombuffer(value, dtype='uint8')
-        if imgdata is None:
-            return None
-        imgori = cv2.imdecode(imgdata, 1)
-        if imgori is None:
-            return None
-        return imgori
 
     def get_lmdb_sample_info(self, txn, index):
         label_key = 'label-%09d'.encode() % index
@@ -174,10 +165,6 @@ class LMDBDataset():
         output_tuple = tuple(data[k] for k in self.output_keys) 
 
         return output_tuple
-    
-    def get_column_names(self):
-        ''' return list of names for the output data tuples'''
-        return self.output_keys
 
     def __len__(self):
         return self.data_idx_order_list.shape[0]

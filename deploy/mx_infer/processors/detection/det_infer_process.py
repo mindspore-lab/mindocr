@@ -26,7 +26,7 @@ class DetInferProcess(ModuleBase):
         if desc != "dynamic_height_width":
             raise ValueError("model input shape must be dynamic image_size with gear.")
 
-        batchsize, channel, hw_list = shape_info
+        _, channel, hw_list = shape_info
         self.gear_list = hw_list
         self.model_channel = channel
         self.max_dot_gear = max([(h, w) for h, w in hw_list], key=lambda x: x[0] * x[1])
@@ -45,7 +45,7 @@ class DetInferProcess(ModuleBase):
             self.send_to_next_module(input_data)
             return
         input_array = input_data.input_array
-        n, c, h, w = input_array.shape
+        _, _, h, w = input_array.shape
 
         matched_gear = get_matched_gear_hw((h, w), self.gear_list, self.max_dot_gear)
         input_array = padding_with_np(input_array, matched_gear)
