@@ -4,15 +4,15 @@ TODO: rewrite copied code
 """
 import random
 import warnings
+from typing import List
 
 import json
 import cv2
+import pyclipper
 from shapely.geometry import Polygon
 import numpy as np
 
-from ...utils.dbnet_utils import expand_poly
-
-__all__ = ['DetLabelEncode', 'BorderMap', 'ShrunkBinaryMap', 'EastRandomCropData', 'PSERandomCrop']
+__all__ = ['DetLabelEncode', 'BorderMap', 'ShrinkBinaryMap', 'EastRandomCropData', 'PSERandomCrop', 'expand_poly']
 
 
 class DetLabelEncode:
@@ -147,7 +147,7 @@ class BorderMap:
         return result
 
 
-class ShrunkBinaryMap:
+class ShrinkBinaryMap:
     """
     Making binary mask from detection data with ICDAR format.
     Typically following the process of class `MakeICDARData`.
@@ -399,3 +399,9 @@ class PSERandomCrop:
                 imgs[idx] = imgs[idx][i:i + th, j:j + tw]
         data['imgs'] = imgs
         return data
+
+
+def expand_poly(poly, distance: float, joint_type=pyclipper.JT_ROUND) -> List[list]:
+    offset = pyclipper.PyclipperOffset()
+    offset.AddPath(poly, joint_type, pyclipper.ET_CLOSEDPOLYGON)
+    return offset.Execute(distance)

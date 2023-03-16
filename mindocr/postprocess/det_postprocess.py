@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from shapely.geometry import Polygon
 
-from ..utils.dbnet_utils import expand_poly
+from ..data.transforms.det_transforms import expand_poly
 
 __all__ = ['DBPostprocess']
 

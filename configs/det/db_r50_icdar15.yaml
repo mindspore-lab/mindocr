@@ -86,7 +86,7 @@ train:
           max_tries: 100
           min_crop_side_ratio: 0.1
           crop_size: [ 640, 640 ]
-      - ShrunkBinaryMap:
+      - ShrinkBinaryMap:
           min_text_size: 8
           shrink_ratio: 0.4
       - BorderMap:
