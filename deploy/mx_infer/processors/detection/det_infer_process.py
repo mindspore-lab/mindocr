@@ -1,9 +1,6 @@
-import numpy as np
-from mindx.sdk import base, Tensor
-
-from mx_infer.framework import ModuleBase
-from mx_infer.utils import get_matched_gear_hw, padding_with_np, \
-    get_shape_info
+from mx_infer.framework import ModuleBase, ShapeType
+from mx_infer.framework import Model
+from mx_infer.utils import get_matched_gear_hw, padding_with_np
 
 
 class DetInferProcess(ModuleBase):
@@ -16,29 +13,22 @@ class DetInferProcess(ModuleBase):
         self.max_dot_gear = None
 
     def init_self_args(self):
-        device_id = self.args.device_id
-        model_path = self.args.det_model_path
+        self.model = Model(engine_type=self.args.engine_type, model_path=self.args.det_model_path,
+                           device_id=self.args.device_id)
 
-        base.mx_init()
-        self.model = base.model(model_path, device_id)
+        shape_type, shape_info = self.model.get_shape_info()
+        if shape_type != ShapeType.DYNAMIC_IMAGESIZE:
+            raise ValueError("Input shape must be dynamic image_size for detection model.")
 
-        desc, shape_info = get_shape_info(self.model.input_shape(0), self.model.model_gear())
-        if desc != "dynamic_height_width":
-            raise ValueError("model input shape must be dynamic image_size with gear.")
+        batchsize, channel, hw_list = shape_info
+        if batchsize != 1:
+            raise ValueError("Input batch size must be 1 for detection model.")
 
-        _, channel, hw_list = shape_info
         self.gear_list = hw_list
         self.model_channel = channel
         self.max_dot_gear = max([(h, w) for h, w in hw_list], key=lambda x: x[0] * x[1])
 
-        self.warmup()
         super().init_self_args()
-
-    def warmup(self):
-        dummy_tensor = np.random.randn(1, self.model_channel, self.max_dot_gear[0], self.max_dot_gear[1]).astype(
-            np.float32)
-        inputs = [Tensor(dummy_tensor)]
-        self.model.infer(inputs)
 
     def process(self, input_data):
         if input_data.skip:
@@ -49,13 +39,9 @@ class DetInferProcess(ModuleBase):
 
         matched_gear = get_matched_gear_hw((h, w), self.gear_list, self.max_dot_gear)
         input_array = padding_with_np(input_array, matched_gear)
-        inputs = [Tensor(input_array)]
-        output = self.model.infer(inputs)
-        if not output:
-            output = self.model.infer(inputs)
-        output_array = output[0]
-        output_array.to_host()
-        output_array = np.array(output_array)
+
+        outputs = self.model.infer(input_array)
+        output_array = outputs[0]
 
         output_array = output_array[:, :, :input_data.resize_h, :input_data.resize_w]
 
