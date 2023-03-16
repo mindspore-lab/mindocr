@@ -61,6 +61,8 @@ class CollectProcess(ModuleBase):
             box_line = vis_tool(image, box_list)
             cv2.imwrite(filename + '.jpg', box_line)
 
+        log.info(f"{image_name} is finished.")
+
     def final_text_save(self):
         save_filename = os.path.join(self.infer_res_save_path, self.save_filename)
         safe_list_writer(self.image_pipeline_res, save_filename)
