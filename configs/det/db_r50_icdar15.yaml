@@ -1,5 +1,5 @@
 system:
-  mode: 1 # 0 for graph mode, 1 for pynative mode in MindSpore
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
   distribute: False
   amp_level: 'O0'
   seed: 42
@@ -58,13 +58,13 @@ optimizer:
 
 train:
   ckpt_save_dir: './tmp_det'
-  dataset_sink_mode: True 
+  dataset_sink_mode: False 
   dataset:
     type: DetDataset
     dataset_root: /data/ocr_datasets 
-    data_dir: ic15/text_localization/train
-    label_file: ic15/text_localization/train/train_icdar15_label.txt
-    sample_ratio: [ 1.0 ]
+    data_dir: ic15/det/train/ch4_training_images
+    label_file: ic15/det/train/det_gt.txt
+    sample_ratio: 1.0
     shuffle: True
     transform_pipeline:
       - DecodeImage:
@@ -84,7 +84,8 @@ train:
           max_tries: 100
           min_crop_side_ratio: 0.1
           crop_size: [ 640, 640 ]
-      - ShrinkBinaryMap:
+      #- ShrinkBinaryMap:
+      - MZMakeSegDetectionData:
           min_text_size: 8
           shrink_ratio: 0.4
       - BorderMap:
@@ -109,7 +110,7 @@ train:
   loader:
     shuffle: True
     batch_size: 20
-    drop_remainder: False
+    drop_remainder: True
     max_rowsize: 32
     num_workers: 10
 
@@ -118,9 +119,9 @@ eval:
   dataset:
     type: DetDataset
     dataset_root: /data/ocr_datasets 
-    data_dir: ic15/text_localization/test
-    label_file: ic15/text_localization/test/test_icdar2015_label.txt
-    sample_ratio: [ 1.0 ]
+    data_dir: ic15/det/test/ch4_test_images
+    label_file: ic15/det/test/det_gt.txt
+    sample_ratio: 1.0
     shuffle: False
     transform_pipeline:
       - DecodeImage:
@@ -139,9 +140,9 @@ eval:
           std: imagenet
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the labels for evalution 
-    output_keys: [ 'image', 'polys', 'ignore_tags' ] #'shape'] #'img_path']
+    output_keys: [ 'image', 'polys', 'ignore_tags']
     num_keys_to_net: 1 # num inputs for network forward func
-    num_keys_of_labels: 2 # num labels 
+    #num_keys_of_labels: 2 # num labels 
 
   loader:
     shuffle: False

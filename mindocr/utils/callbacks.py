@@ -147,7 +147,7 @@ class EvalSaveCallback(Callback):
 
             self.sync_lock_dir = os.path.join(ckpt_save_dir, 'sync_locks')
             if os.path.exists(self.sync_lock_dir):
-                shutil.rmtree(self.sync_loc_dir) # remove previous sync lock files
+                shutil.rmtree(self.sync_lock_dir) # remove previous sync lock files
             os.makedirs(self.sync_lock_dir)
 
     # def __enter__(self):
