@@ -215,7 +215,7 @@ python tools/eval.py --config /path/to/config.yaml
 
 #### Inference with MX Engine
 
-Please refer to [mx_infer](deploy/mx_infer/README.md)
+Please refer to [mx_infer](docs/cn/inference_cn.md)
 
 #### Inference with Lite 
 
