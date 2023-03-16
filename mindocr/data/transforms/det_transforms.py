@@ -147,6 +147,7 @@ class BorderMap:
         return result
 
 
+
 class ShrinkBinaryMap:
     """
     Making binary mask from detection data with ICDAR format.

@@ -12,7 +12,7 @@ common:
   max_text_len: &max_text_len 23
   infer_mode: &infer_mode False
   use_space_char: &use_space_char False
-  batch_size: &batch_size 32
+  batch_size: &batch_size 16
 
 model:
   type: rec
@@ -65,11 +65,10 @@ train:
   dataset_sink_mode: False
   dataset:
     type: RecDataset
-    #data_dir: /Users/Samit/Data/datasets/ic15/rec/ch4_training_word_images_gt
-    #label_files: /Users/Samit/Data/datasets/ic15/rec/rec_gt_train.txt
-    data_dir: /data/ocr_datasets/ic15/word_recognition/ch4_training_word_images_gt
-    label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
-    sample_ratios: [1.0]
+    dataset_root: /data/ocr_datasets 
+    data_dir: ic15/rec/train/ch4_training_word_images_gt
+    label_file: ic15/rec/train/rec_gt.txt
+    sample_ratio: 1.0
     shuffle: True
     transform_pipeline:
       - DecodeImage: 
@@ -100,18 +99,17 @@ train:
       batch_size: *batch_size
       drop_remainder: True
       max_rowsize: 16
-      num_workers: 10
+      num_workers: 8
 
 eval:
   ckpt_load_path: './tmp_rec/best.ckpt'
   dataset_sink_mode: False
   dataset:
     type: RecDataset
-    #data_dir: /Users/Samit/Data/datasets/ic15/rec/ch4_training_word_images_gt
-    #label_files: /Users/Samit/Data/datasets/ic15/rec/rec_gt_train.txt
-    data_dir: /data/ocr_datasets/ic15/word_recognition/ch4_training_word_images_gt
-    label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
-    sample_ratios: [1.0]
+    dataset_root: /data/ocr_datasets 
+    data_dir: ic15/rec/test/ch4_test_word_images_gt
+    label_file: ic15/rec/test/rec_gt.txt
+    sample_ratio: 1.0
     shuffle: False 
     transform_pipeline:
       - DecodeImage: 
@@ -138,7 +136,7 @@ eval:
      
   loader:
       shuffle: False
-      batch_size: 64
+      batch_size: 8
       drop_remainder: False
       max_rowsize: 12
-      num_workers: 1
+      num_workers: 2
