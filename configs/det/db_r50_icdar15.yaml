@@ -4,7 +4,6 @@ system:
   amp_level: 'O0'
   seed: 42
   val_while_train: True
-  ckpt_save_dir: './tmp_det'
   drop_overflow_update: True
 
 model:
@@ -58,14 +57,13 @@ optimizer:
   loss_scale: 1.0
 
 train:
+  ckpt_save_dir: './tmp_det'
   dataset_sink_mode: True 
   dataset:
     type: DetDataset
     dataset_root: /data/ocr_datasets 
     data_dir: ic15/text_localization/train
     label_file: ic15/text_localization/train/train_icdar15_label.txt
-    #data_dir: /Users/Samit/Data/datasets/ic15/det/train
-    #label_file: /Users/Samit/Data/datasets/ic15/det/train/train_icdar2015_label.txt
     sample_ratio: [ 1.0 ]
     shuffle: True
     transform_pipeline:
@@ -107,14 +105,13 @@ train:
     output_keys: ['image', 'binary_map', 'mask', 'thresh_map', 'thresh_mask'] #'img_path']
     #output_keys: ['image'] # for debug op performance
     num_keys_to_net: 1 # num inputs for network forward func in output_keys
-#    keys_for_loss: 4 # num labels for loss func
 
   loader:
-    shuffle: True # TODO: tbc
+    shuffle: True
     batch_size: 20
     drop_remainder: False
     max_rowsize: 32
-    num_workers: 10 # TODO: may lead to OOM
+    num_workers: 10
 
 eval:
   dataset_sink_mode: False
@@ -123,8 +120,6 @@ eval:
     dataset_root: /data/ocr_datasets 
     data_dir: ic15/text_localization/test
     label_file: ic15/text_localization/test/test_icdar2015_label.txt
-    #data_dir: /Users/Samit/Data/datasets/ic15/det/test
-    #label_file: /Users/Samit/Data/datasets/ic15/det/test/test_icdar2015_label.txt
     sample_ratio: [ 1.0 ]
     shuffle: False
     transform_pipeline:
@@ -154,10 +149,3 @@ eval:
     drop_remainder: False 
     max_rowsize: 20
     num_workers: 1
-
-modelarts: # TODO: for running on modelarts or openi. Not making effect currently.
-   enable_modelarts: False
-   data_url: /cache/data/  # path to dataset
-   multi_data_url: /cache/data/ # path to multi dataset 
-   ckpt_url: /cache/output/  # pretrained model path
-   train_url: /cache/output/ # model save folder
