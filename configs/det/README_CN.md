@@ -1,65 +1,53 @@
 # DBNet
-中文版
+
 <!--- Guideline: use url linked to abstract in ArXiv instead of PDF for fast loading.  -->
 
 > [Real-time Scene Text Detection with Differentiable Binarization](https://arxiv.org/abs/1911.08947)
 
-## Introduction
+## 概述
 
-DBNet is a segmentation-based scene text detection method. Segmentation-based methods are gaining popularity for scene
-text detection purposes as they can more accurately describe scene text of various shapes, such as curved text.  
-The drawback of current segmentation-based SOTA methods is the post-processing of binarization (conversion of
-probability maps into text bounding boxes) which often requires a manually set threshold (reduces prediction accuracy)
-and complex algorithms for grouping pixels (resulting in a considerable time cost during inference).  
-To eliminate the problem described above, DBNet integrates an adaptive threshold called Differentiable Binarization(DB)
-into the architecture. DB simplifies post-processing and enhances the performance of text detection.Moreover, it can be
-removed in the inference stage without sacrificing performance.[[1](#references)]
+DBNet是一种基于分割的场景文本检测算法。在场景文本检测中，基于分割这类算法可以更加准确的描述各种形状的场景文本（比如弯曲形状的文本），而变得越来越流行。现有的基于分割的业界领先算法存在的缺陷是，概率图转化为文本框的二值化后处理过程通常需要人为设置一个阈值，而且后处理的聚合像素点的操作非常复杂且费时。
+
+为了避免上述问题，DBNet在网络架构中集成了一个叫作“可微分二值化（Differentiable Binarization）”的自适应阈值。可微分二值化简化了后处理过程，增强了文本检测的性能。此外，在推理阶段移除该部分不会使性能降低[[1](#references)]。
 
 ![dbnet_architecture](https://user-images.githubusercontent.com/16683750/225589619-d50c506c-e903-4f59-a316-8b62586c73a9.png)
-<p style="text-align: center;"><em>Figure 1. Overall DBNet architecture</em></p>
+<p style="text-align: center;"><em>图 1. DBNet整体架构图</em></p>
 
-The overall architecture of DBNet is presented in _Figure 1._ It consists of multiple stages:
+DBNet的整体架构图如图1所示，包含以下阶段:
 
-1. Feature extraction from a backbone at different scales. ResNet-50 is used as a backbone, and features are extracted
-   from stages 2, 3, 4, and 5.
-2. The extracted features are upscaled and summed up with the previous stage features in a cascade fashion.
-3. The resulting features are upscaled once again to match the size of the largest feature map (from the stage 2) and
-   concatenated along the channel axis.
-4. Then, the final feature map (shown in dark blue) is used to predict both the probability and threshold maps by
-   applying 3×3 convolutional operator and two de-convolutional operators with stride 2.
-5. The probability and threshold maps are merged into one approximate binary map by the Differentiable binarization
-   module. The approximate binary map is used to generate text bounding boxes.
+1. 使用Resnet-50作为骨干网络，从2，3，4，5阶段进行不同层级的特征提取；
+2. 将提取到的特征放大，并以级联的方式与前一阶段提取到的特征加和；
+3. 将第2阶段的特征再次放大到与最大的特征图相同的尺寸，并沿着通道轴连接。
+4. 在最后的特征图（图中的深蓝色块）上应用3×3的卷积算子，和两个步长为2的去卷积算子来预测概率图和阈值图；
+5. 通过可微分二值化将概率图和阈值图合并为一个近似二值图单元近似二值图，并生成文本边界框。
 
-## Results
+## 实验结果
 
 ### ICDAR2015
 
-| **Model** | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** |
+| **模型** | **骨干** | **预训练模型** | **Recall** | **Precision** | **F-score** |
 |-----------|--------------|----------------|------------|---------------|-------------|
 | DBNet     | ResNet-50    | ImageNet       | 81.70%     | 85.84%        | 83.72%      |
 
-## Quick Start
+## 快速上手
 
-### Preparation
+### 准备
 
-#### Installation
+#### 安装
 
-Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
+请参考MindOCR套件的 [安装指南](https://github.com/mindspore-lab/mindocr#installation) .
 
-### Dataset preparation
+### 数据集准备
 
-First, the dataset labels need to be converted. To do so,
-download [ICDAR2015](https://rrc.cvc.uab.es/?ch=4&com=downloads), and extract images and labels in a preferred folder.
-Then, use the following command to generate _training_ labels:
+首先，需要对数据集标签进行转换，下载数据集 [ICDAR2015](https://rrc.cvc.uab.es/?ch=4&com=downloads)，分别提取图片和标签到指定文件夹。然后，使用如下命令来生成训练集标签:
 
 ```shell
 python tools/dataset_converters/convert.py --dataset_name=ic15 --task=det --image_dir=IMAGES_DIR --label_dir=LABELS_DIR --output_path=OUTPUT_PATH
 ```
 
-Repeat this step to generate the _test_ labels.
+按照同样的方法生成测试集标签。
 
-After the label files are generated, update `configs/det/db_r50_icdar15.yaml` configuration file with data paths,
-specifically the following parts:
+生成标签文件后，在配置文件`configs/det/db_r50_icdar15.yaml` 中更新如下文件路径：
 
 ```yaml
 ...
@@ -68,63 +56,62 @@ train:
   dataset_sink_mode: True
   dataset:
     type: DetDataset
-    dataset_root: /data/ocr_datasets                                  <------ HERE
-    data_dir: ic15/text_localization/train                            <------ HERE
-    label_file: ic15/text_localization/train/train_icdar15_label.txt  <------ HERE
+    dataset_root: /data/ocr_datasets                                  <------ 这里
+    data_dir: ic15/text_localization/train                            <------ 这里
+    label_file: ic15/text_localization/train/train_icdar15_label.txt  <------ 这里
 ...
 eval:
   dataset_sink_mode: False
   dataset:
     type: DetDataset
-    dataset_root: /data/ocr_datasets                                  <------ HERE
-    data_dir: ic15/text_localization/test                             <------ HERE
-    label_file: ic15/text_localization/test/test_icdar2015_label.txt  <------ HERE
+    dataset_root: /data/ocr_datasets                                  <------ 这里
+    data_dir: ic15/text_localization/test                             <------ 这里
+    label_file: ic15/text_localization/test/test_icdar2015_label.txt  <------ 这里
 ...
 ```
 
-### Config explanation
+### 配置说明
 
-_DBNet_ consists of 3 parts: `backbone`, `neck`, and `head`. Specifically:
+_DBNet_ 由3个部分组成: `backbone`, `neck`, and `head`. 具体来说:
 
 ```yaml
 model:
   type: det
   transform: null
   backbone:
-    name: det_resnet50  # Only ResNet50 is supported at the moment
-    pretrained: True    # Whether to use weights pretrained on ImageNet
+    name: det_resnet50  # 暂时只支持ResNet50
+    pretrained: True    # 是否使用ImageNet数据集上的预训练权重
   neck:
-    name: DBFPN         # FPN part of the DBNet
+    name: DBFPN         # DBNet的特征金字塔网络
     out_channels: 256
     bias: False
-    use_asf: False      # Adaptive Scale Fusion module from DBNet++ (use it for DBNet++ only)
+    use_asf: False      # DBNet++的自适应尺度融合模块 (仅供DBNet++使用)
   head:
     name: DBHead
-    k: 50               # amplifying factor for Differentiable Binarization
+    k: 50               # 可微分二值化的放大因子
     bias: False
-    adaptive: True      # True for training, False for inference
+    adaptive: True      # 训练时设置为True, 推理时设置为False
 ```
 
-[comment]: <> (The only difference between _DBNet_ and _DBNet++_ is in the _Adaptive Scale Fusion_ module, which is controlled by the `use_asf` parameter in the `neck` module.)
+[comment]: <> (_DBNet_和_DBNet++的唯一区别在于_Adaptive Scale Fusion_ module, 在`neck`模块中的 `use_asf`参数进行设置。)
 
-### Training
+### 训练
 
-After preparing a dataset and setting the configuration, training can be started as follows:
+在准备好数据集并完成配置文件后，可以使用如下命令开始训练：
 
 ```shell
 python tools/train.py -c=configs/det/db_r50_icdar15.yaml
 ```
 
-### Evaluation
+### 评估
 
-To evaluate the accuracy of the trained model, you can use `eval.py`. Please **add** an additional configuration
-parameter **ckpt_load_path** in `eval` section and set it to the path of the model checkpoint and then run:
+可以使用 `eval.py`文件来评估训练模型的准确性, 请在`eval`部分 **增加** 一个新的配置文件参数 **ckpt_load_path** 并将其设置为模型checkpoint文件路径，然后运行：
 
 ```shell
 python tools/eval.py -c=configs/det/db_r50_icdar15.yaml
 ```
 
-## References
+## 参考文献
 
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 
