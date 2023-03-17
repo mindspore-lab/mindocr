@@ -1,21 +1,24 @@
-'''
+"""
 Model training
-'''
+"""
 import sys
 import os
+from shutil import copy2
+
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "..")))
 
 from tools.arg_parser import parse_args
+
 args = parse_args()
 
 # modelarts
 from tools.modelarts_adapter.modelarts import modelarts_setup
-modelarts_setup(args) # setup env for modelarts platform if enabled
+
+modelarts_setup(args)  # setup env for modelarts platform if enabled
 
 import yaml
 from addict import Dict
-import cv2
 
 import mindspore as ms
 from mindspore import nn
@@ -46,34 +49,32 @@ def main(cfg):
         ms.set_auto_parallel_context(device_num=device_num,
                                      parallel_mode='data_parallel',
                                      gradients_mean=True,
-                                     #parameter_broadcast=True,
+                                     # parameter_broadcast=True,
                                      )
     else:
         device_num = None
         rank_id = None
 
     set_seed(cfg.system.seed)
-    #cv2.setNumThreads(2) # TODO: by default, num threads = num cpu cores
+    # cv2.setNumThreads(2) # TODO: by default, num threads = num cpu cores
     is_main_device = rank_id in [None, 0]
 
     # train pipeline
     # dataset
-    loader_train = build_dataset(
-            cfg.train.dataset,
-            cfg.train.loader,
-            num_shards=device_num,
-            shard_id=rank_id,
-            is_train=True)
+    loader_train = build_dataset(cfg.train.dataset,
+                                 cfg.train.loader,
+                                 num_shards=device_num,
+                                 shard_id=rank_id,
+                                 is_train=True)
     num_batches = loader_train.get_dataset_size()
 
     loader_eval = None
     if cfg.system.val_while_train and is_main_device:
-        loader_eval = build_dataset(
-                cfg.eval.dataset,
-                cfg.eval.loader,
-                num_shards=None,
-                shard_id=None,
-                is_train=False)
+        loader_eval = build_dataset(cfg.eval.dataset,
+                                    cfg.eval.loader,
+                                    num_shards=None,
+                                    shard_id=None,
+                                    is_train=False)
 
     # model
     network = build_model(cfg.model)
@@ -104,18 +105,17 @@ def main(cfg):
         metric = build_metric(cfg.metric)
 
     # build callbacks
-    eval_cb = EvalSaveCallback(
-            network,
-            loader_eval,
-            postprocessor=postprocessor,
-            metrics=[metric],
-            rank_id=rank_id,
-            ckpt_save_dir=cfg.train.ckpt_save_dir,
-            main_indicator=cfg.metric.main_indicator)
+    eval_cb = EvalSaveCallback(network,
+                               loader_eval,
+                               postprocessor=postprocessor,
+                               metrics=[metric],
+                               rank_id=rank_id,
+                               ckpt_save_dir=cfg.train.ckpt_save_dir,
+                               main_indicator=cfg.metric.main_indicator)
 
     # log
     if is_main_device:
-        print('='*40)
+        print('=' * 40)
         print(
             f'Num devices: {device_num if device_num is not None else 1}\n'
             f'Num epochs: {cfg.scheduler.num_epochs}\n'
@@ -124,16 +124,12 @@ def main(cfg):
             f'Scheduler: {cfg.scheduler.scheduler}\n'
             f'LR: {cfg.scheduler.lr} \n'
             f'drop_overflow_update: {cfg.system.drop_overflow_update}'
-            )
+        )
         if 'name' in cfg.model:
             print(f'Model: {cfg.model.name}')
         else:
             print(f'Model: {cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}')
-        print('='*40)
-        # save args used for training
-        with open(os.path.join(cfg.train.ckpt_save_dir, 'args.yaml'), 'w') as f:
-            args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False)
-            f.write(args_text)
+        print('=' * 40)
 
     # training
     loss_monitor = LossMonitor(min(num_batches // 10, 100))
@@ -149,20 +145,24 @@ if __name__ == '__main__':
     with open(yaml_fp) as fp:
         config = yaml.safe_load(fp)
     config = Dict(config)
+    os.makedirs(config.train.ckpt_save_dir, exist_ok=True)
+    copy2(yaml_fp, config.train.ckpt_save_dir)
 
     if args.enable_modelarts:
         import moxing as mox
         from tools.modelarts_adapter.modelarts import get_device_id, sync_data
+
         dataset_root = '/cache/data/'
         # download dataset from server to local on device 0, other devices will wait until data sync finished.
         sync_data(args.data_url, dataset_root)
         if get_device_id() == 0:
             # mox.file.copy_parallel(src_url=args.data_url, dst_url=dataset_root)
             print(f'INFO: datasets found: {os.listdir(dataset_root)} \n'
-                  f'INFO: dataset_root is changed to {dataset_root}'
-                  )
+                  f'INFO: dataset_root is changed to {dataset_root}')
         # update dataset root dir to cache
-        assert 'dataset_root' in config['train']['dataset'], f'`dataset_root` must be provided in the yaml file for training on ModelArts or OpenI, but not found in {yaml_fp}. Please add `dataset_root` to `train:dataset` and `eval:dataset` in the yaml file'
+        assert 'dataset_root' in config['train']['dataset'], \
+            '`dataset_root` must be provided in the yaml file for training on ModelArts or OpenI, but not found ' \
+            f'in {yaml_fp}. Please add `dataset_root` to `train:dataset` and `eval:dataset` in the yaml file'
         config.train.dataset.dataset_root = dataset_root
         config.eval.dataset.dataset_root = dataset_root
 
@@ -173,4 +173,3 @@ if __name__ == '__main__':
         # upload models from local to server
         if get_device_id() == 0:
             mox.file.copy_parallel(src_url=config.train.ckpt_save_dir, dst_url=args.train_url)
-
