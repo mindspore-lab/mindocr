@@ -36,7 +36,7 @@ The overall architecture of DBNet is presented in _Figure 1._ It consists of mul
 
 | **Model** | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** |
 |-----------|--------------|----------------|------------|---------------|-------------|
-| DBNet     | ResNet-50    | ImageNet       | 81.97%     | 86.05%        | 83.96%      |
+| DBNet     | ResNet-50    | ImageNet       | 81.70%     | 85.84%        | 83.72%      |
 
 ## Quick Start
 
