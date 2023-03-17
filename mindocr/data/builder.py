@@ -1,5 +1,6 @@
 from typing import List
 import os
+import multiprocessing
 import mindspore as ms
 from addict import Dict
 from .det_dataset import DetDataset
@@ -70,6 +71,12 @@ def build_dataset(
 
     # TODO: find optimal setting automatically according to num of CPU cores
     num_workers = loader_config.get("num_workers", 8) # Number of subprocesses used to fetch the dataset/map data row/gen batch in parallel
+    cores = multiprocessing.cpu_count()
+    num_devices = 1 if num_shards is None else num_shards 
+    if num_workers > int(cores / num_devices):
+        num_workers = int(cores / num_devices)
+        print('WARNING: num_workers is adjusted to {num_workers}, to fit {cores} CPU cores shared for {num_devices} devices')
+
     prefetch_size = loader_config.get("prefetch_size", 16) # the length of the cache queue in the data pipeline for each worker, used to reduce waiting time. Larger value leads to more memory consumption. Default: 16 
     max_rowsize =  loader_config.get("max_rowsize", 64) # MB of shared memory between processes to copy data
     
@@ -103,7 +110,7 @@ def build_dataset(
     dataloader = ds.batch(
                     loader_config['batch_size'],
                     drop_remainder=drop_remainder,
-                    num_parallel_workers=min(num_workers, 2), # set small value since it is lite computation. 
+                    num_parallel_workers=min(num_workers//2, 1), # set small value since it is lite computation. 
                     #input_columns=input_columns,
                     #output_columns=batch_column,
                     #per_batch_map=per_batch_map, # uncommet to use inner-batch transformation
