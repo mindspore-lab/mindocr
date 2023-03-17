@@ -41,7 +41,6 @@ class Evaluator:
         eval_res = {}
 
         self.net.set_train(False)
-        self.net.phase = 'eval'
         iterator = dataloader.create_tuple_iterator(num_epochs=1, output_numpy=False, do_copy=False)
         for m in self.metrics:
             m.clear()
@@ -92,19 +91,14 @@ class Evaluator:
                 pred_img_polys = draw_bboxes(recover_image(img), preds['polygons'].asnumpy())
                 show_imgs([gt_img_polys, pred_img_polys], show=False, save_path=f'results/det_vis/gt_pred_{i}.png')
 
-        # TODO: loss, add loss val to eval_res
         for m in self.metrics:
             res_dict = m.eval()
             eval_res.update(res_dict)
         # fps = total_frame / total_time
 
-        # TODO: set_train outside
         self.net.set_train(True)
-        self.net.phase = 'train'
 
         return eval_res
-
-    # TODO: add checkpoint save manager for better modulation
 
 
 # class ModelSavor()
@@ -120,7 +114,7 @@ class EvalSaveCallback(Callback):
     """
     def __init__(self,
                  network,
-                 loader,
+                 loader=None,
                  loss_fn=None,
                  postprocessor=None,
                  metrics=None,
@@ -130,10 +124,10 @@ class EvalSaveCallback(Callback):
                  ):
         self.rank_id = rank_id
         self.is_main_device = rank_id in [0, None]
+        self.loader_eval = loader
 
         if self.is_main_device:
             self.network = network
-            self.loader_eval = loader
             self.best_perf = -1e8
             if self.loader_eval is not None:
                 self.net_evaluator = Evaluator(network, loss_fn, postprocessor, metrics)
