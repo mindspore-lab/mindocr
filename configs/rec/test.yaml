@@ -1,5 +1,5 @@
 system:
-  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  mode: 1 # 0 for graph mode, 1 for pynative mode in MindSpore
   distribute: False 
   amp_level: 'O0'
   seed: 42
@@ -48,9 +48,9 @@ scheduler:
   scheduler: "cosine_decay"
   min_lr: 0.000001
   lr: 0.0001
-  num_epochs: 3
-  warmup_epochs: 1
-  decay_epochs: 2
+  num_epochs: 10
+  warmup_epochs: 2
+  decay_epochs: 8
 
 optimizer:
   opt: adamw
@@ -90,16 +90,15 @@ train:
           std : [127.0, 127.0, 127.0]
       - ToCHWImage: 
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
-    output_keys: ['image', 'text_seq'] #, 'length'] #'img_path'] 
-    num_keys_to_net: 1 # num inputs for network forward func in output_keys
+    output_columns: ['image', 'text_seq'] #, 'length'] #'img_path'] 
+    num_columns_to_net: 1 # num inputs for network forward func in output_columns
     #keys_for_loss: 4 # num labels for loss func 
      
   loader:
       shuffle: True # TODO: tbc
       batch_size: *batch_size
       drop_remainder: True
-      max_rowsize: 16
-      num_workers: 10
+      num_workers: 8
 
 eval:
   ckpt_load_path: './tmp_rec/best.ckpt'
@@ -131,12 +130,11 @@ eval:
           std : [127.0, 127.0, 127.0]
       - ToCHWImage: 
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
-    output_keys: ['image', 'text_padded', 'text_length']  # TODO return text string padding w/ fixed length, and a scaler to indicate the length 
-    num_keys_to_net: 1 # num inputs for network forward func
+    output_columns: ['image', 'text_padded', 'text_length']  # TODO return text string padding w/ fixed length, and a scaler to indicate the length 
+    num_columns_to_net: 1 # num columns as input the network in order from left to right 
      
   loader:
       shuffle: False
       batch_size: 16
       drop_remainder: False
-      max_rowsize: 12
       num_workers: 1

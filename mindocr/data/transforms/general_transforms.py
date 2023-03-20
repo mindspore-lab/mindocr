@@ -21,8 +21,6 @@ class DecodeImage(object):
         self.flag = cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR if ignore_orientation else cv2.IMREAD_COLOR
 
     def __call__(self, data):
-        #img = cv2.imread(data['img_path'], self.flag)
-        # read from buffer is faster?
         if 'img_path' in data:
             with open(data['img_path'], 'rb') as f:
                 img = f.read()
@@ -105,18 +103,18 @@ class ToCHWImage:
 class PackLoaderInputs:
     """
     Args:
-        output_keys (list): the keys in data dict that are expected to output for dataloader
+        output_columns (list): the keys in data dict that are expected to output for dataloader
 
     Call:
         input: data dict
-        output: data tuple corresponding to the `output_keys`
+        output: data tuple corresponding to the `output_columns`
     """
-    def __init__(self, output_keys: List, **kwargs):
-        self.output_keys = output_keys
+    def __init__(self, output_columns: List, **kwargs):
+        self.output_columns = output_columns
 
     def __call__(self, data):
         out = []
-        for k in self.output_keys:
+        for k in self.output_columns:
             assert k in data, f'key {k} does not exists in data, availabe keys are {data.keys()}'
             out.append(data[k])
 

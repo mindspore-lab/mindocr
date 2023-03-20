@@ -20,43 +20,6 @@ from mindocr.utils.visualize import show_img, draw_bboxes, show_imgs, recover_im
 @pytest.mark.parametrize('task', ['det', 'rec'])
 #@pytest.mark.parametrize('phase', ['train', 'eval'])
 def test_build_dataset(task='det', phase='train', verbose=True, visualize=False):
-    #data_dir = '/data/ocr_datasets/ic15/text_localization/train'
-    #annot_file = '/data/ocr_datasets/ic15/text_localization/train/train_icdar15_label.txt'
-    '''
-    data_dir = '/Users/Samit/Data/datasets/ic15/det/train'
-    annot_file = '/Users/Samit/Data/datasets/ic15/det/train/train_icdar2015_label.txt'
-    dataset_config = {
-            'type': 'DetDataset',
-            'data_dir': data_dir,
-            'label_file': [annot_file],
-            'sample_ratio: 1.0,
-            'shuffle': False,
-            'transform_pipeline':
-                [
-                    {'DecodeImage': {'img_mode': 'BGR', 'to_float32': False}},
-                    {'MZResizeByGrid': {'divisor': 32, 'transform_polys': True}},
-                    {'MZScalePad': {'eval_size': [736, 1280]}},
-                    {'NormalizeImage': {
-                        'bgr_to_rgb': True,
-                        'is_hwc': True,
-                        'mean' : [123.675, 116.28, 103.53],
-                        'std' : [58.395, 57.12, 57.375],
-                        }
-                    },
-                    {'ToCHWImage': None},
-                    ],
-            #'output_keys': ['image', 'threshold_map', 'threshold_mask', 'shrink_map', 'shrink_mask']
-            'output_keys': ['img_path', 'image']
-            }
-    loader_config = {
-            'shuffle': True, # TODO: tbc
-            'batch_size': 8,
-            'drop_remainder': True,
-            'max_rowsize': 6,
-            'num_workers': 2,
-            }
-    '''
-
     if task == 'rec':
         yaml_fp = 'configs/rec/test.yaml'
     else:
@@ -78,14 +41,17 @@ def test_build_dataset(task='det', phase='train', verbose=True, visualize=False)
 
 
     dl = build_dataset(dataset_config, loader_config, is_train=(phase=='train'))
+    #dl.repeat(300)
     num_batches = dl.get_dataset_size()
 
     ms.set_context(mode=0)
     #batch = next(dl.create_tuple_iterator())
-    num_tries = 3
+    num_tries = 100
     start = time.time()
+    times = []
     iterator = dl.create_dict_iterator()
     for i, batch in enumerate(iterator):
+        times.append(time.time()-start)
         if i >= num_tries:
             break
 
@@ -101,10 +67,13 @@ def test_build_dataset(task='det', phase='train', verbose=True, visualize=False)
                 polys = batch['polys'][0].asnumpy()
                 img_polys = draw_bboxes(recover_image(img), polys)
                 show_img(img_polys)
+        
+        start = time.time()
 
-    tot = time.time() - start
-    mean = tot / num_tries
-    print('Avg loading time: ', mean)
+    WU = 2
+    tot = sum(times[WU:]) # skip warmup
+    mean = tot / (num_tries-WU)
+    print('Avg batch loading time: ', mean)
 
 #@pytest.mark.parametrize('model_name', all_model_names)
 def test_det_dataset():
@@ -172,7 +141,7 @@ def test_rec_dataset(visualize=True):
             sample_ratio=1.0,
             shuffle = False,
             transform_pipeline = cfg['train']['dataset']['transform_pipeline'],
-            output_keys = None)
+            output_columns = None)
     # visualize to check correctness
     from mindocr.utils.visualize import show_img, draw_bboxes, show_imgs, recover_image
     print('num data: ', len(ds))
@@ -205,8 +174,8 @@ def test_rec_dataset(visualize=True):
 
 if __name__ == '__main__':
     #test_build_dataset(task='det', phase='eval', visualize=True)
-    test_build_dataset(task='det', phase='train', visualize=False)
-    #test_build_dataset(task='rec', phase='eval', visualize=False)
+    #test_build_dataset(task='det', phase='train', visualize=False)
+    test_build_dataset(task='rec', phase='train', visualize=False)
     #test_build_dataset(task='rec')
     #test_det_dataset()
     #test_rec_dataset()

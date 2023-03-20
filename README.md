@@ -250,6 +250,10 @@ The supported recognition models and their overall performance on the public ben
 ## Notes
 
 ### Change Log
+- 2023/03/20
+1. Arg names changed: `output_keys` -> `output_columns`, `num_keys_to_net` -> `num_columns_to_net`
+2. Data pipeline updated
+
 - 2023/03/13
 1. Add system test and CI workflow.
 2. Add modelarts adapter to allow training on OpenI platform. To train on OpenI:

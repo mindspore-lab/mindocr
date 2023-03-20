@@ -1,6 +1,6 @@
 system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
-  distribute: False
+  distribute: True
   amp_level: 'O0'
   seed: 42
   val_while_train: True
@@ -61,7 +61,7 @@ train:
   dataset_sink_mode: False 
   dataset:
     type: DetDataset
-    dataset_root: /data/ocr_datasets 
+    dataset_root: /Users/Samit/Data/datasets 
     data_dir: ic15/det/train/ch4_training_images
     label_file: ic15/det/train/det_gt.txt
     sample_ratio: 1.0
@@ -103,22 +103,22 @@ train:
           std: imagenet
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
-    output_keys: ['image', 'binary_map', 'mask', 'thresh_map', 'thresh_mask'] #'img_path']
-    #output_keys: ['image'] # for debug op performance
-    num_keys_to_net: 1 # num inputs for network forward func in output_keys
+    output_columns: ['image', 'binary_map', 'mask', 'thresh_map', 'thresh_mask'] #'img_path']
+    #output_columns: ['image'] # for debug op performance
+    num_columns_to_net: 1 # num inputs for network forward func in output_columns
 
   loader:
     shuffle: True
     batch_size: 20
     drop_remainder: True
-    max_rowsize: 32
-    num_workers: 10
+    num_workers: 8
 
 eval:
   dataset_sink_mode: False
   dataset:
     type: DetDataset
-    dataset_root: /data/ocr_datasets 
+    #dataset_root: /data/ocr_datasets 
+    dataset_root: /Users/Samit/Data/datasets 
     data_dir: ic15/det/test/ch4_test_images
     label_file: ic15/det/test/det_gt.txt
     sample_ratio: 1.0
@@ -140,13 +140,12 @@ eval:
           std: imagenet
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the labels for evalution 
-    output_keys: [ 'image', 'polys', 'ignore_tags']
-    num_keys_to_net: 1 # num inputs for network forward func
+    output_columns: [ 'image', 'polys', 'ignore_tags']
+    num_columns_to_net: 1 # num inputs for network forward func
     #num_keys_of_labels: 2 # num labels 
 
   loader:
     shuffle: False
     batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
     drop_remainder: False 
-    max_rowsize: 20
     num_workers: 1
