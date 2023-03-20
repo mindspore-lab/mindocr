@@ -87,7 +87,6 @@ def build_dataset(
 
     ms.dataset.config.set_prefetch_size(prefetch_size)
     #print('Prefetch size: ', ms.dataset.config.get_prefetch_size())
->>>>>>> e16abf9f595559f4b4a22f00fe17f6091d4ad96a
 
     ## Generate source dataset (source w.r.t. the dataset.map pipeline) based on python callable numpy dataset in parallel
     ds = ms.dataset.GeneratorDataset(
