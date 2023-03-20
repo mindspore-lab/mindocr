@@ -1,3 +1,5 @@
+English | [中文](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/README_CN.md)
+
 # CRNN
 <!--- Guideline: use url linked to abstract in ArXiv instead of PDF for fast loading.  -->
 
@@ -35,10 +37,10 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 <div align="center">
 
-| Model| Backbone | Config | Avg Accuracy | Download | 
-|------|----------|--------|--------------|----------|
-| CRNN | VGG7     | [crnn_vgg7.yaml](./crnn_vgg7.yaml) | 82.03 | [model_weights]() |
-| CRNN | ResNet34 | [crnn_resnet34.yaml](./crnn_resnet34.yaml) | 84.45 | [model_weights]() |
+| **Model** | **Backbone** | **Avg Accuracy** | **Recipe**                                                                                     | **Download**                                                                               | 
+|-----------|--------------|------------------|------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| CRNN      | VGG7         | 82.03            | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt)     |
+| CRNN      | ResNet34     | 84.45            | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-8aa4aedb.ckpt) |
 
 
 </div>
