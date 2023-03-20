@@ -20,14 +20,14 @@ class LMDBDataset(BaseDataset):
         transform_pipeline: list of dict, key - transform class name, value - a dict of param config.
                     e.g., [{'DecodeImage': {'img_mode': 'BGR', 'channel_first': False}}]
             -       if None, default transform pipeline for text detection will be taken.
-        output_keys (list): required, indicates the keys in data dict that are expected to output for dataloader. if None, all data keys will be used for return. 
+        output_columns (list): required, indicates the keys in data dict that are expected to output for dataloader. if None, all data keys will be used for return. 
         global_config: additional info, used in data transformation, possible keys:
             - character_dict_path
             
 
     Returns:
         data (tuple): Depending on the transform pipeline, __get_item__ returns a tuple for the specified data item. 
-        You can specify the `output_keys` arg to order the output data for dataloader.
+        You can specify the `output_columns` arg to order the output data for dataloader.
 
     Notes: 
         1. Dataset file structure should follow:
@@ -46,7 +46,7 @@ class LMDBDataset(BaseDataset):
             sample_ratio: Union[List, float] = 1.0, 
             shuffle: bool = None,
             transform_pipeline: List[dict] = None, 
-            output_keys: List[str] = None,
+            output_columns: List[str] = None,
             #global_config: dict = None,
             **kwargs
             ):
@@ -78,13 +78,13 @@ class LMDBDataset(BaseDataset):
         _data = run_transforms(_data, transforms=self.transforms)
         _available_keys = list(_data.keys())
         
-        if output_keys is None:
-            self.output_keys = _available_keys   
+        if output_columns is None:
+            self.output_columns = _available_keys   
         else:
-            self.output_keys = []
-            for k in output_keys:
+            self.output_columns = []
+            for k in output_columns:
                 if k in _data:
-                    self.output_keys.append(k)
+                    self.output_columns.append(k)
                 else:
                     raise ValueError(f'Key {k} does not exist in data (available keys: {_data.keys()}). Please check the name or the completeness transformation pipeline.')
 
@@ -162,7 +162,7 @@ class LMDBDataset(BaseDataset):
         # perform transformation on data
         data = run_transforms(data, transforms=self.transforms)
             
-        output_tuple = tuple(data[k] for k in self.output_keys) 
+        output_tuple = tuple(data[k] for k in self.output_columns) 
 
         return output_tuple
 

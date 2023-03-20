@@ -23,4 +23,8 @@ def parse_args():
 
     return args
 
-
+if __name__ == '__main__':
+    args = parse_args()
+    print(vars(args).keys())
+    for k, v in args._get_kwargs():
+        print(k, v)
