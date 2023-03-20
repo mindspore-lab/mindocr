@@ -60,7 +60,7 @@ class RecMetric(nn.Metric):
                     preds (dict): prediction output by postprocess, keys:
                         - texts, List[str], batch of predicted text strings, shape [BS, ] 
                         - confs (optional), List[float], batch of confidence values for the prediction
-                    gt (tuple or list): ground truth, order defined by output_keys in eval dataloader. require element: 
+                    gt (tuple or list): ground truth, order defined by output_columns in eval dataloader. require element: 
                         gt_texts, for the grouth truth texts (padded to the fixed length), shape [BS, ]
                         gt_lens (optional), length of original text if padded, shape [BS, ] 
                         

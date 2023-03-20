@@ -33,10 +33,10 @@ class Evaluator:
         # TODO: add support for computing evaluation loss
         assert eval_loss == False, 'not impl'
 
-    def eval(self, dataloader, num_keys_to_net=1, num_keys_of_labels=None):
+    def eval(self, dataloader, num_columns_to_net=1, num_keys_of_labels=None):
         """
         Args:
-            dataloader (Dataset): data iterator which generates tuple of Tensor defined by the transform pipeline and 'output_keys'
+            dataloader (Dataset): data iterator which generates tuple of Tensor defined by the transform pipeline and 'output_columns'
         """
         eval_res = {}
 
@@ -59,8 +59,8 @@ class Evaluator:
             # TODO: in graph mode, the output dict is somehow converted to tuple. Is the order of in tuple the same as dict binary, thresh, thres_binary? to check
             # {'binary':, 'thresh: ','thresh_binary': } for text detect; {'head_out': } for text rec
             net_preds = self.net(img)
-            # net_inputs = data[:num_keys_to_net]
-            # gt = data[num_keys_to_net:] # ground truth
+            # net_inputs = data[:num_columns_to_net]
+            # gt = data[num_columns_to_net:] # ground truth
             # preds = self.net(*net_inputs) # head output is dict. for text det {'binary', ...},  for text rec, {'head_out': }
             # print('net predictions', preds)
 
@@ -144,6 +144,8 @@ class EvalSaveCallback(Callback):
                 shutil.rmtree(self.sync_lock_dir) # remove previous sync lock files
             os.makedirs(self.sync_lock_dir)
 
+        self.last_epoch_end_time = time.time()
+
     # def __enter__(self):
     #    pass
 
@@ -189,21 +191,23 @@ class EvalSaveCallback(Callback):
         cb_params = run_context.original_args()
         loss = cb_params.net_outputs
         cur_epoch = cb_params.cur_epoch_num
-        epoch_time = (time.time() - self.epoch_start_time)
+        train_time = (time.time() - self.epoch_start_time)
         train_loss = np.average(self._losses) # TODO: aggregate training loss for multiple cards
 
         print(
             f"Epoch: {cur_epoch}, "
-            f"loss:{train_loss:.5f}, time:{epoch_time:.3f}s"
+            f"loss:{train_loss:.5f}, training time:{train_time:.3f}s"
         )
 
         # evaluate only using device 0 if enabled
         if self.loader_eval is not None:
             sync_lock = os.path.join(self.sync_lock_dir, "run_eval_sync.lock" + str(cur_epoch)) # signal to lock other devices
             if self.is_main_device and not os.path.exists(sync_lock):
+                eval_start = time.time()
                 measures = self.net_evaluator.eval(self.loader_eval)
                 perf = measures[self.main_indicator]
-                print('Performance: ', measures)
+                eval_time = time.time()-eval_start
+                print(  f'Performance: {measures}, eval time: {eval_time}')
 
                 try:
                     os.mknod(sync_lock) # for linux
@@ -230,13 +234,17 @@ class EvalSaveCallback(Callback):
                 metric_names = ['loss']
                 if self.loader_eval is not None:
                     metric_names +=  list(measures.keys())
-                metric_names += ['epoch_time']
+                metric_names += ['train_time', 'eval_time']
                 self.rec = PerfRecorder(self.ckpt_save_dir, metric_names=metric_names)
             epoch_metric_values = [cur_epoch, train_loss]
             if self.loader_eval is not None:
                 epoch_metric_values += list(measures.values())
-            epoch_metric_values += [epoch_time]
+            epoch_metric_values += [train_time, eval_time]
             self.rec.add(*epoch_metric_values)
+
+        tot_time = time.time()-self.last_epoch_end_time 
+        self.last_epoch_end_time = time.time()
+        print(f'Total time cost for epoch {cur_epoch}: {tot_time}')
 
     def on_train_end(self, run_context):
         if self.is_main_device:

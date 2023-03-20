@@ -88,7 +88,7 @@ class DetMetric(nn.Metric):
         Args:
             inputs (tuple): contain two elements preds, gt
                     preds (list): prediction output by postprocess in the form of [[(box, score)]]
-                    gt (tuple): ground truth, order defined by output_keys in eval dataloader
+                    gt (tuple): ground truth, order defined by output_columns in eval dataloader
         """
         preds, gts = inputs
         polys, ignore = gts[0].asnumpy().astype(np.float32), gts[1].asnumpy()
