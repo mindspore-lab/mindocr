@@ -49,9 +49,9 @@ loss:
 
 scheduler:
   scheduler: polynomial_decay
-  min_lr: 0.
   lr: 0.007
   num_epochs: 1200
+  decay_rate: 0.9
   warmup_epochs: 3
 
 optimizer:
@@ -69,7 +69,7 @@ train:
   resume_ckpt: ''
   dataset:
     type: DetDataset
-    dataset_root: /Users/Samit/Data/datasets 
+    dataset_root: /Users/Samit/Data/datasets
     data_dir: ic15/det/train/ch4_training_images
     label_file: ic15/det/train/det_gt.txt
     sample_ratio: 1.0
@@ -79,9 +79,6 @@ train:
           img_mode: RGB
           to_float32: False
       - DetLabelEncode:
-      - MZResizeByGrid:
-          divisor: 32
-          transform_polys: True
       - MZRandomScaleByShortSide:
           short_side: 736
       - IaaAugment:
@@ -92,8 +89,7 @@ train:
           max_tries: 100
           min_crop_side_ratio: 0.1
           crop_size: [ 640, 640 ]
-      #- ShrinkBinaryMap:
-      - MZMakeSegDetectionData:
+      - ShrinkBinaryMap:
           min_text_size: 8
           shrink_ratio: 0.4
       - BorderMap:
@@ -111,8 +107,8 @@ train:
           std: imagenet
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
-    output_columns: ['image', 'binary_map', 'mask', 'thresh_map', 'thresh_mask'] #'img_path']
-    #output_columns: ['image'] # for debug op performance
+    output_columns: [ 'image', 'binary_map', 'mask', 'thresh_map', 'thresh_mask' ] #'img_path']
+#    output_columns: ['image'] # for debug op performance
     num_columns_to_net: 1 # num inputs for network forward func in output_columns
 
   loader:
@@ -125,8 +121,8 @@ eval:
   dataset_sink_mode: False
   dataset:
     type: DetDataset
-    #dataset_root: /data/ocr_datasets 
-    dataset_root: /Users/Samit/Data/datasets 
+    #dataset_root: /data/ocr_datasets
+    dataset_root: /Users/Samit/Data/datasets
     data_dir: ic15/det/test/ch4_test_images
     label_file: ic15/det/test/det_gt.txt
     sample_ratio: 1.0
@@ -139,21 +135,23 @@ eval:
       - MZResizeByGrid:
           divisor: 32
           transform_polys: True
-      - MZScalePad:
-          eval_size: [ 736, 1280 ] # h, w
+      # MZResizeByGrid already sets the evaluation size to [ 736, 1280 ].
+      # Uncomment MZScalePad block for other resolutions.
+#      - MZScalePad:
+#          eval_size: [ 736, 1280 ] # h, w
       - NormalizeImage:
           bgr_to_rgb: False
           is_hwc: True
           mean: imagenet
           std: imagenet
       - ToCHWImage:
-    #  the order of the dataloader list, matching the network input and the labels for evalution 
-    output_columns: [ 'image', 'polys', 'ignore_tags']
+    #  the order of the dataloader list, matching the network input and the labels for evaluation
+    output_columns: [ 'image', 'polys', 'ignore_tags' ]
     num_columns_to_net: 1 # num inputs for network forward func
-    #num_keys_of_labels: 2 # num labels 
+#    num_keys_of_labels: 2 # num labels
 
   loader:
     shuffle: False
     batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
-    drop_remainder: False 
+    drop_remainder: False
     num_workers: 1
