@@ -17,12 +17,12 @@ def build_loss(name, **kwargs):
     
     Example:
         >>> # Create a CTC Loss module
-        >>> from mindocr.metrics import build_metric
-        >>> metric_name = "RecMetric"
-        >>> metric_config = {"name": metric_name, "main_indicator": "acc", "character_dict_path": None, "ignore_space": True, "print_flag": False}
-        >>> metric = build_metric(metric_config)
-        >>> metric
-        <mindocr.metrics.rec_metrics.RecMetric>
+        >>> from mindocr.losses import build_loss
+        >>> loss_func_name = "CTCLoss"
+        >>> loss_func_config = {"pred_seq_len": 25, "max_label_len": 24, "batch_size": 32}
+        >>> loss_fn = build_loss(loss_func_name, **loss_func_config)
+        >>> loss_fn
+        CTCLoss<>
     """
     assert name in supported_losses, f'Invalid loss name {name}, support losses are {supported_losses}'
 

@@ -17,15 +17,13 @@ def build_metric(config):
     Return:
         nn.Metric
     
-    Example: 
-        >>> # Create a Metric for text recognition.
-        >>> from mindocr.losses import build_loss
-        >>> loss_func_name = "CTCLoss"
-        >>> loss_func_config = {"pred_seq_len": 25, "max_label_len": 24, "batch_size": 32}
-        >>> loss_fn = build_loss(loss_func_name, **loss_func_config)
-        >>> loss_fn
-        CTCLoss<>
-    
+    Example:
+        >>> # Create a RecMetric module for text recognition
+        >>> from mindocr.metrics import build_metric
+        >>> metric_config = {"name": "RecMetric", "main_indicator": "acc", "character_dict_path": None, "ignore_space": True, "print_flag": False}
+        >>> metric = build_metric(metric_config)
+        >>> metric
+        <mindocr.metrics.rec_metrics.RecMetric>
     """
 
     mn = config.pop('name')

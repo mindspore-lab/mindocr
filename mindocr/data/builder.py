@@ -73,18 +73,8 @@ def build_dataset(
         >>>     "output_columns": ['image', 'polys', 'ignore_tags'],
         >>>     "num_columns_to_net": 1
         >>> }
-        >>> loader_config = {
-        >>>     "shuffle": True,
-        >>>     "batch_size": 16,
-        >>>     "drop_remainder": False, 
-        >>>     num_workers: 1
-        >>> }
-        >>> data_loader = build_dataset(
-        >>>         data_config,
-        >>>         loader_config,
-        >>>         num_shards=1,
-        >>>         shard_id=0,
-        >>>         is_train=True)
+        >>> loader_config = dict(shuffle=True, batch_size=16, drop_remainder=False, num_workers=1)
+        >>> data_loader = build_dataset(data_config, loader_config, num_shards=1, shard_id=0, is_train=True)
     '''
     # Check dataset paths (dataset_root, data_dir, and label_file) and update to absolute format
     dataset_config = _check_dataset_paths(dataset_config)
