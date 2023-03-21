@@ -4,7 +4,12 @@ system:
   amp_level: 'O0'
   seed: 42
   val_while_train: True
+  val_start_epoch: 100
+  val_interval: 10
   drop_overflow_update: True
+
+logger:
+  log_dir: './tmp_det/log'
 
 model:
   type: det
@@ -57,8 +62,11 @@ optimizer:
   loss_scale: 1.0
 
 train:
-  ckpt_save_dir: './tmp_det'
+  ckpt_save_dir: './tmp_det/ckpt'
   dataset_sink_mode: False
+  start_epoch: 0
+  per_print_times: 10
+  resume_ckpt: ''
   dataset:
     type: DetDataset
     dataset_root: /Users/Samit/Data/datasets

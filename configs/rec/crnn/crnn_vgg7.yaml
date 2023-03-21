@@ -4,7 +4,12 @@ system:
   amp_level: 'O3'
   seed: 42
   val_while_train: True
+  val_start_epoch: 100
+  val_interval: 10
   drop_overflow_update: False
+
+logger:
+  log_dir: './tmp_det/log'
 
 common:
   character_dict_path: &character_dict_path  #mindocr/utils/dict/en_dict.txt
@@ -67,6 +72,9 @@ optimizer:
 train:
   ckpt_save_dir: './tmp_rec'
   dataset_sink_mode: False
+  start_epoch: 0
+  per_print_times: 10
+  resume_ckpt: ''
   dataset:
     type: LMDBDataset
     data_dir: path/to/datadir/train/
