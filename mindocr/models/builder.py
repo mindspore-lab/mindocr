@@ -14,7 +14,7 @@ def build_model(config: Union[dict, str], **kwargs): #config: Union[dict,str]):
         2. build the model according to the detailed configuration of the each module (transform, backbone, neck and head), for lower-level architecture customization.
 
     Args:
-        config: if it is a str, config is the model name. Predefined model with weights will be returned.
+        config (Union[dict, str]): if it is a str, config is the model name. Predefined model with weights will be returned.
                 if dict, config is a dictionary and the available keys are:
                     model_name: string, model name in the registered models
                     pretrained: bool, if True, download the pretrained weight for the preset url and load to the network.
@@ -22,9 +22,12 @@ def build_model(config: Union[dict, str], **kwargs): #config: Union[dict,str]):
                     neck: dict,
                     head: dict,
         kwargs: if config is a str of model name, kwargs contains the args for the model. 
-                
+    
+    Return:
+        nn.Cell
 
     Example:
+    >>>  from mindocr.models import build_model
     >>>  net = build_model(cfg['model'])
     >>>  net = build_model(cfg['model'], ckpt_load_path='./r50_fpn_dbhead.ckpt') # build network and load checkpoint
     >>>  net = build_model('dbnet_r50', pretrained=True)

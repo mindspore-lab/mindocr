@@ -19,20 +19,26 @@ def build_dataset(
         **kwargs,
         ):
     '''
-    Build dataset
+    Build dataset for training and evaluation.
 
     Args:
         dataset_config (dict): dataset parsing and processing configuartion containing the following keys
+            - type (str): dataset class name, please choose from `supported_dataset_types`. 
             - dataset_root (str): the root directory to store the (multiple) dataset(s)
             - data_dir (Union[str, List[str]]): directory to the data, which is a subfolder path related to `dataset_root`. For multiple datasets, it is a list of subfolder paths.
-            - label_file (Union[str, List[str]]): file path to the annotation related to the `dataset_root`. For multiple datasets, it is a list of relative file paths.
+            - label_file (Union[str, List[str]], *optional*): file path to the annotation related to the `dataset_root`. For multiple datasets, it is a list of relative file paths. Not required if using LMDBDataset.
+            - sample_ratio (float): the sampling ratio of dataset.
+            - shuffle (boolean): whether to shuffle the order of data samples.
             - transform_pipeline (list[dict]): each element corresponds to a transform operation on image and/or label
+            - output_columns (list[str]): list of output features for each sample.
+            - num_columns_to_net (int): num inputs for network forward func in output_columns
         loader_config (dict): dataloader configuration containing keys:
-            - batch_size: batch size for data loader
-            - drop_remainder: whether to drop the data in the last batch when the total of data can not be divided by the batch_size
-        num_shards: num of devices for distributed mode
-        shard_id: device id
-        is_train: whether it is in training stage
+            - batch_size (int): batch size for data loader
+            - drop_remainder (boolean): whether to drop the data in the last batch when the total of data can not be divided by the batch_size
+            - num_workers (int): number of subprocesses used to fetch the dataset in parallel.
+        num_shards (int, *optional*): num of devices for distributed mode
+        shard_id (int, *optional*): device id
+        is_train (boolean): whether it is in training stage
 
     Return:
         data_loader (Dataset): dataloader to generate data batch
@@ -41,7 +47,34 @@ def build_dataset(
         - The main data process pipeline in MindSpore contains 3 parts: 1) load data files and generate source dataset, 2) perform per-data-row mapping such as image augmentation, 3) generate batch and apply batch mapping.
         - Each of the three steps supports multiprocess. Detailed machenism can be seen in https://www.mindspore.cn/docs/zh-CN/r2.0.0-alpha/api_python/mindspore.dataset.html
         - A data row is a data tuple item containing multiple elements such as (image_i, mask_i, label_i). A data column corresponds to an element in the tuple like 'image', 'label'.
-        - The total number of `num_parallel_workers` used for data loading and processing should not be larger than the maximum threads of the CPU. Otherwise, it will lead to resource competing overhead. Especially for distributed training, `num_parallel_workers` should not be too large to avoid thread competition.
+        - The total number of `num_workers` used for data loading and processing should not be larger than the maximum threads of the CPU. Otherwise, it will lead to resource competing overhead. Especially for distributed training, `num_parallel_workers` should not be too large to avoid thread competition.
+ 
+    Example: 
+        >>> # Load a DetDataset/RecDataset
+        >>> from mindocr.data import build_dataset
+        >>> data_config = {
+        >>>     "type": "DetDataset",
+        >>>     "dataset_root": "path/to/datasets/",
+        >>>     "data_dir": "ic15/det/train/ch4_test_images",
+        >>>     "label_file": "ic15/det/train/det_gt.txt",
+        >>>     "sample_ratio": 1.0,
+        >>>     "shuffle": False,
+        >>>     "transform_pipeline": [
+        >>>         {
+        >>>             "DecodeImage": {
+        >>>                 "img_mode": "RGB",
+        >>>                 "to_float32": False
+        >>>                 }
+        >>>         },
+        >>>         {
+        >>>             "DetLabelEncode": {},
+        >>>         },
+        >>>     ],
+        >>>     "output_columns": ['image', 'polys', 'ignore_tags'],
+        >>>     "num_columns_to_net": 1
+        >>> }
+        >>> loader_config = dict(shuffle=True, batch_size=16, drop_remainder=False, num_workers=1)
+        >>> data_loader = build_dataset(data_config, loader_config, num_shards=1, shard_id=0, is_train=True)
     '''
     # Check dataset paths (dataset_root, data_dir, and label_file) and update to absolute format
     dataset_config = _check_dataset_paths(dataset_config)
