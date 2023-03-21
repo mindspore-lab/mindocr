@@ -12,15 +12,14 @@ class ConvNormLayer(nn.Cell):
             out_channels,
             kernel_size,
             stride=1,
-            groups=1,
             is_vd_mode=False,
             act=False):
         super(ConvNormLayer, self).__init__()
 
         self.is_vd_mode = is_vd_mode
-        self._pool2d_avg = nn.AvgPool2d(
+        self.pool2d_avg = nn.AvgPool2d(
             kernel_size=stride, stride=stride, pad_mode="same")
-        self._conv = nn.Conv2d(
+        self.conv = nn.Conv2d(
             in_channels=in_channels,
             out_channels=out_channels,
             kernel_size=kernel_size,
@@ -28,18 +27,18 @@ class ConvNormLayer(nn.Cell):
             pad_mode='pad',
             padding=(kernel_size - 1) // 2,
             )
-        self._batch_norm = nn.BatchNorm2d(num_features=out_channels, eps=1e-5, momentum=0.9,
+        self.norm = nn.BatchNorm2d(num_features=out_channels, eps=1e-5, momentum=0.9,
                                           gamma_init=1, beta_init=0, moving_mean_init=0, moving_var_init=1)
-        self._act = nn.ReLU()
+        self.act_func = nn.ReLU()
         self.act = act
 
     def construct(self, x):
         if self.is_vd_mode:
-            x = self._pool2d_avg(x)
-        y = self._conv(x)
-        y = self._batch_norm(y)
+            x = self.pool2d_avg(x)
+        y = self.conv(x)
+        y = self.norm(y)
         if self.act:
-            y = self._act(y)
+            y = self.act_func(y)
         return y
 
 
@@ -97,8 +96,7 @@ class RecResNet(nn.Cell):
         self.out_channels = 512
         self.layers = layers
         supported_layers = [34]
-        assert layers in supported_layers, \
-            "supported layers are {} but input layer is {}".format(
+        assert layers in supported_layers, "supported layers are {} but input layer is {}".format(
                 supported_layers, layers)
 
         depth = [3, 4, 6, 3]
@@ -134,13 +132,14 @@ class RecResNet(nn.Cell):
                 else:
                     stride = (1, 1)
 
+                is_first = block_id == i == 0
                 basic_block = BasicBlock(
                                 in_channels=num_channels[block_id]
                                 if i == 0 else num_filters[block_id],
                                 out_channels=num_filters[block_id],
                                 stride=stride,
                                 shortcut=shortcut,
-                                if_first=block_id == i == 0
+                                if_first=is_first
                                 )
                 shortcut = True
                 self.block_list.append(basic_block)

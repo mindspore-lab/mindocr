@@ -38,7 +38,7 @@ from mindocr.utils.seed import set_seed
 
 def main(cfg):
     # env init
-    ms.set_context(mode=cfg.system.mode)
+    ms.set_context(mode=cfg.system.mode, device_id=4)
     if cfg.system.distribute:
         init()
         device_num = get_group_size()

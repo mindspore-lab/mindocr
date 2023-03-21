@@ -1,6 +1,6 @@
 system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
-  distribute: True 
+  distribute: False 
   amp_level: 'O3'
   seed: 42
   val_while_train: True
@@ -69,9 +69,9 @@ train:
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
-    data_dir: path/to/datadir/train/
+    data_dir: /home/group1/katekong/datasets/data_lmdb_release/training/MJ/MJ_train
     # label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
-    sample_ratios: [1.0]
+    sample_ratios: [0.1]
     shuffle: True
     transform_pipeline:
       - DecodeImage: 
@@ -110,9 +110,9 @@ eval:
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
-    data_dir: path/to/datadir/validation/
+    data_dir: /home/group1/katekong/datasets/data_lmdb_release/training/MJ/MJ_valid
     # label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
-    sample_ratios: [1.0]
+    sample_ratios: [0.1]
     shuffle: False 
     transform_pipeline:
       - DecodeImage: 
