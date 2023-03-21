@@ -9,7 +9,6 @@ from mindspore.dataset.vision import RandomColorAdjust, ToPIL
 __all__ = ['MZRandomColorAdjust', 'MZScalePad', 'MZResizeByGrid', 'MZRandomCropData', 'MZRandomScaleByShortSide']
 
 
-# TODO: Does it support BGR mode?
 class MZRandomColorAdjust:
     def __init__(self, brightness=32.0 / 255, saturation=0.5, to_numpy=False):
         self.colorjitter = RandomColorAdjust(brightness=brightness, saturation=saturation)

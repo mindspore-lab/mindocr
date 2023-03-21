@@ -153,7 +153,7 @@ def main(cfg):
     # save args used for training
     if is_main_device:
         with open(os.path.join(cfg.train.ckpt_save_dir, 'args.yaml'), 'w') as f:
-            args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False)
+            args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False, sort_keys=False)
             f.write(args_text)
 
     # CallBack
