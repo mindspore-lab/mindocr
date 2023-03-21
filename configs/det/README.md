@@ -1,3 +1,5 @@
+English | [中文](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/README_CN.md)
+
 # DBNet
 
 <!--- Guideline: use url linked to abstract in ArXiv instead of PDF for fast loading.  -->
@@ -34,9 +36,9 @@ The overall architecture of DBNet is presented in _Figure 1._ It consists of mul
 
 ### ICDAR2015
 
-| **Model** | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** |
-|-----------|--------------|----------------|------------|---------------|-------------|
-| DBNet     | ResNet-50    | ImageNet       | 81.70%     | 85.84%        | 83.72%      |
+| **Model** | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Recipe**                                                                                 | **Download**                                                                                 |
+|-----------|--------------|----------------|------------|---------------|-------------|--------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
+| DBNet     | ResNet-50    | ImageNet       | 81.70%     | 85.84%        | 83.72%      | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/db_r50_icdar15.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a.ckpt) |
 
 ## Quick Start
 
