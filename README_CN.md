@@ -200,7 +200,7 @@ mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/vgg7_
 > 注意：请确保yaml文件中的`distribute`参数为True。
 
 
-训练结果 (包括检查点、每个epoch的性能和曲线图)将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为 "./tmp_det/"。 
+训练结果 (包括检查点、每个epoch的性能和曲线图)将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为 "./tmp_rec/"。 
 
 #### 4. 评估
 
