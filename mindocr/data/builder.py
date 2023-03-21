@@ -110,7 +110,7 @@ def build_dataset(
     # TODO: find optimal setting automatically according to num of CPU cores
     num_workers = loader_config.get("num_workers", 8) # Number of subprocesses used to fetch the dataset/map data row/gen batch in parallel
     cores = multiprocessing.cpu_count()
-    num_devices = 1 if num_shards is None else num_shards
+    num_devices = 1 if num_shards is None else num_shards 
     if num_workers > int(cores / num_devices):
         num_workers = int(cores / num_devices)
         print('WARNING: num_workers is adjusted to {num_workers}, to fit {cores} CPU cores shared for {num_devices} devices')
