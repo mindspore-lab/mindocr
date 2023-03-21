@@ -58,14 +58,12 @@ def main(cfg):
 
     # train pipeline
     # dataset
-    num_epochs = cfg['scheduler']['num_epochs']
     loader_train = build_dataset(
             cfg.train.dataset,
             cfg.train.loader,
             num_shards=device_num,
             shard_id=rank_id,
             is_train=True,
-            num_epochs=num_epochs
             )
     num_batches = loader_train.get_dataset_size()
 
