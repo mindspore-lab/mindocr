@@ -101,7 +101,7 @@ def test_train_eval(task):
 
         dummpy_config_fp =os.path.join('tests/st', os.path.basename(config_fp.replace('.yaml', '_dummpy.yaml')))
         with open(dummpy_config_fp, 'w') as f:
-            args_text = yaml.safe_dump(config, default_flow_style=False)
+            args_text = yaml.safe_dump(config, default_flow_style=False, sort_keys=False)
             f.write(args_text)
             print('Genearted yaml: ')
             print(args_text)
