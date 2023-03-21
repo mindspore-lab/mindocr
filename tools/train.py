@@ -58,12 +58,15 @@ def main(cfg):
 
     # train pipeline
     # dataset
+    num_epochs = cfg['scheduler']['num_epochs']
     loader_train = build_dataset(
             cfg.train.dataset,
             cfg.train.loader,
             num_shards=device_num,
             shard_id=rank_id,
-            is_train=True)
+            is_train=True,
+            num_epochs=num_epochs
+            )
     num_batches = loader_train.get_dataset_size()
 
     loader_eval = None
@@ -132,7 +135,7 @@ def main(cfg):
         print('='*40)
         # save args used for training
         with open(os.path.join(cfg.train.ckpt_save_dir, 'args.yaml'), 'w') as f:
-            args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False)
+            args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False, sort_keys=False)
             f.write(args_text)
 
     # training

@@ -12,7 +12,7 @@ import pyclipper
 from shapely.geometry import Polygon
 import numpy as np
 
-__all__ = ['DetLabelEncode', 'BorderMap', 'ShrinkBinaryMap', 'EastRandomCropData', 'PSERandomCrop', 'expand_poly']
+__all__ = ['DetLabelEncode', 'BorderMap', 'ShrinkBinaryMap', 'expand_poly']
 
 
 class DetLabelEncode:
