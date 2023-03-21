@@ -3,15 +3,18 @@ Model training
 '''
 import sys
 import os
+
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "..")))
 
 from tools.arg_parser import parse_args
+
 args = parse_args()
 
 # modelarts
 from tools.modelarts_adapter.modelarts import modelarts_setup
-modelarts_setup(args) # setup env for modelarts platform if enabled
+
+modelarts_setup(args)  # setup env for modelarts platform if enabled
 
 import yaml
 from addict import Dict
@@ -20,7 +23,7 @@ import cv2
 import mindspore as ms
 from mindspore import nn
 from mindspore.communication import init, get_rank, get_group_size
-from mindspore.train import LossMonitor, TimeMonitor
+from mindspore.train.callback import ModelCheckpoint, CheckpointConfig
 
 from mindcv.optim import create_optimizer
 from mindcv.scheduler import create_scheduler
@@ -32,8 +35,9 @@ from mindocr.postprocess import build_postprocess
 from mindocr.metrics import build_metric
 from mindocr.utils.model_wrapper import NetWithLossWrapper
 from mindocr.utils.train_step_wrapper import TrainOneStepWrapper
-from mindocr.utils.callbacks import EvalSaveCallback
+from mindocr.utils.callbacks import EvalSaveCallback, LossCallBack, ResumeCallback
 from mindocr.utils.seed import set_seed
+from mindocr.utils.logger import get_logger
 
 
 def main(cfg):
@@ -53,34 +57,43 @@ def main(cfg):
         rank_id = None
 
     set_seed(cfg.system.seed)
-    #cv2.setNumThreads(2) # TODO: by default, num threads = num cpu cores
+    # cv2.setNumThreads(2) # TODO: by default, num threads = num cpu cores
     is_main_device = rank_id in [None, 0]
+
+    # Only main device log will be output to the screen
+    log = get_logger(log_dir=cfg.logger.log_dir, rank=rank_id if rank_id else 0, is_master_device=is_main_device)
 
     # train pipeline
     # dataset
     loader_train = build_dataset(
-            cfg.train.dataset,
-            cfg.train.loader,
-            num_shards=device_num,
-            shard_id=rank_id,
-            is_train=True)
+        cfg.train.dataset,
+        cfg.train.loader,
+        num_shards=device_num,
+        shard_id=rank_id,
+        is_train=True)
     num_batches = loader_train.get_dataset_size()
 
     loader_eval = None
     if cfg.system.val_while_train and is_main_device:
         loader_eval = build_dataset(
-                cfg.eval.dataset,
-                cfg.eval.loader,
-                num_shards=None,
-                shard_id=None,
-                is_train=False)
+            cfg.eval.dataset,
+            cfg.eval.loader,
+            num_shards=None,
+            shard_id=None,
+            is_train=False)
 
     # model
     network = build_model(cfg.model)
     ms.amp.auto_mixed_precision(network, amp_level=cfg.system.amp_level)
 
+    # resume train
+    if cfg.train.resume_ckpt:
+        resume_param = ms.load_checkpoint(cfg.train.resume_ckpt,
+                                          filter_prefix=['learning_rate', 'global_step'])
+        cfg.train.start_epoch = int(resume_param.get('epoch_num', ms.Tensor(0, ms.int32)).asnumpy().item())
+
     # optimizer and sheduler (from mindcv)
-    lr_scheduler = create_scheduler(num_batches, **cfg['scheduler'])
+    lr_scheduler = create_scheduler(num_batches, **cfg['scheduler'])[cfg.train.start_epoch * num_batches:]
     optimizer = create_optimizer(network.trainable_params(), lr=lr_scheduler, **cfg['optimizer'])
     loss_fn = build_loss(cfg.loss.pop('name'), **cfg['loss'])
 
@@ -95,6 +108,12 @@ def main(cfg):
                                     drop_overflow_update=cfg.system.drop_overflow_update,
                                     verbose=True
                                     )
+
+    # load resume parameter
+    if cfg.train.resume_ckpt:
+        ms.load_param_into_net(train_net, resume_param)
+        log.info('Resume train from epoch: %s', cfg.train.start_epoch)
+
     # postprocess, metric
     postprocessor = None
     metric = None
@@ -105,43 +124,51 @@ def main(cfg):
 
     # build callbacks
     eval_cb = EvalSaveCallback(
-            network,
-            loader_eval,
-            postprocessor=postprocessor,
-            metrics=[metric],
-            rank_id=rank_id,
-            ckpt_save_dir=cfg.train.ckpt_save_dir,
-            main_indicator=cfg.metric.main_indicator)
+        network,
+        loader_eval,
+        postprocessor=postprocessor,
+        metrics=[metric],
+        rank_id=rank_id,
+        ckpt_save_dir=cfg.train.ckpt_save_dir,
+        main_indicator=cfg.metric.main_indicator)
 
     # log
+    log.info('=' * 40)
+    log.info('Num devices: %s\n'
+             'Num epochs: %s\n'
+             'Num batches: %s\n'
+             'Optimizer: %s\n'
+             'Scheduler: %s\n'
+             'LR: %s\n'
+             'drop_overflow_update: %s\n'
+             % (device_num if device_num is not None else 1, cfg.scheduler.num_epochs, num_batches, cfg.optimizer.opt,
+                cfg.scheduler.scheduler, cfg.scheduler.lr, cfg.system.drop_overflow_update))
+
+    if 'name' in cfg.model:
+        log.info('Model: ', cfg.model.name)
+    else:
+        log.info('Model: %s-%s-%s' % (cfg.model.backbone.name, cfg.model.neck.name, cfg.model.head.name))
+    log.info('=' * 44)
+
+    # save args used for training
     if is_main_device:
-        print('='*40)
-        print(
-            f'Num devices: {device_num if device_num is not None else 1}\n'
-            f'Num epochs: {cfg.scheduler.num_epochs}\n'
-            f'Num batches: {num_batches}\n'
-            f'Optimizer: {cfg.optimizer.opt}\n'
-            f'Scheduler: {cfg.scheduler.scheduler}\n'
-            f'LR: {cfg.scheduler.lr} \n'
-            f'drop_overflow_update: {cfg.system.drop_overflow_update}'
-            )
-        if 'name' in cfg.model:
-            print(f'Model: {cfg.model.name}')
-        else:
-            print(f'Model: {cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}')
-        print('='*40)
-        # save args used for training
         with open(os.path.join(cfg.train.ckpt_save_dir, 'args.yaml'), 'w') as f:
             args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False)
             f.write(args_text)
 
-    # training
-    loss_monitor = LossMonitor(min(num_batches // 10, 100))
-    time_monitor = TimeMonitor()
-
+    # CallBack
+    cb_lst = list()
+    cb_lst.append(ResumeCallback(cfg.train.start_epoch))
+    cb_lst.append(LossCallBack(cfg.scheduler.num_epochs, cfg.train.loader.batch_size, log, cfg.train.per_print_times))
+    cb_lst.append(eval_cb)
+    if is_main_device:
+        ckpt_append_info = [{'epoch_num': 0, 'step_num': 0}]
+        ckpt_config = CheckpointConfig(save_checkpoint_steps=num_batches,
+                                       keep_checkpoint_max=1, append_info=ckpt_append_info)
+        cb_lst.append(ModelCheckpoint(config=ckpt_config, directory=cfg.train.ckpt_save_dir,
+                                      prefix=cfg.model.backbone.name))
     model = ms.Model(train_net)
-    model.train(cfg.scheduler.num_epochs, loader_train, callbacks=[loss_monitor, time_monitor, eval_cb],
-                dataset_sink_mode=cfg.train.dataset_sink_mode)
+    model.train(cfg.scheduler.num_epochs, loader_train, callbacks=cb_lst, dataset_sink_mode=cfg.train.dataset_sink_mode)
 
 
 if __name__ == '__main__':
@@ -153,6 +180,7 @@ if __name__ == '__main__':
     if args.enable_modelarts:
         import moxing as mox
         from tools.modelarts_adapter.modelarts import get_device_id, sync_data
+
         dataset_root = '/cache/data/'
         # download dataset from server to local on device 0, other devices will wait until data sync finished.
         sync_data(args.data_url, dataset_root)
@@ -162,7 +190,8 @@ if __name__ == '__main__':
                   f'INFO: dataset_root is changed to {dataset_root}'
                   )
         # update dataset root dir to cache
-        assert 'dataset_root' in config['train']['dataset'], f'`dataset_root` must be provided in the yaml file for training on ModelArts or OpenI, but not found in {yaml_fp}. Please add `dataset_root` to `train:dataset` and `eval:dataset` in the yaml file'
+        assert 'dataset_root' in config['train'][
+            'dataset'], f'`dataset_root` must be provided in the yaml file for training on ModelArts or OpenI, but not found in {yaml_fp}. Please add `dataset_root` to `train:dataset` and `eval:dataset` in the yaml file'
         config.train.dataset.dataset_root = dataset_root
         config.eval.dataset.dataset_root = dataset_root
 
@@ -173,4 +202,3 @@ if __name__ == '__main__':
         # upload models from local to server
         if get_device_id() == 0:
             mox.file.copy_parallel(src_url=config.train.ckpt_save_dir, dst_url=args.train_url)
-
