@@ -160,26 +160,28 @@ class ShrinkBinaryMap:
         self._dist_coef = 1 - self._shrink_ratio ** 2
 
     def __call__(self, data):
-        if self._train:
-            self._validate_polys(data)
-
         gt = np.zeros(data['image'].shape[:2], dtype=np.float32)
         mask = np.ones(data['image'].shape[:2], dtype=np.float32)
-        for i in range(len(data['polys'])):
-            min_side = min(np.max(data['polys'][i], axis=0) - np.min(data['polys'][i], axis=0))
 
-            if data['ignore_tags'][i] or min_side < self._min_text_size:
-                cv2.fillPoly(mask, [data['polys'][i].astype(np.int32)], 0)
-                data['ignore_tags'][i] = True
-            else:
-                poly = Polygon(data['polys'][i])
-                shrunk = expand_poly(data['polys'][i], distance=-self._dist_coef * poly.area / poly.length)
+        if len(data['polys']):
+            if self._train:
+                self._validate_polys(data)
 
-                if shrunk:
-                    cv2.fillPoly(gt, [np.array(shrunk[0], dtype=np.int32)], 1)
-                else:
+            for i in range(len(data['polys'])):
+                min_side = min(np.max(data['polys'][i], axis=0) - np.min(data['polys'][i], axis=0))
+
+                if data['ignore_tags'][i] or min_side < self._min_text_size:
                     cv2.fillPoly(mask, [data['polys'][i].astype(np.int32)], 0)
                     data['ignore_tags'][i] = True
+                else:
+                    poly = Polygon(data['polys'][i])
+                    shrunk = expand_poly(data['polys'][i], distance=-self._dist_coef * poly.area / poly.length)
+
+                    if shrunk:
+                        cv2.fillPoly(gt, [np.array(shrunk[0], dtype=np.int32)], 1)
+                    else:
+                        cv2.fillPoly(mask, [data['polys'][i].astype(np.int32)], 0)
+                        data['ignore_tags'][i] = True
 
         data['binary_map'] = np.expand_dims(gt, axis=0)
         data['mask'] = mask
