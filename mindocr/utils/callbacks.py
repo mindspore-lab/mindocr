@@ -128,12 +128,13 @@ class EvalSaveCallback(Callback):
 
         if self.is_main_device:
             self.network = network
-            self.best_perf = -1e8
             if self.loader_eval is not None:
                 self.net_evaluator = Evaluator(network, loss_fn, postprocessor, metrics)
                 self.main_indicator = main_indicator
+                self.best_perf = -1e8 
             else:
                 self.main_indicator = 'train_loss'
+                self.best_perf = 1e8
 
             self.ckpt_save_dir = ckpt_save_dir
             if not os.path.exists(ckpt_save_dir):
@@ -220,26 +221,29 @@ class EvalSaveCallback(Callback):
                     break
                 time.sleep(1)
         else:
-            perf = - train_loss
+            perf = train_loss
 
         # save models and results using card 0
         if self.is_main_device:
-            if perf > self.best_perf:
-                self.best_perf = perf
+            if (perf > self.best_perf) ^ (self.main_indicator=='train_loss'):
+                self.best_perf = perf 
                 save_checkpoint(self.network, os.path.join(self.ckpt_save_dir, 'best.ckpt'))
-                print(f'=> best {self.main_indicator}: {perf}, checkpoint saved.')
+                print(f'=> Best {self.main_indicator}: {self.best_perf}, checkpoint saved.')
 
             # record results
             if cur_epoch == 1:
                 metric_names = ['loss']
                 if self.loader_eval is not None:
-                    metric_names +=  list(measures.keys())
-                metric_names += ['train_time', 'eval_time']
+                    metric_names +=  list(measures.keys()) + ['train_time', 'eval_time']
+                else:
+                    metric_names +=  ['train_time']
+
                 self.rec = PerfRecorder(self.ckpt_save_dir, metric_names=metric_names)
             epoch_metric_values = [cur_epoch, train_loss]
             if self.loader_eval is not None:
-                epoch_metric_values += list(measures.values())
-            epoch_metric_values += [train_time, eval_time]
+                epoch_metric_values += list(measures.values()) + [train_time, eval_time]
+            else:
+                epoch_metric_values += [train_time]
             self.rec.add(*epoch_metric_values)
 
         tot_time = time.time()-self.last_epoch_end_time 
@@ -249,7 +253,7 @@ class EvalSaveCallback(Callback):
     def on_train_end(self, run_context):
         if self.is_main_device:
             self.rec.save_curves()  # save performance curve figure
-            print(f'=> best {self.main_indicator}: {self.best_perf} \nTraining completed!')
+            print(f'=> Best {self.main_indicator}: {self.best_perf} \nTraining completed!')
 
             # clear
             if os.path.exists(self.sync_lock_dir):
