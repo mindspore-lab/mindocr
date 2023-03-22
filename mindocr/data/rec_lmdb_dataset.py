@@ -56,7 +56,7 @@ class LMDBDataset(BaseDataset):
         shuffle = shuffle if shuffle is not None else is_train
 
         sample_ratio = sample_ratio[0] if isinstance(sample_ratio, list) else sample_ratio
-        self.lmdb_sets = self.load_hierarchical_lmdb_dataset(data_dir)
+        self.lmdb_sets = self.load_list_of_hierarchical_lmdb_dataset(data_dir)
         self.data_idx_order_list = self.get_dataset_idx_orders(sample_ratio, shuffle)
         
         # create transform
@@ -87,6 +87,20 @@ class LMDBDataset(BaseDataset):
                     self.output_columns.append(k)
                 else:
                     raise ValueError(f'Key {k} does not exist in data (available keys: {_data.keys()}). Please check the name or the completeness transformation pipeline.')
+
+    def load_list_of_hierarchical_lmdb_dataset(self, data_dir):
+        if isinstance(data_dir, str):
+            results = self.load_hierarchical_lmdb_dataset(data_dir)
+        elif isinstance(data_dir, list):
+            results = {}
+            for sub_data_dir in data_dir:
+                start_idx = len(results)
+                lmdb_sets = self.load_hierarchical_lmdb_dataset(sub_data_dir, start_idx)
+                results.update(lmdb_sets)
+        else:
+            results = {}
+            
+        return results
 
     def load_hierarchical_lmdb_dataset(self, data_dir, start_idx=0):
         
