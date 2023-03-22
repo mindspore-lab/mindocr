@@ -1,3 +1,5 @@
+[English](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/README.md) | 中文
+
 # CRNN
 <!--- Guideline: use url linked to abstract in ArXiv instead of PDF for fast loading.  -->
 
@@ -35,10 +37,10 @@ Table Format:
 
 <div align="center">
 
-| 模型| 骨干网络 | 配置文件 | 平均准确率 | 模型下载 | 
-|------|----------|--------|--------------|----------|
-| CRNN | VGG7     | [crnn_vgg7.yaml](./crnn_vgg7.yaml) | 82.03 | [model_weights]() |
-| CRNN | ResNet34 | [crnn_resnet34.yaml](./crnn_resnet34.yaml) | 84.45 | [model_weights]() |
+| **模型** | **骨干网络** | **平均准确率**  | **配置文件**                                                                                    | **模型权重下载**                                                                              | 
+|---------|------------|---------------|------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| CRNN    | VGG7       | 82.03         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt)     |
+| CRNN    | ResNet34   | 84.45         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-8aa4aedb.ckpt) |
 
 
 </div>

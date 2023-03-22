@@ -5,7 +5,7 @@ from ._registry import register_backbone, register_backbone_class
 __all__ = ['RecResNet', 'rec_resnet34']
 
 
-class ConvNormLayer(nn.Cell):
+class ConvBNLayer(nn.Cell):
     def __init__(
             self,
             in_channels,
@@ -14,7 +14,7 @@ class ConvNormLayer(nn.Cell):
             stride=1,
             is_vd_mode=False,
             act=False):
-        super(ConvNormLayer, self).__init__()
+        super(ConvBNLayer, self).__init__()
 
         self.is_vd_mode = is_vd_mode
         self.pool2d_avg = nn.AvgPool2d(
@@ -32,11 +32,17 @@ class ConvNormLayer(nn.Cell):
         self.act_func = nn.ReLU()
         self.act = act
 
-    def construct(self, x):
+    def construct(self, inputs):
         if self.is_vd_mode:
+<<<<<<< HEAD
             x = self.pool2d_avg(x)
         y = self.conv(x)
         y = self.norm(y)
+=======
+            inputs = self._pool2d_avg(inputs)
+        y = self._conv(inputs)
+        y = self._batch_norm(y)
+>>>>>>> main
         if self.act:
             y = self.act_func(y)
         return y
@@ -52,20 +58,20 @@ class BasicBlock(nn.Cell):
                  ):
         super(BasicBlock, self).__init__()
         self.stride = stride
-        self.conv0 = ConvNormLayer(
+        self.conv0 = ConvBNLayer(
             in_channels=in_channels,
             out_channels=out_channels,
             kernel_size=3,
             stride=stride,
             act=True)
-        self.conv1 = ConvNormLayer(
+        self.conv1 = ConvBNLayer(
             in_channels=out_channels,
             out_channels=out_channels,
             kernel_size=3,
             act=False)
 
         if not shortcut:
-            self.short = ConvNormLayer(
+            self.short = ConvBNLayer(
                 in_channels=in_channels,
                 out_channels=out_channels,
                 kernel_size=1,
@@ -75,14 +81,14 @@ class BasicBlock(nn.Cell):
         self.shortcut = shortcut
         self.relu = nn.ReLU()
 
-    def construct(self, x):
-        y = self.conv0(x)
+    def construct(self, inputs):
+        y = self.conv0(inputs)
         conv1 = self.conv1(y)
 
         if self.shortcut:
-            short = x
+            short = inputs
         else:
-            short = self.short(x)
+            short = self.short(inputs)
         y = short + conv1
         y = self.relu(y)
         return y
@@ -103,57 +109,62 @@ class RecResNet(nn.Cell):
         num_channels = [64, 64, 128, 256]
         num_filters = [64, 128, 256, 512]
 
-        self.conv1_1 = ConvNormLayer(
+        self.conv1_1 = ConvBNLayer(
             in_channels=in_channels,
             out_channels=32,
             kernel_size=3,
             stride=1,
             act=True)
-        self.conv1_2 = ConvNormLayer(
+        self.conv1_2 = ConvBNLayer(
             in_channels=32,
             out_channels=32,
             kernel_size=3,
             stride=1,
             act=True)
-        self.conv1_3 = ConvNormLayer(
+        self.conv1_3 = ConvBNLayer(
             in_channels=32,
             out_channels=64,
             kernel_size=3,
             stride=1,
             act=True)
-        self.maxpool2d_1 = nn.MaxPool2d(kernel_size=3, stride=2, pad_mode='same')
+        self.pool2d_max = nn.MaxPool2d(kernel_size=3, stride=2, pad_mode='same')
 
         self.block_list = []
-        for block_id in range(len(depth)):
+        for block in range(len(depth)):
             shortcut = False
-            for i in range(depth[block_id]):
-                if i == 0 and block_id != 0:
+            for i in range(depth[block]):
+                if i == 0 and block != 0:
                     stride = (2, 1)
                 else:
                     stride = (1, 1)
 
                 is_first = block_id == i == 0
                 basic_block = BasicBlock(
-                                in_channels=num_channels[block_id]
-                                if i == 0 else num_filters[block_id],
-                                out_channels=num_filters[block_id],
+                                in_channels=num_channels[block]
+                                if i == 0 else num_filters[block],
+                                out_channels=num_filters[block],
                                 stride=stride,
                                 shortcut=shortcut,
+<<<<<<< HEAD
                                 if_first=is_first
+=======
+                                if_first=block == i == 0
+>>>>>>> main
                                 )
                 shortcut = True
                 self.block_list.append(basic_block)
+            self.out_channels = num_filters[block]
         
         self.block_list = nn.SequentialCell(self.block_list)
-        self.maxpool2d_2 = nn.MaxPool2d(kernel_size=2, stride=2, pad_mode='same')
+        self.out_pool = nn.MaxPool2d(kernel_size=2, stride=2, pad_mode='same')
 
-    def construct(self, x):
-        y = self.conv1_1(x)
+    def construct(self, inputs):
+        y = self.conv1_1(inputs)
         y = self.conv1_2(y)
         y = self.conv1_3(y)
-        y = self.maxpool2d_1(y)
+        y = self.pool2d_max(y)
         y = self.block_list(y)
-        y = self.maxpool2d_2(y)
+        y = self.out_pool(y)
         return [y]
 
 # TODO: load pretrained weight in build_backbone or use a unify wrapper to load
