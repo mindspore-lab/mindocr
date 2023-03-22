@@ -189,14 +189,14 @@ To train the model, please run
 
 ``` shell 
 # train crnn on MJ+ST dataset
-python tools/train.py --config configs/rec/vgg7_bilstm_ctc.py
+python tools/train.py --config configs/rec/crnn/crnn_vgg7.yaml
 ```
 
 To train in distributed mode, please run
 
 ```shell
 # n is the number of GPUs/NPUs
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/vgg7_bilstm_ctc.yaml
+mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/rec/crnn/crnn_vgg7.yaml
 ```
 > Notes: please ensure the arg `distribute` in yaml file is set True
 
