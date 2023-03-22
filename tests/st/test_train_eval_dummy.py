@@ -21,7 +21,8 @@ from mindcv.utils.download import DownLoad
 
 
 @pytest.mark.parametrize("task", ["det", "rec"])
-def test_train_eval(task):
+@pytest.mark.parametrize("val_while_train", [True, False])
+def test_train_eval(task, val_while_train):
     # prepare dummy images
     data_dir = "data/Canidae"
     dataset_url = (
@@ -59,6 +60,7 @@ def test_train_eval(task):
     with open(config_fp) as fp:
         config = yaml.safe_load(fp)
         config['system']['distribute'] = False
+        config['system']['val_while_train'] = val_while_train 
         #if 'common' in config:
         #    config['batch_size'] = 8
         config['train']['dataset_sink_mode'] = False
@@ -127,5 +129,5 @@ def test_train_eval(task):
 
 
 if __name__ == '__main__':
-    #test_train_eval('det')
-    test_train_eval('rec')
+    #test_train_eval('det', True)
+    test_train_eval('rec', True)
