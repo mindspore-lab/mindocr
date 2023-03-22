@@ -281,8 +281,6 @@ class LossCallBack(Callback):
         if isinstance(net_outputs, (tuple, list)):
             if isinstance(net_outputs[0], ms.Tensor) and isinstance(net_outputs[0].asnumpy(), np.ndarray):
                 loss = net_outputs[0].asnumpy()
-                if bool(net_outputs[1].asnumpy()):
-                    self.logger.warning('=====================overflow=====================')
         elif isinstance(net_outputs, ms.Tensor) and isinstance(net_outputs.asnumpy(), np.ndarray):
             loss = float(np.mean(net_outputs.asumpy()))
         return loss
@@ -294,6 +292,7 @@ class LossCallBack(Callback):
     def on_train_step_end(self, run_context):
         cb_params = run_context.original_args()
         loss = self._handle_loss(cb_params.net_outputs)
+        overflow = str(cb_params.net_outputs[1].asnumpy())
         cur_epoch = cb_params.cur_epoch_num
         data_sink_mode = cb_params.get('dataset_sink_mode', False)
         if not data_sink_mode:
@@ -307,9 +306,9 @@ class LossCallBack(Callback):
                 fps = self.batch_size * 1000 / per_step_time
                 lr = cb_params.train_network.optimizer.learning_rate
                 cur_lr = lr(ms.Tensor(self.global_steps)).asnumpy()
-                msg = "epoch: [%s/%s] step: [%s/%s], loss: %.6f, lr: %.6f, per step time: %.3f ms, fps: %.2f img/s" % (
+                msg = "epoch: [%s/%s] step: [%s/%s], loss: %.6f, overflow: %s, lr: %.6f, per step time: %.3f ms, fps: %.2f img/s" % (
                     cur_epoch, self.epoch_size, cur_step_in_epoch, cb_params.batch_num,
-                    loss, cur_lr, per_step_time, fps)
+                    loss, overflow, cur_lr, per_step_time, fps)
                 self.logger.info(msg)
                 self.step_start_time = time.time()
         self.global_steps += 1

@@ -78,7 +78,7 @@ train:
   dataset:
     type: LMDBDataset
     data_dir: path/to/datadir/train/
-    # label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
+    label_file: path/to/rec_gt_train.txt
     sample_ratios: [1.0]
     shuffle: True
     transform_pipeline:
@@ -119,7 +119,7 @@ eval:
   dataset:
     type: LMDBDataset
     data_dir: path/to/datadir/validation/
-    # label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
+    label_file: path/to/rec_gt_val.txt
     sample_ratios: [1.0]
     shuffle: False 
     transform_pipeline:
