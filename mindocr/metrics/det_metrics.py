@@ -1,7 +1,11 @@
 from typing import List
 
 import numpy as np
-from mindspore import nn
+import mindspore as ms
+from mindspore import nn, ms_function
+import mindspore.ops as ops
+from mindspore import  Tensor
+from mindspore.communication import get_group_size
 from shapely.geometry import Polygon
 from sklearn.metrics import recall_score, precision_score, f1_score
 
@@ -77,6 +81,12 @@ class DetMetric(nn.Metric):
         super().__init__()
         self._evaluator = DetectionIoUEvaluator()
         self._gt_labels, self._det_labels = [], []
+        try:
+            self.device_num = get_group_size()
+            self.all_reduce = ops.AllReduce()
+        except (ValueError, RuntimeError):
+            self.device_num = 1
+            self.all_reduce = None
 
     def clear(self):
         self._gt_labels, self._det_labels = [], []
@@ -99,6 +109,11 @@ class DetMetric(nn.Metric):
             self._gt_labels.append(gt_label)
             self._det_labels.append(det_label)
 
+    @ms_function
+    def all_reduce_fun(self, x):
+        res = self.all_reduce(x)
+        return res
+
     def eval(self):
         """
         Evaluate by aggregating results from batch update
@@ -111,8 +126,15 @@ class DetMetric(nn.Metric):
         # flatten predictions and labels into 1D-array
         self._det_labels = np.array([l for label in self._det_labels for l in label])
         self._gt_labels = np.array([l for label in self._gt_labels for l in label])
+        recall = recall_score(self._gt_labels, self._det_labels),
+        precision = precision_score(self._gt_labels, self._det_labels),
+        f_score =  f1_score(self._gt_labels, self._det_labels)
+        if self.all_reduce:
+            recall = float(self.all_reduce_fun(Tensor(recall, ms.float32)).asnumpy())
+            precision = float(self.all_reduce_fun(Tensor(precision, ms.float32)).asnumpy())
+            f_score = float(self.all_reduce_fun(Tensor(f_score, ms.float32)).asnumpy())
         return {
-            'recall': recall_score(self._gt_labels, self._det_labels),
-            'precision': precision_score(self._gt_labels, self._det_labels),
-            'f-score': f1_score(self._gt_labels, self._det_labels)
+            'recall': recall,
+            'precision': precision,
+            'f-score': f_score
         }
