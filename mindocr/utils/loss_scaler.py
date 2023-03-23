@@ -15,6 +15,7 @@ def get_loss_scales(cfg):
     optimizer_loss_scale = 1.0 
     
     if 'loss_scaler' in cfg: 
+        assert 'loss_scale' in cfg.loss_scaler, 'Must specify the value for `loss_scale` in the config if `loss_scaler` is used.'
         if cfg.loss_scaler.type == 'dynamic':
             # TODO: scale_window can be related to num_batches, e.g., scale_window = num_batches * 2
             loss_scale_manager = nn.DynamicLossScaleUpdateCell(loss_scale_value=cfg.loss_scaler.get('loss_scale', 2**16), 

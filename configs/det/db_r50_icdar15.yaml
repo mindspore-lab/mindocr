@@ -54,7 +54,11 @@ optimizer:
   filter_bias_and_bn: false
   momentum: 0.9
   weight_decay: 1.0e-4
-  loss_scale: 1.0
+
+# only used for mixed precision training
+loss_scaler:
+  type: static 
+  loss_scale: 1.0 
 
 train:
   ckpt_save_dir: './tmp_det'

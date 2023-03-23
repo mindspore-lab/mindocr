@@ -60,9 +60,12 @@ optimizer:
   filter_bias_and_bn: True
   momentum: 0.95
   weight_decay: 0.0001
-  loss_scale: 1024
   nesterov: False
   #use_nesterov: True 
+
+loss_scaler:
+  type: static
+  loss_scale: 1024
 
 train:
   ckpt_save_dir: './tmp_rec'
