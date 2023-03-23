@@ -250,6 +250,9 @@ The supported recognition models and their overall performance on the public ben
 ## Notes
 
 ### Change Log
+- 2023/03/23
+1. Add dynamic loss scaler support, compatiable with drop overflow update. To enable dynamic loss scaler, please set `type` of `loss_scale` as `dynamic`. A yaml example can be viewed in `configs/rec/crnn/crnn_icdar15.yaml`
+
 - 2023/03/20
 1. Arg names changed: `output_keys` -> `output_columns`, `num_keys_to_net` -> `num_columns_to_net`
 2. Data pipeline updated
