@@ -34,10 +34,11 @@ from mindocr.utils.model_wrapper import NetWithLossWrapper
 from mindocr.utils.train_step_wrapper import TrainOneStepWrapper
 from mindocr.utils.callbacks import EvalSaveCallback
 from mindocr.utils.seed import set_seed
+from mindocr.utils.loss_scaler import get_loss_scales 
 
 
 def main(cfg):
-    # env init
+    # init env 
     ms.set_context(mode=cfg.system.mode)
     if cfg.system.distribute:
         init()
@@ -56,8 +57,7 @@ def main(cfg):
     #cv2.setNumThreads(2) # TODO: by default, num threads = num cpu cores
     is_main_device = rank_id in [None, 0]
 
-    # train pipeline
-    # dataset
+    # create dataset
     loader_train = build_dataset(
             cfg.train.dataset,
             cfg.train.loader,
@@ -76,25 +76,30 @@ def main(cfg):
                 shard_id=None,
                 is_train=False)
 
-    # model
+    # create model
     network = build_model(cfg.model)
     ms.amp.auto_mixed_precision(network, amp_level=cfg.system.amp_level)
 
-    # optimizer and sheduler (from mindcv)
-    lr_scheduler = create_scheduler(num_batches, **cfg['scheduler'])
-    optimizer = create_optimizer(network.trainable_params(), lr=lr_scheduler, **cfg['optimizer'])
+    # create loss
     loss_fn = build_loss(cfg.loss.pop('name'), **cfg['loss'])
 
-    # wrap train-one-step cell
-    net_with_loss = NetWithLossWrapper(network, loss_fn)
+    net_with_loss = NetWithLossWrapper(network, loss_fn) # wrap train-one-step cell
 
-    loss_scale_manager = nn.FixedLossScaleUpdateCell(loss_scale_value=cfg.optimizer.loss_scale)
+    # get loss scale setting for mixed precision training
+    loss_scale_manager, optimizer_loss_scale = get_loss_scales(cfg)
 
+    # build lr scheduler 
+    lr_scheduler = create_scheduler(num_batches, **cfg['scheduler'])
+
+    # build optimizer
+    cfg.optimizer.update({'lr': lr_scheduler, 'loss_scale': optimizer_loss_scale})
+    optimizer = create_optimizer(network.trainable_params(), **cfg.optimizer) 
+
+    # build train step cell
     train_net = TrainOneStepWrapper(net_with_loss,
                                     optimizer=optimizer,
                                     scale_sense=loss_scale_manager,
                                     drop_overflow_update=cfg.system.drop_overflow_update,
-                                    verbose=True
                                     )
     # postprocess, metric
     postprocessor = None
@@ -124,6 +129,8 @@ def main(cfg):
             f'Optimizer: {cfg.optimizer.opt}\n'
             f'Scheduler: {cfg.scheduler.scheduler}\n'
             f'LR: {cfg.scheduler.lr} \n'
+            f'Auto mixed precision: {cfg.system.amp_level}\n'
+            f'Loss scale setting: {cfg.loss_scaler}\n'
             f'drop_overflow_update: {cfg.system.drop_overflow_update}'
             )
         if 'name' in cfg.model:

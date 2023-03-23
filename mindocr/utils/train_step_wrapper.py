@@ -37,6 +37,10 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
     """TrainStep with ema and clip grad.
     Args:
         drop_overflow_update: if True, network will not be updated when gradient is overflow.
+        scale_sense (Union[Tensor, Cell]): If this value is a Cell, it will be called 
+            to update loss scale. If this value is a Tensor, the loss scale can be modified by `set_sense_scale`,
+            the shape should be :math:`()` or :math:`(1,)`.
+
     """
 
     def __init__(
@@ -85,7 +89,6 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
             status, scaling_sens = self.start_overflow_check(loss, scaling_sens)
         else:
             status = None 
-
         scaling_sens_filled = C.ones_like(loss) * F.cast(scaling_sens, F.dtype(loss))
         grads = self.grad(self.network, weights)(*inputs, scaling_sens_filled)
         grads = self.hyper_map(F.partial(_grad_scale, scaling_sens), grads)
