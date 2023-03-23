@@ -89,6 +89,7 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
             status, scaling_sens = self.start_overflow_check(loss, scaling_sens)
         else:
             status = None 
+        
         scaling_sens_filled = C.ones_like(loss) * F.cast(scaling_sens, F.dtype(loss))
         grads = self.grad(self.network, weights)(*inputs, scaling_sens_filled)
         grads = self.hyper_map(F.partial(_grad_scale, scaling_sens), grads)
@@ -100,8 +101,8 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
             cond = self.get_overflow_status(status, grads)
             overflow = self.process_loss_scale(cond)
         else:
-            overflow = False
-            cond = False 
+            overflow = ms.Tensor(False)
+            cond = ms.Tensor(False) 
 
         if self.drop_overflow_update:
             # if there is no overflow, do optimize
