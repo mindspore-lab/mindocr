@@ -167,7 +167,7 @@ Unzip the data and after preparation, the data structure should be like
 
 #### 2. Configure Yaml
 
-Please choose a yaml config file containing the target pre-defined model and data pipeline that you want to re-use from `configs/rec`. Here we choose `configs/rec/vgg7_bilistm_ctc.yaml`.
+Please choose a yaml config file containing the target pre-defined model and data pipeline that you want to re-use from `configs/rec`. Here we choose `configs/rec/crnn/crnn_resnet34.yaml`.
 
 Please change the data config args accordingly, such as
 ``` yaml
@@ -189,14 +189,14 @@ To train the model, please run
 
 ``` shell 
 # train crnn on MJ+ST dataset
-python tools/train.py --config configs/rec/vgg7_bilstm_ctc.py
+python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
 To train in distributed mode, please run
 
 ```shell
 # n is the number of GPUs/NPUs
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/vgg7_bilstm_ctc.yaml
+mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 > Notes: please ensure the arg `distribute` in yaml file is set True
 
@@ -244,7 +244,7 @@ The supported recognition models and their overall performance on the public ben
 | **Model** | **Backbone** | **Avg Acc**| **Config** | 
 |-----------|--------------|----------------|------------|
 | CRNN     | VGG7        | 80.98% 	| [YAML](configs/rec/vgg7_bilstm_ctc.yaml)    | 
-| CRNN     | Resnet34_vd    | 84.64% 	| [YAML](configs/rec/r34_bilstm_ctc.yaml)     |
+| CRNN     | Resnet34_vd    | 84.45% 	| [YAML](configs/rec/r34_bilstm_ctc.yaml)     |
 
 
 ## Notes
