@@ -1,5 +1,6 @@
 from mindspore import nn
-
+import mindspore.ops as ops
+from mindspore.communication import get_group_size
 class NetWithLossWrapper(nn.Cell):
     '''
     A universal wrapper for any network with any loss.

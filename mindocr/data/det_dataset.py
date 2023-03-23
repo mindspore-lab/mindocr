@@ -93,8 +93,12 @@ class DetDataset(BaseDataset):
         data = self.data_list[index]
 
         # perform transformation on data
-        data = run_transforms(data, transforms=self.transforms)
-        output_tuple = tuple(data[k] for k in self.output_columns)
+        try:
+            data = run_transforms(data, transforms=self.transforms)
+            output_tuple = tuple(data[k] for k in self.output_columns)
+        except Exception as e:
+            print("error img", self.data_list[index]['img_path'], flush=True)
+            return self.__getitem__(random.randint(1, len(self.data_list)))
 
         return output_tuple
 
@@ -134,6 +138,12 @@ class DetDataset(BaseDataset):
 
 
     def _parse_annotation(self, data_line: str):
-        img_name, annot_str = data_line.strip().split('\t')
+        data_line_tmp = data_line.strip()
+        if "\t" in data_line_tmp:
+            img_name, annot_str = data_line.strip().split('\t')
+        elif " " in data_line_tmp:
+            img_name, annot_str = data_line.strip().split(' ')
+        else:
+            print("Incorrect label file format, between the file name and the label should be a space or Tabs ")
 
         return img_name, annot_str

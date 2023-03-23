@@ -57,7 +57,6 @@ def main(cfg):
         rank_id = None
 
     set_seed(cfg.system.seed)
-    # cv2.setNumThreads(2) # TODO: by default, num threads = num cpu cores
     is_main_device = rank_id in [None, 0]
 
     # Only main device log will be output to the screen
@@ -75,12 +74,12 @@ def main(cfg):
     num_batches = loader_train.get_dataset_size()
 
     loader_eval = None
-    if cfg.system.val_while_train and is_main_device:
+    if cfg.system.val_while_train:
         loader_eval = build_dataset(
             cfg.eval.dataset,
             cfg.eval.loader,
-            num_shards=None,
-            shard_id=None,
+            num_shards=device_num,
+            shard_id=rank_id,
             is_train=False)
 
     # model
