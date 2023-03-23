@@ -14,9 +14,9 @@ class LMDBDataset(BaseDataset):
     The annotaiton format is required to aligned to paddle, which can be done using the `converter.py` script.
 
     Args:
-        is_train: 
-        data_dir: 
-        shuffle, Optional, if not given, shuffle = is_train
+        is_train: whether the dataset is for training
+        data_dir: data root directory for lmdb dataset(s)
+        shuffle: Optional, if not given, shuffle = is_train
         transform_pipeline: list of dict, key - transform class name, value - a dict of param config.
                     e.g., [{'DecodeImage': {'img_mode': 'BGR', 'channel_first': False}}]
             -       if None, default transform pipeline for text detection will be taken.
@@ -43,7 +43,7 @@ class LMDBDataset(BaseDataset):
     def __init__(self, 
             is_train: bool = True, 
             data_dir: str = '', 
-            sample_ratio: Union[List, float] = 1.0, 
+            sample_ratio: float = 1.0, 
             shuffle: bool = None,
             transform_pipeline: List[dict] = None, 
             output_columns: List[str] = None,
@@ -55,7 +55,6 @@ class LMDBDataset(BaseDataset):
         assert isinstance(shuffle, bool), f'type error of {shuffle}'
         shuffle = shuffle if shuffle is not None else is_train
 
-        sample_ratio = sample_ratio[0] if isinstance(sample_ratio, list) else sample_ratio
         self.lmdb_sets = self.load_list_of_hierarchical_lmdb_dataset(data_dir)
         self.data_idx_order_list = self.get_dataset_idx_orders(sample_ratio, shuffle)
         
