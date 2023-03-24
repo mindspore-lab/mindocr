@@ -21,7 +21,7 @@ from mindcv.utils.download import DownLoad
 
 
 @pytest.mark.parametrize("task", ["det", "rec"])
-@pytest.mark.parametrize("val_while_train", [True, False])
+@pytest.mark.parametrize("val_while_train", [False, True])
 def test_train_eval(task, val_while_train):
     # prepare dummy images
     data_dir = "data/Canidae"

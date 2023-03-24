@@ -60,18 +60,22 @@ optimizer:
   filter_bias_and_bn: True
   momentum: 0.95
   weight_decay: 0.0001
-  loss_scale: 1024
   nesterov: False
   #use_nesterov: True 
+
+loss_scaler:
+  type: static
+  loss_scale: 1024
 
 train:
   ckpt_save_dir: './tmp_rec'
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
-    data_dir: path/to/datadir/train/
-    # label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
-    sample_ratios: [1.0]
+    dataset_root: path/to/data_lmdb_release/
+    data_dir: training/
+    # label_files: # not required when using LMDBDataset
+    sample_ratios: 1.0
     shuffle: True
     transform_pipeline:
       - DecodeImage: 
@@ -110,9 +114,10 @@ eval:
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
-    data_dir: path/to/datadir/validation/
-    # label_files: /data/ocr_datasets/ic15/word_recognition/rec_gt_train.txt
-    sample_ratios: [1.0]
+    dataset_root: path/to/data_lmdb_release/
+    data_dir: validation/
+    # label_files: # not required when using LMDBDataset
+    sample_ratios: 1.0
     shuffle: False 
     transform_pipeline:
       - DecodeImage: 
