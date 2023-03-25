@@ -1,6 +1,5 @@
 """
-transform for text detection tasks.
-TODO: rewrite copied code
+transforms for text detection tasks.
 """
 import random
 import warnings
