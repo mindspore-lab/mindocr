@@ -2,38 +2,64 @@ import sys
 sys.path.append('.')
 
 import numpy as np
-
-from mindocr.data.det_dataset import DetDataset
-from mindocr.postprocess.det_postprocess import DBPostprocess
+import mindspore as ms
 from mindocr.metrics.det_metrics import DetMetric
+from mindocr.metrics.rec_metrics import RecMetric
 
 
 def test_det_metric():
-    # TODO: gen by DetDataset
-    data = np.load('./det_db_label_samples.npz')
-    polys, bmap, _, _, texts, ignore_tags = data['polys'], data['shrink_map'], data['threshold_map'], data['threshold_mask'], data['texts'], data['ignore_tags']
-    polys = np.array([polys])
-    bmap = np.array([bmap])
-    ignore_tags  = np.array([ignore_tags])
-    print('GT polys: ', polys)
-    print('ignore_tags', ignore_tags)
-    print('texts', texts)
+    pred_polys = [ 
+                  [
+                    [[0, 0], [0, 10], [10, 10], [10, 0]],
+                    [[10, 10], [10, 20], [20, 20], [20, 10]],
+                    [[20, 20], [20, 30], [30, 30], [30, 20]],
+                  ],
+                 ]
+    pred_polys = np.array(pred_polys, dtype=np.float32)
+    confs = np.array([[1.0, 0.8, 0.9]])
+    num_images = pred_polys.shape[0]
+    num_boxes = pred_polys.shape[1]
+    print(num_images, num_boxes)
+    preds = [(pred_polys[i], confs[i]) for i in range(num_images)]
 
-    proc = DBPostprocess(thresh=0.3,  
-                box_thresh=0.55, 
-                max_candidates=1000, 
-                unclip_ratio=1.5,
-                region_type='quad', 
-                dest='binary',
-                score_mode='fast')
-    preds = proc({'binary': bmap})
+    gt_polys = [ 
+                  [
+                    [[0, 0], [0, 9], [9, 9], [9, 0]],
+                    [[10, 10], [-10, -20], [-20, -20], [-20, -10]],
+                    [[20, 20], [20, 30], [30, 30], [30, 20]],
+                  ],
+                 ]
+    gt_polys = ms.Tensor(np.array(gt_polys, dtype=np.float32))
+    ignore_tags = ms.Tensor([[False, False, True]])
+    gts = (gt_polys, ignore_tags)
     
-    m = DetMetric() 
-    m.update(preds, (polys, ignore_tags))
+    m = DetMetric()
+    m.update(preds, gts)
 
-    res = m.eval()
-    print(res)
-    
+    perf = m.eval()
+    print(perf)
+
+    # check correctness
+    assert perf['recall'] == 0.5
+    assert perf['precision'] == 0.5
+    assert perf['f-score'] == 0.5
+
+
+def test_rec_metric():
+    gt = ['ba la la!    ', 'ba       ']
+    gt_len = [len('ba xla la!'), len('ba')]
+    pred = ['baxlala', 'ba']
+
+    m = RecMetric()
+    m.update({'texts': pred}, (gt, gt_len))
+    perf = m.eval()
+    print(perf)
+
+    # check correctness
+    assert perf['acc'] == 0.5
+    assert (perf['norm_edit_distance'] - 0.92857) < 1e-4
+
 
 if __name__=='__main__':
     test_det_metric()
+    #test_rec_metric()

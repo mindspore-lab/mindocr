@@ -6,13 +6,14 @@ from . import rec_metrics
 supported_metrics = det_metrics.__all__ + rec_metrics.__all__
 
 # TODO: support multiple metrics
-def build_metric(config):
+def build_metric(config, device_num=1, **kwargs):
     """
     Create the metric function.
 
     Args:
         config (dict): configuration for metric including metric `name` and also the kwargs specifically for each metric.
             - name (str): metric function name, exactly the same as one of the supported metric class names
+        device_name (int): number of devices
     
     Return:
         nn.Metric
@@ -28,6 +29,8 @@ def build_metric(config):
 
     mn = config.pop('name')
     if mn in supported_metrics:
+        device_num = 1 if device_num is None else device_num
+        config.update({'device_num': device_num})
         metric = eval(mn)(**config)
     else:
         raise ValueError(f'Invalid metric name {mn}, support metrics are {supported_metrics}')
