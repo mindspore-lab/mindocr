@@ -8,7 +8,7 @@ import numpy as np
 import mindspore as ms
 from mindspore import save_checkpoint
 from mindspore.train.callback._callback import Callback, _handle_loss
-from mindocr.utils.visualize import show_img, draw_bboxes, show_imgs, recover_image
+from mindocr.utils.visualize import draw_bboxes, show_imgs, recover_image
 from mindocr.utils.recorder import PerfRecorder
 
 __all__ = ['Evaluator', 'EvalSaveCallback']
@@ -48,7 +48,6 @@ class Evaluator:
         # debug
         # for param in self.net.get_parameters():
         #    print(param.name, param.value().sum())
-
         for i, data in tqdm(enumerate(iterator), total=dataloader.get_dataset_size()):
             # start = time.time()
             # TODO: if network input is not just an image.
@@ -101,8 +100,6 @@ class Evaluator:
         return eval_res
 
 
-# class ModelSavor()
-
 class EvalSaveCallback(Callback):
     """
     Callbacks for evaluation while training
@@ -125,34 +122,20 @@ class EvalSaveCallback(Callback):
         self.rank_id = rank_id
         self.is_main_device = rank_id in [0, None]
         self.loader_eval = loader
+        self.network = network
+        if self.loader_eval is not None:
+            self.net_evaluator = Evaluator(network, loss_fn, postprocessor, metrics)
+            self.main_indicator = main_indicator
+            self.best_perf = -1e8
+        else:
+            self.main_indicator = 'train_loss'
+            self.best_perf = 1e8
 
-        if self.is_main_device:
-            self.network = network
-            if self.loader_eval is not None:
-                self.net_evaluator = Evaluator(network, loss_fn, postprocessor, metrics)
-                self.main_indicator = main_indicator
-                self.best_perf = -1e8 
-            else:
-                self.main_indicator = 'train_loss'
-                self.best_perf = 1e8
-
-            self.ckpt_save_dir = ckpt_save_dir
-            if not os.path.exists(ckpt_save_dir):
-                os.makedirs(ckpt_save_dir)
-
-            self.sync_lock_dir = os.path.join(ckpt_save_dir, 'sync_locks')
-            if os.path.exists(self.sync_lock_dir):
-                shutil.rmtree(self.sync_lock_dir) # remove previous sync lock files
-            os.makedirs(self.sync_lock_dir)
+        self.ckpt_save_dir = ckpt_save_dir
+        if not os.path.exists(ckpt_save_dir):
+            os.makedirs(ckpt_save_dir)
 
         self.last_epoch_end_time = time.time()
-
-    # def __enter__(self):
-    #    pass
-
-    def __exit__(self, *exc_args):
-        if self.is_main_device and os.path.exists(self.sync_lock_dir):
-                shutil.rmtree(self.sync_lock_dir)
 
     def on_train_step_begin(self, run_context):
         self.step_start_time = time.time()
@@ -200,26 +183,13 @@ class EvalSaveCallback(Callback):
             f"loss:{train_loss:.5f}, training time:{train_time:.3f}s"
         )
 
-        # evaluate only using device 0 if enabled
         if self.loader_eval is not None:
-            sync_lock = os.path.join(self.sync_lock_dir, "run_eval_sync.lock" + str(cur_epoch)) # signal to lock other devices
-            if self.is_main_device and not os.path.exists(sync_lock):
                 eval_start = time.time()
                 measures = self.net_evaluator.eval(self.loader_eval)
-                perf = measures[self.main_indicator]
-                eval_time = time.time()-eval_start
-                print(  f'Performance: {measures}, eval time: {eval_time}')
-
-                try:
-                    os.mknod(sync_lock) # for linux
-                except:
-                    open(sync_lock, 'w').close() # for windows and mac
-
-            # other devices wait until evaluation ends
-            while True: # TODO: overtime check on man device
-                if os.path.exists(sync_lock):
-                    break
-                time.sleep(1)
+                if self.is_main_device:
+                    perf = measures[self.main_indicator]
+                    eval_time = time.time() - eval_start
+                    print(f'Performance: {measures}, eval time: {eval_time}')
         else:
             perf = train_loss
 
@@ -255,8 +225,76 @@ class EvalSaveCallback(Callback):
             self.rec.save_curves()  # save performance curve figure
             print(f'=> Best {self.main_indicator}: {self.best_perf} \nTraining completed!')
 
-            # clear
-            if os.path.exists(self.sync_lock_dir):
-                shutil.rmtree(self.sync_lock_dir)
+
+class LossCallBack(Callback):
+    """
+    Monitor the loss in training.
+    If the loss in NAN or INF terminating training.
+    """
+
+    def __init__(self, epoch_size, batch_size, logger, per_print_times=1, global_steps=0):
+        super(LossCallBack, self).__init__()
+        self.epoch_size = epoch_size
+        self.batch_size = batch_size
+        self.logger = logger
+        self.global_steps = global_steps
+        self._per_print_times = per_print_times
+        self.step_start_time = time.time()
+        self.epoch_start_time = time.time()
+
+    def _handle_loss(self, net_outputs):
+        """Handle loss"""
+        if isinstance(net_outputs, (tuple, list)):
+            if isinstance(net_outputs[0], ms.Tensor) and isinstance(net_outputs[0].asnumpy(), np.ndarray):
+                loss = net_outputs[0].asnumpy()
+        elif isinstance(net_outputs, ms.Tensor) and isinstance(net_outputs.asnumpy(), np.ndarray):
+            loss = float(np.mean(net_outputs.asumpy()))
+        return loss
+
+    def on_train_epoch_begin(self, run_context):
+        self.epoch_start_time = time.time()
+        self.step_start_time = time.time()
+
+    def on_train_step_end(self, run_context):
+        cb_params = run_context.original_args()
+        loss = self._handle_loss(cb_params.net_outputs)
+        overflow = str(cb_params.net_outputs[1].asnumpy())
+        cur_epoch = cb_params.cur_epoch_num
+        data_sink_mode = cb_params.get('dataset_sink_mode', False)
+        if not data_sink_mode:
+            cur_step_in_epoch = (cb_params.cur_step_num - 1) % cb_params.batch_num + 1
+            if isinstance(loss, float) and (np.isnan(loss) or np.isinf(loss)):
+                raise ValueError(
+                    "epoch: {} step: {}. Invalid loss, terminating training.".format(cur_epoch, cur_step_in_epoch))
+
+            if cur_step_in_epoch % self._per_print_times == 0:
+                per_step_time = (time.time() - self.step_start_time) * 1000 / self._per_print_times
+                fps = self.batch_size * 1000 / per_step_time
+                lr = cb_params.train_network.optimizer.learning_rate
+                cur_lr = lr(ms.Tensor(self.global_steps)).asnumpy()
+                msg = "epoch: [%s/%s] step: [%s/%s], loss: %.6f, overflow: %s, lr: %.6f, per step time: %.3f ms, fps: %.2f img/s" % (
+                    cur_epoch, self.epoch_size, cur_step_in_epoch, cb_params.batch_num,
+                    loss, overflow, cur_lr, per_step_time, fps)
+                self.logger.info(msg)
+                self.step_start_time = time.time()
+        self.global_steps += 1
+
+    def on_train_epoch_end(self, run_context):
+        cb_params = run_context.original_args()
+        loss = self._handle_loss(cb_params.net_outputs)
+        cur_epoch_num = cb_params.cur_epoch_num
+        epoch_time = time.time() - self.epoch_start_time
+        per_step_time = epoch_time * 1000 / cb_params.batch_num
+        fps = 1000 * self.batch_size / per_step_time
+        msg = 'epoch: [%s/%s] loss: %.6f, epoch time: %.3f s, per step time: %.3f ms, fps: %.2f' % (
+            cur_epoch_num, self.epoch_size, loss, epoch_time, per_step_time, fps)
+        self.logger.info(msg)
 
 
+class ResumeCallback(Callback):
+    def __init__(self, start_epoch_num=0):
+        super(ResumeCallback, self).__init__()
+        self.start_epoch_num = start_epoch_num
+
+    def on_train_epoch_begin(self, run_context):
+        run_context.original_args().cur_epoch_num += self.start_epoch_num

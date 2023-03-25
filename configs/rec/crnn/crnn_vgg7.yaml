@@ -72,10 +72,9 @@ train:
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
-    dataset_root: path/to/data_lmdb_release/
-    data_dir: training/
-    # label_files: # not required when using LMDBDataset
-    sample_ratios: 1.0
+    data_dir: path/to/datadir/train/
+    label_file: path/to/rec_gt_train.txt
+    sample_ratios: [1.0]
     shuffle: True
     transform_pipeline:
       - DecodeImage: 
@@ -114,11 +113,10 @@ eval:
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
-    dataset_root: path/to/data_lmdb_release/
-    data_dir: validation/
-    # label_files: # not required when using LMDBDataset
-    sample_ratios: 1.0
-    shuffle: False 
+    data_dir: path/to/datadir/validation/
+    label_file: path/to/rec_gt_train.txt
+    sample_ratios: [1.0]
+    shuffle: False
     transform_pipeline:
       - DecodeImage: 
           img_mode: BGR
