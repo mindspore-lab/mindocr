@@ -14,9 +14,9 @@ class LMDBDataset(BaseDataset):
     The annotaiton format is required to aligned to paddle, which can be done using the `converter.py` script.
 
     Args:
-        is_train: 
-        data_dir: 
-        shuffle, Optional, if not given, shuffle = is_train
+        is_train: whether the dataset is for training
+        data_dir: data root directory for lmdb dataset(s)
+        shuffle: Optional, if not given, shuffle = is_train
         transform_pipeline: list of dict, key - transform class name, value - a dict of param config.
                     e.g., [{'DecodeImage': {'img_mode': 'BGR', 'channel_first': False}}]
             -       if None, default transform pipeline for text detection will be taken.
@@ -43,7 +43,7 @@ class LMDBDataset(BaseDataset):
     def __init__(self, 
             is_train: bool = True, 
             data_dir: str = '', 
-            sample_ratio: Union[List, float] = 1.0, 
+            sample_ratio: float = 1.0, 
             shuffle: bool = None,
             transform_pipeline: List[dict] = None, 
             output_columns: List[str] = None,
@@ -55,8 +55,7 @@ class LMDBDataset(BaseDataset):
         assert isinstance(shuffle, bool), f'type error of {shuffle}'
         shuffle = shuffle if shuffle is not None else is_train
 
-        sample_ratio = sample_ratio[0] if isinstance(sample_ratio, list) else sample_ratio
-        self.lmdb_sets = self.load_hierarchical_lmdb_dataset(data_dir)
+        self.lmdb_sets = self.load_list_of_hierarchical_lmdb_dataset(data_dir)
         self.data_idx_order_list = self.get_dataset_idx_orders(sample_ratio, shuffle)
         
         # create transform
@@ -88,23 +87,31 @@ class LMDBDataset(BaseDataset):
                 else:
                     raise ValueError(f'Key {k} does not exist in data (available keys: {_data.keys()}). Please check the name or the completeness transformation pipeline.')
 
+    def load_list_of_hierarchical_lmdb_dataset(self, data_dir):
+        if isinstance(data_dir, str):
+            results = self.load_hierarchical_lmdb_dataset(data_dir)
+        elif isinstance(data_dir, list):
+            results = {}
+            for sub_data_dir in data_dir:
+                start_idx = len(results)
+                lmdb_sets = self.load_hierarchical_lmdb_dataset(sub_data_dir, start_idx)
+                results.update(lmdb_sets)
+        else:
+            results = {}
+            
+        return results
+
     def load_hierarchical_lmdb_dataset(self, data_dir, start_idx=0):
         
         lmdb_sets = {}
         dataset_idx = start_idx
-        for dirpath, dirnames, filenames in os.walk(data_dir + '/'):
-            if not dirnames:
-                env = lmdb.open(
-                    dirpath,
-                    max_readers=32,
-                    readonly=True,
-                    lock=False,
-                    readahead=False,
-                    meminit=False)
+        for rootdir, dirs, _ in os.walk(data_dir + '/'):
+            if not dirs:
+                env = lmdb.open(rootdir, max_readers=32, readonly=True, lock=False, readahead=False, meminit=False)
                 txn = env.begin(write=False)
                 data_size = int(txn.get('num-samples'.encode()))
                 lmdb_sets[dataset_idx] = {
-                    "dirpath":dirpath,
+                    "rootdir":rootdir,
                     "env":env,
                     "txn":txn,
                     "data_size":data_size
@@ -135,24 +142,23 @@ class LMDBDataset(BaseDataset):
 
         return data_idx_order_list
 
-    def get_lmdb_sample_info(self, txn, index):
-        label_key = 'label-%09d'.encode() % index
+    def get_lmdb_sample_info(self, txn, idx):
+        label_key = 'label-%09d'.encode() % idx
         label = txn.get(label_key)
         if label is None:
             return None
         label = label.decode('utf-8')
-        img_key = 'image-%09d'.encode() % index
+        img_key = 'image-%09d'.encode() % idx
         imgbuf = txn.get(img_key)
         return imgbuf, label
 
     def __getitem__(self, idx):
         lmdb_idx, file_idx = self.data_idx_order_list[idx]
-        lmdb_idx = int(lmdb_idx)
-        file_idx = int(file_idx)
-        sample_info = self.get_lmdb_sample_info(self.lmdb_sets[lmdb_idx]['txn'],
-                                                file_idx)
+        sample_info = self.get_lmdb_sample_info(self.lmdb_sets[int(lmdb_idx)]['txn'],
+                                                int(file_idx))
         if sample_info is None:
-            return self.__getitem__(np.random.randint(self.__len__()))
+            random_idx = np.random.randint(self.__len__())
+            return self.__getitem__(random_idx)
         
         data = {
             "img_lmdb": sample_info[0],
