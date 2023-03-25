@@ -1,6 +1,5 @@
 """
-This code is refer from:
-https://github.com/WenmuZhou/DBNet.pytorch/blob/master/data_loader/modules/iaa_augment.py
+iaa transform
 """
 import numpy as np
 import imgaug
@@ -8,33 +7,29 @@ import imgaug.augmenters as iaa
 
 __all__ = ['IaaAugment']
 
-class AugmenterBuilder(object):
-    def __init__(self):
-        pass
-
-    def build(self, args, root=True):
-        if args is None or len(args) == 0:
-            return None
-        elif isinstance(args, list):
-            if root:
-                sequence = [self.build(value, root=False) for value in args]
-                return iaa.Sequential(sequence)
-            else:
-                return getattr(iaa, args[0])(
-                    *[self.to_tuple_if_list(a) for a in args[1:]])
-        elif isinstance(args, dict):
-            cls = getattr(iaa, args['type'])
-            return cls(**{
-                k: self.to_tuple_if_list(v)
-                for k, v in args['args'].items()
-            })
+def compose_iaa_transforms(args, root=True):
+    if (args is None) or (len(args) == 0):
+        return None
+    elif isinstance(args, list):
+        if root:
+            sequence = [compose_iaa_transforms(value, root=False) for value in args]
+            return iaa.Sequential(sequence)
         else:
-            raise RuntimeError('unknown augmenter arg: ' + str(args))
+            return getattr(iaa, args[0])( *[_list_to_tuple(a) for a in args[1:]])
+    elif isinstance(args, dict):
+        cls = getattr(iaa, args['type'])
+        return cls(**{
+            k: _list_to_tuple(v)
+            for k, v in args['args'].items()
+        })
+    else:
+        raise ValueError('Unknown augmenter arg: ' + str(args))
 
-    def to_tuple_if_list(self, obj):
-        if isinstance(obj, list):
-            return tuple(obj)
-        return obj
+
+def _list_to_tuple(obj):
+    if isinstance(obj, list):
+        return tuple(obj)
+    return obj
 
 
 class IaaAugment():
@@ -56,7 +51,7 @@ class IaaAugment():
                     'size': [0.5, 3]
                 }
             }]
-        self.augmenter = AugmenterBuilder().build(augmenter_args)
+        self.augmenter = compose_iaa_transforms(augmenter_args)
 
     def __call__(self, data):
         image = data['image']
