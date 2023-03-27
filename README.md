@@ -189,14 +189,14 @@ To train the model, please run
 
 ``` shell 
 # train crnn on MJ+ST dataset
-python tools/train.py --config configs/rec/crnn/crnn_vgg7.py
+python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
 To train in distributed mode, please run
 
 ```shell
 # n is the number of GPUs/NPUs
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/rec/crnn/crnn_vgg7.yaml
+mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 > Notes: please ensure the arg `distribute` in yaml file is set True
 
@@ -208,7 +208,7 @@ The training result (including checkpoints, per-epoch performance and curves) wi
 To evaluate, please set the checkpoint path to the arg `ckpt_load_path` in yaml config file and run 
 
 ``` shell
-python tools/eval.py --config /path/to/config.yaml
+python tools/eval.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
 ### Inference and Deployment
