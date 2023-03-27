@@ -189,14 +189,14 @@ To train the model, please run
 
 ``` shell 
 # train crnn on MJ+ST dataset
-python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
+python tools/train.py --config configs/rec/crnn/crnn_vgg7.py
 ```
 
 To train in distributed mode, please run
 
 ```shell
 # n is the number of GPUs/NPUs
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
+mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/rec/crnn/crnn_vgg7.yaml
 ```
 > Notes: please ensure the arg `distribute` in yaml file is set True
 
@@ -250,6 +250,9 @@ The supported recognition models and their overall performance on the public ben
 ## Notes
 
 ### Change Log
+- 2023/03/23
+1. Add dynamic loss scaler support, compatiable with drop overflow update. To enable dynamic loss scaler, please set `type` of `loss_scale` as `dynamic`. A yaml example can be viewed in `configs/rec/crnn/crnn_icdar15.yaml`
+
 - 2023/03/20
 1. Arg names changed: `output_keys` -> `output_columns`, `num_keys_to_net` -> `num_columns_to_net`
 2. Data pipeline updated
