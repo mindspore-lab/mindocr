@@ -56,10 +56,10 @@ def build_model(config: Union[dict, str], **kwargs): #config: Union[dict,str]):
    
     # load checkpoint
     if 'ckpt_load_path' in kwargs:
-        ckpt_path = kwargs['ckpt_load_path']  
-        if ckpt_path not in ['', None]:
-            print(f'INFO: Loading checkpoint from {ckpt_path}')
-            params = load_checkpoint(ckpt_path)
-            load_param_into_net(network, params)
+        ckpt_path = kwargs['ckpt_load_path']
+        assert ckpt_path not in ['', None], f'Please provide the correct \n`eval:\n\tckpt_load_path`\n in the yaml config file '
+        print(f'INFO: Loading checkpoint from {ckpt_path}')
+        params = load_checkpoint(ckpt_path)
+        load_param_into_net(network, params)
 
     return network
