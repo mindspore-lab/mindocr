@@ -4,7 +4,7 @@ system:
   amp_level: 'O0'
   seed: 42
   val_while_train: True
-  drop_overflow_update: True
+  drop_overflow_update: False
 
 model:
   type: det
@@ -57,8 +57,10 @@ optimizer:
 
 # only used for mixed precision training
 loss_scaler:
-  type: static 
-  loss_scale: 1.0 
+  type: dynamic
+  loss_scale: 512
+  scale_factor: 2
+  scale_window: 1000
 
 train:
   ckpt_save_dir: './tmp_det'
