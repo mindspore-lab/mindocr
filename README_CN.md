@@ -167,7 +167,7 @@ MindOCR支持多种文本识别模型及数据集，在此我们使用**CRNN** �
 
 #### 2. 配置Yaml文件
 
-在`configs/rec`中选择一个包含目标预训练模型和数据流程的yaml配置文件，这里我们选择`configs/rec/vgg7_bilistm_ctc.yaml`。
+在`configs/rec`中选择一个包含目标预训练模型和数据流程的yaml配置文件，这里我们选择`configs/rec/crnn/crnn_resnet34.yaml`。
 
 相应的更改数据配置参数：
 ``` yaml
@@ -188,14 +188,14 @@ eval:
 
 ``` shell 
 # train crnn on MJ+ST dataset
-python tools/train.py --config configs/rec/vgg7_bilstm_ctc.py
+python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
 如果在分布式模式下，请运行命令：
 
 ```shell
 # n is the number of GPUs/NPUs
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/vgg7_bilstm_ctc.yaml
+mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 > 注意：请确保yaml文件中的`distribute`参数为True。
 
@@ -207,7 +207,7 @@ mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/vgg7_
 评估环节，在yaml配置文件中将`ckpt_load_path`参数配置为checkpoint文件的路径，然后运行： 
 
 ``` shell
-python tools/eval.py --config /path/to/config.yaml
+python tools/eval.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
 ### 推理与部署
@@ -242,8 +242,8 @@ python tools/eval.py --config /path/to/config.yaml
 
 | **模型** | **骨干网络** | **平均准确率**| **配置文件** | 
 |-----------|--------------|----------------|------------|
-| CRNN     | VGG7        | 80.98% 	| [YAML](configs/rec/vgg7_bilstm_ctc.yaml)    | 
-| CRNN     | Resnet34_vd    | 84.64% 	| [YAML](configs/rec/r34_bilstm_ctc.yaml)     |
+| CRNN     | VGG7        | 82.03% 	| [YAML](configs/rec/crnn/crnn_vgg7.yaml)    | 
+| CRNN     | Resnet34_vd    | 84.45% 	| [YAML](configs/rec/crnn/crnn_resnet34.yaml)     |
 
 
 ## 注释
