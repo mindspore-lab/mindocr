@@ -188,14 +188,14 @@ eval:
 
 ``` shell 
 # train crnn on MJ+ST dataset
-python tools/train.py --config configs/rec/crnn/crnn_vgg7.py
+python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
 如果在分布式模式下，请运行命令：
 
 ```shell
 # n is the number of GPUs/NPUs
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/rec/crnn/crnn_vgg7.yaml
+mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 > 注意：请确保yaml文件中的`distribute`参数为True。
 
@@ -207,7 +207,7 @@ mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/rec/crnn/
 评估环节，在yaml配置文件中将`ckpt_load_path`参数配置为checkpoint文件的路径，然后运行： 
 
 ``` shell
-python tools/eval.py --config /path/to/config.yaml
+python tools/eval.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
 ### 推理与部署
