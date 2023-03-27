@@ -73,3 +73,5 @@ path-to-data-dir/
     ch4_training_word_images_gt.zip
     Challenge4_Test_Task3_GT.zip
 ```
+
+[返回](../../../tools/dataset_converters/README_CN.md)

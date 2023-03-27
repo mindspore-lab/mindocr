@@ -21,3 +21,5 @@ path-to-data-dir/
         syntext_word_eng.json
         
 ```
+
+[返回](../../../tools/dataset_converters/README_CN.md)
