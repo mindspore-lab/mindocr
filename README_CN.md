@@ -242,8 +242,8 @@ python tools/eval.py --config /path/to/config.yaml
 
 | **模型** | **骨干网络** | **平均准确率**| **配置文件** | 
 |-----------|--------------|----------------|------------|
-| CRNN     | VGG7        | 80.98% 	| [YAML](configs/rec/crnn/crnn_vgg7.yaml)    | 
-| CRNN     | Resnet34_vd    | 84.74% 	| [YAML](configs/rec/crnn/crnn_resnet34.yaml)     |
+| CRNN     | VGG7        | 82.03% 	| [YAML](configs/rec/crnn/crnn_vgg7.yaml)    | 
+| CRNN     | Resnet34_vd    | 84.45% 	| [YAML](configs/rec/crnn/crnn_resnet34.yaml)     |
 
 
 ## 注释
