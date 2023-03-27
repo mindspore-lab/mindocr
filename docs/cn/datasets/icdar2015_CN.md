@@ -1,12 +1,12 @@
-English | [中文](../../cn/datasets/icdar2015_CN.md)
+[English](../../en/datasets/icdar2015.md) | 中文
 
-# Data Downloading
-ICDAR 2015 [paper](https://rrc.cvc.uab.es/?ch=4) 
+# 数据集下载
+ICDAR 2015 [文章](https://rrc.cvc.uab.es/?ch=4) 
 
-[download source](https://rrc.cvc.uab.es/?ch=4&com=downloads): one must register an account to download the dataset.
+[下载地址](https://rrc.cvc.uab.es/?ch=4&com=downloads): 在下载之前，您需要先注册一个账号。
 
 <details>
-  <summary>Where to Download ICDAR 2015</summary>
+  <summary>从何处下载 ICDAR 2015</summary>
 
 ### Word Recognition
 
@@ -56,7 +56,7 @@ References
 </details>
 
 
-After downloading the icdar2015 dataset, place all the files under `[path-to-data-dir]` folder:
+在 icdar2015 下载完成以后, 请把所有的文件放在 `[path-to-data-dir]` 文件夹内，如下所示:
 ```
 path-to-data-dir/
   ic15/
@@ -74,4 +74,4 @@ path-to-data-dir/
     Challenge4_Test_Task3_GT.zip
 ```
 
-[Back to README](../../../tools/dataset_converters/README.md)
+[返回](../../../tools/dataset_converters/README_CN.md)
