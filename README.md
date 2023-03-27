@@ -243,8 +243,8 @@ The supported recognition models and their overall performance on the public ben
 
 | **Model** | **Backbone** | **Avg Acc**| **Config** | 
 |-----------|--------------|----------------|------------|
-| CRNN     | VGG7        | 80.98% 	| [YAML](configs/rec/vgg7_bilstm_ctc.yaml)    | 
-| CRNN     | Resnet34_vd    | 84.74% 	| [YAML](configs/rec/r34_bilstm_ctc.yaml)     |
+| CRNN     | VGG7        | 80.98% 	| [YAML](configs/rec/crnn/crnn_vgg7.yaml)    | 
+| CRNN     | Resnet34_vd    | 84.74% 	| [YAML](configs/rec/crnn/crnn_resnet34.yaml)     |
 
 
 ## Notes
