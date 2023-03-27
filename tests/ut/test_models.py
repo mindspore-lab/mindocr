@@ -65,7 +65,7 @@ def test_model_by_name(model_name):
 
 
 @pytest.mark.parametrize('yaml_fp', all_yamls)
-def test_model_by_yaml(yaml_fp='configs/det/db_r50_icdar15.yaml'):
+def test_model_by_yaml(yaml_fp='configs/det/dbnet/db_r50_icdar15.yaml'):
     print(yaml_fp)
     with open(yaml_fp) as fp:
         config  = yaml.safe_load(fp)
@@ -114,7 +114,7 @@ def test_model_by_yaml(yaml_fp='configs/det/db_r50_icdar15.yaml'):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description='model config', add_help=False)
-    parser.add_argument('-c', '--config', type=str, default='configs/det/db_r50_icdar15.yaml',
+    parser.add_argument('-c', '--config', type=str, default='configs/det/dbnet/db_r50_icdar15.yaml',
                                help='YAML config file specifying default arguments (default='')')
     args = parser.parse_args()
     #test_registry()
