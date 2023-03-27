@@ -1,4 +1,4 @@
-English | [中文](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/README_CN.md)
+English | [中文](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README_CN.md)
 
 # DBNet
 
@@ -36,9 +36,9 @@ The overall architecture of DBNet is presented in _Figure 1._ It consists of mul
 
 ### ICDAR2015
 
-| **Model** | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Recipe**                                                                                 | **Download**                                                                                 |
-|-----------|--------------|----------------|------------|---------------|-------------|--------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
-| DBNet     | ResNet-50    | ImageNet       | 81.70%     | 85.84%        | 83.72%      | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/db_r50_icdar15.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a.ckpt) |
+| **Model** | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Recipe**                                                                                       | **Download**                                                                                 |
+|-----------|--------------|----------------|------------|---------------|-------------|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
+| DBNet     | ResNet-50    | ImageNet       | 81.70%     | 85.84%        | 83.72%      | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/db_r50_icdar15.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a.ckpt) |
 
 ## Quick Start
 
@@ -60,7 +60,7 @@ python tools/dataset_converters/convert.py --dataset_name=ic15 --task=det --imag
 
 Repeat this step to generate the _test_ labels.
 
-After the label files are generated, update `configs/det/db_r50_icdar15.yaml` configuration file with data paths,
+After the label files are generated, update `configs/det/dbnet/db_r50_icdar15.yaml` configuration file with data paths,
 specifically the following parts:
 
 ```yaml
@@ -114,16 +114,15 @@ model:
 After preparing a dataset and setting the configuration, training can be started as follows:
 
 ```shell
-python tools/train.py -c=configs/det/db_r50_icdar15.yaml
+python tools/train.py -c=configs/det/dbnet/db_r50_icdar15.yaml
 ```
 
 ### Evaluation
 
-To evaluate the accuracy of the trained model, you can use `eval.py`. Please **add** an additional configuration
-parameter **ckpt_load_path** in `eval` section and set it to the path of the model checkpoint and then run:
+To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file and then run:
 
 ```shell
-python tools/eval.py -c=configs/det/db_r50_icdar15.yaml
+python tools/eval.py -c=configs/det/dbnet/db_r50_icdar15.yaml
 ```
 
 ## References
