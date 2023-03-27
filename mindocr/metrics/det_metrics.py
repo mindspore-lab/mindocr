@@ -1,7 +1,11 @@
 from typing import List
 
 import numpy as np
-from mindspore import nn
+import mindspore as ms
+from mindspore import nn, ms_function
+import mindspore.ops as ops
+from mindspore import  Tensor
+from mindspore.communication import get_group_size
 from shapely.geometry import Polygon
 from sklearn.metrics import recall_score, precision_score, f1_score
 
@@ -77,6 +81,12 @@ class DetMetric(nn.Metric):
         super().__init__()
         self._evaluator = DetectionIoUEvaluator()
         self._gt_labels, self._det_labels = [], []
+        try:
+            self.device_num = get_group_size()
+            self.all_reduce = ops.AllReduce()
+        except (ValueError, RuntimeError):
+            self.device_num = 1
+            self.all_reduce = None
 
     def clear(self):
         self._gt_labels, self._det_labels = [], []
@@ -88,7 +98,7 @@ class DetMetric(nn.Metric):
         Args:
             inputs (tuple): contain two elements preds, gt
                     preds (list): prediction output by postprocess in the form of [[(box, score)]]
-                    gt (tuple): ground truth, order defined by output_keys in eval dataloader
+                    gt (tuple): ground truth, order defined by output_columns in eval dataloader
         """
         preds, gts = inputs
         polys, ignore = gts[0].asnumpy().astype(np.float32), gts[1].asnumpy()
@@ -98,6 +108,17 @@ class DetMetric(nn.Metric):
             gt_label, det_label = self._evaluator(gt, preds[sample_id][0])
             self._gt_labels.append(gt_label)
             self._det_labels.append(det_label)
+
+    @ms_function
+    def all_reduce_fun(self, x):
+        res = self.all_reduce(x)
+        return res
+
+    def cal_matrix(self, det_lst, gt_lst):
+        tp = np.sum((gt_lst == 1) * (det_lst == 1))
+        fn = np.sum((gt_lst == 1) * (det_lst == 0))
+        fp = np.sum((gt_lst == 0) * (det_lst == 1))
+        return tp, fp, fn
 
     def eval(self):
         """
@@ -111,8 +132,18 @@ class DetMetric(nn.Metric):
         # flatten predictions and labels into 1D-array
         self._det_labels = np.array([l for label in self._det_labels for l in label])
         self._gt_labels = np.array([l for label in self._gt_labels for l in label])
+
+        tp, fp, fn = self.cal_matrix(self._det_labels, self._gt_labels)
+        if self.all_reduce:
+            tp = float(self.all_reduce_fun(Tensor(tp, ms.float32)).asnumpy())
+            fp = float(self.all_reduce_fun(Tensor(fp, ms.float32)).asnumpy())
+            fn = float(self.all_reduce_fun(Tensor(fn, ms.float32)).asnumpy())
+
+        recall = tp / (tp + fn)
+        precision = tp / (tp + fp)
+        f_score = 2 * recall * precision / (recall + precision)
         return {
-            'recall': recall_score(self._gt_labels, self._det_labels),
-            'precision': precision_score(self._gt_labels, self._det_labels),
-            'f-score': f1_score(self._gt_labels, self._det_labels)
+            'recall': recall,
+            'precision': precision,
+            'f-score': f_score
         }

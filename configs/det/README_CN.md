@@ -1,3 +1,5 @@
+[English](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/README.md) | 中文
+
 # DBNet
 
 <!--- Guideline: use url linked to abstract in ArXiv instead of PDF for fast loading.  -->
@@ -25,9 +27,10 @@ DBNet的整体架构图如图1所示，包含以下阶段:
 
 ### ICDAR2015
 
-| **模型** | **骨干** | **预训练模型** | **Recall** | **Precision** | **F-score** |
-|-----------|--------------|----------------|------------|---------------|-------------|
-| DBNet     | ResNet-50    | ImageNet       | 81.70%     | 85.84%        | 83.72%      |
+
+| **模型** | **骨干网络** | **预训练数据集** | **Recall** | **Precision** | **F-score** | **配置文件**                                                                              | **模型权重下载**                                                                               |
+|---------|------------|----------------|------------|---------------|-------------|-----------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
+| DBNet   | ResNet-50  | ImageNet       | 81.70%     | 85.84%        | 83.72%      | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/db_r50_icdar15.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a.ckpt) |
 
 ## 快速上手
 

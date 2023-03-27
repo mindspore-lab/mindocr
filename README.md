@@ -117,7 +117,7 @@ mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/db_r5
 > Notes: please ensure the arg `distribute` in yaml file is set True
 
 
-The training result (including checkpoints, per-epoch performance and curves) will be  saved in the directory parsed by the arg `ckpt_save_dir`, which is "./tmp_det/" by default. 
+The training result (including checkpoints, per-epoch performance and curves) will be  saved in the directory parsed by the arg `ckpt_save_dir`.
 
 #### 4. Evaluation
 
@@ -189,19 +189,19 @@ To train the model, please run
 
 ``` shell 
 # train crnn on MJ+ST dataset
-python tools/train.py --config configs/rec/vgg7_bilstm_ctc.py
+python tools/train.py --config configs/rec/crnn/crnn_vgg7.py
 ```
 
 To train in distributed mode, please run
 
 ```shell
 # n is the number of GPUs/NPUs
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/vgg7_bilstm_ctc.yaml
+mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/rec/crnn/crnn_vgg7.yaml
 ```
 > Notes: please ensure the arg `distribute` in yaml file is set True
 
 
-The training result (including checkpoints, per-epoch performance and curves) will be  saved in the directory parsed by the arg `ckpt_save_dir`, which is "./tmp_det/" by default. 
+The training result (including checkpoints, per-epoch performance and curves) will be  saved in the directory parsed by the arg `ckpt_save_dir`. 
 
 #### 4. Evaluation
 
@@ -250,6 +250,13 @@ The supported recognition models and their overall performance on the public ben
 ## Notes
 
 ### Change Log
+- 2023/03/23
+1. Add dynamic loss scaler support, compatiable with drop overflow update. To enable dynamic loss scaler, please set `type` of `loss_scale` as `dynamic`. A yaml example can be viewed in `configs/rec/crnn/crnn_icdar15.yaml`
+
+- 2023/03/20
+1. Arg names changed: `output_keys` -> `output_columns`, `num_keys_to_net` -> `num_columns_to_net`
+2. Data pipeline updated
+
 - 2023/03/13
 1. Add system test and CI workflow.
 2. Add modelarts adapter to allow training on OpenI platform. To train on OpenI:

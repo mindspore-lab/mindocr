@@ -3,8 +3,11 @@ import string
 import numpy as np
 from rapidfuzz.distance import Levenshtein
 
-from mindspore import nn
+from mindspore import nn, ms_function
 import mindspore as ms
+import mindspore.ops as ops
+from mindspore import  Tensor
+from mindspore.communication import get_group_size
 
 
 __all__ = ['RecMetric']
@@ -35,7 +38,14 @@ class RecMetric(nn.Metric):
         self.filter_ood = filter_ood
         self.lower = lower
         self.print_flag = print_flag
-        
+
+        try:
+            self.device_num = get_group_size()
+            self.all_reduce = ops.AllReduce()
+        except (ValueError, RuntimeError):
+            self.device_num = 1
+            self.all_reduce = None
+
         # TODO: use parsed dictionary object
         if character_dict_path is None:
             self.dict  = [c for c in  "0123456789abcdefghijklmnopqrstuvwxyz"]
@@ -60,7 +70,7 @@ class RecMetric(nn.Metric):
                     preds (dict): prediction output by postprocess, keys:
                         - texts, List[str], batch of predicted text strings, shape [BS, ] 
                         - confs (optional), List[float], batch of confidence values for the prediction
-                    gt (tuple or list): ground truth, order defined by output_keys in eval dataloader. require element: 
+                    gt (tuple or list): ground truth, order defined by output_columns in eval dataloader. require element: 
                         gt_texts, for the grouth truth texts (padded to the fixed length), shape [BS, ]
                         gt_lens (optional), length of original text if padded, shape [BS, ] 
                         
@@ -113,10 +123,13 @@ class RecMetric(nn.Metric):
             self.norm_edit_dis += edit_distance 
             if pred == label:
                 self._correct_num += 1
-            #if edit_distance == 0:
-            #    self._correct_num += 1
 
             self._total_num += 1
+
+    @ms_function
+    def all_reduce_fun(self, x):
+        res = self.all_reduce(x)
+        return res
 
     def eval(self):
         if self._total_num == 0:
@@ -126,8 +139,11 @@ class RecMetric(nn.Metric):
               ', total num: ', self._total_num)
         sequence_accurancy = self._correct_num / self._total_num
         norm_edit_distance =  1 - self.norm_edit_dis / self._total_num
+        if self.all_reduce:
+            sequence_accurancy = float(self.all_reduce_fun(Tensor(sequence_accurancy, ms.float32)).asnumpy())
+            norm_edit_distance = float(self.all_reduce_fun(Tensor(norm_edit_distance, ms.float32)).asnumpy())
 
-        return {'acc': sequence_accurancy, 'norm_edit_distance': norm_edit_distance} 
+        return {'acc': sequence_accurancy / self.device_num, 'norm_edit_distance': norm_edit_distance / self.device_num}
 
 if __name__ == '__main__':
     gt = ['ba xla la!    ', 'ba       ']

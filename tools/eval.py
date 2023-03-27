@@ -10,7 +10,7 @@ import argparse
 from addict import Dict
 
 import mindspore as ms
-from mindspore import nn
+from mindspore.communication import init, get_rank, get_group_size
 
 from mindocr.data import build_dataset
 from mindocr.models import build_model
@@ -22,13 +22,23 @@ def main(cfg):
     # env init
     ms.set_context(mode=cfg.system.mode)
     if cfg.system.distribute:
-        print("WARNING: Distribut mode blocked. Evaluation only runs in standalone mode.")
+        init()
+        device_num = get_group_size()
+        rank_id = get_rank()
+        ms.set_auto_parallel_context(device_num=device_num,
+                                     parallel_mode='data_parallel',
+                                     gradients_mean=True,
+                                     )
+    else:
+        device_num = None
+        rank_id = None
 
+    is_main_device = rank_id in [None, 0]
     loader_eval = build_dataset(
             cfg.eval.dataset, 
             cfg.eval.loader,
-            num_shards=None,
-            shard_id=None,
+            num_shards=device_num,
+            shard_id=rank_id,
             is_train=False)
     num_batches = loader_eval.get_dataset_size()
 
@@ -62,7 +72,8 @@ def main(cfg):
     print('='*40)
  
     measures = net_evaluator.eval(loader_eval)
-    print('Performance: ', measures)
+    if is_main_device:
+        print('Performance: ', measures)
 
 
 def parse_args():
