@@ -6,7 +6,7 @@
 [![open issues](https://img.shields.io/github/issues/mindspore-lab/mindocr)](https://github.com/mindspore-lab/mindocr/issues)
 [![PRs](https://img.shields.io/badge/PRs-welcome-pink.svg)](https://github.com/mindspore-lab/mindocr/pulls)
  -->
-<!-- English | [中文](README_CN.md) -->
+English | [中文](README_CN.md)
 
 [Introduction](#introduction) |
 [Installation](#installation) |
@@ -83,7 +83,7 @@ After preparation, the data structure should be like
 
 #### 2. Configure Yaml
 
-Please choose a yaml config file containing the target pre-defined model and data pipeline that you want to re-use from `configs/det`. Here we choose `configs/det/db_r50_icdar15.yaml`.
+Please choose a yaml config file containing the target pre-defined model and data pipeline that you want to re-use from `configs/det`. Here we choose `configs/det/dbnet/db_r50_icdar15.yaml`.
 
 And change the data config args according to 
 ``` yaml
@@ -105,14 +105,14 @@ To train the model, please run
 
 ``` shell 
 # train dbnet on ic15 dataset
-python tools/train.py --config configs/det/db_r50_icdar15.yaml
+python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
 
 To train in distributed mode, please run
 
 ```shell
 # n is the number of GPUs/NPUs
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/db_r50_icdar15.yaml
+mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
 > Notes: please ensure the arg `distribute` in yaml file is set True
 
@@ -121,10 +121,10 @@ The training result (including checkpoints, per-epoch performance and curves) wi
 
 #### 4. Evaluation
 
-To evaluate, please parse the checkpoint path to the arg `ckpt_load_path` in yaml config file and run 
+To evaluate, please set the checkpoint path to the arg `ckpt_load_path` in yaml config file and run 
 
 ``` shell
-python tools/eval.py --config configs/det/db_r50_icdar15.yaml
+python tools/eval.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
 
 
@@ -205,7 +205,7 @@ The training result (including checkpoints, per-epoch performance and curves) wi
 
 #### 4. Evaluation
 
-To evaluate, please parse the checkpoint path to the arg `ckpt_load_path` in yaml config file and run 
+To evaluate, please set the checkpoint path to the arg `ckpt_load_path` in yaml config file and run 
 
 ``` shell
 python tools/eval.py --config /path/to/config.yaml
@@ -231,10 +231,10 @@ Coming soon
 
 The supported detection  models and their performance on the test set of ICDAR2015 are as follow.
 
-| **Model** | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Config** | 
-|-----------|--------------|----------------|------------|---------------|-------------|-------------|
-| DBNet     | ResNet-50    | ImageNet       | 81.97%     | 86.05%        | 83.96%      | [YAML](configs/det/db_r50_icdar15.yaml)  | 
-| DBNet++   | ResNet-50    | ImageNet       | 82.02%     | 87.38%        | 84.62%      | [YAML](configs/det/db++_r50_icdar15.yaml)   |
+| **Model** | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Config**                                        | 
+|-----------|--------------|----------------|------------|---------------|-------------|---------------------------------------------------|
+| DBNet     | ResNet-50    | ImageNet       | 81.97%     | 86.05%        | 83.96%      | [YAML](configs/det/dbnet/db_r50_icdar15.yaml)     | 
+| DBNet++   | ResNet-50    | ImageNet       | 82.02%     | 87.38%        | 84.62%      | [YAML](configs/det/dbnet++/db++_r50_icdar15.yaml) |
 
 ### Text Recognition
 

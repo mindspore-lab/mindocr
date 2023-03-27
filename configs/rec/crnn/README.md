@@ -40,7 +40,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 | **Model** | **Backbone** | **Avg Accuracy** | **Recipe**                                                                                     | **Download**                                                                               | 
 |-----------|--------------|------------------|------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
 | CRNN      | VGG7         | 82.03            | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt)     |
-| CRNN      | ResNet34     | 84.45            | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-8aa4aedb.ckpt) |
+| CRNN      | ResNet34     | 84.45            | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) |
 
 
 </div>
@@ -91,7 +91,7 @@ python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 
 ### Evaluation
 
-To evaluate the accuracy of the trained model, you can use `eval.py`. Please **add** an additional configuration parameter **ckpt_load_path** in `eval` section and set it to the path of the model checkpoint and then run:
+To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file and then run:
 
 ```
 python tools/eval.py --config configs/rec/crnn/crnn_vgg7.yaml
