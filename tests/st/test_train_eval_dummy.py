@@ -52,7 +52,7 @@ def test_train_eval(task, val_while_train):
 
     # modify ocr predefined yaml for minimum test
     if task == 'det':
-        config_fp = 'configs/det/db_r50_icdar15.yaml'
+        config_fp = 'configs/det/dbnet/db_r50_icdar15.yaml'
     elif task=='rec':
         #config_fp = 'configs/rec/vgg7_bilstm_ctc.yaml' # TODO: change on lmdb datasset
         config_fp = 'configs/rec/crnn/crnn_icdar15.yaml'
