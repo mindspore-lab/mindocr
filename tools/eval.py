@@ -2,9 +2,10 @@
 Model evaluation 
 '''
 import sys
-sys.path.append('.')
-
 import os
+__dir__ = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "..")))
+
 import yaml
 import argparse
 from addict import Dict
