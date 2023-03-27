@@ -1,3 +1,5 @@
+English | [中文](../../cn/datasets/totaltext_CN.md)
+
 # Data Downloading
 
 Total-Text [paper](https://arxiv.org/abs/1710.10400) 
@@ -11,10 +13,10 @@ Download Total-Text Images from [source](https://github.com/cs-chan/Total-Text-D
 
 </details>
 
-Download Total-Text Groud Truth from [source](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Groundtruth/Text).
+Download Total-Text Ground Truth from [source](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Groundtruth/Text).
 
 <details>
-  <summary>How to Download Total-Text Groudtruth</summary>
+  <summary>How to Download Total-Text Ground Truth</summary>
 
    The groundtruth of the Total-Text dataset can be downloaded through  [this https URL](https://drive.google.com/file/d/1v-pd-74EkZ3dWe6k0qppRtetjdPQ3ms1/view?usp=sharing) for text file format('.txt').
    
@@ -29,5 +31,7 @@ path-to-data-dir/
     txt_format.zip
         
 ```
+
+[Back to README](../../../tools/dataset_converters/README.md)
 
 

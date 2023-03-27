@@ -83,7 +83,7 @@ MindOCR支持多种文本检测模型及数据集，在此我们使用**DBNet** 
 
 #### 2. 配置Yaml文件
 
-在`configs/det`中选择一个包含目标预训练模型和数据流程的yaml配置文件，这里我们选择`configs/det/db_r50_icdar15.yaml`。
+在`configs/det`中选择一个包含目标预训练模型和数据流程的yaml配置文件，这里我们选择`configs/det/dbnet/db_r50_icdar15.yaml`。
 
 然后，按照以下指引更改数据配置参数：
 ``` yaml
@@ -105,26 +105,26 @@ eval:
 
 ``` shell 
 # train dbnet on ic15 dataset
-python tools/train.py --config configs/det/db_r50_icdar15.yaml
+python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
 
 如果在分布式模式下，请运行命令：
 
 ```shell
 # n is the number of GPUs/NPUs
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/db_r50_icdar15.yaml
+mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
 > 注意：请确保yaml文件中的`distribute`参数为True。
 
 
-训练结果 (包括检查点、每个epoch的性能和曲线图)将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为 "./tmp_det/"。 
+训练结果 (包括checkpoint、每个epoch的性能和曲线图)将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为 "./tmp_det/"。 
 
 #### 4. 评估
 
-评估环节，在yaml配置文件中将`ckpt_load_path`参数配置为检查点文件的路径，然后运行： 
+评估环节，在yaml配置文件中将`ckpt_load_path`参数配置为checkpoint文件的路径，然后运行： 
 
 ``` shell
-python tools/eval.py --config configs/det/db_r50_icdar15.yaml
+python tools/eval.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
 
 
@@ -200,11 +200,11 @@ mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/rec/crnn/
 > 注意：请确保yaml文件中的`distribute`参数为True。
 
 
-训练结果 (包括检查点、每个epoch的性能和曲线图)将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为 "./tmp_rec/"。 
+训练结果 (包括checkpoint、每个epoch的性能和曲线图)将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为 "./tmp_rec/"。 
 
 #### 4. 评估
 
-评估环节，在yaml配置文件中将`ckpt_load_path`参数配置为检查点文件的路径，然后运行： 
+评估环节，在yaml配置文件中将`ckpt_load_path`参数配置为checkpoint文件的路径，然后运行： 
 
 ``` shell
 python tools/eval.py --config /path/to/config.yaml
@@ -230,10 +230,10 @@ python tools/eval.py --config /path/to/config.yaml
 
 下表是目前支持的文本检测模型和它们在ICDAR2015测试数据集上的精度数据：
 
-| **模型**  | **骨干网络**  | **预训练**      | **Recall** | **Precision** | **F-score** | **配置文件** | 
-|-----------|--------------|----------------|------------|---------------|-------------|-------------|
-| DBNet     | ResNet-50    | ImageNet       | 81.97%     | 86.05%        | 83.96%      | [YAML](configs/det/db_r50_icdar15.yaml)  | 
-| DBNet++   | ResNet-50    | ImageNet       | 82.02%     | 87.38%        | 84.62%      | [YAML](configs/det/db++_r50_icdar15.yaml)   |
+| **模型**  | **骨干网络**  | **预训练**      | **Recall** | **Precision** | **F-score** | **配置文件**                                            | 
+|-----------|--------------|----------------|------------|---------------|-------------|-----------------------------------------------------|
+| DBNet     | ResNet-50    | ImageNet       | 81.97%     | 86.05%        | 83.96%      | [YAML](configs/det/dbnet/dbnet/db_r50_icdar15.yaml) | 
+| DBNet++   | ResNet-50    | ImageNet       | 82.02%     | 87.38%        | 84.62%      | [YAML](configs/det/dbnet++/db++_r50_icdar15.yaml)   |
 
 ### 文本识别
 

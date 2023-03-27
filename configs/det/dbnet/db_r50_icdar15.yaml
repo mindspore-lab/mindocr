@@ -114,6 +114,7 @@ train:
     num_workers: 8
 
 eval:
+  ckpt_load_path: ''
   dataset_sink_mode: False
   dataset:
     type: DetDataset

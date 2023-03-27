@@ -1,19 +1,19 @@
-English | [中文](README_CN.md)
+[English](README.md) | 中文
 
-This document shows how to convert ocr annotation to the general format (not including LMDB) for model training. 
+本文档展示了如何将OCR数据集的标注文件（不包括LMDB）转换为通用格式以进行模型训练。
 
-You may also refer to [`convert_datasets.sh`](../../convert_datasets.sh) which is a quick solution for converting annotation files of all datasets under a given directory.
+您也可以参考 [`convert_datasets.sh`](../../convert_datasets.sh)。这是将给定目录下所有数据集的标注文件转换为通用格式的Shell 脚本。
 
-For downloading ocr datasets, you can refer to the instructions for [ICDAR2015](../../docs/en/datasets/icdar2015.md), [MLT2017](../../docs/en/datasets/mlt2017.md), [Syntext 150k](../../docs/en/datasets/syntext150k.md), [Total Text](../../docs/en/datasets/totaltext.md).
+要下载OCR数据集，您可以参考 [ICDAR2015](../../docs/en/datasets/icdar2015.md), [MLT2017](../../docs/en/datasets/mlt2017.md), [Syntext 150k](../../docs/en/datasets/syntext150k.md), [Total Text](../../docs/en/datasets/totaltext.md)的说明。
 
-## Text Detection/Spotting Annotation
+## 文本检测/端到端文本检测
 
-The format of the converted annotation file should follow:
+转换后的标注文件格式应为：
 ``` text
 img_61.jpg\t[{"transcription": "MASA", "points": [[310, 104], [416, 141], [418, 216], [312, 179]]}, {...}]   
 ``` 
 
-Taking ICDAR2015 (ic15) dataset as an example, to convert the ic15 dataset to the required format, please run 
+以ICDAR2015（ic15）数据集为例，要将ic15数据集转换为所需的格式，请运行：
 
 ``` shell
 # convert training anotation
@@ -35,10 +35,9 @@ python tools/dataset_converters/convert.py \
         --output_path /path/to/ic15/det/test/det_gt.txt 
 ```
 
+## 文本识别
+文本识别数据集的标注格式如下：
 
-## Text Recognition Annotation
-
-The annotation format for text recognition dataset follows 
 ```text 
 word_7.png	fusionopolis
 word_8.png	fusionopolis
@@ -46,9 +45,9 @@ word_9.png	Reserve
 word_10.png	CAUTION
 word_11.png	citi
 ```
-Note that image name and text label are seperated by \t. 
+请注意，图像名称和文本标签以`\t`分隔。
 
-To convert, please run:
+要转换标注文件，请运行：
 ``` shell
 # convert training anotation
 python tools/dataset_converters/convert.py \

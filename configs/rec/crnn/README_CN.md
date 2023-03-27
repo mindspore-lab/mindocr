@@ -37,10 +37,10 @@ Table Format:
 
 <div align="center">
 
-| **模型** | **骨干网络** | **平均准确率**  | **配置文件**                                                                                    | **模型权重下载**                                                                              | 
+| **模型** | **骨干网络** | **平均准确率**  | **配置文件**                                                                                    | **模型权重下载**                                                                                 | 
 |---------|------------|---------------|------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
 | CRNN (ours)    | VGG7       | 82.03%         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt)     |
-| CRNN (ours)    | ResNet34_vd   | 84.45%        | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-8aa4aedb.ckpt) |
+| CRNN (ours)    | ResNet34_vd   | 84.45%        | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) |
 | CRNN (PaddleOCR) | ResNet34_vd | 83.99% | [yaml](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/configs/rec/rec_r34_vd_none_bilstm_ctc.yml) | [weights](https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/rec_r34_vd_none_bilstm_ctc_v2.0_train.tar) |
 
 </div>
@@ -92,7 +92,7 @@ python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 
 ### 模型评估
 
-若要评估已训练模型的准确性，可以使用`eval.py`。请在`eval`部分添加额外的配置参数**ckpt_load_path**，并将其设置为模型的路径，然后运行：
+若要评估已训练模型的准确性，可以使用`eval.py`。请在yaml配置文件的`eval`部分将参数`ckpt_load_path`设置为模型checkpoint的文件路径，然后运行：
 
 ```
 python tools/eval.py --config configs/rec/crnn/crnn_vgg7.yaml

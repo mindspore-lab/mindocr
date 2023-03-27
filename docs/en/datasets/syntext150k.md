@@ -1,3 +1,5 @@
+English | [中文](../../cn/datasets/syntext150k_CN.md)
+
 # Data Downloading
 
 SynText150k [paper](https://arxiv.org/abs/2002.10200) 
@@ -19,3 +21,5 @@ path-to-data-dir/
         syntext_word_eng.json
         
 ```
+
+[Back to README](../../../tools/dataset_converters/README.md)

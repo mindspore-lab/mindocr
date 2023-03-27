@@ -36,7 +36,7 @@ def main(cfg):
 
     is_main_device = rank_id in [None, 0]
     loader_eval = build_dataset(
-            cfg.eval.dataset, 
+            cfg.eval.dataset,
             cfg.eval.loader,
             num_shards=device_num,
             shard_id=rank_id,
@@ -44,7 +44,6 @@ def main(cfg):
     num_batches = loader_eval.get_dataset_size()
 
     # model
-    assert 'ckpt_load_path' in cfg.eval, f'Please provide \n`eval:\n\tckpt_load_path`\n in the yaml config file '
     network = build_model(cfg.model, ckpt_load_path=cfg.eval.ckpt_load_path)
     network.set_train(False)
 
