@@ -1,22 +1,23 @@
 from .det_metrics import *
 from .rec_metrics import *
 from . import det_metrics
-from . import rec_metrics 
+from . import rec_metrics
 
 supported_metrics = det_metrics.__all__ + rec_metrics.__all__
 
-# TODO: support multiple metrics
-def build_metric(config):
+def build_metric(config, device_num=1, **kwargs):
     """
     Create the metric function.
 
     Args:
         config (dict): configuration for metric including metric `name` and also the kwargs specifically for each metric.
             - name (str): metric function name, exactly the same as one of the supported metric class names
-    
+        device_name (int): number of devices. If device_num > 1, metric will be computed in distributed mode, i.e., aggregate
+            intermediate variables (e.g., num_correct, TP) from all devices  by `ops.AllReduce` op so as to correctly compute the metric on dispatched data.
+
     Return:
         nn.Metric
-    
+
     Example:
         >>> # Create a RecMetric module for text recognition
         >>> from mindocr.metrics import build_metric
@@ -28,8 +29,10 @@ def build_metric(config):
 
     mn = config.pop('name')
     if mn in supported_metrics:
+        device_num = 1 if device_num is None else device_num
+        config.update({'device_num': device_num})
         metric = eval(mn)(**config)
     else:
         raise ValueError(f'Invalid metric name {mn}, support metrics are {supported_metrics}')
-    
+
     return metric

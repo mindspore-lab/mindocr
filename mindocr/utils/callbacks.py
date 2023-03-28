@@ -45,9 +45,6 @@ class Evaluator:
         for m in self.metrics:
             m.clear()
 
-        # debug
-        # for param in self.net.get_parameters():
-        #    print(param.name, param.value().sum())
         for i, data in tqdm(enumerate(iterator), total=dataloader.get_dataset_size()):
             # start = time.time()
             # TODO: if network input is not just an image.
@@ -65,8 +62,6 @@ class Evaluator:
 
             if self.postprocessor is not None:
                 preds = self.postprocessor(net_preds)  # {'polygons':, 'scores':} for text det
-
-            # print('GT polys:', gt[0])
 
             # metric internal update
             for m in self.metrics:

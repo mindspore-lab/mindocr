@@ -77,16 +77,12 @@ class DetectionIoUEvaluator:
 
 
 class DetMetric(nn.Metric):
-    def __init__(self, **kwargs):
+    def __init__(self, device_num=1, **kwargs):
         super().__init__()
         self._evaluator = DetectionIoUEvaluator()
         self._gt_labels, self._det_labels = [], []
-        try:
-            self.device_num = get_group_size()
-            self.all_reduce = ops.AllReduce()
-        except (ValueError, RuntimeError):
-            self.device_num = 1
-            self.all_reduce = None
+        self.device_num = device_num
+        self.all_reduce = None if device_num==1 else ops.AllReduce()
 
     def clear(self):
         self._gt_labels, self._det_labels = [], []
@@ -97,10 +93,14 @@ class DetMetric(nn.Metric):
 
         Args:
             inputs (tuple): contain two elements preds, gt
-                    preds (list): prediction output by postprocess in the form of [[(box, score)]]
-                    gt (tuple): ground truth, order defined by output_columns in eval dataloader
+                    preds (list[tuple]): text detection prediction as a list of tuple (polygon, confidence), 
+                        where polygon is in shape [num_boxes, 4, 2], confidence is in shape [num_boxes]  
+                    gts (tuple): ground truth - (polygons, ignore_tags), where polygons are in shape [num_images, num_boxes, 4, 2], 
+                        ignore_tags are in shape [num_images, num_boxes], which can be defined by output_columns in yaml
         """
         preds, gts = inputs
+        print(preds)
+        print(gts[0].shape, gts[1].shape)
         polys, ignore = gts[0].asnumpy().astype(np.float32), gts[1].asnumpy()
 
         for sample_id in range(len(polys)):
@@ -119,6 +119,8 @@ class DetMetric(nn.Metric):
         fn = np.sum((gt_lst == 1) * (det_lst == 0))
         fp = np.sum((gt_lst == 0) * (det_lst == 1))
         return tp, fp, fn
+    
+       
 
     def eval(self):
         """
@@ -139,11 +141,18 @@ class DetMetric(nn.Metric):
             fp = float(self.all_reduce_fun(Tensor(fp, ms.float32)).asnumpy())
             fn = float(self.all_reduce_fun(Tensor(fn, ms.float32)).asnumpy())
 
-        recall = tp / (tp + fn)
-        precision = tp / (tp + fp)
-        f_score = 2 * recall * precision / (recall + precision)
+        recall = _safe_divide(tp, (tp + fn))
+        precision = _safe_divide(tp, (tp + fp))
+        f_score = _safe_divide(2 * recall * precision, (recall + precision))
         return {
             'recall': recall,
             'precision': precision,
             'f-score': f_score
         }
+
+
+def _safe_divide(numerator, denominator, val_if_zero_divide=0.):
+    if denominator == 0:
+        return val_if_zero_divide
+    else:
+        return numerator / denominator

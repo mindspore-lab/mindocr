@@ -31,6 +31,7 @@ class RecMetric(nn.Metric):
             filter_ood=True,  
             lower=True, 
             print_flag=False, 
+            device_num=1,
             **kwargs):
         super().__init__()
         self.clear()
@@ -38,13 +39,9 @@ class RecMetric(nn.Metric):
         self.filter_ood = filter_ood
         self.lower = lower
         self.print_flag = print_flag
-
-        try:
-            self.device_num = get_group_size()
-            self.all_reduce = ops.AllReduce()
-        except (ValueError, RuntimeError):
-            self.device_num = 1
-            self.all_reduce = None
+        
+        self.device_num = device_num
+        self.all_reduce = None if device_num==1 else ops.AllReduce()
 
         # TODO: use parsed dictionary object
         if character_dict_path is None:
@@ -57,9 +54,9 @@ class RecMetric(nn.Metric):
                     self.dict.append(c)
 
     def clear(self):
-        self._correct_num = 0
-        self._total_num = 0
-        self.norm_edit_dis = 0.0
+        self._correct_num = ms.Tensor(0, dtype=ms.int32)
+        self._total_num = ms.Tensor(0, dtype=ms.float32) # avoid int divisor
+        self._norm_edit_dis = ms.Tensor(0., dtype=ms.float32)
 
     def update(self, *inputs):
         """
@@ -120,7 +117,7 @@ class RecMetric(nn.Metric):
                 print(pred, " :: ", label)
 
             edit_distance = Levenshtein.normalized_distance(pred, label)
-            self.norm_edit_dis += edit_distance 
+            self._norm_edit_dis += edit_distance 
             if pred == label:
                 self._correct_num += 1
 
@@ -137,13 +134,21 @@ class RecMetric(nn.Metric):
                 'Accuary can not be calculated, because the number of samples is 0.')
         print('correct num: ', self._correct_num,
               ', total num: ', self._total_num)
-        sequence_accurancy = self._correct_num / self._total_num
-        norm_edit_distance =  1 - self.norm_edit_dis / self._total_num
-        if self.all_reduce:
-            sequence_accurancy = float(self.all_reduce_fun(Tensor(sequence_accurancy, ms.float32)).asnumpy())
-            norm_edit_distance = float(self.all_reduce_fun(Tensor(norm_edit_distance, ms.float32)).asnumpy())
 
-        return {'acc': sequence_accurancy / self.device_num, 'norm_edit_distance': norm_edit_distance / self.device_num}
+        if self.all_reduce:
+            # sum over all devices
+            correct_num = self.all_reduce_fun(self._correct_num)
+            norm_edit_dis = self.all_reduce_fun(self._norm_edit_dis)
+            total_num = self.all_reduce_fun(self._total_num)
+        else:
+            correct_num = self._correct_num
+            norm_edit_dis = self._norm_edit_dis
+            total_num = self._total_num
+
+        sequence_accurancy = float((correct_num / total_num).asnumpy())
+        norm_edit_distance =  float((1 - norm_edit_dis / total_num).asnumpy())
+
+        return {'acc': sequence_accurancy, 'norm_edit_distance': norm_edit_distance}
 
 if __name__ == '__main__':
     gt = ['ba xla la!    ', 'ba       ']

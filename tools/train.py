@@ -101,13 +101,13 @@ def main(cfg):
                                     scale_sense=loss_scale_manager,
                                     drop_overflow_update=cfg.system.drop_overflow_update,
                                     )
-    # postprocess, metric
+    # build postprocess and metric
     postprocessor = None
     metric = None
     if cfg.system.val_while_train:
-        postprocessor = build_postprocess(cfg.postprocess)
         # postprocess network prediction
-        metric = build_metric(cfg.metric)
+        postprocessor = build_postprocess(cfg.postprocess)
+        metric = build_metric(cfg.metric, device_num=device_num)
 
     # build callbacks
     eval_cb = EvalSaveCallback(
