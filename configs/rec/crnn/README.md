@@ -41,7 +41,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 |-----------|--------------|------------------|------------|--------------| ------ |
 | CRNN (ours)    | D910x8-MS1.8-G | VGG7       | 82.03%         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt)     |
 | CRNN (ours)    | D910x8-MS1.8-G | ResNet34_vd   | 84.45%         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) |
-| CRNN (PaddleOCR) | D910x8-MS1.8-G | ResNet34_vd | 83.99% | [yaml](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/configs/rec/rec_r34_vd_none_bilstm_ctc.yml) | [weights](https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/rec_r34_vd_none_bilstm_ctc_v2.0_train.tar) |
+| CRNN (PaddleOCR) | - | ResNet34_vd | 83.99% | [yaml](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/configs/rec/rec_r34_vd_none_bilstm_ctc.yml) | [weights](https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/rec_r34_vd_none_bilstm_ctc_v2.0_train.tar) |
 
 </div>
 
