@@ -1,4 +1,4 @@
-English | [中文](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README_CN.md)
+English | [中文](README_CN.md)
 
 # DBNet
 
@@ -18,7 +18,7 @@ into the architecture. DB simplifies post-processing and enhances the performanc
 removed in the inference stage without sacrificing performance.[[1](#references)]
 
 ![dbnet_architecture](https://user-images.githubusercontent.com/16683750/225589619-d50c506c-e903-4f59-a316-8b62586c73a9.png)
-<p style="text-align: center;"><em>Figure 1. Overall DBNet architecture</em></p>
+<p align="center"><em>Figure 1. Overall DBNet architecture</em></p>
 
 The overall architecture of DBNet is presented in _Figure 1._ It consists of multiple stages:
 
@@ -35,10 +35,14 @@ The overall architecture of DBNet is presented in _Figure 1._ It consists of mul
 ## Results
 
 ### ICDAR2015
+<div align="center">
 
-| **Model** | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Recipe**                                                                                       | **Download**                                                                                 |
-|-----------|--------------|----------------|------------|---------------|-------------|--------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
-| DBNet     | ResNet-50    | ImageNet       | 81.70%     | 85.84%        | 83.72%      | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/db_r50_icdar15.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a.ckpt) |
+| **Model** | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Recipe**                         | **Download**                                                                                 |
+|------------------|--------------|----------------|------------|---------------|-------------|-----------------------------|----------------------------------------------------------------------------------------------|
+| DBNet (ours)     | ResNet-50    | ImageNet       | 81.70%     | 85.84%        | 83.72%      | [yaml](db_r50_icdar15.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a.ckpt) |
+| DBNet (PaddleOCR)| ResNet50_vd  | SynthText      | 78.72%     | 86.41%        | 82.38%      |
+
+</div>
 
 ## Quick Start
 

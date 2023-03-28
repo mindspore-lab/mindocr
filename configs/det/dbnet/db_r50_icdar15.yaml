@@ -114,7 +114,7 @@ train:
     num_workers: 8
 
 eval:
-  ckpt_load_path: ''
+  ckpt_load_path: 'tmp_det/best.ckpt'
   dataset_sink_mode: False
   dataset:
     type: DetDataset
