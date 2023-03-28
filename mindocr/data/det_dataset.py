@@ -73,7 +73,7 @@ class DetDataset(BaseDataset):
             raise ValueError('No transform pipeline is specified!')
 
         # prefetch the data keys, to fit GeneratorDataset
-        _data = self.data_list[0]
+        _data = self.data_list[0].copy()        # WARNING: shallow copy. Do deep copy if necessary.
         _data = run_transforms(_data, transforms=self.transforms)
         _available_keys = list(_data.keys())
 
@@ -90,7 +90,7 @@ class DetDataset(BaseDataset):
 
 
     def __getitem__(self, index):
-        data = self.data_list[index]
+        data = self.data_list[index].copy()     # WARNING: shallow copy. Do deep copy if necessary.
 
         # perform transformation on data
         try:
