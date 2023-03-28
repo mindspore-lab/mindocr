@@ -23,7 +23,13 @@ class Evaluator:
                  **kwargs):
         self.net = network
         self.postprocessor = postprocessor
+        # FIXME: process when metrics is not None
         self.metrics = metrics if isinstance(metrics, List) else [metrics]
+        self.metric_names = []
+        for m in metrics:
+            assert hasattr(m, 'metric_names') and isinstance(m.metric_names, List), f'Metric object must contain `metric_names` attribute to indicate the metric names as a List type, but not found in {m.__class__.__name__}'
+            self.metric_names += m.metric_names
+
         self.visualize = visualize
         self.verbose = verbose
         eval_loss = False
@@ -113,11 +119,15 @@ class EvalSaveCallback(Callback):
                  rank_id=0,
                  ckpt_save_dir='./',
                  main_indicator='hmean',
+                 val_interval=1,
+                 val_start_epoch=1,
                  ):
         self.rank_id = rank_id
         self.is_main_device = rank_id in [0, None]
         self.loader_eval = loader
         self.network = network
+        self.val_interval = val_interval
+        self.val_start_epoch = val_start_epoch
         if self.loader_eval is not None:
             self.net_evaluator = Evaluator(network, loss_fn, postprocessor, metrics)
             self.main_indicator = main_indicator
@@ -178,40 +188,47 @@ class EvalSaveCallback(Callback):
             f"loss:{train_loss:.5f}, training time:{train_time:.3f}s"
         )
 
-        if self.loader_eval is not None:
+        eval_done = False
+        if (self.loader_eval is not None):
+            if cur_epoch >= self.val_start_epoch and (cur_epoch - self.val_start_epoch) % self.val_interval == 0:
                 eval_start = time.time()
                 measures = self.net_evaluator.eval(self.loader_eval)
+                eval_done = True
                 if self.is_main_device:
                     perf = measures[self.main_indicator]
                     eval_time = time.time() - eval_start
                     print(f'Performance: {measures}, eval time: {eval_time}')
+            else:
+                measures = {m_name: None for m_name in self.net_evaluator.metric_names}
+                eval_time = 0
+                perf = 1e-8
         else:
             perf = train_loss
 
-        # save models and results using card 0
+        # save best models and results using card 0
         if self.is_main_device:
-            if (perf > self.best_perf) ^ (self.main_indicator=='train_loss'):
-                self.best_perf = perf 
-                save_checkpoint(self.network, os.path.join(self.ckpt_save_dir, 'best.ckpt'))
-                print(f'=> Best {self.main_indicator}: {self.best_perf}, checkpoint saved.')
+            # save best models
+            if (self.main_indicator == 'train_loss' and perf < self.best_perf) \
+                or (self.main_indicator != 'train_loss' and eval_done and perf > self.best_perf): # when val_while_train enabled, only find best checkpoint after eval done.
+                    self.best_perf = perf
+                    save_checkpoint(self.network, os.path.join(self.ckpt_save_dir, 'best.ckpt'))
+                    print(f'=> Best {self.main_indicator}: {self.best_perf}, checkpoint saved.')
 
             # record results
             if cur_epoch == 1:
-                metric_names = ['loss']
                 if self.loader_eval is not None:
-                    metric_names +=  list(measures.keys()) + ['train_time', 'eval_time']
+                    perf_columns = ['loss'] + list(measures.keys()) + ['train_time', 'eval_time']
                 else:
-                    metric_names +=  ['train_time']
+                    perf_columns =  ['loss', 'train_time']
+                self.rec = PerfRecorder(self.ckpt_save_dir, metric_names=perf_columns) # record column names
 
-                self.rec = PerfRecorder(self.ckpt_save_dir, metric_names=metric_names)
-            epoch_metric_values = [cur_epoch, train_loss]
             if self.loader_eval is not None:
-                epoch_metric_values += list(measures.values()) + [train_time, eval_time]
+                epoch_perf_values = [cur_epoch, train_loss] + list(measures.values()) + [train_time, eval_time]
             else:
-                epoch_metric_values += [train_time]
-            self.rec.add(*epoch_metric_values)
+                epoch_perf_values = [cur_epoch, train_loss, train_time]
+            self.rec.add(*epoch_perf_values) # record column values
 
-        tot_time = time.time()-self.last_epoch_end_time 
+        tot_time = time.time()-self.last_epoch_end_time
         self.last_epoch_end_time = time.time()
         print(f'Total time cost for epoch {cur_epoch}: {tot_time}')
 

@@ -17,20 +17,20 @@ class RecMetric(nn.Metric):
     Define accuracy metric for warpctc network.
 
     Args:
-        ignore_space: remove space in prediction and ground truth text if True 
-        filter_ood: filter out-of-dictionary characters(e.g., '$' for the default digit+en dictionary) in ground truth text. Default is True. 
-        lower: convert GT text to lower case. Recommend to set True if the dictionary does not contains upper letters 
+        ignore_space: remove space in prediction and ground truth text if True
+        filter_ood: filter out-of-dictionary characters(e.g., '$' for the default digit+en dictionary) in ground truth text. Default is True.
+        lower: convert GT text to lower case. Recommend to set True if the dictionary does not contains upper letters
 
     Notes:
-        Since the OOD characters are skipped during label encoding in data transformation by default, filter_ood should be True. (Paddle skipped the OOD character in label encoding and then decoded the label indices back to text string, which has no ood character.  
+        Since the OOD characters are skipped during label encoding in data transformation by default, filter_ood should be True. (Paddle skipped the OOD character in label encoding and then decoded the label indices back to text string, which has no ood character.
     """
 
-    def __init__(self, 
+    def __init__(self,
             character_dict_path=None,
-            ignore_space=True, 
-            filter_ood=True,  
-            lower=True, 
-            print_flag=False, 
+            ignore_space=True,
+            filter_ood=True,
+            lower=True,
+            print_flag=False,
             device_num=1,
             **kwargs):
         super().__init__()
@@ -39,9 +39,10 @@ class RecMetric(nn.Metric):
         self.filter_ood = filter_ood
         self.lower = lower
         self.print_flag = print_flag
-        
+
         self.device_num = device_num
         self.all_reduce = None if device_num==1 else ops.AllReduce()
+        self.metric_names = ['acc', 'norm_edit_distance']
 
         # TODO: use parsed dictionary object
         if character_dict_path is None:
@@ -60,44 +61,44 @@ class RecMetric(nn.Metric):
 
     def update(self, *inputs):
         """
-        Updates the internal evaluation result 
+        Updates the internal evaluation result
 
         Args:
             inputs (tuple): contain two elements preds, gt
                     preds (dict): prediction output by postprocess, keys:
-                        - texts, List[str], batch of predicted text strings, shape [BS, ] 
+                        - texts, List[str], batch of predicted text strings, shape [BS, ]
                         - confs (optional), List[float], batch of confidence values for the prediction
-                    gt (tuple or list): ground truth, order defined by output_columns in eval dataloader. require element: 
+                    gt (tuple or list): ground truth, order defined by output_columns in eval dataloader. require element:
                         gt_texts, for the grouth truth texts (padded to the fixed length), shape [BS, ]
-                        gt_lens (optional), length of original text if padded, shape [BS, ] 
-                        
+                        gt_lens (optional), length of original text if padded, shape [BS, ]
+
         Raises:
             ValueError: If the number of the inputs is not 2.
         """
-        
+
         if len(inputs) != 2:
             raise ValueError('Length of inputs should be 2')
         preds, gt = inputs
-        
+
         pred_texts = preds['texts']
         #pred_confs = preds['confs']
         #print('pred: ', pred_texts, len(pred_texts))
 
         # remove padded chars in GT
         if isinstance(gt, tuple) or isinstance(gt, list):
-            gt_texts = gt[0] # text string padded 
-            gt_lens = gt[1] # text length 
+            gt_texts = gt[0] # text string padded
+            gt_lens = gt[1] # text length
 
             if isinstance(gt_texts, ms.Tensor):
                 gt_texts = gt_texts.asnumpy()
                 gt_lens = gt_lens.asnumpy()
-            
-            gt_texts = [gt_texts[i][:l] for i, l in enumerate(gt_lens)] 
+
+            gt_texts = [gt_texts[i][:l] for i, l in enumerate(gt_lens)]
         else:
             gt_texts = gt
             if isinstance(gt_texts, ms.Tensor):
                 gt_texts = gt_texts.asnumpy()
-        
+
         #print('2: ', gt_texts)
         for pred, label in zip(pred_texts, gt_texts):
             #print('pred', pred, 'END')
@@ -111,13 +112,13 @@ class RecMetric(nn.Metric):
                 label = label.lower()
 
             if self.filter_ood: # filter out of dictionary characters
-                label = ''.join([c for c in label if c in self.dict]) 
+                label = ''.join([c for c in label if c in self.dict])
 
             if self.print_flag:
                 print(pred, " :: ", label)
 
             edit_distance = Levenshtein.normalized_distance(pred, label)
-            self._norm_edit_dis += edit_distance 
+            self._norm_edit_dis += edit_distance
             if pred == label:
                 self._correct_num += 1
 
