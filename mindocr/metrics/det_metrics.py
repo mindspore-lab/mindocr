@@ -83,6 +83,7 @@ class DetMetric(nn.Metric):
         self._gt_labels, self._det_labels = [], []
         self.device_num = device_num
         self.all_reduce = None if device_num==1 else ops.AllReduce()
+        self.metric_names = ['recall', 'precision', 'f-score']
 
     def clear(self):
         self._gt_labels, self._det_labels = [], []
@@ -93,14 +94,12 @@ class DetMetric(nn.Metric):
 
         Args:
             inputs (tuple): contain two elements preds, gt
-                    preds (list[tuple]): text detection prediction as a list of tuple (polygon, confidence), 
-                        where polygon is in shape [num_boxes, 4, 2], confidence is in shape [num_boxes]  
-                    gts (tuple): ground truth - (polygons, ignore_tags), where polygons are in shape [num_images, num_boxes, 4, 2], 
+                    preds (list[tuple]): text detection prediction as a list of tuple (polygon, confidence),
+                        where polygon is in shape [num_boxes, 4, 2], confidence is in shape [num_boxes]
+                    gts (tuple): ground truth - (polygons, ignore_tags), where polygons are in shape [num_images, num_boxes, 4, 2],
                         ignore_tags are in shape [num_images, num_boxes], which can be defined by output_columns in yaml
         """
         preds, gts = inputs
-        print(preds)
-        print(gts[0].shape, gts[1].shape)
         polys, ignore = gts[0].asnumpy().astype(np.float32), gts[1].asnumpy()
 
         for sample_id in range(len(polys)):
@@ -119,8 +118,8 @@ class DetMetric(nn.Metric):
         fn = np.sum((gt_lst == 1) * (det_lst == 0))
         fp = np.sum((gt_lst == 0) * (det_lst == 1))
         return tp, fp, fn
-    
-       
+
+
 
     def eval(self):
         """

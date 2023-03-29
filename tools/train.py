@@ -34,11 +34,11 @@ from mindocr.utils.model_wrapper import NetWithLossWrapper
 from mindocr.utils.train_step_wrapper import TrainOneStepWrapper
 from mindocr.utils.callbacks import EvalSaveCallback
 from mindocr.utils.seed import set_seed
-from mindocr.utils.loss_scaler import get_loss_scales 
+from mindocr.utils.loss_scaler import get_loss_scales
 
 
 def main(cfg):
-    # init env 
+    # init env
     ms.set_context(mode=cfg.system.mode)
     if cfg.system.distribute:
         init()
@@ -88,12 +88,12 @@ def main(cfg):
     # get loss scale setting for mixed precision training
     loss_scale_manager, optimizer_loss_scale = get_loss_scales(cfg)
 
-    # build lr scheduler 
+    # build lr scheduler
     lr_scheduler = create_scheduler(num_batches, **cfg['scheduler'])
 
     # build optimizer
     cfg.optimizer.update({'lr': lr_scheduler, 'loss_scale': optimizer_loss_scale})
-    optimizer = create_optimizer(network.trainable_params(), **cfg.optimizer) 
+    optimizer = create_optimizer(network.trainable_params(), **cfg.optimizer)
 
     # build train step cell
     train_net = TrainOneStepWrapper(net_with_loss,
@@ -117,7 +117,11 @@ def main(cfg):
             metrics=[metric],
             rank_id=rank_id,
             ckpt_save_dir=cfg.train.ckpt_save_dir,
-            main_indicator=cfg.metric.main_indicator)
+            main_indicator=cfg.metric.main_indicator,
+            val_interval=cfg.system.get('val_interval', 1),
+            val_start_epoch=cfg.system.get('val_start_epoch', 1),
+            )
+
 
     # log
     if is_main_device:
