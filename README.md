@@ -37,7 +37,9 @@ To install the dependency, please run
 pip install -r requirements.txt
 ```
 
-Additionaly, please install MindSpore(>=1.8.1) following the official [instructions](https://www.mindspore.cn/install) for the best fit of your machine. To enable training in distributed mode, please also install [openmpi](https://www.open-mpi.org/software/ompi/v4.0/).
+Additionally, please install MindSpore(>=1.9) following the official [instructions](https://www.mindspore.cn/install) for the best fit of your machine. 
+
+For distributed training, please install [openmpi 4.0.3](https://www.open-mpi.org/software/ompi/v4.0/).
 
 
 ### Install with PyPI
@@ -111,7 +113,14 @@ python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
 To train in distributed mode, please run
 
 ```shell
-# n is the number of GPUs/NPUs
+# Distributed training on Ascends
+mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
+```
+
+```shell
+# Distributed training on GPUs
+export CUDA_VISIBLE_DEVICES=0,1
+# n is the number of GPUs
 mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
 > Notes: please ensure the arg `distribute` in yaml file is set True
@@ -193,6 +202,11 @@ python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
 To train in distributed mode, please run
+
+```shell
+# Distributed training on Ascends
+mpirun --allow-run-as-root -n 8 python tools/train.py  --config configs/rec/crnn/crnn_resnet34.yaml
+```
 
 ```shell
 # n is the number of GPUs/NPUs
