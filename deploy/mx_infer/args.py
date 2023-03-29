@@ -23,10 +23,9 @@ def get_args():
     parser.add_argument('--device', type=str, default='Ascend', required=False,
                         choices=['Ascend'], help='Device type.')
     parser.add_argument('--device_id', type=int, default=0, required=False, help='Device id.')
-    parser.add_argument('--parallel_num', type=int, default=1, required=False, help='Number of parallel inference.')
+    parser.add_argument('--parallel_num', type=int, default=1, required=False, help='Number of parallel in each stage of pipeline parallelism.')
     parser.add_argument('--precision_mode', type=str, default="fp32", choices=['fp16', 'fp32'], required=False,
                         help='Precision mode.')
-
     parser.add_argument('--det_algorithm', type=str, default='DBNet', choices=SUPPORT_DET_MODEL, required=False,
                         help='Detection algorithm name.')
     parser.add_argument('--rec_algorithm', type=str, default='CRNN', choices=SUPPORT_REC_MODEL, required=False,
@@ -44,7 +43,7 @@ def get_args():
     parser.add_argument('--vis_det_save_dir', type=str, required=False,
                         help='Saving dir for visualization of detection results.')
     parser.add_argument('--vis_pipeline_save_dir', type=str, required=False,
-                        help='Saving dir for visualization of pipeline inference results.')
+                        help='Saving dir for visualization of  det+cls(optional)+rec pipeline inference results.')
     parser.add_argument('--vis_font_path', type=str, required=False,
                         help='Font file path for recognition model.')
     parser.add_argument('--pipeline_crop_save_dir', type=str, required=False,
