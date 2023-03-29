@@ -1,52 +1,44 @@
-import os
-from tqdm import tqdm
-import shutil
-import numpy as np
-from shapely.geometry import Polygon
 import argparse
+import json
+import os
+
+import numpy as np
 import yaml
+from shapely.geometry import Polygon
+from tqdm import tqdm
 
 """
 ICDAR2019-ReCTS
 
-download link: https://rrc.cvc.uab.es/?ch=12
-If download failed, you can refer to: https://github.com/WenmuZhou/OCR_DataSet，ReCTS.zip
+download link: https://rrc.cvc.uab.es/?ch=12, Training Set
 
-(1) mkdir images && mkdir labels
+(1) mkdir images
 
 (2) unzip dataset file
 unzip ReCTS.zip && cd detection
 
 (3) run
-python label_format_trans_rects.py --src_labels_path=gt \
-                                   --src_images_path=img \
-                                   --tgt_labels_path=labels \
-                                   --tgt_images_path=images
+python label_format_trans_rects.py --src_labels_path=gt --tgt_labels_path=labels.txt
 """
 
-def label_format_trans_rects(src_labels_path, src_images_path, tgt_labels_path, tgt_images_path):
-    for idx, filename in tqdm(enumerate(os.listdir(src_labels_path)), total=len(os.listdir(src_labels_path))):
+
+def label_format_trans_rects(src_labels_path, tgt_labels_path):
+    '''
+    Format annotation to standard form for ReCTS dataset.
+    '''
+    save_dict = {}
+
+    for filename in tqdm(os.listdir(src_labels_path)):
         if not filename.endswith(".json"):
             continue
 
-        name = os.path.splitext(filename)[0]
-
-        src_image_filename = name + '.jpg'
-        tgt_image_filename = 'gt_' + str(idx) + '.jpg'
-        src_image_filename = os.path.join(src_images_path, src_image_filename)
-        tgt_image_filename = os.path.join(tgt_images_path, tgt_image_filename)
-        assert os.path.exists(src_image_filename)
-        shutil.copyfile(src_image_filename, tgt_image_filename)
-
-        src_label_filename = os.path.join(src_labels_path, filename)
-        tgt_label_filename = 'gt_img_' + str(idx) + '.txt'
-        tgt_label_filename = os.path.join(tgt_labels_path, tgt_label_filename)
-
-        with open(src_label_filename, encoding='utf-8') as f:
+        image_filename = os.path.splitext(filename)[0] + '.jpg'
+        save_dict[image_filename] = []
+        with open(os.path.join(src_labels_path, filename), encoding='utf-8') as f:
             content = yaml.safe_load(f)
 
         lines = content.get('lines', [])
-        output = []
+
         for line in lines:
             if line['ignore'] == 1:
                 continue
@@ -54,26 +46,30 @@ def label_format_trans_rects(src_labels_path, src_images_path, tgt_labels_path, 
             text = line['transcription']
             points = line['points']
 
-            if "," in text:
-                text = text.replace(",", " ")
-
+            # check illegal polygon
             polygon = Polygon(np.array(points).reshape(4, 2)).convex_hull
-            if polygon.area == 0:
+            if polygon.area <= 0:
                 continue
 
-            box = [str(x) for x in points]
-            output.append(','.join([*box, text]))
+            save_dict[image_filename].append({"transcription": text, "points": points})
 
-        output = [line + '\n' for line in output]
-        with open(tgt_label_filename, 'w', encoding='utf-8') as f:
-            f.writelines(output)
+    with open(tgt_labels_path, 'w', encoding='utf-8') as f:
+        if not save_dict:
+            f.write('')
+        for name, res in save_dict.items():
+            content = name + '\t' + json.dumps(res, ensure_ascii=False) + "\n"
+            f.write(content)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--src_labels_path', type=str, required=True)
-    parser.add_argument('--src_images_path', type=str, required=True)
-    parser.add_argument('--tgt_labels_path', type=str, required=True)
-    parser.add_argument('--tgt_images_path', type=str, required=True)
-
+    parser.add_argument('--src_labels_path', type=str, required=True,
+                        help='Directory of the labels, such as rects/detection/gt.')
+    parser.add_argument('--tgt_labels_path', type=str, default="labels.txt", required=False,
+                        help='Path to save the converted annotation.')
     args = parser.parse_args()
-    label_format_trans_rects(args.src_labels_path, args.src_images_path, args.tgt_labels_path, args.tgt_images_path)
+
+    if not os.path.isdir(args.src_labels_path):
+        raise ValueError(f"Please make sure that {args.src_labels_path} is a dir.")
+
+    label_format_trans_rects(args.src_labels_path, args.tgt_labels_path)
