@@ -1,6 +1,6 @@
 system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
-  distribute: True
+  distribute: False 
   amp_level: 'O0'
   seed: 42
   val_while_train: True
@@ -64,10 +64,10 @@ loss_scaler:
 
 train:
   ckpt_save_dir: './tmp_det'
-  dataset_sink_mode: True
+  dataset_sink_mode: False
   dataset:
     type: DetDataset
-    dataset_root: /Users/Samit/Data/datasets
+    dataset_root: /data/ocr_datasets
     data_dir: ic15/det/train/ch4_training_images
     label_file: ic15/det/train/det_gt.txt
     sample_ratio: 1.0
@@ -118,8 +118,7 @@ eval:
   dataset_sink_mode: False
   dataset:
     type: DetDataset
-    #dataset_root: /data/ocr_datasets
-    dataset_root: /Users/Samit/Data/datasets
+    dataset_root: /data/ocr_datasets
     data_dir: ic15/det/test/ch4_test_images
     label_file: ic15/det/test/det_gt.txt
     sample_ratio: 1.0
