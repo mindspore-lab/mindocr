@@ -37,7 +37,9 @@ To install the dependency, please run
 pip install -r requirements.txt
 ```
 
-Additionaly, please install MindSpore(>=1.8.1) following the official [instructions](https://www.mindspore.cn/install) for the best fit of your machine. To enable training in distributed mode, please also install [openmpi](https://www.open-mpi.org/software/ompi/v4.0/).
+Additionally, please install MindSpore(>=1.9) following the official [instructions](https://www.mindspore.cn/install) for the best fit of your machine. 
+
+For distributed training, please install [openmpi 4.0.3](https://www.open-mpi.org/software/ompi/v4.0/).
 
 
 ### Install with PyPI
@@ -108,15 +110,6 @@ To train the model, please run
 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
 
-To train in distributed mode, please run
-
-```shell
-# n is the number of GPUs/NPUs
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
-```
-> Notes: please ensure the arg `distribute` in yaml file is set True
-
-
 The training result (including checkpoints, per-epoch performance and curves) will be  saved in the directory parsed by the arg `ckpt_save_dir`.
 
 #### 4. Evaluation
@@ -185,14 +178,14 @@ Optionally, change `num_workers` according to the cores of CPU, and change `dist
 
 #### 3. Training
 
-To train the model, please run 
-
-``` shell 
-# train crnn on MJ+ST dataset
-python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
-```
+We will use distributed training for the large LMDB dataset. 
 
 To train in distributed mode, please run
+
+```shell
+# Distributed training on Ascends
+mpirun --allow-run-as-root -n 8 python tools/train.py  --config configs/rec/crnn/crnn_resnet34.yaml
+```
 
 ```shell
 # n is the number of GPUs/NPUs

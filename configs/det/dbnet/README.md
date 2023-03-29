@@ -37,12 +37,17 @@ The overall architecture of DBNet is presented in _Figure 1._ It consists of mul
 ### ICDAR2015
 <div align="center">
 
-| **Model** | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Recipe**                         | **Download**                                                                                 |
-|------------------|--------------|----------------|------------|---------------|-------------|-----------------------------|----------------------------------------------------------------------------------------------|
-| DBNet (ours)     | ResNet-50    | ImageNet       | 81.70%     | 85.84%        | 83.72%      | [yaml](db_r50_icdar15.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a.ckpt) |
-| DBNet (PaddleOCR)| ResNet50_vd  | SynthText      | 78.72%     | 86.41%        | 82.38%      |
+| **Model** |  **Context** | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Recipe**  | **Download**  |
+|---------------|--------------|----------------|------------|---------------|-------------|-----------------------------|----------------------------------------------------------------------------------------------| ----------|
+| DBNet (ours)     | D910x1-MS1.9-G | ResNet-50    | ImageNet       | 81.70%     | 85.84%        | 83.72%      | [yaml](db_r50_icdar15.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a.ckpt) |
+| DBNet (PaddleOCR) | - | ResNet50_vd  | SynthText      | 78.72%     | 86.41%        | 82.38%      |
 
 </div>
+
+#### Notes
+- Context: Training context denoted as {device}x{pieces}-{MS version}{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
+
+
 
 ## Quick Start
 
