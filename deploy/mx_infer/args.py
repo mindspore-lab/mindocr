@@ -20,14 +20,17 @@ def get_args():
                         help='Input images dir for inference, can be dir containing multiple images or path of single '
                              'image.')
 
-    parser.add_argument('--device', type=str, default='Ascend310P3', required=False,
-                        choices=['Ascend310', 'Ascend310P3'], help='Device type.')
+    parser.add_argument('--device', type=str, default='Ascend', required=False,
+                        choices=['Ascend'], help='Device type.')
     parser.add_argument('--device_id', type=int, default=0, required=False, help='Device id.')
     parser.add_argument('--parallel_num', type=int, default=1, required=False, help='Number of parallel inference.')
-    parser.add_argument('--precision_mode', type=str, choices=['fp16', 'fp32'], required=False, help='Precision mode.')
+    parser.add_argument('--precision_mode', type=str, default="fp32", choices=['fp16', 'fp32'], required=False,
+                        help='Precision mode.')
 
-    parser.add_argument('--det_algorithm', type=str, default='DBNet', required=False, help='Detection algorithm name.')
-    parser.add_argument('--rec_algorithm', type=str, default='CRNN', required=False, help='Recognition algorithm name.')
+    parser.add_argument('--det_algorithm', type=str, default='DBNet', choices=SUPPORT_DET_MODEL, required=False,
+                        help='Detection algorithm name.')
+    parser.add_argument('--rec_algorithm', type=str, default='CRNN', choices=SUPPORT_REC_MODEL, required=False,
+                        help='Recognition algorithm name.')
 
     parser.add_argument('--det_model_path', type=str, required=False, help='Detection model file path.')
     parser.add_argument('--cls_model_path', type=str, required=False, help='Classification model file path.')
@@ -44,11 +47,8 @@ def get_args():
                         help='Saving dir for visualization of pipeline inference results.')
     parser.add_argument('--vis_font_path', type=str, required=False,
                         help='Font file path for recognition model.')
-    parser.add_argument('--save_pipeline_crop_res', type=str2bool, default=False, required=False,
-                        help='Whether save the images cropped during pipeline.')
     parser.add_argument('--pipeline_crop_save_dir', type=str, required=False,
                         help='Saving dir for images cropped during pipeline.')
-
     parser.add_argument('--show_log', type=str2bool, default=False, required=False,
                         help='Whether show log when inferring.')
     parser.add_argument('--save_log_dir', type=str, required=False, help='Log saving dir.')
@@ -96,6 +96,7 @@ def update_task_args(args):
         setattr(args, 'task_type', task_type)
         setattr(args, 'save_vis_det_save_dir', bool(args.vis_det_save_dir))
         setattr(args, 'save_vis_pipeline_save_dir', bool(args.vis_pipeline_save_dir))
+        setattr(args, 'save_pipeline_crop_res', bool(args.pipeline_crop_save_dir))
     else:
         unsupported_task_map = {
             (False, False, False): "empty",
@@ -135,14 +136,11 @@ def check_args(args):
     if args.parallel_num < 1 or args.parallel_num > 4:
         raise ValueError(f"parallel_num must between [1,4], current: {args.parallel_num}.")
 
-    if args.save_pipeline_crop_res and not args.pipeline_crop_save_dir:
-        raise ValueError(f"pipeline_crop_save_dir can’t be empty when save_pipeline_crop_res=True.")
-
-    if args.save_pipeline_crop_res and args.task_type not in (InferModelComb.DET_REC, InferModelComb.DET_CLS_REC):
-        raise ValueError(f"det_model_path and rec_model_path can’t be empty when save_pipeline_crop_res=True.")
+    if args.pipeline_crop_save_dir and args.task_type not in (InferModelComb.DET_REC, InferModelComb.DET_CLS_REC):
+        raise ValueError(f"det_model_path and rec_model_path can't be empty when set pipeline_crop_save_dir.")
 
     if args.vis_pipeline_save_dir and args.task_type not in (InferModelComb.DET_REC, InferModelComb.DET_CLS_REC):
-        raise ValueError(f"det_model_path and rec_model_path can’t be empty when set vis_pipeline_save_dir.")
+        raise ValueError(f"det_model_path and rec_model_path can't be empty when set vis_pipeline_save_dir.")
 
     if args.vis_det_save_dir and args.task_type != InferModelComb.DET:
         raise ValueError(
@@ -152,11 +150,8 @@ def check_args(args):
     if not args.res_save_dir:
         raise ValueError(f"res_save_dir can't be empty.")
 
-    if args.det_algorithm not in SUPPORT_DET_MODEL:
-        raise ValueError(f"det_algorithm only support {SUPPORT_DET_MODEL}, but got {args.det_algorithm}.")
-
-    if args.rec_algorithm not in SUPPORT_REC_MODEL:
-        raise ValueError(f"rec_algorithm only support {SUPPORT_REC_MODEL}, but got {args.rec_algorithm}.")
+    if args.precision_mode != "fp32":
+        raise ValueError(f"precision_mode only support fp32 currently.")
 
     check_dir_not_same = {
         "input_images_dir": args.input_images_dir,
