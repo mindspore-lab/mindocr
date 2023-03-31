@@ -44,6 +44,7 @@ def main(cfg):
     num_batches = loader_eval.get_dataset_size()
 
     # model
+    cfg.model.backbone.pretrained = False
     network = build_model(cfg.model, ckpt_load_path=cfg.eval.ckpt_load_path)
     network.set_train(False)
 
