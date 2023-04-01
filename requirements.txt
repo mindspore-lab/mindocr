@@ -1,6 +1,5 @@
 imgaug
 lmdb
-git+https://github.com/mindspore-lab/mindcv.git
 pyclipper
 shapely
 tqdm
