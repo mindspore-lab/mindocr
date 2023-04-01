@@ -22,8 +22,8 @@ from mindspore import nn
 from mindspore.communication import init, get_rank, get_group_size
 from mindspore.train import LossMonitor, TimeMonitor
 
-from mindcv.optim import create_optimizer
-from mindcv.scheduler import create_scheduler
+from mindocr.optim import create_optimizer # adopted from mindcv
+from mindocr.scheduler import create_scheduler # adopted from mindcv
 
 from mindocr.data import build_dataset
 from mindocr.models import build_model
