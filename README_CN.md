@@ -1,19 +1,23 @@
+<div align="center">
 
 # MindOCR
 
-<!--
+[![CI](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml/badge.svg)](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/mindspore-lab/mindocr.svg)](https://github.com/mindspore-lab/mindocr/blob/main/LICENSE)
 [![open issues](https://img.shields.io/github/issues/mindspore-lab/mindocr)](https://github.com/mindspore-lab/mindocr/issues)
 [![PRs](https://img.shields.io/badge/PRs-welcome-pink.svg)](https://github.com/mindspore-lab/mindocr/pulls)
- -->
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+
 [English](README.md) | 中文
 
-[概述](#introduction) |
-[安装](#installation) |
-[快速上手](#quick-start) |
-[模型列表](#supported-models-and-performance) |
-[注释](#notes)
+[概述](#概述) |
+[安装](#安装) |
+[快速上手](#快速上手) |
+[模型列表](#模型列表) |
+[重要信息](#重要信息)
 
+</div>
 
 ## 概述
 MindOCR是一个基于[MindSpore](https://www.mindspore.cn/en)框架的OCR开发及应用的开源工具箱，可以帮助用户训练、应用业界最有优的文本检测、文本识别模型，例如DBNet/DBNet++和CRNN/SVTR，以实现图像文本理解的需求。
@@ -55,12 +59,14 @@ pip install git+https://github.com/mindspore-lab/mindocr.git
 
 ## 快速上手
 
-### 训练文本检测模型
+### 模型训练评估
+
+#### 文本检测
 
 MindOCR支持多种文本检测模型及数据集，在此我们使用**DBNet**模型和**ICDAR2015**数据集进行演示。请参考[DBNet模型文档](configs/det/dbnet/README_CN.md)。
 
 
-### 训练文本识别模型
+### 文本识别
 
 MindOCR支持多种文本识别模型及数据集，在此我们使用**CRNN**模型和**LMDB**数据集进行演示。请参考[CRNN模型文档](configs/rec/crnn/README_CN.md)。
 
@@ -69,9 +75,10 @@ MindOCR支持多种文本识别模型及数据集，在此我们使用**CRNN**�
 
 #### 使用MX Engine推理
 
-教程请参考[mx_infer](docs/cn/inference_tutorial_cn.md)
+MX ([MindX](https://www.hiascend.com/zh/software/mindx-sdk)的缩写) 是一个支持昇腾设备高效推理与部署的工具。
 
-模型列表和Benchmark请参考 [mx_infer](docs/cn/inference_models_cn.md)
+MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_infer](docs/cn/inference_cn.md).
+
 
 #### 使用Lite推理 
 
@@ -81,31 +88,36 @@ MindOCR支持多种文本识别模型及数据集，在此我们使用**CRNN**�
 
 敬请期待
 
-## 支持模型及性能
+## 模型列表
 
-### 文本检测  
+<details open>
+<summary>文本检测</summary>
 
-下表是目前支持的文本检测模型和它们在ICDAR2015测试数据集上的精度数据：
+- [x] [DBNet](https://arxiv.org/abs/1911.08947) (AAAI'2020) 
+- [x] [DBNet++](https://arxiv.org/abs/2202.10304) (TPAMI'2022)
+- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [开发中]
 
-| **模型**  | **骨干网络**  | **预训练**      | **Recall** | **Precision** | **F-score** | **配置文件**                                            | 
-|-----------|--------------|----------------|------------|---------------|-------------|-----------------------------------------------------|
-| DBNet     | ResNet-50    | ImageNet       | 81.97%     | 86.05%        | 83.96%      | [YAML](configs/det/dbnet/dbnet/db_r50_icdar15.yaml) | 
-| DBNet++   | ResNet-50    | ImageNet       | 82.02%     | 87.38%        | 84.62%      | [YAML](configs/det/dbnet++/db++_r50_icdar15.yaml)   |
+</details>
 
-### 文本识别
+<details open>
+<summary>文本识别</summary>
 
-下表是目前支持的文本识别模型和它们在公开测评数据集 (IIIT, SVT, IC03, IC13, IC15, SVTP, CUTE) 上的精度数据：
-
-
-| **模型** | **骨干网络** | **平均准确率**| **配置文件** | 
-|-----------|--------------|----------------|------------|
-| CRNN     | VGG7        | 82.03% 	| [YAML](configs/rec/crnn/crnn_vgg7.yaml)    | 
-| CRNN     | Resnet34_vd    | 84.45% 	| [YAML](configs/rec/crnn/crnn_resnet34.yaml)     |
+- [x] [CRNN](https://arxiv.org/abs/1507.05717) (TPAMI'2016)
+- [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [开发中]
+- [ ] [SVTR](https://arxiv.org/abs/2205.00159) (IJCAI'2022) [仅推理]
 
 
-## 注释
+模型训练的配置及性能结果请见[configs](./configs).
+
+基于MX引擎的推理性能结果及支持模型列表，请见[mx inference performance](docs/cn/inference_models_cn.md) 
+
+## 重要信息
 
 ### 变更日志
+- 2023/03/23
+1. 增加dynamic loss scaler支持, 且与drop overflow update兼容。如需使用, 请在配置文件中增加`loss_scale`字段并将`type`参数设为`dynamic`，参考例子请见`configs/rec/crnn/crnn_icdar15.yaml`
+
+
 - 2023/03/20
 1. 参数名修改：`output_keys` -> `output_columns`；`num_keys_to_net` -> `num_columns_to_net`；
 2. 更新数据流程。

@@ -15,22 +15,22 @@ English | [中文](README_CN.md)
 [Introduction](#introduction) |
 [Installation](#installation) |
 [Quick Start](#quick-start) |
-[Model List](#supported-models-and-performance) |
+[Model List](#model-list) |
 [Notes](#notes)
 
 </div>
 
 
 ## Introduction
-MindOCR is an open-source toolbox for OCR development and application based on [MindSpore](https://www.mindspore.cn/en). It helps users to train and apply the best text detection and recognition models, such as DBNet/DBNet++ and CRNN/SVTR, to fulfuill image-text understanding need.
+MindOCR is an open-source toolbox for OCR development and application based on [MindSpore](https://www.mindspore.cn/en). It helps users to train and apply the best text detection and recognition models, such as DBNet/DBNet++ and CRNN/SVTR, to fulfill image-text understanding needs.
 
 
 <details open>
 <summary> Major Features </summary>
 
-- **Modulation design**: We decouple the ocr task into serveral configurable modules. Users can setup the training and evaluation pipeline easily for customized data and models with a few line of modification.
+- **Modulation design**: We decouple the OCR task into several configurable modules. Users can set up the training and evaluation pipeline easily for customized data and models with a few lines of modification.
 - **High-performance**: MindOCR provides pretrained weights and the used training recipes that reach competitive performance on OCR tasks.
-- **Low-cost-to-apply**: We provide easy-to-use inference tools to perform text detection and recogintion tasks. 
+- **Low-cost-to-apply**: We provide easy-to-use inference tools to perform text detection and recognition tasks. 
 </details>
 
 
@@ -43,7 +43,7 @@ To install the dependency, please run
 pip install -r requirements.txt
 ```
 
-Additionally, please install MindSpore(>=1.9) following the official [instructions](https://www.mindspore.cn/install) for the best fit of your machine. 
+Additionally, please install MindSpore(>=1.9) following the official [installation instructions](https://www.mindspore.cn/install) for the best fit of your machine. 
 
 For distributed training, please install [openmpi 4.0.3](https://www.open-mpi.org/software/ompi/v4.0/).
 
@@ -63,61 +63,68 @@ pip install git+https://github.com/mindspore-lab/mindocr.git
 
 ## Quick Start
 
-### Text Detection Model Training
+### 1. Model Training and Evaluation
 
-We will use **DBNet** model and **ICDAR2015** dataset for demonstration, although other models and datasets are also supported. Please refer to [DBNet model README](configs/det/dbnet/README.md).
+#### 1.1 Text Detection
+
+We will take **DBNet** model and **ICDAR2015** dataset as an example to illustrate how to configure the training process with a few lines of modification on the yaml file.
+
+Please refer to [DBNet readme](configs/det/dbnet/README.md#3-quick-start) for detailed instructions.
 
 
-### Text Recognition Model Training
+#### 1.2 Text Recognition 
 
-We will use **CRNN** model and **LMDB** dataset for demonstration, although other models and datasets are also supported. Please refer to [CRNN model README](configs/rec/crnn/README.md).
+We will take **CRNN** model and **LMDB** dataset as an illustration on how to configure and launch the training process easily. 
 
+Detailed instructions can be viewed in [CRNN readme](configs/rec/crnn/README.md#3-quick-start).
 
-### Inference and Deployment
+**Note:**
+The training pipeline is fully extendable. To train other text detection/recognition models on a new dataset, please configure the model architecture (backbone, neck, head) and data pipeline in the yaml file and launch the training script with `python tools/train.py -c /path/to/yaml_config`.
 
-#### Inference with MX Engine
+### 2. Inference and Deployment
 
-Please refer to [mx_infer tutorial](docs/cn/inference_tutorial_cn.md) for detailed inference tutorial.
+#### 2.1 Inference with MX Engine
 
-Please refer to [mx_infer results](docs/cn/inference_models_cn.md) for detailed performance of the supported inference models.
+MX, which is short for [MindX](https://www.hiascend.com/zh/software/mindx-sdk), allows efficient model inference and deployment on Ascend devices. 
 
-#### Inference with Lite 
+MindOCR supports OCR model inference with MX Engine. Please refer to [mx_infer](docs/cn/inference_cn.md) for detailed illustrations.
+
+#### 2.2 Inference with MS Lite 
 
 Coming soon
 
-#### Inference with native MindSpore
+#### 2.3 Inference with native MindSpore
 
 Coming soon
 
-## Supported Models and Performance
+## Model List
 
-### Text Detection  
+<details open>
+<summary>Text Detection</summary>
 
-The supported detection  models and their performance on the test set of ICDAR2015 are as follow.
+- [x] [DBNet](https://arxiv.org/abs/1911.08947) (AAAI'2020) 
+- [x] [DBNet++](https://arxiv.org/abs/2202.10304) (TPAMI'2022)
+- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [dev]
 
-| **Model** | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Config**                                        | 
-|-----------|--------------|----------------|------------|---------------|-------------|---------------------------------------------------|
-| DBNet     | ResNet-50    | ImageNet       | 81.97%     | 86.05%        | 83.96%      | [YAML](configs/det/dbnet/db_r50_icdar15.yaml)     | 
-| DBNet++   | ResNet-50    | ImageNet       | 82.02%     | 87.38%        | 84.62%      | [YAML](configs/det/dbnet++/db++_r50_icdar15.yaml) |
+</details>
 
-### Text Recognition
+<details open>
+<summary>Text Recognition</summary>
 
-The supported recognition models and their overall performance on the public benchmarking datasets (IIIT, SVT, IC03, IC13, IC15, SVTP, CUTE) are as follow
-
-
-| **Model** | **Backbone** | **Avg Acc**| **Config** | 
-|-----------|--------------|----------------|------------|
-| CRNN     | VGG7        | 82.03% 	| [YAML](configs/rec/crnn/crnn_vgg7.yaml)    | 
-| CRNN     | Resnet34_vd    | 84.45% 	| [YAML](configs/rec/crnn/crnn_resnet34.yaml)     |
+- [x] [CRNN](https://arxiv.org/abs/1507.05717) (TPAMI'2016)
+- [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [dev]
+- [ ] [SVTR](https://arxiv.org/abs/2205.00159) (IJCAI'2022) [infer only]
 
 
-For more details, please refer to [configs](./configs).
+For the detailed performance of the trained models, please refer to [configs](./configs).
+
+For detailed inference performance using MX engine, please refer to [mx inference performance](docs/cn/inference_models_cn.md) 
 
 ## Notes
 
 ### Change Log
 - 2023/03/23
-1. Add dynamic loss scaler support, compatiable with drop overflow update. To enable dynamic loss scaler, please set `type` of `loss_scale` as `dynamic`. A yaml example can be viewed in `configs/rec/crnn/crnn_icdar15.yaml`
+1. Add dynamic loss scaler support, compatible with drop overflow update. To enable dynamic loss scaler, please set `type` of `loss_scale` as `dynamic`. A YAML example can be viewed in `configs/rec/crnn/crnn_icdar15.yaml`
 
 - 2023/03/20
 1. Arg names changed: `output_keys` -> `output_columns`, `num_keys_to_net` -> `num_columns_to_net`
@@ -141,7 +148,7 @@ For more details, please refer to [configs](./configs).
 
 ### How to Contribute
 
-We appreciate all kind of contributions including issues and PRs to make MindOCR better.
+We appreciate all kinds of contributions including issues and PRs to make MindOCR better.
 
 Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for the contributing guideline. Please follow the [Model Template and Guideline](mindocr/models/README.md) for contributing a model that fits the overall interface :)
 
