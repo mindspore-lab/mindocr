@@ -79,6 +79,7 @@ MX ([MindX](https://www.hiascend.com/zh/software/mindx-sdk)的缩写) 是一个�
 
 MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_infer](docs/cn/inference_cn.md).
 
+
 #### 使用Lite推理 
 
 敬请期待
@@ -108,7 +109,7 @@ MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_i
 
 模型训练的配置及性能结果请见[configs](./configs).
 
-基于MX Engine推理的模型性能结果请见[mx inference performance](docs/cn/inference_models_cn.md) 
+基于MX引擎的推理性能结果及支持模型列表，请见[mx inference performance](docs/cn/inference_models_cn.md) 
 
 ## 重要信息
 
