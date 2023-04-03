@@ -1,11 +1,14 @@
+<div align="center">
 
 # MindOCR
 
-<!--
+[![CI](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml/badge.svg)](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/mindspore-lab/mindocr.svg)](https://github.com/mindspore-lab/mindocr/blob/main/LICENSE)
 [![open issues](https://img.shields.io/github/issues/mindspore-lab/mindocr)](https://github.com/mindspore-lab/mindocr/issues)
 [![PRs](https://img.shields.io/badge/PRs-welcome-pink.svg)](https://github.com/mindspore-lab/mindocr/pulls)
- -->
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+
 [English](README.md) | 中文
 
 [概述](#introduction) |
@@ -14,6 +17,7 @@
 [模型列表](#supported-models-and-performance) |
 [注释](#notes)
 
+</div>
 
 ## 概述
 MindOCR是一个基于[MindSpore](https://www.mindspore.cn/en)框架的OCR开发及应用的开源工具箱，可以帮助用户训练、应用业界最有优的文本检测、文本识别模型，例如DBNet/DBNet++和CRNN/SVTR，以实现图像文本理解的需求。
@@ -245,10 +249,15 @@ python tools/eval.py --config configs/rec/crnn/crnn_resnet34.yaml
 | CRNN     | VGG7        | 82.03% 	| [YAML](configs/rec/crnn/crnn_vgg7.yaml)    | 
 | CRNN     | Resnet34_vd    | 84.45% 	| [YAML](configs/rec/crnn/crnn_resnet34.yaml)     |
 
+模型配置及性能详细介绍请见[configs](./configs).
 
 ## 注释
 
 ### 变更日志
+- 2023/03/23
+1. 增加dynamic loss scaler支持, 且与drop overflow update兼容。如需使用, 请在配置文件中增加`loss_scale`字段并将`type`参数设为`dynamic`，参考例子请见`configs/rec/crnn/crnn_icdar15.yaml`
+
+
 - 2023/03/20
 1. 参数名修改：`output_keys` -> `output_columns`；`num_keys_to_net` -> `num_columns_to_net`；
 2. 更新数据流程。
