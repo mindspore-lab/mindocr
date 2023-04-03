@@ -1,0 +1,4 @@
+shapely>=1.8.2
+numpy>=1.22.4
+joblib>=1.1.0
+tqdm>=4.64.0
