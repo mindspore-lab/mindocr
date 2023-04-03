@@ -14,8 +14,9 @@ from mindspore import load_checkpoint, load_param_into_net
 all_model_names = mindocr.list_models()
 print('Registered models: ', all_model_names)
 
-#all_yamls = glob.glob('configs/*/*.yaml')
-all_yamls = ['configs/det/dbnet/db_r50_icdar15.yaml', 'configs/rec/crnn/crnn_icdar15.yaml']
+all_yamls = ['configs/det/dbnet/db_r50_icdar15.yaml',
+             'configs/rec/crnn/crnn_resnet34.yaml',
+             'configs/rec/crnn/crnn_vgg7.yaml']
 print('All config yamls: ', all_yamls)
 
 def _infer_dummy(model, task='det', verbose=True):

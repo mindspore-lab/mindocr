@@ -8,6 +8,8 @@ from .det_dataset import DetDataset
 from .rec_dataset import RecDataset
 from .rec_lmdb_dataset import LMDBDataset
 
+__all__ = ['build_dataset']
+
 supported_dataset_types = ['BaseDataset', 'DetDataset', 'RecDataset', 'LMDBDataset']
 
 def build_dataset(

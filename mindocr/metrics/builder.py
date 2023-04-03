@@ -3,6 +3,8 @@ from .rec_metrics import *
 from . import det_metrics
 from . import rec_metrics
 
+__all__ = ['build_metric']
+
 supported_metrics = det_metrics.__all__ + rec_metrics.__all__
 
 def build_metric(config, device_num=1, **kwargs):
