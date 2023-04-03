@@ -62,11 +62,12 @@ def _infer_dummy(model, task='det', verbose=True):
     return out
 
 @pytest.mark.parametrize('model_name', all_model_names)
-def test_model_by_name(model_name):
+@pytest.mark.parametrize('pretrained', [True, False])
+def test_model_by_name(model_name, pretrained):
     print(model_name)
-    model = build_model(model_name, pretrained=False)
+    model = build_model(model_name, pretrained=pretrained)
     #_infer_dummy(model)
-
+    print("model created")
 
 @pytest.mark.parametrize('yaml_fp', all_yamls)
 def test_model_by_yaml(yaml_fp):
@@ -89,8 +90,13 @@ def test_model_by_yaml(yaml_fp):
     model = build_model(model_config)
     _infer_dummy(model, task=task)
 
+
 if __name__ == '__main__':
-    test_model_by_yaml(all_yamls[1])
+    print(all_model_names)
+    #test_model_by_name(all_model_names[0], True)
+    #test_model_by_name(all_model_names[1], True)
+    test_model_by_name(all_model_names[2], True)
+    #test_model_by_yaml(all_yamls[1])
     '''
     import argparse
     parser = argparse.ArgumentParser(description='model config', add_help=False)
