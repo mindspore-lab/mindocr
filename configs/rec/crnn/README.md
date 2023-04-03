@@ -50,7 +50,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 - Both VGG and ResNet models are trained from scratch without any pre-training.
 - The above models are trained with MJSynth (MJ) and SynthText (ST) datasets. For more data details, please refer to [Data Preparation](#dataset-preparation)
 - Evaluations are tested individually on each benchmark dataset, and Avg Accuracy is the average of accuracies across all sub-datasets.
-- PaddleOCR version of CRNN, we directly use the trained model provided on their [github](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/algorithm_rec_crnn_en.md).
+- For the PaddleOCR version of CRNN, the performance is reported on the trained model provided on their [github](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/algorithm_rec_crnn_en.md).
 
 
 ## Quick Start
