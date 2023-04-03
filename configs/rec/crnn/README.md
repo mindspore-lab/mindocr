@@ -47,6 +47,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 #### Notes
 - Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x8-MS1.8-G is for training on 8 pieces of Ascend 910 NPU using graph mode based on Minspore version 1.8.
+- To reproduce the result on other contexts, please ensure the global batch size is the same. 
 - Both VGG and ResNet models are trained from scratch without any pre-training.
 - The above models are trained with MJSynth (MJ) and SynthText (ST) datasets. For more data details, please refer to [Data Preparation](#dataset-preparation)
 - Evaluations are tested individually on each benchmark dataset, and Avg Accuracy is the average of accuracies across all sub-datasets.
@@ -80,8 +81,6 @@ mpirun -n 8 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 
 Similarly, you can train the model on multiple GPU devices with the above `mpirun` command.
 
-**Note:**  As the global batch size  (batch_size x num_devices) is an important hyper-parameter, it is recommended to keep the global batch size unchanged for reproduction or adjust the learning rate linearly to a new global batch size.
-
 * Standalone Training
 
 If you want to train or finetune the model on a smaller dataset without distributed training, please modify the configuration parameter **distribute** as **False** and run:
@@ -90,6 +89,8 @@ If you want to train or finetune the model on a smaller dataset without distribu
 # standalone training on a CPU/GPU/Ascend device
 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
+
+**Note:**  As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of GPUs/NPUs, or adjust the learning rate linearly to a new global batch size.
 
 ### Evaluation
 
