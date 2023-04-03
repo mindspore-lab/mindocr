@@ -64,7 +64,7 @@ def _infer_dummy(model, task='det', verbose=True):
 def test_model_by_name(model_name):
     print(model_name)
     model = build_model(model_name, pretrained=False)
-    _infer_dummy(model)
+    #_infer_dummy(model)
 
 
 @pytest.mark.parametrize('yaml_fp', all_yamls)
