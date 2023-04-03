@@ -2,10 +2,8 @@ import sys
 sys.path.append('.')
 import pytest
 import yaml
-import numpy as np
-import mindspore as ms
 from addict import Dict
-from mindocr.losses import build_loss
+from mindocr import build_loss
 
 
 @pytest.mark.parametrize('task', ['det', 'rec'])
