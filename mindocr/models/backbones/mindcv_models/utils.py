@@ -9,7 +9,7 @@ from typing import List, Optional
 
 from mindspore import load_checkpoint, load_param_into_net
 
-from mindcv.utils.download import DownLoad, get_default_download_root
+from .download import DownLoad, get_default_download_root
 
 
 def get_checkpoint_download_root():
@@ -35,7 +35,10 @@ def load_pretrained(model, default_cfg, num_classes=1000, in_channels=3, filter_
     os.makedirs(download_path, exist_ok=True)
     DownLoad().download_url(default_cfg["url"], path=download_path)
 
-    param_dict = load_checkpoint(os.path.join(download_path, os.path.basename(default_cfg["url"])))
+    try:
+        param_dict = load_checkpoint(os.path.join(download_path, os.path.basename(default_cfg["url"])))
+    except:
+        print(f'ERROR: Fails to load the checkpoint. Please check whether the checkpoint is downloaded successfully in {download_path} and is not zero-byte. You may try to manually download the checkpoint from ', default_cfg["url"])
 
     if in_channels == 1:
         conv1_name = default_cfg["first_conv"]
@@ -45,22 +48,23 @@ def load_pretrained(model, default_cfg, num_classes=1000, in_channels=3, filter_
     elif in_channels != 3:
         raise ValueError("Invalid in_channels for pretrained weights")
 
-    classifier_name = default_cfg["classifier"]
-    if num_classes == 1000 and default_cfg["num_classes"] == 1001:
-        classifier_weight = param_dict[classifier_name + ".weight"]
-        classifier_weight.set_data(classifier_weight[:1000], slice_shape=True)
-        classifier_bias = param_dict[classifier_name + ".bias"]
-        classifier_bias.set_data(classifier_bias[:1000], slice_shape=True)
-    elif num_classes != default_cfg["num_classes"]:
-        params_names = list(param_dict.keys())
-        param_dict.pop(
-            _search_param_name(params_names, classifier_name + ".weight"),
-            "No Parameter {} in ParamDict".format(classifier_name + ".weight"),
-        )
-        param_dict.pop(
-            _search_param_name(params_names, classifier_name + ".bias"),
-            "No Parameter {} in ParamDict".format(classifier_name + ".bias"),
-        )
+    if 'classifier' in default_cfg:
+        classifier_name = default_cfg["classifier"]
+        if num_classes == 1000 and default_cfg["num_classes"] == 1001:
+            classifier_weight = param_dict[classifier_name + ".weight"]
+            classifier_weight.set_data(classifier_weight[:1000], slice_shape=True)
+            classifier_bias = param_dict[classifier_name + ".bias"]
+            classifier_bias.set_data(classifier_bias[:1000], slice_shape=True)
+        elif num_classes != default_cfg["num_classes"]:
+            params_names = list(param_dict.keys())
+            param_dict.pop(
+                _search_param_name(params_names, classifier_name + ".weight"),
+                "No Parameter {} in ParamDict".format(classifier_name + ".weight"),
+            )
+            param_dict.pop(
+                _search_param_name(params_names, classifier_name + ".bias"),
+                "No Parameter {} in ParamDict".format(classifier_name + ".bias"),
+            )
 
     if filter_fn is not None:
         param_dict = filter_fn(param_dict)

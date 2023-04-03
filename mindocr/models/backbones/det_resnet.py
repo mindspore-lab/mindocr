@@ -1,7 +1,7 @@
 from typing import Tuple, List
 from mindspore import Tensor
-from mindcv.models.resnet import ResNet, Bottleneck, default_cfgs
-from mindcv.models.utils import load_pretrained
+from .mindcv_models.resnet import ResNet, Bottleneck, default_cfgs
+from .mindcv_models.utils import load_pretrained
 from ._registry import register_backbone, register_backbone_class
 
 __all__ = ['DetResNet', 'det_resnet50']
@@ -20,7 +20,7 @@ class DetResNet(ResNet):
         x = self.bn1(x)
         x = self.relu(x)
         x = self.max_pool(x)
-        ''' 
+        '''
         ftrs = []
         for i, layer in enumerate([self.layer1, self.layer2,  self.layer3, self.layer4]):
             x = layer(x)

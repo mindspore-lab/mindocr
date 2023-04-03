@@ -8,8 +8,8 @@ import numpy as np
 import mindspore as ms
 from mindspore import save_checkpoint
 from mindspore.train.callback._callback import Callback, _handle_loss
-from mindocr.utils.visualize import draw_bboxes, show_imgs, recover_image
-from mindocr.utils.recorder import PerfRecorder
+from .visualize import draw_bboxes, show_imgs, recover_image
+from .recorder import PerfRecorder
 
 __all__ = ['Evaluator', 'EvalSaveCallback']
 

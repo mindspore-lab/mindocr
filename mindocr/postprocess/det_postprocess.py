@@ -42,7 +42,11 @@ class DBPostprocess:
         return [self._extract_preds(pr, segm, scale, dest_size) for pr, segm in zip(pred, segmentation)]
 
     def _extract_preds(self, pred, bitmap, scale, dest_size):
-        contours, _ = cv2.findContours(bitmap.astype(np.uint8), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        outs = cv2.findContours(bitmap.astype(np.uint8), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+        if len(outs) == 3:
+            _, contours, _ = outs[0], outs[1], outs[2]
+        elif len(outs) == 2:
+            contours, _ = outs[0], outs[1]
 
         polys, scores = [], []
         for contour in contours[:self._max_candidates]:

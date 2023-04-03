@@ -4,20 +4,13 @@ import sys
 sys.path.append('.')
 
 import yaml
-import glob
 import pytest
-import numpy as np
 import time
 
 import mindspore as ms
 import mindocr
 from mindocr.data import build_dataset
-from mindocr.data.det_dataset import DetDataset
-from mindocr.data.transforms.transforms_factory import transforms_dbnet_icdar15
-from mindocr.data.rec_dataset import RecDataset
-from mindspore import load_checkpoint, load_param_into_net
-from mindocr.utils.visualize import show_img, draw_bboxes, show_imgs, recover_image
-from mindcv.utils.download import DownLoad
+from mindocr.utils.visualize import show_img, draw_bboxes, recover_image
 
 
 @pytest.mark.parametrize('task', ['det', 'rec'])

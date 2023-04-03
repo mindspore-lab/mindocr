@@ -65,158 +65,21 @@ pip install git+https://github.com/mindspore-lab/mindocr.git
 
 ### Text Detection Model Training
 
-We will use **DBNet** model and **ICDAR2015** dataset for illustration, although other models and datasets are also supported. <!--ICDAR15 is a commonly-used model and a benchmark for scene text recognition.-->
-
-#### 1. Data Preparation
-
-Please download the ICDAR2015 dataset from this [website](https://rrc.cvc.uab.es/?ch=4&com=downloads), then format the dataset annotation refer to [dataset_convert](tools/dataset_converters/README.md).
-
-After preparation, the data structure should be like 
-
-``` text
-.
-├── test
-│   ├── images
-│   │   ├── img_1.jpg
-│   │   ├── img_2.jpg
-│   │   └── ...
-│   └── det_gt.txt
-└── train
-    ├── images
-    │   ├── img_1.jpg
-    │   ├── img_2.jpg
-    │   └── ....jpg
-    └── det_gt.txt
-```
-
-#### 2. Configure Yaml
-
-Please choose a yaml config file containing the target pre-defined model and data pipeline that you want to re-use from `configs/det`. Here we choose `configs/det/dbnet/db_r50_icdar15.yaml`.
-
-And change the data config args according to 
-``` yaml
-train:
-  dataset:
-    data_dir: PATH/TO/TRAIN_IMAGES_DIR
-    label_file: PATH/TO/TRAIN_LABELS.txt
-eval:
-  dataset:
-    data_dir: PATH/TO/TEST_IMAGES_DIR
-    label_file: PATH/TO/TEST_LABELS.txt
-```
-
-Optionally, change `num_workers` according to the cores of CPU, and change `distribute` to True if you are to train in distributed mode.
-
-#### 3. Training
-
-To train the model, please run 
-
-``` shell 
-# train dbnet on ic15 dataset
-python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
-```
-
-The training result (including checkpoints, per-epoch performance and curves) will be  saved in the directory parsed by the arg `ckpt_save_dir`.
-
-#### 4. Evaluation
-
-To evaluate, please set the checkpoint path to the arg `ckpt_load_path` in yaml config file and run 
-
-``` shell
-python tools/eval.py --config configs/det/dbnet/db_r50_icdar15.yaml
-```
+We will use **DBNet** model and **ICDAR2015** dataset for demonstration, although other models and datasets are also supported. Please refer to [DBNet model README](configs/det/dbnet/README.md).
 
 
 ### Text Recognition Model Training
 
-We will use **CRNN** model and **LMDB** dataset for illustration, although other models and datasets are also supported. 
+We will use **CRNN** model and **LMDB** dataset for demonstration, although other models and datasets are also supported. Please refer to [CRNN model README](configs/rec/crnn/README.md).
 
-#### 1. Data Preparation
-
-Please download the LMDB dataset from [here](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (ref: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here)).
-
-There're several .zip data files:
-- `data_lmdb_release.zip` contains the entire datasets including train, valid and evaluation.
-- `validation.zip` is the union dataset for Validation
-- `evaluation.zip` contains several benchmarking datasets. 
-
-Unzip the data and after preparation, the data structure should be like 
-
-``` text
-.
-├── train
-│   ├── MJ
-│   │   ├── data.mdb
-│   │   ├── lock.mdb
-│   ├── ST
-│   │   ├── data.mdb
-│   │   ├── lock.mdb
-└── validation
-|   ├── data.mdb
-|   ├── lock.mdb
-└── evaluation
-    ├── IC03
-    │   ├── data.mdb
-    │   ├── lock.mdb
-    ├── IC13
-    │   ├── data.mdb
-    │   ├── lock.mdb
-    └── ...
-```
-
-#### 2. Configure Yaml
-
-Please choose a yaml config file containing the target pre-defined model and data pipeline that you want to re-use from `configs/rec`. Here we choose `configs/rec/crnn/crnn_resnet34.yaml`.
-
-Please change the data config args accordingly, such as
-``` yaml
-train:
-  dataset:
-    type: LMDBDataset
-    data_dir: lmdb_data/rec/train/
-eval:
-  dataset:
-    type: LMDBDataset
-    data_dir: lmdb_data/rec/validation/
-```
-
-Optionally, change `num_workers` according to the cores of CPU, and change `distribute` to True if you are to train in distributed mode.
-
-#### 3. Training
-
-We will use distributed training for the large LMDB dataset. 
-
-To train in distributed mode, please run
-
-```shell
-# Distributed training on Ascends
-mpirun --allow-run-as-root -n 8 python tools/train.py  --config configs/rec/crnn/crnn_resnet34.yaml
-```
-
-```shell
-# n is the number of GPUs/NPUs
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
-```
-> Notes: please ensure the arg `distribute` in yaml file is set True
-
-
-The training result (including checkpoints, per-epoch performance and curves) will be  saved in the directory parsed by the arg `ckpt_save_dir`. 
-
-#### 4. Evaluation
-
-To evaluate, please set the checkpoint path to the arg `ckpt_load_path` in yaml config file and run 
-
-``` shell
-python tools/eval.py --config configs/rec/crnn/crnn_resnet34.yaml
-```
 
 ### Inference and Deployment
 
 #### Inference with MX Engine
 
-Please refer to [mx_infer](docs/cn/inference_tutorial_cn.md) for tutorial
+Please refer to [mx_infer tutorial](docs/cn/inference_tutorial_cn.md) for detailed inference tutorial.
 
-Please refer to [mx_infer](docs/cn/inference_models_cn.md) for models list and benchmark
+Please refer to [mx_infer results](docs/cn/inference_models_cn.md) for detailed performance of the supported inference models.
 
 #### Inference with Lite 
 
