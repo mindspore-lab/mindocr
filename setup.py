@@ -1,8 +1,17 @@
 #!/usr/bin/env python
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
-__version__ = '0.0.1'
+exec(open("version.py").read())
+#__version__ = '0.0.1'
+
+def read_requirements(fps):
+    reqs = []
+    for fp in fps:
+        with open(fp) as f:
+            reqs.extend(f.readlines())
+
+    return reqs
 
 setup(
     name="mindocr",
@@ -16,12 +25,11 @@ setup(
     description="A toolbox of OCR models and algorithms based on MindSpore.",
     license="Apache Software License 2.0",
     include_package_data=True,
-    packages=['mindocr'],
+    #packages=find_packages(include=["mindocr", "mindocr.*", "mindcv", "mindcv.*"]),
+    packages=["mindocr"],
     package_dir={'mindocr': ""},
     entry_points={"console_scripts": ["mindocr=mindocr.deploy.mx_infer.infer_pipeline:main"]},
-    install_requires=[
-        "numpy >= 1.17.0",
-    ],
+    install_requires=read_requirements(['requirements.txt']),
     python_requires=">=3.7",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
