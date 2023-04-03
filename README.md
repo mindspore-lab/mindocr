@@ -59,7 +59,7 @@ The latest version of MindOCR can be installed as follows:
 pip install git+https://github.com/mindspore-lab/mindocr.git
 ```
 
-> Notes: MindOCR is only tested on MindSpore>=1.8.1, Linux on GPU/Ascend devices currently.
+> Notes: MindOCR is only tested on MindSpore>=1.9, Linux on GPU/Ascend devices currently.
 
 ## Quick Start
 
@@ -87,7 +87,7 @@ The training pipeline is fully extendable. To train other text detection/recogni
 
 MX, which is short for [MindX](https://www.hiascend.com/zh/software/mindx-sdk), allows efficient model inference and deployment on Ascend devices. 
 
-MindOCR supports OCR model inference with MX Engine. Please refer to [mx_infer](docs/cn/inference_cn.md) for detailed illustrations.
+MindOCR supports OCR model inference with MX Engine. Please refer to [mx_infer](docs/cn/inference_tutorial_cn.md) for detailed illustrations.
 
 #### 2.2 Inference with MS Lite 
 

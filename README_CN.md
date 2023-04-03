@@ -77,7 +77,7 @@ MindOCR支持多种文本识别模型及数据集，在此我们使用**CRNN**�
 
 MX ([MindX](https://www.hiascend.com/zh/software/mindx-sdk)的缩写) 是一个支持昇腾设备高效推理与部署的工具。
 
-MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_infer](docs/cn/inference_cn.md).
+MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_infer](docs/cn/inference_tutorial_cn.md).
 
 
 #### 使用Lite推理 
