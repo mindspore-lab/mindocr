@@ -49,7 +49,7 @@ Table Format:
 - 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。例如，D910x8-MS1.8-G 用于使用图形模式在8张昇腾910 NPU上依赖Mindspore1.8版本进行训练。
 - VGG 和 ResNet 模型都是从头开始训练的，无需任何预训练。
 - 上述模型是用 MJSynth(MJ)和 SynthText(ST)数据集训练的。更多数据详情，请参考 [数据集准备](#数据集准备)。
-- 评估在每个基准数据集上单独测试，平均准确度是所有子数据集的精度平均值。
+- **评估在每个基准数据集上单独测试，平均准确度是所有子数据集的精度平均值。**
 - PaddleOCR版CRNN，我们直接用的是其[github](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/algorithm_rec_crnn_en.md)上面提供的已训练好的模型。
 
 
@@ -64,6 +64,73 @@ LMDB格式的训练及验证数据集可以从[这里](https://www.dropbox.com/s
 - `data_lmdb_release.zip` 包含了完整的一套数据集，有训练集，验证集以及测试集。
 - `validation.zip` 是一个整合的验证集。
 - `evaluation.zip` 包含多个基准评估数据集。
+
+解压文件并完成数据准备操作后，数据文件夹结构如下：
+
+``` text
+.
+├── train
+│   ├── MJ
+│   │   ├── data.mdb
+│   │   ├── lock.mdb
+│   ├── ST
+│   │   ├── data.mdb
+│   │   ├── lock.mdb
+└── validation
+|   ├── data.mdb
+|   ├── lock.mdb
+└── evaluation
+    ├── IC03
+    │   ├── data.mdb
+    │   ├── lock.mdb
+    ├── IC13
+    │   ├── data.mdb
+    │   ├── lock.mdb
+    └── ...
+```
+
+#### 检查配置文件
+请重点关注以下变量的配置：`system.distribute`, `system.val_while_train`, `common.batch_size`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`, 
+`eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.dataset.label_file`, `eval.loader.batch_size`。说明如下：
+
+```yaml
+system:
+  distribute: True                                                    # 分布式训练为True，单卡训练为False
+  amp_level: 'O3'
+  seed: 42
+  val_while_train: True                                               # 边训练边验证
+  drop_overflow_update: False
+common:
+  ...
+  batch_size: &batch_size 64                                          # 训练批大小
+...
+train:
+  ckpt_save_dir: './tmp_det'
+  dataset_sink_mode: True
+  dataset:
+    type: DetDataset
+    dataset_root: /data/ocr_datasets                                  # 训练数据集根目录
+    data_dir: ic15/text_localization/train                            # 训练数据集目录，将与`dataset_root`拼接形成完整训练数据集目录
+    label_file: ic15/text_localization/train/train_icdar15_label.txt  # 训练数据的标签文件路径，将与`dataset_root`拼接形成完整的训练数据的标签文件路径
+...
+eval:
+  dataset_sink_mode: False
+  dataset:
+    type: DetDataset
+    dataset_root: /data/ocr_datasets                                  # 验证或评估数据集根目录
+    data_dir: ic15/text_localization/test                             # 验证或评估数据集目录，将与`dataset_root`拼接形成完整验证或评估数据集目录
+    label_file: ic15/text_localization/test/test_icdar2015_label.txt  # 验证或评估数据的标签文件路径，将与`dataset_root`拼接形成完整的验证或评估数据的标签文件路径
+  ...
+  loader:
+      shuffle: False
+      batch_size: 64                                                  # 验证或评估批大小
+...
+```
+
+**注意:**  
+- 由于全局批大小 （batch_size x num_devices） 是对结果复现很重要，因此当GPU/NPU卡数发生变化时，调整`batch_size`以保持全局批大小不变，或将学习率线性调整为新的全局批大小。
+- 进行**模型训练**时，若`system.val_while_train`参数为`True`，将开启边训练边验证模式，此时需将`eval.dataset.dataset_root`设置为**验证**数据集根目录，将`eval.dataset.data_dir`设置为**验证**数据集目录（如`validation/`）。
+- 进行**模型评估**时，请将`eval.dataset.dataset_root`设置为**评估**数据集根目录，将`eval.dataset.data_dir`设置为**评估**数据集目录（如`evaluation/DATASET_NAME/`）。
 
 ### 模型训练
 <!--- Guideline: Avoid using shell script in the command line. Python script preferred. -->
@@ -90,7 +157,6 @@ mpirun -n 8 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
-**注意:**  由于全局批大小 （batch_size x num_devices） 是对结果复现很重要，因此当GPU/NPU卡数发生变化时，调整`batch_size`以保持全局批大小不变，或将学习率线性调整为新的全局批大小。
 
 ### 模型评估
 
