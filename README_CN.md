@@ -41,7 +41,7 @@ MindOCR是一个基于[MindSpore](https://www.mindspore.cn/en)框架的OCR开发
 pip install -r requirements.txt
 ```
 
-此外，请按[官方指引](https://www.mindspore.cn/install)安装MindSpore(>=1.8.1) 来适配您的机器。如果需要在分布式模式下进行训练，还请安装[openmpi](https://www.open-mpi.org/software/ompi/v4.0/)。
+此外，请按[官方指引](https://www.mindspore.cn/install)安装MindSpore(>=1.9) 来适配您的机器。如果需要在分布式模式下进行训练，还请安装[openmpi](https://www.open-mpi.org/software/ompi/v4.0/)。
 
 
 ### 通过PyPI安装
@@ -55,7 +55,7 @@ pip install -r requirements.txt
 pip install git+https://github.com/mindspore-lab/mindocr.git
 ```
 
-> 注意：MindOCR目前暂时只在MindSpore>=1.8.1版本，Linux系统，GPU/Ascend设备上进行过测试。
+> 注意：MindOCR目前暂时只在MindSpore>=1.9版本，Linux系统，GPU/Ascend设备上进行过测试。
 
 ## 快速上手
 
@@ -77,7 +77,7 @@ MindOCR支持多种文本识别模型及数据集，在此我们使用**CRNN**�
 
 MX ([MindX](https://www.hiascend.com/zh/software/mindx-sdk)的缩写) 是一个支持昇腾设备高效推理与部署的工具。
 
-MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_infer](docs/cn/inference_cn.md).
+MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_infer](docs/cn/inference_tutorial_cn.md).
 
 
 #### 使用Lite推理 
