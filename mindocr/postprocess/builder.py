@@ -3,6 +3,8 @@ from .rec_postprocess import *
 from . import det_postprocess
 from . import rec_postprocess
 
+__all__ = ['build_postprocess']
+
 supported_postprocess = det_postprocess.__all__ + rec_postprocess.__all__ 
 
 def build_postprocess(config: dict):
