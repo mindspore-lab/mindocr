@@ -6,7 +6,7 @@ English | [中文](README_CN.md)
 
 > [Real-time Scene Text Detection with Differentiable Binarization](https://arxiv.org/abs/1911.08947)
 
-## Introduction
+## 1. Introduction
 
 DBNet is a segmentation-based scene text detection method. Segmentation-based methods are gaining popularity for scene
 text detection purposes as they can more accurately describe scene text of various shapes, such as curved text.  
@@ -32,7 +32,7 @@ The overall architecture of DBNet is presented in _Figure 1._ It consists of mul
 5. The probability and threshold maps are merged into one approximate binary map by the Differentiable binarization
    module. The approximate binary map is used to generate text bounding boxes.
 
-## Results
+## 2. Results
 
 ### ICDAR2015
 <div align="center">
@@ -50,28 +50,39 @@ The overall architecture of DBNet is presented in _Figure 1._ It consists of mul
 
 
 
-## Quick Start
+## 3. Quick Start
 
-### Preparation
-
-#### Installation
+### 3.1 Installation
 
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
-### Dataset preparation
+### 3.2 Dataset preparation
 
-First, the dataset labels need to be converted. To do so,
-download [ICDAR2015](https://rrc.cvc.uab.es/?ch=4&com=downloads), and extract images and labels in a preferred folder.
-Then, use the following command to generate _training_ labels:
+Please download [ICDAR2015](https://rrc.cvc.uab.es/?ch=4&com=downloads) dataset, and convert the labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
 
-```shell
-python tools/dataset_converters/convert.py --dataset_name=ic15 --task=det --image_dir=IMAGES_DIR --label_dir=LABELS_DIR --output_path=OUTPUT_PATH
+
+The prepared dataset file struture should be:  
+
+``` text
+.
+├── test
+│   ├── images
+│   │   ├── img_1.jpg
+│   │   ├── img_2.jpg
+│   │   └── ...
+│   └── test_det_gt.txt
+└── train
+    ├── images
+    │   ├── img_1.jpg
+    │   ├── img_2.jpg
+    │   └── ....jpg
+    └── train_det_gt.txt
 ```
 
-Repeat this step to generate the _test_ labels.
+### 3.3 Update yaml config file
 
-After the label files are generated, update `configs/det/dbnet/db_r50_icdar15.yaml` configuration file with data paths,
-specifically the following parts:
+Update `configs/det/dbnet/db_r50_icdar15.yaml` configuration file with data paths,
+specifically the following parts. The `dataset_root` will be concatenated with `dataset_root` and `label_file` respectively to be the complete dataset directory and label file path.
 
 ```yaml
 ...
@@ -80,23 +91,25 @@ train:
   dataset_sink_mode: True
   dataset:
     type: DetDataset
-    dataset_root: /data/ocr_datasets                                  <------ HERE
-    data_dir: ic15/text_localization/train                            <------ HERE
-    label_file: ic15/text_localization/train/train_icdar15_label.txt  <------ HERE
+    dataset_root: dir/to/dataset          <--- Update
+    data_dir: train/images                <--- Update
+    label_file: train/train_det_gt.txt    <--- Update
 ...
 eval:
   dataset_sink_mode: False
   dataset:
     type: DetDataset
-    dataset_root: /data/ocr_datasets                                  <------ HERE
-    data_dir: ic15/text_localization/test                             <------ HERE
-    label_file: ic15/text_localization/test/test_icdar2015_label.txt  <------ HERE
+    dataset_root: dir/to/dataset          <--- Update
+    data_dir: test/images                 <--- Update
+    label_file: test/test_det_gt.txt      <--- Update
 ...
 ```
 
-### Config explanation
+> Optionally, change `num_workers` according to the cores of CPU.
 
-_DBNet_ consists of 3 parts: `backbone`, `neck`, and `head`. Specifically:
+
+
+DBNet consists of 3 parts: `backbone`, `neck`, and `head`. Specifically:
 
 ```yaml
 model:
@@ -119,17 +132,31 @@ model:
 
 [comment]: <> (The only difference between _DBNet_ and _DBNet++_ is in the _Adaptive Scale Fusion_ module, which is controlled by the `use_asf` parameter in the `neck` module.)
 
-### Training
+### 3.4 Training
 
-After preparing a dataset and setting the configuration, training can be started as follows:
+* Standalone training
+
+Please set `distribute` in yaml config file to be False.
 
 ```shell
 python tools/train.py -c=configs/det/dbnet/db_r50_icdar15.yaml
 ```
 
-### Evaluation
+* Distributed training
 
-To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file and then run:
+Please set `distribute` in yaml config file to be True.
+
+```shell
+# n is the number of GPUs/NPUs
+mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
+```
+ 
+The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir` in yaml config file. The default directory is `./tmp_det`.
+
+
+### 3.5 Evaluation
+
+To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 
 ```shell
 python tools/eval.py -c=configs/det/dbnet/db_r50_icdar15.yaml
