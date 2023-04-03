@@ -6,7 +6,7 @@
 
 > [Real-time Scene Text Detection with Differentiable Binarization](https://arxiv.org/abs/1911.08947)
 
-## 概述
+## 1. 概述
 
 DBNet是一种基于分割的场景文本检测算法。在场景文本检测中，基于分割这类算法可以更加准确的描述各种形状的场景文本（比如弯曲形状的文本），而变得越来越流行。现有的基于分割的业界领先算法存在的缺陷是，概率图转化为文本框的二值化后处理过程通常需要人为设置一个阈值，而且后处理的聚合像素点的操作非常复杂且费时。
 
@@ -23,7 +23,7 @@ DBNet的整体架构图如图1所示，包含以下阶段:
 4. 在最后的特征图（图中的深蓝色块）上应用3×3的卷积算子，和两个步长为2的去卷积算子来预测概率图和阈值图；
 5. 通过可微分二值化将概率图和阈值图合并为一个近似二值图单元近似二值图，并生成文本边界框。
 
-## 实验结果
+## 2. 实验结果
 
 ### ICDAR2015
 <div align="center">
@@ -37,26 +37,39 @@ DBNet的整体架构图如图1所示，包含以下阶段:
 
 #### 注释：
 - 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。
+- DBNet的训练时长受数据处理部分和不同运行环境的影响非常大。
 
-## 快速上手
+## 3. 快速上手
 
-### 准备
+### 3.1 安装
 
-#### 安装
+请参考MindOCR套件的[安装指南](https://github.com/mindspore-lab/mindocr#installation) 。
 
-请参考MindOCR套件的 [安装指南](https://github.com/mindspore-lab/mindocr#installation) .
+### 3.2 数据准备
 
-### 数据集准备
+请从[该网址](https://rrc.cvc.uab.es/?ch=4&com=downloads)下载ICDAR2015数据集，然后参考[数据转换](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README_CN.md)对数据集标注进行格式转换。
 
-首先，需要对数据集标签进行转换，下载数据集 [ICDAR2015](https://rrc.cvc.uab.es/?ch=4&com=downloads)，分别提取图片和标签到指定文件夹。然后，使用如下命令来生成训练集标签:
+完成数据准备工作后，数据的目录结构应该如下所示： 
 
-```shell
-python tools/dataset_converters/convert.py --dataset_name=ic15 --task=det --image_dir=IMAGES_DIR --label_dir=LABELS_DIR --output_path=OUTPUT_PATH
+``` text
+.
+├── test
+│   ├── images
+│   │   ├── img_1.jpg
+│   │   ├── img_2.jpg
+│   │   └── ...
+│   └── test_det_gt.txt
+└── train
+    ├── images
+    │   ├── img_1.jpg
+    │   ├── img_2.jpg
+    │   └── ....jpg
+    └── train_det_gt.txt
 ```
 
-按照同样的方法生成测试集标签。
+### 3.3 配置说明
 
-生成标签文件后，在配置文件`configs/det/dbnet/db_r50_icdar15.yaml` 中更新如下文件路径：
+在配置文件`configs/det/dbnet/db_r50_icdar15.yaml`中更新如下文件路径。其中`dataset_root`会分别和`dataset_root`以及`label_file`拼接构成完整的数据集目录和标签文件路径。
 
 ```yaml
 ...
@@ -65,23 +78,25 @@ train:
   dataset_sink_mode: True
   dataset:
     type: DetDataset
-    dataset_root: /data/ocr_datasets                                  <------ 这里
-    data_dir: ic15/text_localization/train                            <------ 这里
-    label_file: ic15/text_localization/train/train_icdar15_label.txt  <------ 这里
+    dataset_root: dir/to/dataset          <--- 更新
+    data_dir: train/images                <--- 更新
+    label_file: train/train_det_gt.txt    <--- 更新
 ...
 eval:
   dataset_sink_mode: False
   dataset:
     type: DetDataset
-    dataset_root: /data/ocr_datasets                                  <------ 这里
-    data_dir: ic15/text_localization/test                             <------ 这里
-    label_file: ic15/text_localization/test/test_icdar2015_label.txt  <------ 这里
+    dataset_root: dir/to/dataset          <--- 更新
+    data_dir: test/images                 <--- 更新
+    label_file: test/test_det_gt.txt      <--- 更新
 ...
 ```
 
-### 配置说明
+> 【可选】可以根据CPU核的数量设置`num_workers`参数的值。
 
-_DBNet_ 由3个部分组成: `backbone`, `neck`, and `head`. 具体来说:
+
+
+DBNet由3个部分组成：`backbone`、`neck`和`head`。具体来说:
 
 ```yaml
 model:
@@ -104,20 +119,34 @@ model:
 
 [comment]: <> (_DBNet_和_DBNet++的唯一区别在于_Adaptive Scale Fusion_ module, 在`neck`模块中的 `use_asf`参数进行设置。)
 
-### 训练
+### 3.4 训练
 
-在准备好数据集并完成配置文件后，可以使用如下命令开始训练：
+* 单卡训练
 
-```shell
-python tools/train.py -c=configs/det/dbnet/db_r50_icdar15.yaml
+请确保yaml文件中的`distribute`参数为False。
+
+``` shell 
+# train dbnet on ic15 dataset
+python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
 
-### 评估
+* 分布式训练
 
-可以使用 `eval.py`文件来评估训练模型的准确性, 请在yaml配置文件的`eval`部分将参数`ckpt_load_path`设置为模型checkpoint的文件路径，然后运行：
+请确保yaml文件中的`distribute`参数为True。
 
 ```shell
-python tools/eval.py -c=configs/det/dbnet/db_r50_icdar15.yaml
+# n is the number of GPUs/NPUs
+mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
+```
+
+训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为`./tmp_det`。 
+
+### 3.5 评估
+
+评估环节，在yaml配置文件中将`ckpt_load_path`参数配置为checkpoint文件的路径，设置`distribute`为False，然后运行： 
+
+``` shell
+python tools/eval.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
 
 ## 参考文献

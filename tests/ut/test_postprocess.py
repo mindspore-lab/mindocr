@@ -1,7 +1,6 @@
 import sys
 sys.path.append('.')
 import pytest
-import numpy as np
 import yaml
 from addict import Dict
 from mindocr.postprocess import build_postprocess
