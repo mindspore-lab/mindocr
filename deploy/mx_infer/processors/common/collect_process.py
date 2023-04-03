@@ -72,6 +72,8 @@ class CollectProcess(ModuleBase):
             for result in input_data.infer_result:
                 self.image_pipeline_res[input_data.image_name].append(
                     {"transcription": result[-1], "points": result[:-1]})
+            if not input_data.infer_result:
+                self.image_pipeline_res[input_data.image_name] = []
         elif self.task_type == InferModelComb.DET:
             self.image_pipeline_res[input_data.image_name].extend(input_data.infer_result)
         elif self.task_type == InferModelComb.REC:

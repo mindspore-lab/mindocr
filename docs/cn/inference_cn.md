@@ -22,7 +22,7 @@ MindOCR的推理工具集成了文本检测、角度分类和文字识别模块�
 | ------------------------------ | ------------------------------------------------------------ |
 | Paddle PP-OCR server 2.0 DBNet | https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_server_v2.0_det_infer.tar |
 | Paddle PP-OCR server 2.0 Cls   | https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_cls_infer.tar |
-| Paddle PP-OCR server 2.0 SVTR  | https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_server_v2.0_rec_infer.tar |
+| Paddle PP-OCR server 2.0 CRNN  | https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_server_v2.0_rec_infer.tar |
 
 (2) Paddle PP-OCR 3.0模型:
 
