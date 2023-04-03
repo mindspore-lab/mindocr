@@ -129,5 +129,5 @@ def test_train_eval(task, val_while_train):
 
 
 if __name__ == '__main__':
-    test_train_eval('det', True)
-    #test_train_eval('rec', True)
+    #test_train_eval('det', True)
+    test_train_eval('rec', True)

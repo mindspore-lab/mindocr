@@ -1,10 +1,28 @@
 import sys
 sys.path.append('.')
-
+import pytest
+import yaml
+from addict import Dict
 import numpy as np
 import mindspore as ms
+from mindocr import build_metric
 from mindocr.metrics.det_metrics import DetMetric
 from mindocr.metrics.rec_metrics import RecMetric
+
+
+@pytest.mark.parametrize('task', ['det', 'rec'])
+@pytest.mark.parametrize('device_num', [1, 8])
+def test_build_metric(task, device_num):
+  if task == 'det':
+      config_fp = 'configs/det/dbnet/db_r50_icdar15.yaml'
+  elif task=='rec':
+      config_fp = 'configs/rec/crnn/crnn_icdar15.yaml'
+
+  with open(config_fp) as fp:
+      cfg = yaml.safe_load(fp)
+  cfg = Dict(cfg)
+
+  metric = build_metric(cfg.metric, device_num=device_num)
 
 
 def test_det_metric():

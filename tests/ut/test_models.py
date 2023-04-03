@@ -1,15 +1,13 @@
 import sys
 sys.path.append('.')
 
+import time
 import yaml
-import glob
 import pytest
 import numpy as np
 import mindspore as ms
 import mindocr
-from mindocr.models.backbones import build_backbone
 from mindocr.models import build_model
-from mindspore import load_checkpoint, load_param_into_net
 
 all_model_names = mindocr.list_models()
 print('Registered models: ', all_model_names)
@@ -20,10 +18,6 @@ all_yamls = ['configs/det/dbnet/db_r50_icdar15.yaml',
 print('All config yamls: ', all_yamls)
 
 def _infer_dummy(model, task='det', verbose=True):
-    import mindspore as ms
-    import time
-    import numpy as np
-
     print(task)
 
     bs = 8
@@ -93,18 +87,5 @@ def test_model_by_yaml(yaml_fp):
 
 if __name__ == '__main__':
     print(all_model_names)
-    #test_model_by_name(all_model_names[0], True)
-    #test_model_by_name(all_model_names[1], True)
     test_model_by_name(all_model_names[2], True)
     #test_model_by_yaml(all_yamls[1])
-    '''
-    import argparse
-    parser = argparse.ArgumentParser(description='model config', add_help=False)
-    parser.add_argument('-c', '--config', type=str, default='configs/det/dbnet/db_r50_icdar15.yaml',
-                               help='YAML config file specifying default arguments (default='')')
-    args = parser.parse_args()
-    #test_registry()
-    #test_backbone()
-    #test_model_by_name('dbnet_r50')
-    test_model_by_yaml(args.config)
-    '''
