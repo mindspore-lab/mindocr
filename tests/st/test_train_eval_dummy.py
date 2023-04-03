@@ -17,7 +17,7 @@ sys.path.append(".")
 
 import pytest
 
-from mindcv.utils.download import DownLoad
+from mindocr.models.backbones.mindcv_models.download import DownLoad
 
 
 @pytest.mark.parametrize("task", ["det", "rec"])
@@ -60,7 +60,7 @@ def test_train_eval(task, val_while_train):
     with open(config_fp) as fp:
         config = yaml.safe_load(fp)
         config['system']['distribute'] = False
-        config['system']['val_while_train'] = val_while_train 
+        config['system']['val_while_train'] = val_while_train
         #if 'common' in config:
         #    config['batch_size'] = 8
         config['train']['dataset_sink_mode'] = False
@@ -129,5 +129,5 @@ def test_train_eval(task, val_while_train):
 
 
 if __name__ == '__main__':
-    #test_train_eval('det', True)
-    test_train_eval('rec', True)
+    test_train_eval('det', True)
+    #test_train_eval('rec', True)

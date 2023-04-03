@@ -17,7 +17,6 @@ from mindocr.data.transforms.transforms_factory import transforms_dbnet_icdar15
 from mindocr.data.rec_dataset import RecDataset
 from mindspore import load_checkpoint, load_param_into_net
 from mindocr.utils.visualize import show_img, draw_bboxes, show_imgs, recover_image
-from mindcv.utils.download import DownLoad
 
 
 @pytest.mark.parametrize('task', ['det', 'rec'])

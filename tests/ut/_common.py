@@ -1,7 +1,7 @@
 import os
 import glob
 import yaml
-from mindcv.utils.download import DownLoad
+from mindocr.models.backbones.mindcv_models.download import DownLoad
 
 def gen_dummpy_data(task):
     # prepare dummy images

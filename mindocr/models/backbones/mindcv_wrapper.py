@@ -1,5 +1,5 @@
 import numpy as np
-import mindcv
+from . import mindcv_models
 import mindspore as ms
 from mindspore import ops
 from mindspore import nn
@@ -10,8 +10,8 @@ class MindCVBackboneWrapper(nn.Cell):
     It reuses the forward_features interface in mindcv models. Please check where the features are extracted.
     Only support forward the feature of the last layer of the backbone currently.
 
-    Note: text recognition models like CRNN expects output feature in shape [bs, c, h, w]. but some models in mindcv 
-    like ViT output features in shape [bs, c]. please check and pick accordingly.   
+    Note: text recognition models like CRNN expects output feature in shape [bs, c, h, w]. but some models in mindcv
+    like ViT output features in shape [bs, c]. please check and pick accordingly.
 
     Example:
         network = MindCVBackboneWrapper('resnet50', pretrained=True)
@@ -23,7 +23,7 @@ class MindCVBackboneWrapper(nn.Cell):
         #self.out_channels =[ch*block.expansion for ch in [64, 128, 256, 512]]
 
         model_name = name.replace('@mindcv', "").replace("mindcv.", "")
-        network = mindcv.create_model(model_name, pretrained=pretrained)
+        network = mindcv_models.create_model(model_name, pretrained=pretrained)
         # for local checkpaoint
         if ckpt_path is not None:
             checkpoint_param = load_checkpoint(ckpt_path)

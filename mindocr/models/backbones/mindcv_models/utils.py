@@ -9,7 +9,7 @@ from typing import List, Optional
 
 from mindspore import load_checkpoint, load_param_into_net
 
-from mindcv.utils.download import DownLoad, get_default_download_root
+from .download import DownLoad, get_default_download_root
 
 
 def get_checkpoint_download_root():

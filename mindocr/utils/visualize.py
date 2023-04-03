@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from typing import Union, List
 import matplotlib.pyplot as plt
-from mindcv.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
+from mindocr.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 
 __all__ = ['show_img', 'show_imgs', 'draw_bboxes', 'recover_image']
 
