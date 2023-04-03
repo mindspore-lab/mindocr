@@ -12,12 +12,11 @@ import subprocess
 import sys
 import glob
 import yaml
-from tests.ut._common import gen_dummpy_data, update_config_for_CI
+import pytest
 
 sys.path.append(".")
 
-import pytest
-
+from tests.ut._common import gen_dummpy_data, update_config_for_CI
 from mindocr.models.backbones.mindcv_models.download import DownLoad
 
 
