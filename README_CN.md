@@ -11,11 +11,11 @@
 
 [English](README.md) | 中文
 
-[概述](#introduction) |
-[安装](#installation) |
-[快速上手](#quick-start) |
-[模型列表](#supported-models-and-performance) |
-[注释](#notes)
+[概述](#概述) |
+[安装](#安装) |
+[快速上手](#快速上手) |
+[模型列表](#模型列表) |
+[重要信息](#重要信息)
 
 </div>
 
@@ -59,12 +59,14 @@ pip install git+https://github.com/mindspore-lab/mindocr.git
 
 ## 快速上手
 
-### 训练文本检测模型
+### 模型训练评估
+
+#### 文本检测
 
 MindOCR支持多种文本检测模型及数据集，在此我们使用**DBNet**模型和**ICDAR2015**数据集进行演示。请参考[DBNet模型文档](configs/det/dbnet/README_CN.md)。
 
 
-### 训练文本识别模型
+### 文本识别
 
 MindOCR支持多种文本识别模型及数据集，在此我们使用**CRNN**模型和**LMDB**数据集进行演示。请参考[CRNN模型文档](configs/rec/crnn/README_CN.md)。
 
@@ -73,7 +75,9 @@ MindOCR支持多种文本识别模型及数据集，在此我们使用**CRNN**�
 
 #### 使用MX Engine推理
 
-请参考[mx_infer](docs/cn/inference_cn.md)
+MX ([MindX](https://www.hiascend.com/zh/software/mindx-sdk)的缩写) 是一个支持昇腾设备高效推理与部署的工具。
+
+MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_infer](docs/cn/inference_cn.md).
 
 #### 使用Lite推理 
 
@@ -83,30 +87,30 @@ MindOCR支持多种文本识别模型及数据集，在此我们使用**CRNN**�
 
 敬请期待
 
-## 支持模型及性能
+## 模型列表
 
-### 文本检测  
+<details open>
+<summary>文本检测</summary>
 
-下表是目前支持的文本检测模型和它们在ICDAR2015测试数据集上的精度数据：
+- [x] [DBNet](https://arxiv.org/abs/1911.08947) (AAAI'2020) 
+- [x] [DBNet++](https://arxiv.org/abs/2202.10304) (TPAMI'2022)
+- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [开发中]
 
-| **模型**  | **骨干网络**  | **预训练**      | **Recall** | **Precision** | **F-score** | **配置文件**                                            | 
-|-----------|--------------|----------------|------------|---------------|-------------|-----------------------------------------------------|
-| DBNet     | ResNet-50    | ImageNet       | 81.97%     | 86.05%        | 83.96%      | [YAML](configs/det/dbnet/dbnet/db_r50_icdar15.yaml) | 
-| DBNet++   | ResNet-50    | ImageNet       | 82.02%     | 87.38%        | 84.62%      | [YAML](configs/det/dbnet++/db++_r50_icdar15.yaml)   |
+</details>
 
-### 文本识别
+<details open>
+<summary>文本识别</summary>
 
-下表是目前支持的文本识别模型和它们在公开测评数据集 (IIIT, SVT, IC03, IC13, IC15, SVTP, CUTE) 上的精度数据：
+- [x] [CRNN](https://arxiv.org/abs/1507.05717) (TPAMI'2016)
+- [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [开发中]
+- [ ] [SVTR](https://arxiv.org/abs/2205.00159) (IJCAI'2022) [仅推理]
 
 
-| **模型** | **骨干网络** | **平均准确率**| **配置文件** | 
-|-----------|--------------|----------------|------------|
-| CRNN     | VGG7        | 82.03% 	| [YAML](configs/rec/crnn/crnn_vgg7.yaml)    | 
-| CRNN     | Resnet34_vd    | 84.45% 	| [YAML](configs/rec/crnn/crnn_resnet34.yaml)     |
+模型训练的配置及性能结果请见[configs](./configs).
 
-模型配置及性能详细介绍请见[configs](./configs).
+基于MX Engine推理的模型性能结果请见[mx inference performance](docs/cn/inference_models_cn.md) 
 
-## 注释
+## 重要信息
 
 ### 变更日志
 - 2023/03/23
