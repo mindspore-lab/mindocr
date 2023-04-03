@@ -50,7 +50,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 - To reproduce the result on other contexts, please ensure the global batch size is the same. 
 - Both VGG and ResNet models are trained from scratch without any pre-training.
 - The above models are trained with MJSynth (MJ) and SynthText (ST) datasets. For more data details, please refer to [Data Preparation](#dataset-preparation)
-- Evaluations are tested individually on each benchmark dataset, and Avg Accuracy is the average of accuracies across all sub-datasets.
+- **Evaluations are tested individually on each benchmark dataset, and Avg Accuracy is the average of accuracies across all sub-datasets.**
 - For the PaddleOCR version of CRNN, the performance is reported on the trained model provided on their [github](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/algorithm_rec_crnn_en.md).
 
 
@@ -66,7 +66,75 @@ Please download lmdb dataset for traininig and evaluation from  [here](https://w
 - `validation.zip` is the union dataset for Validation
 - `evaluation.zip` contains several benchmarking datasets.
 
-### Training
+Unzip the data and after preparation, the data structure should be like 
+
+``` text
+.
+├── train
+│   ├── MJ
+│   │   ├── data.mdb
+│   │   ├── lock.mdb
+│   ├── ST
+│   │   ├── data.mdb
+│   │   ├── lock.mdb
+└── validation
+|   ├── data.mdb
+|   ├── lock.mdb
+└── evaluation
+    ├── IC03
+    │   ├── data.mdb
+    │   ├── lock.mdb
+    ├── IC13
+    │   ├── data.mdb
+    │   ├── lock.mdb
+    └── ...
+```
+
+#### Check YAML Config Files
+Please check the following important args: `system.distribute`, `system.val_while_train`, `common.batch_size`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`, 
+`eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.dataset.label_file`, `eval.loader.batch_size`. Explanations of these important args:
+
+```yaml
+system:
+  distribute: True                                                    # `True` for distributed training, `False` for standalone training
+  amp_level: 'O3'
+  seed: 42
+  val_while_train: True                                               # Validate while training
+  drop_overflow_update: False
+common:
+  ...
+  batch_size: &batch_size 64                                          # Batch size for training
+...
+train:
+  ckpt_save_dir: './tmp_det'
+  dataset_sink_mode: True
+  dataset:
+    type: DetDataset
+    dataset_root: /data/ocr_datasets                                  # Root dir of training dataset
+    data_dir: ic15/text_localization/train                            # Dir of training dataset, concatenated with `dataset_root` to be the complete dir of training dataset
+    label_file: ic15/text_localization/train/train_icdar15_label.txt  # Path of training label file, concatenated with `dataset_root` to be the complete path of training label file
+...
+eval:
+  dataset_sink_mode: False
+  dataset:
+    type: DetDataset
+    dataset_root: /data/ocr_datasets                                  # Root dir of validation/evaluation dataset
+    data_dir: ic15/text_localization/test                             # Dir of validation/evaluation dataset, concatenated with `dataset_root` to be the complete dir of validation/evaluation dataset
+    label_file: ic15/text_localization/test/test_icdar2015_label.txt  # Path of validation/evaluation label file, concatenated with `dataset_root` to be the complete path of validation/evaluation label file
+  ...
+  loader:
+      shuffle: False
+      batch_size: 64                                                  # Batch size for validation/evaluation
+...
+```
+
+**Notes:**
+- As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of GPUs/NPUs, or adjust the learning rate linearly to a new global batch size.
+- When performing **Model Training**, if `system.val_while_train` is `True`, validation is performed while training. In this case, you should set `eval.dataset.dataset_root` as root dir of **validation** dataset, and set `eval.dataset.data_dir` as dir of **validation** dataset (e.g., `validation/`).
+- When performing **Model Evaluation**, you should set `eval.dataset.dataset_root` as root dir of **evaluation** dataset, and set `eval.dataset.data_dir` as dir of **evaluation** dataset (e.g., `evaluation/DATASET_NAME/`).
+
+
+### Model Training
 <!--- Guideline: Avoid using shell script in the command line. Python script preferred. -->
 
 * Distributed Training
@@ -90,9 +158,8 @@ If you want to train or finetune the model on a smaller dataset without distribu
 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
-**Note:**  As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of GPUs/NPUs, or adjust the learning rate linearly to a new global batch size.
 
-### Evaluation
+### Model Evaluation
 
 To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file and then run:
 
