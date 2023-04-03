@@ -80,7 +80,6 @@ mpirun -n 8 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 
 同样，也可以使用上述`mpirun`命令在多个 GPU 设备上训练模型。
 
-**注意:**  由于全局批大小 （batch_size x num_devices） 是一个重要的超参数，因此建议保持全局批大小不变以进行重现，或将学习率线性调整为新的全局批大小。
 
 * 单卡训练
 
@@ -90,6 +89,8 @@ mpirun -n 8 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 # CPU/GPU/Ascend 设备上的单卡训练
 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
+
+**注意:**  由于全局批大小 （batch_size x num_devices） 是对结果复现很重要，因此当GPU/NPU卡数发生变化时，调整`batch_size`以保持全局批大小不变，或将学习率线性调整为新的全局批大小。
 
 ### 模型评估
 
