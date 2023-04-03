@@ -246,6 +246,8 @@ The supported recognition models and their overall performance on the public ben
 | CRNN     | Resnet34_vd    | 84.45% 	| [YAML](configs/rec/crnn/crnn_resnet34.yaml)     |
 
 
+For more details, please refer to [configs](./configs).
+
 ## Notes
 
 ### Change Log
