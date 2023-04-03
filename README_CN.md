@@ -214,7 +214,9 @@ python tools/eval.py --config configs/rec/crnn/crnn_resnet34.yaml
 
 #### 使用MX Engine推理
 
-请参考[mx_infer](docs/cn/inference_cn.md)
+教程请参考[mx_infer](docs/cn/inference_tutorial_cn.md)
+
+模型列表和Benchmark请参考 [mx_infer](docs/cn/inference_models_cn.md)
 
 #### 使用Lite推理 
 

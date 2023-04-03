@@ -214,7 +214,9 @@ python tools/eval.py --config configs/rec/crnn/crnn_resnet34.yaml
 
 #### Inference with MX Engine
 
-Please refer to [mx_infer](docs/cn/inference_cn.md)
+Please refer to [mx_infer](docs/cn/inference_tutorial_cn.md) for tutorial
+
+Please refer to [mx_infer](docs/cn/inference_models_cn.md) for models list and benchmark
 
 #### Inference with Lite 
 
