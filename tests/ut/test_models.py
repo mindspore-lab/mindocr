@@ -14,13 +14,16 @@ from mindspore import load_checkpoint, load_param_into_net
 all_model_names = mindocr.list_models()
 print('Registered models: ', all_model_names)
 
-all_yamls = glob.glob('configs/*/*.yaml')
+#all_yamls = glob.glob('configs/*/*.yaml')
+all_yamls = ['configs/det/dbnet/db_r50_icdar15.yaml', 'configs/rec/crnn/crnn_icdar15.yaml']
 print('All config yamls: ', all_yamls)
 
 def _infer_dummy(model, task='det', verbose=True):
     import mindspore as ms
     import time
     import numpy as np
+
+    print(task)
 
     bs = 8
     if task=='rec':
@@ -65,18 +68,18 @@ def test_model_by_name(model_name):
 
 
 @pytest.mark.parametrize('yaml_fp', all_yamls)
-def test_model_by_yaml(yaml_fp='configs/det/dbnet/db_r50_icdar15.yaml'):
+def test_model_by_yaml(yaml_fp):
     print(yaml_fp)
     with open(yaml_fp) as fp:
         config  = yaml.safe_load(fp)
 
-    task = yaml_fp.split('/')[-2]
+    task = yaml_fp.split('/')[1]
 
     if task == 'rec':
-        from mindocr.postprocess.rec_postprocess import CTCLabelDecode
+        from mindocr.postprocess.rec_postprocess import RecCTCLabelDecode
         dict_path = config['common']['character_dict_path']
         # read dict path and get class nums
-        rec_info = CTCLabelDecode(character_dict_path=dict_path)
+        rec_info = RecCTCLabelDecode(character_dict_path=dict_path)
         num_classes = len(rec_info.character)
         config['model']['head']['out_channels'] = num_classes
         print('num characters: ', num_classes)
@@ -85,33 +88,9 @@ def test_model_by_yaml(yaml_fp='configs/det/dbnet/db_r50_icdar15.yaml'):
     model = build_model(model_config)
     _infer_dummy(model, task=task)
 
-    '''
-    model_config = {
-            "backbone": {
-                'name': 'det_resnet50',
-                'pretrained': False
-                },
-            "neck": {
-                "name": 'FPN',
-                "out_channels": 256,
-                },
-            "head": {
-                "name": 'ConvHead',
-                "out_channels": 2,
-                "k": 50
-                }
-
-            }
-    '''
-
-    ''' TODO: check loading
-    ckpt_path = None
-    if ckpt_path is not None:
-        param_dict = load_checkpoint(os.path.join(path, os.path.basename(default_cfg['url'])))
-        load_param_into_net(model, param_dict)
-    '''
-
 if __name__ == '__main__':
+    test_model_by_yaml(all_yamls[1])
+    '''
     import argparse
     parser = argparse.ArgumentParser(description='model config', add_help=False)
     parser.add_argument('-c', '--config', type=str, default='configs/det/dbnet/db_r50_icdar15.yaml',
@@ -121,3 +100,4 @@ if __name__ == '__main__':
     #test_backbone()
     #test_model_by_name('dbnet_r50')
     test_model_by_yaml(args.config)
+    '''
