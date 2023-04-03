@@ -6,6 +6,8 @@ from mindspore import load_checkpoint, load_param_into_net
 from ._registry import model_entrypoint, list_models, is_model
 from .base_model import BaseModel
 
+__all__ = ['build_model']
+
 #def build_model(config: Union[dict,str]):
 def build_model(config: Union[dict, str], **kwargs): #config: Union[dict,str]):
     '''

@@ -1,12 +1,11 @@
-# models
+from . import builder, _registry
+
+from .builder import * 
+from ._registry import *
+
 from .det_dbnet import *
 from .rec_crnn import *
 
-# model helpers
-from .builder import build_model
-from ._registry import *
-
-# modules
-#from .transforms import *
-from .backbones import *
-#from .necks import *
+__all__ = []
+__all__.extend(builder.__all__)
+__all__.extend(_registry.__all__)
