@@ -77,7 +77,9 @@ We will use **CRNN** model and **LMDB** dataset for demonstration, although othe
 
 #### Inference with MX Engine
 
-Please refer to [mx_infer](docs/cn/inference_cn.md).
+Please refer to [mx_infer tutorial](docs/cn/inference_tutorial_cn.md) for detailed inference tutorial.
+
+Please refer to [mx_infer results](docs/cn/inference_models_cn.md) for detailed performance of the supported inference models.
 
 #### Inference with Lite 
 
