@@ -3,7 +3,6 @@
 from setuptools import find_packages, setup
 
 exec(open("version.py").read())
-#__version__ = '0.0.1'
 
 def read_requirements(fps):
     reqs = []
@@ -25,9 +24,7 @@ setup(
     description="A toolbox of OCR models and algorithms based on MindSpore.",
     license="Apache Software License 2.0",
     include_package_data=True,
-    #packages=find_packages(include=["mindocr", "mindocr.*", "mindcv", "mindcv.*"]),
-    packages=["mindocr"],
-    package_dir={'mindocr': ""},
+    package_dir={"mindocr": "mindocr", "mindocr.tools": "tools", "mindocr.deploy": "deploy"},
     entry_points={"console_scripts": ["mindocr=mindocr.deploy.mx_infer.infer_pipeline:main"]},
     install_requires=read_requirements(['requirements.txt']),
     python_requires=">=3.7",
