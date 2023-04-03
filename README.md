@@ -1,11 +1,15 @@
 
+<div align="center">
+
 # MindOCR
 
-<!--
+[![CI](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml/badge.svg)](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/mindspore-lab/mindocr.svg)](https://github.com/mindspore-lab/mindocr/blob/main/LICENSE)
 [![open issues](https://img.shields.io/github/issues/mindspore-lab/mindocr)](https://github.com/mindspore-lab/mindocr/issues)
 [![PRs](https://img.shields.io/badge/PRs-welcome-pink.svg)](https://github.com/mindspore-lab/mindocr/pulls)
- -->
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+
 English | [中文](README_CN.md)
 
 [Introduction](#introduction) |
@@ -13,6 +17,8 @@ English | [中文](README_CN.md)
 [Quick Start](#quick-start) |
 [Model List](#supported-models-and-performance) |
 [Notes](#notes)
+
+</div>
 
 
 ## Introduction
@@ -24,7 +30,7 @@ MindOCR is an open-source toolbox for OCR development and application based on [
 
 - **Modulation design**: We decouple the ocr task into serveral configurable modules. Users can setup the training and evaluation pipeline easily for customized data and models with a few line of modification.
 - **High-performance**: MindOCR provides pretrained weights and the used training recipes that reach competitive performance on OCR tasks.
-- **Low-cost-to-apply**: We provide easy-to-use tools to run text detection and recogintion on real-world data. (coming soon)
+- **Low-cost-to-apply**: We provide easy-to-use inference tools to perform text detection and recogintion tasks. 
 </details>
 
 
@@ -239,6 +245,8 @@ The supported recognition models and their overall performance on the public ben
 | CRNN     | VGG7        | 82.03% 	| [YAML](configs/rec/crnn/crnn_vgg7.yaml)    | 
 | CRNN     | Resnet34_vd    | 84.45% 	| [YAML](configs/rec/crnn/crnn_resnet34.yaml)     |
 
+
+For more details, please refer to [configs](./configs).
 
 ## Notes
 
