@@ -2,9 +2,27 @@ import mindspore.nn as nn
 from mindspore.ops import operations as ops
 from .base_model import BaseModel
 from ._registry import register_model
+from .backbones.mindcv_models.utils import load_pretrained
 
 
 __all__ = ['CRNN', 'crnn_r34', 'crnn_vgg7']
+
+def _cfg(url='', **kwargs):
+    return {
+        'url': url,
+        'input_size': (3, 32, 100),
+        **kwargs
+    }
+
+
+default_cfgs = {
+    'crnn_r34': _cfg(
+        url='https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt'),
+    'crnn_vgg7': _cfg(
+        url='https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt'),
+    }
+
+
 
 class CRNN(BaseModel):
     def __init__(self, config):
@@ -33,7 +51,8 @@ def crnn_r34(pretrained=False, **kwargs):
 
     # load pretrained weights
     if pretrained:
-        raise NotImplementedError()
+        default_cfg = default_cfgs['crnn_r34']
+        load_pretrained(model, default_cfg)
 
     return model
 
@@ -60,6 +79,7 @@ def crnn_vgg7(pretrained=False, **kwargs):
 
     # load pretrained weights
     if pretrained:
-        raise NotImplementedError()
+        default_cfg = default_cfgs['crnn_vgg7']
+        load_pretrained(model, default_cfg)
 
     return model
