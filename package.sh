@@ -6,6 +6,7 @@ BASEPATH=$(cd "$(dirname $0)"; pwd)
 OUTPUT_PATH="${BASEPATH}/output"
 PYTHON=$(which python3)
 
+pip install setuptools==65.6.3
 
 mk_new_dir() {
     local create_dir="$1"  # the target to make
