@@ -47,6 +47,12 @@ Additionally, please install MindSpore(>=1.9) following the official [installati
 
 For distributed training, please install [openmpi 4.0.3](https://www.open-mpi.org/software/ompi/v4.0/).
 
+| Environment | Version |
+|-------------|---------|
+| MindSpore   | >=1.9   |
+| Python      | >=3.7   |
+
+> Notes: If you [use MX Engine for Inference](#21-inference-with-mx-engine), the version of Python should be 3.9.
 
 ### Install with PyPI
 
