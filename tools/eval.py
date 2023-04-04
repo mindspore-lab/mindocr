@@ -35,12 +35,16 @@ def main(cfg):
         rank_id = None
 
     is_main_device = rank_id in [None, 0]
+
+    # load dataset
     loader_eval = build_dataset(
             cfg.eval.dataset,
             cfg.eval.loader,
             num_shards=device_num,
             shard_id=rank_id,
-            is_train=False)
+            is_train=False,
+            refine_batch_size=True,
+            )
     num_batches = loader_eval.get_dataset_size()
 
     # model
@@ -63,9 +67,7 @@ def main(cfg):
 
     # log
     print('='*40)
-    print(
-        f'Num batches: {num_batches}\n'
-        )
+    print(f'Num batches: {num_batches}')
     if 'name' in cfg.model:
         print(f'Model: {cfg.model.name}')
     else:

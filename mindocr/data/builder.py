@@ -41,6 +41,8 @@ def build_dataset(
         num_shards (int, *optional*): num of devices for distributed mode
         shard_id (int, *optional*): device id
         is_train (boolean): whether it is in training stage
+        **kwargs: optional args for extension. If `refine_batch_size=True` is given in kwargs, the batch size will be refined to be divisable to avoid 
+            droping remainding data samples in graph model, typically used for precise evaluation. 
 
     Return:
         data_loader (Dataset): dataloader to generate data batch
@@ -140,11 +142,17 @@ def build_dataset(
 
     # 3. create loader
     # get batch of dataset by collecting batch_size consecutive data rows and apply batch operations
+    num_samples = ds.get_dataset_size()
+    batch_size = loader_config['batch_size']
+    print('INFO: num_samples: {num_samples}, batch_size: {batch_size}')
+    if 'refine_batch_size' in kwargs:
+        batch_size = _check_batch_size(num_samples, batch_size, refine=kwargs['refine_batch_size']) 
+
     drop_remainder = loader_config.get('drop_remainder', is_train)
     if is_train and drop_remainder == False:
         print('WARNING: drop_remainder should be True for training, otherwise the last batch may lead to training fail.')
     dataloader = ds.batch(
-                    loader_config['batch_size'],
+                    batch_size,
                     drop_remainder=drop_remainder,
                     num_parallel_workers=min(num_workers, 2), # set small workers for lite computation. TODO: increase for batch-wise mapping
                     #input_columns=input_columns,
@@ -168,3 +176,16 @@ def _check_dataset_paths(dataset_config):
                 dataset_config['label_file'] = [os.path.join(dataset_config['dataset_root'], lf) for lf in dataset_config['label_file']]
 
     return dataset_config
+
+def _check_batch_size(num_samples, ori_batch_size=32, refine=True):
+    if num_samples % ori_batch_size == 0:
+        return ori_batch_size
+    else:
+        # search a batch size that is divisible by num samples.
+        for bs in range(ori_batch_size - 1, 0, -1):
+            if num_samples % bs == 0:
+                print(
+                    f"WARNING: num eval samples {num_samples} can not be divided by "
+                    f"the input batch size {ori_batch_size}. The batch size is refined to {bs}"
+                )
+                return bs
