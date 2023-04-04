@@ -37,18 +37,18 @@ Table Format:
 
 <div align="center">
 
-| **模型** | **环境配置** |**骨干网络** | **平均准确率**  | 训练时间(s/epoch) | **配置文件** | **模型权重下载** | 
-|-----------|--------------|------------------|------------|--------------| ------ | ------|
-| CRNN (ours)    | D910x8-MS1.8-G | VGG7       | 82.03%     |  2445  | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt)     |
-| CRNN (ours)    | D910x8-MS1.8-G | ResNet34_vd   | 84.45%   |  2118    | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) |
-| CRNN (PaddleOCR) | - | ResNet34_vd | 83.99% | - | - |
+| **模型**           | **环境配置**       | **骨干网络**      | **平均准确率** | 训练时间(s/epoch) | **配置文件**                                                                          | **模型权重下载**                                                                             | 
+|------------------|----------------|---------------|-----------|---------------|------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| CRNN (ours)      | D910x8-MS1.8-G | VGG7          | 82.03%    | 2445          | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt)     |
+| CRNN (ours)      | D910x8-MS1.8-G | ResNet34_vd   | 84.45%    | 2118          | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) |
+| CRNN (PaddleOCR) | -              | ResNet34_vd   | 83.99%    | -             | -                                                                                              | -                                                                                          |
 
 </div>
 
 **注意:**
 - 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。例如，D910x8-MS1.8-G 用于使用图形模式在8张昇腾910 NPU上依赖Mindspore1.8版本进行训练。
 - VGG 和 ResNet 模型都是从头开始训练的，无需任何预训练。
-- 上述模型是用 MJSynth(MJ)和 SynthText(ST)数据集训练的。更多数据详情，请参考3.1.2数据集准备章节。
+- 上述模型是用 MJSynth(MJ)和 SynthText(ST)数据集训练的。更多数据详情，请参考[数据集准备](#312-数据集准备)章节。
 - **评估在每个基准数据集上单独测试，平均准确度是所有子数据集的精度平均值。**
 - PaddleOCR版CRNN，我们直接用的是其[github](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/algorithm_rec_crnn_en.md)上面提供的已训练好的模型。
 
@@ -61,7 +61,7 @@ Table Format:
 
 #### 3.1.2 数据集准备
 LMDB格式的训练及验证数据集可以从[这里](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (出处: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here))下载。连接中的文件包含多个压缩文件，其中:
-- `data_lmdb_release.zip` 包含了完整的一套数据集，有训练集，验证集以及测试集。
+- `data_lmdb_release.zip` 包含了**完整**的一套数据集，有训练集(training.zip），验证集(validation.zip)以及测试集(evaluation.zip)。
 - `validation.zip` 是一个整合的验证集。
 - `evaluation.zip` 包含多个基准评估数据集。
 
@@ -69,7 +69,7 @@ LMDB格式的训练及验证数据集可以从[这里](https://www.dropbox.com/s
 
 ``` text
 .
-├── train
+├── training
 │   ├── MJ
 │   │   ├── data.mdb
 │   │   ├── lock.mdb
@@ -90,8 +90,8 @@ LMDB格式的训练及验证数据集可以从[这里](https://www.dropbox.com/s
 ```
 
 #### 3.1.3 检查配置文件
-请重点关注以下变量的配置：`system.distribute`, `system.val_while_train`, `common.batch_size`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`, 
-`eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.dataset.label_file`, `eval.loader.batch_size`。说明如下：
+请重点关注以下变量的配置：`system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`, 
+`eval.ckpt_load_path`, `eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.dataset.label_file`, `eval.loader.batch_size`。说明如下：
 
 ```yaml
 system:
@@ -105,7 +105,7 @@ common:
   batch_size: &batch_size 64                                          # 训练批大小
 ...
 train:
-  ckpt_save_dir: './tmp_rec'
+  ckpt_save_dir: './tmp_rec'                                          # 训练结果（包括checkpoint、每个epoch的性能和曲线图）保存目录
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
@@ -114,7 +114,7 @@ train:
     # label_files:                                                    # 训练数据集的标签文件路径，将与`dataset_root`拼接形成完整的训练数据的标签文件路径。当数据集为LMDB格式时无需配置
 ...
 eval:
-  ckpt_load_path: './tmp_rec/best.ckpt'
+  ckpt_load_path: './tmp_rec/best.ckpt'                               # checkpoint文件路径
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
@@ -155,14 +155,14 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/
 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
-训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为`./tmp_rec`。 
+训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的目录下，默认为`./tmp_rec`。 
 
 ### 3.3 模型评估
 
 若要评估已训练模型的准确性，可以使用`eval.py`。请在yaml配置文件的`eval`部分将参数`ckpt_load_path`设置为模型checkpoint的文件路径，设置`distribute`为False，然后运行：
 
 ```
-python tools/eval.py --config configs/rec/crnn/crnn_vgg7.yaml
+python tools/eval.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
 ## 参考文献

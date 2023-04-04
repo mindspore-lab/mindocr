@@ -48,7 +48,13 @@ pip install -r requirements.txt
 | MindSpore   | >=1.9 |
 | Python      | >=3.7 |
 
-> 注意：如果[使用MX Engine推理](#21-使用mx-engine推理)，Python版本需为3.9。
+
+> 注意：
+> - 如果[使用MX Engine推理](#21-使用mx-engine推理)，Python版本需为3.9。
+> - 如果遇到scikit_image导入错误，参考[此处](https://github.com/opencv/opencv/issues/14884)，你需要设置环境变量`$LD_PRELOAD`，命令如下。替换`path/to`为你的目录。
+>   ```shell
+>   export LD_PRELOAD=path/to/scikit_image.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
+>   ```
 
 ### 通过PyPI安装
 
@@ -83,7 +89,7 @@ MindOCR支持多种文本识别模型及数据集，在此我们使用**CRNN**�
 
 MX ([MindX](https://www.hiascend.com/zh/software/mindx-sdk)的缩写) 是一个支持昇腾设备高效推理与部署的工具。
 
-MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_infer](docs/cn/inference_tutorial_cn.md).
+MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_infer](docs/cn/inference_tutorial_cn.md)。
 
 
 #### 2.2 使用Lite推理 
