@@ -28,12 +28,15 @@ DBNet的整体架构图如图1所示，包含以下阶段:
 ### ICDAR2015
 <div align="center">
 
-| **模型** | **环境配置** | **骨干网络** | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间(s/epoch)** | **配置文件**                           | **模型权重下载**                                                                               |
-|------------------|------------|-------------|----------------|------------|---------------|-------------|-------------------------------|-----------------------------|-----------------------------------------------------------------|
-| DBNet (ours)     | D910x1-MS1.9-G |  ResNet-50    | ImageNet       | 81.70%     | 85.84%        | 83.72%   |   35 | [yaml](db_r50_icdar15.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a.ckpt) |
-| DBNet (PaddleOCR)|  - | ResNet50_vd  | SynthText      | 78.72%     | 86.41%        | 82.38%      |  - | - | -|
+| **模型**            | **环境配置**       | **骨干网络**      | **预训练数据集**  | **Recall**  | **Precision** | **F-score** | **训练时间(s/epoch)** | **配置文件**                    | **模型权重下载**                                                                                   |
+|-------------------|----------------|---------------|-------------|-------------|---------------|-------------|-------------------|-----------------------------|----------------------------------------------------------------------------------------------|
+| DBNet (ours)      | D910x1-MS1.9-G | ResNet-50     | ImageNet    | 81.70%      | 85.84%        | 83.72%      | 35                | [yaml](db_r50_icdar15.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a.ckpt) |
+| DBNet (PaddleOCR) | -              | ResNet50_vd   | SynthText   | 78.72%      | 86.41%        | 82.38%      | -                 | -                           | -                                                                                            |
+| DBNet++           | D910x1-MS1.9-G | ResNet-50     | ImageNet    | 82.02%      | 87.38%        | 84.62%      | -                 | -                           | -                                                                                            |
 
 </div>
+
+> DBNet++的详细信息即将发布，敬请期待。DBNet和DBNet++的唯一区别在于_Adaptive Scale Fusion_模块, 在yaml配置文件`neck`模块中的 `use_asf`参数进行设置。
 
 #### 注释：
 - 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。
@@ -75,7 +78,7 @@ DBNet的整体架构图如图1所示，包含以下阶段:
 ...
 train:
   ckpt_save_dir: './tmp_det'
-  dataset_sink_mode: True
+  dataset_sink_mode: False
   dataset:
     type: DetDataset
     dataset_root: dir/to/dataset          <--- 更新

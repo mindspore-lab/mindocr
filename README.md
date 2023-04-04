@@ -52,7 +52,13 @@ For distributed training, please install [openmpi 4.0.3](https://www.open-mpi.or
 | MindSpore   | >=1.9   |
 | Python      | >=3.7   |
 
-> Notes: If you [use MX Engine for Inference](#21-inference-with-mx-engine), the version of Python should be 3.9.
+> Notes: 
+> - If you [use MX Engine for Inference](#21-inference-with-mx-engine), the version of Python should be 3.9.
+> - If scikit_image cannot be imported, you can use the following command line to set environment variable `$LD_PRELOAD` referring to [here](https://github.com/opencv/opencv/issues/14884). Change `path/to` to your directory.
+>   ```shell
+>   export LD_PRELOAD=path/to/scikit_image.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
+>   ```
+
 
 ### Install with PyPI
 
