@@ -3,8 +3,6 @@ import numpy as np
 
 import mindspore as ms
 from mindspore import ops
-from mindspore._checkparam import Rel
-from mindspore._checkparam import Validator as validator
 from mindspore.common.api import ms_function
 from mindspore.common.initializer import initializer
 from mindspore.common.parameter import Parameter
@@ -15,12 +13,12 @@ from mindspore.nn.optim.optimizer import opt_init_args_register
 
 def _check_param_value(beta1, beta2, eps, prim_name):
     """Check the type of inputs."""
-    validator.check_value_type("beta1", beta1, [float], prim_name)
-    validator.check_value_type("beta2", beta2, [float], prim_name)
-    validator.check_value_type("eps", eps, [float], prim_name)
-    validator.check_float_range(beta1, 0.0, 1.0, Rel.INC_NEITHER, "beta1", prim_name)
-    validator.check_float_range(beta2, 0.0, 1.0, Rel.INC_NEITHER, "beta2", prim_name)
-    validator.check_positive_float(eps, "eps", prim_name)
+    assert isinstance(beta1, float), f"For '{prim_name}', the type of 'beta1' must be 'float', but got type '{type(beta1).__name__}'."
+    assert isinstance(beta2, float), f"For '{prim_name}', the type of 'beta2' must be 'float', but got type '{type(beta2).__name__}'."
+    assert isinstance(eps, float), f"For '{prim_name}', the type of 'eps' must be 'float', but got type '{type(eps).__name__}'."
+    assert 0.0 < beta1 < 1.0, f"For '{prim_name}', the range of 'beta1' must be (0.0, 1.0), but got {beta1}."
+    assert 0.0 < beta2 < 1.0, f"For '{prim_name}', the range of 'beta2' must be (0.0, 1.0), but got {beta2}."
+    assert eps > 0, f"For '{prim_name}', the 'eps' must be positive, but got {eps}."
 
 
 _scaler_one = Tensor(1, ms.float32)
