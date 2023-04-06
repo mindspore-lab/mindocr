@@ -1,7 +1,7 @@
 import numpy as np
 
-from deploy.mx_infer.framework import ModuleBase
-from deploy.mx_infer.utils import normalize, to_chw_image, \
+from mx_infer.framework import ModuleBase
+from mx_infer.utils import normalize, to_chw_image, \
     expand, get_hw_of_img, resize_by_limit_max_side, IMAGE_NET_IMAGE_STD, IMAGE_NET_IMAGE_MEAN, DBNET_LIMIT_SIDE, \
     NORMALIZE_SCALE
 

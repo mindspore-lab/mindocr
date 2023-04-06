@@ -3,8 +3,8 @@ from abc import abstractmethod
 from ctypes import c_longdouble
 from multiprocessing import Manager
 
-from deploy.mx_infer.data_type import ProfilingData
-from deploy.mx_infer.utils import log
+from mx_infer.data_type import ProfilingData
+from mx_infer.utils import log
 from .module_data_type import ModuleInitArgs
 
 

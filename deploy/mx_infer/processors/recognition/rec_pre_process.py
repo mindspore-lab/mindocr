@@ -5,9 +5,9 @@ import cv2
 import numpy as np
 from mindx.sdk import base
 
-from deploy.mx_infer.data_type.process_data import ProcessData
-from deploy.mx_infer.framework import ModuleBase, InferModelComb
-from deploy.mx_infer.utils import get_batch_list_greedy, get_hw_of_img, safe_div, get_matched_gear_hw, \
+from mx_infer.data_type.process_data import ProcessData
+from mx_infer.framework import ModuleBase, InferModelComb
+from mx_infer.utils import get_batch_list_greedy, get_hw_of_img, safe_div, get_matched_gear_hw, \
     padding_with_cv, normalize, to_chw_image, expand, padding_batch, bgr_to_gray, get_shape_info, \
     check_valid_file, check_valid_dir, NORMALIZE_SCALE, NORMALIZE_MEAN, NORMALIZE_STD
 

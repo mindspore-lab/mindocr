@@ -2,8 +2,8 @@ import os.path
 
 import numpy as np
 
-from deploy.mx_infer.framework import ModuleBase, InferModelComb
-from deploy.mx_infer.utils import array_to_texts, file_base_check, log
+from mx_infer.framework import ModuleBase, InferModelComb
+from mx_infer.utils import array_to_texts, file_base_check, log
 
 
 class RecPostProcess(ModuleBase):

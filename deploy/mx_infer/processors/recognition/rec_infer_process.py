@@ -4,8 +4,8 @@ from collections import defaultdict
 import numpy as np
 from mindx.sdk import base, Tensor
 
-from deploy.mx_infer.framework import ModuleBase
-from deploy.mx_infer.utils import get_shape_info, check_valid_file, check_valid_dir
+from mx_infer.framework import ModuleBase
+from mx_infer.utils import get_shape_info, check_valid_file, check_valid_dir
 
 
 class RecInferProcess(ModuleBase):

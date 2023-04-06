@@ -1,8 +1,8 @@
 import numpy as np
 from mindx.sdk import base, Tensor
 
-from deploy.mx_infer.framework import ModuleBase
-from deploy.mx_infer.utils import get_matched_gear_hw, padding_with_np, \
+from mx_infer.framework import ModuleBase
+from mx_infer.utils import get_matched_gear_hw, padding_with_np, \
     get_shape_info
 
 
