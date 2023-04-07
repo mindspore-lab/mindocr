@@ -1,5 +1,5 @@
-from deploy.mx_infer.framework.module_base import ModuleBase
-from deploy.mx_infer.utils import safe_img_read, get_hw_of_img
+from mx_infer.framework import ModuleBase
+from mx_infer.utils import safe_img_read, get_hw_of_img
 
 
 class DecodeProcess(ModuleBase):

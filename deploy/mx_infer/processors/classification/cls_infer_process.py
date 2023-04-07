@@ -4,8 +4,8 @@ import cv2
 import numpy as np
 from mindx.sdk import base, Tensor
 
-from deploy.mx_infer.framework import ModuleBase
-from deploy.mx_infer.utils import check_valid_file
+from mx_infer.framework import ModuleBase
+from mx_infer.utils import check_valid_file
 
 
 class CLSInferProcess(ModuleBase):

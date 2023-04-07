@@ -6,9 +6,9 @@ from multiprocessing import Manager
 import cv2
 import numpy as np
 
-from deploy.mx_infer.data_type import StopData, ProcessData, ProfilingData
-from deploy.mx_infer.framework import ModuleBase, InferModelComb
-from deploy.mx_infer.utils import safe_list_writer, log
+from mx_infer.data_type import StopData, ProcessData, ProfilingData
+from mx_infer.framework import ModuleBase, InferModelComb
+from mx_infer.utils import safe_list_writer, log
 from tools.utils.visualize import VisMode, Visualization
 
 _RESULTS_SAVE_FILENAME = {

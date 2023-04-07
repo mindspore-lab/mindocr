@@ -1,8 +1,8 @@
 import os
 
-from deploy.mx_infer.data_type import ProcessData, StopData, StopSign
-from deploy.mx_infer.framework.module_base import ModuleBase
-from deploy.mx_infer.utils import log
+from mx_infer.data_type import ProcessData, StopData, StopSign
+from mx_infer.framework.module_base import ModuleBase
+from mx_infer.utils import log
 
 
 class HandoutProcess(ModuleBase):

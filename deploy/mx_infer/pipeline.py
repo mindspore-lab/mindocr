@@ -5,10 +5,10 @@ from multiprocessing import Process, Queue
 
 import tqdm
 
-from deploy.mx_infer.data_type import StopSign
-from deploy.mx_infer.framework import ModuleDesc, ModuleConnectDesc, ModuleManager, SupportedTaskOrder
-from deploy.mx_infer.processors import MODEL_DICT
-from deploy.mx_infer.utils import log, profiling, safe_div, save_path_init, TASK_QUEUE_SIZE
+from mx_infer.data_type import StopSign
+from mx_infer.framework import ModuleDesc, ModuleConnectDesc, ModuleManager, SupportedTaskOrder
+from mx_infer.processors import MODEL_DICT
+from mx_infer.utils import log, profiling, safe_div, save_path_init, TASK_QUEUE_SIZE
 
 
 def image_sender(images_path, send_queue, show_progressbar):
@@ -144,9 +144,8 @@ def build_pipeline(args):
         If the guidelines above are not followed, the inference pipeline cannot be built. Check your args configurations.
 
     Example:
-    >>> from deploy.mx_infer.args import get_args
-    >>> import deploy.mx_infer.pipeline as pipeline
-    >>> args = get_args()
+    >>> from mx_infer import pipeline_args, pipeline
+    >>> args = pipeline_args.get_args()
     >>> pipeline.build_pipeline(args)
     """
 

@@ -1,8 +1,8 @@
+import json
 import os
 import re
-import stat
-import json
 import shutil
+import stat
 
 import cv2
 

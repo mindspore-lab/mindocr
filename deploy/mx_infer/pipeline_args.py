@@ -2,9 +2,9 @@ import argparse
 import itertools
 import os
 
-from deploy.mx_infer.framework.module_data_type import InferModelComb
-from deploy.mx_infer.processors import SUPPORT_DET_MODEL, SUPPORT_REC_MODEL
-from deploy.mx_infer.utils import log
+from mx_infer.framework import InferModelComb
+from mx_infer.processors import SUPPORT_DET_MODEL, SUPPORT_REC_MODEL
+from mx_infer.utils import log
 
 
 def str2bool(v):
@@ -23,7 +23,8 @@ def get_args():
     parser.add_argument('--device', type=str, default='Ascend', required=False,
                         choices=['Ascend'], help='Device type.')
     parser.add_argument('--device_id', type=int, default=0, required=False, help='Device id.')
-    parser.add_argument('--parallel_num', type=int, default=1, required=False, help='Number of parallel in each stage of pipeline parallelism.')
+    parser.add_argument('--parallel_num', type=int, default=1, required=False,
+                        help='Number of parallel in each stage of pipeline parallelism.')
     parser.add_argument('--precision_mode', type=str, default="fp32", choices=['fp16', 'fp32'], required=False,
                         help='Precision mode.')
     parser.add_argument('--det_algorithm', type=str, default='DBNet', choices=SUPPORT_DET_MODEL, required=False,

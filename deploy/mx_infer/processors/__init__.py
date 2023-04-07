@@ -1,11 +1,13 @@
 from sys import modules
 
-from deploy.mx_infer.framework import InferModelComb
-from deploy.mx_infer.utils import log
+from mx_infer.framework import InferModelComb
+from mx_infer.utils import log
+
 from .classification import CLSPreProcess, CLSInferProcess
 from .common import HandoutProcess, CollectProcess, DecodeProcess
 from .detection import DetPreProcess, DetInferProcess, DetPostProcess, SUPPORT_DET_MODEL
 from .recognition import RecPreProcess, RecInferProcess, RecPostProcess, SUPPORT_REC_MODEL
+
 
 DET_DESC = [('DetPreProcess', 1), ('DetInferProcess', 1), ('DetPostProcess', 1)]
 REC_DESC = [('RecPreProcess', 1), ('RecInferProcess', 1), ('RecPostProcess', 1)]
