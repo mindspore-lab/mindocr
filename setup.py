@@ -24,8 +24,7 @@ setup(
     description="A toolbox of OCR models and algorithms based on MindSpore.",
     license="Apache Software License 2.0",
     include_package_data=True,
-    package_dir={"mindocr": "mindocr", "mindocr.tools": "tools", "mindocr.deploy": "deploy"},
-    entry_points={"console_scripts": ["mindocr=mindocr.deploy.mx_infer.infer_pipeline:main"]},
+    package_dir={"mindocr": "mindocr"},
     install_requires=read_requirements(['requirements.txt']),
     python_requires=">=3.7",
     classifiers=[
