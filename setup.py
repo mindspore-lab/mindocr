@@ -25,7 +25,7 @@ setup(
     license="Apache Software License 2.0",
     include_package_data=True,
     package_dir={"mindocr": "mindocr", "mindocr.tools": "tools", "mindocr.deploy": "deploy"},
-    entry_points={"console_scripts": ["mindocr=mindocr.deploy.mx_infer.infer_pipeline:main"]},
+    entry_points={"console_scripts": ["mindocr=mindocr.deploy.py_infer.scripts.infer:main"]},
     install_requires=read_requirements(['requirements.txt']),
     python_requires=">=3.7",
     classifiers=[
