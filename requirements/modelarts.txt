@@ -1,0 +1,13 @@
+imgaug
+lmdb
+pyclipper
+shapely
+tqdm
+addict
+matplotlib
+addict
+rapidfuzz==2.13.7
+opencv-python-headless==3.4.18.65
+Pillow==9.1.1
+PyYAML==6.0
+xml-python==0.4.3
