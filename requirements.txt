@@ -7,10 +7,9 @@ addict
 scikit-learn
 matplotlib
 addict
-rapidfuzz==2.13.7
-numpy==1.21.6
-opencv-python-headless==3.4.18.65
-Pillow==9.1.1
-python-Levenshtein==0.20.9
-PyYAML==6.0
-xml-python==0.4.3
+numpy
+opencv-python-headless>=3.4.18.65
+rapidfuzz>=2.13.7
+Pillow>=9.1.1
+PyYAML>=6.0
+xml-python>=0.4.3
