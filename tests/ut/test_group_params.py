@@ -57,15 +57,16 @@ def build_group_params(params, weight_decay, strategy=None, no_weight_decay=['bi
 
 
 def test_group_params(model_name):
-    network = build_model(model_name, pretrained=pretrained)
+    network = build_model(model_name)
+    WD = 0.1
 
-    params = build_group_params(network.trainable_params(), 0.1, no_weight_decay=['beta', 'gamma', 'pos_emb'])
+    params = build_group_params(network.trainable_params(), WD, no_weight_decay=['beta', 'gamma', 'pos_emb'])
 
     optimizer = create_optimizer(
             params,
             'momentum',
             lr=0.01,
-            weight_decay=1e-5,
+            weight_decay=WD,
             momentum=0.9,
             filter_bias_and_bn=False,
         )
