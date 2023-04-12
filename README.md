@@ -135,6 +135,9 @@ For detailed inference performance using MX engine, please refer to [mx inferenc
 ## Notes
 
 ### Change Log
+- 2023/04/12
+1. Support parameter grouping, which can be configure by the `grouping_strategy` or `no_weight_decay_params` arg. 
+
 - 2023/03/23
 1. Add dynamic loss scaler support, compatible with drop overflow update. To enable dynamic loss scaler, please set `type` of `loss_scale` as `dynamic`. A YAML example can be viewed in `configs/rec/crnn/crnn_icdar15.yaml`
 

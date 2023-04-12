@@ -4,71 +4,50 @@ sys.path.append('.')
 import pytest
 import numpy as np
 import mindspore as ms
+from mindspore import Tensor
 import mindocr
 from mindocr.models import build_model
-from mindocr.optim import create_optimizer
+from mindocr import build_loss
+from mindocr.optim import create_optimizer, create_group_params
+from mindspore.nn import TrainOneStepCell, WithLossCell
 
 
-def param_grouping_svtr(params, weight_decay):
-    decay_params = []
-    no_decay_params = []
+@pytest.mark.parametrize("strategy", [None, 'svtr', 'filter_norm_and_bias'])
+@pytest.mark.parametrize("nwd_params", [['beta', 'gamma', 'bias']])
+def test_group_params(strategy, nwd_params):
+    network = build_model('crnn_r34')
+    WD = 1e-5
 
-    filter_keys = ['beta', 'gamma', 'pos_emb'] # correspond to nn.BatchNorm, nn.LayerNorm, and position embedding layer if named as 'pos_emb'. TODO: check svtr naming.
+    params = create_group_params(network.trainable_params(), WD, strategy, no_weight_decay_params=nwd_params)
 
-    for param in params:
-        filter_param = False
-        for k in filter_keys:
-            if k in param.name:
-                filter_param = True
-
-        if filter_param:
-            no_decay_params.append(param)
-        else:
-            decay_params.append(param)
-
-    return [
-        {"params": decay_params, "weight_decay": weight_decay},
-        {"params": no_decay_params},
-        {"order_params": params},
-    ]
-
-
-def build_group_params(params, weight_decay, strategy=None, no_weight_decay=['bias', 'beta', 'gamma']):
-    if strategy is not None:
-        if strategy == 'svtr':
-            return param_grouping_svtr(params, weight_decay)
-    else:
-        for param in params:
-            filter_param = False
-            for k in no_weight_decay:
-                if k in param.name:
-                    filter_param = True
-
-            if filter_param:
-                no_decay_params.append(param)
-            else:
-                decay_params.append(param)
-
-        return [
-            {"params": decay_params, "weight_decay": weight_decay},
-            {"params": no_decay_params},
-            {"order_params": params},
-        ]
-
-
-def test_group_params(model_name):
-    network = build_model(model_name)
-    WD = 0.1
-
-    params = build_group_params(network.trainable_params(), WD, no_weight_decay=['beta', 'gamma', 'pos_emb'])
+    assert 'weight_decay' in params[0]
 
     optimizer = create_optimizer(
             params,
             'momentum',
-            lr=0.01,
+            lr=1e-5,
             weight_decay=WD,
             momentum=0.9,
             filter_bias_and_bn=False,
         )
+    bs = 8
+    max_ll = 24
+    loss_cfg = {"pred_seq_len": 25, "max_label_len": max_ll, "batch_size": bs}
+    loss_fn = build_loss('CTCLoss', **loss_cfg)
 
     # TODO: test training
+
+    input_data = Tensor(np.ones([bs, 3, 32, 100]).astype(np.float32) * 0.1)
+    label = Tensor(np.ones([bs, max_ll]).astype(np.int32))
+
+    net_with_loss = WithLossCell(network, loss_fn)
+    train_network = TrainOneStepCell(net_with_loss, optimizer)
+
+    train_network.set_train()
+
+    begin_loss = train_network(input_data, label)
+    for i in range(2):
+        cur_loss = train_network(input_data, label)
+
+if __name__ == '__main__':
+    test_group_params(None, ['bias'])
