@@ -68,6 +68,7 @@ loss_scaler:
   scale_window: 2000  
 
 train:
+  gradient_accumulation_steps: 2
   ckpt_save_dir: './tmp_rec'
   dataset_sink_mode: False
   dataset:
