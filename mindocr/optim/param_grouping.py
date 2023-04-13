@@ -65,10 +65,17 @@ def create_group_params(params, weight_decay=0, grouping_strategy=None, no_weigh
     Return:
         list[dict], grouped parameters
     '''
+
+    # TODO: assert valid arg names
     gp = grouping_strategy
+
+    print(f'INFO: param grouping startegy: {grouping_strategy}, no_weight_decay_params: ', no_weight_decay_params)
     if gp is not None:
         if weight_decay == 0:
-            print("WARNING: weight decay is 0 in param grouping.")
+            print("WARNING: weight decay is 0 in param grouping, which is meaningless. Please check config setting.")
+        if len(no_weight_decay_params) > 0:
+            print("WARNING: Both grouping_strategy and no_weight_decay_params are set, but grouping_strategy is of prior. no_weight_decay_params={no_weight_decay_params} will not make effect.")
+
         if gp == 'svtr':
             return grouping_svtr(params, weight_decay)
         elif gp == 'filter_norm_and_bias':

@@ -98,11 +98,14 @@ def main(cfg):
 
     # build train step cell
     gradient_accumulation_steps=cfg.train.get('gradient_accumulation_steps', 1)
+    clip_grad=cfg.train.get('clip_grad', False)
     train_net = TrainOneStepWrapper(net_with_loss,
                                     optimizer=optimizer,
                                     scale_sense=loss_scale_manager,
                                     drop_overflow_update=cfg.system.drop_overflow_update,
                                     gradient_accumulation_steps=gradient_accumulation_steps,
+                                    clip_grad=clip_grad,
+                                    clip_norm=cfg.train.get('clip_norm', 1.0),
                                     )
     # build postprocess and metric
     postprocessor = None
@@ -141,6 +144,7 @@ def main(cfg):
             f'Auto mixed precision: {cfg.system.amp_level}\n'
             f'Loss scale setting: {cfg.loss_scaler}\n'
             f'drop_overflow_update: {cfg.system.drop_overflow_update}\n'
+            f'clip_grad: {clip_grad}\n'
             f'Num epochs: {cfg.scheduler.num_epochs}\n'
             f'Num steps per epoch: {num_batches}'
             )
