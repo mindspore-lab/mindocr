@@ -22,7 +22,7 @@ from mindspore import nn
 from mindspore.communication import init, get_rank, get_group_size
 from mindspore.train import LossMonitor, TimeMonitor
 
-from mindocr.optim import create_optimizer # adopted from mindcv
+from mindocr.optim import create_optimizer, create_group_params # adopted from mindcv
 from mindocr.scheduler import create_scheduler # adopted from mindcv
 
 from mindocr.data import build_dataset
@@ -93,7 +93,8 @@ def main(cfg):
 
     # build optimizer
     cfg.optimizer.update({'lr': lr_scheduler, 'loss_scale': optimizer_loss_scale})
-    optimizer = create_optimizer(network.trainable_params(), **cfg.optimizer)
+    params = create_group_params(network.trainable_params(), **cfg.optimizer)
+    optimizer = create_optimizer(params, **cfg.optimizer)
 
     # build train step cell
     train_net = TrainOneStepWrapper(net_with_loss,
@@ -142,10 +143,15 @@ def main(cfg):
         else:
             print(f'Model: {cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}')
         print('='*40)
-        # save args used for training
+
+    # save args used for training
+    # FIXME: some values are popped and not saved.
+    if is_main_device:
         with open(os.path.join(cfg.train.ckpt_save_dir, 'args.yaml'), 'w') as f:
             args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False, sort_keys=False)
             f.write(args_text)
+
+
 
     # training
     loss_monitor = LossMonitor(min(num_batches // 10, 100))

@@ -1,6 +1,7 @@
 """ optim factory """
 import os
 from typing import Optional
+import inspect
 
 from mindspore import load_checkpoint, load_param_into_net, nn
 
@@ -72,13 +73,30 @@ def create_optimizer(
     if weight_decay and filter_bias_and_bn:
         params = init_group_params(params, weight_decay)
 
-    opt_args = dict(**kwargs)
+    # check whether param grouping strategy is encoded in `params`
+    customized_param_group = False
+    if isinstance(params[0], dict): # if
+        customized_param_group = True
+
+    if weight_decay and filter_bias_and_bn:
+        if not customized_param_group:
+            params = init_group_params(params, weight_decay)
+        else:
+            print(
+                "WARNING: Customized param grouping startegy detected in `params`."
+                "filter_bias_and_bn (default=True) will be disabled"
+            )
+
+
+    #opt_args = dict(**kwargs)
     # if lr is not None:
     #    opt_args.setdefault('lr', lr)
 
     # non-adaptive: SGD, momentum, and nesterov
     if opt == "sgd":
         # note: nn.Momentum may perform better if momentum > 0.
+        opt_args = _collect_args(kwargs, nn.SGD)
+
         optimizer = nn.SGD(
             params=params,
             learning_rate=lr,
@@ -89,6 +107,7 @@ def create_optimizer(
             **opt_args,
         )
     elif opt in ["momentum", "nesterov"]:
+        opt_args = _collect_args(kwargs, nn.Momentum)
         optimizer = nn.Momentum(
             params=params,
             learning_rate=lr,
@@ -99,6 +118,7 @@ def create_optimizer(
         )
     # adaptive
     elif opt == "adam":
+        opt_args = _collect_args(kwargs, nn.Adam)
         optimizer = nn.Adam(
             params=params,
             learning_rate=lr,
@@ -108,6 +128,7 @@ def create_optimizer(
             **opt_args,
         )
     elif opt == "adamw":
+        opt_args = _collect_args(kwargs, AdamW)
         optimizer = AdamW(
             params=params,
             learning_rate=lr,
@@ -116,6 +137,7 @@ def create_optimizer(
             **opt_args,
         )
     elif opt == "lion":
+        opt_args = _collect_args(kwargs, Lion)
         optimizer = Lion(
             params=params,
             learning_rate=lr,
@@ -124,6 +146,7 @@ def create_optimizer(
             **opt_args,
         )
     elif opt == "nadam":
+        opt_args = _collect_args(kwargs, NAdam)
         optimizer = NAdam(
             params=params,
             learning_rate=lr,
@@ -133,6 +156,7 @@ def create_optimizer(
             **opt_args,
         )
     elif opt == "adan":
+        opt_args = _collect_args(kwargs, Adan)
         optimizer = Adan(
             params=params,
             learning_rate=lr,
@@ -141,6 +165,7 @@ def create_optimizer(
             **opt_args,
         )
     elif opt == "rmsprop":
+        opt_args = _collect_args(kwargs, nn.RMSProp)
         optimizer = nn.RMSProp(
             params=params,
             learning_rate=lr,
@@ -151,6 +176,7 @@ def create_optimizer(
             **opt_args,
         )
     elif opt == "adagrad":
+        opt_args = _collect_args(kwargs, nn.Adagrad)
         optimizer = nn.Adagrad(
             params=params,
             learning_rate=lr,
@@ -160,6 +186,7 @@ def create_optimizer(
         )
     elif opt == "lamb":
         assert loss_scale == 1.0, "Loss scaler is not supported by Lamb optimizer"
+        opt_args = _collect_args(kwargs, nn.Lamb)
         optimizer = nn.Lamb(
             params=params,
             learning_rate=lr,
@@ -174,3 +201,14 @@ def create_optimizer(
         load_param_into_net(optimizer, param_dict)
 
     return optimizer
+
+
+def _collect_args(kwargs, optim_class):
+    ret = {}
+    valid_args = list(inspect.signature(optim_class.__init__).parameters.keys())[1:] # remove self
+    for arg in valid_args:
+        if arg in kwargs:
+            ret[arg] = kwargs[arg]
+    return ret
+
+
