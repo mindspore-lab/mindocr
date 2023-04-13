@@ -4,7 +4,7 @@ English | [中文](https://github.com/mindspore-lab/mindocr/blob/main/configs/re
 <!--- Guideline: use url linked to abstract in ArXiv instead of PDF for fast loading.  -->
 
 > [An End-to-End Trainable Neural Network for Image-based Sequence
-Recognition and Its Application to Scene Text Recognition](https://https://arxiv.org/abs/1507.05717)
+Recognition and Its Application to Scene Text Recognition](https://arxiv.org/abs/1507.05717)
 
 ## 1. Introduction
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
