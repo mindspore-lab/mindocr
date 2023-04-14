@@ -3,6 +3,7 @@ system:
   distribute: True
   amp_level: 'O0'
   seed: 42
+  log_interval: 100
   val_while_train: False
   drop_overflow_update: False
 
