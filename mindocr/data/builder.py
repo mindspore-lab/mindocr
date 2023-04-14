@@ -4,13 +4,13 @@ import multiprocessing
 import mindspore as ms
 from addict import Dict
 import multiprocessing
-from .det_dataset import DetDataset
+from .det_dataset import DetDataset, SynthTextDataset
 from .rec_dataset import RecDataset
 from .rec_lmdb_dataset import LMDBDataset
 
 __all__ = ['build_dataset']
 
-supported_dataset_types = ['BaseDataset', 'DetDataset', 'RecDataset', 'LMDBDataset']
+supported_dataset_types = ['BaseDataset', 'DetDataset', 'RecDataset', 'LMDBDataset', 'SynthTextDataset']
 
 def build_dataset(
         dataset_config: dict,

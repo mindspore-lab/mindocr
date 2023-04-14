@@ -1,10 +1,15 @@
-from typing import Union, List
 import os
 import random
+from typing import Union, List
+
+import numpy as np
+from scipy.io import loadmat
+
 from .base_dataset import BaseDataset
 from .transforms.transforms_factory import create_transforms, run_transforms
 
-__all__ = ['DetDataset']
+__all__ = ['DetDataset', 'SynthTextDataset']
+
 
 class DetDataset(BaseDataset):
     """
@@ -46,25 +51,22 @@ class DetDataset(BaseDataset):
     def __init__(self,
                  is_train: bool = True,
                  data_dir: Union[str, List[str]] = None,
-                 label_file: Union[List, str] = '',
+                 label_file: Union[List, str] = None,
                  sample_ratio: Union[List, float] = 1.0,
                  shuffle: bool = None,
                  transform_pipeline: List[dict] = None,
                  output_columns: List[str] = None,
-                 **kwargs,
-                 ):
+                 **kwargs):
         super().__init__(data_dir=data_dir, label_file=label_file, output_columns=output_columns)
 
         # check args
-        if isinstance(label_file, str):
-            label_file = [label_file]
         if isinstance(sample_ratio, float):
-            sample_ratio = [sample_ratio] * len(label_file)
+            sample_ratio = [sample_ratio] * len(self.label_file)
 
         shuffle = shuffle if shuffle is not None else is_train
 
         # load date file list
-        self.data_list = self.load_data_list(label_file, sample_ratio, shuffle)
+        self.data_list = self.load_data_list(self.label_file, sample_ratio, shuffle)
 
         # create transform
         if transform_pipeline is not None:
@@ -88,7 +90,6 @@ class DetDataset(BaseDataset):
                     raise ValueError(f'Key {k} does not exist in data (available keys: {_data.keys()}). '
                                      'Please check the name or the completeness transformation pipeline.')
 
-
     def __getitem__(self, index):
         data = self.data_list[index].copy()     # WARNING: shallow copy. Do deep copy if necessary.
 
@@ -97,11 +98,10 @@ class DetDataset(BaseDataset):
             data = run_transforms(data, transforms=self.transforms)
             output_tuple = tuple(data[k] for k in self.output_columns)
         except Exception as e:
-            print("error img", self.data_list[index]['img_path'], flush=True)
-            return self.__getitem__(random.randint(1, len(self.data_list)))
+            print(f"Error occurred while processing the image: {self.data_list[index]['img_path']}\n", e, flush=True)
+            return self[random.randint(0, len(self.data_list))]     # return another random sample instead
 
         return output_tuple
-
 
     def load_data_list(self, label_file: List[str], sample_ratio: List[float], shuffle: bool = False,
                        **kwargs) -> List[dict]:
@@ -133,9 +133,8 @@ class DetDataset(BaseDataset):
 
                     data = {'img_path': img_path, 'label': annot_str}
                     data_list.append(data)
-        
-        return data_list
 
+        return data_list
 
     def _parse_annotation(self, data_line: str):
         data_line_tmp = data_line.strip()
@@ -144,6 +143,25 @@ class DetDataset(BaseDataset):
         elif " " in data_line_tmp:
             img_name, annot_str = data_line.strip().split(' ')
         else:
-            print("Incorrect label file format, between the file name and the label should be a space or Tabs ")
+            raise ValueError("Incorrect label file format: the file name and the label should be separated by "
+                             "a space or tab")
 
         return img_name, annot_str
+
+
+class SynthTextDataset(DetDataset):
+    def load_data_list(self, *args):
+        print('Loading SynthText dataset. It might take a while...')
+        mat = loadmat(os.path.join(self.data_dir[0], 'gt.mat'))
+
+        data_list = []
+        for image, boxes, texts in zip(mat['imnames'][0], mat['wordBB'][0], mat['txt'][0]):
+            texts = [t for text in texts.tolist() for t in text.split()]   # TODO: check the correctness of texts order
+            data_list.append({
+                'img_path': os.path.join(self.data_dir[0], image.item()),
+                'polys': boxes.transpose().reshape(-1, 4, 2),   # some labels have (4, 2) shape (no batch dimension)
+                'texts': texts,
+                'ignore_tags': np.array([False] * len(texts))
+            })
+
+        return data_list

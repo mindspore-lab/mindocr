@@ -40,6 +40,8 @@ class BaseDataset(object):
             for f in label_file:
                 if not os.path.exists(f):
                     raise ValueError(f"{f} not existed. Please check the yaml file for both train and eval")
+        else:
+            label_file = []
         self.label_file = label_file
 
         # must specify output column names

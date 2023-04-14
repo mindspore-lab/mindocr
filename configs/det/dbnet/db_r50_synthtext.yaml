@@ -1,0 +1,97 @@
+system:
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: True
+  amp_level: 'O0'
+  seed: 42
+  val_while_train: False
+  drop_overflow_update: False
+
+model:
+  type: det
+  transform: null
+  backbone:
+    name: det_resnet50
+    pretrained: True
+  neck:
+    name: DBFPN
+    out_channels: 256
+    bias: False
+  head:
+    name: DBHead
+    k: 50
+    bias: False
+    adaptive: True
+
+loss:
+  name: L1BalancedCELoss
+  eps: 1.0e-6
+  l1_scale: 10
+  bce_scale: 5
+  bce_replace: bceloss
+
+scheduler:
+  scheduler: constant
+  lr: 1.0e-4
+  num_epochs: 2
+  warmup_epochs: 0
+
+optimizer:
+  opt: SGD
+  filter_bias_and_bn: True
+  momentum: 0.9
+  weight_decay: 5.0e-4
+
+# only used for mixed precision training
+loss_scaler:
+  type: dynamic
+  loss_scale: 512
+  scale_factor: 2
+  scale_window: 1000
+
+train:
+  ckpt_save_dir: 'ckpts/dbnet/SynthText'
+  dataset_sink_mode: True
+  dataset:
+    type: SynthTextDataset
+    dataset_root: /data/ocr_datasets
+    data_dir: SynthText
+    sample_ratio: 1.0
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: RGB
+          to_float32: False
+      - RandomColorAdjust:
+          brightness: 0.1255  # 32.0 / 255
+          saturation: 0.5
+      - IaaAugment:
+          Fliplr: { p: 0.5 }
+          Affine: { rotate: [ -10, 10 ] }
+      - RandomScale:
+          scale_range: [ 0.5, 3.0 ]
+      - RandomCropWithBBox:
+          max_tries: 10
+          min_crop_ratio: 0.1
+          crop_size: [ 512, 512 ]  # following 'Synthetic Data for Text Localisation in Natural Images'
+      - ShrinkBinaryMap:
+          min_text_size: 8
+          shrink_ratio: 0.4
+      - BorderMap:
+          shrink_ratio: 0.4
+          thresh_min: 0.3
+          thresh_max: 0.7
+      - NormalizeImage:
+          bgr_to_rgb: False
+          is_hwc: True
+          mean: imagenet
+          std: imagenet
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visualize
+    output_columns: [ 'image', 'binary_map', 'mask', 'thresh_map', 'thresh_mask' ] #'img_path']
+#    output_columns: ['image'] # for debug op performance
+    num_columns_to_net: 1 # num inputs for network forward func in output_columns
+
+  loader:
+    shuffle: True
+    batch_size: 20
+    drop_remainder: True
+    num_workers: 8
