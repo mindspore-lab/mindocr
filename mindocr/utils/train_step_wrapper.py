@@ -69,13 +69,17 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
 
         # Gradient accumulation
         assert gradient_accumulation_steps >= 1 and isinstance(gradient_accumulation_steps, int), f'gradient_accumulation_steps must be int >= 1, but got {gradient_accumulation_steps}'
-        # TODO: this can be memory consuming. avoid cloning when gradient_accumulation_steps = 1.
-        self.accumulated_grads = optimizer.parameters.clone(prefix='grad_accumulated_', init='zeros')
-        self.zeros = optimizer.parameters.clone(prefix='zeros_', init='zeros')
-        self.cur_accu_step = Parameter(Tensor(0, ms.int32), 'grad_accumulate_step_')
-        self.zero = Tensor(0, ms.int32)
         self.grad_accu_steps = gradient_accumulation_steps
-        #self.grad_accu_fn = self._get_gradient_accumulation_fn()
+        if self.grad_accu_steps > 1:
+            # additionally caches network trainable parameters. overhead caused.
+            # TODO: try to store it in CPU memory instead of GPU/NPU memory.
+            self.accumulated_grads = optimizer.parameters.clone(prefix='grad_accumulated_', init='zeros')
+            self.zeros = optimizer.parameters.clone(prefix='zeros_', init='zeros')
+            self.cur_accu_step = Parameter(Tensor(0, ms.int32), 'grad_accumulate_step_')
+            self.zero = Tensor(0, ms.int32)
+            #self.grad_accu_fn = self._get_gradient_accumulation_fn()
+        else:
+            self.cur_accu_step  = 0 # it will allow to update model every step
 
         self.verbose = verbose
         if self.ema:
@@ -130,35 +134,44 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
             overflow = ms.Tensor(False)
             cond = ms.Tensor(False)
 
+        print(0, grads[0][0][0])
+
         # accumulate gradients and update model weights if no overflow or allow to update even when overflow
         if (not self.drop_overflow_update) or (not overflow):
-            # gradient accumulation
-            success = F.depend(loss, self.map(self.partial(ops.assign_add), self.accumulated_grads, grads)) # self.accumulated_grads += grads
-            success = F.depend(success, ops.assign_add(self.cur_accu_step, Tensor(1, ms.int32)))            # self.cur_accu_step += 1
 
-            #print(0, grads[0][0][0])
-            #print(1, self.accumulated_grads[0][0][0])
+            # gradient accumulation
+            if self.grad_accu_steps > 1:
+                success = F.depend(loss, self.map(self.partial(ops.assign_add), self.accumulated_grads, grads)) # self.accumulated_grads += grads
+                success = F.depend(success, ops.assign_add(self.cur_accu_step, Tensor(1, ms.int32)))            # self.cur_accu_step += 1
+                accu_grads = self.accumulated_grads
+            else:
+                success = loss
+                accu_grads = grads
 
             # optimize
             if self.cur_accu_step % self.grad_accu_steps == 0: # TODO: consider the last accumluation round, which is now skipped
+                print(1, accu_grads[0][0][0])
                 # clip grad
                 if self.clip_grad:
-                    clipped_grads = ops.clip_by_global_norm(self.accumulated_grads, self.clip_norm)
-                    success = F.depend(success, self.optimizer(clipped_grads))
+                    clipped_grads = ops.clip_by_global_norm(accu_grads, self.clip_norm)
                 else:
-                    # no need to divde accumulated grads with accumulation steps since we've divided loss with the steps.
-                    success = F.depend(success, self.optimizer(self.accumulated_grads))
+                    clipped_grads = accu_grads
+                print(2, clipped_grads[0][0][0])
+
+                # NOTE: no need to divde accumulated grads with accumulation steps since we've divided loss with the steps.
+                success = F.depend(success, self.optimizer(clipped_grads))
 
                 # EMA of model weights
                 #if self.ema:
                 #    self.ema_update()
 
                 # clear grad accumulation states
-                success = F.depend(success, self.map(self.partial(ops.assign), self.accumulated_grads, self.zeros)) # self.accumulated_grads = 0
-                success = F.depend(success, ops.assign(self.cur_accu_step, self.zero))      # self.cur_accu_step = 0
+                if self.grad_accu_steps > 1:
+                    success = F.depend(success, self.map(self.partial(ops.assign), self.accumulated_grads, self.zeros)) # self.accumulated_grads = 0
+                    success = F.depend(success, ops.assign(self.cur_accu_step, self.zero))      # self.cur_accu_step = 0
 
         else:
-            #print("WARNING: Gradient overflow")
+            print("WARNING: Gradient overflow! update skipped.")
             pass
 
         return loss, cond, scaling_sens

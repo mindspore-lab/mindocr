@@ -63,9 +63,9 @@ optimizer:
 # only used for mixed precision training
 loss_scaler:
   type: dynamic 
-  loss_scale: 8.0 
+  loss_scale: 512 
   scale_factor: 2.0
-  scale_window: 2000  
+  scale_window: 1000  
 
 train:
   gradient_accumulation_steps: 2
