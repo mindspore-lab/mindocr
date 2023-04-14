@@ -134,11 +134,10 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
             overflow = ms.Tensor(False)
             cond = ms.Tensor(False)
 
-        print(0, grads[0][0][0])
+        #print(0, grads[0][0][0])
 
         # accumulate gradients and update model weights if no overflow or allow to update even when overflow
         if (not self.drop_overflow_update) or (not overflow):
-
             # gradient accumulation
             if self.grad_accu_steps > 1:
                 success = F.depend(loss, self.map(self.partial(ops.assign_add), self.accumulated_grads, grads)) # self.accumulated_grads += grads
@@ -150,13 +149,13 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
 
             # optimize
             if self.cur_accu_step % self.grad_accu_steps == 0: # TODO: consider the last accumluation round, which is now skipped
-                print(1, accu_grads[0][0][0])
+                #print(1, accu_grads[0][0][0])
                 # clip grad
                 if self.clip_grad:
                     clipped_grads = ops.clip_by_global_norm(accu_grads, self.clip_norm)
                 else:
                     clipped_grads = accu_grads
-                print(2, clipped_grads[0][0][0])
+                #print(2, clipped_grads[0][0][0])
 
                 # NOTE: no need to divde accumulated grads with accumulation steps since we've divided loss with the steps.
                 success = F.depend(success, self.optimizer(clipped_grads))
