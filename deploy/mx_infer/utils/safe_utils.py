@@ -1,3 +1,4 @@
+import contextlib
 import json
 import os
 import re
@@ -128,3 +129,18 @@ def save_path_init(path, exist_ok=False):
             return
         shutil.rmtree(path)
     os.makedirs(path, 0o750)
+
+
+@contextlib.contextmanager
+def suppress_stdout():
+    """
+    A context manager for doing a "deep suppression" of stdout.
+    """
+    null_fds = os.open(os.devnull, os.O_RDWR)
+    save_fds = os.dup(1)
+    os.dup2(null_fds, 1)
+
+    yield
+
+    os.dup2(save_fds, 1)
+    os.close(null_fds)

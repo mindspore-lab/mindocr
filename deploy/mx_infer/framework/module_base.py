@@ -20,7 +20,6 @@ class ModuleBase(object):
         self.msg_queue = msg_queue
         self.input_queue = None
         self.output_queue = None
-        self.infer_res_save_path = ''
         self.send_cost = Manager().Value(typecode=c_longdouble, value=0)
         self.process_cost = Manager().Value(typecode=c_longdouble, value=0)
 
@@ -35,8 +34,7 @@ class ModuleBase(object):
         try:
             self.init_self_args()
         except Exception as error:
-            log.error(f'{self.__class__.__name__} init failed')
-            log.error(error)
+            log.error(f'{self.__class__.__name__} init failed: {error}')
             raise error
 
         while not self.msg_queue.full() and stop_manager.full():
@@ -57,8 +55,7 @@ class ModuleBase(object):
             try:
                 self.process(send_data)
             except Exception as error:
-                log.error(f'ERROR occurred in {self.module_name} module')
-                log.error(error)
+                log.error(f'ERROR occurred in {self.module_name} module for {send_data.image_name}: {error}')
             cost_time = time.time() - start_time
             self.process_cost.value += cost_time
 
