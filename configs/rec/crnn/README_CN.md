@@ -4,7 +4,7 @@
 <!--- Guideline: use url linked to abstract in ArXiv instead of PDF for fast loading.  -->
 
 > [An End-to-End Trainable Neural Network for Image-based Sequence
-Recognition and Its Application to Scene Text Recognition](https://https://arxiv.org/abs/1507.05717)
+Recognition and Its Application to Scene Text Recognition](https://arxiv.org/abs/1507.05717)
 
 ## 1. 模型描述
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
@@ -37,10 +37,10 @@ Table Format:
 
 <div align="center">
 
-| **模型**           | **环境配置**       | **骨干网络**      | **平均准确率** | 训练时间(s/epoch) | **配置文件**                                                                          | **模型权重下载**                                                                             | 
+| **模型**           | **环境配置**       | **骨干网络**      | **平均准确率** | **训练时间** | **配置文件**                                                                          | **模型权重下载**                                                                             | 
 |------------------|----------------|---------------|-----------|---------------|------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| CRNN (ours)      | D910x8-MS1.8-G | VGG7          | 82.03%    | 2445          | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt)     |
-| CRNN (ours)      | D910x8-MS1.8-G | ResNet34_vd   | 84.45%    | 2118          | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) |
+| CRNN (ours)      | D910x8-MS1.8-G | VGG7          | 82.03%    | 2445 s/epoch          | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-3a19e349.mindir)   |
+| CRNN (ours)      | D910x8-MS1.8-G | ResNet34_vd   | 84.45%    | 2118 s/epoch         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-2f016384.mindir) |
 | CRNN (PaddleOCR) | -              | ResNet34_vd   | 83.99%    | -             | -                                                                                              | -                                                                                          |
 
 </div>

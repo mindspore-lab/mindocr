@@ -275,51 +275,6 @@ def array_to_texts(output_array: np.ndarray, labels, actual_size: int = None):
     return texts
 
 
-def get_shape_info(shape: list, gears: list, nchw=True):
-    if len(shape) != 4:
-        raise ValueError("model input dim must be 4")
-
-    if nchw:
-        batchsize, channel, height, width = shape
-    else:
-        batchsize, height, width, channel = shape
-
-    if channel not in (1, 3):
-        raise ValueError("model channel number must be 1 or 3")
-
-    # static shape or dynamic shape without gear
-    if -1 not in shape:
-        return "static_shape", (batchsize, channel, height, width)
-
-    if not gears:
-        return "dynamic_shape", (batchsize, channel, height, width)
-
-    # dynamic shape with gear
-    batchsize_list = [gear[0] for gear in gears] if batchsize == -1 else [batchsize]
-    height_list = [gear[2] if nchw else gear[1] for gear in gears] if height == -1 else [height]
-    width_list = [gear[3] if nchw else gear[2] for gear in gears] if width == -1 else [width]
-
-    if len(set(batchsize_list)) > 1 and (len(set(height_list)) > 1 or len(set(width_list)) > 1):
-        raise ValueError("model input shape do not support batch_size and image_size as dynamic together")
-
-    # dynamic_batch_size
-    if len(set(batchsize_list)) > 1:
-        return "dynamic_batch_size", (tuple(sorted(batchsize_list)), channel, height, width)
-
-    batchsize = batchsize_list[0]
-
-    # dynamic_image_size
-    if len(set(height_list)) == 1 and len(set(width_list)) != 1:
-        height = height_list[0]
-        return "dynamic_width", (batchsize, channel, height, tuple(sorted(width_list)))
-    elif len(set(height_list)) != 1 and len(set(width_list)) == 1:
-        width = width_list[0]
-        return "dynamic_height", (batchsize, channel, tuple(sorted(height_list)), width)
-    else:
-        hw_list = [(h, w) for h, w in zip(height_list, width_list)]
-        return "dynamic_height_width", (batchsize, channel, tuple(sorted(hw_list)))
-
-
 def resize_by_limit_max_side(src_image: np.ndarray, limit_side: int = 960):
     ratio = 1
     height, width = get_hw_of_img(src_image)

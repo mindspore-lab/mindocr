@@ -32,7 +32,7 @@ def grouping_svtr(params, weight_decay):
     decay_params = []
     no_decay_params = []
 
-    filter_keys = ['beta', 'gamma', 'pos_emb'] # correspond to nn.BatchNorm, nn.LayerNorm, and position embedding layer if named as 'pos_emb'. TODO: check svtr naming.
+    filter_keys = ['beta', 'gamma', 'pos_emb', 'bias'] # correspond to nn.BatchNorm, nn.LayerNorm, and position embedding layer if named as 'pos_emb'. TODO: check svtr naming.
 
     for param in params:
         filter_param = False

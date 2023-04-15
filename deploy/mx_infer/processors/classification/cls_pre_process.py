@@ -1,15 +1,12 @@
 import math
-import os
 
 import cv2
 import numpy as np
-from mindx.sdk import base
 
 from mx_infer.data_type import ProcessData
-from mx_infer.framework import ModuleBase
+from mx_infer.framework import ModuleBase, Model, ShapeType
 from mx_infer.utils import get_batch_list_greedy, get_hw_of_img, safe_div, padding_with_cv, normalize, \
-    to_chw_image, expand, padding_batch, bgr_to_gray, get_shape_info, \
-    check_valid_file, NORMALIZE_MEAN, NORMALIZE_STD, NORMALIZE_SCALE
+    to_chw_image, expand, padding_batch, bgr_to_gray, NORMALIZE_MEAN, NORMALIZE_STD, NORMALIZE_SCALE
 
 
 class CLSPreProcess(ModuleBase):
@@ -26,21 +23,12 @@ class CLSPreProcess(ModuleBase):
         self.mean = np.array(NORMALIZE_MEAN).astype(np.float32)
 
     def init_self_args(self):
-        device_id = self.args.device_id
-        model_path = self.args.cls_model_path
-
-        base.mx_init()
-        if model_path and os.path.isfile(model_path):
-            check_valid_file(model_path)
-            model = base.model(model_path, device_id)
-        else:
-            raise FileNotFoundError('cls model path must be a file')
-
-        desc, shape_info = get_shape_info(model.input_shape(0), model.model_gear())
+        model = Model(engine_type=self.args.engine_type, model_path=self.args.cls_model_path,
+                      device_id=self.args.device_id)
+        shape_type, shape_info = model.get_shape_info()
         del model
-
-        if desc != "dynamic_batch_size":
-            raise ValueError("model input shape must be dynamic batch_size with gear")
+        if shape_type != ShapeType.DYNAMIC_BATCHSIZE:
+            raise ValueError("Input shape must be dynamic batch_size for classification model.")
 
         self.batchsize_list = list(shape_info[0])
         _, self.model_channel, self.model_height, self.model_width = shape_info

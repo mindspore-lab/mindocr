@@ -59,7 +59,7 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
         super().__init__(network, optimizer, scale_sense)
         self.ema = ema
         self.ema_decay = ema_decay
-        self.updates = Parameter(Tensor(updates, ms.float32))
+        self.updates = Parameter(Tensor(updates, ms.float32), requires_grad=False)
         self.drop_overflow_update = drop_overflow_update
 
         assert isinstance(clip_grad, bool), f'Invalid type of clip_grad, got {type(clip_grad)}'
@@ -75,9 +75,12 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
             # TODO: try to store it in CPU memory instead of GPU/NPU memory.
             self.accumulated_grads = optimizer.parameters.clone(prefix='grad_accumulated_', init='zeros')
             self.zeros = optimizer.parameters.clone(prefix='zeros_', init='zeros')
-            self.cur_accu_step = Parameter(Tensor(0, ms.int32), 'grad_accumulate_step_')
+            for p in self.accumulated_grads:
+                p.requires_grad = False
+            for z in self.zeros:
+                z.requires_grad = False
+            self.cur_accu_step = Parameter(Tensor(0, ms.int32), 'grad_accumulate_step_', requires_grad=False)
             self.zero = Tensor(0, ms.int32)
-            #self.grad_accu_fn = self._get_gradient_accumulation_fn()
         else:
             self.cur_accu_step  = 0 # it will allow to update model every step
 
@@ -86,8 +89,7 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
             self.weights_all = ms.ParameterTuple(list(network.get_parameters()))
             self.ema_weight = self.weights_all.clone("ema", init="same")
 
-        self.is_cpu_device = context.get_context("device_target") == 'CPU' # to support CPU run
-        print('\n====-> device: ', context.get_context("device_target") )
+        self.is_cpu_device = context.get_context("device_target") == 'CPU' # to support CPU in CI
 
         self.map = ops.Map()
         self.partial= ops.Partial()
@@ -148,7 +150,8 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
                 accu_grads = grads
 
             # optimize
-            if self.cur_accu_step % self.grad_accu_steps == 0: # TODO: consider the last accumluation round, which is now skipped
+            # TODO: consider the last accumluation round, which is now skipped
+            if self.cur_accu_step % self.grad_accu_steps == 0:
                 #print(1, accu_grads[0][0][0])
                 # clip grad
                 if self.clip_grad:
