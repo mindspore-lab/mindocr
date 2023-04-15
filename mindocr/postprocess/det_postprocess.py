@@ -37,13 +37,13 @@ class DBPostprocess:
         # FIXME: dest_size is supposed to be the original image shape (pred.shape -> batch['shape'])
         dest_size = np.array(pred.shape[:0:-1])  # w, h order
         scale = dest_size / np.array(pred.shape[:0:-1])
-        
+
         # FIXME: output as dict, keep consistent return format to recognition
         return [self._extract_preds(pr, segm, scale, dest_size) for pr, segm in zip(pred, segmentation)]
 
     def _extract_preds(self, pred, bitmap, scale, dest_size):
         outs = cv2.findContours(bitmap.astype(np.uint8), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-        if len(outs) == 3:
+        if len(outs) == 3:  # FIXME: update to OpenCV 4.x and delete this
             _, contours, _ = outs[0], outs[1], outs[2]
         elif len(outs) == 2:
             contours, _ = outs[0], outs[1]

@@ -73,6 +73,21 @@ def create_optimizer(
     if weight_decay and filter_bias_and_bn:
         params = init_group_params(params, weight_decay)
 
+    # check whether param grouping strategy is encoded in `params`
+    customized_param_group = False
+    if isinstance(params[0], dict): # if
+        customized_param_group = True
+
+    if weight_decay and filter_bias_and_bn:
+        if not customized_param_group:
+            params = init_group_params(params, weight_decay)
+        else:
+            print(
+                "WARNING: Customized param grouping startegy detected in `params`."
+                "filter_bias_and_bn (default=True) will be disabled"
+            )
+
+
     #opt_args = dict(**kwargs)
     # if lr is not None:
     #    opt_args.setdefault('lr', lr)

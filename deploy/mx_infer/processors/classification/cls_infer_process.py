@@ -1,30 +1,17 @@
-import os
-
 import cv2
-import numpy as np
-from mindx.sdk import base, Tensor
 
-from mx_infer.framework import ModuleBase
-from mx_infer.utils import check_valid_file
+from mx_infer.framework import ModuleBase, Model
 
 
 class CLSInferProcess(ModuleBase):
     def __init__(self, args, msg_queue):
         super(CLSInferProcess, self).__init__(args, msg_queue)
         self.model = None
-        self.static_method = True
         self.thresh = 0.9
 
     def init_self_args(self):
-        device_id = self.args.device_id
-        model_path = self.args.cls_model_path
-
-        base.mx_init()
-        if model_path and os.path.isfile(model_path):
-            check_valid_file(model_path)
-            self.model = base.model(model_path, device_id)
-        else:
-            raise FileNotFoundError('cls model path must be a file')
+        self.model = Model(engine_type=self.args.engine_type, model_path=self.args.cls_model_path,
+                           device_id=self.args.device_id)
 
         super().init_self_args()
 
@@ -34,11 +21,8 @@ class CLSInferProcess(ModuleBase):
             return
 
         input_array = input_data.input_array
-        inputs = [Tensor(input_array)]
-        output = self.model.infer(inputs)
-        output_array = output[0]
-        output_array.to_host()
-        output_array = np.array(output_array)
+        outputs = self.model.infer(input_array)
+        output_array = outputs[0]
 
         for i in range(input_data.sub_image_size):
             if output_array[i, 1] > self.thresh:

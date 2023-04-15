@@ -1,6 +1,6 @@
 system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
-  distribute: False 
+  distribute: False
   amp_level: 'O0'
   seed: 42
   val_while_train: True
@@ -16,7 +16,6 @@ model:
     name: DBFPN
     out_channels: 256
     bias: False
-    use_asf: False        # enable it for DB++
   head:
     name: DBHead
     k: 50
@@ -64,24 +63,26 @@ loss_scaler:
 
 train:
   ckpt_save_dir: './tmp_det'
-  dataset_sink_mode: False
+  dataset_sink_mode: True
   dataset:
     type: DetDataset
     dataset_root: /data/ocr_datasets
     data_dir: ic15/det/train/ch4_training_images
     label_file: ic15/det/train/det_gt.txt
     sample_ratio: 1.0
-    shuffle: True
     transform_pipeline:
       - DecodeImage:
           img_mode: RGB
           to_float32: False
       - DetLabelEncode:
-      - RandomScale:
-          scale_range: [ 1.022, 3.0 ]
+      - RandomColorAdjust:
+          brightness: 0.1255  # 32.0 / 255
+          saturation: 0.5
       - IaaAugment:
-          Affine: { rotate: [ -10, 10 ] }
           Fliplr: { p: 0.5 }
+          Affine: { rotate: [ -10, 10 ] }
+      - RandomScale:
+          scale_range: [ 0.5, 3.0 ]
       - RandomCropWithBBox:
           max_tries: 10
           min_crop_ratio: 0.1
@@ -93,9 +94,6 @@ train:
           shrink_ratio: 0.4
           thresh_min: 0.3
           thresh_max: 0.7
-      - RandomColorAdjust:
-          brightness: 0.1255  # 32.0 / 255
-          saturation: 0.5
       - NormalizeImage:
           bgr_to_rgb: False
           is_hwc: True
@@ -122,7 +120,6 @@ eval:
     data_dir: ic15/det/test/ch4_test_images
     label_file: ic15/det/test/det_gt.txt
     sample_ratio: 1.0
-    shuffle: False
     transform_pipeline:
       - DecodeImage:
           img_mode: RGB
@@ -149,4 +146,4 @@ eval:
     shuffle: False
     batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
     drop_remainder: False
-    num_workers: 1
+    num_workers: 2

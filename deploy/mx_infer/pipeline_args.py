@@ -2,7 +2,7 @@ import argparse
 import itertools
 import os
 
-from mx_infer.framework import InferModelComb
+from mx_infer.framework import InferModelComb, InferEngine
 from mx_infer.processors import SUPPORT_DET_MODEL, SUPPORT_REC_MODEL
 from mx_infer.utils import log
 
@@ -19,7 +19,8 @@ def get_args():
     parser.add_argument('--input_images_dir', type=str, required=True,
                         help='Input images dir for inference, can be dir containing multiple images or path of single '
                              'image.')
-
+    parser.add_argument('--engine', type=str.lower, default='mindx', required=False,
+                        choices=['mindx', 'lite'], help='Inference engine type.')
     parser.add_argument('--device', type=str, default='Ascend', required=False,
                         choices=['Ascend'], help='Device type.')
     parser.add_argument('--device_id', type=int, default=0, required=False, help='Device id.')
@@ -90,10 +91,15 @@ def update_task_args(args):
         (True, True, True): InferModelComb.DET_CLS_REC
     }
 
+    engine_map = {
+        'mindx': InferEngine.MindX,
+        'lite': InferEngine.Lite
+    }
+
     task_order = (det, cls, rec)
     if task_order in task_map:
-        task_type = task_map[task_order]
-        setattr(args, 'task_type', task_type)
+        setattr(args, 'task_type', task_map[task_order])
+        setattr(args, 'engine_type', engine_map[args.engine])
         setattr(args, 'save_vis_det_save_dir', bool(args.vis_det_save_dir))
         setattr(args, 'save_vis_pipeline_save_dir', bool(args.vis_pipeline_save_dir))
         setattr(args, 'save_pipeline_crop_res', bool(args.pipeline_crop_save_dir))

@@ -2,7 +2,7 @@ from typing import List, Union
 import cv2
 import numpy as np
 from PIL import Image
-from mindspore.dataset.vision import RandomColorAdjust as MSRandomColorAdjust
+from mindspore.dataset.vision import RandomColorAdjust as MSRandomColorAdjust, ToPIL
 
 from ...data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 
@@ -285,11 +285,13 @@ class RandomCropWithBBox:
 class RandomColorAdjust:
     def __init__(self, brightness=32.0 / 255, saturation=0.5):
         self._jitter = MSRandomColorAdjust(brightness=brightness, saturation=saturation)
+        self._pil = ToPIL()
 
     def __call__(self, data):
         """
         required keys: image
         modified keys: image
         """
-        data['image'] = self._jitter(data['image'])
+        # there's a bug in MindSpore that requires images to be converted to the PIL format first
+        data['image'] = np.array(self._jitter(self._pil(data['image'])))
         return data
