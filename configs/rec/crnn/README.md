@@ -37,10 +37,10 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 <div align="center">
 
-| **Model**        | **Context**    | **Backbone**  | **Avg Accuracy** | **Train T. (s/epoch)** | **Recipe**                                                                                     | **Download**                                                                               | 
+| **Model**        | **Context**    | **Backbone**  | **Avg Accuracy** | **Train T.** | **Recipe**                                                                                     | **Download**                                                                               | 
 |------------------|----------------|---------------|------------------|------------------------|------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| CRNN (ours)      | D910x8-MS1.8-G | VGG7          | 82.03%           | 2445                   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt)     |
-| CRNN (ours)      | D910x8-MS1.8-G | ResNet34_vd   | 84.45%           | 2118                   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) |
+| CRNN (ours)      | D910x8-MS1.8-G | VGG7          | 82.03%    | 2445 s/epoch          | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-3a19e349.mindir)   |
+| CRNN (ours)      | D910x8-MS1.8-G | ResNet34_vd   | 84.45%    | 2118 s/epoch         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-2f016384.mindir) |
 | CRNN (PaddleOCR) | -              | ResNet34_vd   | 83.99%           | -                      | -                                                                                              | -                                                                                          |
 
 </div>

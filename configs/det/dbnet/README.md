@@ -35,14 +35,14 @@ The overall architecture of DBNet is presented in _Figure 1._ It consists of mul
 ## 2. Results
 
 ### ICDAR2015
+
 <div align="center">
 
-| **Model**          | **Context**    | **Backbone**   | **Pretrained** | **Recall**  | **Precision** | **F-score** | **Train T. (s/epoch)** | **Recipe**                  | **Download**                                                                                 |
-|--------------------|----------------|----------------|----------------|-------------|-------------|-------------|------------------------|-----------------------------|----------------------------------------------------------------------------------------------|
-| DBNet (ours)       | D910x1-MS1.9-G | ResNet-50      | ImageNet       | 81.70%      | 85.84%        | 83.72%      | 35                     | [yaml](db_r50_icdar15.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a.ckpt) |
+| **Model**          | **Context**    | **Backbone**   | **Pretrained** | **Recall**  | **Precision** | **F-score** | **Train T.** | **Recipe**                  | **Download**                                                                                 |
+|--------------------|----------------|----------------|----------------|-------------|-------------|-------------|-----------|-----------|----------------------------------------------------------------------------------------------|
+| DBNet (ours)       | D910x1-MS1.9-G | ResNet-50      | ImageNet       | 81.70%      | 85.84%        | 83.72%      | 35 s/epoch          | [yaml](db_r50_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a-bcd7ea35c.mindir) |
 | DBNet (PaddleOCR)  | -              | ResNet50_vd    | SynthText      | 78.72%      | 86.41%        | 82.38%      | -                      | -                           | -                                                                                            |
-| DBNet++            | D910x1-MS1.9-G | ResNet-50      | ImageNet       | 82.02%      | 87.38%        | 84.62%      | -                      | -                           | -                                                                                            |
-
+| DBNet++            | D910x1-MS1.9-G | ResNet-50      | ImageNet       | 82.02%      | 87.38%        | 84.62%      | -                      | - |  - |
 </div>
 
 > More information of DBNet++ is coming soon. The only difference between _DBNet_ and _DBNet++_ is in the _Adaptive Scale Fusion_ module, which is controlled by the `use_asf` parameter in the `neck` module in yaml config file.

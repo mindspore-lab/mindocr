@@ -28,9 +28,9 @@ DBNet的整体架构图如图1所示，包含以下阶段:
 ### ICDAR2015
 <div align="center">
 
-| **模型**            | **环境配置**       | **骨干网络**      | **预训练数据集**  | **Recall**  | **Precision** | **F-score** | **训练时间(s/epoch)** | **配置文件**                    | **模型权重下载**                                                                                   |
+| **模型**            | **环境配置**       | **骨干网络**      | **预训练数据集**  | **Recall**  | **Precision** | **F-score** | **训练时间** | **配置文件**                    | **模型权重下载**                                                                                   |
 |-------------------|----------------|---------------|-------------|-------------|---------------|-------------|-------------------|-----------------------------|----------------------------------------------------------------------------------------------|
-| DBNet (ours)      | D910x1-MS1.9-G | ResNet-50     | ImageNet    | 81.70%      | 85.84%        | 83.72%      | 35                | [yaml](db_r50_icdar15.yaml) | [weights](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a.ckpt) |
+| DBNet (ours)       | D910x1-MS1.9-G | ResNet-50      | ImageNet       | 81.70%      | 85.84%        | 83.72%      | 35 s/epoch          | [yaml](db_r50_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a-bcd7ea35c.mindir) |
 | DBNet (PaddleOCR) | -              | ResNet50_vd   | SynthText   | 78.72%      | 86.41%        | 82.38%      | -                 | -                           | -                                                                                            |
 | DBNet++           | D910x1-MS1.9-G | ResNet-50     | ImageNet    | 82.02%      | 87.38%        | 84.62%      | -                 | -                           | -                                                                                            |
 
