@@ -5,7 +5,7 @@ from ._registry import register_model
 from .backbones.mindcv_models.utils import load_pretrained
 
 
-__all__ = ['CRNN', 'crnn_r34', 'crnn_vgg7']
+__all__ = ['CRNN', 'crnn_resnet34', 'crnn_vgg7']
 
 def _cfg(url='', **kwargs):
     return {
@@ -16,7 +16,7 @@ def _cfg(url='', **kwargs):
 
 
 default_cfgs = {
-    'crnn_r34': _cfg(
+    'crnn_resnet34': _cfg(
         url='https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt'),
     'crnn_vgg7': _cfg(
         url='https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt'),
@@ -30,7 +30,7 @@ class CRNN(BaseModel):
 
 
 @register_model
-def crnn_r34(pretrained=False, **kwargs):
+def crnn_resnet34(pretrained=False, **kwargs):
     model_config = {
         "backbone": {
             'name': 'rec_resnet34',
@@ -51,7 +51,7 @@ def crnn_r34(pretrained=False, **kwargs):
 
     # load pretrained weights
     if pretrained:
-        default_cfg = default_cfgs['crnn_r34']
+        default_cfg = default_cfgs['crnn_resnet34']
         load_pretrained(model, default_cfg)
 
     return model
