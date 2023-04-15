@@ -1,3 +1,14 @@
+'''
+Usage:
+    To export all trained models from ckpt to mindir as listed in configs/, run
+
+    python tools/export.py
+'''
+import sys
+import os
+__dir__ = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "..")))
+
 import mindspore as ms
 from mindocr import list_models, build_model
 import numpy as np
