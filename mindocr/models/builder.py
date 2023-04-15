@@ -8,23 +8,25 @@ from .base_model import BaseModel
 
 __all__ = ['build_model']
 
-#def build_model(config: Union[dict,str]):
-def build_model(config: Union[dict, str], **kwargs): #config: Union[dict,str]):
+
+def build_model(name_or_config: Union[str, dict], **kwargs):
     '''
     There are two ways to build a model.
         1. load a predefined model according the given model name.
         2. build the model according to the detailed configuration of the each module (transform, backbone, neck and head), for lower-level architecture customization.
 
     Args:
-        config (Union[dict, str]): if it is a str, config is the model name. Predefined model with weights will be returned.
-                if dict, config is a dictionary and the available keys are:
-                    model_name: string, model name in the registered models
-                    pretrained: bool, if True, download the pretrained weight for the preset url and load to the network.
-                    backbone: dict, a dictionary containing the backbone config, the available keys are defined in backbones/builder.py
-                    neck: dict,
-                    head: dict,
-        kwargs: if config is a str of model name, kwargs contains the args for the model. 
-    
+        name_or_config (Union[dict, str]): model name or config
+            if it's a string, it should be a model name (which can be found by mindocr.list_models())
+            if it's a dict, it should be an architecture configuration defining the backbone/neck/head components (e.g., parsed from yaml config).
+
+        kwargs (dict): options
+            if name_or_config is a model name, supported args in kwargs are:
+                - pretrained (bool): if True, pretrained checkpoint will be downloaded and loaded into the network.
+                - ckpt_load_path (str): path to checkpoint file. if a non-empty string given, the local checkpoint will loaded into the network.
+            if name_or_config is an architecture definition dict, supported args are:
+                - ckpt_load_path (str): path to checkpoint file.
+
     Return:
         nn.Cell
 
@@ -32,30 +34,24 @@ def build_model(config: Union[dict, str], **kwargs): #config: Union[dict,str]):
     >>>  from mindocr.models import build_model
     >>>  net = build_model(cfg['model'])
     >>>  net = build_model(cfg['model'], ckpt_load_path='./r50_fpn_dbhead.ckpt') # build network and load checkpoint
-    >>>  net = build_model('dbnet_r50', pretrained=True)
+    >>>  net = build_model('dbnet_resnet50', pretrained=True)
 
     '''
-    if isinstance(config, str):
+    if isinstance(name_or_config, str):
         # build model by specific model name
-        model_name = config #config['name']
+        model_name = name_or_config
         if is_model(model_name):
             create_fn = model_entrypoint(model_name)
-            '''
-            kwargs = {}
-            for k, v in config.items():
-                if k!=model_name and v is not None:
-                    kwargs[k] = v
-            '''
             network = create_fn(**kwargs)
         else:
             raise ValueError(f'Invalid model name: {model_name}. Supported models are {list_models()}')
 
-    elif isinstance(config, dict):
+    elif isinstance(name_or_config, dict):
         # build model by given architecture config dict
-        network = BaseModel(config)
+        network = BaseModel(name_or_config)
     else:
         raise ValueError('Type error for config')
-   
+
     # load checkpoint
     if 'ckpt_load_path' in kwargs:
         ckpt_path = kwargs['ckpt_load_path']
