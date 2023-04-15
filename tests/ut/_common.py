@@ -35,14 +35,17 @@ def gen_dummpy_data(task):
 
     return data_dir
 
-def update_config_for_CI(config_fp, task, val_while_train=False):
+def update_config_for_CI(config_fp, task, val_while_train=False, gradient_accumulation_steps=1, clip_grad=False, grouping_strategy=None):
     with open(config_fp) as fp:
         config = yaml.safe_load(fp)
         config['system']['distribute'] = False
         config['system']['val_while_train'] = val_while_train
+        config['optimizer']['grouping_strategy'] = grouping_strategy
         #if 'common' in config:
         #    config['batch_size'] = 8
         config['train']['dataset_sink_mode'] = False
+        config['train']['gradient_accumulation_steps'] = gradient_accumulation_steps
+        config['train']['clip_grad'] = clip_grad
 
         config['train']['dataset']['dataset_root'] = 'data/Canidae/'
         config['train']['dataset']['data_dir'] = 'train/dogs'

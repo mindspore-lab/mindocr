@@ -97,10 +97,15 @@ def main(cfg):
     optimizer = create_optimizer(params, **cfg.optimizer)
 
     # build train step cell
+    gradient_accumulation_steps=cfg.train.get('gradient_accumulation_steps', 1)
+    clip_grad=cfg.train.get('clip_grad', False)
     train_net = TrainOneStepWrapper(net_with_loss,
                                     optimizer=optimizer,
                                     scale_sense=loss_scale_manager,
                                     drop_overflow_update=cfg.system.drop_overflow_update,
+                                    gradient_accumulation_steps=gradient_accumulation_steps,
+                                    clip_grad=clip_grad,
+                                    clip_norm=cfg.train.get('clip_norm', 1.0),
                                     )
     # build postprocess and metric
     postprocessor = None
@@ -126,17 +131,22 @@ def main(cfg):
 
     # log
     if is_main_device:
+        num_devices = device_num if device_num is not None else 1
+        global_batch_size = cfg.train.loader.batch_size * num_devices * gradient_accumulation_steps
         print('='*40)
         print(
-            f'Num devices: {device_num if device_num is not None else 1}\n'
-            f'Num epochs: {cfg.scheduler.num_epochs}\n'
-            f'Num batches: {num_batches}\n'
+            f'Num devices: {num_devices}\n'
+            f'Batch size: {cfg.train.loader.batch_size}\n'
+            f'Global batch size: {cfg.train.loader.batch_size}x{num_devices}x{gradient_accumulation_steps}={global_batch_size}\n'
             f'Optimizer: {cfg.optimizer.opt}\n'
             f'Scheduler: {cfg.scheduler.scheduler}\n'
             f'LR: {cfg.scheduler.lr} \n'
             f'Auto mixed precision: {cfg.system.amp_level}\n'
             f'Loss scale setting: {cfg.loss_scaler}\n'
-            f'drop_overflow_update: {cfg.system.drop_overflow_update}'
+            f'drop_overflow_update: {cfg.system.drop_overflow_update}\n'
+            f'clip_grad: {clip_grad}\n'
+            f'Num epochs: {cfg.scheduler.num_epochs}\n'
+            f'Num steps per epoch: {num_batches}'
             )
         if 'name' in cfg.model:
             print(f'Model: {cfg.model.name}')

@@ -25,7 +25,7 @@ def build_dataset(
 
     Args:
         dataset_config (dict): dataset parsing and processing configuartion containing the following keys
-            - type (str): dataset class name, please choose from `supported_dataset_types`. 
+            - type (str): dataset class name, please choose from `supported_dataset_types`.
             - dataset_root (str): the root directory to store the (multiple) dataset(s)
             - data_dir (Union[str, List[str]]): directory to the data, which is a subfolder path related to `dataset_root`. For multiple datasets, it is a list of subfolder paths.
             - label_file (Union[str, List[str]], *optional*): file path to the annotation related to the `dataset_root`. For multiple datasets, it is a list of relative file paths. Not required if using LMDBDataset.
@@ -41,8 +41,8 @@ def build_dataset(
         num_shards (int, *optional*): num of devices for distributed mode
         shard_id (int, *optional*): device id
         is_train (boolean): whether it is in training stage
-        **kwargs: optional args for extension. If `refine_batch_size=True` is given in kwargs, the batch size will be refined to be divisable to avoid 
-            droping remainding data samples in graph model, typically used for precise evaluation. 
+        **kwargs: optional args for extension. If `refine_batch_size=True` is given in kwargs, the batch size will be refined to be divisable to avoid
+            droping remainding data samples in graph model, typically used for precise evaluation.
 
     Return:
         data_loader (Dataset): dataloader to generate data batch
@@ -52,8 +52,8 @@ def build_dataset(
         - Each of the three steps supports multiprocess. Detailed mechanism can be seen in https://www.mindspore.cn/docs/zh-CN/r2.0.0-alpha/api_python/mindspore.dataset.html
         - A data row is a data tuple item containing multiple elements such as (image_i, mask_i, label_i). A data column corresponds to an element in the tuple like 'image', 'label'.
         - The total number of `num_workers` used for data loading and processing should not be larger than the maximum threads of the CPU. Otherwise, it will lead to resource competing overhead. Especially for distributed training, `num_parallel_workers` should not be too large to avoid thread competition.
- 
-    Example: 
+
+    Example:
         >>> # Load a DetDataset/RecDataset
         >>> from mindocr.data import build_dataset
         >>> data_config = {
@@ -114,7 +114,7 @@ def build_dataset(
     # TODO: find optimal setting automatically according to num of CPU cores
     num_workers = loader_config.get("num_workers", 8) # Number of subprocesses used to fetch the dataset/map data row/gen batch in parallel
     cores = multiprocessing.cpu_count()
-    num_devices = 1 if num_shards is None else num_shards 
+    num_devices = 1 if num_shards is None else num_shards
     if num_workers > int(cores / num_devices):
         num_workers = int(cores / num_devices)
         print('WARNING: num_workers is adjusted to {num_workers}, to fit {cores} CPU cores shared for {num_devices} devices')
@@ -144,9 +144,9 @@ def build_dataset(
     # get batch of dataset by collecting batch_size consecutive data rows and apply batch operations
     num_samples = ds.get_dataset_size()
     batch_size = loader_config['batch_size']
-    print('INFO: num_samples: {num_samples}, batch_size: {batch_size}')
+    print(f'INFO: num_samples: {num_samples}, batch_size: {batch_size}')
     if 'refine_batch_size' in kwargs:
-        batch_size = _check_batch_size(num_samples, batch_size, refine=kwargs['refine_batch_size']) 
+        batch_size = _check_batch_size(num_samples, batch_size, refine=kwargs['refine_batch_size'])
 
     drop_remainder = loader_config.get('drop_remainder', is_train)
     if is_train and drop_remainder == False:

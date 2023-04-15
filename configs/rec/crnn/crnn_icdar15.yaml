@@ -63,11 +63,14 @@ optimizer:
 # only used for mixed precision training
 loss_scaler:
   type: dynamic 
-  loss_scale: 1.0 
+  loss_scale: 512 
   scale_factor: 2.0
-  scale_window: 2000  
+  scale_window: 1000  
 
 train:
+  gradient_accumulation_steps: 2
+  clip_grad: True
+  clip_norm: 0.0001
   ckpt_save_dir: './tmp_rec'
   dataset_sink_mode: False
   dataset:

@@ -92,6 +92,8 @@ def create_optimizer(
     # if lr is not None:
     #    opt_args.setdefault('lr', lr)
 
+    assert loss_scale==1.0, 'loss scale must be 1.0 in optimizer due to gradients are already scaled previously in TrainStepWrapper.'
+
     # non-adaptive: SGD, momentum, and nesterov
     if opt == "sgd":
         # note: nn.Momentum may perform better if momentum > 0.
@@ -207,6 +209,7 @@ def _collect_args(kwargs, optim_class):
     ret = {}
     valid_args = list(inspect.signature(optim_class.__init__).parameters.keys())[1:] # remove self
     for arg in valid_args:
+        assert arg != 'clip', ValueError('Gradient clipping should not be set in `optimizer`. Please set it in `train`.')
         if arg in kwargs:
             ret[arg] = kwargs[arg]
     return ret
