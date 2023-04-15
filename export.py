@@ -4,7 +4,10 @@ import numpy as np
 
 
 def export(name, task='rec'):
+    ms.set_context(mode=ms.GRAPH_MODE, device_target='Ascend')
+
     net = build_model(name, pretrained=True)
+    net.set_train(False)
 
     if task=='rec':
         c, h, w = 3, 32, 100
