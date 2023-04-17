@@ -28,7 +28,7 @@ class RecMetric(nn.Metric):
     def __init__(self,
             character_dict_path=None,
             ignore_space=True,
-            filter_ood=True,
+            filter_ood=False,
             lower=True,
             print_flag=False,
             device_num=1,
@@ -110,8 +110,8 @@ class RecMetric(nn.Metric):
 
             if self.lower: # convert to lower case
                 label = label.lower()
-
-            if self.filter_ood: # filter out of dictionary characters
+                pred = pred.lower()  # TODO: why not pred.lower()?
+            if self.filter_ood: # filter out of dictionary characters  # TODO: Chinese is not in char dict, so it will be empty after filering
                 label = ''.join([c for c in label if c in self.dict])
 
             if self.print_flag:
