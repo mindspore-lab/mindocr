@@ -26,12 +26,13 @@ def get_loss_scales(cfg):
             scale_factor=cfg.loss_scaler.get('scale_factor', 2.0)
             scale_window = cfg.loss_scaler.get('scale_window', 2000)
             # adjust by gradient_accumulation_steps so that the scaling process is the same as that of batch_size=batch_size*gradient_accumulation_steps
+            '''
             grad_accu_steps = cfg.train.get('gradient_accumulation_steps', 1)
             if grad_accu_steps > 1:
                 scale_factor = scale_factor ** (1/grad_accu_steps)
                 scale_window = scale_window * grad_accu_steps
                 print("INFO: gradient_accumulation_steps > 1, scale_factor and scale_window are adjusted accordingly for dynamic loss scaler")
-
+            '''
             loss_scale_manager = nn.DynamicLossScaleUpdateCell(loss_scale_value=cfg.loss_scaler.get('loss_scale', 2**16),
                                                             scale_factor=scale_factor,
                                                             scale_window=scale_window,
