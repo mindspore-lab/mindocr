@@ -66,7 +66,8 @@ class CTCHead(nn.Cell):
         Args:
             x (Tensor): feature in shape [W, BS, 2*C]
         Returns:
-            h (Tensor): logits in shape [W, BS, num_classes], where W - sequence len, fixed.
+            h (Tensor): if training, h is logits in shape [W, BS, num_classes], where W - sequence len, fixed. (dim order required by ms.ctcloss)
+                        if not training, h is probabilites in shape [BS, W, num_classes].
         """
         h = self.dense1(x)
         #x = self.dropout(x)
@@ -77,6 +78,7 @@ class CTCHead(nn.Cell):
         if not self.training:
             #h = ops.softmax(h, axis=2) # not support on ms 1.8.1
             h = ops.Softmax(axis=2)(h)
+            h = h.transpose((1, 0, 2))
 
         pred = {'head_out': h}
         return pred
