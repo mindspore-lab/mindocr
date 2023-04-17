@@ -1,11 +1,65 @@
 import argparse
 import json
+import os
+import sys
 
 import numpy as np
 from joblib import Parallel, delayed
 from shapely.geometry import Polygon
 from tqdm import tqdm
 
+__dir__ = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../..")))
+from mindocr.metrics import build_metric
+from mindspore import Tensor
+
+def read_content_adapt_train_pred(content):
+    boxes = []
+    for con in content:
+        boxes.append(np.array(con['points']).reshape((4, 2)))
+
+    if not boxes:   # TODO: boxes is empty
+        return None
+    boxes = np.array(boxes)
+
+    conf_score = np.ones([len(boxes)])   # TODO: Hard code condidence score to be 1, which is not true.
+    return [(boxes, conf_score)]
+
+def read_content_adapt_train_label(content):
+    boxes = []
+    for con in content:
+        boxes.append(np.array(con['points']).reshape((4, 2)))
+
+    if not boxes:     # TODO: boxes is empty
+        return None
+    ignored_tag = Tensor(np.expand_dims(np.array([False] * len(boxes)), axis=0))
+    boxes = Tensor(np.expand_dims(boxes, axis=0))
+    return [boxes, ignored_tag]
+
+def eval_det_adapt_train(preds, labels):
+    # metric_config = {"name": "RecMetric", "main_indicator": "acc", "character_dict_path": None,
+    #                       "ignore_space": True, "print_flag": False}
+    metric_config = {"name": "DetMetric", "main_indicator": "acc",
+                     "ignore_space": True, "print_flag": False}
+    metric = build_metric(metric_config)
+
+    adapted_preds = []
+    for img_name, content in preds.items():
+        adapted_pred = read_content_adapt_train_pred(content)
+        if adapted_pred:    # TODO: boxes is not empty
+            adapted_preds.append(adapted_pred)
+
+    adapted_labels = []
+    for img_name, content in labels.items():
+        adapted_label = read_content_adapt_train_label(content)
+        if adapted_label:   # TODO: boxes is not empty
+            adapted_labels.append(adapted_label)
+
+    for pred, label in zip(adapted_preds, adapted_labels):
+        metric.update(pred, label)
+
+    eval_res = metric.eval()
+    return eval_res
 
 def read_content(filename):
     results = {}
@@ -153,7 +207,6 @@ if __name__ == '__main__':
 
     labels = read_content(gt_path)
     preds = read_content(pred_path)
-
     labels_keys = labels.keys()
     preds_keys = preds.keys()
 
@@ -165,3 +218,8 @@ if __name__ == '__main__':
 
     result_rec = eval_rec(labels, preds, parallel_num)
     print(result_rec)
+
+    print('----- Start adapted eval------')
+    eval_res = eval_det_adapt_train(preds, labels)
+    print(eval_res)
+    print('----- End adapted eval------')
