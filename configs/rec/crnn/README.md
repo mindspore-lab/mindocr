@@ -48,7 +48,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 **Notes:**
 - Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x8-MS1.8-G is for training on 8 pieces of Ascend 910 NPU using graph mode based on Minspore version 1.8.
 - To reproduce the result on other contexts, please ensure the global batch size is the same. 
-- Character Set: The characters supported by text recognition, where [a-z0-9] represents lowercase English characters and numbers from 0 to 9.
+- Character Set: The characters supported by model, where [a-z0-9] represents lowercase English characters from a to z and numbers from 0 to 9.
 - The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#312-dataset-download) section.
 - For the PaddleOCR version of CRNN, the performance is reported on the trained model provided on their [github](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/algorithm_rec_crnn_en.md).
 
@@ -117,7 +117,7 @@ train:
 eval:
   dataset:
     type: LMDBDataset
-    dataset_root: dir/to/data_lmdb_release/                           # Root dir of validation/evaluation dataset
+    dataset_root: dir/to/data_lmdb_release/                           # Root dir of validation dataset
     data_dir: validation/                                             # Dir of validation dataset, concatenated with `dataset_root` to be the complete dir of validation dataset
     # label_file:                                                     # Path of validation label file, concatenated with `dataset_root` to be the complete path of validation label file, not required when using LMDBDataset
   ...
@@ -133,13 +133,13 @@ train:
 eval:
   dataset:
     type: LMDBDataset
-    dataset_root: dir/to/data_lmdb_release/                           # Root dir of validation/evaluation dataset
+    dataset_root: dir/to/data_lmdb_release/                           # Root dir of evaluation dataset
     data_dir: evaluation/CUTE80/                                      # Dir of evaluation dataset, concatenated with `dataset_root` to be the complete dir of evaluation dataset
     # label_file:                                                     # Path of evaluation label file, concatenated with `dataset_root` to be the complete path of evaluation label file, not required when using LMDBDataset
   ...
 ```
 
-By running `tools/eval.py` as noted in section [Model Evaluation](#33-model-evaluation) with the above config yaml, you can get the accuracy for dataset CUTE80. 
+By running `tools/eval.py` as noted in section [Model Evaluation](#33-model-evaluation) with the above config yaml, you can get the accuracy performance on dataset CUTE80. 
 
 Repeat the evaluation step for all individual datasets: CUTE80, IC03_860, IC03_867, IC13_857, IC131015, IC15_1811, IC15_2077, IIIT5k_3000, SVT, SVTP. Average accuracy is the average of all these subaccuracies.
 
