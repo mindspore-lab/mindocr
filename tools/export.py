@@ -27,7 +27,7 @@ def export(name, task='rec', pretrained=True, ckpt_load_path="", save_dir=""):
     if task=='rec':
         c, h, w = 3, 32, 100
     else:
-        c, h, w = 3, 640, 640
+        c, h, w = 3, 736, 1280
 
     bs = 1
     x = ms.Tensor(np.ones([bs, c, h, w]), dtype=ms.float32)
