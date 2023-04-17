@@ -37,20 +37,18 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 <div align="center">
 
-| **Model**        | **Context**    | **Backbone**  | **Avg Accuracy** | **Train T.** | **Recipe**                                                                                     | **Download**                                                                               | 
-|------------------|----------------|---------------|------------------|------------------------|------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| CRNN (ours)      | D910x8-MS1.8-G | VGG7          | 82.03%    | 2445 s/epoch          | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-3a19e349.mindir)   |
-| CRNN (ours)      | D910x8-MS1.8-G | ResNet34_vd   | 84.45%    | 2118 s/epoch         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-2f016384.mindir) |
-| CRNN (PaddleOCR) | -              | ResNet34_vd   | 83.99%           | -                      | -                                                                                              | -                                                                                          |
+| **Model** | **Context**    | **Backbone** | **Character Set**  | **Avg Accuracy** | **Train T.** | **Recipe** | **Download** | 
+| ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
+| CRNN (ours)      | D910x8-MS1.8-G | VGG7 | [a-z0-9] | 82.03%    | 2445 s/epoch          | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-3a19e349.mindir)   |
+| CRNN (ours)      | D910x8-MS1.8-G | ResNet34_vd | [a-z0-9] | 84.45%    | 2118 s/epoch         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-2f016384.mindir) |
+| CRNN (PaddleOCR) | -              | ResNet34_vd | [a-z0-9]  | 83.99%           | -                      | -                                                                                              | -                                                                                          |
 
 </div>
 
 **Notes:**
 - Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x8-MS1.8-G is for training on 8 pieces of Ascend 910 NPU using graph mode based on Minspore version 1.8.
 - To reproduce the result on other contexts, please ensure the global batch size is the same. 
-- Both VGG and ResNet models are trained from scratch without any pre-training.
-- The above models are trained with MJSynth (MJ) and SynthText (ST) datasets. For more data details, please refer to [Dataset Preparation](#312-dataset-preparation) section.
-- **Evaluations are tested individually on each benchmark dataset, and Avg Accuracy is the average of accuracies across all sub-datasets.**
+- Both VGG and ResNet models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#312-dataset-download) section.
 - For the PaddleOCR version of CRNN, the performance is reported on the trained model provided on their [github](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/algorithm_rec_crnn_en.md).
 
 
@@ -60,11 +58,15 @@ According to our experiments, the evaluation results on public benchmark dataset
 #### 3.1.1 Installation
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
-#### 3.1.2 Dataset Preparation
+#### 3.1.2 Dataset Download
 Please download lmdb dataset for traininig and evaluation from  [here](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (ref: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here)). There're several zip files:
 - `data_lmdb_release.zip` contains the **entire** datasets including training.zip, validation.zip and evaluation.zip.
-- `validation.zip` is the union dataset for Validation.
-- `evaluation.zip` contains several benchmarking datasets.
+    - `training.zip` contains two datasets: [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)
+    - `validation.zip` is the union of the training sets of [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), and [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset).
+    - `evaluation.zip` contains several benchmarking datasets, which are [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset), [IC03](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions), [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf), and [CUTE](http://cs-chan.com/downloads_CUTE80_dataset.html).
+
+
+#### 3.1.3 Dataset Usage
 
 Unzip the data and after preparation, the data structure should be like 
 
@@ -72,8 +74,15 @@ Unzip the data and after preparation, the data structure should be like
 .
 ├── training
 │   ├── MJ
-│   │   ├── data.mdb
-│   │   ├── lock.mdb
+|   |   └── MJ_train
+│   │   |    ├── data.mdb
+│   │   |    ├── lock.mdb
+|   |   └── MJ_valid
+│   │   |    ├── data.mdb
+│   │   |    ├── lock.mdb
+|   |   └── MJ_test
+│   │        ├── data.mdb
+│   │        ├── lock.mdb
 │   ├── ST
 │   │   ├── data.mdb
 │   │   ├── lock.mdb
@@ -81,16 +90,21 @@ Unzip the data and after preparation, the data structure should be like
 |   ├── data.mdb
 |   ├── lock.mdb
 └── evaluation
-    ├── IC03
+    ├── CUTE80
     │   ├── data.mdb
     │   ├── lock.mdb
-    ├── IC13
+    ├── IC03_860
     │   ├── data.mdb
     │   ├── lock.mdb
     └── ...
 ```
 
-#### 3.1.3 Check YAML Config Files
+During **training** process, we use all datasets under `training/` folder as training set, and use the union dataset `validation/` as evaluation dataset.
+
+During **evaluation** process, we use the datasets under `evaluation/` as benchmark dataset. To reproduce the results of our experiment, you need to perform evaluation on each individual dataset (e.g. CUTE80, IC03_860, etc.) by setting the dataset's directory to eval dataset. **The Avg Accuracy is the average of accuracies across all sub-datasets.**
+
+
+#### 3.1.4 Check YAML Config Files
 Please check the following important args: `system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`, 
 `eval.ckpt_load_path`, `eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.dataset.label_file`, `eval.loader.batch_size`. Explanations of these important args:
 

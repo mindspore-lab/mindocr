@@ -59,7 +59,7 @@ Table Format:
 #### 3.1.1 安装
 环境安装教程请参考MindOCR的 [installation instruction](https://github.com/mindspore-lab/mindocr#installation).
 
-#### 3.1.2 数据集准备
+#### 3.1.2 数据集下载
 LMDB格式的训练及验证数据集可以从[这里](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (出处: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here))下载。连接中的文件包含多个压缩文件，其中:
 - `data_lmdb_release.zip` 包含了**完整**的一套数据集，有训练集(training.zip），验证集(validation.zip)以及测试集(evaluation.zip)。
 - `validation.zip` 是一个整合的验证集。
@@ -71,8 +71,15 @@ LMDB格式的训练及验证数据集可以从[这里](https://www.dropbox.com/s
 .
 ├── training
 │   ├── MJ
-│   │   ├── data.mdb
-│   │   ├── lock.mdb
+|   |   └── MJ_train
+│   │   |    ├── data.mdb
+│   │   |    ├── lock.mdb
+|   |   └── MJ_valid
+│   │   |    ├── data.mdb
+│   │   |    ├── lock.mdb
+|   |   └── MJ_test
+│   │        ├── data.mdb
+│   │        ├── lock.mdb
 │   ├── ST
 │   │   ├── data.mdb
 │   │   ├── lock.mdb
@@ -80,10 +87,10 @@ LMDB格式的训练及验证数据集可以从[这里](https://www.dropbox.com/s
 |   ├── data.mdb
 |   ├── lock.mdb
 └── evaluation
-    ├── IC03
+    ├── CUTE80
     │   ├── data.mdb
     │   ├── lock.mdb
-    ├── IC13
+    ├── IC03_860
     │   ├── data.mdb
     │   ├── lock.mdb
     └── ...
