@@ -30,18 +30,18 @@ def init_group_params(params, weight_decay):
 
 
 def create_optimizer(
-    params,
-    opt: str = "adam",
-    lr: Optional[float] = 1e-3,
-    weight_decay: float = 0,
-    momentum: float = 0.9,
-    nesterov: bool = False,
-    filter_bias_and_bn: bool = True,
-    loss_scale: float = 1.0,
-    schedule_decay: float = 4e-3,
-    checkpoint_path: str = "",
-    eps: float = 1e-10,
-    **kwargs,
+        params,
+        opt: str = "adam",
+        lr: Optional[float] = 1e-3,
+        weight_decay: float = 0,
+        momentum: float = 0.9,
+        nesterov: bool = False,
+        filter_bias_and_bn: bool = True,
+        loss_scale: float = 1.0,
+        schedule_decay: float = 4e-3,
+        checkpoint_path: str = "",
+        eps: float = 1e-10,
+        **kwargs,
 ):
     r"""Creates optimizer by name.
 
@@ -67,32 +67,20 @@ def create_optimizer(
     Returns:
         Optimizer object
     """
-
     opt = opt.lower()
 
     if weight_decay and filter_bias_and_bn:
-        params = init_group_params(params, weight_decay)
-
-    # check whether param grouping strategy is encoded in `params`
-    customized_param_group = False
-    if isinstance(params[0], dict): # if
-        customized_param_group = True
-
-    if weight_decay and filter_bias_and_bn:
-        if not customized_param_group:
+        if not isinstance(params[0], dict):     # check whether param grouping strategy is encoded in `params`
             params = init_group_params(params, weight_decay)
         else:
-            print(
-                "WARNING: Customized param grouping startegy detected in `params`."
-                "filter_bias_and_bn (default=True) will be disabled"
-            )
+            print("WARNING: Customized param grouping strategy detected in `params`. "
+                  "filter_bias_and_bn (default=True) will be disabled")
 
-
-    #opt_args = dict(**kwargs)
+    # opt_args = dict(**kwargs)
     # if lr is not None:
     #    opt_args.setdefault('lr', lr)
 
-    assert loss_scale==1.0, 'loss scale must be 1.0 in optimizer due to gradients are already scaled previously in TrainStepWrapper.'
+    assert loss_scale == 1.0, 'loss scale must be 1.0 in optimizer due to gradients are already scaled previously in TrainStepWrapper.'
 
     # non-adaptive: SGD, momentum, and nesterov
     if opt == "sgd":
@@ -213,5 +201,3 @@ def _collect_args(kwargs, optim_class):
         if arg in kwargs:
             ret[arg] = kwargs[arg]
     return ret
-
-
