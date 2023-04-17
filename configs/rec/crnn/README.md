@@ -139,7 +139,7 @@ eval:
   ...
 ```
 
-By running `eval.py` as noted in section [Model Evaluation](#33-model-evaluation) with the above config yaml, you can get the accuracy for dataset CUTE80. 
+By running `tools/eval.py` as noted in section [Model Evaluation](#33-model-evaluation) with the above config yaml, you can get the accuracy for dataset CUTE80. 
 
 Repeat the evaluation step for all individual datasets: CUTE80, IC03_860, IC03_867, IC13_857, IC131015, IC15_1811, IC15_2077, IIIT5k_3000, SVT, SVTP. Average accuracy is the average of all these subaccuracies.
 

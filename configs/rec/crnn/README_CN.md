@@ -37,19 +37,19 @@ Table Format:
 
 <div align="center">
 
-| **模型**           | **环境配置**       | **骨干网络**      | **平均准确率** | **训练时间** | **配置文件**                                                                          | **模型权重下载**                                                                             | 
-|------------------|----------------|---------------|-----------|---------------|------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| CRNN (ours)      | D910x8-MS1.8-G | VGG7          | 82.03%    | 2445 s/epoch          | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-3a19e349.mindir)   |
-| CRNN (ours)      | D910x8-MS1.8-G | ResNet34_vd   | 84.45%    | 2118 s/epoch         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-2f016384.mindir) |
-| CRNN (PaddleOCR) | -              | ResNet34_vd   | 83.99%    | -             | -                                                                                              | -                                                                                          |
+| **模型** | **环境配置** | **骨干网络** | **可识别字符** |**平均准确率** | **训练时间** | **配置文件** | **模型权重下载** | 
+| ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
+| CRNN (ours)      | D910x8-MS1.8-G | VGG7  | [a-z0-9] | 82.03%    | 2445 s/epoch | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-3a19e349.mindir)   |
+| CRNN (ours)      | D910x8-MS1.8-G | ResNet34_vd | [a-z0-9] | 84.45%    | 2118 s/epoch         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-2f016384.mindir) |
+| CRNN (PaddleOCR) | -              | ResNet34_vd | [a-z0-9] | 83.99%    | -             | -                                                                                              | -                                                                                          |
 
 </div>
 
 **注意:**
 - 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。例如，D910x8-MS1.8-G 用于使用图形模式在8张昇腾910 NPU上依赖Mindspore1.8版本进行训练。
-- VGG 和 ResNet 模型都是从头开始训练的，无需任何预训练。
-- 上述模型是用 MJSynth(MJ)和 SynthText(ST)数据集训练的。更多数据详情，请参考[数据集准备](#312-数据集准备)章节。
-- **评估在每个基准数据集上单独测试，平均准确度是所有子数据集的精度平均值。**
+- 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
+- 可识别字符: 模型所能识别的字符，其中 [a-z0-9]表示所有英文小写字母及数字0至9。
+- 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[数据集下载及使用](#312-数据集下载)章节。
 - PaddleOCR版CRNN，我们直接用的是其[github](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/algorithm_rec_crnn_en.md)上面提供的已训练好的模型。
 
 
@@ -61,11 +61,16 @@ Table Format:
 
 #### 3.1.2 数据集下载
 LMDB格式的训练及验证数据集可以从[这里](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (出处: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here))下载。连接中的文件包含多个压缩文件，其中:
-- `data_lmdb_release.zip` 包含了**完整**的一套数据集，有训练集(training.zip），验证集(validation.zip)以及测试集(evaluation.zip)。
-- `validation.zip` 是一个整合的验证集。
-- `evaluation.zip` 包含多个基准评估数据集。
+- `data_lmdb_release.zip` 包含了**完整**的一套数据集，有训练集(training/），验证集(validation/)以及测试集(evaluation)。
+    - `training.zip` 包括两个数据集，分别是 [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) 和 [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)
+    - `validation.zip` 是多个单独数据集的训练集的一个合集，包括[IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), 和 [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset)。
+    - `evaluation.zip` 包含多个基准评估数据集，有[IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset), [IC03](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions), [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf)和 [CUTE](http://cs-chan.com/downloads_CUTE80_dataset.html)
+- `validation.zip`: 与 data_lmdb_release.zip 中的validation/ 一样。 
+- `evaluation.zip`: 与 data_lmdb_release.zip 中的evaluation/ 一样。 
 
-解压文件并完成数据准备操作后，数据文件夹结构如下：
+#### 3.1.3 数据集使用
+
+解压文件后，数据文件夹结构如下：
 
 ``` text
 .
@@ -96,8 +101,49 @@ LMDB格式的训练及验证数据集可以从[这里](https://www.dropbox.com/s
     └── ...
 ```
 
-#### 3.1.3 检查配置文件
-请重点关注以下变量的配置：`system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`, 
+在**训练**过程中，我们使用`training/`文件夹下的所有数据集作为训练集，使用联合数据集`validation/`作为评估数据集，建议您修改配置yaml如下：
+
+```yaml
+...
+train:
+  ...
+  dataset:
+    type: LMDBDataset
+    dataset_root: dir/to/data_lmdb_release/                           # 训练数据集根目录
+    data_dir: training/                                               # 训练数据集目录，将与`dataset_root`拼接形成完整训练数据集目录
+    # label_files:                                                    # 训练数据集的标签文件路径，将与`dataset_root`拼接形成完整的训练数据的标签文件路径。当数据集为LMDB格式时无需配置
+...
+eval:
+  dataset:
+    type: LMDBDataset
+    dataset_root: dir/to/data_lmdb_release/                           # 验证数据集根目录
+    data_dir: validation/                                             # 验证数据集目录，将与`dataset_root`拼接形成完整验证数据集目录
+    # label_file:                                                     # 验证数据集的标签文件路径，将与`dataset_root`拼接形成完整的验证或评估数据的标签文件路径。当数据集为LMDB格式时无需配置
+  ...
+```
+
+在**评估**过程中，我们使用`evaluation/`下的数据集作为基准数据集。如要重现我们实验的结果，您需要通过将数据集的目录设置为评估数据集来对每个单独的数据集（例如 CUTE80、IC03_860 等）执行评估。具体建议修改config yaml如下：
+
+```yaml
+...
+train:
+  # 无需修改训练部分的配置，因验证或推理的时候不必使用该部分
+...
+eval:
+  dataset:
+    type: LMDBDataset
+    dataset_root: dir/to/data_lmdb_release/                           # 训练数据集根目录
+    data_dir: evaluation/CUTE80/                                      # 评估数据集目录，将与`dataset_root`拼接形成完整验证或评估数据集目录
+    # label_file:                                                     # 评估数据集的标签文件路径，将与`dataset_root`拼接形成完整的评估数据的标签文件路径。当数据集为LMDB格式时无需配置
+  ...
+```
+
+通过使用上述配置文件运行 [模型评估](#33-模型评估) 部分中所述的 `tools/eval.py`，您可以获得模型在数据集 CUTE80 上推理的准确性。
+
+对所有单个数据集重复评估步骤：CUTE80、IC03_860、IC03_867、IC13_857、IC131015、IC15_1811、IC15_2077、IIIT5k_3000、SVT、SVTP。平均准确度是所有这些子准确度的平均值。
+
+#### 3.1.4 检查配置文件
+除了数据集的设置，请同时重点关注以下变量的配置：`system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`, 
 `eval.ckpt_load_path`, `eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.dataset.label_file`, `eval.loader.batch_size`。说明如下：
 
 ```yaml
@@ -137,8 +183,7 @@ eval:
 
 **注意:**  
 - 由于全局批大小 （batch_size x num_devices） 是对结果复现很重要，因此当GPU/NPU卡数发生变化时，调整`batch_size`以保持全局批大小不变，或将学习率线性调整为新的全局批大小。
-- 进行**模型训练**时，若`system.val_while_train`参数为`True`，将开启边训练边验证模式，此时需将`eval.dataset.dataset_root`设置为**验证**数据集根目录，将`eval.dataset.data_dir`设置为**验证**数据集目录（如`validation/`），将`eval.dataset.label_file`设置为**验证**数据集的标签文件路径（当数据集为LMDB格式时无需配置label_file）。
-- 进行**模型评估**时，请将`eval.dataset.dataset_root`设置为**评估**数据集根目录，将`eval.dataset.data_dir`设置为**评估**数据集目录（如`evaluation/DATASET_NAME/`），将`eval.dataset.label_file`设置为**评估**数据集的标签文件路径（当数据集为LMDB格式时无需配置label_file）。
+
 
 ### 3.2 模型训练
 <!--- Guideline: Avoid using shell script in the command line. Python script preferred. -->
