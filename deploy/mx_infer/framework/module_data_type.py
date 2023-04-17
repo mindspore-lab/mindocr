@@ -10,6 +10,13 @@ class InferModelComb(Enum):
     DET_CLS_REC = 4  # Detection, Recognition Model
 
 
+class ShapeType(Enum):
+    STATIC_SHAPE = 0
+    DYNAMIC_SHAPE = 1
+    DYNAMIC_BATCHSIZE = 2
+    DYNAMIC_IMAGESIZE = 3
+
+
 SupportedTaskOrder = {
     InferModelComb.DET: [InferModelComb.DET],
     InferModelComb.REC: [InferModelComb.REC],

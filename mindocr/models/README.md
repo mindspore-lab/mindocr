@@ -12,7 +12,7 @@
 
 3. Define your model in two ways 
 
-	a. Write a model py file, which includes the model class and specification functions. Please follow the [model format guideline](#format-guideline-for-model-py-file). It is to allows users to invoke a pre-defined model easily, such as `model = build_model('dbnet_r50', pretrained=True)`  .
+	a. Write a model py file, which includes the model class and specification functions. Please follow the [model format guideline](#format-guideline-for-model-py-file). It is to allows users to invoke a pre-defined model easily, such as `model = build_model('dbnet_resnet50', pretrained=True)`  .
 
 	b. Config the architecture in a yaml file. Please follow the [yaml format guideline](#format-guideline-for-yaml-file) . It is to allows users to modify a base architecture quickly in yaml file. 
 
@@ -60,24 +60,16 @@ python tests/ut/test_model.py --config /path/to/yaml_config_file
 * File naming: `models/{task}_{model_class_name}.py`, e.g., `det_dbnet.py`
 * Class naming: {ModelName}, e.g., `class DBNet` 
 * Class MUST inherent from `BaseModel`, e.g., `class DBNet(BaseModel)` 
-* Spec. function naming: `{model_class_name}_{specifiation}.py`, e.g. `def dbnet_r50()` (Note: no need to add task prefix assuming no one model can solve any two tasks)
-* Spec. function args: (pretrained=False, **kwargs), e.g. `def dbnet_r50(pretrained=False, **kwargs)`. 
+* Spec. function naming: `{model_class_name}_{specifiation}.py`, e.g. `def dbnet_resnet50()` (Note: no need to add task prefix assuming no one model can solve any two tasks)
+* Spec. function args: (pretrained=False, **kwargs), e.g. `def dbnet_resnet50(pretrained=False, **kwargs)`. 
 * Spec. function return: model (nn.Cell), which is the model instance
 * Spec. function decorator: MUST add @register_model decorator, which is to register the model to the supported model list.
 
-**Note:** Once you finish writing the model specification function, you should be able to use it in the yaml file for training or inference as follows,
 
- ``` python
-# in a yaml file
-model:				
-  name: dbnet_r50	   	# model specificatio function name	
-  pretrained: False
-```
-
-or, use it via the `build_model` func. 
+After writing and registration, model can be created via the `build_model` func. 
  ``` python
 # in a python script
-model = build_model('dbnet_r50', pretrained=False)
+model = build_model('dbnet_resnet50', pretrained=False)
 ```
 
 ## Format Guideline for Yaml File

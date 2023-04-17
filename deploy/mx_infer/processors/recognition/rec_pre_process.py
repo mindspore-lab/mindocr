@@ -3,13 +3,12 @@ import os
 
 import cv2
 import numpy as np
-from mindx.sdk import base
 
-from mx_infer.data_type.process_data import ProcessData
-from mx_infer.framework import ModuleBase, InferModelComb
+from mx_infer.data_type import ProcessData
+from mx_infer.framework import ModuleBase, InferModelComb, Model, ShapeType
 from mx_infer.utils import get_batch_list_greedy, get_hw_of_img, safe_div, get_matched_gear_hw, \
-    padding_with_cv, normalize, to_chw_image, expand, padding_batch, bgr_to_gray, get_shape_info, \
-    check_valid_file, check_valid_dir, NORMALIZE_SCALE, NORMALIZE_MEAN, NORMALIZE_STD
+    padding_with_cv, normalize, to_chw_image, expand, padding_batch, bgr_to_gray, check_valid_dir, \
+    NORMALIZE_SCALE, NORMALIZE_MEAN, NORMALIZE_STD
 
 
 class RecPreProcess(ModuleBase):
@@ -17,7 +16,7 @@ class RecPreProcess(ModuleBase):
         super(RecPreProcess, self).__init__(args, msg_queue)
         self.gear_list = []
         self.batchsize_list = []
-        self.static_method = True
+        self.gear_method = True
         self.model_height = 32
         self.model_channel = 3
         self.max_dot_gear = (0, 0)
@@ -28,65 +27,75 @@ class RecPreProcess(ModuleBase):
         self.mean = np.array(NORMALIZE_MEAN).astype(np.float32)
         self.task_type = args.task_type
 
-    def get_shape_for_single_model(self, filename, device_id):
-        check_valid_file(filename)
-        model = base.model(filename, device_id)
-        desc, shape_info = get_shape_info(model.input_shape(0), model.model_gear())
+    def get_shape_for_single_model(self, filename):
+        model = Model(engine_type=self.args.engine_type, model_path=filename, device_id=self.args.device_id)
+
+        shape_type, shape_info = model.get_shape_info()
         del model
 
-        if desc not in ("dynamic_shape", "dynamic_width"):
-            error_info = f"static shape={shape_info}" if desc == "static_shape" \
-                else f"optional {desc.split('_')} with gear"
+        error_info = ""
+        if shape_type not in (ShapeType.DYNAMIC_SHAPE, ShapeType.DYNAMIC_IMAGESIZE):
+            error_info = f"static shape={shape_info}" if shape_type == ShapeType.STATIC_SHAPE \
+                else f"dynamic batch_size={shape_info[0]}"
+
+        if shape_type == ShapeType.DYNAMIC_IMAGESIZE:
+            height_list = [h for h, w in shape_info[2]]
+            if len(set(height_list)) != 1:
+                error_info = f"dynamic image_size with height={set(height_list)}"
+
+        if error_info:
             raise ValueError(
-                f"input shape of model({filename}) must be dynamic shape without gear, "
-                f"or have only optional width with gear, but got {error_info}.")
+                f"Input shape must be dynamic shape or dynamic image_size with width for single recognition model, "
+                f"but got {error_info} for {filename}.")
 
-        batchsize, channel, height, width_list = shape_info
-
-        if desc == "dynamic_shape":
-            if batchsize != -1 or channel == -1 or height == -1 or width_list != -1:
+        if shape_type == ShapeType.DYNAMIC_SHAPE:
+            batchsize, channel, height, width = shape_info
+            if batchsize != -1 or channel == -1 or height == -1 or width != -1:
                 raise ValueError(
-                    f"input shape must be only dynamic for batch_size and width if model({filename}) is dynamic shape "
-                    f"without gear, but got shape={shape_info}.")
+                    f"Input shape must be only dynamic for batch_size and width when dynamic shape for single "
+                    f"recognition model, but got shape={shape_info} for {filename}.")
 
-            self.static_method = False
+            self.gear_method = False
             self.model_channel = channel
             self.model_height = height
         else:
-            self.static_method = True
+            batchsize, channel, hw_list = shape_info
+            self.gear_method = True
             self.batchsize_list.append(batchsize)
             self.model_channel = channel
-            self.model_height = height
-            self.gear_list = [(height, w) for w in width_list]
+            self.model_height = hw_list[0][0]
+            self.gear_list = list(hw_list)
 
         return shape_info
 
     def init_self_args(self):
-        device_id = self.args.device_id
         model_path = self.args.rec_model_path
-        base.mx_init()
 
         if os.path.isfile(model_path):
-            self.get_shape_for_single_model(model_path, device_id)
+            self.get_shape_for_single_model(model_path)
 
         if os.path.isdir(model_path):
             check_valid_dir(model_path)
             all_shape_info = []
             for path in os.listdir(model_path):
-                shape_info = self.get_shape_for_single_model(os.path.join(model_path, path), device_id)
+                shape_info = self.get_shape_for_single_model(os.path.join(model_path, path))
                 all_shape_info.append(str((shape_info[1:])))
-                if not self.static_method:
+                if not self.gear_method:
                     raise FileNotFoundError(
-                        f"rec_model_dir({model_path}) must be file when use dynamic shape model without gear.")
+                        f"rec_model_dir must be a file when use dynamic shape model for recognition model, "
+                        f"but got rec_model_dir={model_path}.")
 
             if len(set(all_shape_info)) != 1:
                 raise ValueError(
-                    f"input shape of all models in {model_path} must have same channel, height and optional width")
+                    f"Input shape must have same channel, height and width when use dynamic batch_size/image_size "
+                    f"for every recognition model file. Please check every model file in {model_path}.")
 
             if len(set(self.batchsize_list)) != len(self.batchsize_list):
-                raise ValueError(f"input shape of all models in {model_path} must have different batch_size")
+                raise ValueError(
+                    f"Input shape must have different batch_size for every recognition model file. "
+                    f"Please check every model file in {model_path}.")
 
-        if self.static_method:
+        if self.gear_method:
             self.batchsize_list.sort()
             self.gear_list.sort()
             self.max_dot_gear = self.gear_list[-1]
@@ -111,7 +120,7 @@ class RecPreProcess(ModuleBase):
             max_resize_w = max(resize_w, max_resize_w)
             max_resize_w = max(min(max_resize_w, self.model_max_width), self.model_min_width)
 
-        if self.static_method:
+        if self.gear_method:
             _, gear_w = get_matched_gear_hw((self.model_height, max_resize_w), self.gear_list, self.max_dot_gear)
         else:
             gear_w = math.ceil(safe_div(max_resize_w, 32)) * 32
@@ -179,7 +188,7 @@ class RecPreProcess(ModuleBase):
         infer_res_list = input_data.infer_result
         max_wh_ratio = input_data.max_wh_ratio
         batch_list = [input_data.sub_image_size]
-        if self.static_method:
+        if self.gear_method:
             batch_list = get_batch_list_greedy(input_data.sub_image_size, self.batchsize_list)
 
         start_index = 0

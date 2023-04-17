@@ -3,7 +3,7 @@ from .backbones.mindcv_models.utils import load_pretrained
 from .base_model import BaseModel
 from ._registry import register_model
 
-__all__ = ['DBNet', 'dbnet_r50']
+__all__ = ['DBNet', 'dbnet_resnet50']
 
 def _cfg(url='', **kwargs):
     return {
@@ -14,7 +14,7 @@ def _cfg(url='', **kwargs):
 
 
 default_cfgs = {
-    'dbnet_r50': _cfg(
+    'dbnet_resnet50': _cfg(
         url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a.ckpt')
     }
 
@@ -25,7 +25,7 @@ class DBNet(BaseModel):
 
 
 @register_model
-def dbnet_r50(pretrained=False, **kwargs):
+def dbnet_resnet50(pretrained=False, **kwargs):
     model_config = {
             "backbone": {
                 'name': 'det_resnet50',
@@ -48,7 +48,7 @@ def dbnet_r50(pretrained=False, **kwargs):
 
     # load pretrained weights
     if pretrained:
-        default_cfg = default_cfgs['dbnet_r50']
+        default_cfg = default_cfgs['dbnet_resnet50']
         load_pretrained(model, default_cfg)
 
     return model

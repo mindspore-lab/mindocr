@@ -6,7 +6,6 @@ class DecodeProcess(ModuleBase):
     def __init__(self, args, msg_queue):
         super().__init__(args, msg_queue)
         self.without_input_queue = False
-        self.image_processor = None
         self.cost_time = 0
 
     def decode(self, image_path):
