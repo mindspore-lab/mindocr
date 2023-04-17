@@ -48,7 +48,8 @@ According to our experiments, the evaluation results on public benchmark dataset
 **Notes:**
 - Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x8-MS1.8-G is for training on 8 pieces of Ascend 910 NPU using graph mode based on Minspore version 1.8.
 - To reproduce the result on other contexts, please ensure the global batch size is the same. 
-- Both VGG and ResNet models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#312-dataset-download) section.
+- Character Set: The characters supported by text recognition, where [a-z0-9] represents lowercase English characters and numbers from 0 to 9.
+- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#312-dataset-download) section.
 - For the PaddleOCR version of CRNN, the performance is reported on the trained model provided on their [github](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/algorithm_rec_crnn_en.md).
 
 
@@ -60,15 +61,17 @@ Please refer to the [installation instruction](https://github.com/mindspore-lab/
 
 #### 3.1.2 Dataset Download
 Please download lmdb dataset for traininig and evaluation from  [here](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (ref: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here)). There're several zip files:
-- `data_lmdb_release.zip` contains the **entire** datasets including training.zip, validation.zip and evaluation.zip.
-    - `training.zip` contains two datasets: [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)
-    - `validation.zip` is the union of the training sets of [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), and [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset).
-    - `evaluation.zip` contains several benchmarking datasets, which are [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset), [IC03](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions), [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf), and [CUTE](http://cs-chan.com/downloads_CUTE80_dataset.html).
+- `data_lmdb_release.zip` contains the **entire** datasets including training data, validation data and evaluation data.
+    - `training/` contains two datasets: [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)
+    - `validation/` is the union of the training sets of [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), and [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset).
+    - `evaluation/` contains several benchmarking datasets, which are [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset), [IC03](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions), [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf), and [CUTE](http://cs-chan.com/downloads_CUTE80_dataset.html).
+- `validation.zip`: same as the validation/ within data_lmdb_release.zip
+- `evaluation.zip`: same as the evaluation/ within data_lmdb_release.zip
 
 
 #### 3.1.3 Dataset Usage
 
-Unzip the data and after preparation, the data structure should be like 
+Unzip the `data_lmdb_release.zip`, the data structure should be like 
 
 ``` text
 .
@@ -99,13 +102,50 @@ Unzip the data and after preparation, the data structure should be like
     └── ...
 ```
 
-During **training** process, we use all datasets under `training/` folder as training set, and use the union dataset `validation/` as evaluation dataset.
+During **training** process, we use all datasets under `training/` folder as training set, and use the union dataset `validation/` as evaluation dataset, which means it is recommended that you modify the configuration yaml as follows:
 
-During **evaluation** process, we use the datasets under `evaluation/` as benchmark dataset. To reproduce the results of our experiment, you need to perform evaluation on each individual dataset (e.g. CUTE80, IC03_860, etc.) by setting the dataset's directory to eval dataset. **The Avg Accuracy is the average of accuracies across all sub-datasets.**
+```yaml
+...
+train:
+  ...
+  dataset:
+    type: LMDBDataset
+    dataset_root: dir/to/data_lmdb_release/                           # Root dir of training dataset
+    data_dir: training/                                               # Dir of training dataset, concatenated with `dataset_root` to be the complete dir of training dataset
+    # label_file:                                                     # Path of training label file, concatenated with `dataset_root` to be the complete path of training label file, not required when using LMDBDataset
+...
+eval:
+  dataset:
+    type: LMDBDataset
+    dataset_root: dir/to/data_lmdb_release/                           # Root dir of validation/evaluation dataset
+    data_dir: validation/                                             # Dir of validation dataset, concatenated with `dataset_root` to be the complete dir of validation dataset
+    # label_file:                                                     # Path of validation label file, concatenated with `dataset_root` to be the complete path of validation label file, not required when using LMDBDataset
+  ...
+```
+
+During **evaluation** process, we use the datasets under `evaluation/` as benchmark dataset. To reproduce the results of our experiment, you will need to perform evaluation on each individual dataset (e.g. CUTE80, IC03_860, etc.) by setting the dataset's directory to the evaluation dataset. Specifically, it is recommended to modify the config yaml as follows:
+
+```yaml
+...
+train:
+  # NO NEED TO CHANGE ANYTHING IN TRAIN SINCE IT IS NOT USED
+...
+eval:
+  dataset:
+    type: LMDBDataset
+    dataset_root: dir/to/data_lmdb_release/                           # Root dir of validation/evaluation dataset
+    data_dir: evaluation/CUTE80/                                      # Dir of evaluation dataset, concatenated with `dataset_root` to be the complete dir of evaluation dataset
+    # label_file:                                                     # Path of evaluation label file, concatenated with `dataset_root` to be the complete path of evaluation label file, not required when using LMDBDataset
+  ...
+```
+
+By running `eval.py` as noted in section [Model Evaluation](#33-model-evaluation) with the above config yaml, you can get the accuracy for dataset CUTE80. 
+
+Repeat the evaluation step for all individual datasets: CUTE80, IC03_860, IC03_867, IC13_857, IC131015, IC15_1811, IC15_2077, IIIT5k_3000, SVT, SVTP. Average accuracy is the average of all these subaccuracies.
 
 
 #### 3.1.4 Check YAML Config Files
-Please check the following important args: `system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`, 
+Apart from the dataset setting, please also check the following important args: `system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`, 
 `eval.ckpt_load_path`, `eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.dataset.label_file`, `eval.loader.batch_size`. Explanations of these important args:
 
 ```yaml
@@ -145,8 +185,6 @@ eval:
 
 **Notes:**
 - As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of GPUs/NPUs, or adjust the learning rate linearly to a new global batch size.
-- When performing **Model Training**, if `system.val_while_train` is `True`, validation is performed while training. In this case, you should set `eval.dataset.dataset_root` as root dir of **validation** dataset, set `eval.dataset.data_dir` as dir of **validation** dataset (e.g., `validation/`), and set `eval.dataset.label_file` as path of **validation** label file (label_file is not required when using LMDBDataset).
-- When performing **Model Evaluation**, you should set `eval.dataset.dataset_root` as root dir of **evaluation** dataset, and set `eval.dataset.data_dir` as dir of **evaluation** dataset (e.g., `evaluation/DATASET_NAME/`), and set `eval.dataset.label_file` as path of **evaluation** label file (label_file is not required when using LMDBDataset).
 
 
 ### 3.2 Model Training
