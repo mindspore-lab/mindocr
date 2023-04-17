@@ -28,14 +28,14 @@ def _create_combs():
 
     val_while_train = False
     for task in ["det", "rec"]:
-        for gradient_accumulation_steps in [1, 2]:
+        for gradient_accumulation_steps in [1]: #[1, 2]:
             for clip_grad in [False, True]:
                 combs.add((task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy))
 
     task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy = 'rec', False, 1, False, None
     for grouping_strategy in [None, 'filter_norm_and_bias']:
-            for gradient_accumulation_steps in [1, 2]:
-                combs.add((task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy))
+        for gradient_accumulation_steps in [1]: #[1, 2]:
+            combs.add((task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy))
     print(combs)
     return list(combs)
 

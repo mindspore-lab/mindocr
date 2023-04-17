@@ -68,15 +68,14 @@ loss_scaler:
   scale_window: 1000  
 
 train:
-  gradient_accumulation_steps: 2
+  #gradient_accumulation_steps: 2
   clip_grad: True
   clip_norm: 0.0001
   ckpt_save_dir: './tmp_rec'
   dataset_sink_mode: False
   dataset:
     type: RecDataset
-    #dataset_root: /data/ocr_datasets 
-    dataset_root: /Users/Samit/Data/datasets 
+    dataset_root: /data/ocr_datasets 
     data_dir: ic15/rec/train/ch4_training_word_images_gt
     label_file: ic15/rec/train/rec_gt.txt
     sample_ratio: 1.0
