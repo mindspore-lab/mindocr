@@ -10,6 +10,7 @@ import urllib
 import urllib.error
 import urllib.request
 import zipfile
+import ssl
 from copy import deepcopy
 from typing import Optional
 
@@ -98,13 +99,19 @@ class DownLoad:
 
     def download_file(self, url: str, file_path: str, chunk_size: int = 1024):
         """Download a file."""
+
+        # no check certificate
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
         # Define request headers.
         headers = {"User-Agent": self.USER_AGENT}
 
         _logger.info(f"Downloading from {url} to {file_path} ...")
         with open(file_path, "wb") as f:
             request = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(request) as response:
+            with urllib.request.urlopen(request, context=ctx) as response:
                 with tqdm(total=response.length, unit="B") as pbar:
                     for chunk in iter(lambda: response.read(chunk_size), b""):
                         if not chunk:

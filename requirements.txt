@@ -2,12 +2,12 @@ imgaug
 lmdb
 pyclipper
 shapely
-tqdm
 addict
 scikit-learn
 matplotlib
 addict
 numpy
+tqdm>=4.64.1
 opencv-python-headless>=3.4.18.65
 rapidfuzz>=2.13.7
 Pillow>=9.1.1
