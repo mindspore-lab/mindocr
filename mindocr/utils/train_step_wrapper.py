@@ -98,14 +98,12 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
         else:
             status = None
 
-        # up-scale loss with loss_scale value and gradient accumulation steps
-        # take mean over gradient accumulation steps here for the consistency with gradient accumulation implementation in pytorch.
-        scaled_loss = C.ones_like(loss) * F.cast(scaling_sens, F.dtype(loss)) #/ F.cast(self.grad_accu_steps, F.dtype(loss))
+        scaling_sens_filled = C.ones_like(loss) * F.cast(scaling_sens, F.dtype(loss)) # loss scale value
 
-        # compute gradients
-        grads = self.grad(self.network, weights)(*inputs, scaled_loss)
+        # compute gradients (of the up-scaled loss w.r.t. the model weights)
+        grads = self.grad(self.network, weights)(*inputs, scaling_sens_filled)
 
-        # down-scale gradidents with loss_scale value only. (as a result, it is the same as dividing accumulated gradients with accumulation steps)
+        # down-scale gradidents with loss_scale value. TODO: divide scaling_sense by accumulation steps for grad accumulate
         grads = self.hyper_map(F.partial(_grad_scale, scaling_sens), grads)
 
         # gradient reduction on distributed GPUs/NPUs
@@ -125,7 +123,7 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
             if self.clip_grad:
                 grads = ops.clip_by_global_norm(grads, self.clip_norm)
 
-            # no need to divde accumulated grads with accumulation steps since we've divided loss with the steps.
+            # optimize
             loss = F.depend(loss, self.optimizer(grads))
 
             # EMA of model weights
