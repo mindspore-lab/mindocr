@@ -12,12 +12,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../..")))
 from mindocr.metrics import build_metric
 from mindspore import Tensor
 
-def det_adapt_train_pred(content, scale=736/720.):
+def _det_adapt_train_pred(content):
     boxes = []
     for con in content:
         box = np.array(con['points']).reshape((4, 2))
-        if scale:
-            box[:, 1] = np.around(box[:, 1]*scale)
         boxes.append(box)
 
     boxes = np.array(boxes)
@@ -25,12 +23,20 @@ def det_adapt_train_pred(content, scale=736/720.):
     conf_score = np.ones([len(boxes)])   # TODO: Hard code condidence score to be 1, which is not true.
     return [(boxes, conf_score)]
 
-def det_adapt_train_label(content):
+def _det_adapt_train_label(content):
     boxes = []
     for con in content:
         boxes.append(np.array(con['points']).reshape((4, 2)))
 
-    ignored_tag = Tensor(np.expand_dims(np.array([False] * len(boxes)), axis=0))
+    ignored_tag = []
+    for con in content:
+        text = con['transcription']
+        if text in ("###", "*"):
+            ignored_tag.append(True)
+        else:
+            ignored_tag.append(False)
+    ignored_tag = Tensor(np.array(ignored_tag).reshape(1, -1))
+
     boxes = Tensor(np.expand_dims(boxes, axis=0))
     return [boxes, ignored_tag]
 
@@ -42,14 +48,14 @@ def eval_det_adapt_train(preds, labels):
     for img_name, content in preds.items():
         if not content:  # content is empty
             continue
-        adapted_pred = det_adapt_train_pred(content)
+        adapted_pred = _det_adapt_train_pred(content)
         adapted_preds[img_name] = adapted_pred
 
     adapted_labels = {}
     for img_name, content in labels.items():
         if not content:  # content is empty
             continue
-        adapted_label = det_adapt_train_label(content)
+        adapted_label = _det_adapt_train_label(content)
         adapted_labels[img_name] = adapted_label
 
     # for pred, label in zip(adapted_preds, adapted_labels):
@@ -70,7 +76,7 @@ def read_content(filename):
     results = {}
     with open(filename, encoding='utf-8') as f:
         for line in f:
-            name, content = line.split('\t', 2)
+            name, content = line.split('\t', 1)
             results[name] = json.loads(content)
     return results
 
