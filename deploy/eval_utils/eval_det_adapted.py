@@ -12,10 +12,13 @@ sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../..")))
 from mindocr.metrics import build_metric
 from mindspore import Tensor
 
-def det_adapt_train_pred(content):
+def det_adapt_train_pred(content, scale=736/720.):
     boxes = []
     for con in content:
-        boxes.append(np.array(con['points']).reshape((4, 2)))
+        box = np.array(con['points']).reshape((4, 2))
+        if scale:
+            box[:, 1] = np.around(box[:, 1]*scale)
+        boxes.append(box)
 
     boxes = np.array(boxes)
 
