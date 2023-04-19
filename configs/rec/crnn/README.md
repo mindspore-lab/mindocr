@@ -232,6 +232,24 @@ To evaluate the accuracy of the trained model, you can use `eval.py`. Please set
 python tools/eval.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
+## 4. Character Dictionary
+
+### Default Setting
+
+To transform the groud-truth text into label ids, we have to provide the character dictionary where keys are characters and values ​​are IDs. By default, the dictionary is "0123456789abcdefghijklmnopqrstuvwxyz", which means id=0 will correspond to the charater "0". In this case, the dictionary only considers numbers and lowercase English characters, excluding spaces. 
+
+
+### Customized Dictionary
+
+You can specify your own dictionary by placing a dictionary file (***.txt) under `mindocr/utils/dict/` and setting the parameter `character_dict_path` to the path to your dictionary in the configuration yaml.
+
+
+**Notes:**
+- The format of dictionary file should be a .txt file with one character per line.
+- You can include the space character by setting the parameter `use_space_char` in configuration yaml to True.
+- Remember to check the value of `dataset->transform_pipeline->RecCTCLabelEncode->lower` in the configuration yaml. Set it to False if you prefer case-sensitive encoding.
+
+
 ## References
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 
