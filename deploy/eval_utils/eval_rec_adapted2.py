@@ -12,18 +12,10 @@ from mindocr.metrics import build_metric
 from mindspore import Tensor
 
 def _rec_adapt_train_pred(content):
-    line = {'texts': [content],
-            'conf': [1.0],
-            'raw_chars': [[]]}
-    texts = [line]
-
-    return texts
+    return {'texts': [content]}
 
 def _rec_adapt_train_label(content):
-    line = Tensor(np.array([content]))
-    texts = [line]
-
-    return texts
+    return Tensor(np.array([content]))
 
 def eval_rec_adapt_train(preds, labels):
     metric_config = {"name": "RecMetric", "main_indicator": "acc", "character_dict_path": None,
@@ -46,9 +38,8 @@ def eval_rec_adapt_train(preds, labels):
         # if adapted_label:   # TODO: texts is not empty
         #     adapted_labels.append(adapted_label)
 
-    for img_name, label in adapted_labels.items():
-        for i, lab in enumerate(label): # TODO: how to ensure the order of text within one image match in gt and preds
-            metric.update(adapted_preds[img_name][i], lab)
+    for img_name, _ in adapted_labels.items():
+        metric.update(adapted_preds[img_name], adapted_labels[img_name])
 
     eval_res = metric.eval()
     return eval_res
