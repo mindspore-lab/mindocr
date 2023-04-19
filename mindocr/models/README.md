@@ -49,7 +49,7 @@ python tests/ut/test_model.py --config /path/to/yaml_config_file
 * Class naming: **{HeadName}** e.g. `class DBHead`
 * Class `__init__` args: MUST contain `in_channels` param as the first position, e.g. `__init__(self, in_channels, out_channels=2, **kwargs)`.  
 * Class `construct` args: feature (Tensor)
-* Class `construct` return: prediction Union[Tensor, dict]. If it is a dict, key names should match the used key in loss function. {'maps': out, 'score': score},  which should match the loss function.
+* Class `construct` return: prediction (Union(Tensor, Tuple[Tensor])). If there is only one output, return Tensor. If there are multiple outputs, return Tuple of Tensor, e.g., `return output1, output2, output_N`. Note that the order should match the loss function or the postprocess function.
 
 
 **Note:** if there is no neck in the model architecture like crnn, you can skip writing for neck. `BaseModel` will select the last feature of the features (List(Tensor)) output by Backbone, and forward it Head module.

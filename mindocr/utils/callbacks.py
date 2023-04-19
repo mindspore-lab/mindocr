@@ -56,17 +56,15 @@ class Evaluator:
         for i, data in tqdm(enumerate(iterator), total=dataloader.get_dataset_size()):
             # start = time.time()
             # TODO: if network input is not just an image.
-            # assume the first element is image
             img = data[0]  # ms.Tensor(batch[0])
             gt = data[1:]  # ground truth,  (polys, ignore_tags) for det,
 
-            # TODO: in graph mode, the output dict is somehow converted to tuple. Is the order of in tuple the same as dict binary, thresh, thres_binary? to check
-            # {'binary':, 'thresh: ','thresh_binary': } for text detect; {'head_out': } for text rec
-            net_preds = self.net(img)
             # net_inputs = data[:num_columns_to_net]
             # gt = data[num_columns_to_net:] # ground truth
-            # preds = self.net(*net_inputs) # head output is dict. for text det {'binary', ...},  for text rec, {'head_out': }
+            # preds = self.net(*net_inputs)
             # print('net predictions', preds)
+
+            net_preds = self.net(img)
 
             if self.postprocessor is not None:
                 preds = self.postprocessor(net_preds)  # {'polygons':, 'scores':} for text det
@@ -74,17 +72,6 @@ class Evaluator:
             # metric internal update
             for m in self.metrics:
                 m.update(preds, gt)
-
-            if self.verbose:
-                if isinstance(net_preds, tuple):
-                    print('pred binary map:', net_preds[0].shape, net_preds[0].max(), net_preds[0].min())
-                    print('thresh binary map:', net_preds[2].shape, net_preds[2].max(), net_preds[2].min())
-                else:
-                    print('pred binary map:', net_preds['binary'].shape, net_preds['binary'].max(),
-                          net_preds['binary'].min())
-                    print('thresh binary map:', net_preds['thresh_binary'].shape, net_preds['thresh_binary'].max(),
-                          net_preds['binary'].min())
-                print('pred polys:', preds['polygons'])
 
             if self.visualize:
                 img = img[0].asnumpy()
