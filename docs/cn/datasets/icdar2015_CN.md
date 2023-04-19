@@ -8,50 +8,45 @@ ICDAR 2015 [文章](https://rrc.cvc.uab.es/?ch=4)
 <details>
   <summary>从何处下载 ICDAR 2015</summary>
 
+ICDAR 2015 挑战赛分为三个任务。任务1是文本定位。任务3是单词识别。任务4是端到端文本检测识别。任务2文本分割的数据不可用。
+
+### Text Localization
+
+有四个与任务1相关的文件需要下载（[下载地址](https://rrc.cvc.uab.es/?ch=4&com=downloads)）， 它们分别是：
+
+```
+ch4_training_images.zip
+ch4_training_localization_transcription_gt.zip
+ch4_test_images.zip
+Challenge4_Test_Task1_GT.zip
+```
+
 ### Word Recognition
 
-Training Set
+有三个与任务3相关的文件需要下载（[下载地址](https://rrc.cvc.uab.es/?ch=4&com=downloads)）， 它们分别是：
 
-- [Training Set Word Images, along with Transcriptions Ground truth (40.5MB)](https://rrc.cvc.uab.es/?com=downloads&action=download&ch=4&f=aHR0cHM6Ly9ycmMuY3ZjLnVhYi5lcy8/Y29tPWRvd25sb2FkcyZhY3Rpb249ZG93bmxvYWQmZmlsZT1jaDRfdHJhaW5pbmdfd29yZF9pbWFnZXNfZ3Quemlw).- ~4468 cut out word images corresponding to the axis oriented bounding boxes of the words are provided along with a single text file with the relative coordinates of the bounding shape within each word image. Transcription ground truth is provided in a single txt file.
+```
+ch4_training_word_images_gt.zip
+ch4_test_word_images_gt.zip
+Challenge4_Test_Task3_GT.txt
+```
 
-Test Set
-
-- [Test Set Word Images (21.5MB)](https://rrc.cvc.uab.es/?com=downloads&action=download&ch=4&f=aHR0cHM6Ly9ycmMuY3ZjLnVhYi5lcy8/Y29tPWRvd25sb2FkcyZhY3Rpb249ZG93bmxvYWQmZmlsZT1jaDRfdGVzdF93b3JkX2ltYWdlc19ndC56aXA=).- 2077 cut out word images corresponding to the axis oriented bounding boxes of the words are provided along with a single text file with the relative coordinates of the bounding shape within each word image. You can submit your results for this Task over the images of the test set through the My Methods section.
-
-- [Test Set Ground Truth (49Kb)](https://rrc.cvc.uab.es/?com=downloads&action=download&ch=4&f=aHR0cHM6Ly9ycmMuY3ZjLnVhYi5lcy9kb3dubG9hZHMvQ2hhbGxlbmdlNF9UZXN0X1Rhc2szX0dULnR4dA==). - A single text file with the transcriptions of the 2077 images of the test set. Each line corresponds to an image of the test set.
+这三个文件仅用于训练单词识别模型。训练文本检测模型不需要这三个文件。
 
 ### E2E
-Training Set
 
+有九个与任务4相关的文件需要下载（[下载地址](https://rrc.cvc.uab.es/?ch=4&com=downloads)）。其中包括任务1中的四个文件， 还有五个词汇文件。
 
-[source](https://rrc.cvc.uab.es/?ch=4&com=downloads)
+```
+ch4_training_vocabulary.txt
+ch4_training_vocabularies_per_image.zip
+ch4_test_vocabulary.txt
+ch4_test_vocabularies_per_image.zip
+GenericVocabulary.txt
+```
 
-- [Training Set Images (88.5MB)](https://rrc.cvc.uab.es/?com=downloads&action=download&ch=4&f=aHR0cHM6Ly9ycmMuY3ZjLnVhYi5lcy8/Y29tPWRvd25sb2FkcyZhY3Rpb249ZG93bmxvYWQmZmlsZT1jaDRfdHJhaW5pbmdfaW1hZ2VzLnppcA==).- 1000 images obtained with wearable cameras
+如果您下载了一个名为 `Challenge4_Test_Task4_GT.zip` 的文件，请注意它与 `Challenge4_Test_Task1_GT.zip` 是相同的文件，除了名称不同。在这个repo中，我们将使用 `Challenge4_Test_Task4_GT.zip` 来代替 ICDAR2015 数据集的文件 `Challenge4_Test_Task1_GT.zip`。
 
-- [Training Set Vocabulary (16KB)](https://rrc.cvc.uab.es/?com=downloads&action=download&ch=4&f=aHR0cHM6Ly9ycmMuY3ZjLnVhYi5lcy8/Y29tPWRvd25sb2FkcyZhY3Rpb249ZG93bmxvYWQmZmlsZT1jaDRfdHJhaW5pbmdfdm9jYWJ1bGFyeS50eHQ=).- Vocabulary of all words (words of 3 characters or longer comprising only letters) appearing in the training set
-
-- [Training Set Per-image Vocabularies (504KB)](https://rrc.cvc.uab.es/?com=downloads&action=download&ch=4&f=aHR0cHM6Ly9ycmMuY3ZjLnVhYi5lcy8/Y29tPWRvd25sb2FkcyZhY3Rpb249ZG93bmxvYWQmZmlsZT1jaDRfdHJhaW5pbmdfdm9jYWJ1bGFyaWVzX3Blcl9pbWFnZS56aXA=).- Vocabularies of 100 words per image, comprising the words appearing in the image plus distractors
-
-- [Training Set Localisation and Transcription Ground Truth (157KB)](https://rrc.cvc.uab.es/?com=downloads&action=download&ch=4&f=aHR0cHM6Ly9ycmMuY3ZjLnVhYi5lcy8/Y29tPWRvd25sb2FkcyZhY3Rpb249ZG93bmxvYWQmZmlsZT1jaDRfdHJhaW5pbmdfbG9jYWxpemF0aW9uX3RyYW5zY3JpcHRpb25fZ3Quemlw).- 1000 text files with word level localisation and transcription ground truth
-
-Test Set
-
-- [Test Set Images (43.3MB)](https://rrc.cvc.uab.es/?com=downloads&action=download&ch=4&f=aHR0cHM6Ly9ycmMuY3ZjLnVhYi5lcy8/Y29tPWRvd25sb2FkcyZhY3Rpb249ZG93bmxvYWQmZmlsZT1jaDRfdGVzdF9pbWFnZXMuemlw).- 500 images obtained with wearable cameras. You can submit your results for this Task over the images of the test set through the My Methods section.
-
-- [Test Set Vocabulary (8KB)](https://rrc.cvc.uab.es/?com=downloads&action=download&ch=4&f=aHR0cHM6Ly9ycmMuY3ZjLnVhYi5lcy8/Y29tPWRvd25sb2FkcyZhY3Rpb249ZG93bmxvYWQmZmlsZT1jaDRfdGVzdF92b2NhYnVsYXJ5LnR4dA==).- Vocabulary of all words (words of 3 characters or longer comprising only letters) appearing in the test set
-
-- [Test Set Per-image Vocabularies (248KB)](https://rrc.cvc.uab.es/?com=downloads&action=download&ch=4&f=aHR0cHM6Ly9ycmMuY3ZjLnVhYi5lcy8/Y29tPWRvd25sb2FkcyZhY3Rpb249ZG93bmxvYWQmZmlsZT1jaDRfdGVzdF92b2NhYnVsYXJpZXNfcGVyX2ltYWdlLnppcA==).- Vocabularies of 100 words per image, comprising the words appearing in the image plus distractors
-
-- [Test Set Ground Truth (244Kb)](https://rrc.cvc.uab.es/?com=downloads&action=download&ch=4&f=aHR0cHM6Ly9ycmMuY3ZjLnVhYi5lcy9kb3dubG9hZHMvQ2hhbGxlbmdlNF9UZXN0X1Rhc2s0X0dULnppcA==). - 500 text files with text localisation bounding boxes for the images of the test set.
-
-Other
-
-- [Generic Vocabulary (796KB)](https://rrc.cvc.uab.es/?com=downloads&action=download&ch=4&f=aHR0cHM6Ly9ycmMuY3ZjLnVhYi5lcy8/Y29tPWRvd25sb2FkcyZhY3Rpb249ZG93bmxvYWQmZmlsZT1HZW5lcmljVm9jYWJ1bGFyeS50eHQ=).- A vocabulary of about 90k words derived from the dataset publicly available here. Please consult [1,2] for further information as well as the disclaimer in the vocabulary file itself.
-
-
-References
-1. M. Jaderberg, K. Simonyan, A. Vedaldi, and A. Zisserman, "Synthetic data and artificial neural networks for natural scene text recognition", arXiv preprint arXiv:1406.2227, 2014
-2. M. Jaderberg, K. Simonyan, A. Vedaldi, and A. Zisserman, "Reading Text in the Wild with Convolutional Neural Networks", arXiv preprint arXiv:1412.1842, 2014
 
 </details>
 
