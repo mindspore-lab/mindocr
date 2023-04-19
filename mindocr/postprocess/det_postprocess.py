@@ -30,8 +30,12 @@ class DBPostprocess:
                 polygons: np.ndarray of shape (N, K, 4, 2) for the polygons of objective regions if region_type is 'quad'
                 scores: np.ndarray of shape (N, K), score for each box
         """
-        pred = (pred[self._name] if isinstance(pred, dict) else pred[self._names[self._name]]).squeeze(1)
-        pred = pred.asnumpy()
+        if isinstance(pred, dict):
+            pred = pred[self._name]
+        elif isinstance(pred, tuple):
+            pred = pred[self._names[self._name]]
+        pred = pred.squeeze(1).asnumpy()
+        
         segmentation = pred >= self._binary_thresh
 
         # FIXME: dest_size is supposed to be the original image shape (pred.shape -> batch['shape'])

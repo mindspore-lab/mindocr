@@ -7,7 +7,7 @@ class DBHead(nn.Cell):
         self.adaptive = adaptive
 
         self.segm = self._init_heatmap(in_channels, in_channels // 4, weight_init, bias)
-        if adaptive:
+        if self.adaptive:
             self.thresh = self._init_heatmap(in_channels, in_channels // 4, weight_init, bias)
             self.k = k
             self.diff_bin = nn.Sigmoid()
@@ -29,11 +29,20 @@ class DBHead(nn.Cell):
         ])
 
     def construct(self, features):
+        '''
+        Args:
+            features (Tensor): features output by backbone
+        Returns:
+            pred (dict):
+                - binary: predicted binary map
+                - thresh: predicted threshold  map, only used if adaptive is True in training
+                - thres_binary: differentiable binary map, only if adaptive is True in training
+        '''
         pred = {'binary': self.segm(features)}
 
-        if self.adaptive:
+        if self.adaptive and self.training:
+            # only use binary map to derive polygons in inference
             pred['thresh'] = self.thresh(features)
             pred['thresh_binary'] = self.diff_bin(
                 self.k * (pred['binary'] - pred['thresh']))  # Differentiable Binarization
-
         return pred
