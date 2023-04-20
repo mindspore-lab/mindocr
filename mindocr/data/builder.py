@@ -1,25 +1,25 @@
 import os
-import multiprocessing
 import mindspore as ms
-import multiprocessing
+from packaging import version
+from multiprocessing import cpu_count
+
 from .det_dataset import DetDataset, SynthTextDataset
 from .rec_dataset import RecDataset
 from .rec_lmdb_dataset import LMDBDataset
-from .transforms import create_transforms, get_transforms_column_names
+from .transforms import create_transforms
 
 __all__ = ['build_dataset']
 
 supported_dataset_types = ['BaseDataset', 'DetDataset', 'RecDataset', 'LMDBDataset', 'SynthTextDataset']
 
-def build_dataset(
-        dataset_config: dict,
-        loader_config: dict,
-        num_shards=None,
-        shard_id=None,
-        is_train=True,
-        **kwargs,
-        ):
-    '''
+
+def build_dataset(dataset_config: dict,
+                  loader_config: dict,
+                  num_shards=None,
+                  shard_id=None,
+                  is_train=True,
+                  **kwargs) -> ms.dataset.BatchDataset:
+    """
     Build dataset for training and evaluation.
 
     Args:
@@ -78,81 +78,54 @@ def build_dataset(
         >>> }
         >>> loader_config = dict(shuffle=True, batch_size=16, drop_remainder=False, num_workers=1)
         >>> data_loader = build_dataset(data_config, loader_config, num_shards=1, shard_id=0, is_train=True)
-    '''
+    """
     # Check dataset paths (dataset_root, data_dir, and label_file) and update to absolute format
     dataset_config = _check_dataset_paths(dataset_config)
 
-    # Set default multiprocessing params for data pipeline
-    ## num_parallel_workers: Number of subprocesses used to fetch the dataset, transform data, or load batch in parallel
-    num_workers = loader_config.get("num_workers", 8)
-    cores = multiprocessing.cpu_count()
-    num_devices = 1 if num_shards is None else num_shards
-    if num_workers > int(cores / num_devices):
-        print(f'WARNING: num_workers is adjusted to {int(cores / num_devices)} since {num_workers}x{num_devices} exceeds the number of CPU cores {cores}')
-        num_workers = int(cores / num_devices)
-    ## prefetch_size: the length of the cache queue in the data pipeline for each worker, used to reduce waiting time. Larger value leads to more memory consumption. Default: 16
-    prefetch_size = loader_config.get("prefetch_size", 16) #
-    ms.dataset.config.set_prefetch_size(prefetch_size)
-    ## max_rowsize: MB of shared memory between processes to copy data
-    max_rowsize =  loader_config.get("max_rowsize", 64)
-    # auto tune num_workers, prefetch. (This conflicts the profiler)
-    #ms.dataset.config.set_autotune_interval(5)
-    #ms.dataset.config.set_enable_autotune(True, "./dataproc_autotune_out")
+    # prefetch_size: the length of the cache queue in the data pipeline for each worker,
+    # used to reduce waiting time. Larger value leads to more memory consumption.
+    ms.dataset.config.set_prefetch_size(loader_config.get("prefetch_size", 16))
+    ms.dataset.config.set_enable_shared_mem(True)
 
     # 1. create source dataset (GeneratorDataset)
-    ## Invoke dataset class
     dataset_class_name = dataset_config.pop('type')
-
-    transform_pipeline = dataset_config.pop("transform_pipeline")
-    transform_pipeline_funcs = create_transforms(transform_pipeline)
-    transform_pipeline_columns_names = get_transforms_column_names(transform_pipeline_funcs)
-
     assert dataset_class_name in supported_dataset_types, "Invalid dataset name"
     dataset_class = eval(dataset_class_name)
     dataset_args = dict(is_train=is_train, **dataset_config)
     dataset = dataset_class(**dataset_args)
 
-    # hack: make the columns in the dataset and the pipeline consistent, in order to be compatible with Dataset Compose and Map API
-    dataset.output_columns = transform_pipeline_columns_names
-    for x in transform_pipeline_funcs:
-        x.updated_columns = dataset.output_columns
-
-    dataset_column_names = dataset.get_output_columns()
-    print('==> Dataset columns: \n\t', dataset_column_names)
+    print('==> Dataset columns: \n\t', dataset.output_columns)
 
     # TODO: find optimal setting automatically according to num of CPU cores
-    num_workers = loader_config.get("num_workers", 8) # Number of subprocesses used to fetch the dataset/map data row/gen batch in parallel
-    cores = multiprocessing.cpu_count()
+    num_workers = loader_config.get("num_workers", 8)
+    cores = cpu_count()
     num_devices = 1 if num_shards is None else num_shards
-    if num_workers > int(cores / num_devices):
-        num_workers = int(cores / num_devices)
-        print('WARNING: num_workers is adjusted to {num_workers}, to fit {cores} CPU cores shared for {num_devices} devices')
+    if num_workers > cores // num_devices:
+        num_workers = cores // num_devices
+        print(f'WARNING: num_workers is adjusted to {num_workers}, '
+              f'to fit {cores} CPU cores shared for {num_devices} devices')
 
-    prefetch_size = loader_config.get("prefetch_size", 16) # the length of the cache queue in the data pipeline for each worker, used to reduce waiting time. Larger value leads to more memory consumption. Default: 16
-    max_rowsize =  loader_config.get("max_rowsize", 64) # MB of shared memory between processes to copy data
-
-    ms.dataset.config.set_prefetch_size(prefetch_size)
-    #print('Prefetch size: ', ms.dataset.config.get_prefetch_size())
-
-    ## Generate source dataset (source w.r.t. the dataset.map pipeline) based on python callable numpy dataset in parallel
-    ds = ms.dataset.GeneratorDataset(
-                    dataset,
-                    column_names=dataset_column_names,
-                    num_parallel_workers=min(num_workers, 2),
-                    num_shards=num_shards,
-                    shard_id=shard_id,
-                    python_multiprocessing=False,
-                    max_rowsize=max_rowsize,
-                    shuffle=loader_config['shuffle'],
-                    )
+    # Generate source dataset (source w.r.t. the dataset.map pipeline) based on python callable numpy dataset in parallel
+    ds = ms.dataset.GeneratorDataset(dataset,
+                                     column_names=dataset.output_columns,
+                                     num_parallel_workers=min(num_workers, 4),
+                                     num_shards=num_shards,
+                                     shard_id=shard_id,
+                                     python_multiprocessing=True,    # keep True to improve performance for heavy computation.
+                                     max_rowsize=loader_config.get("max_rowsize", 64),
+                                     shuffle=loader_config['shuffle'])
 
     # 2. data mapping using mindata C lib (optional)
-    ds = ds.map(operations=transform_pipeline_funcs, input_columns=dataset_column_names, num_parallel_workers=num_workers)
+    transforms, pipeline_output_cols = create_transforms(dataset_config['transform_pipeline'],
+                                                         input_columns=dataset.output_columns.copy())
+    # Ensure backwards compatibility with MS1.x which requires `column_order` parameter
+    column_order = None if version.parse(ms.__version__) >= version.parse('2.0.0rc') else pipeline_output_cols.copy()
+    ds = ds.map(operations=transforms, input_columns=dataset.output_columns, output_columns=pipeline_output_cols,
+                column_order=column_order, num_parallel_workers=num_workers)
 
     # 3. keep the usable columns_only
-    output_columns = dataset_config["output_columns"]
-    print('==> Dataset output columns: \n\t', output_columns)
-    ds = ds.project(output_columns)
+    print('==> Dataset output columns: \n\t', dataset_config["output_columns"])
+    ds = ds.project(dataset_config["output_columns"])
 
     # 4. create loader
     # get batch of dataset by collecting batch_size consecutive data rows and apply batch operations
@@ -163,33 +136,34 @@ def build_dataset(
         batch_size = _check_batch_size(num_samples, batch_size, refine=kwargs['refine_batch_size'])
 
     drop_remainder = loader_config.get('drop_remainder', is_train)
-    if is_train and drop_remainder == False:
+    if is_train and not drop_remainder:
         print('WARNING: drop_remainder should be True for training, otherwise the last batch may lead to training fail.')
-    dataloader = ds.batch(
-                    batch_size,
-                    drop_remainder=drop_remainder,
-                    num_parallel_workers=min(num_workers, 2), # set small workers for lite computation. TODO: increase for batch-wise mapping
-                    #input_columns=input_columns,
-                    #output_columns=batch_column,
-                    #per_batch_map=per_batch_map, # uncommet to use inner-batch transformation
-                    )
+    dataloader = ds.batch(batch_size,
+                          drop_remainder=drop_remainder,
+                          num_parallel_workers=min(num_workers, 2))    # set small workers for lite computation. TODO: increase for batch-wise mapping
 
     return dataloader
+
 
 def _check_dataset_paths(dataset_config):
     if 'dataset_root' in dataset_config:
         if isinstance(dataset_config['data_dir'], str):
-            dataset_config['data_dir'] = os.path.join(dataset_config['dataset_root'], dataset_config['data_dir']) # to absolute path
+            dataset_config['data_dir'] = os.path.join(dataset_config['dataset_root'],
+                                                      dataset_config['data_dir'])  # to absolute path
         else:
-            dataset_config['data_dir'] = [os.path.join(dataset_config['dataset_root'], dd) for dd in dataset_config['data_dir']]
+            dataset_config['data_dir'] = [os.path.join(dataset_config['dataset_root'], dd)
+                                          for dd in dataset_config['data_dir']]
 
         if 'label_file' in dataset_config:
             if isinstance(dataset_config['label_file'], str):
-                dataset_config['label_file'] = os.path.join(dataset_config['dataset_root'], dataset_config['label_file'])
+                dataset_config['label_file'] = os.path.join(dataset_config['dataset_root'],
+                                                            dataset_config['label_file'])
             else:
-                dataset_config['label_file'] = [os.path.join(dataset_config['dataset_root'], lf) for lf in dataset_config['label_file']]
+                dataset_config['label_file'] = [os.path.join(dataset_config['dataset_root'], lf)
+                                                for lf in dataset_config['label_file']]
 
     return dataset_config
+
 
 def _check_batch_size(num_samples, ori_batch_size=32, refine=True):
     if num_samples % ori_batch_size == 0:
@@ -198,8 +172,6 @@ def _check_batch_size(num_samples, ori_batch_size=32, refine=True):
         # search a batch size that is divisible by num samples.
         for bs in range(ori_batch_size - 1, 0, -1):
             if num_samples % bs == 0:
-                print(
-                    f"WARNING: num eval samples {num_samples} can not be divided by "
-                    f"the input batch size {ori_batch_size}. The batch size is refined to {bs}"
-                )
+                print(f"WARNING: num eval samples {num_samples} can not be divided by "
+                      f"the input batch size {ori_batch_size}. The batch size is refined to {bs}")
                 return bs

@@ -1,145 +1,86 @@
 """
 Create and run transformations from a config or predefined transformation pipeline
 """
-from typing import List, Callable
-import numpy as np
+from typing import List, Tuple, Callable
 
+# FIXME: make sure our transform names don't overlap with MS
+from mindspore.dataset.vision import *
 from .general_transforms import *
 from .det_transforms import *
 from .rec_transforms import *
 from .iaa_augment import *
-from .transform import Transform
 
-__all__ = ['create_transforms', 'run_transforms', 'get_transforms_column_names', 'transforms_dbnet_icdar15']
+__all__ = ['create_transforms']
+
+
+def _unfold_dict(transform_func: Callable, input_cols: List[str], op_in_cols: List[str] = None,
+                 op_out_cols: List[str] = None) -> Callable:
+    def unfold_dict(*args):
+        """
+        1. Pack the column names and data tuples into a dictionary
+        2. Calling the transform method on the dictionary
+        3. Unpack the dictionary and return the data tuples only
+        """
+        input_data = dict(zip(input_cols, args))
+        if op_in_cols is not None:  # for MS built-in transform
+            transformed = transform_func(*[input_data[name] for name in op_in_cols])
+            transformed = dict(zip(op_out_cols, transformed)) if isinstance(transformed, tuple) \
+                else {op_out_cols[0]: transformed}
+            input_data.update(transformed)
+            transformed = input_data    # return full dictionary
+        else:                       # for MindOCR transform
+            transformed = transform_func(input_data)
+
+        return tuple(transformed.values())
+
+    return unfold_dict
 
 
 # TODO: use class with __call__, to perform transformation
-def create_transforms(transform_pipeline, global_config=None):
+def create_transforms(transform_pipeline, input_columns: List[str],
+                      global_config=None) -> Tuple[List[Callable], List[str]]:
     """
-    Create a squence of callable transforms.
+    Create a sequence of callable transforms.
 
     Args:
-        transform_pipeline (List): list of callable instances or dicts where each key is a transformation class name, and its value are the args.
+        transform_pipeline (List): list of dicts where each key is a transformation class name,
+                                   and its value are the args.
             e.g. [{'DecodeImage': {'img_mode': 'BGR', 'channel_first': False}}]
                  [DecodeImage(img_mode='BGR')]
-
+        input_columns: list of input columns to data pipeline
     Returns:
-        list of data transformation functions
+        tuple: list of data transformation callable functions, data pipeline output columns
     """
     assert isinstance(transform_pipeline, list), \
         f'transform_pipeline config should be a list, but {type(transform_pipeline)} detected'
 
-    transforms = []
+    _transforms, output_columns = [], input_columns
     for transform_config in transform_pipeline:
-        if isinstance(transform_config, dict):
-            assert len(transform_config) == 1, "yaml format error in transforms"
-            trans_name = list(transform_config.keys())[0]
-            param = {} if transform_config[trans_name] is None else transform_config[trans_name]
-            #  TODO: not each transform needs global config
-            if global_config is not None:
-                param.update(global_config)
-            # TODO: assert undefined transform class
+        assert len(transform_config) == 1, "yaml format error in transforms"
+        trans_name = list(transform_config.keys())[0]
+        param = {} if transform_config[trans_name] is None else transform_config[trans_name]
+        #  TODO: not each transform needs global config
+        if global_config is not None:
+            param.update(global_config)
+        # TODO: assert undefined transform class
 
-            # print(trans_name, param)
-            transform = eval(trans_name)(**param)
-            transforms.append(transform)
-        elif callable(transform_config):
-            transforms.append(transform_config)
-        else:
-            raise TypeError('transform_config must be a dict or a callable instance')
-        # print(global_config)
-    return transforms
+        transform = eval(trans_name)
 
+        op_in_cols, op_out_cols = None, None
+        if issubclass(transform, transforms.TensorOperation):   # if MS built-in transform
+            if 'input_columns' in param:
+                op_in_cols = param.pop('input_columns')
+                op_out_cols = param.pop('output_columns')
+            else:   # transforms performed on image by default
+                op_in_cols, op_out_cols = ['image'], ['image']
 
-def run_transforms(data, transforms=None, verbose=False):
-    if transforms is None:
-        transforms = []
-    for i, transform in enumerate(transforms):
-        if verbose:
-            print(f'Trans {i}: ', transform)
-            print(f'\tInput: ', {k: data[k].shape for k in data if isinstance(data[k], np.ndarray)})
-        data = transform(data)
-        if verbose:
-            print(f'\tOutput: ', {k: data[k].shape for k in data if isinstance(data[k], np.ndarray)})
+            transform = transform(**param)  # NOQA
+            new_output = op_out_cols
 
-        if data is None:
-            return None
-    return data
+        else:                                                   # for MindOCR transform
+            transform = transform(**param)
+            new_output = transform.output_columns
 
-
-def get_transforms_column_names(transforms: List[Transform]) -> List[str]:
-    column_names = list()
-    for x in transforms:
-        column_names.extend(x.updated_columns)
-    column_names = list(set(column_names))
-    return column_names
-
-
-# ---------------------- Predefined transform pipeline ------------------------------------
-def transforms_dbnet_icdar15(phase='train'):
-    """
-    Get pre-defined transform config for dbnet on icdar15 dataset.
-    Args:
-        phase: train, eval, infer
-    Returns:
-        list of dict for data transformation pipeline, which can be convert to functions by 'create_transforms'
-    """
-    if phase == 'train':
-        pipeline = [
-            {'DecodeImage': {
-                'img_mode': 'RGB',
-                'to_float32': False}},
-            {'DetLabelEncode': None},
-            {'RandomScale': {'scale_range': [1.022, 3.0]}},
-            {'IaaAugment':
-                 {'Affine': {'rotate': [-10, 10]},
-                  'Fliplr': {'p': 0.5}}},
-            {'RandomCropWithBBox':
-                 {'max_tries': 100,
-                  'min_crop_ratio': 0.1,
-                  'crop_size': (640, 640)}},
-            {'ShrinkBinaryMap':
-                 {'min_text_size': 8, 'shrink_ratio': 0.4}},
-            {'BorderMap':
-                 {'shrink_ratio': 0.4, 'thresh_min': 0.3, 'thresh_max': 0.7,}},
-            {'RandomColorAdjust': {'brightness': 32.0 / 255, 'saturation': 0.5}},
-            {'NormalizeImage': {
-                'bgr_to_rgb': False,
-                'is_hwc': True,
-                'mean': [123.675, 116.28, 103.53],
-                'std': [58.395, 57.12, 57.375],
-            }
-            },
-            {'ToCHWImage': None}
-        ]
-
-    elif phase == 'eval':
-        pipeline = [
-            {'DecodeImage': {'img_mode': 'RGB', 'to_float32': False}},
-            {'DetLabelEncode': None},
-            {'GridResize': {'factor': 32}},
-            {'ScalePadImage': {'target_size': [736, 1280]}},
-            {'NormalizeImage': {
-                'bgr_to_rgb': False,
-                'is_hwc': True,
-                'mean': [123.675, 116.28, 103.53],
-                'std': [58.395, 57.12, 57.375],
-            }
-            },
-            {'ToCHWImage': None}
-        ]
-    else:
-        pipeline = [
-            {'DecodeImage': {'img_mode': 'RGB', 'to_float32': False}},
-            {'GridResize': {'factor': 32}},
-            {'ScalePadImage': {'target_size': [736, 1280]}},
-            {'NormalizeImage': {
-                'bgr_to_rgb': False,
-                'is_hwc': True,
-                'mean': [123.675, 116.28, 103.53],
-                'std': [58.395, 57.12, 57.375],
-            }
-            },
-            {'ToCHWImage': None}
-        ]
-    return pipeline
+        _transforms.append(_unfold_dict(transform, output_columns.copy(), op_in_cols, op_out_cols))
+        output_columns.extend([oc for oc in new_output if oc not in output_columns])
+    return _transforms, output_columns

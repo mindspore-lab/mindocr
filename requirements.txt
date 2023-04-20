@@ -1,10 +1,9 @@
 lmdb
-pyclipper
-shapely
+pyclipper~=1.3.0.post4
+shapely~=1.8
 addict
 scikit-learn
 matplotlib
-addict
 numpy
 imgaug>=0.4.0
 tqdm>=4.64.1
@@ -13,3 +12,5 @@ rapidfuzz>=2.13.7
 Pillow>=9.1.1
 PyYAML>=6.0
 xml-python>=0.4.3
+packaging
+scipy~=1.7.3

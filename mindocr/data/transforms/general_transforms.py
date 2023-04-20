@@ -1,34 +1,33 @@
 from typing import List, Union
+
 import cv2
 import numpy as np
 from PIL import Image
-from mindspore.dataset.vision import RandomColorAdjust as MSRandomColorAdjust, ToPIL
-from .transform import Transform
 
 from ...data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 
-__all__ = ['DecodeImage', 'NormalizeImage', 'ToCHWImage', 'PackLoaderInputs', 'ScalePadImage', 'GridResize',
-           'RandomScale', 'RandomCropWithBBox', 'RandomColorAdjust']
+__all__ = ['DecodeImage', 'NormalizeImage', 'ScalePadImage', 'GridResize', 'RandomScale', 'RandomCropWithBBox']
 
 
 # TODO: use mindspore C.decode for efficiency
-class DecodeImage(Transform):
+class DecodeImage:
     """
     img_mode (str): The channel order of the output, 'BGR' and 'RGB'. Default to 'BGR'.
     channel_first (bool): if True, image shpae is CHW. If False, HWC. Default to False
     """
-    def __init__(self, img_mode='BGR', channel_first=False, to_float32=False, ignore_orientation=False, **kwargs):
-        super().__init__()
+    def __init__(self, img_mode='BGR', channel_first=False, to_float32=False, ignore_orientation=False):
         self.img_mode = img_mode
         self.to_float32 = to_float32
         self.channel_first = channel_first
         self.flag = cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR if ignore_orientation else cv2.IMREAD_COLOR
+        self.output_columns = ['image']
 
-    def get_updated_columns(self):
-        return ["image"]
-
-    def transform(self, data):
-        img = data["image"]
+    def __call__(self, data):
+        if 'img_path' in data:
+            with open(data['img_path'].item(), 'rb') as f:
+                img = f.read()
+        elif 'img_lmdb' in data:
+            img = data["img_lmdb"].item()   # TODO: @zhtmike check it please
         img = np.frombuffer(img, dtype='uint8')
         img = cv2.imdecode(img, self.flag)
 
@@ -41,11 +40,10 @@ class DecodeImage(Transform):
         if self.to_float32:
             img = img.astype('float32')
         data['image'] = img
-        # data['ori_image'] = img.copy()
         return data
 
 
-class NormalizeImage(Transform):
+class NormalizeImage:
     """
     normalize image, substract mean, divide std
     input image: by default, np.uint8, [0, 255], HWC format.
@@ -53,7 +51,6 @@ class NormalizeImage(Transform):
     """
     def __init__(self, mean: Union[List[float], str] = 'imagenet', std: Union[List[float], str] = 'imagenet',
                  is_hwc=True, bgr_to_rgb=False, rgb_to_bgr=False, **kwargs):
-        super().__init__()
         # By default, imagnet MEAN and STD is in RGB order. inverse if input image is in BGR mode
         self._channel_conversion = False
         if bgr_to_rgb or rgb_to_bgr:
@@ -64,11 +61,9 @@ class NormalizeImage(Transform):
         self.mean = np.array(self._get_value(mean, 'mean')).reshape(shape).astype('float32')
         self.std = np.array(self._get_value(std, 'std')).reshape(shape).astype('float32')
         self.is_hwc = is_hwc
+        self.output_columns = ['image']
 
-    def get_updated_columns(self):
-        return ["image"]
-
-    def transform(self, data):
+    def __call__(self, data):
         img = data['image']
         if isinstance(img, Image.Image):
             img = np.array(img)
@@ -94,43 +89,6 @@ class NormalizeImage(Transform):
             raise ValueError(f'Wrong {name} value: {val}')
 
 
-class ToCHWImage(Transform):
-    # convert hwc image to chw image
-    def __init__(self, **kwargs):
-        super().__init__()
-
-    def get_updated_columns(self):
-        return ["image"]
-
-    def transform(self, data):
-        img = data['image']
-        if isinstance(img, Image.Image):
-            img = np.array(img)
-        data['image'] = img.transpose((2, 0, 1))
-        return data
-
-
-class PackLoaderInputs:
-    """
-    Args:
-        output_columns (list): the keys in data dict that are expected to output for dataloader
-
-    Call:
-        input: data dict
-        output: data tuple corresponding to the `output_columns`
-    """
-    def __init__(self, output_columns: List, **kwargs):
-        self.output_columns = output_columns
-
-    def __call__(self, data):
-        out = []
-        for k in self.output_columns:
-            assert k in data, f'key {k} does not exists in data, availabe keys are {data.keys()}'
-            out.append(data[k])
-
-        return tuple(out)
-
-
 class ScalePadImage:
     """
     Scale image and polys by the shorter side, then pad to the target_size.
@@ -139,8 +97,9 @@ class ScalePadImage:
     Args:
         target_size: [H, W] of the output image.
     """
-    def __init__(self, target_size: list):
+    def __init__(self, target_size: list, polygons=True):
         self._target_size = np.array(target_size)
+        self.output_columns = ['image', 'polys'] if polygons else ['image']
 
     def __call__(self, data: dict):
         """
@@ -161,10 +120,9 @@ class ScalePadImage:
         data['image'] = np.pad(data['image'],
                                (*tuple((0, ts - ns) for ts, ns in zip(self._target_size, new_size)), (0, 0)))
 
-        if 'polys' in data:
+        if 'polys' in self.output_columns:
             data['polys'] *= scale
 
-        data['shape'] = np.concatenate((size, np.array([scale, scale])), dtype=np.float32)
         return data
 
 
@@ -173,8 +131,9 @@ class GridResize:
     Resize image to make it divisible by a specified factor exactly.
     Resize polygons correspondingly, if provided.
     """
-    def __init__(self, factor: int = 32):
+    def __init__(self, factor: int = 32, polygons=True):
         self._factor = factor
+        self.output_columns = ['image', 'polys'] if polygons else ['image']
 
     def __call__(self, data: dict):
         """
@@ -189,7 +148,7 @@ class GridResize:
         scale = np.ceil(size / self._factor) * self._factor / size
         data['image'] = cv2.resize(data['image'], None, fx=scale[1], fy=scale[0])
 
-        if 'polys' in data:
+        if 'polys' in self.output_columns:
             data['polys'] *= scale[::-1]  # w, h order
         return data
 
@@ -200,8 +159,9 @@ class RandomScale:
     Args:
         scale_range: (min, max) scale range.
     """
-    def __init__(self, scale_range: Union[tuple, list]):
+    def __init__(self, scale_range: Union[tuple, list], polygons=True):
         self._range = scale_range
+        self.output_columns = ['image', 'polys'] if polygons else ['image']
 
     def __call__(self, data: dict):
         """
@@ -215,7 +175,7 @@ class RandomScale:
         scale = np.random.uniform(*self._range)
         data['image'] = cv2.resize(data['image'], dsize=None, fx=scale, fy=scale)
 
-        if 'polys' in data:
+        if 'polys' in self.output_columns:
             data['polys'] *= scale
         return data
 
@@ -233,6 +193,7 @@ class RandomCropWithBBox:
         self._crop_size = crop_size
         self._ratio = min_crop_ratio
         self._max_tries = max_tries
+        self.output_columns = ['image', 'polys', 'texts', 'ignore_tags']
 
     def __call__(self, data):
         start, end = self._find_crop(data)
@@ -253,7 +214,7 @@ class RandomCropWithBBox:
 
         data['polys'] = np.array(new_polys) if isinstance(data['polys'], np.ndarray) else new_polys
         data['texts'] = new_texts
-        data['ignore_tags'] = new_ignores
+        data['ignore_tags'] = np.array(new_ignores)
 
         return data
 
@@ -290,18 +251,3 @@ class RandomCropWithBBox:
 
         # failed to generate a crop or all polys are marked as ignored
         return np.array([0, 0]), size
-
-
-class RandomColorAdjust:
-    def __init__(self, brightness=32.0 / 255, saturation=0.5):
-        self._jitter = MSRandomColorAdjust(brightness=brightness, saturation=saturation)
-        self._pil = ToPIL()
-
-    def __call__(self, data):
-        """
-        required keys: image
-        modified keys: image
-        """
-        # there's a bug in MindSpore that requires images to be converted to the PIL format first
-        data['image'] = np.array(self._jitter(self._pil(data['image'])))
-        return data

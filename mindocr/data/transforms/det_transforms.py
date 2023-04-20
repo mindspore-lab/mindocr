@@ -1,7 +1,6 @@
 """
 transforms for text detection tasks.
 """
-import random
 import warnings
 from typing import List
 
@@ -15,8 +14,8 @@ __all__ = ['DetLabelEncode', 'BorderMap', 'ShrinkBinaryMap', 'expand_poly']
 
 
 class DetLabelEncode:
-    def __init__(self, **kwargs):
-        pass
+    def __init__(self):
+        self.output_columns = ['polys', 'texts', 'ignore_tags']
 
     def order_points_clockwise(self, pts):
         rect = np.zeros((4, 2), dtype="float32")
@@ -43,15 +42,14 @@ class DetLabelEncode:
     def __call__(self, data):
         """
         required keys:
-            label (str): string containgin points and transcription in json format
+            label (str): string containing points and transcription in json format
         added keys:
             polys (np.ndarray): polygon boxes in an image, each polygon is represented by points
                             in shape [num_polygons, num_points, 2]
             texts (List(str)): text string
             ignore_tags (np.ndarray[bool]): indicators for ignorable texts (e.g., '###')
         """
-        label = data['label']
-        label = json.loads(label)
+        label = json.loads(data['label'].item())
         nBox = len(label)
         boxes, txts, txt_tags = [], [], []
         for bno in range(0, nBox):
@@ -65,13 +63,12 @@ class DetLabelEncode:
                 txt_tags.append(False)
         if len(boxes) == 0:
             return None
-        boxes = self.expand_points_num(boxes)
-        boxes = np.array(boxes, dtype=np.float32)
-        txt_tags = np.array(txt_tags, dtype=np.bool)
 
-        data['polys'] = boxes
+        boxes = self.expand_points_num(boxes)
+
+        data['polys'] = np.array(boxes, dtype=np.float32)
         data['texts'] = txts
-        data['ignore_tags'] = txt_tags
+        data['ignore_tags'] = np.array(txt_tags, dtype=np.bool)
         return data
 
 
@@ -85,6 +82,7 @@ class BorderMap:
         self._thresh_min = thresh_min
         self._thresh_max = thresh_max
         self._dist_coef = 1 - self._shrink_ratio ** 2
+        self.output_columns = ['thresh_map', 'thresh_mask']
 
     def __call__(self, data):
         border = np.zeros(data['image'].shape[:2], dtype=np.float32)
@@ -109,7 +107,7 @@ class BorderMap:
         # draw border
         min_vals, max_vals = np.min(padded_polygon, axis=0), np.max(padded_polygon, axis=0)
         width, height = max_vals - min_vals + 1
-        np_poly -= min_vals
+        np_poly = np_poly - min_vals
 
         xs = np.broadcast_to(np.linspace(0, width - 1, num=width).reshape(1, width), (height, width))
         ys = np.broadcast_to(np.linspace(0, height - 1, num=height).reshape(height, 1), (height, width))
@@ -146,7 +144,6 @@ class BorderMap:
         return result
 
 
-
 class ShrinkBinaryMap:
     """
     Making binary mask from detection data with ICDAR format.
@@ -157,6 +154,7 @@ class ShrinkBinaryMap:
         self._shrink_ratio = shrink_ratio
         self._train = train
         self._dist_coef = 1 - self._shrink_ratio ** 2
+        self.output_columns = ['polys', 'ignore_tags', 'binary_map', 'mask']
 
     def __call__(self, data):
         gt = np.zeros(data['image'].shape[:2], dtype=np.float32)
@@ -188,6 +186,7 @@ class ShrinkBinaryMap:
 
     @staticmethod
     def _validate_polys(data):
+        # FIXME: polygons clipping distorts the original shape. Solution: find intersection with the edges instead
         data['polys'] = np.clip(data['polys'], 0, np.array(data['image'].shape[1::-1]) - 1)  # shape reverse order: w, h
 
         for i in range(len(data['polys'])):

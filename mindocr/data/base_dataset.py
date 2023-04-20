@@ -1,85 +1,58 @@
-from typing import Union, List
 import os
-
+from typing import Union, List
+from abc import ABC, abstractmethod
 
 __all__ = ['BaseDataset']
 
 
-class BaseDataset(object):
-    '''
+class BaseDataset(ABC):
+    """
     Base dataset to parse dataset files.
 
     Args:
-        - data_dir:   
-        - label_file: 
+        - data_dir:
+        - label_file:
         - output_columns (List(str)): names of elements in the output tuple of __getitem__
     Attributes:
         data_list (List(Tuple)): source data items (e.g., containing image path and raw annotation)
-    '''
-    def __init__(self, 
-                data_dir: Union[str, List[str]], 
-                label_file: Union[str, List[str]] = None,
-                output_columns: List[str] = None,
-                **kwargs,
-                ):
-
+    """
+    def __init__(self,
+                 data_dir: Union[str, List[str]],
+                 label_file: Union[str, List[str]] = None,
+                 **kwargs):
         self._index = 0
-        self.data_list = [] 
-        
+        self.data_list = []
+
         # check files
-        if isinstance(data_dir, str):
-            data_dir = [data_dir]
-        for f in data_dir:
-            if not os.path.exists(f):
-                raise ValueError(f"{f} not existed. Please check the yaml file for both train and eval")
-        self.data_dir = data_dir
+        self.data_dir = self._check_existence(data_dir)
 
+        self.label_file = []
         if label_file is not None:
-            if isinstance(label_file, str):
-                label_file = [label_file]
-            for f in label_file:
-                if not os.path.exists(f):
-                    raise ValueError(f"{f} not existed. Please check the yaml file for both train and eval")
-        else:
-            label_file = []
-        self.label_file = label_file
+            self.label_file = self._check_existence(label_file)
 
-        # must specify output column names
-        self.output_columns = output_columns
-
-
+    @abstractmethod
     def __getitem__(self, index):
-        #return self.data_list[index]
-        raise NotImplementedError
+        ...
 
-
-    def set_output_columns(self, column_names: List[str]):
-        self.output_columns = column_names
-
-
-    def get_output_columns(self) -> List[str]:
-        '''
-        get the column names for the output tuple of __getitem__, required for data mapping in the next step 
-        '''
-        #raise NotImplementedError
-        return self.output_columns
-
+    def __iter__(self):
+        self._index = 0
+        return self
 
     def __next__(self):
-        if self._index >= len(self.data_list):
-            raise StopIteration
-        else:
-            item = self.__getitem__(self._index)
+        if self._index < len(self):
+            item = self[self._index]
             self._index += 1
-            return item 
-
+            return item
+        raise StopIteration
 
     def __len__(self):
         return len(self.data_list)
 
-
-    def _load_image_bytes(self, img_path):
-        '''load image bytes (prepared for decoding) '''
-        with open(img_path, 'rb') as f:
-            image_bytes = f.read()
-        return  image_bytes 
+    @staticmethod
+    def _check_existence(path):
+        if isinstance(path, str):
+            path = [path]
+        for p in path:
+            if not os.path.exists(p):
+                raise ValueError(f"{p} does not exist. Please check the yaml file for both train and eval.")
+        return path

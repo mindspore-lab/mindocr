@@ -1,7 +1,7 @@
 imgaug
 lmdb
-pyclipper
-shapely
+pyclipper~=1.3.0.post4
+shapely~=1.8
 tqdm
 addict
 matplotlib
@@ -11,3 +11,5 @@ opencv-python-headless==3.4.18.65
 Pillow==9.1.1
 PyYAML==6.0
 xml-python==0.4.3
+packaging
+scipy~=1.7.3

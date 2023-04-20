@@ -97,7 +97,7 @@ train:
           is_hwc: True
           mean : [127.0, 127.0, 127.0] 
           std : [127.0, 127.0, 127.0]
-      - ToCHWImage: 
+      - HWC2CHW:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
     output_columns: ['image', 'text_seq'] #, 'length'] #'img_path'] 
     num_columns_to_net: 1 # num inputs for network forward func in output_columns
@@ -139,7 +139,7 @@ eval:
           is_hwc: True
           mean : [127.0, 127.0, 127.0] 
           std : [127.0, 127.0, 127.0]
-      - ToCHWImage: 
+      - HWC2CHW:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
     output_columns: ['image', 'text_padded', 'text_length']  # TODO return text string padding w/ fixed length, and a scaler to indicate the length 
     num_columns_to_net: 1 # num inputs for network forward func

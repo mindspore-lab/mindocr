@@ -5,11 +5,10 @@ from typing import List
 import cv2
 import math
 import numpy as np
-from .transform import Transform
 
 __all__ = ['RecCTCLabelEncode', 'RecResizeImg']
 
-class RecCTCLabelEncode(Transform):
+class RecCTCLabelEncode:
     ''' Convert text label (str) to a sequence of character indices according to the char dictionary
 
     Args:
@@ -36,7 +35,6 @@ class RecCTCLabelEncode(Transform):
                 #end_token='<EOS>',
                 #unkown_token='',
                 ):
-        super().__init__()
         self.max_text_len = max_text_len
         self.space_idx = None
         self.lower = lower
@@ -78,9 +76,7 @@ class RecCTCLabelEncode(Transform):
         self.dict = {c:idx for idx, c in enumerate(char_list)}
 
         self.num_classes = len(self.dict)
-
-    def get_updated_columns(self):
-        return ["length", "text_seq", "text_length", "text_padded"]
+        self.output_columns = ["length", "text_seq", "text_length", "text_padded"]
 
     def str2idx(self, text):
         '''
@@ -108,7 +104,7 @@ class RecCTCLabelEncode(Transform):
 
         return char_indices
 
-    def transform(self, data: dict):
+    def __call__(self, data: dict):
         '''
         required keys:
             label -> (str) text string
@@ -219,7 +215,7 @@ def resize_norm_img_chinese(img, image_shape):
     return padding_im, valid_ratio
 
 # TODO: remove infer_mode and character_dict_path if they are not necesary
-class RecResizeImg(Transform):
+class RecResizeImg:
     ''' adopted from paddle
     resize, convert from hwc to chw, rescale pixel value to -1 to 1
     '''
@@ -229,16 +225,13 @@ class RecResizeImg(Transform):
                  character_dict_path=None,
                  padding=True,
                  **kwargs):
-        super().__init__()
         self.image_shape = image_shape
         self.infer_mode = infer_mode
         self.character_dict_path = character_dict_path
         self.padding = padding
+        self.output_columns = ["image", "valid_ratio"]
 
-    def get_updated_columns(self):
-        return ["image", "valid_ratio"]
-
-    def transform(self, data):
+    def __call__(self, data):
         img = data['image']
         if self.infer_mode and self.character_dict_path is not None:
             norm_img, valid_ratio = resize_norm_img_chinese(img,
