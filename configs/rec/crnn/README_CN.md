@@ -33,6 +33,8 @@ Table Format:
 - Download: url of the pretrained model weights. Use absolute url path.
 -->
 
+### 精度结果
+
 根据我们的实验，在公开基准数据集（IC03，IC13，IC15，IIIT，SVT，SVTP，CUTE）上的评估结果如下：
 
 
@@ -54,6 +56,12 @@ Table Format:
 
 </details>
 
+### 性能
+
+| Device | Model | Backbone | Dataset | Params | Batch size per card | Graph train 8P (s/epoch) | Graph train 8P (ms/step) | Graph train 8P (FPS) |
+| :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
+| Ascend910| CRNN | VGG7 | MJ+ST | 8.72 M | 16 | 2488.82 | 22.06 | 5802.71 |
+| Ascend910| CRNN | ResNet34_vd | MJ+ST | 24.48 M | 64 | 2157.18 | 76.48 | 6694.84 |
 
 
 **注意:**

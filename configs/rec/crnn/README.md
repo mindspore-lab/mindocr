@@ -33,6 +33,8 @@ Table Format:
 - Download: url of the pretrained model weights. Use absolute url path.
 -->
 
+### Accuracy
+
 According to our experiments, the evaluation results on public benchmark datasets (IC03, IC13, IC15, IIIT, SVT, SVTP, CUTE) is as follow:
 
 | **Model** | **Context**    | **Backbone** | **Avg Accuracy** | **Train T.** | **Recipe** | **Download** | 
@@ -44,18 +46,20 @@ According to our experiments, the evaluation results on public benchmark dataset
 <details open>
   <summary>Detailed accuracy results for each benchmark dataset</summary>
 
-
-  <div align="center">
-
   | **Model** | **Backbone** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
   | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | 
   | CRNN (ours) | VGG7 | 94.53% | 94.00% | 92.18% | 90.74% | 71.95% | 66.06% | 84.10% | 83.93% | 73.33% | 69.44% | 88.32% | 82.03% |
   | CRNN (ours) | ResNet34_vd | 94.42% | 94.23% | 93.35% | 92.02% | 75.92% | 70.15% | 87.73% | 86.40% | 76.28% | 73.96% | 84.45% |
   | CRNN (PaddleOCR) | ResNet34_vd | 95.23% | 94.35% | 93.47% | 92.71% | 72.34% | 66.35% | 87.67% | 87.64% | 73.80% | 76.39% | 83.99% |
 
-  </div>
-
 </details>
+
+### Performance
+
+| Device | Model | Backbone | Dataset | Params | Batch size per card | Graph train 8P (s/epoch) | Graph train 8P (ms/step) | Graph train 8P (FPS) |
+| :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
+| Ascend910| CRNN | VGG7 | MJ+ST | 8.72 M | 16 | 2488.82 | 22.06 | 5802.71 |
+| Ascend910| CRNN | ResNet34_vd | MJ+ST | 24.48 M | 64 | 2157.18 | 76.48 | 6694.84 |
 
 
 **Notes:**
