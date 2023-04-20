@@ -5,6 +5,7 @@ import cv2
 import math
 import numpy as np
 import mindspore as ms
+from mindspore import Tensor
 
 __all__ = ['RecCTCLabelDecode']
 
@@ -111,21 +112,19 @@ class RecCTCLabelDecode(object):
         return texts, confs
 
 
-    def __call__(self, preds: Union[dict, List], labels = None, **kwargs):
+    def __call__(self, preds: Union[Tensor, np.ndarray], labels = None, **kwargs):
         '''
         Args:
-            preds (dict or tuple): containing prediction tensor in shape [W, BS, num_classes]
-            labels ():
+            preds (Union[Tensor, np.ndarray]): network prediction, class probabilities in shape [BS, W, num_classes], where W is the sequence length.
+            labels: optional
         Return:
             texts (List[Tuple]): list of string
 
         '''
         if isinstance(preds, tuple):
             preds = preds[-1]
-        elif isinstance(preds, dict):
-            preds = preds['head_out'] # TODO: change name
 
-        if isinstance(preds, ms.Tensor):
+        if isinstance(preds, Tensor):
             preds = preds.asnumpy()
 
         #preds = preds.transpose([1, 0, 2]) # [W, BS, C] -> [BS, W, C]. already did in model head.
