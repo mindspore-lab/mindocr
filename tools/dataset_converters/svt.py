@@ -1,5 +1,5 @@
 '''
-This SVT converter is specifically for the data preparation of SVT dataset (https://tc11.cvc.uab.es/datasets/SVT_1)
+This SVT converter is specifically for the data preparation of SVT dataset (http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset)
 Please download the data from the website above and unzip the file.
 After unzipping the file, the data structure should be like:
 
