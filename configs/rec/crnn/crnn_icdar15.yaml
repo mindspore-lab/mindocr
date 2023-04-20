@@ -134,7 +134,7 @@ eval:
           image_shape: [32, 100] # H, W
           infer_mode: *infer_mode
           character_dict_path: *character_dict_path
-          padding: True # aspect ratio will be preserved if true.
+          padding: False # aspect ratio will be preserved if true.
       - NormalizeImage:  # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec. 
           bgr_to_rgb: True
           is_hwc: True

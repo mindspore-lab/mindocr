@@ -20,11 +20,10 @@ class Evaluator:
         metric:
     """
 
-    def __init__(self, network, loss_fn=None, postprocessor=None, metrics=None, visualize=False, verbose=False,
+    def __init__(self, network, dataloader, loss_fn=None, postprocessor=None, metrics=None, num_epochs_train=-1, visualize=False, verbose=False,
                  **kwargs):
         self.net = network
         self.postprocessor = postprocessor
-        # FIXME: process when metrics is not None
         self.metrics = metrics if isinstance(metrics, List) else [metrics]
         self.metric_names = []
         for m in metrics:
@@ -41,7 +40,11 @@ class Evaluator:
         # TODO: add support for computing evaluation loss
         assert eval_loss == False, 'not impl'
 
-    def eval(self, dataloader, num_columns_to_net=1, num_keys_of_labels=None):
+        # create iterator
+        self.iterator = dataloader.create_tuple_iterator(num_epochs=num_epochs_train, output_numpy=False, do_copy=False)
+        self.num_batches_eval = dataloader.get_dataset_size()
+
+    def eval(self, num_columns_to_net=1, num_keys_of_labels=None):
         """
         Args:
             dataloader (Dataset): data iterator which generates tuple of Tensor defined by the transform pipeline and 'output_columns'
@@ -49,19 +52,16 @@ class Evaluator:
         eval_res = {}
 
         self.net.set_train(False)
-        iterator = dataloader.create_tuple_iterator(num_epochs=1, output_numpy=False, do_copy=False)
         for m in self.metrics:
             m.clear()
 
-        for i, data in tqdm(enumerate(iterator), total=dataloader.get_dataset_size()):
+        for i, data in tqdm(enumerate(self.iterator), total=self.num_batches_eval):
             # start = time.time()
             # TODO: if network input is not just an image.
-            # assume the first element is image
             img = data[0]  # ms.Tensor(batch[0])
             gt = data[1:]  # ground truth,  (polys, ignore_tags) for det,
+            #print(i, img.shape, img.sum())
 
-            # TODO: in graph mode, the output dict is somehow converted to tuple. Is the order of in tuple the same as dict binary, thresh, thres_binary? to check
-            # {'binary':, 'thresh: ','thresh_binary': } for text detect; {'head_out': } for text rec
             net_preds = self.net(img)
             # net_inputs = data[:num_columns_to_net]
             # gt = data[num_columns_to_net:] # ground truth
@@ -75,17 +75,6 @@ class Evaluator:
             for m in self.metrics:
                 m.update(preds, gt)
 
-            if self.verbose:
-                if isinstance(net_preds, tuple):
-                    print('pred binary map:', net_preds[0].shape, net_preds[0].max(), net_preds[0].min())
-                    print('thresh binary map:', net_preds[2].shape, net_preds[2].max(), net_preds[2].min())
-                else:
-                    print('pred binary map:', net_preds['binary'].shape, net_preds['binary'].max(),
-                          net_preds['binary'].min())
-                    print('thresh binary map:', net_preds['thresh_binary'].shape, net_preds['thresh_binary'].max(),
-                          net_preds['binary'].min())
-                print('pred polys:', preds['polygons'])
-
             if self.visualize:
                 img = img[0].asnumpy()
                 assert ('polys' in preds) or ('polygons' in preds), 'Only support detection'
@@ -96,7 +85,6 @@ class Evaluator:
         for m in self.metrics:
             res_dict = m.eval()
             eval_res.update(res_dict)
-        # fps = total_frame / total_time
 
         self.net.set_train(True)
 
@@ -138,7 +126,7 @@ class EvalSaveCallback(Callback):
         self.log_interval = log_interval
         self.batch_size = batch_size
         if self.loader_eval is not None:
-            self.net_evaluator = Evaluator(network, loss_fn, postprocessor, metrics)
+            self.net_evaluator = Evaluator(network, loader, loss_fn, postprocessor, metrics)
             self.main_indicator = main_indicator
             self.best_perf = -1e8
         else:
@@ -217,7 +205,7 @@ class EvalSaveCallback(Callback):
         if self.loader_eval is not None:
             if cur_epoch >= self.val_start_epoch and (cur_epoch - self.val_start_epoch) % self.val_interval == 0:
                 eval_start = time.time()
-                measures = self.net_evaluator.eval(self.loader_eval)
+                measures = self.net_evaluator.eval()
                 eval_done = True
                 if self.is_main_device:
                     perf = measures[self.main_indicator]
