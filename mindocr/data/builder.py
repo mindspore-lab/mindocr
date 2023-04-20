@@ -85,16 +85,18 @@ def build_dataset(
 
     # Set default multiprocessing params for data pipeline
     ## num_parallel_workers: Number of subprocesses used to fetch the dataset, transform data, or load batch in parallel
-    num_workers = loader_config.get("num_workers", 8)
-    cores = multiprocessing.cpu_count()
     num_devices = 1 if num_shards is None else num_shards
+    cores = multiprocessing.cpu_count()
+    NUM_WORKERS_BATCH = 2
+    NUM_WORKERS_MAP = int(cores / num_devices - NUM_WORKERS_BATCH) # optimal num workers assuming all cpu cores are used in this job
+    num_workers = loader_config.get("num_workers", NUM_WORKERS_MAP)
     if num_workers > int(cores / num_devices):
         print(f'WARNING: num_workers is adjusted to {int(cores / num_devices)} since {num_workers}x{num_devices} exceeds the number of CPU cores {cores}')
         num_workers = int(cores / num_devices)
     ## prefetch_size: the length of the cache queue in the data pipeline for each worker, used to reduce waiting time. Larger value leads to more memory consumption. Default: 16
     prefetch_size = loader_config.get("prefetch_size", 16) #
     ms.dataset.config.set_prefetch_size(prefetch_size)
-    ## max_rowsize: MB of shared memory between processes to copy data
+    ## max_rowsize: MB of shared memory between processes to copy data. Only used when python_multiprocessing is True.
     max_rowsize =  loader_config.get("max_rowsize", 64)
     # auto tune num_workers, prefetch. (This conflicts the profiler)
     #ms.dataset.config.set_autotune_interval(5)
@@ -110,20 +112,6 @@ def build_dataset(
 
     dataset_column_names = dataset.get_output_columns()
     print('==> Dataset output columns: \n\t', dataset_column_names)
-
-    # TODO: find optimal setting automatically according to num of CPU cores
-    num_workers = loader_config.get("num_workers", 8) # Number of subprocesses used to fetch the dataset/map data row/gen batch in parallel
-    cores = multiprocessing.cpu_count()
-    num_devices = 1 if num_shards is None else num_shards
-    if num_workers > int(cores / num_devices):
-        num_workers = int(cores / num_devices)
-        print('WARNING: num_workers is adjusted to {num_workers}, to fit {cores} CPU cores shared for {num_devices} devices')
-
-    prefetch_size = loader_config.get("prefetch_size", 16) # the length of the cache queue in the data pipeline for each worker, used to reduce waiting time. Larger value leads to more memory consumption. Default: 16
-    max_rowsize =  loader_config.get("max_rowsize", 64) # MB of shared memory between processes to copy data
-
-    ms.dataset.config.set_prefetch_size(prefetch_size)
-    #print('Prefetch size: ', ms.dataset.config.get_prefetch_size())
 
     ## Generate source dataset (source w.r.t. the dataset.map pipeline) based on python callable numpy dataset in parallel
     ds = ms.dataset.GeneratorDataset(
@@ -150,7 +138,12 @@ def build_dataset(
 
     drop_remainder = loader_config.get('drop_remainder', is_train)
     if is_train and drop_remainder == False:
-        print('WARNING: drop_remainder should be True for training, otherwise the last batch may lead to training fail.')
+        print('WARNING: drop_remainder should be True for training, otherwise the last batch may lead to training fail in Graph mode')
+    if not is_train:
+        if drop_remainder:
+            print("WARNING: drop_remainder is forced to be False for evaluation to include the last batch for accurate evaluation." )
+            drop_remainder = False
+
     dataloader = ds.batch(
                     batch_size,
                     drop_remainder=drop_remainder,
