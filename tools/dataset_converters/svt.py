@@ -3,15 +3,15 @@ This SVT converter is specifically for the data preparation of SVT dataset (http
 Please download the data from the website above and unzip the file.
 After unzipping the file, the data structure should be like:
 
-.
-├── img
-│   ├── 00_00.jpg
-│   ├── 00_01.jpg
-│   ├── 00_02.jpg
-│   ├── 00_03.jpg
-│   ├── ...
-├── test.xml
-└── train.xml
+svt1
+ ├── img
+ │   ├── 00_00.jpg 
+ │   ├── 00_01.jpg
+ │   ├── 00_02.jpg
+ │   ├── 00_03.jpg
+ │   ├── ...
+ ├── test.xml
+ └── train.xml
 
 For prepare the data for text recognition, you can run the following command:
 python tools/dataset_converters/convert.py \

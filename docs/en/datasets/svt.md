@@ -11,15 +11,15 @@ Please download the data from the website above and unzip the file.
 After unzipping the file, the data structure should be like:
 
 ```txt
-.
-├── img
-│   ├── 00_00.jpg
-│   ├── 00_01.jpg
-│   ├── 00_02.jpg
-│   ├── 00_03.jpg
-│   ├── ...
-├── test.xml
-└── train.xml
+svt1
+ ├── img
+ │   ├── 00_00.jpg 
+ │   ├── 00_01.jpg
+ │   ├── 00_02.jpg
+ │   ├── 00_03.jpg
+ │   ├── ...
+ ├── test.xml
+ └── train.xml
 ```
 
 ## Data Preparation
@@ -37,4 +37,3 @@ python tools/dataset_converters/convert.py \
 ```
 
 Then you can have a folder `cropped_images/` and an annotation file `rec_train_gt.txt` under the folder `svt1/`.
-
