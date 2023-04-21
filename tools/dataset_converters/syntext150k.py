@@ -22,7 +22,7 @@ class SYNTEXT150K_Converter(object):
     0000000.jpg	[{"transcription": "the", "points":[[153, 347], ..., [177, 357]], 'beizer':[123,...,567]}]
     """
 
-    def __init__(self, path_mode="relative"):
+    def __init__(self, path_mode="relative", **kwargs):
         self.path_mode = path_mode
         self.CTLABELS = [
             " ",

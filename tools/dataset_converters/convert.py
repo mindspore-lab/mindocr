@@ -29,7 +29,7 @@ from totaltext import TOTALTEXT_Converter
 supported_datasets = ["ic15", "totaltext", "mlt2017", "syntext150k", "svt", "td500", "ctw1500"]
 
 
-def convert(dataset_name, task, image_dir, label_path, output_path=None, path_mode="relative"):
+def convert(dataset_name, task, image_dir, label_path, output_path=None, path_mode="relative", mindrecord=False):
     """
     Args:
       image_dir: path to the images
@@ -45,7 +45,7 @@ def convert(dataset_name, task, image_dir, label_path, output_path=None, path_mo
         assert path_mode in ["relative", "abs"], f"Invalid mode: {path_mode}"
 
         class_name = dataset_name.upper() + "_Converter"
-        cvt = eval(class_name)(path_mode)
+        cvt = eval(class_name)(path_mode, mindrecord)
         cvt.convert(task, image_dir, label_path, output_path)
         print(f"Conversion complete.\nResult saved in {output_path}")
 
@@ -93,7 +93,10 @@ if __name__ == "__main__":
         help="If abs, the image path in the output annotation file will be an absolute path. If relative, "
         "it will be a relative path related to the image dir ",
     )
+    parser.add_argument("--mindrecord", action="store_true", help="Cache the dataset into MindRecord.")
 
     args = parser.parse_args()
 
-    convert(args.dataset_name, args.task, args.image_dir, args.label_dir, args.output_path)
+    convert(
+        args.dataset_name, args.task, args.image_dir, args.label_dir, args.output_path, args.path_mode, args.mindrecord
+    )

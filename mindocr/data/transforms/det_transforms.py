@@ -29,7 +29,7 @@ __all__ = [
 
 class DetLabelEncode:
     def __init__(self, **kwargs):
-        pass
+        self.output_columns = ["polys", "texts", "ignore_tags"]
 
     def order_points_clockwise(self, pts):
         rect = np.zeros((4, 2), dtype="float32")
@@ -56,15 +56,14 @@ class DetLabelEncode:
     def __call__(self, data):
         """
         required keys:
-            label (str): string containgin points and transcription in json format
+            label (str): string containing points and transcription in json format
         added keys:
             polys (np.ndarray): polygon boxes in an image, each polygon is represented by points
                             in shape [num_polygons, num_points, 2]
             texts (List(str)): text string
             ignore_tags (np.ndarray[bool]): indicators for ignorable texts (e.g., '###')
         """
-        label = data["label"]
-        label = json.loads(label)
+        label = json.loads(data["label"].item())
         nBox = len(label)
         boxes, txts, txt_tags = [], [], []
         for bno in range(0, nBox):
@@ -78,13 +77,12 @@ class DetLabelEncode:
                 txt_tags.append(False)
         if len(boxes) == 0:
             return None
-        boxes = self.expand_points_num(boxes)
-        boxes = np.array(boxes, dtype=np.float32)
-        txt_tags = np.array(txt_tags, dtype=np.bool)
 
-        data["polys"] = boxes
+        boxes = self.expand_points_num(boxes)
+
+        data["polys"] = np.array(boxes, dtype=np.float32)
         data["texts"] = txts
-        data["ignore_tags"] = txt_tags
+        data["ignore_tags"] = np.array(txt_tags, dtype=np.bool)
         return data
 
 
@@ -106,6 +104,7 @@ class RandomCropWithBBox:
         self._ratio = min_crop_ratio
         self._max_tries = max_tries
         self._p = p
+        self.output_columns = ["image", "polys", "actual_size"]
 
     def __call__(self, data):
         if random.random() < self._p:  # cut a crop
@@ -166,6 +165,7 @@ class RandomCropWithMask:
         self.main_key = main_key
         self.crop_keys = crop_keys
         self.p = p
+        self.output_columns = ["image", "mask"]
 
     def __call__(self, data):
         image = data["image"]
@@ -219,6 +219,7 @@ class BorderMap:
         self._thresh_min = thresh_min
         self._thresh_max = thresh_max
         self._dist_coef = 1 - shrink_ratio**2
+        self.output_columns = ["thresh_map", "thresh_mask"]
 
     def __call__(self, data):
         border = np.zeros(data["image"].shape[:2], dtype=np.float32)
@@ -271,6 +272,7 @@ class BorderMap:
         xs: coordinates in the second axis
         point_1, point_2: (x, y), the end of the line
         """
+        # TODO: this is slow
         a_sq = np.square(xs - point_1[0]) + np.square(ys - point_1[1])
         b_sq = np.square(xs - point_2[0]) + np.square(ys - point_2[1])
         c_sq = np.square(point_1[0] - point_2[0]) + np.square(point_1[1] - point_2[1])
@@ -292,6 +294,7 @@ class ShrinkBinaryMap:
     def __init__(self, min_text_size=8, shrink_ratio=0.4, **kwargs):
         self._min_text_size = min_text_size
         self._dist_coef = 1 - shrink_ratio**2
+        self.output_columns = ["polys", "ignore_tags", "binary_map", "mask"]
 
     def __call__(self, data):
         gt = np.zeros(data["image"].shape[:2], dtype=np.float32)
@@ -340,11 +343,11 @@ class DetResize:
               (limit_side_len / longer side length)
             -  None: No limitation. Images will be resized to `target_size` with or without `keep_ratio` and `padding`
         limit_side_len: side len limitation.
-        force_divisable: whether to force the image being resize to a size multiple of `divisor` (e.g. 32) in the end,
+        force_divisible: whether to force the image being resize to a size multiple of `divisor` (e.g. 32) in the end,
             which is suitable for some networks (e.g. dbnet-resnet50). Default: True.
-        divisor: divisor used when `force_divisable` enabled. The value is decided by the down-scaling path of
+        divisor: divisor used when `force_divisible` enabled. The value is decided by the down-scaling path of
             the network backbone (e.g. resnet, feature map size is 2^5 smaller than input image size). Default is 32.
-        interpoloation: interpolation method
+        interpolation: interpolation method
 
     Note:
         1. The default choices limit_type=min, with large `limit_side_len` are recommended for inference in detection
@@ -362,9 +365,10 @@ class DetResize:
         padding=False,
         limit_type="min",
         limit_side_len=736,
-        force_divisable=True,
+        force_divisible=True,
         divisor=32,
         interpolation=cv2.INTER_LINEAR,
+        polygons: bool = True,
         **kwargs,
     ):
         if target_size is not None:
@@ -376,7 +380,7 @@ class DetResize:
         self.limit_side_len = limit_side_len
         self.limit_type = limit_type
         self.interpolation = interpolation
-        self.force_divisable = force_divisable
+        self.force_divisible = force_divisible
         self.divisor = divisor
 
         self.is_train = kwargs.get("is_train", False)
@@ -389,21 +393,23 @@ class DetResize:
                 f"side length to {limit_side_len}."
             )
         elif not limit_type:
-            assert target_size is not None or force_divisable is not None, (
-                "One of `target_size` or `force_divisable` is required when limit_type is not set. "
+            assert target_size is not None or force_divisible is not None, (
+                "One of `target_size` or `force_divisible` is required when limit_type is not set. "
                 "Please set at least one of them."
             )
-            if target_size and force_divisable:
+            if target_size and force_divisible:
                 if (target_size[0] % divisor != 0) or (target_size[1] % divisor != 0):
                     self.target_size = [max(round(x / self.divisor) * self.divisor, self.divisor) for x in target_size]
                     print(
-                        f"WARNING: `force_divisable` is enabled but the set target size {target_size} "
+                        f"WARNING: `force_divisible` is enabled but the set target size {target_size} "
                         f"is not divisable by {divisor}. Target size is ajusted to {self.target_size}"
                     )
             if (target_size is not None) and keep_ratio and (not padding):
                 print("WARNING: output shape can be dynamic if keep_ratio but no padding.")
         else:
             raise ValueError(f"Unknown limit_type: {limit_type}")
+
+        self.output_columns = ["image", "polys", "shape_list"] if polygons else ["image", "shape_list"]
 
     def __call__(self, data: dict):
         """
@@ -444,11 +450,11 @@ class DetResize:
         elif self.target_size:
             resize_w = tar_w
             resize_h = tar_h
-        else:  # both target_size and limit_type is None. resize by force_divisable
+        else:  # both target_size and limit_type is None. resize by force_divisible
             resize_w = w
             resize_h = h
 
-        if self.force_divisable:
+        if self.force_divisible:
             if not (
                 allow_padding and self.padding
             ):  # no need to round it the image will be padded to the target size which is divisable.
@@ -471,7 +477,7 @@ class DetResize:
                 print(
                     f"WARNING: Image shape after resize is ({resize_h}, {resize_w}), "
                     f"which is larger than target_size {self.target_size}. Skip padding for the current image. "
-                    f"You may disable `force_divisable` to avoid this warning."
+                    f"You may disable `force_divisible` to avoid this warning."
                 )
         else:
             data["image"] = resized_img
@@ -483,7 +489,7 @@ class DetResize:
         # For evaluation, we should not change the GT polygons.
         # The metric with input of GT polygons and predicted polygons must be computed in the original image space
         # for consistent comparison.
-        if "polys" in data and self.is_train:
+        if "polys" in self.output_columns and self.is_train:
             data["polys"][:, :, 0] = data["polys"][:, :, 0] * scale_w
             data["polys"][:, :, 1] = data["polys"][:, :, 1] * scale_h
 
@@ -509,7 +515,7 @@ class GridResize(DetResize):
             keep_ratio=False,
             padding=False,
             limit_type=None,
-            force_divisable=True,
+            force_divisible=True,
             divisor=factor,
         )
 
@@ -529,7 +535,7 @@ class ScalePadImage(DetResize):
             keep_ratio=True,
             padding=True,
             limit_type=None,
-            force_divisable=False,
+            force_divisible=False,
         )
 
 
@@ -629,6 +635,7 @@ class ValidatePolygons:
         self._min_area = min_area
         self._min_vert = min_vertices
         self._clip = clip_to_visible_area
+        self.output_columns = ["polys", "texts", "ignore_tags"]
 
     def __call__(self, data: dict):
         size = data.get("actual_size", np.array(data["image"].shape[:2]))[::-1]  # convert to x, y coord
