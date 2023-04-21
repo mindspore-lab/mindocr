@@ -6,7 +6,7 @@ import lmdb
 import numpy as np
 
 from .base_dataset import BaseDataset
-from .transforms.transforms_factory import create_transforms, run_transforms
+from .transforms.transforms_factory import create_transforms
 
 __all__ = ["LMDBDataset"]
 _logger = logging.getLogger(__name__)
@@ -28,6 +28,8 @@ class LMDBDataset(BaseDataset):
         filter_max_len (bool): Filter the records where the label is longer than the `max_text_len`.
         max_text_len (int): The maximum text length the dataloader expected.
         random_choice_if_none (bool): Random choose another data if the result returned from data transform is none
+        kwargs: additional info, used in data transformation, possible keys:
+            - character_dict_path
 
     Returns:
         data (tuple): Depending on the transform pipeline, __get_item__ returns a tuple for the specified data item.
@@ -66,8 +68,10 @@ class LMDBDataset(BaseDataset):
         shuffle = shuffle if shuffle is not None else is_train
 
         self.lmdb_sets = self.load_list_of_hierarchical_lmdb_dataset(data_dir)
+
         if len(self.lmdb_sets) == 0:
             raise ValueError(f"Cannot find any lmdb dataset under `{data_dir}`. Please check the data path is correct.")
+
         self.data_idx_order_list = self.get_dataset_idx_orders(sample_ratio, shuffle)
 
         # filter the max length
@@ -83,6 +87,7 @@ class LMDBDataset(BaseDataset):
             raise ValueError("No transform pipeline is specified!")
 
         self.prefetch(output_columns)
+        self.output_columns = ["img_lmdb", "label"]
 
     def prefetch(self, output_columns):
         # prefetch the data keys, to fit GeneratorDataset
@@ -207,21 +212,9 @@ class LMDBDataset(BaseDataset):
 
         data = {"img_lmdb": sample_info[0], "label": sample_info[1]}
 
-        # perform transformation on data
-        try:
-            data = run_transforms(data, transforms=self.transforms)
-        except Exception as e:
-            if self.random_choice_if_none:
-                _logger.warning("data is None after transforms, randomly choose another data.")
-                random_idx = np.random.randint(self.__len__())
-                return self.__getitem__(random_idx)
-            else:
-                _logger.warning(f"Error occurred during preprocess.\n {e}")
-                raise e
-
-        output_tuple = tuple(data[k] for k in self.output_columns)
-
-        return output_tuple
+        # output the tuples only
+        output = data.values()
+        return output
 
     def __len__(self):
         return self.data_idx_order_list.shape[0]

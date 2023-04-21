@@ -27,7 +27,7 @@ class Preprocessor(object):
                 #      'target_limit_side': None, #target_limit_side, # TODO: add to arg
                 #      'limit_type': None, #limit_type,
                 #      'padding': False,
-                #      'force_divisable': True,
+                #      'force_divisible': True,
                 #      'divisor': 32
                 #     }},
                 {
@@ -37,7 +37,7 @@ class Preprocessor(object):
                         "limit_side_len": limit_side_len,
                         "limit_type": limit_type,
                         "padding": False,
-                        "force_divisable": True,
+                        "force_divisible": True,
                     }
                 },
                 {

@@ -139,6 +139,7 @@ if __name__ == "__main__":
         type=str,
         help="Specify the set split for datasets with multiple sets in a single file (e.g. train, val, test).",
     )
+    parser.add_argument("--mindrecord", action="store_true", help="Cache the dataset into MindRecord.")
 
     args = vars(parser.parse_args())
     convert(**args)

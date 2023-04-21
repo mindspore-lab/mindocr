@@ -1,13 +1,14 @@
-import glob
 import json
-import os
+from pathlib import Path
 
 from shapely.geometry import Polygon
+
+from mindspore.mindrecord import FileWriter
 
 from mindocr.data.utils.polygon_utils import sort_clockwise
 
 
-class IC15_Converter(object):
+class IC15_Converter:
     """
     Format annotation to standard form for ic15 dataset.
     The ground truth is provided in terms of word bounding boxes. Bounding boxes are specified by the coordinates of
@@ -22,45 +23,63 @@ class IC15_Converter(object):
     If the transcription is provided as "###", then text block (word) is considered as "don't care".
     """
 
-    def __init__(self, path_mode="relative", **kwargs):
-        self.path_mode = path_mode
+    def __init__(self, path_mode="relative", mindrecord: bool = False, **kwargs):
+        self._to_mr = mindrecord
+        self._path_mode = "abs" if self._to_mr else path_mode
 
     def convert(self, task="det", image_dir=None, label_path=None, output_path=None):
-        self.label_path = label_path
-        assert os.path.exists(label_path), f"{label_path} no exist!"
+        label_path = Path(label_path)
+        assert label_path.exists(), f"{label_path} no exist!"
+
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
         if task == "det":
-            self._format_det_label(image_dir, self.label_path, output_path)
+            self._format_det_label(Path(image_dir), label_path, output_path)
         if task == "rec":
-            self._format_rec_label(self.label_path, output_path)
+            self._format_rec_label(label_path, output_path)
 
     def _format_det_label(self, image_dir, label_dir, output_path):
-        label_paths = sorted(glob.glob(os.path.join(label_dir, "*.txt")))
-        with open(output_path, "w") as out_file:
-            for label_fp in label_paths:
-                label_file_name = os.path.basename(label_fp)
-                img_path = os.path.join(image_dir, label_file_name[3:-4] + ".jpg")
-                assert os.path.exists(
-                    img_path
-                ), f"{img_path} not exist! Please check the input image_dir {image_dir} and names in {label_fp}"
+        if self._to_mr:
+            writer = FileWriter(file_name=output_path)
+            writer.add_schema({"image": {"type": "bytes"}, "label": {"type": "string"}})
+        else:
+            writer = open(output_path, "w")
 
-                label = []
-                if self.path_mode == "relative":
-                    img_path = os.path.basename(img_path)
-                with open(label_fp, "r", encoding="utf-8-sig") as f:
-                    for line in f.readlines():
-                        line = line.strip("\n\r").replace("\xef\xbb\xbf", "").split(",", 8)
+        for label_fp in sorted(label_dir.glob("*.txt"), key=lambda path: int(path.stem.split("_")[-1])):
+            img_path = image_dir / (label_fp.stem.split("_", 1)[1] + ".jpg")
+            assert (
+                img_path.exists()
+            ), f"{img_path} not exist! Please check the input image_dir {image_dir} and names in {label_fp}"
 
-                        points = [[int(line[i]), int(line[i + 1])] for i in range(0, 8, 2)]  # reshape points (4, 2)
-                        # sort points and validate
-                        points = sort_clockwise(points).tolist()
-                        if not Polygon(points).is_valid:
-                            print(f"Warning {img_path.name}: skipping invalid polygon {points}")
-                            continue
+            if self._path_mode == "relative":
+                img_path = img_path.name
 
-                        label.append({"transcription": line[8], "points": points})
+            label = []
+            with open(label_fp, "r", encoding="utf-8-sig") as f:
+                for line in f.readlines():
+                    line = line.strip("\n\r").replace("\xef\xbb\xbf", "").split(",", 8)
 
-                out_file.write(img_path + "\t" + json.dumps(label, ensure_ascii=False) + "\n")
+                    points = [[int(line[i]), int(line[i + 1])] for i in range(0, 8, 2)]  # reshape points (4, 2)
+                    # sort points and validate
+                    points = sort_clockwise(points).tolist()
+                    if not Polygon(points).is_valid:
+                        print(f"Warning {img_path.name}: skipping invalid polygon {points}")
+                        continue
+
+                    label.append({"transcription": line[8], "points": points})
+
+            label = json.dumps(label, ensure_ascii=False)
+            if self._to_mr:
+                with open(img_path, "rb") as f:
+                    img = f.read()
+                writer.write_raw_data([{"image": img, "label": label}])
+            else:
+                writer.write(img_path + "\t" + label + "\n")
+
+        if self._to_mr:
+            writer.commit()
+        else:
+            writer.close()
 
     def _format_rec_label(self, label_path, output_path):
         with open(output_path, "w") as outf:

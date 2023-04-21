@@ -25,7 +25,7 @@ __all__ = [
 _logger = logging.getLogger(__name__)
 
 
-class RecCTCLabelEncode(object):
+class RecCTCLabelEncode:
     """Convert text label (str) to a sequence of character indices according to the char dictionary
 
     Args:
@@ -105,6 +105,7 @@ class RecCTCLabelEncode(object):
         self.dict = {c: idx for idx, c in enumerate(char_list)}
 
         self.num_classes = len(self.dict)
+        self.output_columns = ["length", "text_seq", "text_length", "text_padded"]
 
     def __call__(self, data: dict):
         """
@@ -508,7 +509,7 @@ def resize_norm_img_chinese(img, image_shape):
 
 
 # TODO: remove infer_mode and character_dict_path if they are not necesary
-class RecResizeImg(object):
+class RecResizeImg:
     """adopted from paddle
     resize, convert from hwc to chw, rescale pixel value to -1 to 1
     """
@@ -518,6 +519,7 @@ class RecResizeImg(object):
         self.infer_mode = infer_mode
         self.character_dict_path = character_dict_path
         self.padding = padding
+        self.output_columns = ["image", "valid_ratio"]
 
     def __call__(self, data):
         img = data["image"]

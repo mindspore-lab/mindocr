@@ -1,6 +1,9 @@
 import logging
-import multiprocessing
 import os
+from multiprocessing import cpu_count
+
+import cv2
+from packaging import version
 
 import mindspore as ms
 
@@ -8,6 +11,7 @@ from .det_dataset import DetDataset, SynthTextDataset
 from .predict_dataset import PredictDataset
 from .rec_dataset import RecDataset
 from .rec_lmdb_dataset import LMDBDataset
+from .transforms import create_transforms
 
 __all__ = ["build_dataset"]
 _logger = logging.getLogger(__name__)
@@ -29,7 +33,7 @@ def build_dataset(
     shard_id=None,
     is_train=True,
     **kwargs,
-):
+) -> ms.dataset.BatchDataset:
     """
     Build dataset for training and evaluation.
 
@@ -103,64 +107,85 @@ def build_dataset(
     # Check dataset paths (dataset_root, data_dir, and label_file) and update to absolute format
     dataset_config = _check_dataset_paths(dataset_config)
 
+    # OpenCV spawns as many threads as there are CPU cores, thus causing multiprocessing overhead.
+    # It is better to limit the number of threads per sample but increase the total number of pipeline threads
+    # to process more samples simultaneously.
+    cv2.setNumThreads(2)
+
+    # prefetch_size: the length of the cache queue in the data pipeline for each worker,
+    # used to reduce waiting time. Larger value leads to more memory consumption.
+    ms.dataset.config.set_prefetch_size(loader_config.get("prefetch_size", 16))
+    ms.dataset.config.set_enable_shared_mem(True)
+    # ms.dataset.config.set_debug_mode(True)    # uncomment this to debug data pipeline
+
     # Set default multiprocessing params for data pipeline
-    # num_parallel_workers: Number of subprocesses used to fetch the dataset, transform data, or load batch in parallel
-    num_devices = 1 if num_shards is None else num_shards
-    cores = multiprocessing.cpu_count()
-    NUM_WORKERS_BATCH = 2
-    NUM_WORKERS_MAP = int(
-        cores / num_devices - NUM_WORKERS_BATCH
-    )  # optimal num workers assuming all cpu cores are used in this job
-    num_workers = loader_config.get("num_workers", NUM_WORKERS_MAP)
-    if num_workers > int(cores / num_devices):
+    cores = cpu_count()
+    num_devices = num_shards or 1
+    num_workers_dataset = loader_config.get("num_workers_dataset", 4)
+    num_workers_batch = loader_config.get("num_workers_batch", 2)
+    # optimal num workers assuming all cpu cores are used in this job
+    num_workers_map = loader_config.get("num_workers", cores // num_devices - num_workers_batch - num_workers_dataset)
+    if num_workers_map > cores // num_devices:
+        num_workers_map = cores // num_devices
         _logger.warning(
-            f"`num_workers` is adjusted to {int(cores / num_devices)} since {num_workers}x{num_devices} "
-            f"exceeds the number of CPU cores {cores}"
+            f"`num_workers` is adjusted to {num_workers_map} "
+            f"to fit {cores} CPU cores shared among {num_devices} devices"
         )
-        num_workers = int(cores / num_devices)
-    # prefetch_size: the length of the cache queue in the data pipeline for each worker, used to reduce waiting time.
-    # Larger value leads to more memory consumption. Default: 16
-    prefetch_size = loader_config.get("prefetch_size", 16)  #
-    ms.dataset.config.set_prefetch_size(prefetch_size)
-    # max_rowsize: MB of shared memory between processes to copy data. Only used when python_multiprocessing is True.
-    max_rowsize = loader_config.get("max_rowsize", 64)
-    # auto tune num_workers, prefetch. (This conflicts the profiler)
-    # ms.dataset.config.set_autotune_interval(5)
-    # ms.dataset.config.set_enable_autotune(True, "./dataproc_autotune_out")
 
-    # 1. create source dataset (GeneratorDataset)
-    # Invoke dataset class
-    dataset_class_name = dataset_config.pop("type")
-    assert dataset_class_name in supported_dataset_types, "Invalid dataset name"
-    dataset_class = eval(dataset_class_name)
-    dataset_args = dict(is_train=is_train, **dataset_config)
-    dataset = dataset_class(**dataset_args)
+    if dataset_config["mindrecord"]:
+        # read the MR file's schema to load the stored list of columns
+        reader = ms.mindrecord.FileReader(dataset_config["data_dir"])
+        dataset_column_names = list(reader.schema().keys())
+        reader.close()
 
-    dataset_column_names = dataset.get_output_columns()
+        ds = ms.dataset.MindDataset(
+            dataset_config["data_dir"],
+            columns_list=dataset_column_names,
+            num_parallel_workers=num_workers_dataset,
+            num_shards=num_shards,
+            shard_id=shard_id,
+            shuffle=loader_config["shuffle"],
+        )
+    else:
+        dataset_class_name = dataset_config.pop("type")
+        assert dataset_class_name in supported_dataset_types, "Invalid dataset name"
+        dataset = eval(dataset_class_name)(is_train=is_train, **dataset_config)
 
-    # Generate source dataset (source w.r.t. the dataset.map pipeline)
-    # based on python callable numpy dataset in parallel
-    ds = ms.dataset.GeneratorDataset(
-        dataset,
-        column_names=dataset_column_names,
-        num_parallel_workers=num_workers,
-        num_shards=num_shards,
-        shard_id=shard_id,
-        python_multiprocessing=True,  # keep True to improve performace for heavy computation.
-        max_rowsize=max_rowsize,
-        shuffle=loader_config["shuffle"],
+        ds = ms.dataset.GeneratorDataset(
+            dataset,
+            column_names=dataset.output_columns,
+            num_parallel_workers=num_workers_dataset,
+            num_shards=num_shards,
+            shard_id=shard_id,
+            # file reading is not CPU bounded => use multithreading for reading images and labels
+            python_multiprocessing=False,
+            shuffle=loader_config["shuffle"],
+        )
+        dataset_column_names = dataset.output_columns
+
+    # 2. data mapping using mindata C lib
+    transforms = create_transforms(
+        dataset_config["transform_pipeline"],
+        input_columns=dataset_column_names,
+        backward_comp=version.parse(ms.__version__) < version.parse("2.0.0rc"),
     )
+    for group in transforms:
+        ds = ds.map(
+            **group,
+            python_multiprocessing=True,
+            num_parallel_workers=num_workers_map,
+            max_rowsize=loader_config.get("max_rowsize", 64),
+        )
 
-    # 2. data mapping using mindata C lib (optional)
-    # ds = ds.map(operations=transform_list, input_columns=['image', 'label'], num_parallel_workers=8,
-    # python_multiprocessing=True)
+    # 3. keep the usable columns_only
+    ds = ds.project(dataset_config["output_columns"])
 
-    # 3. create loader
+    # 4. create loader
     # get batch of dataset by collecting batch_size consecutive data rows and apply batch operations
     num_samples = ds.get_dataset_size()
     batch_size = loader_config["batch_size"]
 
-    device_id = 0 if shard_id is None else shard_id
+    device_id = shard_id or 0
     is_main_device = device_id == 0
     _logger.info(
         f"Creating dataloader (training={is_train}) for device {device_id}. Number of data samples: {num_samples}"
@@ -170,30 +195,20 @@ def build_dataset(
         batch_size = _check_batch_size(num_samples, batch_size, refine=kwargs["refine_batch_size"])
 
     drop_remainder = loader_config.get("drop_remainder", is_train)
-    if is_train and drop_remainder is False and is_main_device:
+    if is_train and not drop_remainder and is_main_device:
         _logger.warning(
             "`drop_remainder` should be True for training, "
-            "otherwise the last batch may lead to training fail in Graph mode"
+            "otherwise the last batch may lead to training fail in Graph mode."
         )
-
-    if not is_train:
-        if drop_remainder and is_main_device:
+    elif not is_train and drop_remainder:
+        if is_main_device:
             _logger.warning(
                 "`drop_remainder` is forced to be False for evaluation "
                 "to include the last batch for accurate evaluation."
             )
-            drop_remainder = False
+        drop_remainder = False
 
-    dataloader = ds.batch(
-        batch_size,
-        drop_remainder=drop_remainder,
-        num_parallel_workers=min(
-            num_workers, 2
-        ),  # set small workers for lite computation. TODO: increase for batch-wise mapping
-        # input_columns=input_columns,
-        # output_columns=batch_column,
-        # per_batch_map=per_batch_map, # uncommet to use inner-batch transformation
-    )
+    dataloader = ds.batch(batch_size, drop_remainder=drop_remainder, num_parallel_workers=num_workers_batch)
 
     return dataloader
 
@@ -208,16 +223,16 @@ def _check_dataset_paths(dataset_config):
             dataset_config["data_dir"] = [
                 os.path.join(dataset_config["dataset_root"], dd) for dd in dataset_config["data_dir"]
             ]
-        if "label_file" in dataset_config:
-            if dataset_config["label_file"]:
-                if isinstance(dataset_config["label_file"], str):
-                    dataset_config["label_file"] = os.path.join(
-                        dataset_config["dataset_root"], dataset_config["label_file"]
-                    )
-                elif isinstance(dataset_config["label_file"], list):
-                    dataset_config["label_file"] = [
-                        os.path.join(dataset_config["dataset_root"], lf) for lf in dataset_config["label_file"]
-                    ]
+
+        if "label_file" in dataset_config and dataset_config["label_file"]:
+            if isinstance(dataset_config["label_file"], str):
+                dataset_config["label_file"] = os.path.join(
+                    dataset_config["dataset_root"], dataset_config["label_file"]
+                )
+            elif isinstance(dataset_config["label_file"], list):
+                dataset_config["label_file"] = [
+                    os.path.join(dataset_config["dataset_root"], lf) for lf in dataset_config["label_file"]
+                ]
 
     return dataset_config
 
@@ -231,6 +246,6 @@ def _check_batch_size(num_samples, ori_batch_size=32, refine=True):
             if num_samples % bs == 0:
                 _logger.info(
                     f"Batch size for evaluation is refined to {bs} to ensure the last batch will not be "
-                    f"dropped/padded in graph mode."
+                    "dropped/padded in graph mode."
                 )
                 return bs

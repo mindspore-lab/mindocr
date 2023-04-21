@@ -20,7 +20,7 @@ per-file-ignores =
     tools/infer/text/predict_system.py:E402
     tools/infer/text/predict_rec.py:E402
     tools/dataset_converters/convert.py:F401,F403,E402
-    mindocr/data/transforms/transforms_factory.py:F401,F403
+    mindocr/data/transforms/transforms_factory.py:F401,F403,F405
     tests/*:E402
     tests/ut/dataset_convert/test_dataset_converter.py:E402
     tests/ut/test_datasets.py:F401,E402
