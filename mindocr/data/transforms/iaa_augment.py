@@ -15,7 +15,7 @@ class IaaAugment:
         original_shape = data['image'].shape
         data['image'] = aug.augment_image(data['image'])
 
-        if 'poly' in self.output_columns:
+        if 'polys' in self.output_columns:
             new_polys = []
             for poly in data['polys']:
                 kps = KeypointsOnImage([Keypoint(p[0], p[1]) for p in poly], shape=original_shape)
