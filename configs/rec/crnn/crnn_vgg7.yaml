@@ -147,6 +147,6 @@ eval:
   loader:
       shuffle: False # TODO: tbc
       batch_size: 16
-      drop_remainder: True
+      drop_remainder: False
       max_rowsize: 12
       num_workers: 8
