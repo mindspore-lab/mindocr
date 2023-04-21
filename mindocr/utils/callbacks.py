@@ -68,8 +68,6 @@ class Evaluator:
             # preds = self.net(*net_inputs)
             # print('net predictions', preds)
 
-            net_preds = self.net(img)
-
             if self.postprocessor is not None:
                 preds = self.postprocessor(net_preds)  # {'polygons':, 'scores':} for text det
 
