@@ -1,12 +1,11 @@
-from typing import List
 import os
 import multiprocessing
 import mindspore as ms
-from addict import Dict
 import multiprocessing
 from .det_dataset import DetDataset, SynthTextDataset
 from .rec_dataset import RecDataset
 from .rec_lmdb_dataset import LMDBDataset
+from .transforms import create_transforms, get_transforms_column_names
 
 __all__ = ['build_dataset']
 
@@ -103,13 +102,23 @@ def build_dataset(
     # 1. create source dataset (GeneratorDataset)
     ## Invoke dataset class
     dataset_class_name = dataset_config.pop('type')
+
+    transform_pipeline = dataset_config.pop("transform_pipeline")
+    transform_pipeline_funcs = create_transforms(transform_pipeline)
+    transform_pipeline_columns_names = get_transforms_column_names(transform_pipeline_funcs)
+
     assert dataset_class_name in supported_dataset_types, "Invalid dataset name"
     dataset_class = eval(dataset_class_name)
     dataset_args = dict(is_train=is_train, **dataset_config)
     dataset = dataset_class(**dataset_args)
 
+    # hack: make the columns in the dataset and the pipeline consistent, in order to be compatible with Dataset Compose and Map API
+    dataset.output_columns = transform_pipeline_columns_names
+    for x in transform_pipeline_funcs:
+        x.updated_columns = dataset.output_columns
+
     dataset_column_names = dataset.get_output_columns()
-    print('==> Dataset output columns: \n\t', dataset_column_names)
+    print('==> Dataset columns: \n\t', dataset_column_names)
 
     # TODO: find optimal setting automatically according to num of CPU cores
     num_workers = loader_config.get("num_workers", 8) # Number of subprocesses used to fetch the dataset/map data row/gen batch in parallel
@@ -129,18 +138,23 @@ def build_dataset(
     ds = ms.dataset.GeneratorDataset(
                     dataset,
                     column_names=dataset_column_names,
-                    num_parallel_workers=num_workers,
+                    num_parallel_workers=min(num_workers, 2),
                     num_shards=num_shards,
                     shard_id=shard_id,
-                    python_multiprocessing=True, # keep True to improve performace for heavy computation.
-                    max_rowsize =max_rowsize,
+                    python_multiprocessing=False,
+                    max_rowsize=max_rowsize,
                     shuffle=loader_config['shuffle'],
                     )
 
     # 2. data mapping using mindata C lib (optional)
-    # ds = ds.map(operations=transform_list, input_columns=['image', 'label'], num_parallel_workers=8, python_multiprocessing=True)
+    ds = ds.map(operations=transform_pipeline_funcs, input_columns=dataset_column_names, num_parallel_workers=num_workers)
 
-    # 3. create loader
+    # 3. keep the usable columns_only
+    output_columns = dataset_config["output_columns"]
+    print('==> Dataset output columns: \n\t', output_columns)
+    ds = ds.project(output_columns)
+
+    # 4. create loader
     # get batch of dataset by collecting batch_size consecutive data rows and apply batch operations
     num_samples = ds.get_dataset_size()
     batch_size = loader_config['batch_size']

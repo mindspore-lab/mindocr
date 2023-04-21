@@ -5,10 +5,11 @@ from typing import List
 import cv2
 import math
 import numpy as np
+from .transform import Transform
 
 __all__ = ['RecCTCLabelEncode', 'RecResizeImg']
 
-class RecCTCLabelEncode(object):
+class RecCTCLabelEncode(Transform):
     ''' Convert text label (str) to a sequence of character indices according to the char dictionary
 
     Args:
@@ -35,6 +36,7 @@ class RecCTCLabelEncode(object):
                 #end_token='<EOS>',
                 #unkown_token='',
                 ):
+        super().__init__()
         self.max_text_len = max_text_len
         self.space_idx = None
         self.lower = lower
@@ -77,6 +79,9 @@ class RecCTCLabelEncode(object):
 
         self.num_classes = len(self.dict)
 
+    def get_updated_columns(self):
+        return ["length", "text_seq", "text_length", "text_padded"]
+
     def str2idx(self, text):
         '''
         Encode text (string) to a squence of char indices
@@ -103,7 +108,7 @@ class RecCTCLabelEncode(object):
 
         return char_indices
 
-    def __call__(self, data: dict):
+    def transform(self, data: dict):
         '''
         required keys:
             label -> (str) text string
@@ -118,7 +123,8 @@ class RecCTCLabelEncode(object):
         #if isinstance(data['label'], np.ndarray):
         #    print(data['label'])
         #data['text'] = data['label'][:]
-        char_indices = self.str2idx(data['label'])
+        label = data['label'].tolist()
+        char_indices = self.str2idx(label)
 
         if char_indices is None:
             char_indices = []
@@ -129,8 +135,8 @@ class RecCTCLabelEncode(object):
         # TODO: raname to char_indices
         data['text_seq'] = np.array(char_indices, dtype=np.int32)
         # 
-        data['text_length'] = len(data['label']) 
-        data['text_padded'] = data['label'] + ' ' * (self.max_text_len - len(data['label']))
+        data['text_length'] = len(label) 
+        data['text_padded'] = label + ' ' * (self.max_text_len - len(label))
 
         return data
 
@@ -213,7 +219,7 @@ def resize_norm_img_chinese(img, image_shape):
     return padding_im, valid_ratio
 
 # TODO: remove infer_mode and character_dict_path if they are not necesary
-class RecResizeImg(object):
+class RecResizeImg(Transform):
     ''' adopted from paddle
     resize, convert from hwc to chw, rescale pixel value to -1 to 1
     '''
@@ -223,12 +229,16 @@ class RecResizeImg(object):
                  character_dict_path=None,
                  padding=True,
                  **kwargs):
+        super().__init__()
         self.image_shape = image_shape
         self.infer_mode = infer_mode
         self.character_dict_path = character_dict_path
         self.padding = padding
 
-    def __call__(self, data):
+    def get_updated_columns(self):
+        return ["image", "valid_ratio"]
+
+    def transform(self, data):
         img = data['image']
         if self.infer_mode and self.character_dict_path is not None:
             norm_img, valid_ratio = resize_norm_img_chinese(img,

@@ -1,15 +1,16 @@
 """
 Create and run transformations from a config or predefined transformation pipeline
 """
-from typing import List
+from typing import List, Callable
 import numpy as np
 
 from .general_transforms import *
 from .det_transforms import *
 from .rec_transforms import *
 from .iaa_augment import *
+from .transform import Transform
 
-__all__ = ['create_transforms', 'run_transforms', 'transforms_dbnet_icdar15']
+__all__ = ['create_transforms', 'run_transforms', 'get_transforms_column_names', 'transforms_dbnet_icdar15']
 
 
 # TODO: use class with __call__, to perform transformation
@@ -64,6 +65,14 @@ def run_transforms(data, transforms=None, verbose=False):
         if data is None:
             return None
     return data
+
+
+def get_transforms_column_names(transforms: List[Transform]) -> List[str]:
+    column_names = list()
+    for x in transforms:
+        column_names.extend(x.updated_columns)
+    column_names = list(set(column_names))
+    return column_names
 
 
 # ---------------------- Predefined transform pipeline ------------------------------------

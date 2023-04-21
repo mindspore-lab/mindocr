@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from PIL import Image
 from mindspore.dataset.vision import RandomColorAdjust as MSRandomColorAdjust, ToPIL
+from .transform import Transform
 
 from ...data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 
@@ -11,23 +12,23 @@ __all__ = ['DecodeImage', 'NormalizeImage', 'ToCHWImage', 'PackLoaderInputs', 'S
 
 
 # TODO: use mindspore C.decode for efficiency
-class DecodeImage:
+class DecodeImage(Transform):
     """
     img_mode (str): The channel order of the output, 'BGR' and 'RGB'. Default to 'BGR'.
     channel_first (bool): if True, image shpae is CHW. If False, HWC. Default to False
     """
     def __init__(self, img_mode='BGR', channel_first=False, to_float32=False, ignore_orientation=False, **kwargs):
+        super().__init__()
         self.img_mode = img_mode
         self.to_float32 = to_float32
         self.channel_first = channel_first
         self.flag = cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR if ignore_orientation else cv2.IMREAD_COLOR
 
-    def __call__(self, data):
-        if 'img_path' in data:
-            with open(data['img_path'], 'rb') as f:
-                img = f.read()
-        elif 'img_lmdb' in data:
-            img = data["img_lmdb"]
+    def get_updated_columns(self):
+        return ["image"]
+
+    def transform(self, data):
+        img = data["image"]
         img = np.frombuffer(img, dtype='uint8')
         img = cv2.imdecode(img, self.flag)
 
@@ -44,7 +45,7 @@ class DecodeImage:
         return data
 
 
-class NormalizeImage:
+class NormalizeImage(Transform):
     """
     normalize image, substract mean, divide std
     input image: by default, np.uint8, [0, 255], HWC format.
@@ -52,6 +53,7 @@ class NormalizeImage:
     """
     def __init__(self, mean: Union[List[float], str] = 'imagenet', std: Union[List[float], str] = 'imagenet',
                  is_hwc=True, bgr_to_rgb=False, rgb_to_bgr=False, **kwargs):
+        super().__init__()
         # By default, imagnet MEAN and STD is in RGB order. inverse if input image is in BGR mode
         self._channel_conversion = False
         if bgr_to_rgb or rgb_to_bgr:
@@ -63,7 +65,10 @@ class NormalizeImage:
         self.std = np.array(self._get_value(std, 'std')).reshape(shape).astype('float32')
         self.is_hwc = is_hwc
 
-    def __call__(self, data):
+    def get_updated_columns(self):
+        return ["image"]
+
+    def transform(self, data):
         img = data['image']
         if isinstance(img, Image.Image):
             img = np.array(img)
@@ -89,12 +94,15 @@ class NormalizeImage:
             raise ValueError(f'Wrong {name} value: {val}')
 
 
-class ToCHWImage:
+class ToCHWImage(Transform):
     # convert hwc image to chw image
     def __init__(self, **kwargs):
-        pass
+        super().__init__()
 
-    def __call__(self, data):
+    def get_updated_columns(self):
+        return ["image"]
+
+    def transform(self, data):
         img = data['image']
         if isinstance(img, Image.Image):
             img = np.array(img)

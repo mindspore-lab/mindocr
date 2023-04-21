@@ -1,10 +1,8 @@
-from typing import Union, List
+from typing import List, Optional, Any
 import numpy as np
-import random
 import lmdb
 import os
 
-from .transforms.transforms_factory import create_transforms, run_transforms
 from .base_dataset import BaseDataset
 
 __all__ = ['LMDBDataset']
@@ -20,8 +18,7 @@ class LMDBDataset(BaseDataset):
         transform_pipeline: list of dict, key - transform class name, value - a dict of param config.
                     e.g., [{'DecodeImage': {'img_mode': 'BGR', 'channel_first': False}}]
             -       if None, default transform pipeline for text detection will be taken.
-        output_columns (list): required, indicates the keys in data dict that are expected to output for dataloader. if None, all data keys will be used for return. 
-        global_config: additional info, used in data transformation, possible keys:
+        kwargs: additional info, used in data transformation, possible keys:
             - character_dict_path
             
 
@@ -44,11 +41,8 @@ class LMDBDataset(BaseDataset):
             is_train: bool = True, 
             data_dir: str = '', 
             sample_ratio: float = 1.0, 
-            shuffle: bool = None,
-            transform_pipeline: List[dict] = None, 
-            output_columns: List[str] = None,
-            #global_config: dict = None,
-            **kwargs
+            shuffle: Optional[bool] = None,
+            **kwargs: Any
             ):
 
         self.data_dir = data_dir
@@ -56,36 +50,22 @@ class LMDBDataset(BaseDataset):
         shuffle = shuffle if shuffle is not None else is_train
 
         self.lmdb_sets = self.load_list_of_hierarchical_lmdb_dataset(data_dir)
+        
+        if len(self.lmdb_sets) == 0:
+            raise ValueError(f"Cannot find any lmdb dataset in `{data_dir}`.")
+        
         self.data_idx_order_list = self.get_dataset_idx_orders(sample_ratio, shuffle)
-        
-        # create transform
-        if transform_pipeline is not None:
-            self.transforms = create_transforms(transform_pipeline) #, global_config=global_config)
-        else:
-            raise ValueError('No transform pipeline is specified!')
+        self._output_columns = ["image", "label"]
 
-        # prefetch the data keys, to fit GeneratorDataset
-        _data = self.data_idx_order_list[0]
-        lmdb_idx, file_idx = self.data_idx_order_list[0]
-        lmdb_idx = int(lmdb_idx)
-        file_idx = int(file_idx)
-        sample_info = self.get_lmdb_sample_info(self.lmdb_sets[lmdb_idx]['txn'], file_idx)
-        _data = {
-            "img_lmdb": sample_info[0],
-            "label": sample_info[1]
-        }
-        _data = run_transforms(_data, transforms=self.transforms)
-        _available_keys = list(_data.keys())
-        
-        if output_columns is None:
-            self.output_columns = _available_keys   
-        else:
-            self.output_columns = []
-            for k in output_columns:
-                if k in _data:
-                    self.output_columns.append(k)
-                else:
-                    raise ValueError(f'Key {k} does not exist in data (available keys: {_data.keys()}). Please check the name or the completeness transformation pipeline.')
+    @property
+    def output_columns(self):
+        return self._output_columns
+    
+    @output_columns.setter
+    def output_columns(self, columns):
+        for x in columns:
+            self._output_columns.append(x)
+        self._output_columns = list(set(self._output_columns))
 
     def load_list_of_hierarchical_lmdb_dataset(self, data_dir):
         if isinstance(data_dir, str):
@@ -161,16 +141,19 @@ class LMDBDataset(BaseDataset):
             return self.__getitem__(random_idx)
         
         data = {
-            "img_lmdb": sample_info[0],
+            "image": sample_info[0],
             "label": sample_info[1]
         }
         
-        # perform transformation on data
-        data = run_transforms(data, transforms=self.transforms)
-            
-        output_tuple = tuple(data[k] for k in self.output_columns) 
+        # convert dict to tuple, with extra dummy output
+        output = list()
+        for k in self.output_columns:
+            if k in data:
+                output.append(data[k])
+            else:
+                output.append(0)  # dummy output
 
-        return output_tuple
+        return output
 
     def __len__(self):
         return self.data_idx_order_list.shape[0]
