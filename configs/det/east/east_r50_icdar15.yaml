@@ -111,7 +111,7 @@ eval:
       - DetLabelEncode:
       - DetResize:
           target_size: [720, 1280]
-          force_divisable: False
+          force_divisible: False
       - NormalizeImage:
           bgr_to_rgb: False
           is_hwc: True

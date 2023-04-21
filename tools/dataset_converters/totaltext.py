@@ -21,7 +21,7 @@ class TOTALTEXT_Converter:
     ...
     """
 
-    def __init__(self, path_mode="relative"):
+    def __init__(self, path_mode="relative", to_mindrecord: bool = False):
         self.path_mode = path_mode
 
     def convert(self, task="det", image_dir=None, label_path=None, output_path=None):
