@@ -44,8 +44,11 @@ def _infer_dummy(model, task='det', verbose=True):
         print('neck output shape: ', nout.shape)
         hout = model.head(nout)
         print('head output shape: ')
-        for k in hout:
-            print('\r', k, hout[k].shape)
+        if isinstance(hout, tuple):
+            for ho in hout:
+                print(ho.shape)
+        else:
+            print(hout.shape)
 
         return hout
 

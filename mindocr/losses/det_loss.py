@@ -1,5 +1,7 @@
+from typing import Tuple, Union
 from mindspore import nn, ops
 import mindspore as ms
+from mindspore import Tensor
 import mindspore.numpy as mnp
 
 __all__ = ['L1BalancedCELoss']
@@ -28,26 +30,45 @@ class L1BalancedCELoss(nn.LossBase):
         self.l1_scale = l1_scale
         self.bce_scale = bce_scale
 
-    def construct(self, pred, gt, gt_mask, thresh_map, thresh_mask):
+    def construct(self, pred: Union[Tensor, Tuple[Tensor]], gt: Tensor, gt_mask: Tensor, thresh_map: Tensor, thresh_mask: Tensor):
         """
-        pred: A dict which contains predictions.
-            thresh: The threshold prediction
-            binary: The text segmentation prediction.
-            thresh_binary: Value produced by `step_function(binary - thresh)`.
-        gt: Text regions bitmap gt.
-        mask: Ignore mask, pexels where value is 1 indicates no contribution to loss.
-        thresh_mask: Mask indicates regions cared by thresh supervision.
-        thresh_map: Threshold gt.
+        Compute dbnet loss
+        Args:
+            pred (Tuple[Tensor]): network prediction consists of
+                binary: The text segmentation prediction.
+                thresh: The threshold prediction (optional)
+                thresh_binary: Value produced by `step_function(binary - thresh)`. (optional)
+            gt (Tensor): Text regions bitmap gt.
+            mask (Tensor): Ignore mask, pexels where value is 1 indicates no contribution to loss.
+            thresh_mask (Tensor): Mask indicates regions cared by thresh supervision.
+            thresh_map (Tensor): Threshold gt.
+        Return:
+            loss value (Tensor)
         """
-        bce_loss_output = self.bce_loss(pred['binary'], gt, gt_mask)
+        if isinstance(pred, ms.Tensor):
+            loss = self.bce_loss(pred, gt, gt_mask)
+        else:
+            binary, thresh, thresh_binary = pred
+            bce_loss_output = self.bce_loss(binary, gt, gt_mask)
+            l1_loss = self.l1_loss(thresh, thresh_map, thresh_mask)
+            dice_loss = self.dice_loss(thresh_binary, gt, gt_mask)
+            loss = dice_loss + self.l1_scale * l1_loss + self.bce_scale * bce_loss_output
 
-        if 'thresh' in pred:
-            l1_loss = self.l1_loss(pred['thresh'], thresh_map, thresh_mask)
-            dice_loss = self.dice_loss(pred['thresh_binary'], gt, gt_mask)
+        '''
+        if isinstance(pred, tuple):
+            binary, thresh, thresh_binary = pred
+        else:
+            binary = pred
+
+        bce_loss_output = self.bce_loss(binary, gt, gt_mask)
+
+        if isinstance(pred, tuple):
+            l1_loss = self.l1_loss(thresh, thresh_map, thresh_mask)
+            dice_loss = self.dice_loss(thresh_binary, gt, gt_mask)
             loss = dice_loss + self.l1_scale * l1_loss + self.bce_scale * bce_loss_output
         else:
             loss = bce_loss_output
-
+        '''
         return loss
 
 

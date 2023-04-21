@@ -10,11 +10,11 @@ class BaseModel(nn.Cell):
     def __init__(self, config: dict):
         """
         Args:
-            config (dict): model config 
+            config (dict): model config
         """
         super(BaseModel, self).__init__()
 
-        config = Dict(config)  
+        config = Dict(config)
         backbone_name = config.backbone.pop('name')
         self.backbone = build_backbone(backbone_name, **config.backbone)
 
@@ -31,7 +31,7 @@ class BaseModel(nn.Cell):
         head_name = config.head.pop('name')
         self.head = build_head(head_name, in_channels=self.neck.out_channels, **config.head)
 
-        self.model_name = f'{backbone_name}_{neck_name}_{head_name}'  
+        self.model_name = f'{backbone_name}_{neck_name}_{head_name}'
 
     def construct(self, x):
         # TODO: return bout, hout for debugging, using a dict.
@@ -41,22 +41,9 @@ class BaseModel(nn.Cell):
 
         hout = self.head(nout)
 
-        # resize back for postprocess 
+        # resize back for postprocess
         #y = F.interpolate(y, size=(H, W), mode='bilinear', align_corners=True)
 
-        # for multi head, save ctc neck out for udml
-        '''
-        if isinstance(x, dict) and 'ctc_neck' in x.keys():
-            y["neck_out"] = x["ctc_neck"]
-            y["head_out"] = x
-        elif isinstance(x, dict):
-            y.update(x)
-        else:
-            y["head_out"] = x
-        
-        
-        '''
-        
         return hout
 
 
@@ -64,7 +51,7 @@ if __name__=='__main__':
     model_config = {
             "backbone": {
                 'name': 'det_resnet50',
-                'pretrained': False 
+                'pretrained': False
                 },
             "neck": {
                 "name": 'FPN',
@@ -75,10 +62,10 @@ if __name__=='__main__':
                 "out_channels": 2,
                 "k": 50
                 }
-            
+
             }
     model_config.pop('neck')
-    model = BaseModel(model_config) 
+    model = BaseModel(model_config)
 
     import mindspore as ms
     import time
