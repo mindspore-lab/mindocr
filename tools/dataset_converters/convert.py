@@ -1,4 +1,4 @@
-'''
+"""
 Script to convert data annotation format for ocr model training
 
 Example:
@@ -12,16 +12,17 @@ Example:
         --dataset_name  ic15 \
         --task rec \
         --label_dir /path/to/ic15/rec/ch4_training_word_images_gt
-'''
-
-
-import argparse
+"""
 
 import os
+import argparse
+
 from ic15 import IC15_Converter
 from totaltext import TOTALTEXT_Converter
-from mlt2017 import MLT2017_Converter   
+from mlt2017 import MLT2017_Converter
 from syntext150k import SYNTEXT150K_Converter
+
+
 supported_datasets = ['ic15', 'totaltext', 'mlt2017', 'syntext150k']
 
 
@@ -33,9 +34,7 @@ def convert(dataset_name, task, image_dir, label_path, output_path=None, path_mo
       output_path: path to save the converted annotation. If None, the file will be saved as '{task}_gt.txt' along with `label_path`
     """
     if dataset_name in supported_datasets:
-        if output_path=='':
-            output_path = None
-        if output_path is None:
+        if not output_path:
             root_dir = '/'.join(label_path.split('/')[:-1])
             output_path = os.path.join(root_dir, f'{task}_gt.txt')
         assert path_mode in ['relative', 'abs'], f'Invalid mode: {path_mode}'
@@ -43,8 +42,7 @@ def convert(dataset_name, task, image_dir, label_path, output_path=None, path_mo
         class_name = dataset_name.upper() + '_Converter'
         cvt = eval(class_name)()
         cvt.convert(task, image_dir, label_path, output_path)
-        print('Conversion complete.')
-        print(f'Result saved in {output_path}')
+        print(f'Conversion complete.\nResult saved in {output_path}')
 
     else:
         raise ValueError(f'{dataset_name} is not supported for conversion, supported datasets are {supported_datasets}')
@@ -56,7 +54,7 @@ if __name__ == "__main__":
         '--dataset_name',
         type=str,
         default="ic15",
-        help='The name for the dataset to be converted, valid choices: ic15')
+        help=f'Name of the dataset to convert. Valid choices: {supported_datasets}')
     parser.add_argument(
         '--task',
         type=str,

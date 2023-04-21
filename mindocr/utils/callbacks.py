@@ -65,8 +65,10 @@ class Evaluator:
             net_preds = self.net(img)
             # net_inputs = data[:num_columns_to_net]
             # gt = data[num_columns_to_net:] # ground truth
-            # preds = self.net(*net_inputs) # head output is dict. for text det {'binary', ...},  for text rec, {'head_out': }
+            # preds = self.net(*net_inputs)
             # print('net predictions', preds)
+
+            net_preds = self.net(img)
 
             if self.postprocessor is not None:
                 preds = self.postprocessor(net_preds)  # {'polygons':, 'scores':} for text det
