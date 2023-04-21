@@ -27,7 +27,7 @@ class DecodeImage:
             with open(data['img_path'].item(), 'rb') as f:
                 img = f.read()
         elif 'img_lmdb' in data:
-            img = data["img_lmdb"].item()
+            img = data["img_lmdb"]
         else:
             raise ValueError("Cannot find required key `img_path` or `img_lmdb`.")
 
