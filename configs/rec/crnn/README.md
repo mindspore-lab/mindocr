@@ -242,14 +242,22 @@ python tools/eval.py --config configs/rec/crnn/crnn_resnet34.yaml
 
 To transform the groud-truth text into label ids, we have to provide the character dictionary where keys are characters and values ​​are IDs. By default, the dictionary is **"0123456789abcdefghijklmnopqrstuvwxyz"**, which means id=0 will correspond to the charater "0". In this case, the dictionary only considers numbers and lowercase English characters, excluding spaces. 
 
+### Built-in Dictionaries
+
+There are some built-in dictionaries, which are placed in `mindocr/utils/dict/`, and you can choose the appropriate dictionary to use.
+
+- `en_dict.txt` is an English dictionary containing 96 characters, including numbers, common symbols, and uppercase and lowercase English letters.
+
 
 ### Customized Dictionary
 
-You can specify your own dictionary by placing a dictionary file (***.txt) under `mindocr/utils/dict/` and setting the parameter `character_dict_path` to the path to your dictionary in the configuration yaml.
+You can also customize a dictionary file (***.txt) and place it under `mindocr/utils/dict/`, the format of the dictionary file should be a .txt file with one character per line.
+
+
+To use a specific dictionary, set the parameter `character_dict_path` to the path of the dictionary, and change the parameter `num_classes` to the corresponding number, which is the number of characters in the dictionary + 1.
 
 
 **Notes:**
-- The format of dictionary file should be a .txt file with one character per line.
 - You can include the space character by setting the parameter `use_space_char` in configuration yaml to True.
 - Remember to check the value of `dataset->transform_pipeline->RecCTCLabelEncode->lower` in the configuration yaml. Set it to False if you prefer case-sensitive encoding.
 

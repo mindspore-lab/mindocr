@@ -243,13 +243,22 @@ python tools/eval.py --config configs/rec/crnn/crnn_resnet34.yaml
 在数据处理时，真实文本会根据提供的字符字典转换为标签 ID，字典中键是字符，值是 ID。默认情况下，字典 **"0123456789abcdefghijklmnopqrstuvwxyz"**，这代表着id=0 将对应字符'0'。在默认设置下，字典只考虑数字和小写英文字符，不包括空格。
 
 
+### 内置词典
+
+Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，可选择合适的字典使用。
+
+- `en_dict.txt` 是一个包含96个字符的英文字典，其中有数字，常用符号以及大小写的英文字母。
+
+
 ### 自定义词典
 
-您可以通过将字典文件 (***.txt) 放在 mindocr/utils/dict/ 下并将参数 character_dict_path 设置为配置 yaml 中字典的路径来指定您自己的字典。
+您也可以自定义一个字典文件 (***.txt)， 放在 `mindocr/utils/dict/` 下，词典文件格式应为每行一个字符的.txt 文件。
+
+
+如需使用指定的词典，请将参数 `character_dict_path` 设置为字典的路径，并将参数 `num_classes` 改成对应的数量，即字典中字符的数量 + 1。
 
 
 **注意：**
-- 词典文件格式应为每行一个字符的.txt 文件。
 - 您可以通过将配置文件中的参数 `use_space_char` 设置为 True 来包含空格字符。
 - 请记住检查配置文件中的 `dataset->transform_pipeline->RecCTCLabelEncode->lower` 参数的值。如果词典中有大小写字母而且想区分大小写的话，请将其设置为 False。
 
