@@ -1,4 +1,4 @@
-from typing import List, Optional, Any
+from typing import Optional, Any
 import numpy as np
 import lmdb
 import os
@@ -55,17 +55,7 @@ class LMDBDataset(BaseDataset):
             raise ValueError(f"Cannot find any lmdb dataset in `{data_dir}`.")
         
         self.data_idx_order_list = self.get_dataset_idx_orders(sample_ratio, shuffle)
-        self._output_columns = ["image", "label"]
-
-    @property
-    def output_columns(self):
-        return self._output_columns
-    
-    @output_columns.setter
-    def output_columns(self, columns):
-        for x in columns:
-            self._output_columns.append(x)
-        self._output_columns = list(set(self._output_columns))
+        self.output_columns = ["img_lmdb", "label"]
 
     def load_list_of_hierarchical_lmdb_dataset(self, data_dir):
         if isinstance(data_dir, str):
@@ -141,18 +131,12 @@ class LMDBDataset(BaseDataset):
             return self.__getitem__(random_idx)
         
         data = {
-            "image": sample_info[0],
+            "img_lmdb": sample_info[0],
             "label": sample_info[1]
         }
-        
-        # convert dict to tuple, with extra dummy output
-        output = list()
-        for k in self.output_columns:
-            if k in data:
-                output.append(data[k])
-            else:
-                output.append(0)  # dummy output
 
+        # output the tuples only
+        output = data.values()
         return output
 
     def __len__(self):

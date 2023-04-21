@@ -111,7 +111,7 @@ def build_dataset(dataset_config: dict,
                                      num_parallel_workers=min(num_workers, 4),
                                      num_shards=num_shards,
                                      shard_id=shard_id,
-                                     python_multiprocessing=True,    # keep True to improve performance for heavy computation.
+                                     python_multiprocessing=False,
                                      max_rowsize=loader_config.get("max_rowsize", 64),
                                      shuffle=loader_config['shuffle'])
 

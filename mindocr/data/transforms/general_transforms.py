@@ -27,7 +27,10 @@ class DecodeImage:
             with open(data['img_path'].item(), 'rb') as f:
                 img = f.read()
         elif 'img_lmdb' in data:
-            img = data["img_lmdb"].item()   # TODO: @zhtmike check it please
+            img = data["img_lmdb"].item()
+        else:
+            raise ValueError("Cannot find required key `img_path` or `img_lmdb`.")
+
         img = np.frombuffer(img, dtype='uint8')
         img = cv2.imdecode(img, self.flag)
 
