@@ -135,8 +135,10 @@ For detailed inference performance using MX engine, please refer to [mx inferenc
 ## Notes
 
 ### Change Log
-- 2023/04/12
-1. Support parameter grouping, which can be configure by the `grouping_strategy` or `no_weight_decay_params` arg. 
+- 2023/04/21
+1. Add parameter grouping to support flexible regularization in training. Usage: add `grouping_strategy` argment in yaml config to select a predefined grouping strategy, or use `no_weight_decay_params` argument to pick layers to exclude from weight decay (e.g., bias, norm). Example can be referred in `configs/rec/crnn/crnn_icdar15.yaml` 
+2. Add gradient accumulation to support large batch size training. Usage: add `gradient_accumulation_steps` in yaml config, the global batch size = batch_size * devices * gradient_accumulation_steps. Example can be referred in `configs/rec/crnn/crnn_icdar15.yaml`
+3. Add gradient clip to support training stablization. Enable it by setting `grad_clip` as True in yaml config.
 
 - 2023/03/23
 1. Add dynamic loss scaler support, compatible with drop overflow update. To enable dynamic loss scaler, please set `type` of `loss_scale` as `dynamic`. A YAML example can be viewed in `configs/rec/crnn/crnn_icdar15.yaml`
