@@ -28,7 +28,7 @@ class Evaluator:
     """
 
     def __init__(self, network, dataloader, loss_fn=None, postprocessor=None, metrics=None,
-                 num_columns_to_net=1, num_columns_of_labels=None,
+                 num_columns_to_net=1, num_columns_of_labels=None, num_epochs=-1,
                  visualize=False, verbose=False,
                  **kwargs):
         self.net = network
@@ -49,13 +49,19 @@ class Evaluator:
         assert eval_loss == False, 'not impl'
 
         # create iterator
-        self.iterator = dataloader.create_tuple_iterator(num_epochs=-1, output_numpy=False, do_copy=False)
+        self.reload(dataloader, num_columns_to_net, num_columns_of_labels, num_epochs)
+
+
+    def reload(self, dataloader, num_columns_to_net=1, num_columns_of_labels=None, num_epochs=-1):
+        # create iterator
+        self.iterator = dataloader.create_tuple_iterator(num_epochs=num_epochs, output_numpy=False, do_copy=False)
         self.num_batches_eval = dataloader.get_dataset_size()
 
         # dataset output columns
         self.num_inputs  = num_columns_to_net
         self.num_labels = num_columns_of_labels
         assert self.num_inputs==1, 'Only num_columns_to_net=1 (single input to network) is needed and supported for current networks.'
+
 
     def eval(self):
         """
