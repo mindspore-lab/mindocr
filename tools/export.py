@@ -1,4 +1,4 @@
-'''
+"""
 The online ckpt files are downloaded from https://download.mindspore.cn/toolkits/mindocr/
 Usage:
     To export all trained models from online ckpt to mindir as listed in configs/, run
@@ -9,9 +9,10 @@ Usage:
 
     To export a specific model by loading local ckpt, taking dbnet_resnet50 for example, run
        $ python tools/export.py --model_name dbnet_resnet50 --local_ckpt_path /path/to/local_ckpt
-'''
+"""
 import sys
 import os
+
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "..")))
 
@@ -30,7 +31,7 @@ def export(name, task='rec', local_ckpt_path="", save_dir=""):
     net.set_train(False)
 
     # TODO: extend input shapes for more models
-    if task=='rec':
+    if task == 'rec':
         c, h, w = 3, 32, 100
     else:
         c, h, w = 3, 736, 1280
@@ -54,6 +55,7 @@ def str2bool(v):
     else:
         raise argparse.ArgumentTypeError("Boolean value expected.")
 
+
 def check_args(args):
     if args.local_ckpt_path:  # load local ckpt
         if not args.model_name:
@@ -66,13 +68,15 @@ def check_args(args):
         if args.model_name and args.model_name not in list_models():
             raise ValueError(f"Invalid 'model_name': {args.model_name}. 'model_name' must be empty or one of names in {list_models()}.")
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("Convert model checkpoint to mindir format.")
     parser.add_argument(
         '--model_name',
         type=str,
         default="",
-        help='Name of the model to convert, choices: [crnn_resnet34, crnn_vgg7, dbnet_resnet50, ""]. You can lookup the name by calling mindocr.list_models(). If "", all models in list_models() will be converted.')
+        help=f'Name of the model to convert. Available choices: {list_models()}. '
+             'If empty, all supported models will be converted.')
     parser.add_argument(
         '--local_ckpt_path',
         type=str,

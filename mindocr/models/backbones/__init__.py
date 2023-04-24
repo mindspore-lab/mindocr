@@ -2,6 +2,7 @@
 from . import builder, _registry
 
 from .det_resnet import *
+from .det_mobilenet import *
 from .rec_vgg import *
 from .rec_resnet import *
 
