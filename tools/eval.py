@@ -63,7 +63,15 @@ def main(cfg):
     # postprocess network prediction
     metric = build_metric(cfg.metric)
 
-    net_evaluator = Evaluator(network, loader_eval, None, postprocessor, [metric])
+    net_evaluator = Evaluator(
+                        network,
+                        loader_eval,
+                        loss_func=None,
+                        postprocessor=postprocessor,
+                        metrics=[metric],
+                        num_columns_to_net=cfg.eval.dataset.get('num_columns_to_net', 1),
+                        num_columns_of_labels=cfg.eval.dataset.get('num_columns_of_labels', None),
+                        )
 
     # log
     print('='*40)

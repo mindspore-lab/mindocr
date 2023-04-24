@@ -17,10 +17,19 @@ __all__ = ['Evaluator', 'EvalSaveCallback']
 class Evaluator:
     """
     Args:
-        metric:
+        network: network
+        dataloader : data loader to generate batch data, where the data columns in a batch are defined by the transform pipeline and `output_columns`.
+        loss_fn: loss function
+        postprocessor: post-processor
+        metrics: metrics to evaluate network performance
+        num_columns_to_net: number of inputs to the network in the dataset output columns. Default is 1 for the first column is image.
+        num_columns_of_labels: number of labels in the dataset output columns. Default is None assuming the columns after image (data[1:]) are labels.
+                           If not None, the num_columns_of_labels columns after image (data[1:1+num_columns_of_labels]) are labels, and the remaining columns are additional info like image_path.
     """
 
-    def __init__(self, network, dataloader, loss_fn=None, postprocessor=None, metrics=None, num_epochs_train=-1, visualize=False, verbose=False,
+    def __init__(self, network, dataloader, loss_fn=None, postprocessor=None, metrics=None,
+                 num_columns_to_net=1, num_columns_of_labels=None,
+                 visualize=False, verbose=False,
                  **kwargs):
         self.net = network
         self.postprocessor = postprocessor
@@ -37,17 +46,20 @@ class Evaluator:
         if loss_fn is not None:
             eval_loss = True
             self.loss_fn = loss_fn
-        # TODO: add support for computing evaluation loss
         assert eval_loss == False, 'not impl'
 
         # create iterator
-        self.iterator = dataloader.create_tuple_iterator(num_epochs=num_epochs_train, output_numpy=False, do_copy=False)
+        self.iterator = dataloader.create_tuple_iterator(num_epochs=-1, output_numpy=False, do_copy=False)
         self.num_batches_eval = dataloader.get_dataset_size()
 
-    def eval(self, num_columns_to_net=1, num_keys_of_labels=None):
+        # dataset output columns
+        self.num_inputs  = num_columns_to_net
+        self.num_labels = num_columns_of_labels
+        assert self.num_inputs==1, 'Only num_columns_to_net=1 (single input to network) is needed and supported for current networks.'
+
+    def eval(self):
         """
         Args:
-            dataloader (Dataset): data iterator which generates tuple of Tensor defined by the transform pipeline and 'output_columns'
         """
         eval_res = {}
 
@@ -56,24 +68,25 @@ class Evaluator:
             m.clear()
 
         for i, data in tqdm(enumerate(self.iterator), total=self.num_batches_eval):
-            # start = time.time()
-            # TODO: if network input is not just an image.
-            img = data[0]  # ms.Tensor(batch[0])
-            gt = data[1:]  # ground truth,  (polys, ignore_tags) for det,
-            #print(i, img.shape, img.sum())
 
-            net_preds = self.net(img)
-            # net_inputs = data[:num_columns_to_net]
-            # gt = data[num_columns_to_net:] # ground truth
-            # preds = self.net(*net_inputs)
-            # print('net predictions', preds)
+            inputs = data[:self.num_inputs] # [imgs]
+            gt = data[self.num_inputs:] if self.num_labels is None else data[self.num_inputs: self.num_inputs+self.num_labels]
+
+            net_preds = self.net(*inputs)
 
             if self.postprocessor is not None:
-                preds = self.postprocessor(net_preds)  # {'polygons':, 'scores':} for text det
+                # additional info such as image path, original image size, pad shape, extracted in data processing
+                meta_info = data[(self.num_inputs+self.num_labels):] if (self.num_labels is not None) else []
+                data_info = {'labels': gt, 'img_shape': inputs[0].shape, 'meta_info': meta_info}
+                preds = self.postprocessor(net_preds, **data_info)
 
             # metric internal update
             for m in self.metrics:
                 m.update(preds, gt)
+
+            # visualize
+            if self.verbose:
+                print('Eval data info: ', data_info)
 
             if self.visualize:
                 img = img[0].asnumpy()
@@ -98,7 +111,6 @@ class EvalSaveCallback(Callback):
     Args:
         network (nn.Cell): network (without loss)
         loader (Dataset): dataloader
-        saving_config (dict):
     """
 
     def __init__(self,
@@ -112,6 +124,8 @@ class EvalSaveCallback(Callback):
                  batch_size=20,
                  ckpt_save_dir='./',
                  main_indicator='hmean',
+                 num_columns_to_net=1,  # TODO: parse eval cfg for short?
+                 num_columns_of_labels=None,
                  val_interval=1,
                  val_start_epoch=1,
                  log_interval=1,
@@ -126,7 +140,7 @@ class EvalSaveCallback(Callback):
         self.log_interval = log_interval
         self.batch_size = batch_size
         if self.loader_eval is not None:
-            self.net_evaluator = Evaluator(network, loader, loss_fn, postprocessor, metrics)
+            self.net_evaluator = Evaluator(network, loader, loss_fn, postprocessor, metrics, num_columns_to_net=num_columns_to_net, num_columns_of_labels=num_columns_of_labels)
             self.main_indicator = main_indicator
             self.best_perf = -1e8
         else:
