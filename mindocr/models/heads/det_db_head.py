@@ -30,16 +30,16 @@ class DBHead(nn.Cell):
             nn.Sigmoid()
         ])
 
-    def construct(self, features: ms.Tensor) -> Union[ms.Tensor, Tuple[ms.Tensor]]:
-        '''
+    def construct(self, features: ms.Tensor) -> Union[ms.Tensor, Tuple[ms.Tensor, ...]]:
+        """
         Args:
             features (Tensor): encoded features
         Returns:
             Union(
             binary: predicted binary map
             thresh: predicted threshold map (only return if adaptive is True in training)
-            thres_binary: differentiable binary map (only if adaptive is True in training)
-        '''
+            thresh_binary: differentiable binary map (only if adaptive is True in training)
+        """
         binary = self.segm(features)
 
         if self.adaptive and self.training:
@@ -47,6 +47,5 @@ class DBHead(nn.Cell):
             thresh = self.thresh(features)
             thresh_binary = self.diff_bin(self.k * binary - thresh)  # Differentiable Binarization
             return binary, thresh, thresh_binary
-        else:
-            return binary
 
+        return binary
