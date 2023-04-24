@@ -139,6 +139,7 @@ def build_dataset(
     drop_remainder = loader_config.get('drop_remainder', is_train)
     if is_train and drop_remainder == False:
         print('WARNING: drop_remainder should be True for training, otherwise the last batch may lead to training fail in Graph mode')
+
     if not is_train:
         if drop_remainder:
             print("WARNING: drop_remainder is forced to be False for evaluation to include the last batch for accurate evaluation." )

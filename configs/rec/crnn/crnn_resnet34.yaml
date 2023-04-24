@@ -143,6 +143,7 @@ eval:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
     output_columns: ['image', 'text_padded', 'text_length']  # TODO return text string padding w/ fixed length, and a scaler to indicate the length 
     num_columns_to_net: 1 # num inputs for network forward func
+    num_columns_of_labels: 2 # num labels
      
   loader:
       shuffle: False # TODO: tbc
