@@ -168,6 +168,8 @@ class MobileNetV3(nn.Cell):
             nn.BatchNorm2d(input_channels),
             nn.HSwish(),
         ]
+        total_reduction = 2
+        self.feature_info = [dict(chs=input_channels, reduction=total_reduction, name=f'features.{len(features) - 1}')]
         # Building bottleneck blocks.
         for k, e, c, se, nl, s in bottleneck_setting:
             exp_channels = make_divisible(alpha * e, round_nearest)
@@ -175,6 +177,8 @@ class MobileNetV3(nn.Cell):
             features.append(Bottleneck(input_channels, exp_channels, output_channels,
                                        kernel_size=k, stride=s, activation=nl, use_se=se))
             input_channels = output_channels
+            total_reduction *= s
+            self.feature_info.append(dict(chs=input_channels, reduction=total_reduction, name=f'features.{len(features) - 1}'))
         # Building last point-wise conv layers.
         output_channels = input_channels * 6
         features.extend([
@@ -182,6 +186,8 @@ class MobileNetV3(nn.Cell):
             nn.BatchNorm2d(output_channels),
             nn.HSwish(),
         ])
+        self.feature_info.append(dict(chs=output_channels, reduction=total_reduction, name=f'features.{len(features) - 1}'))
+        self.flatten_sequential = True
         self.features = nn.SequentialCell(features)
 
         self.pool = GlobalAvgPooling()

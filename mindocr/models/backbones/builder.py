@@ -44,7 +44,7 @@ def build_backbone(name, **kwargs):
         #TODO: load pretrained weights
 
     elif 'mindcv' in name:
-        # TODO: update mindcv to get list of feature tensors, by adding feature_only parameter and out_indices to extract intermediate features.
+        # you can add `feature_only` parameter and `out_indices` in kwargs to extract intermediate features.
         backbone = MindCVBackboneWrapper(name, **kwargs)
     else:
         raise ValueError(f'Invalid backbone name: {name}, supported backbones are: {list_backbones()}')
