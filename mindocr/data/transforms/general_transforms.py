@@ -41,6 +41,7 @@ class DecodeImage:
             img = img.astype('float32')
         data['image'] = img
         # data['ori_image'] = img.copy()
+        data['raw_img_shape'] = img.shape[:2]
         return data
 
 

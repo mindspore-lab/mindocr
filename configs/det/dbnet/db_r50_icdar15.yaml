@@ -113,7 +113,7 @@ train:
     num_workers: 8
 
 eval:
-  ckpt_load_path: 'tmp_det/best.ckpt'
+  ckpt_load_path: tmp_det/best.ckpt
   dataset_sink_mode: False
   dataset:
     type: DetDataset
@@ -148,3 +148,41 @@ eval:
     batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
     drop_remainder: False
     num_workers: 2
+
+predict:
+  ckpt_load_path: tmp_det/best.ckpt
+  dataset_sink_mode: False
+  dataset:
+    type: PredictDataset
+    dataset_root: path/to/dataset_root
+    data_dir: ic15/det/test/ch4_test_images
+#    label_file: test.txt
+    sample_ratio: 1.0
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: RGB
+          to_float32: False
+#      - DetLabelEncode:
+      - GridResize:
+          factor: 32
+      # GridResize already sets the evaluation size to [ 736, 1280 ].
+      # Uncomment ScalePadImage block for other resolutions.
+#      - ScalePadImage:
+#          target_size: [ 736, 1280 ] # h, w
+      - NormalizeImage:
+          bgr_to_rgb: False
+          is_hwc: True
+          mean: imagenet
+          std: imagenet
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the labels for evaluation
+    output_columns: [ 'img_path', 'image', 'raw_img_shape' ]  # shape in h, w order
+    num_columns_to_net: 1 # num inputs for network forward func
+#    num_keys_of_labels: 2 # num labels
+
+  loader:
+    shuffle: False
+    batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
+    drop_remainder: False
+    num_workers: 2
+

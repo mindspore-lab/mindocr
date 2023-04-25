@@ -101,7 +101,7 @@ MX, which is short for [MindX](https://www.hiascend.com/zh/software/mindx-sdk), 
 
 MindOCR supports OCR model inference with MX Engine. Please refer to [mx_infer](docs/cn/inference_tutorial_cn.md) for detailed illustrations.
 
-#### 2.2 Inference with MS Lite 
+#### 2.2 Inference with MindSpore Lite 
 
 Coming soon
 
