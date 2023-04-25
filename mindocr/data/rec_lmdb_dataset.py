@@ -1,10 +1,7 @@
-from typing import Union, List
 import numpy as np
-import random
 import lmdb
 import os
 
-from .transforms.transforms_factory import create_transforms, run_transforms
 from .base_dataset import BaseDataset
 
 __all__ = ['LMDBDataset']
@@ -45,9 +42,6 @@ class LMDBDataset(BaseDataset):
             data_dir: str = '', 
             sample_ratio: float = 1.0, 
             shuffle: bool = None,
-            transform_pipeline: List[dict] = None, 
-            output_columns: List[str] = None,
-            #global_config: dict = None,
             **kwargs
             ):
 
@@ -57,35 +51,7 @@ class LMDBDataset(BaseDataset):
 
         self.lmdb_sets = self.load_list_of_hierarchical_lmdb_dataset(data_dir)
         self.data_idx_order_list = self.get_dataset_idx_orders(sample_ratio, shuffle)
-        
-        # create transform
-        if transform_pipeline is not None:
-            self.transforms = create_transforms(transform_pipeline) #, global_config=global_config)
-        else:
-            raise ValueError('No transform pipeline is specified!')
-
-        # prefetch the data keys, to fit GeneratorDataset
-        _data = self.data_idx_order_list[0]
-        lmdb_idx, file_idx = self.data_idx_order_list[0]
-        lmdb_idx = int(lmdb_idx)
-        file_idx = int(file_idx)
-        sample_info = self.get_lmdb_sample_info(self.lmdb_sets[lmdb_idx]['txn'], file_idx)
-        _data = {
-            "img_lmdb": sample_info[0],
-            "label": sample_info[1]
-        }
-        _data = run_transforms(_data, transforms=self.transforms)
-        _available_keys = list(_data.keys())
-        
-        if output_columns is None:
-            self.output_columns = _available_keys   
-        else:
-            self.output_columns = []
-            for k in output_columns:
-                if k in _data:
-                    self.output_columns.append(k)
-                else:
-                    raise ValueError(f'Key {k} does not exist in data (available keys: {_data.keys()}). Please check the name or the completeness transformation pipeline.')
+        self.output_columns = ["image", "label"]
 
     def load_list_of_hierarchical_lmdb_dataset(self, data_dir):
         if isinstance(data_dir, str):
@@ -160,17 +126,10 @@ class LMDBDataset(BaseDataset):
             random_idx = np.random.randint(self.__len__())
             return self.__getitem__(random_idx)
         
-        data = {
-            "img_lmdb": sample_info[0],
-            "label": sample_info[1]
-        }
-        
-        # perform transformation on data
-        data = run_transforms(data, transforms=self.transforms)
-            
-        output_tuple = tuple(data[k] for k in self.output_columns) 
+        image = np.frombuffer(sample_info[0], dtype=np.uint8)
+        label = sample_info[1]
 
-        return output_tuple
+        return image, label
 
     def __len__(self):
         return self.data_idx_order_list.shape[0]

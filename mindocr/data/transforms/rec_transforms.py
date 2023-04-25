@@ -6,7 +6,7 @@ import cv2
 import math
 import numpy as np
 
-__all__ = ['RecCTCLabelEncode', 'RecResizeImg']
+__all__ = ['RecCTCLabelEncode', 'RecResizeImg', 'RecCTCLabelEncodeV2', 'RecResizeImgV2']
 
 class RecCTCLabelEncode(object):
     ''' Convert text label (str) to a sequence of character indices according to the char dictionary
@@ -134,6 +134,46 @@ class RecCTCLabelEncode(object):
 
         return data
 
+class RecCTCLabelEncodeV2(RecCTCLabelEncode):
+    def __init__(self, max_text_len=23, character_dict_path=None, use_space_char=False, blank_at_last=True, lower=False):
+        super().__init__(max_text_len, character_dict_path, use_space_char, blank_at_last, lower)
+        self.input_columns = ['label']
+        self.output_columns = ['length', 'text_seq', 'text_length', 'text_padded']
+
+    def __call__(self, label):
+        '''
+        required keys:
+            label -> (str) text string
+        added keys:
+            text_seq-> (np.ndarray, int32), sequence of character indices after  padding to max_text_len in shape (sequence_len), where ood characters are skipped
+        added keys:
+            length -> (np.int32) the number of valid chars in the encoded char index sequence,  where valid means the char is in dictionary.
+            text_padded -> (str) text label padded to fixed length, to solved the dynamic shape issue in dataloader. 
+            text_length -> int, the length of original text string label
+
+        '''
+        #if isinstance(data['label'], np.ndarray):
+        #    print(data['label'])
+        #data['text'] = data['label'][:]
+        if isinstance(label, np.ndarray):
+            label = label.tolist()
+        char_indices = self.str2idx(label)
+
+        if char_indices is None:
+            char_indices = []
+            #return None
+        length = np.array(len(char_indices), dtype=np.int32)
+        # padding with blank index
+        char_indices = char_indices + [self.blank_idx] * (self.max_text_len - len(char_indices))
+        # TODO: raname to char_indices
+        text_seq = np.array(char_indices, dtype=np.int32)
+        # 
+        text_length = len(label) 
+        text_padded = label + ' ' * (self.max_text_len - len(label))
+
+        return length, text_seq, text_length, text_padded
+
+
 
 # TODO: reorganize the code for different resize transformation in rec task
 def resize_norm_img(img,
@@ -239,6 +279,23 @@ class RecResizeImg(object):
         data['image'] = norm_img
         data['valid_ratio'] = valid_ratio
         return data
+
+class RecResizeImgV2(RecResizeImg):
+    def __init__(self, image_shape, infer_mode=False, character_dict_path=None, padding=True, **kwargs):
+        super().__init__(image_shape, infer_mode, character_dict_path, padding, **kwargs)
+        self.input_columns = ['image']
+        self.output_columns = ['image', 'valid_ratio']
+
+    def __call__(self, image):
+        if self.infer_mode and self.character_dict_path is not None:
+            norm_img, valid_ratio = resize_norm_img_chinese(image,
+                                                            self.image_shape)
+        else:
+            norm_img, valid_ratio = resize_norm_img(image, self.image_shape,
+                                                    self.padding)
+        image = norm_img
+        valid_ratio = valid_ratio
+        return image, valid_ratio
 
 
 if __name__ == '__main__':

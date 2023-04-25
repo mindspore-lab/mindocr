@@ -8,6 +8,9 @@ from .det_dataset import DetDataset, SynthTextDataset
 from .rec_dataset import RecDataset
 from .rec_lmdb_dataset import LMDBDataset
 
+from mindspore.dataset.vision import Decode, Normalize, HWC2CHW
+from .transforms.rec_transforms import RecResizeImgV2, RecCTCLabelEncodeV2
+
 __all__ = ['build_dataset']
 
 supported_dataset_types = ['BaseDataset', 'DetDataset', 'RecDataset', 'LMDBDataset', 'SynthTextDataset']
@@ -117,13 +120,22 @@ def build_dataset(
     ds = ms.dataset.GeneratorDataset(
                     dataset,
                     column_names=dataset_column_names,
-                    num_parallel_workers=num_workers,
+                    num_parallel_workers=1,
                     num_shards=num_shards,
                     shard_id=shard_id,
-                    python_multiprocessing=True, # keep True to improve performace for heavy computation.
+                    python_multiprocessing=False,
                     max_rowsize =max_rowsize,
                     shuffle=loader_config['shuffle'],
                     )
+    
+    label_encode = RecCTCLabelEncodeV2()
+    image_resize = RecResizeImgV2([32, 100], infer_mode=is_train)
+
+    ds = ds.map(operations=Decode(), input_columns=["image"], num_parallel_workers=1)
+    ds = ds.map(operations=label_encode, input_columns=label_encode.input_columns, output_columns=label_encode.output_columns, num_parallel_workers=1, python_multiprocessing=True)
+    ds = ds.map(operations=image_resize, input_columns=image_resize.input_columns, output_columns=image_resize.output_columns, num_parallel_workers=1, python_multiprocessing=True)
+    ds = ds.map(operations=[Normalize([127, 127, 127], [127, 127, 127]), HWC2CHW()], input_columns=["image"], num_parallel_workers=1)
+    ds = ds.project(dataset_config["output_columns"])
 
     # 2. data mapping using mindata C lib (optional)
     # ds = ds.map(operations=transform_list, input_columns=['image', 'label'], num_parallel_workers=8, python_multiprocessing=True)
@@ -148,7 +160,7 @@ def build_dataset(
     dataloader = ds.batch(
                     batch_size,
                     drop_remainder=drop_remainder,
-                    num_parallel_workers=min(num_workers, 2), # set small workers for lite computation. TODO: increase for batch-wise mapping
+                    num_parallel_workers=1, # set small workers for lite computation. TODO: increase for batch-wise mapping
                     #input_columns=input_columns,
                     #output_columns=batch_column,
                     #per_batch_map=per_batch_map, # uncommet to use inner-batch transformation
