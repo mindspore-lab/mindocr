@@ -15,7 +15,23 @@ DATASETS_DIR="../ocr_datasets" # the directory containing multiple ocr datasets 
 #     ch4_training_word_images_gt.zip
 #     Challenge4_Test_Task3_GT.zip
 #   mlt2017/
-#     mlt2017.zip
+#     ch8_training_images_1.zip
+#     ch8_training_images_2.zip
+#     ch8_training_images_3.zip
+#     ch8_training_images_4.zip
+#     ch8_training_images_5.zip
+#     ch8_training_images_6.zip
+#     ch8_training_images_7.zip
+#     ch8_training_images_8.zip
+#     ch8_training_localization_transcription_gt_v2.zip
+#     ch8_validation_images.zip
+#     ch8_validation_localization_transcription_gt_v2.zip
+#     ch8_training_word_images_gt_part_1.zip
+#     ch8_training_word_images_gt_part_2.zip
+#     ch8_training_word_images_gt_part_3.zip
+#     ch8_training_word_gt_v2.zip
+#     ch8_validation_word_images_gt.zip
+#     ch8_validation_word_gt_v2.zip
 #   syntext150k/
 #     syntext1/
 #       images.zip
@@ -134,32 +150,94 @@ else
           --label_dir $DIR/syntext2/annotations/syntext_word_eng.json \
           --output_path $DIR/syntext2/train_det_gt.txt
   fi
-
+fi
 
 ##########################mlt2017#########################
 DIR="$DATASETS_DIR/mlt2017"
 if  [ ! -d $DIR ] || [  ! "$(ls -A $DIR)"  ]; then
-  echo "MTL 2017 is Empty! Skipped."
+   echo "MLT2017 is Empty! Skipped."
 else
-  unzip $DIR/mlt2017.zip -d $DIR/
-  mv $DIR/mlt2017/images.zip $DIR/images.zip
-  mv $DIR/mlt2017/train.json $DIR/train.json
-  rm $DIR/mlt2017.zip
-  rm -rf $DIR/mlt2017/
-  unzip $DIR/images.zip -d $DIR/images/
-  rm $DIR/images.zip
+   unzip $DIR/ch8_training_images_1.zip -d $DIR/ch8_training_images/
+   rm $DIR/ch8_training_images_1.zip
+   unzip $DIR/ch8_training_images_2.zip -d $DIR/ch8_training_images/
+   rm $DIR/ch8_training_images_2.zip
+   unzip $DIR/ch8_training_images_3.zip -d $DIR/ch8_training_images/
+   rm $DIR/ch8_training_images_3.zip
+   unzip $DIR/ch8_training_images_4.zip -d $DIR/ch8_training_images/
+   rm $DIR/ch8_training_images_4.zip
+   unzip $DIR/ch8_training_images_5.zip -d $DIR/ch8_training_images/
+   rm $DIR/ch8_training_images_5.zip
+   unzip $DIR/ch8_training_images_6.zip -d $DIR/ch8_training_images/
+   rm $DIR/ch8_training_images_6.zip
+   unzip $DIR/ch8_training_images_7.zip -d $DIR/ch8_training_images/
+   rm $DIR/ch8_training_images_7.zip
+   unzip $DIR/ch8_training_images_8.zip -d $DIR/ch8_training_images/
+   rm $DIR/ch8_training_images_8.zip
 
+   unzip $DIR/ch8_training_localization_transcription_gt_v2.zip -d $DIR/ch8_training_localization_transcription_gt/
+   rm $DIR/ch8_training_localization_transcription_gt_v2.zip
+
+   unzip $DIR/ch8_validation_images.zip -d $DIR/ch8_validation_images/
+   rm $DIR/ch8_validation_images.zip
+
+   unzip $DIR/ch8_validation_localization_transcription_gt_v2.zip -d $DIR/ch8_validation_localization_transcription_gt/
+   rm $DIR/ch8_validation_localization_transcription_gt_v2.zip
+
+   unzip $DIR/ch8_training_word_images_gt_part_1.zip -d $DIR/ch8_training_word_images_gt/
+   rm $DIR/ch8_training_word_images_gt_part_1.zip
+   unzip $DIR/ch8_training_word_images_gt_part_2.zip -d $DIR/ch8_training_word_images_gt/
+   rm $DIR/ch8_training_word_images_gt_part_2.zip
+   unzip $DIR/ch8_training_word_images_gt_part_3.zip -d $DIR/ch8_training_word_images_gt/
+   rm $DIR/ch8_training_word_images_gt_part_3.zip
+
+   unzip $DIR/ch8_training_word_gt_v2.zip -d $DIR/ch8_training_word_gt/
+   rm $DIR/ch8_training_word_gt_v2.zip
+   unzip $DIR/ch8_validation_word_images_gt.zip -d $DIR/ch8_validation_word_images_gt/
+   rm $DIR/ch8_validation_word_images_gt.zip
+   unzip $DIR/ch8_validation_word_gt_v2.zip -d $DIR/ch8_validation_word_gt/
+   rm $DIR/ch8_validation_word_gt_v2.zip
+   
   if test -f "$DIR/train_det_gt.txt"; then
      echo "$DIR/train_det_gt.txt exists."
   else
      python tools/dataset_converters/convert.py \
           --dataset_name  mlt2017 \
           --task det \
-          --image_dir $DIR/images/MLT_train_images/ \
-          --label_dir $DIR/train.json \
+          --image_dir $DIR/ch8_training_images/ \
+          --label_dir $DIR/ch8_training_localization_transcription_gt/\
           --output_path $DIR/train_det_gt.txt
   fi
+  if test -f "$DIR/val_det_gt.txt"; then
+     echo "$DIR/val_det_gt.txt exists."
+  else
+     python tools/dataset_converters/convert.py \
+          --dataset_name  mlt2017 \
+          --task det \
+          --image_dir $DIR/ch8_validation_images/ \
+          --label_dir $DIR/ch8_validation_localization_transcription_gt/ \
+          --output_path $DIR/val_det_gt.txt
+  fi
+ 
 
+  if test -f "$DIR/train_rec_gt.txt"; then
+     echo "$DIR/train_rec_gt.txt exists."
+  else
+     python tools/dataset_converters/convert.py \
+        --dataset_name  mlt2017 \
+        --task rec \
+        --label_dir $DIR/ch8_training_word_gt/gt.txt \
+        --output_path $DIR/train_rec_gt.txt
+  fi
+  if test -f "$DIR/val_rec_gt.txt"; then
+     echo "$DIR/val_rec_gt.txt exists."
+  else
+    python tools/dataset_converters/convert.py \
+        --dataset_name  mlt2017 \
+        --task rec \
+        --label_dir $DIR/ch8_validation_word_gt/gt.txt \
+        --output_path $DIR/val_rec_gt.txt
+  fi
+fi
 ##########################total_text#########################
 DIR="$DATASETS_DIR/totaltext"
 if  [ ! -d $DIR ] || [  ! "$(ls -A $DIR)"  ]; then
@@ -192,3 +270,4 @@ else
           --label_dir $DIR/annotations/Test/ \
           --output_path $DIR/test_det_gt.txt
   fi
+fi

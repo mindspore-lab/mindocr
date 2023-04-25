@@ -132,6 +132,29 @@ For the detailed performance of the trained models, please refer to [configs](./
 
 For detailed inference performance using MX engine, please refer to [mx inference performance](docs/cn/inference_models_cn.md) 
 
+## Datasets
+
+### Download 
+
+We give instructions on how to download the following datasets.
+
+<details open>
+<summary>Text Detection</summary>
+
+- [x] ICDAR2015 [paper](https://rrc.cvc.uab.es/files/short_rrc_2015.pdf) [homepage](https://rrc.cvc.uab.es/?ch=4) [download instruction](docs/en/datasets/icdar2015.md)
+
+- [x] Total-Text [paper](https://arxiv.org/abs/1710.10400) [homepage](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset) [download instruction](docs/en/datasets/totaltext.md)
+
+- [x] Syntext150k [paper](https://arxiv.org/abs/2002.10200) [homepage](https://github.com/aim-uofa/AdelaiDet) [download instruction](docs/en/datasets/syntext150k.md)
+
+- [x] MLT2017 [paper](https://ieeexplore.ieee.org/abstract/document/8270168) [homepage](https://rrc.cvc.uab.es/?ch=8&com=introduction) [download instruction](docs/en/datasets/mlt2017.md)
+
+</details>
+
+### Conversion
+
+After downloading these datasets in the `DATASETS_DIR` folder, you can run `bash tools/convert_datasets.sh` to convert all downloaded datasets into the target format. [Here](tools/dataset_converters/README.md) is an example of icdar2015 dataset converting.
+
 ## Notes
 
 ### Change Log
