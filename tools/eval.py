@@ -71,6 +71,7 @@ def main(cfg):
                         metrics=[metric],
                         num_columns_to_net=cfg.eval.dataset.get('num_columns_to_net', 1),
                         num_columns_of_labels=cfg.eval.dataset.get('num_columns_of_labels', None),
+                        num_epochs=1,
                         )
 
     # log
