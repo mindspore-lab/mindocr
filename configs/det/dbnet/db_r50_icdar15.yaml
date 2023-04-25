@@ -11,10 +11,8 @@ model:
   type: det
   transform: null
   backbone:
-    name: mindcv.resnet50   # Mobilenet v3: mindcv.mobilenet_v3_small_100
+    name: det_resnet50
     pretrained: True
-    features_only: True
-    out_indices: [1, 2, 3, 4]  # MobileNet v3: [1, 3, 7, 12]
   neck:
     name: DBFPN
     out_channels: 256
