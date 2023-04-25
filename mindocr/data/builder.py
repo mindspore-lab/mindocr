@@ -128,8 +128,8 @@ def build_dataset(
                     shuffle=loader_config['shuffle'],
                     )
     
-    label_encode = RecCTCLabelEncodeV2()
-    image_resize = RecResizeImgV2([32, 100], infer_mode=is_train)
+    label_encode = RecCTCLabelEncodeV2(24, lower=True)
+    image_resize = RecResizeImgV2([32, 100], infer_mode=is_train, padding=False)
 
     ds = ds.map(operations=Decode(), input_columns=["image"], num_parallel_workers=1)
     ds = ds.map(operations=label_encode, input_columns=label_encode.input_columns, output_columns=label_encode.output_columns, num_parallel_workers=1, python_multiprocessing=True)
