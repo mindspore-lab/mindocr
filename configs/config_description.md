@@ -36,22 +36,22 @@ Because the same parameter may need to be reused in different configuration sect
 
 In MindOCR, the network architecture of the model is divided into four parts: Transform, Backbone, Neck and Head. For details, please refer to [documentation](../mindocr/models/README.md), the following are the configuration instructions and examples of each part:
 
-| Parameter | Usage | Example | Remarks |
+| Parameter | Usage | Default | Remarks |
 | :---- | :---- | :---- | :---- |
-| type | Network type | rec | Currently supports rec/det; 'rec' means recognition task, 'det' means detection task |
+| type | Network type | - | Currently supports rec/det; 'rec' means recognition task, 'det' means detection task |
 | **transform**| Configure transformation method | | \<This part is still under development\> |
 | name | Transformation method name | - | - |
 | **backbone** | Configure backbone network ||
-| name | Backbone network class name | rec_resnet34 | Currently defined classes include rec_resnet34, rec_vgg7 and det_resnet50. You can also customize new classes, please refer to the documentation for definition. |
+| name | Backbone network class name | - | Currently defined classes include rec_resnet34, rec_vgg7 and det_resnet50. You can also customize new classes, please refer to the documentation for definition. |
 | pretrained | Whether to use the pre-trained model | False | \ |
-| **neck** | Configure Network Neck | - | - |
-| name | Neck class name | RNNEncoder | Currently defined classes include RNNEncoder and DBFPN. New classes can also be customized, please refer to the documentation for definition. |
-| hidden_size | RNN hidden layer unit number | 256 | \ |
-| **head** | Set network prediction header | - | - |
-| name | Head class name | CTCHead | Currently supports CTCHead, DBHead |
-| weight_init | Set weight initialization | crnn_customized | Custom initialization function, the default is 'normal' distribution |
-| bias_init | Set bias initialization | crnn_customized | Custom initialization function, the default is 'zeros'|
-| out_channels | Set the number of classes | 37 | \ |
+| **neck** | Configure Network Neck | |
+| name | Neck class name | - | Currently defined classes include RNNEncoder and DBFPN. New classes can also be customized, please refer to the documentation for definition. |
+| hidden_size | RNN hidden layer unit number | - | \ |
+| **head** | Set network prediction header ||
+| name | Head class name | - | Currently supports CTCHead, DBHead |
+| weight_init | Set weight initialization | 'normal' | \ |
+| bias_init | Set bias initialization | 'zeros' | \ |
+| out_channels | Set the number of classes | - | \ |
 
 
 ## 4. Postprocessing (postprocess)
@@ -60,8 +60,8 @@ Please see the code in [mindocr/postprocess](../mindocr/postprocess/)
 
 | Parameter | Usage | Example | Remarks |
 | :---- | :---- | :---- | :---- |
-| name | Post-processing class name | RecCTCLabelDecode | Currently supports DBPostprocess, RecCTCLabelDecode |
-| character_dict_path | Recognition dictionary path | mindocr/utils/dict/en_dict.txt | The default is None, then use the default dictionary [0-9a-z] |
+| name | Post-processing class name | - | Currently supports DBPostprocess, RecCTCLabelDecode |
+| character_dict_path | Recognition dictionary path | None | If None, then use the default dictionary [0-9a-z] |
 | use_space_char | Set whether to add spaces to the dictionary | False | True/False |
 
 
@@ -69,11 +69,11 @@ Please see the code in [mindocr/postprocess](../mindocr/postprocess/)
 
 Please see the code in [mindocr/metrics](../mindocr/metrics)
 
-| Parameter | Usage | Example | Remarks |
+| Parameter | Usage | Default | Remarks |
 | :---- | :---- | :---- | :---- |
-| name | Metric class name | RecMetric | Currently supports RecMetric, DetMetric |
-| main_indicator | Main indicator, used for comparison of optimal models | acc | 'acc' for recognition tasks, 'f-score' for detection tasks |
-| character_dict_path | Recognition dictionary path | mindocr/utils/dict/en_dict.txt | The default is None, then use the default dictionary [0-9a-z] |
+| name | Metric class name | - | Currently supports RecMetric, DetMetric |
+| main_indicator | Main indicator, used for comparison of optimal models | 'hmean' | 'acc' for recognition tasks, 'f-score' for detection tasks |
+| character_dict_path | Recognition dictionary path | None | If None, then use the default dictionary [0-9a-z] |
 | ignore_space | Whether to filter spaces | True | True/False |
 | print_flag | Whether to print log | False | If set True, then output information such as prediction results and standard answers |
 
@@ -82,12 +82,12 @@ Please see the code in [mindocr/metrics](../mindocr/metrics)
 
 Please see the code in [mindocr/losses](../mindocr/losses)
 
-| Parameter | Usage | Example | Remarks |
+| Parameter | Usage | Default | Remarks |
 | :---- | :---- | :---- | :---- |
-| name | loss function name | CTCLoss | Currently supports CTCLoss, L1BalancedCELoss |
-| pred_seq_len | length of predicted text | 25 | Determined by network architecture |
-| max_label_len | The longest label length | 24 | The value is less than the length of the text predicted by the network |
-| batch_size | single card batch size | 64 | \ |
+| name | loss function name | - | Currently supports CTCLoss, L1BalancedCELoss |
+| pred_seq_len | length of predicted text | 26 | Determined by network architecture |
+| max_label_len | The longest label length | 25 | The value is less than the length of the text predicted by the network |
+| batch_size | single card batch size | 32 | \ |
 
 
 ## 7. Learning rate adjustment strategy and optimizer (scheduler, optimizer, loss_scaler)
@@ -96,35 +96,35 @@ Please see the code in [mindocr/losses](../mindocr/losses)
 
 Please see the code in [mindocr/scheduler](../mindocr/scheduler)
 
-| Parameter | Usage | Example | Remarks |
+| Parameter | Usage | Default | Remarks |
 | :---- | :---- | :---- | :---- |
-| scheduler | Learning rate adjustment strategy name | warmup_cosine_decay | Currently supports 'constant', 'cosine_decay', 'step_decay', 'exponential_decay', 'polynomial_decay', 'multi_step_decay' |
-| min_lr | Minimum learning rate | 0.0 | \ |
-| lr | Peak learning rate | 0.0005 | \ |
-| num_epochs | Maximum number of training epochs | 30 | \ |
-| warmup_epochs | learning rate increment epoch number | 1 | \ |
-| decay_epochs | Learning rate decrement epoch number | 29 | \ |
+| scheduler | Learning rate adjustment strategy name | 'constant' | Currently supports 'constant', 'cosine_decay', 'step_decay', 'exponential_decay', 'polynomial_decay', 'multi_step_decay' |
+| min_lr | Minimum learning rate | 1e-6 | \ |
+| lr | Peak learning rate | 0.01 | \ |
+| num_epochs | Maximum number of training epochs | 200 | \ |
+| warmup_epochs | learning rate increment epoch number | 3 | \ |
+| decay_epochs | Learning rate decrement epoch number | 10 | \ |
 
 
 ### optimizer
 
 Please see the code location: [mindocr/optim](../mindocr/optim)
 
-| Parameter | Usage | Example | Remarks |
+| Parameter | Usage | Default | Remarks |
 | :---- | :---- | :---- | :---- |
-| opt | Optimizer name | adamw | Currently supports 'sgd', 'nesterov', 'momentum', 'adam', 'adamw', 'lion', 'rmsprop', 'adagrad', 'lamb'. 'adam' |
+| opt | Optimizer name | 'adam' | Currently supports 'sgd', 'nesterov', 'momentum', 'adam', 'adamw', 'lion', 'rmsprop', 'adagrad', 'lamb'. 'adam' |
 | filter_bias_and_bn | Set whether to exclude the weight decrement of bias and batch norm | True | True/False |
-| momentum | momentum | 0.95 | default: 0.9 |
-| weight_decay | weight decay rate | 0.0001 | default: 0 |
+| momentum | momentum | 0.9 | \ |
+| weight_decay | weight decay rate | 0 | \ |
 | nesterov | Whether to enable Nesterov momentum | False | True/False |
 
 
 ### Loss scaling (loss_scaler)
 
-| Parameter | Usage | Example | Remarks |
+| Parameter | Usage | Default | Remarks |
 | :---- | :---- | :---- | :---- |
 | type | Loss scaling management type | static | Currently supports static, dynamic |
-| loss_scale | loss scaling factor | 512 | \ |
+| loss_scale | loss scaling factor | 1.0 | \ |
 
 
 ## 8. Training and evaluation process (train, eval)
@@ -133,34 +133,34 @@ The configuration of the training process is placed under `train`, and the confi
 
 ### Training process (train)
 
-| Parameter | Usage | Example | Remarks |
+| Parameter | Usage | Default | Remarks |
 | :---- | :---- | :---- | :---- |
 | ckpt_save_dir | Set model save path | ./tmp_rec | \ |
-| dataset_sink_mode | Whether the data is directly sinked to the processor for processing | False | If set to True, the data sinks to the processor, and the data can be returned at least after the end of each epoch |
+| dataset_sink_mode | Whether the data is directly sinked to the processor for processing | - | If set to True, the data sinks to the processor, and the data can be returned at least after the end of each epoch |
 | **dataset** | Dataset configuration | For details, please refer to [Data document](../mindocr/data/README.md) ||
-| type | Dataset class name | LMDBDataset | Currently supports LMDBDataset, RecDataset and DetDataset |
-| dataset_root | The root directory of the dataset | path/to/data_lmdb_release/ | Optional |
-| data_dir | The subdirectory where the dataset is located | training/ | If `dataset_root` is not set, please set this to the full directory |
-| label_file | The label file path of the dataset | gt.txt | If `dataset_root` is not set, please set this to the full path, otherwise just set the subpath |
+| type | Dataset class name | - | Currently supports LMDBDataset, RecDataset and DetDataset |
+| dataset_root | The root directory of the dataset | None | Optional |
+| data_dir | The subdirectory where the dataset is located | - | If `dataset_root` is not set, please set this to the full directory |
+| label_file | The label file path of the dataset | - | If `dataset_root` is not set, please set this to the full path, otherwise just set the subpath |
 | sample_ratio | Data set sampling ratio | 1.0 | If value < 1.0, random selection |
-| shuffle | Whether to shuffle the data order | True | True/False |
-| transform_pipeline | Data processing flow | [DecodeImage, RecCTCLabelEncode, RecResizeImg, NormalizeImage, ToCHWImage] | For details, please see [transforms](../mindocr/data/transforms) |
-| output_columns | Each data feature name | ['image', 'text_seq'] | \ |
+| shuffle | Whether to shuffle the data order | True if undering training, otherwise False | True/False |
+| transform_pipeline | Data processing flow | None | For details, please see [transforms](../mindocr/data/transforms) |
+| output_columns | Each data feature name | None | If None, then output all columns |
 | num_columns_to_net | The number of inputs to the network construct function in output_columns | 1 | \ |
 | **loader** | Data Loading Settings ||
-| shuffle | Whether to shuffle the data order for each epoch | True | True/False |
-| batch_size | Batch size of a single card | 64 | \ |
-| drop_remainder | Whether to drop the last batch of data when the total data cannot be divided by batch_size | True | \ |
-| max_rowsize | Specifies the maximum space allocated by shared memory when copying data between multiple processes | 12 | Default value: 64 |
-| num_workers | Specifies the number of concurrent processes/threads for batch operations | 8 | This value should be greater than or equal to 2 |
+| shuffle | Whether to shuffle the data order for each epoch | True if undering training, otherwise False | True/False |
+| batch_size | Batch size of a single card | - | \ |
+| drop_remainder | Whether to drop the last batch of data when the total data cannot be divided by batch_size | True if undering training, otherwise False | \ |
+| max_rowsize | Specifies the maximum space allocated by shared memory when copying data between multiple processes | 64 | Default value: 64 |
+| num_workers | Specifies the number of concurrent processes/threads for batch operations | n_cpus / n_devices - 2 | This value should be greater than or equal to 2 |
 
 
 ### Evaluation process (eval)
 
 The parameters of `eval` are basically the same as `train`, only a few additional parameters are added, and for the rest, please refer to the parameter description of `train` above.
 
-| Parameter | Usage | Example | Remarks |
+| Parameter | Usage | Default | Remarks |
 | :---- | :---- | :---- | :---- |
-| ckpt_load_path | Set model loading path | './tmp_rec/best.ckpt' | \ |
-| num_columns_of_labels | Set the number of labels in the dataset output columns | 2 | Default is None, assuming the columns after image (data[1:]) are labels. If not None, the num_columns_of_labels columns after image (data[1:1+num_columns_of_labels]) are labels, and the remaining columns are additional info like image_path. |
-| drop_remainder | Whether to discard the last batch of data when the total number of data cannot be divided by batch_size | False | It is recommended to set it to False when doing model evaluation alone. If it cannot be divisible, mindocr will automatically select a batch size that is the largest divisible |
+| ckpt_load_path | Set model loading path | - | \ |
+| num_columns_of_labels | Set the number of labels in the dataset output columns | None | If None, assuming the columns after image (data[1:]) are labels. If not None, the num_columns_of_labels columns after image (data[1:1+num_columns_of_labels]) are labels, and the remaining columns are additional info like image_path. |
+| drop_remainder | Whether to discard the last batch of data when the total number of data cannot be divided by batch_size | True if undering training, otherwise False | It is recommended to set it to False when doing model evaluation. If it cannot be divisible, mindocr will automatically select a batch size that is the largest divisible |
