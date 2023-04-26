@@ -2,7 +2,6 @@ lmdb
 pyclipper
 shapely
 addict
-scikit-learn
 matplotlib
 addict
 numpy
@@ -13,3 +12,4 @@ rapidfuzz>=2.13.7
 Pillow>=9.1.1
 PyYAML>=6.0
 xml-python>=0.4.3
+packaging
