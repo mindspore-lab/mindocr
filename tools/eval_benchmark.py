@@ -53,14 +53,19 @@ def main(cfg):
     # postprocess network prediction
     metric = build_metric(cfg.metric)
 
-    data_dir_root = cfg.eval.dataset["data_dir"]
+    if cfg.eval.dataset["dataset_root"]:
+        data_dir_root = os.path.join(cfg.eval.dataset["dataset_root"], cfg.eval.dataset["data_dir"])
+    else:
+        data_dir_root = cfg.eval.dataset["data_dir"]
+
     results = []
     acc_summary = {}
     reload_data = False
-    for dirpath, dirnames, filenames in os.walk(data_dir_root + '/'):
+    for dirpath, dirnames, _ in os.walk(data_dir_root + '/'):
+        print(dirpath)
         if not dirnames:
             dataset_config = copy.deepcopy(cfg.eval.dataset)
-            dataset_config["data_dir"] = os.path.join(data_dir_root, dirpath)
+            dataset_config["data_dir"] = dirpath
             # dataloader
             # load dataset
             loader_eval = build_dataset(
@@ -105,13 +110,23 @@ def main(cfg):
             if is_main_device:
                 print('Performance: ', measures)
 
-            results.append(measures["acc"])
-            acc_summary[dirpath] = measures["acc"]
+            results.append(measures)
+            acc_summary[dirpath] = measures
 
-    avgscore = sum(results) / len(results)
-    print(f"Average: {avgscore:.4f}")
-    acc_summary["Average"] = avgscore
+    # average
+    metric_keys = results[0].keys()
+    avg_dict = {}
+    for metric_k in metric_keys:
+        score = [res[metric_k] for res in results]
+        avgscore = sum(score) / len(score)
+        avg_dict[metric_k] = avgscore
+
+    acc_summary["Average"] = avg_dict
+
+    print("Average score:")
+    print(avg_dict)
     
+    print("Summary:")
     print(acc_summary)
 
 

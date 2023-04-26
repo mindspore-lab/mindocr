@@ -7,7 +7,7 @@ import mindspore.ops as ops
 from mindspore import  Tensor
 from mindspore.communication import get_group_size
 from shapely.geometry import Polygon
-from sklearn.metrics import recall_score, precision_score, f1_score
+# from sklearn.metrics import recall_score, precision_score, f1_score
 
 __all__ = ['DetMetric']
 
