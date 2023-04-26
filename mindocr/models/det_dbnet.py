@@ -31,7 +31,7 @@ def dbnet_resnet18(pretrained=False, **kwargs):
     model_config = {
         "backbone": {
             'name': 'det_resnet18',
-            'pretrained': False
+            'pretrained': True
         },
         "neck": {
             "name": 'DBFPN',
@@ -60,7 +60,7 @@ def dbnet_resnet50(pretrained=False, **kwargs):
     model_config = {
         "backbone": {
             'name': 'det_resnet50',
-            'pretrained': False
+            'pretrained': True
         },
         "neck": {
             "name": 'DBFPN',
