@@ -2,7 +2,7 @@ English | [中文](README_CN.md)
 
 This document shows how to convert ocr annotation to the general format (not including LMDB) for model training. 
 
-You may also refer to [`convert_datasets.sh`](../../convert_datasets.sh) which is a quick solution for converting annotation files of all datasets under a given directory.
+You may also refer to [`convert_datasets.sh`](../convert_datasets.sh) which is a quick solution for converting annotation files of all datasets under a given directory.
 
 For downloading ocr datasets, you can refer to the instructions for [ICDAR2015](../../docs/en/datasets/icdar2015.md), [MLT2017](../../docs/en/datasets/mlt2017.md), [Syntext 150k](../../docs/en/datasets/syntext150k.md), [Total Text](../../docs/en/datasets/totaltext.md).
 
