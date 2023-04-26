@@ -1,6 +1,6 @@
 system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
-  distribute: False 
+  distribute: True 
   amp_level: 'O3'
   seed: 42
   log_interval: 100
@@ -73,7 +73,7 @@ train:
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
-    dataset_root: /home/konghuanqi/datasets/ # Optional, if set, dataset_root will be used as a prefix for data_dir
+    dataset_root: path/to/data_lmdb_release/ # Optional, if set, dataset_root will be used as a prefix for data_dir
     data_dir: training/
     # label_files: # not required when using LMDBDataset
     sample_ratio: 1.0
@@ -115,9 +115,9 @@ eval:
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
-    dataset_root: /home/konghuanqi/datasets/
-    data_dir: evaluation/
-    # label_file: # not required when using LMDBDataset
+    dataset_root: path/to/data_lmdb_release/
+    data_dir: validation/
+    # label_files: # not required when using LMDBDataset
     sample_ratio: 1.0
     shuffle: False 
     transform_pipeline:
