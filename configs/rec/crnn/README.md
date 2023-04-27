@@ -56,11 +56,18 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 ### Performance
 
+#### Training Perf.
+
 | Device | Model | Backbone | Dataset | Params | Batch size per card | Graph train 8P (s/epoch) | Graph train 8P (ms/step) | Graph train 8P (FPS) |
 | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
 | Ascend910| CRNN | VGG7 | MJ+ST | 8.72 M | 16 | 2488.82 | 22.06 | 5802.71 |
 | Ascend910| CRNN | ResNet34_vd | MJ+ST | 24.48 M | 64 | 2157.18 | 76.48 | 6694.84 |
 
+#### Inference Perf.
+| Device | Model | Backbone | Dataset | Params | Batch size per card | Graph infer 1P (s/epoch) | Graph infer 1P (ms/step) | Graph infer 1P (FPS) |
+| :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
+| Ascend910| CRNN | VGG7 | MJ+ST | 8.72 M | 16 |  |  |  |
+| Ascend910| CRNN | ResNet34_vd | MJ+ST | 24.48 M | 64 |  |  |  |
 
 **Notes:**
 - Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x8-MS1.8-G is for training on 8 pieces of Ascend 910 NPU using graph mode based on Minspore version 1.8.
@@ -142,7 +149,33 @@ data_lmdb_release/
     └── lock.mdb
 ```
 
-During **training** process, we use all datasets under `training/` folder as training set, and use the union dataset `validation/` as evaluation dataset, which means it is recommended that you modify the configuration yaml as follows:
+Here we used the datasets under `training/` folders for **training**, and the union dataset `validation/` for validation. After training, we used the datasets under `evaluation/` to evluation model accuracy.
+
+Training: (total 14,442,049 samples)
+- [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/)
+  - Train: 21.2 GB, 7224586 samples
+  - Valid: 2.36 GB, 802731 samples
+  - Test: 2.61 GB, 891924 samples
+- [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)
+  - Train: 16.0 GB, 5522808 samples
+
+Validation: 
+- Valid: 138M, 6992 samples
+
+Evaluation: (total 12,067 samples)
+- CUTE80: 8.8M, 288 samples
+- IC03_860: 36M, 860 samples
+- IC03_867: 4.9M, 867 samples
+- IC13_857: 72M, 857 samples
+- IC13_1015: 77M, 1015 samples
+- IC15_1811: 21M, 1811 samples
+- IC15_2077: 25M, 2077 samples
+- IIIT5k_3000: 50M, 3000 samples
+- SVT: 2.4M, 647 samples
+- SVTP: 1.8M, 645 samples
+
+
+To reproduce the training of model, it is recommended that you modify the configuration yaml as follows:
 
 ```yaml
 ...
@@ -163,7 +196,7 @@ eval:
   ...
 ```
 
-During **evaluation** process, we use the datasets under `evaluation/` as benchmark dataset. To reproduce the results of our experiment, you will need to perform evaluation on each individual dataset (e.g. CUTE80, IC03_860, etc.) by setting the dataset's directory to the evaluation dataset. Specifically, it is recommended to modify the config yaml as follows:
+During **evaluation** process, we use the datasets under `evaluation/` as benchmark dataset. To reproduce the results of our experiment, you will need to perform evaluation **on each individual dataset** (e.g. CUTE80, IC03_860, etc.) by setting the dataset's directory to the evaluation dataset. Specifically, it is recommended to modify the config yaml as follows:
 
 ```yaml
 ...
