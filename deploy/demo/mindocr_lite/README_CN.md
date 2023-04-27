@@ -9,6 +9,20 @@
 
 格式转换：参考[dataset_converters](https://github.com/mindspore-lab/mindocr/tree/main/tools/dataset_converters) 中的脚本和转换格式，将IC5和SVT的测试集转换为检测和识别的格式。
 
+文本检测的标签文件det_gt.txt格式如下：
+
+```
+img_478.jpg	[{"transcription": "SPA", "points": [[1136, 36], [1197, 0], [1220, 49], [1145, 96]]}, {...}]
+```
+
+文本识别的标签文件rec_gt.txt格式如下：
+
+```
+word_421.png   UNDER
+word_1657.png  CANDY
+word_1814.png  CATHAY
+```
+
 
 ### 模型导出
 
@@ -94,7 +108,11 @@ cd cd deploy/demo/mindocr_lite
     python infer.py --input_images_dir=dataset/ic15/det/test/ch4_test_images --device=Ascend --device_id=3 --parallel_num=1 --precision_mode=fp16 --det_model_path=mindir/dbnet_resnet50.mindir --engine=lite --res_save_dir=det_ic15
     ```
 
-    检测结果保存在det_ic15/det_results.txt.
+    检测结果保存在det_ic15/det_results.txt, 格式如下：
+
+    ```
+    img_478.jpg	[[1114, 35], [1200, 0], [1234, 52], [1148, 97]], [...]]
+    ```
 
 2. 识别
 
@@ -102,7 +120,13 @@ cd cd deploy/demo/mindocr_lite
     python infer.py --input_images_dir=dataset/svt/rec/test/cropped_images --device=Ascend --device_id=3 --parallel_num=1  --precision_mode=fp16 --rec_model_path=mindir/crnn_resnet34.mindir --engine=lite --res_save_dir=rec_svt
     ```
 
-    识别结果保存在rec_svt/rec_results.txt.
+    识别结果保存在rec_svt/rec_results.txt，格式如下：
+
+    ```
+    word_421.png	"under"
+    word_1657.png	"candy"
+    word_1814.png	"cathay"
+    ```
 
 3. 检测+识别
 
@@ -110,7 +134,11 @@ cd cd deploy/demo/mindocr_lite
     python infer.py --input_images_dir=dataset/ic15/det/test/ch4_test_images --device=Ascend --device_id=3 --parallel_num=1  --precision_mode=fp16 --det_model_path=mindir/dbnet_resnet50.mindir --rec_model_path=mindir/crnn_resnet34.mindir --engine=lite --res_save_dir=det_rec_ic15
     ```
 
-    端到端的检测识别结果保存在det_rec_ic15/pipeline_results.txt.
+    端到端的检测识别结果保存在det_rec_ic15/pipeline_results.txt，格式如下：
+
+    ```
+    img_478.jpg	[{"transcription": "spa", "points": [[1114, 35], [1200, 0], [1234, 52], [1148, 97]]}, {...}]
+    ```
 
     推理执行完毕之后，会打印相应的推理性能FPS值。
 
@@ -122,7 +150,7 @@ infer.py推理命令的详细参数列表如下：
 | device | 推理设备名称（默认Ascend）                        | False |
 | device_id | 推理设备id（默认0）                             | False |
 | engine | 推理引擎（默认lite）                            | False |
-| parallel_num | 推理流水线中每个节点并行数                           | False |
+| parallel_num | 推理流水线中每个节点并行数（默认1）                    | False |
 | precision_mode | 推理的精度模式（默认fp32）                         | False |
 | det_algorithm | 文本检测算法名（默认DBNet）                        | False |
 | rec_algorithm | 文字识别算法名（默认CRNN)                         | False |
