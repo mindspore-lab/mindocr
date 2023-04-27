@@ -93,8 +93,6 @@ Please download lmdb dataset for traininig and evaluation from  [here](https://w
 - `evaluation.zip`: same as the evaluation/ within data_lmdb_release.zip
 
 
-#### 3.1.3 Dataset Usage
-
 Unzip the `data_lmdb_release.zip`, the data structure should be like 
 
 ``` text
@@ -112,24 +110,7 @@ data_lmdb_release/
 │   ├── IC13_1015
 │   │   ├── data.mdb
 │   │   └── lock.mdb
-│   ├── IC13_857
-│   │   ├── data.mdb
-│   │   └── lock.mdb
-│   ├── IC15_1811
-│   │   ├── data.mdb
-│   │   └── lock.mdb
-│   ├── IC15_2077
-│   │   ├── data.mdb
-│   │   └── lock.mdb
-│   ├── IIIT5k_3000
-│   │   ├── data.mdb
-│   │   └── lock.mdb
-│   ├── SVT
-│   │   ├── data.mdb
-│   │   └── lock.mdb
-│   └── SVTP
-│       ├── data.mdb
-│       └── lock.mdb
+│   ├── ...
 ├── training
 │   ├── MJ
 │   │   ├── MJ_test
@@ -149,6 +130,8 @@ data_lmdb_release/
     └── lock.mdb
 ```
 
+#### 3.1.3 Dataset Usage
+
 Here we used the datasets under `training/` folders for **training**, and the union dataset `validation/` for validation. After training, we used the datasets under `evaluation/` to evluation model accuracy.
 
 Training: (total 14,442,049 samples)
@@ -163,17 +146,19 @@ Validation:
 - Valid: 138M, 6992 samples
 
 Evaluation: (total 12,067 samples)
-- CUTE80: 8.8M, 288 samples
-- IC03_860: 36M, 860 samples
+- [CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html): 8.8M, 288 samples
+- [IC03_860](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions): 36M, 860 samples
 - IC03_867: 4.9M, 867 samples
-- IC13_857: 72M, 857 samples
+- [IC13_857](http://rrc.cvc.uab.es/?ch=2): 72M, 857 samples
 - IC13_1015: 77M, 1015 samples
-- IC15_1811: 21M, 1811 samples
+- [IC15_1811](http://rrc.cvc.uab.es/?ch=4): 21M, 1811 samples
 - IC15_2077: 25M, 2077 samples
-- IIIT5k_3000: 50M, 3000 samples
-- SVT: 2.4M, 647 samples
-- SVTP: 1.8M, 645 samples
+- [IIIT5k_3000](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html): 50M, 3000 samples
+- [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset): 2.4M, 647 samples
+- [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf): 1.8M, 645 samples
 
+
+**Data configuration for model training**
 
 To reproduce the training of model, it is recommended that you modify the configuration yaml as follows:
 
@@ -196,7 +181,18 @@ eval:
   ...
 ```
 
-During **evaluation** process, we use the datasets under `evaluation/` as benchmark dataset. To reproduce the results of our experiment, you will need to perform evaluation **on each individual dataset** (e.g. CUTE80, IC03_860, etc.) by setting the dataset's directory to the evaluation dataset. Specifically, it is recommended to modify the config yaml as follows:
+**Data configuration for model evaluation**
+
+We use the dataset under `evaluation/` as the benchmark dataset. On **each individual dataset** (e.g. CUTE80, IC03_860, etc.), we perform a full evaluation by setting the dataset's directory to the evaluation dataset. This way, we get a list of the corresponding accuracies for each dataset, and then the reported accuracies are the average of these values. 
+
+To reproduce the reported evaluation results, you can:
+- Option 1: Repeat the evaluation step for all individual datasets: CUTE80, IC03_860, IC03_867, IC13_857, IC131015, IC15_1811, IC15_2077, IIIT5k_3000, SVT, SVTP. Then take the average score.
+
+- Option 2: Put all the benchmark datasets folder under the same directory, e.g. `evaluation/`. And use the script `tools/benchmarking/multi_dataset_eval.py`. 
+
+1. Evaluate on one specific dataset
+
+For example, you can evaluate the model on dataset `CUTE80` by modifying the config yaml as follows:
 
 ```yaml
 ...
@@ -214,8 +210,44 @@ eval:
 
 By running `tools/eval.py` as noted in section [Model Evaluation](#33-model-evaluation) with the above config yaml, you can get the accuracy performance on dataset CUTE80. 
 
-Repeat the evaluation step for all individual datasets: CUTE80, IC03_860, IC03_867, IC13_857, IC131015, IC15_1811, IC15_2077, IIIT5k_3000, SVT, SVTP. Average accuracy is the average of all these subaccuracies.
 
+2. Evaluate on multiple datasets under the same folder
+
+Assume you have put all benckmark datasets under evaluation/ as shown below: 
+
+``` text
+data_lmdb_release/
+├── evaluation
+│   ├── CUTE80
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC03_860
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC03_867
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC13_1015
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── ...
+```
+
+then you can evaluate on each dataset by modifying the config yaml as follows, and execute the script `tools/benchmarking/multi_dataset_eval.py`.
+
+```yaml
+...
+train:
+  # NO NEED TO CHANGE ANYTHING IN TRAIN SINCE IT IS NOT USED
+...
+eval:
+  dataset:
+    type: LMDBDataset
+    dataset_root: dir/to/data_lmdb_release/                           # Root dir of evaluation dataset
+    data_dir: evaluation/                                   # Dir of evaluation dataset, concatenated with `dataset_root` to be the complete dir of evaluation dataset
+    # label_file:                                                     # Path of evaluation label file, concatenated with `dataset_root` to be the complete path of evaluation label file, not required when using LMDBDataset
+  ...
+```
 
 #### 3.1.4 Check YAML Config Files
 Apart from the dataset setting, please also check the following important args: `system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`, 

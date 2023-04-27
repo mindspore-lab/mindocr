@@ -106,24 +106,7 @@ data_lmdb_release/
 │   ├── IC13_1015
 │   │   ├── data.mdb
 │   │   └── lock.mdb
-│   ├── IC13_857
-│   │   ├── data.mdb
-│   │   └── lock.mdb
-│   ├── IC15_1811
-│   │   ├── data.mdb
-│   │   └── lock.mdb
-│   ├── IC15_2077
-│   │   ├── data.mdb
-│   │   └── lock.mdb
-│   ├── IIIT5k_3000
-│   │   ├── data.mdb
-│   │   └── lock.mdb
-│   ├── SVT
-│   │   ├── data.mdb
-│   │   └── lock.mdb
-│   └── SVTP
-│       ├── data.mdb
-│       └── lock.mdb
+│   ├── ...
 ├── training
 │   ├── MJ
 │   │   ├── MJ_test
