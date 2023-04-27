@@ -48,7 +48,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 
   | **Model** | **Backbone** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
   | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | 
-  | CRNN (ours) | VGG7 | 94.53% | 94.00% | 92.18% | 90.74% | 71.95% | 66.06% | 84.10% | 83.93% | 73.33% | 69.44% | 88.32% | 82.03% |
+  | CRNN (ours) | VGG7 | 94.53% | 94.00% | 92.18% | 90.74% | 71.95% | 66.06% | 84.10% | 83.93% | 73.33% | 69.44% | 82.03% |
   | CRNN (ours) | ResNet34_vd | 94.42% | 94.23% | 93.35% | 92.02% | 75.92% | 70.15% | 87.73% | 86.40% | 76.28% | 73.96% | 84.45% |
   | CRNN (PaddleOCR) | ResNet34_vd | 95.23% | 94.35% | 93.47% | 92.71% | 72.34% | 66.35% | 87.67% | 87.64% | 73.80% | 76.39% | 83.99% |
 
@@ -91,32 +91,55 @@ Please download lmdb dataset for traininig and evaluation from  [here](https://w
 Unzip the `data_lmdb_release.zip`, the data structure should be like 
 
 ``` text
-.
+data_lmdb_release/
+├── evaluation
+│   ├── CUTE80
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC03_860
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC03_867
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC13_1015
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC13_857
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC15_1811
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC15_2077
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IIIT5k_3000
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── SVT
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   └── SVTP
+│       ├── data.mdb
+│       └── lock.mdb
 ├── training
-│   ├── MJ
-|   |   └── MJ_train
-│   │   |    ├── data.mdb
-│   │   |    ├── lock.mdb
-|   |   └── MJ_valid
-│   │   |    ├── data.mdb
-│   │   |    ├── lock.mdb
-|   |   └── MJ_test
-│   │        ├── data.mdb
-│   │        ├── lock.mdb
-│   ├── ST
-│   │   ├── data.mdb
-│   │   ├── lock.mdb
+│   ├── MJ
+│   │   ├── MJ_test
+│   │   │   ├── data.mdb
+│   │   │   └── lock.mdb
+│   │   ├── MJ_train
+│   │   │   ├── data.mdb
+│   │   │   └── lock.mdb
+│   │   └── MJ_valid
+│   │       ├── data.mdb
+│   │       └── lock.mdb
+│   └── ST
+│       ├── data.mdb
+│       └── lock.mdb
 └── validation
-|   ├── data.mdb
-|   ├── lock.mdb
-└── evaluation
-    ├── CUTE80
-    │   ├── data.mdb
-    │   ├── lock.mdb
-    ├── IC03_860
-    │   ├── data.mdb
-    │   ├── lock.mdb
-    └── ...
+    ├── data.mdb
+    └── lock.mdb
 ```
 
 During **training** process, we use all datasets under `training/` folder as training set, and use the union dataset `validation/` as evaluation dataset, which means it is recommended that you modify the configuration yaml as follows:

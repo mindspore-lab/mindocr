@@ -50,7 +50,7 @@ Table Format:
 
   | **模型** | **骨干网络** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **平均准确率** |
   | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | 
-  | CRNN (ours) | VGG7 | 94.53% | 94.00% | 92.18% | 90.74% | 71.95% | 66.06% | 84.10% | 83.93% | 73.33% | 69.44% | 88.32% | 82.03% |
+  | CRNN (ours) | VGG7 | 94.53% | 94.00% | 92.18% | 90.74% | 71.95% | 66.06% | 84.10% | 83.93% | 73.33% | 69.44% | 82.03% |
   | CRNN (ours) | ResNet34_vd | 94.42% | 94.23% | 93.35% | 92.02% | 75.92% | 70.15% | 87.73% | 86.40% | 76.28% | 73.96% | 84.45% |
   | CRNN (PaddleOCR) | ResNet34_vd | 95.23% | 94.35% | 93.47% | 92.71% | 72.34% | 66.35% | 87.67% | 87.64% | 73.80% | 76.39% | 83.99% |
 
@@ -92,32 +92,55 @@ LMDB格式的训练及验证数据集可以从[这里](https://www.dropbox.com/s
 解压文件后，数据文件夹结构如下：
 
 ``` text
-.
+data_lmdb_release/
+├── evaluation
+│   ├── CUTE80
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC03_860
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC03_867
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC13_1015
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC13_857
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC15_1811
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC15_2077
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IIIT5k_3000
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── SVT
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   └── SVTP
+│       ├── data.mdb
+│       └── lock.mdb
 ├── training
-│   ├── MJ
-|   |   └── MJ_train
-│   │   |    ├── data.mdb
-│   │   |    ├── lock.mdb
-|   |   └── MJ_valid
-│   │   |    ├── data.mdb
-│   │   |    ├── lock.mdb
-|   |   └── MJ_test
-│   │        ├── data.mdb
-│   │        ├── lock.mdb
-│   ├── ST
-│   │   ├── data.mdb
-│   │   ├── lock.mdb
+│   ├── MJ
+│   │   ├── MJ_test
+│   │   │   ├── data.mdb
+│   │   │   └── lock.mdb
+│   │   ├── MJ_train
+│   │   │   ├── data.mdb
+│   │   │   └── lock.mdb
+│   │   └── MJ_valid
+│   │       ├── data.mdb
+│   │       └── lock.mdb
+│   └── ST
+│       ├── data.mdb
+│       └── lock.mdb
 └── validation
-|   ├── data.mdb
-|   ├── lock.mdb
-└── evaluation
-    ├── CUTE80
-    │   ├── data.mdb
-    │   ├── lock.mdb
-    ├── IC03_860
-    │   ├── data.mdb
-    │   ├── lock.mdb
-    └── ...
+    ├── data.mdb
+    └── lock.mdb
 ```
 
 在**训练**过程中，我们使用`training/`文件夹下的所有数据集作为训练集，使用联合数据集`validation/`作为评估数据集，建议您修改配置yaml如下：
