@@ -7,10 +7,11 @@ import multiprocessing
 from .det_dataset import DetDataset, SynthTextDataset
 from .rec_dataset import RecDataset
 from .rec_lmdb_dataset import LMDBDataset
+from .predict_dataset import PredictDataset
 
 __all__ = ['build_dataset']
 
-supported_dataset_types = ['BaseDataset', 'DetDataset', 'RecDataset', 'LMDBDataset', 'SynthTextDataset']
+supported_dataset_types = ['BaseDataset', 'DetDataset', 'RecDataset', 'LMDBDataset', 'SynthTextDataset', 'PredictDataset']
 
 def build_dataset(
         dataset_config: dict,

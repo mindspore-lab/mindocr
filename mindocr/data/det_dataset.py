@@ -87,8 +87,8 @@ class DetDataset(BaseDataset):
                 if k in _data:
                     self.output_columns.append(k)
                 else:
-                    raise ValueError(f'Key {k} does not exist in data (available keys: {_data.keys()}). '
-                                     'Please check the name or the completeness transformation pipeline.')
+                    raise ValueError(f"Key '{k}' does not exist in data (available keys: {_data.keys()}). "
+                                     "Please check the name or the completeness transformation pipeline.")
 
     def __getitem__(self, index):
         data = self.data_list[index].copy()     # WARNING: shallow copy. Do deep copy if necessary.
