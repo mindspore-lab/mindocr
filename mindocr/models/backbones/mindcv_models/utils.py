@@ -2,6 +2,7 @@
 Some utils while building models
 """
 import collections.abc
+import difflib
 import logging
 import os
 from itertools import repeat
@@ -24,7 +25,7 @@ class ConfigDict(dict):
     __delattr__ = dict.__delitem__
 
 
-def load_pretrained(model, default_cfg, num_classes=1000, in_channels=3, filter_fn=None):
+def load_pretrained(model, default_cfg, num_classes=1000, in_channels=3, filter_fn=None, auto_mapping=False):
     """load pretrained model depending on cfgs of model"""
     if "url" not in default_cfg or not default_cfg["url"]:
         logging.warning("Pretrained model URL is invalid")
@@ -39,6 +40,27 @@ def load_pretrained(model, default_cfg, num_classes=1000, in_channels=3, filter_
         param_dict = load_checkpoint(os.path.join(download_path, os.path.basename(default_cfg["url"])))
     except:
         print(f'ERROR: Fails to load the checkpoint. Please check whether the checkpoint is downloaded successfully in {download_path} and is not zero-byte. You may try to manually download the checkpoint from ', default_cfg["url"])
+
+    if auto_mapping:
+        net_param = model.get_parameters()
+        ckpt_param = list(param_dict.keys())
+        remap = {}
+        for param in net_param:
+            if param.name not in ckpt_param:
+                print('Cannot find a param to load: ', param.name)
+                poss = difflib.get_close_matches(param.name, ckpt_param, n=3, cutoff=0.6)
+                if len(poss) > 0:
+                    print('=> Find most matched param: ', poss[0], ', loaded')
+                    param_dict[param.name] = param_dict.pop(poss[0]) # replace
+                    remap[param.name] = poss[0]
+                else:
+                    raise ValueError('Cannot find any matching param from: ', ckpt_param)
+
+        if remap != {}:
+            print('WARNING: Auto mapping succeed. Please check the found mapping names to ensure correctness')
+            print('\tNet Param\t<---\tCkpt Param')
+            for k in remap:
+                print(f'\t{k}\t<---\t{remap[k]}')
 
     if in_channels == 1:
         conv1_name = default_cfg["first_conv"]
