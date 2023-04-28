@@ -271,3 +271,33 @@ else
           --output_path $DIR/test_det_gt.txt
   fi
 fi
+##########################td500#########################
+DIR="$DATASETS_DIR/td500"
+if  [ ! -d $DIR ] || [  ! "$(ls -A $DIR)"  ]; then
+  echo "td500 is Empty! Skipped."
+else
+  unzip $DIR/MSRA-TD500.zip -d  $DIR/
+  rm $DIR/MSRA-TD500.zip
+
+
+  if test -f "$DIR/MSRA-TD500/train_det_gt.txt"; then
+     echo "$DIR/MSRA-TD500/train_det_gt.txt exists."
+  else
+     python tools/dataset_converters/convert.py \
+          --dataset_name  td500 \
+          --task det \
+          --image_dir $DIR/MSRA-TD500/train/ \
+          --label_dir $DIR/MSRA-TD500/train/ \
+          --output_path $DIR/MSRA-TD500/train_det_gt.txt
+  fi
+  if test -f "$DIR/MSRA-TD500/test_det_gt.txt"; then
+     echo "$DIR/MSRA-TD500/test_det_gt.txt exists."
+  else
+     python tools/dataset_converters/convert.py \
+          --dataset_name  td500 \
+          --task det \
+          --image_dir $DIR/MSRA-TD500/test/ \
+          --label_dir $DIR/MSRA-TD500/test/ \
+          --output_path $DIR/MSRA-TD500/test_det_gt.txt
+  fi
+fi
