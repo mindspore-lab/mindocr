@@ -56,6 +56,8 @@ class LMDBDataset(BaseDataset):
         shuffle = shuffle if shuffle is not None else is_train
 
         self.lmdb_sets = self.load_list_of_hierarchical_lmdb_dataset(data_dir)
+        if len(self.lmdb_sets) == 0:
+            raise ValueError(f"Cannot find any lmdb dataset under `{data_dir}`. Please check the data path is correct.")
         self.data_idx_order_list = self.get_dataset_idx_orders(sample_ratio, shuffle)
         
         # create transform
