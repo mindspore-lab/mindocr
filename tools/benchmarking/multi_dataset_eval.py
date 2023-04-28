@@ -1,6 +1,43 @@
+'''A script to evaluate multiple datasets under the same folder at once.
+
+DATASET STRUCTURE:
+    Assume you have put all benckmark datasets (e.g. CUTE80, IC03_860, IC13_1015) under evaluation/ as shown below: 
+
+    data_lmdb_release/
+    ├── evaluation
+    │   ├── CUTE80
+    │   │   ├── data.mdb
+    │   │   └── lock.mdb
+    │   ├── IC03_860
+    │   │   ├── data.mdb
+    │   │   └── lock.mdb
+    │   ├── IC13_1015
+    │   │   ├── data.mdb
+    │   │   └── lock.mdb
+    │   ├── ...
+
+YAML CONFIGURATION:
+    Please modify the config yaml as follows:
+
+    ```yaml --> configs/rec/crnn/crnn_resnet34.yaml
+        ...
+        eval:
+        dataset:
+            type: LMDBDataset
+            dataset_root: dir/to/data_lmdb_release/          # Root dir of evaluation dataset
+            data_dir: evaluation/                            # Dir of evaluation dataset, concatenated with `dataset_root` to be the complete dir of evaluation dataset
+        ...
+    ```
+
+USAGE:
+    Please run the following command:
+    ```
+        python tools/benchmarking/multi_dataset_eval.py --config configs/rec/crnn/crnn_resnet34.yaml
+    ```
+
+    You can then get the performance of each individual dataset as well as the average score under evaluation/.
 '''
-Model evaluation
-'''
+
 import sys
 import os
 import copy
