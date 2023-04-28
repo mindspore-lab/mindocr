@@ -6,6 +6,8 @@ import shutil
 
 import numpy as np
 import mindspore as ms
+from mindspore.ops import functional as F
+from mindspore.common import dtype as mstype
 from mindspore import save_checkpoint
 from mindspore.train.callback._callback import Callback, _handle_loss
 from .visualize import draw_bboxes, show_imgs, recover_image
@@ -22,14 +24,19 @@ class Evaluator:
         loss_fn: loss function
         postprocessor: post-processor
         metrics: metrics to evaluate network performance
+        pred_cast_fp32: whehter to cast network prediction to float 32. Set True if AMP is used.
         num_columns_to_net: number of inputs to the network in the dataset output columns. Default is 1 for the first column is image.
         num_columns_of_labels: number of labels in the dataset output columns. Default is None assuming the columns after image (data[1:]) are labels.
                            If not None, the num_columns_of_labels columns after image (data[1:1+num_columns_of_labels]) are labels, and the remaining columns are additional info like image_path.
     """
 
     def __init__(self, network, dataloader, loss_fn=None, postprocessor=None, metrics=None,
-                 num_columns_to_net=1, num_columns_of_labels=None, num_epochs=-1,
-                 visualize=False, verbose=False,
+                 pred_cast_fp32=False,
+                 num_columns_to_net=1, 
+                 num_columns_of_labels=None, 
+                 num_epochs=-1,
+                 visualize=False, 
+                 verbose=False,
                  **kwargs):
         self.net = network
         self.postprocessor = postprocessor
@@ -39,7 +46,8 @@ class Evaluator:
             assert hasattr(m, 'metric_names') and isinstance(m.metric_names,
                                                              List), f'Metric object must contain `metric_names` attribute to indicate the metric names as a List type, but not found in {m.__class__.__name__}'
             self.metric_names += m.metric_names
-
+        
+        self.pred_cast_fp32 = pred_cast_fp32
         self.visualize = visualize
         self.verbose = verbose
         eval_loss = False
@@ -79,6 +87,12 @@ class Evaluator:
             gt = data[self.num_inputs:] if self.num_labels is None else data[self.num_inputs: self.num_inputs+self.num_labels]
 
             net_preds = self.net(*inputs)
+
+            if self.pred_cast_fp32:
+                if isinstance(net_preds, ms.Tensor):
+                    net_preds = F.cast(net_preds, mstype.float32)
+                else:
+                    net_preds = [F.cast(p, mstype.float32) for p in net_preds]
 
             if self.postprocessor is not None:
                 # additional info such as image path, original image size, pad shape, extracted in data processing
@@ -125,6 +139,7 @@ class EvalSaveCallback(Callback):
                  loss_fn=None,
                  postprocessor=None,
                  metrics=None,
+                 pred_cast_fp32=False,
                  rank_id=0,
                  logger=None,
                  batch_size=20,
@@ -146,7 +161,7 @@ class EvalSaveCallback(Callback):
         self.log_interval = log_interval
         self.batch_size = batch_size
         if self.loader_eval is not None:
-            self.net_evaluator = Evaluator(network, loader, loss_fn, postprocessor, metrics, num_columns_to_net=num_columns_to_net, num_columns_of_labels=num_columns_of_labels)
+            self.net_evaluator = Evaluator(network, loader, loss_fn, postprocessor, metrics, pred_cast_fp32=pred_cast_fp32, num_columns_to_net=num_columns_to_net, num_columns_of_labels=num_columns_of_labels)
             self.main_indicator = main_indicator
             self.best_perf = -1e8
         else:
