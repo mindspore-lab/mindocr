@@ -56,12 +56,22 @@ Table Format:
 
 </details>
 
+
 ### 性能
 
-| Device | Model | Backbone | Dataset | Params | Batch size per card | Graph train 8P (s/epoch) | Graph train 8P (ms/step) | Graph train 8P (FPS) |
+#### 训练性能
+
+| 设备 | 模型 | 骨干网络 | 数据集 | 参数量 | 单卡批量 | 图模式8卡训练 (s/epoch) | 图模式8卡训练 (ms/step) | 图模式8卡训练 (FPS) |
 | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
 | Ascend910| CRNN | VGG7 | MJ+ST | 8.72 M | 16 | 2488.82 | 22.06 | 5802.71 |
 | Ascend910| CRNN | ResNet34_vd | MJ+ST | 24.48 M | 64 | 2157.18 | 76.48 | 6694.84 |
+
+#### 推理性能
+
+| 设备 | 编译环境 | 模型 | 骨干网络 | 参数量 | 测试集 | 批量大小 | 图模式单卡推理 (FPS) |
+| :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | 
+| Ascend310P | Lite2.0 | CRNN | ResNet34_vd | 24.48 M | IC15 | 1 | 361.09 |
+| Ascend310P | Lite2.0 | CRNN | ResNet34_vd | 24.48 M | SVT | 1 | 274.67 |
 
 
 **注意:**
@@ -126,7 +136,34 @@ data_lmdb_release/
     └── lock.mdb
 ```
 
-在**训练**过程中，我们使用`training/`文件夹下的所有数据集作为训练集，使用联合数据集`validation/`作为评估数据集，建议您修改配置yaml如下：
+在这里，我们使用 `training/` 文件夹下的数据集进行 **training**，并使用联合数据集 `validation/` 进行验证。训练后，我们使用 `evaluation/` 下的数据集来评估模型的准确性。
+
+**Training:** (total 14,442,049 samples)
+- [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/)
+  - Train: 21.2 GB, 7224586 samples
+  - Valid: 2.36 GB, 802731 samples
+  - Test: 2.61 GB, 891924 samples
+- [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)
+  - Train: 16.0 GB, 5522808 samples
+
+**Validation:** 
+- Valid: 138 MB, 6992 samples
+
+**Evaluation:** (total 12,067 samples)
+- [CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html): 8.8 MB, 288 samples
+- [IC03_860](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions): 36 MB, 860 samples
+- [IC03_867](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions): 4.9 MB, 867 samples
+- [IC13_857](http://rrc.cvc.uab.es/?ch=2): 72 MB, 857 samples
+- [IC13_1015](http://rrc.cvc.uab.es/?ch=2): 77 MB, 1015 samples
+- [IC15_1811](http://rrc.cvc.uab.es/?ch=4): 21 MB, 1811 samples
+- [IC15_2077](http://rrc.cvc.uab.es/?ch=4): 25 MB, 2077 samples
+- [IIIT5k_3000](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html): 50 MB, 3000 samples
+- [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset): 2.4 MB, 647 samples
+- [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf): 1.8 MB, 645 samples
+
+**模型训练的数据配置**
+
+如欲重现模型的训练，建议修改配置yaml如下：
 
 ```yaml
 ...
@@ -147,7 +184,18 @@ eval:
   ...
 ```
 
-在**评估**过程中，我们使用`evaluation/`下的数据集作为基准数据集。如要重现我们实验的结果，您需要通过将数据集的目录设置为评估数据集来对每个单独的数据集（例如 CUTE80、IC03_860 等）执行评估。具体建议修改config yaml如下：
+**模型评估的数据配置**
+
+我们使用 `evaluation/` 下的数据集作为基准数据集。在**每个单独的数据集**（例如 CUTE80、IC03_860 等）上，我们通过将数据集的目录设置为评估数据集来执行完整评估。这样，我们就得到了每个数据集对应精度的列表，然后报告的精度是这些值的平均值。
+
+如要重现报告的评估结果，您可以：
+- 方法 1：对所有单个数据集重复评估步骤：CUTE80、IC03_860、IC03_867、IC13_857、IC131015、IC15_1811、IC15_2077、IIIT5k_3000、SVT、SVTP。然后取平均分。
+
+- 方法 2：将所有基准数据集文件夹放在同一目录下，例如`评估/`。并使用脚本`tools/benchmarking/multi_dataset_eval.py`。
+
+1.评估一个特定的数据集
+
+例如，您可以通过修改配置 yaml 来评估数据集“CUTE80”上的模型，如下所示：
 
 ```yaml
 ...
@@ -163,9 +211,46 @@ eval:
   ...
 ```
 
-通过使用上述配置文件运行 [模型评估](#33-模型评估) 部分中所述的 `tools/eval.py`，您可以获得模型在数据集 CUTE80 上推理的准确性。
+通过使用上述配置 yaml 运行 [模型评估](#33-model-evaluation) 部分中所述的`tools/eval.py`，您可以获得数据集 CUTE80 的准确度性能。
 
-对所有单个数据集重复评估步骤：CUTE80、IC03_860、IC03_867、IC13_857、IC131015、IC15_1811、IC15_2077、IIIT5k_3000、SVT、SVTP。平均准确度是所有这些子准确度的平均值。
+
+2. 对同一文件夹下的多个数据集进行评估
+
+假设您已将所有 benckmark 数据集置于 evaluation/ 下，如下所示：
+
+``` text
+data_lmdb_release/
+├── evaluation
+│   ├── CUTE80
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC03_860
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC03_867
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC13_1015
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── ...
+```
+
+然后你可以通过如下修改配置yaml来评估每个数据集，并执行脚本`tools/benchmarking/multi_dataset_eval.py`。
+
+```yaml
+...
+train:
+  # NO NEED TO CHANGE ANYTHING IN TRAIN SINCE IT IS NOT USED
+...
+eval:
+  dataset:
+    type: LMDBDataset
+    dataset_root: dir/to/data_lmdb_release/                           # Root dir of evaluation dataset
+    data_dir: evaluation/                                   # Dir of evaluation dataset, concatenated with `dataset_root` to be the complete dir of evaluation dataset
+    # label_file:                                                     # Path of evaluation label file, concatenated with `dataset_root` to be the complete path of evaluation label file, not required when using LMDBDataset
+  ...
+```
 
 #### 3.1.4 检查配置文件
 除了数据集的设置，请同时重点关注以下变量的配置：`system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`, 

@@ -64,10 +64,10 @@ According to our experiments, the evaluation results on public benchmark dataset
 | Ascend910| CRNN | ResNet34_vd | MJ+ST | 24.48 M | 64 | 2157.18 | 76.48 | 6694.84 |
 
 #### Inference Perf.
-| Device | Model | Backbone | Dataset | Params | Batch size per card | Graph infer 1P (s/epoch) | Graph infer 1P (ms/step) | Graph infer 1P (FPS) |
-| :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
-| Ascend910| CRNN | VGG7 | MJ+ST | 8.72 M | 16 |  |  |  |
-| Ascend910| CRNN | ResNet34_vd | MJ+ST | 24.48 M | 64 |  |  |  |
+| Device | Env | Model | Backbone | Params | Test Dataset | Batch size | Graph infer 1P (FPS) |
+| :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | 
+| Ascend310P | Lite2.0 | CRNN | ResNet34_vd | 24.48 M | IC15 | 1 | 361.09 |
+| Ascend310P | Lite2.0 | CRNN | ResNet34_vd | 24.48 M | SVT | 1 | 274.67 |
 
 **Notes:**
 - Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x8-MS1.8-G is for training on 8 pieces of Ascend 910 NPU using graph mode based on Minspore version 1.8.
@@ -134,7 +134,7 @@ data_lmdb_release/
 
 Here we used the datasets under `training/` folders for **training**, and the union dataset `validation/` for validation. After training, we used the datasets under `evaluation/` to evluation model accuracy.
 
-Training: (total 14,442,049 samples)
+**Training:** (total 14,442,049 samples)
 - [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/)
   - Train: 21.2 GB, 7224586 samples
   - Valid: 2.36 GB, 802731 samples
@@ -142,20 +142,20 @@ Training: (total 14,442,049 samples)
 - [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)
   - Train: 16.0 GB, 5522808 samples
 
-Validation: 
-- Valid: 138M, 6992 samples
+**Validation:** 
+- Valid: 138 MB, 6992 samples
 
-Evaluation: (total 12,067 samples)
-- [CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html): 8.8M, 288 samples
-- [IC03_860](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions): 36M, 860 samples
-- IC03_867: 4.9M, 867 samples
-- [IC13_857](http://rrc.cvc.uab.es/?ch=2): 72M, 857 samples
-- IC13_1015: 77M, 1015 samples
-- [IC15_1811](http://rrc.cvc.uab.es/?ch=4): 21M, 1811 samples
-- IC15_2077: 25M, 2077 samples
-- [IIIT5k_3000](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html): 50M, 3000 samples
-- [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset): 2.4M, 647 samples
-- [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf): 1.8M, 645 samples
+**Evaluation:** (total 12,067 samples)
+- [CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html): 8.8 MB, 288 samples
+- [IC03_860](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions): 36 MB, 860 samples
+- [IC03_867](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions): 4.9 MB, 867 samples
+- [IC13_857](http://rrc.cvc.uab.es/?ch=2): 72 MB, 857 samples
+- [IC13_1015](http://rrc.cvc.uab.es/?ch=2): 77 MB, 1015 samples
+- [IC15_1811](http://rrc.cvc.uab.es/?ch=4): 21 MB, 1811 samples
+- [IC15_2077](http://rrc.cvc.uab.es/?ch=4): 25 MB, 2077 samples
+- [IIIT5k_3000](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html): 50 MB, 3000 samples
+- [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset): 2.4 MB, 647 samples
+- [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf): 1.8 MB, 645 samples
 
 
 **Data configuration for model training**
