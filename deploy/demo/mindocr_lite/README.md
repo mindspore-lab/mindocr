@@ -9,6 +9,20 @@ Download：Please download the [IC15](https://rrc.cvc.uab.es/?ch=4&com=downloads
 
 Conversion：Please refer to the script and format in the [dataset_converters](https://github.com/mindspore-lab/mindocr/tree/main/tools/dataset_converters), convert the test sets of IC5 and SVT into detection and recognition formats.
 
+The annotation format of det_gt.txt for text recognition follows:
+
+```
+img_478.jpg	[{"transcription": "SPA", "points": [[1136, 36], [1197, 0], [1220, 49], [1145, 96]]}, {...}]
+```
+
+The annotation format of rec_gt.txt for text recognition follows:
+
+```
+word_421.png   UNDER
+word_1657.png  CANDY
+word_1814.png  CATHAY
+```
+
 
 ### Model Export
 
@@ -93,15 +107,24 @@ cd deploy/demo/mindocr_lite
     python infer.py --input_images_dir=dataset/ic15/det/test/ch4_test_images --device=Ascend --device_id=3 --parallel_num=1 --precision_mode=fp16 --det_model_path=mindir/dbnet_resnet50.mindir --engine=lite --res_save_dir=det_ic15
     ```
 
-    The results will be saved in det_ic15/det_results.txt.
-
+    The results will be saved in det_ic15/det_results.txt, with the following format: 
+    ```
+    img_478.jpg	[[[1114, 35], [1200, 0], [1234, 52], [1148, 97]], [...]]
+    ```
+   
 2. Text recognition
 
     ```shell
     python infer.py --input_images_dir=dataset/svt/rec/test/cropped_images --device=Ascend --device_id=3 --parallel_num=1  --precision_mode=fp16 --rec_model_path=mindir/crnn_resnet34.mindir --engine=lite --res_save_dir=rec_svt
     ```
 
-    The results will be saved in rec_svt/rec_results.txt.
+    The results will be saved in rec_svt/rec_results.txt, with the following format: 
+
+    ```
+    word_421.png	"under"
+    word_1657.png	"candy"
+    word_1814.png	"cathay"
+    ```
 
 3. Text detection + recognition
 
@@ -109,7 +132,12 @@ cd deploy/demo/mindocr_lite
     python infer.py --input_images_dir=dataset/ic15/det/test/ch4_test_images --device=Ascend --device_id=3 --parallel_num=1  --precision_mode=fp16 --det_model_path=mindir/dbnet_resnet50.mindir --rec_model_path=mindir/crnn_resnet34.mindir --engine=lite --res_save_dir=det_rec_ic15
     ```
 
-    The results will be saved in det_rec_ic15/pipeline_results.txt.
+    The results will be saved in det_rec_ic15/pipeline_results.txt, with the following format: 
+    
+    ```
+    img_478.jpg	[{"transcription": "spa", "points": [[1114, 35], [1200, 0], [1234, 52], [1148, 97]]}, {...}]
+    ```
+
 
 After the inference is executed, the corresponding inference performance FPS value will be printed.
 

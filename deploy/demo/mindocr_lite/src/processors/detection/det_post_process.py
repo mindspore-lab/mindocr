@@ -25,8 +25,7 @@ class DetPostProcess(ModuleBase):
         infer_res_list = []
         image = input_data.frame
         for box in boxes:
-            points = box.flatten().tolist()
-            infer_res_list.append(points[:8])
+            infer_res_list.append(box.tolist())
             sub_image = get_rotate_crop_image(image, np.array(box, dtype=np.float32))
             sub_image_list.append(sub_image)
 
