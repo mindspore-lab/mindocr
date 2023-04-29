@@ -2,19 +2,11 @@ from typing import List
 
 import numpy as np
 import mindspore as ms
-from mindspore import nn
+from mindspore import nn, ms_function
 import mindspore.ops as ops
-from mindspore import Tensor
-from packaging import version
+from mindspore import  Tensor
+from mindspore.communication import get_group_size
 from shapely.geometry import Polygon
-
-# WARNING: `mindspore.ms_function` will be deprecated and removed in a future version.
-if version.parse(ms.__version__) >= version.parse('2.0.0rc'):
-    from mindspore import jit
-else:
-    from mindspore import ms_function
-    jit = ms_function
-
 
 __all__ = ['DetMetric']
 
@@ -92,7 +84,8 @@ class DetMetric(nn.Metric):
         super().__init__()
         self._evaluator = DetectionIoUEvaluator()
         self._gt_labels, self._det_labels = [], []
-        self._all_reduce = None if device_num == 1 else jit(fn=ops.AllReduce())
+        self.device_num = device_num
+        self.all_reduce = None if device_num==1 else ops.AllReduce()
         self.metric_names = ['recall', 'precision', 'f-score']
 
     def clear(self):
@@ -118,12 +111,18 @@ class DetMetric(nn.Metric):
             self._gt_labels.append(gt_label)
             self._det_labels.append(det_label)
 
-    @staticmethod
-    def _cal_metrics(det_lst, gt_lst):
+    @ms_function
+    def all_reduce_fun(self, x):
+        res = self.all_reduce(x)
+        return res
+
+    def cal_matrix(self, det_lst, gt_lst):
         tp = np.sum((gt_lst == 1) * (det_lst == 1))
         fn = np.sum((gt_lst == 1) * (det_lst == 0))
         fp = np.sum((gt_lst == 0) * (det_lst == 1))
         return tp, fp, fn
+
+
 
     def eval(self):
         """
@@ -138,20 +137,24 @@ class DetMetric(nn.Metric):
         self._det_labels = np.array([l for label in self._det_labels for l in label])
         self._gt_labels = np.array([l for label in self._gt_labels for l in label])
 
-        tp, fp, fn = self._cal_metrics(self._det_labels, self._gt_labels)
-        if self._all_reduce:
-            tp = float(self._all_reduce(Tensor(tp, ms.float32)).asnumpy())
-            fp = float(self._all_reduce(Tensor(fp, ms.float32)).asnumpy())
-            fn = float(self._all_reduce(Tensor(fn, ms.float32)).asnumpy())
+        tp, fp, fn = self.cal_matrix(self._det_labels, self._gt_labels)
+        if self.all_reduce:
+            tp = float(self.all_reduce_fun(Tensor(tp, ms.float32)).asnumpy())
+            fp = float(self.all_reduce_fun(Tensor(fp, ms.float32)).asnumpy())
+            fn = float(self.all_reduce_fun(Tensor(fn, ms.float32)).asnumpy())
 
-        recall, precision, f_score = 0., 0., 0.
-        if tp > 0:
-            recall = tp / (tp + fn)
-            precision = tp / (tp + fp)
-            f_score = 2 * recall * precision / (recall + precision)
-
+        recall = _safe_divide(tp, (tp + fn))
+        precision = _safe_divide(tp, (tp + fp))
+        f_score = _safe_divide(2 * recall * precision, (recall + precision))
         return {
             'recall': recall,
             'precision': precision,
             'f-score': f_score
         }
+
+
+def _safe_divide(numerator, denominator, val_if_zero_divide=0.):
+    if denominator == 0:
+        return val_if_zero_divide
+    else:
+        return numerator / denominator
