@@ -143,7 +143,7 @@ class RecResNet(nn.Cell):
                                 )
                 shortcut = True
                 self.block_list.append(basic_block)
-        
+
         self.block_list = nn.SequentialCell(self.block_list)
         self.maxpool2d_2 = nn.MaxPool2d(kernel_size=2, stride=2, pad_mode='same')
 

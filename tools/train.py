@@ -87,12 +87,15 @@ def main(cfg):
 
     # create model
     network = build_model(cfg.model)
-    ms.amp.auto_mixed_precision(network, amp_level=cfg.system.amp_level)
+    amp_level = cfg.system.get('amp_level', 'O0')
+    ms.amp.auto_mixed_precision(network, amp_level=amp_level)
 
     # create loss
     loss_fn = build_loss(cfg.loss.pop('name'), **cfg['loss'])
 
-    net_with_loss = NetWithLossWrapper(network, loss_fn)  # wrap train-one-step cell
+    net_with_loss = NetWithLossWrapper(network, loss_fn, 
+                                       pred_cast_fp32=(amp_level!='O0'),
+                                    )  # wrap train-one-step cell
 
     # get loss scale setting for mixed precision training
     loss_scale_manager, optimizer_loss_scale = get_loss_scales(cfg)
@@ -130,6 +133,7 @@ def main(cfg):
         loader_eval,
         postprocessor=postprocessor,
         metrics=[metric],
+        pred_cast_fp32=(amp_level!='O0'),
         rank_id=rank_id,
         logger=logger,
         batch_size=cfg.train.loader.batch_size,
