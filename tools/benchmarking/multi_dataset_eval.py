@@ -125,6 +125,7 @@ def main(cfg):
                     metrics=[metric],
                     num_columns_to_net=dataset_config.get('num_columns_to_net', 1),
                     num_columns_of_labels=dataset_config.get('num_columns_of_labels', None),
+                    num_epochs=1,
                     )
                 reload_data = True
             
