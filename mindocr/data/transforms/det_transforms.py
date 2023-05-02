@@ -1,7 +1,6 @@
 """
 transforms for text detection tasks.
 """
-import random
 import warnings
 from typing import List
 
@@ -81,10 +80,9 @@ class DetLabelEncode:
 warnings.filterwarnings("ignore")
 class BorderMap:
     def __init__(self, shrink_ratio=0.4, thresh_min=0.3, thresh_max=0.7):
-        self._shrink_ratio = shrink_ratio
         self._thresh_min = thresh_min
         self._thresh_max = thresh_max
-        self._dist_coef = 1 - self._shrink_ratio ** 2
+        self._dist_coef = 1 - shrink_ratio ** 2
 
     def __call__(self, data):
         border = np.zeros(data['image'].shape[:2], dtype=np.float32)
@@ -146,26 +144,20 @@ class BorderMap:
         return result
 
 
-
 class ShrinkBinaryMap:
     """
     Making binary mask from detection data with ICDAR format.
     Typically following the process of class `MakeICDARData`.
     """
-    def __init__(self, min_text_size=8, shrink_ratio=0.4, train=True):
+    def __init__(self, min_text_size=8, shrink_ratio=0.4):
         self._min_text_size = min_text_size
-        self._shrink_ratio = shrink_ratio
-        self._train = train
-        self._dist_coef = 1 - self._shrink_ratio ** 2
+        self._dist_coef = 1 - shrink_ratio ** 2
 
     def __call__(self, data):
         gt = np.zeros(data['image'].shape[:2], dtype=np.float32)
         mask = np.ones(data['image'].shape[:2], dtype=np.float32)
 
         if len(data['polys']):
-            if self._train:
-                self._validate_polys(data)
-
             for i in range(len(data['polys'])):
                 min_side = min(np.max(data['polys'][i], axis=0) - np.min(data['polys'][i], axis=0))
 
@@ -185,17 +177,6 @@ class ShrinkBinaryMap:
         data['binary_map'] = np.expand_dims(gt, axis=0)
         data['mask'] = mask
         return data
-
-    @staticmethod
-    def _validate_polys(data):
-        data['polys'] = np.clip(data['polys'], 0, np.array(data['image'].shape[1::-1]) - 1)  # shape reverse order: w, h
-
-        for i in range(len(data['polys'])):
-            poly = Polygon(data['polys'][i])
-            if poly.area < 1:
-                data['ignore_tags'][i] = True
-            if not poly.exterior.is_ccw:
-                data['polys'][i] = data['polys'][i][::-1]
 
 
 def expand_poly(poly, distance: float, joint_type=pyclipper.JT_ROUND) -> List[list]:

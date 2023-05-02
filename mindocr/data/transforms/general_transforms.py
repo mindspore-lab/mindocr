@@ -1,13 +1,16 @@
+import random
 from typing import List, Union
+
 import cv2
 import numpy as np
 from PIL import Image
+from shapely.geometry import Polygon, box
 from mindspore.dataset.vision import RandomColorAdjust as MSRandomColorAdjust, ToPIL
 
 from ...data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 
 __all__ = ['DecodeImage', 'NormalizeImage', 'ToCHWImage', 'PackLoaderInputs', 'ScalePadImage', 'GridResize',
-           'RandomScale', 'RandomCropWithBBox', 'RandomColorAdjust']
+           'RandomScale', 'RandomCropWithBBox', 'RandomColorAdjust', 'ValidatePolygons']
 
 
 # TODO: use mindspore C.decode for efficiency
@@ -192,9 +195,11 @@ class RandomScale:
     Randomly scales an image and its polygons in a predefined scale range.
     Args:
         scale_range: (min, max) scale range.
+        p: probability of the augmentation being applied to an image.
     """
-    def __init__(self, scale_range: Union[tuple, list]):
+    def __init__(self, scale_range: Union[tuple, list], p: float = 0.5):
         self._range = scale_range
+        self._p = p
 
     def __call__(self, data: dict):
         """
@@ -205,48 +210,47 @@ class RandomScale:
             image
             (polys)
         """
-        scale = np.random.uniform(*self._range)
-        data['image'] = cv2.resize(data['image'], dsize=None, fx=scale, fy=scale)
+        if random.random() < self._p:
+            scale = np.random.uniform(*self._range)
+            data['image'] = cv2.resize(data['image'], dsize=None, fx=scale, fy=scale)
 
-        if 'polys' in data:
-            data['polys'] *= scale
+            if 'polys' in data:
+                data['polys'] *= scale
         return data
 
 
 class RandomCropWithBBox:
     """
-    Randomly cuts a crop from an image along with polygons.
+    Randomly cuts a crop from an image along with polygons in the way that the crop doesn't intersect any polygons
+    (i.e. any given polygon is either fully inside or fully outside the crop).
 
     Args:
-        max_tries: number of attempts to try to cut a crop with a polygon in it.
+        max_tries: number of attempts to try to cut a crop with a polygon in it. If fails, scales the whole image to
+                   match the `crop_size`.
         min_crop_ratio: minimum size of a crop in respect to an input image size.
         crop_size: target size of the crop (resized and padded, if needed), preserves sides ratio.
+        p: probability of the augmentation being applied to an image.
     """
-    def __init__(self, max_tries=10, min_crop_ratio=0.1, crop_size=(640, 640)):
+    def __init__(self, max_tries=10, min_crop_ratio=0.1, crop_size=(640, 640), p: float = 0.5):
         self._crop_size = crop_size
         self._ratio = min_crop_ratio
         self._max_tries = max_tries
+        self._p = p
 
     def __call__(self, data):
-        start, end = self._find_crop(data)
+        if random.random() < self._p:   # cut a crop
+            start, end = self._find_crop(data)
+        else:                           # scale and pad the whole image
+            start, end = np.array([0, 0]), np.array(data['image'].shape[:2])
+
         scale = min(self._crop_size / (end - start))
 
         data['image'] = cv2.resize(data['image'][start[0]: end[0], start[1]: end[1]], None, fx=scale, fy=scale)
+        data['actual_size'] = np.array(data['image'].shape[:2])
         data['image'] = np.pad(data['image'],
                                (*tuple((0, cs - ds) for cs, ds in zip(self._crop_size, data['image'].shape[:2])), (0, 0)))
 
-        start, end = start[::-1], end[::-1]     # convert to x, y coord
-        new_polys, new_texts, new_ignores = [], [], []
-        for _id in range(len(data['polys'])):
-            # if the polygon is within the crop
-            if (data['polys'][_id].max(axis=0) > start).all() and (data['polys'][_id].min(axis=0) < end).all():   # NOQA
-                new_polys.append((data['polys'][_id] - start) * scale)
-                new_texts.append(data['texts'][_id])
-                new_ignores.append(data['ignore_tags'][_id])
-
-        data['polys'] = np.array(new_polys) if isinstance(data['polys'], np.ndarray) else new_polys
-        data['texts'] = new_texts
-        data['ignore_tags'] = new_ignores
+        data['polys'] = (data['polys'] - start[::-1]) * scale
 
         return data
 
@@ -297,4 +301,48 @@ class RandomColorAdjust:
         """
         # there's a bug in MindSpore that requires images to be converted to the PIL format first
         data['image'] = np.array(self._jitter(self._pil(data['image'])))
+        return data
+
+
+class ValidatePolygons:
+    """
+    Validate polygons by:
+     1. filtering out polygons outside an image.
+     2. clipping coordinates of polygons that are partially outside an image to stay within the visible region.
+    Args:
+        min_area: minimum area below which newly clipped polygons considered as ignored.
+    """
+    def __init__(self, min_area: float = 1.0):
+        self._min_area = min_area
+
+    def __call__(self, data: dict):
+        size = data.get('actual_size', np.array(data['image'].shape[:2]))[::-1]     # convert to x, y coord
+        border = box(0, 0, *size)
+
+        new_polys, new_texts, new_tags = [], [], []
+        for np_poly, text, ignore in zip(data['polys'], data['texts'], data['ignore_tags']):
+            if ((0 <= np_poly) & (np_poly < size)).all():   # if the polygon is fully within the image
+                new_polys.append(np_poly)
+
+            else:
+                poly = Polygon(np_poly)
+                if poly.intersects(border):                 # if the polygon is partially within the image
+                    poly = poly.intersection(border)
+                    if poly.area < self._min_area:
+                        ignore = True
+
+                    poly = poly.exterior
+                    poly = poly.coords[::-1] if poly.is_ccw else poly.coords    # sort in clockwise order
+                    new_polys.append(np.array(poly[:-1]))
+
+                else:                                       # the polygon is fully outside the image
+                    continue
+
+            new_tags.append(ignore)
+            new_texts.append(text)
+
+        data['polys'] = new_polys
+        data['texts'] = new_texts
+        data['ignore_tags'] = np.array(new_tags)
+
         return data
