@@ -39,6 +39,7 @@ from mindocr.utils.train_step_wrapper import TrainOneStepWrapper
 from mindocr.utils.callbacks import EvalSaveCallback
 from mindocr.utils.seed import set_seed
 from mindocr.utils.loss_scaler import get_loss_scales
+from mindocr.utils.ema import EMA
 
 
 def main(cfg):
@@ -111,6 +112,9 @@ def main(cfg):
     # build train step cell
     gradient_accumulation_steps = cfg.train.get('gradient_accumulation_steps', 1)
     clip_grad = cfg.train.get('clip_grad', False)
+    use_ema = cfg.train.get('ema', False)
+    ema = EMA(network, ema_decay=cfg.train.get('ema_decay', 0.9999), updates=0) if use_ema else None
+
     train_net = TrainOneStepWrapper(net_with_loss,
                                     optimizer=optimizer,
                                     scale_sense=loss_scale_manager,
@@ -118,7 +122,9 @@ def main(cfg):
                                     gradient_accumulation_steps=gradient_accumulation_steps,
                                     clip_grad=clip_grad,
                                     clip_norm=cfg.train.get('clip_norm', 1.0),
+                                    ema=ema,
                                     )
+
     # build postprocess and metric
     postprocessor = None
     metric = None
@@ -139,6 +145,7 @@ def main(cfg):
         batch_size=cfg.train.loader.batch_size,
         ckpt_save_dir=cfg.train.ckpt_save_dir,
         main_indicator=cfg.metric.main_indicator,
+        ema=ema,
         num_columns_to_net=cfg.eval.dataset.get('num_columns_to_net', 1),
         num_columns_of_labels=cfg.eval.dataset.get('num_columns_of_labels', None),
         val_interval=cfg.system.get('val_interval', 1),
@@ -149,26 +156,29 @@ def main(cfg):
     # log
     num_devices = device_num if device_num is not None else 1
     global_batch_size = cfg.train.loader.batch_size * num_devices * gradient_accumulation_steps
-    logger.info('=' * 40)
+    model_name = cfg.model.name if 'name' in cfg.model else f'{cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}'
+    info_seg = '=' * 40
     logger.info(
-        f'Num devices: {num_devices}\n'
-        f'Batch size: {cfg.train.loader.batch_size}\n'
-        f'Global batch size: {cfg.train.loader.batch_size}x{num_devices}x{gradient_accumulation_steps}={global_batch_size}\n'
+        f'\n{info_seg}\n'
+        f'Distribute: {cfg.system.distribute}\n'
+        f'Model: {model_name}\n'
+        f'Data root: {cfg.train.dataset.dataset_root}\n'
         f'Optimizer: {cfg.optimizer.opt}\n'
-        f'Scheduler: {cfg.scheduler.scheduler}\n'
+        f'Batch size: {cfg.train.loader.batch_size}\n'
+        f'Num devices: {num_devices}\n'
+        f'Gradient accumulation steps: {gradient_accumulation_steps}\n'
+        f'Global batch size: {cfg.train.loader.batch_size}x{num_devices}x{gradient_accumulation_steps}={global_batch_size}\n'
         f'LR: {cfg.scheduler.lr} \n'
-        f'Auto mixed precision: {cfg.system.amp_level}\n'
-        f'Loss scale setting: {cfg.loss_scaler}\n'
-        f'drop_overflow_update: {cfg.system.drop_overflow_update}\n'
-        f'clip_grad: {clip_grad}\n'
+        f'Scheduler: {cfg.scheduler.scheduler}\n'
+        f'Steps per epoch: {num_batches}\n'
         f'Num epochs: {cfg.scheduler.num_epochs}\n'
-        f'Num steps per epoch: {num_batches}'
+        f'Clip gradient: {clip_grad}\n'
+        f'EMA: {use_ema}\n'
+        f'AMP level: {cfg.system.amp_level}\n'
+        f'Loss scaler: {cfg.loss_scaler}\n'
+        f'Drop overflow update: {cfg.system.drop_overflow_update}\n'
+        f'{info_seg}\n'
     )
-    if 'name' in cfg.model:
-        logger.info(f'Model: {cfg.model.name}')
-    else:
-        logger.info(f'Model: {cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}')
-    logger.info('=' * 40)
 
     # save args used for training
     # FIXME: some values are popped and not saved.

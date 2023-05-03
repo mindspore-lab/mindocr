@@ -72,6 +72,8 @@ train:
   gradient_accumulation_steps: 1
   clip_grad: True
   clip_norm: 0.0001
+  ema: True
+  ema_decay: 0.9997
   ckpt_save_dir: './tmp_rec'
   dataset_sink_mode: False
   dataset:

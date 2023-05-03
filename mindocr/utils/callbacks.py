@@ -81,6 +81,7 @@ class Evaluator:
         for m in self.metrics:
             m.clear()
 
+
         for i, data in tqdm(enumerate(self.iterator), total=self.num_batches_eval):
 
             inputs = data[:self.num_inputs] # [imgs]
@@ -131,6 +132,7 @@ class EvalSaveCallback(Callback):
     Args:
         network (nn.Cell): network (without loss)
         loader (Dataset): dataloader
+        ema: if not None, the ema params will be loaded to the network for evaluation.
     """
 
     def __init__(self,
@@ -145,6 +147,7 @@ class EvalSaveCallback(Callback):
                  batch_size=20,
                  ckpt_save_dir='./',
                  main_indicator='hmean',
+                 ema=None,
                  num_columns_to_net=1,  # TODO: parse eval cfg for short?
                  num_columns_of_labels=None,
                  val_interval=1,
@@ -155,6 +158,7 @@ class EvalSaveCallback(Callback):
         self.is_main_device = rank_id in [0, None]
         self.loader_eval = loader
         self.network = network
+        self.ema= ema
         self.logger = print if logger is None else logger.info
         self.val_interval = val_interval
         self.val_start_epoch = val_start_epoch
@@ -167,6 +171,7 @@ class EvalSaveCallback(Callback):
         else:
             self.main_indicator = 'train_loss'
             self.best_perf = 1e8
+
 
         self.ckpt_save_dir = ckpt_save_dir
         if not os.path.exists(ckpt_save_dir):
@@ -240,7 +245,11 @@ class EvalSaveCallback(Callback):
         if self.loader_eval is not None:
             if cur_epoch >= self.val_start_epoch and (cur_epoch - self.val_start_epoch) % self.val_interval == 0:
                 eval_start = time.time()
+                if self.ema is not None:
+                    # swap ema weight and network weight
+                    self.ema.swap_before_eval()
                 measures = self.net_evaluator.eval()
+
                 eval_done = True
                 if self.is_main_device:
                     perf = measures[self.main_indicator]
@@ -260,7 +269,9 @@ class EvalSaveCallback(Callback):
                     or (
                     self.main_indicator != 'train_loss' and eval_done and perf > self.best_perf):  # when val_while_train enabled, only find best checkpoint after eval done.
                 self.best_perf = perf
+                # ema weight will be saved if enable.
                 save_checkpoint(self.network, os.path.join(self.ckpt_save_dir, 'best.ckpt'))
+
                 self.logger(f'=> Best {self.main_indicator}: {self.best_perf}, checkpoint saved.')
 
             # record results
@@ -276,6 +287,10 @@ class EvalSaveCallback(Callback):
             else:
                 epoch_perf_values = [cur_epoch, train_loss, train_time]
             self.rec.add(*epoch_perf_values)  # record column values
+
+        # swap back network weight and ema weight. MUST execute after model saving and before next-step training
+        if (self.ema is not None) and eval_done:
+            self.ema.swap_after_eval()
 
         tot_time = time.time() - self.last_epoch_end_time
         self.last_epoch_end_time = time.time()

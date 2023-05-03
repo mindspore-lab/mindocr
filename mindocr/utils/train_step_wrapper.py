@@ -8,15 +8,9 @@ from mindspore.ops import operations as P
 import mindspore.context as context
 
 
-_ema_op = C.MultitypeFuncGraph("grad_ema_op")
 _grad_scale = C.MultitypeFuncGraph("grad_scale")
 reciprocal = P.Reciprocal()
 _grad_overflow = C.MultitypeFuncGraph("_grad_overflow")
-
-
-@_ema_op.register("Tensor", "Tensor", "Tensor")
-def _ema_weights(factor, ema_weight, weight):
-    return F.assign(ema_weight, ema_weight * factor + weight * (1 - factor))
 
 
 @_grad_scale.register("Tensor", "Tensor")
@@ -54,8 +48,7 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
         network,
         optimizer,
         scale_sense=1.0,
-        ema=False,
-        ema_decay=0.9999,
+        ema=None,
         updates=0,
         drop_overflow_update=True,
         gradient_accumulation_steps=1,
@@ -65,8 +58,6 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
     ):
         super().__init__(network, optimizer, scale_sense)
         self.ema = ema
-        self.ema_decay = ema_decay
-        self.updates = Parameter(Tensor(updates, ms.float32), requires_grad=False)
         self.drop_overflow_update = drop_overflow_update
 
         assert isinstance(clip_grad, bool), f'Invalid type of clip_grad, got {type(clip_grad)}, expected bool'
@@ -89,23 +80,10 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
                 z.requires_grad = False
 
         self.verbose = verbose
-        if self.ema:
-            self.weights_all = ms.ParameterTuple(list(network.get_parameters()))
-            self.ema_weight = self.weights_all.clone("ema", init="same")
-
         self.is_cpu_device = context.get_context("device_target") == 'CPU' # to support CPU in CI
 
         self.map = ops.Map()
         self.partial= ops.Partial()
-
-    def ema_update(self):
-        """Update EMA parameters."""
-        self.updates += 1
-        d = self.ema_decay * (1 - F.exp(-self.updates / 2000))
-        # update trainable parameters
-        success = self.hyper_map(F.partial(_ema_op, d), self.ema_weight, self.weights_all)
-        self.updates = F.depend(self.updates, success)
-        return self.updates
 
     def construct(self, *inputs):
         # compute loss
@@ -151,7 +129,7 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
 
                     # 6. clip grad
                     if self.clip_grad:
-                        grads = ops.clip_by_global_norm(self.grads, self.clip_norm)
+                        grads = ops.clip_by_global_norm(grads, self.clip_norm)
                     # 7. optimize
                     loss = F.depend(loss, self.optimizer(grads))
 
@@ -169,6 +147,10 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
                     grads = ops.clip_by_global_norm(grads, self.clip_norm)
                 # 7. optimize
                 loss = F.depend(loss, self.optimizer(grads))
+
+            # 8.ema
+            if self.ema is not None:
+                self.ema.ema_update()
         else:
             #print("WARNING: Gradient overflow! update skipped.")
             pass
