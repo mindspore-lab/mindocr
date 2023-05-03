@@ -1,4 +1,6 @@
+from typing import Tuple, Union
 import mindspore.nn as nn
+import mindspore as ms
 
 
 class DBHead(nn.Cell):
@@ -7,7 +9,7 @@ class DBHead(nn.Cell):
         self.adaptive = adaptive
 
         self.segm = self._init_heatmap(in_channels, in_channels // 4, weight_init, bias)
-        if adaptive:
+        if self.adaptive:
             self.thresh = self._init_heatmap(in_channels, in_channels // 4, weight_init, bias)
             self.k = k
             self.diff_bin = nn.Sigmoid()
@@ -28,12 +30,22 @@ class DBHead(nn.Cell):
             nn.Sigmoid()
         ])
 
-    def construct(self, features):
-        pred = {'binary': self.segm(features)}
+    def construct(self, features: ms.Tensor) -> Union[ms.Tensor, Tuple[ms.Tensor, ...]]:
+        """
+        Args:
+            features (Tensor): encoded features
+        Returns:
+            Union(
+            binary: predicted binary map
+            thresh: predicted threshold map (only return if adaptive is True in training)
+            thresh_binary: differentiable binary map (only if adaptive is True in training)
+        """
+        binary = self.segm(features)
 
-        if self.adaptive:
-            pred['thresh'] = self.thresh(features)
-            pred['thresh_binary'] = self.diff_bin(
-                self.k * (pred['binary'] - pred['thresh']))  # Differentiable Binarization
+        if self.adaptive and self.training:
+            # only use binary map to derive polygons in inference
+            thresh = self.thresh(features)
+            thresh_binary = self.diff_bin(self.k * binary - thresh)  # Differentiable Binarization
+            return binary, thresh, thresh_binary
 
-        return pred
+        return binary

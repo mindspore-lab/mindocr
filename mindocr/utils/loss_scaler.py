@@ -31,7 +31,6 @@ def get_loss_scales(cfg):
                 scale_factor = scale_factor ** (1/grad_accu_steps)
                 scale_window = scale_window * grad_accu_steps
                 print("INFO: gradient_accumulation_steps > 1, scale_factor and scale_window are adjusted accordingly for dynamic loss scaler")
-
             loss_scale_manager = nn.DynamicLossScaleUpdateCell(loss_scale_value=cfg.loss_scaler.get('loss_scale', 2**16),
                                                             scale_factor=scale_factor,
                                                             scale_window=scale_window,

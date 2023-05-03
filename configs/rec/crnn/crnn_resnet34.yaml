@@ -1,6 +1,6 @@
 system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
-  distribute: True 
+  distribute: True
   amp_level: 'O3'
   seed: 42
   log_interval: 100
@@ -111,7 +111,7 @@ train:
       num_workers: 8
 
 eval:
-  ckpt_load_path: './tmp_rec/best.ckpt'
+  ckpt_load_path: ./tmp_rec/best.ckpt
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
@@ -149,5 +149,47 @@ eval:
       shuffle: False # TODO: tbc
       batch_size: 64
       drop_remainder: False
+      max_rowsize: 12
+      num_workers: 8
+
+predict:
+  ckpt_load_path: ./tmp_rec/best.ckpt
+  vis_font_path: tools/utils/simfang.ttf
+  dataset_sink_mode: False
+  dataset:
+    type: PredictDataset
+    dataset_root: path/to/dataset_root
+    data_dir: predict_result/crop
+    # label_files: # not required when using LMDBDataset
+    sample_ratio: 1.0
+    shuffle: False
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          to_float32: False
+#      - RecCTCLabelEncode:
+#          max_text_len: *max_text_len
+#          character_dict_path: *character_dict_path
+#          use_space_char: *use_space_char
+#          lower: True
+      - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize.
+          image_shape: [32, 100] # H, W
+          infer_mode: *infer_mode
+          character_dict_path: *character_dict_path
+          padding: False # aspect ratio will be preserved if true.
+      - NormalizeImage:  # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec.
+          bgr_to_rgb: True
+          is_hwc: True
+          mean : [127.0, 127.0, 127.0]
+          std : [127.0, 127.0, 127.0]
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
+    output_columns: [ 'img_path', 'image', 'raw_img_shape' ]
+    num_columns_to_net: 1 # num inputs for network forward func
+
+  loader:
+      shuffle: False # TODO: tbc
+      batch_size: 1
+      drop_remainder: True
       max_rowsize: 12
       num_workers: 8

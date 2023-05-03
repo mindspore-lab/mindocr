@@ -61,12 +61,13 @@ class CTCHead(nn.Cell):
             self.dense2 = nn.Dense(mid_channels, out_channels, weight_init=weight_init, bias_init=bias_init)
             #self.dropout = nn.Dropout(keep_prob)
 
-    def construct(self, x):
+    def construct(self, x: ms.Tensor) -> ms.Tensor:
         """Feed Forward construct.
         Args:
             x (Tensor): feature in shape [W, BS, 2*C]
         Returns:
-            h (Tensor): logits in shape [W, BS, num_classes], where W - sequence len, fixed.
+            h (Tensor): if training, h is logits in shape [W, BS, num_classes], where W - sequence len, fixed. (dim order required by ms.ctcloss)
+                        if not training, h is class probabilites in shape [BS, W, num_classes].
         """
         h = self.dense1(x)
         #x = self.dropout(x)
@@ -77,9 +78,9 @@ class CTCHead(nn.Cell):
         if not self.training:
             #h = ops.softmax(h, axis=2) # not support on ms 1.8.1
             h = ops.Softmax(axis=2)(h)
+            h = h.transpose((1, 0, 2))
 
-        pred = {'head_out': h}
-        return pred
+        return h
 
 
 if __name__ == '__main__':

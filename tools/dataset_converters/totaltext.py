@@ -44,7 +44,6 @@ class TOTALTEXT_Converter(object):
                                                         "").split(', ')
                         assert len(tmp), f"parse error for {tmp}."
                         if len(tmp)<4 or len(line_saver)>0:
-                            import pdb; pdb.set_trace()
                             line_saver +=line
                             new_splits = line_saver.strip("\n\r").replace("\xef\xbb\xbf","").split(', ')
                             if len(new_splits) <4:

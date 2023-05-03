@@ -3,6 +3,7 @@ system:
   distribute: True 
   amp_level: 'O3'
   seed: 42
+  log_interval: 100
   val_while_train: True
   drop_overflow_update: False
 
@@ -146,6 +147,6 @@ eval:
   loader:
       shuffle: False # TODO: tbc
       batch_size: 16
-      drop_remainder: True
+      drop_remainder: False
       max_rowsize: 12
       num_workers: 8

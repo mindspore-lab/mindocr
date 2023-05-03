@@ -5,6 +5,7 @@ import cv2
 import math
 import numpy as np
 import mindspore as ms
+from mindspore import Tensor
 
 __all__ = ['RecCTCLabelDecode']
 
@@ -66,7 +67,7 @@ class RecCTCLabelDecode(object):
             self.blank_idx = 0
 
         self.ignore_indices = [self.blank_idx]
-        
+
         self.character = {idx:c for idx, c in enumerate(char_list)}
 
         self.num_classes = len(self.character)
@@ -110,34 +111,32 @@ class RecCTCLabelDecode(object):
             confs.append(np.mean(conf_list))
         return texts, confs
 
-        
-    def __call__(self, preds: Union[dict, List], labels = None, **kwargs):
+
+    def __call__(self, preds: Union[Tensor, np.ndarray], labels = None, **kwargs):
         '''
         Args:
-            preds (dict or tuple): containing prediction tensor in shape [W, BS, num_classes] 
-            labels (): 
+            preds (Union[Tensor, np.ndarray]): network prediction, class probabilities in shape [BS, W, num_classes], where W is the sequence length.
+            labels: optional
         Return:
-            texts (List[Tuple]): list of string 
+            texts (List[Tuple]): list of string
 
         '''
         if isinstance(preds, tuple):
             preds = preds[-1]
-        elif isinstance(preds, dict):  
-            preds = preds['head_out'] # TODO: change name
 
-        if isinstance(preds, ms.Tensor):
+        if isinstance(preds, Tensor):
             preds = preds.asnumpy()
-        
-        preds = preds.transpose([1, 0, 2]) # [W, BS, C] -> [BS, W, C]
+
+        #preds = preds.transpose([1, 0, 2]) # [W, BS, C] -> [BS, W, C]. already did in model head.
         pred_indices = preds.argmax(axis=-1)
         pred_prob = preds.max(axis=-1)
-        
+
         #print('pred indices: ', pred_indices)
         #print('pred prob: ', pred_prob.shape)
 
         # TODO: for debug only
         raw_chars = [[self.character[idx] for idx in pred_indices[b]] for b in range(pred_indices.shape[0])]
-        
+
         texts, confs = self.decode(pred_indices, pred_prob, remove_duplicate=True)
 
         return {'texts': texts, 'confs': confs, 'raw_chars': raw_chars}
@@ -147,7 +146,7 @@ if __name__ == '__main__':
     idx = np.array(
             [[0,1,2,10,11,12,36,36,36,36],
             [0,1,3,10,11,12,13,36,36,36]])
-    
+
     # onehot
     num_classes = np.max(idx) + 1
     preds = np.eye(num_classes)[idx]
@@ -159,4 +158,4 @@ if __name__ == '__main__':
 
     print(texts)
 
-     
+

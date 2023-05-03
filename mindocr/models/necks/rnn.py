@@ -51,7 +51,7 @@ class RNNEncoder(nn.Cell):
             Tensor: Encoded features . Shape :math:`(W, N, 2*C)` where
         """
         x = features[0]
-        assert x.shape[2]==1, 'Feature height must be 1'
+        assert x.shape[2]==1, f'Feature height must be 1, but got {x.shape[2]} from x.shape {x.shape}'
         x = ops.squeeze(x, axis=2) # [N, C, W]
         x = ops.transpose(x, (2, 0, 1)) # [W, N, C]
 

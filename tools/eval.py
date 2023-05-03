@@ -1,5 +1,5 @@
 '''
-Model evaluation 
+Model evaluation
 '''
 import sys
 import os
@@ -55,15 +55,24 @@ def main(cfg):
     if cfg.system.amp_level != 'O0':
         print('INFO: Evaluation will run in full-precision(fp32)')
 
-    # TODO: check float type conversion in official Model.eval 
-    #ms.amp.auto_mixed_precision(network, amp_level='O0')  
+    # TODO: check float type conversion in official Model.eval
+    #ms.amp.auto_mixed_precision(network, amp_level='O0')
 
     # postprocess, metric
     postprocessor = build_postprocess(cfg.postprocess)
     # postprocess network prediction
     metric = build_metric(cfg.metric)
 
-    net_evaluator = Evaluator(network, None, postprocessor, [metric])
+    net_evaluator = Evaluator(
+                        network,
+                        loader_eval,
+                        loss_func=None,
+                        postprocessor=postprocessor,
+                        metrics=[metric],
+                        num_columns_to_net=cfg.eval.dataset.get('num_columns_to_net', 1),
+                        num_columns_of_labels=cfg.eval.dataset.get('num_columns_of_labels', None),
+                        num_epochs=1,
+                        )
 
     # log
     print('='*40)
@@ -73,8 +82,8 @@ def main(cfg):
     else:
         print(f'Model: {cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}')
     print('='*40)
- 
-    measures = net_evaluator.eval(loader_eval)
+
+    measures = net_evaluator.eval()
     if is_main_device:
         print('Performance: ', measures)
 
@@ -97,5 +106,5 @@ if __name__ == '__main__':
     config = Dict(config)
 
     #print(config)
-    
+
     main(config)

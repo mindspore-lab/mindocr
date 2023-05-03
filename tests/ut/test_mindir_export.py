@@ -23,7 +23,7 @@ def test_mindir_infer(name):
     if task=='rec':
         c, h, w = 3, 32, 100
     else:
-        c, h, w = 3, 640, 640
+        c, h, w = 3, 736, 1280
 
     bs = 1
     x = ms.Tensor(np.ones([bs, c, h, w]), dtype=ms.float32)
@@ -37,7 +37,7 @@ def test_mindir_infer(name):
     for i, o in enumerate(outputs_mindir):
         print('mindir net out: ', outputs_mindir[i].sum(), outputs_mindir[i].shape)
         print('ckpt net out: ', outputs_ckpt[i].sum(), outputs_mindir[i].shape)
-        assert outputs_mindir[i].sum()==outputs_ckpt[i].sum()
+        assert float(outputs_mindir[i].sum().asnumpy())==float(outputs_ckpt[i].sum().asnumpy())
 
 
 if __name__ == '__main__':

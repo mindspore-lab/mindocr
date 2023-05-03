@@ -2,9 +2,9 @@
 
 本文档展示了如何将OCR数据集的标注文件（不包括LMDB）转换为通用格式以进行模型训练。
 
-您也可以参考 [`convert_datasets.sh`](../../convert_datasets.sh)。这是将给定目录下所有数据集的标注文件转换为通用格式的Shell 脚本。
+您也可以参考 [`convert_datasets.sh`](../convert_datasets.sh)。这是将给定目录下所有数据集的标注文件转换为通用格式的Shell 脚本。
 
-要下载OCR数据集，您可以参考 [ICDAR2015](../../docs/en/datasets/icdar2015.md), [MLT2017](../../docs/en/datasets/mlt2017.md), [Syntext 150k](../../docs/en/datasets/syntext150k.md), [Total Text](../../docs/en/datasets/totaltext.md)的说明。
+要下载OCR数据集，您可以参考 [ICDAR2015](../../docs/cn/datasets/icdar2015_CN.md), [MLT2017](../../docs/cn/datasets/mlt2017_CN.md), [Syntext 150k](../../docs/cn/datasets/syntext150k_CN.md), [Total Text](../../docs/cn/datasets/totaltext_CN.md)的说明。
 
 ## 文本检测/端到端文本检测
 

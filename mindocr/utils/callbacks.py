@@ -6,6 +6,8 @@ import shutil
 
 import numpy as np
 import mindspore as ms
+from mindspore.ops import functional as F
+from mindspore.common import dtype as mstype
 from mindspore import save_checkpoint
 from mindspore.train.callback._callback import Callback, _handle_loss
 from .visualize import draw_bboxes, show_imgs, recover_image
@@ -17,72 +19,94 @@ __all__ = ['Evaluator', 'EvalSaveCallback']
 class Evaluator:
     """
     Args:
-        metric:
+        network: network
+        dataloader : data loader to generate batch data, where the data columns in a batch are defined by the transform pipeline and `output_columns`.
+        loss_fn: loss function
+        postprocessor: post-processor
+        metrics: metrics to evaluate network performance
+        pred_cast_fp32: whehter to cast network prediction to float 32. Set True if AMP is used.
+        num_columns_to_net: number of inputs to the network in the dataset output columns. Default is 1 for the first column is image.
+        num_columns_of_labels: number of labels in the dataset output columns. Default is None assuming the columns after image (data[1:]) are labels.
+                           If not None, the num_columns_of_labels columns after image (data[1:1+num_columns_of_labels]) are labels, and the remaining columns are additional info like image_path.
     """
-    def __init__(self, network, loss_fn=None, postprocessor=None, metrics=None, visualize=False, verbose=False,
+
+    def __init__(self, network, dataloader, loss_fn=None, postprocessor=None, metrics=None,
+                 pred_cast_fp32=False,
+                 num_columns_to_net=1, 
+                 num_columns_of_labels=None, 
+                 num_epochs=-1,
+                 visualize=False, 
+                 verbose=False,
                  **kwargs):
         self.net = network
         self.postprocessor = postprocessor
-        # FIXME: process when metrics is not None
         self.metrics = metrics if isinstance(metrics, List) else [metrics]
         self.metric_names = []
         for m in metrics:
-            assert hasattr(m, 'metric_names') and isinstance(m.metric_names, List), f'Metric object must contain `metric_names` attribute to indicate the metric names as a List type, but not found in {m.__class__.__name__}'
+            assert hasattr(m, 'metric_names') and isinstance(m.metric_names,
+                                                             List), f'Metric object must contain `metric_names` attribute to indicate the metric names as a List type, but not found in {m.__class__.__name__}'
             self.metric_names += m.metric_names
-
+        
+        self.pred_cast_fp32 = pred_cast_fp32
         self.visualize = visualize
         self.verbose = verbose
         eval_loss = False
         if loss_fn is not None:
             eval_loss = True
             self.loss_fn = loss_fn
-        # TODO: add support for computing evaluation loss
         assert eval_loss == False, 'not impl'
 
-    def eval(self, dataloader, num_columns_to_net=1, num_keys_of_labels=None):
+        # create iterator
+        self.reload(dataloader, num_columns_to_net, num_columns_of_labels, num_epochs)
+
+
+    def reload(self, dataloader, num_columns_to_net=1, num_columns_of_labels=None, num_epochs=-1):
+        # create iterator
+        self.iterator = dataloader.create_tuple_iterator(num_epochs=num_epochs, output_numpy=False, do_copy=False)
+        self.num_batches_eval = dataloader.get_dataset_size()
+
+        # dataset output columns
+        self.num_inputs  = num_columns_to_net
+        self.num_labels = num_columns_of_labels
+        assert self.num_inputs==1, 'Only num_columns_to_net=1 (single input to network) is needed and supported for current networks.'
+
+
+    def eval(self):
         """
         Args:
-            dataloader (Dataset): data iterator which generates tuple of Tensor defined by the transform pipeline and 'output_columns'
         """
         eval_res = {}
 
         self.net.set_train(False)
-        iterator = dataloader.create_tuple_iterator(num_epochs=1, output_numpy=False, do_copy=False)
         for m in self.metrics:
             m.clear()
 
-        for i, data in tqdm(enumerate(iterator), total=dataloader.get_dataset_size()):
-            # start = time.time()
-            # TODO: if network input is not just an image.
-            # assume the first element is image
-            img = data[0]  # ms.Tensor(batch[0])
-            gt = data[1:]  # ground truth,  (polys, ignore_tags) for det,
+        for i, data in tqdm(enumerate(self.iterator), total=self.num_batches_eval):
 
-            # TODO: in graph mode, the output dict is somehow converted to tuple. Is the order of in tuple the same as dict binary, thresh, thres_binary? to check
-            # {'binary':, 'thresh: ','thresh_binary': } for text detect; {'head_out': } for text rec
-            net_preds = self.net(img)
-            # net_inputs = data[:num_columns_to_net]
-            # gt = data[num_columns_to_net:] # ground truth
-            # preds = self.net(*net_inputs) # head output is dict. for text det {'binary', ...},  for text rec, {'head_out': }
-            # print('net predictions', preds)
+            inputs = data[:self.num_inputs] # [imgs]
+            gt = data[self.num_inputs:] if self.num_labels is None else data[self.num_inputs: self.num_inputs+self.num_labels]
+
+            net_preds = self.net(*inputs)
+
+            if self.pred_cast_fp32:
+                if isinstance(net_preds, ms.Tensor):
+                    net_preds = F.cast(net_preds, mstype.float32)
+                else:
+                    net_preds = [F.cast(p, mstype.float32) for p in net_preds]
 
             if self.postprocessor is not None:
-                preds = self.postprocessor(net_preds)  # {'polygons':, 'scores':} for text det
+                # additional info such as image path, original image size, pad shape, extracted in data processing
+                meta_info = data[(self.num_inputs+self.num_labels):] if (self.num_labels is not None) else []
+                data_info = {'labels': gt, 'img_shape': inputs[0].shape, 'meta_info': meta_info}
+                preds = self.postprocessor(net_preds, **data_info)
 
             # metric internal update
             for m in self.metrics:
                 m.update(preds, gt)
 
+            # visualize
             if self.verbose:
-                if isinstance(net_preds, tuple):
-                    print('pred binary map:', net_preds[0].shape, net_preds[0].max(), net_preds[0].min())
-                    print('thresh binary map:', net_preds[2].shape, net_preds[2].max(), net_preds[2].min())
-                else:
-                    print('pred binary map:', net_preds['binary'].shape, net_preds['binary'].max(),
-                          net_preds['binary'].min())
-                    print('thresh binary map:', net_preds['thresh_binary'].shape, net_preds['thresh_binary'].max(),
-                          net_preds['binary'].min())
-                print('pred polys:', preds['polygons'])
+                print('Eval data info: ', data_info)
 
             if self.visualize:
                 img = img[0].asnumpy()
@@ -94,7 +118,6 @@ class Evaluator:
         for m in self.metrics:
             res_dict = m.eval()
             eval_res.update(res_dict)
-        # fps = total_frame / total_time
 
         self.net.set_train(True)
 
@@ -108,28 +131,37 @@ class EvalSaveCallback(Callback):
     Args:
         network (nn.Cell): network (without loss)
         loader (Dataset): dataloader
-        saving_config (dict):
     """
+
     def __init__(self,
                  network,
                  loader=None,
                  loss_fn=None,
                  postprocessor=None,
                  metrics=None,
+                 pred_cast_fp32=False,
                  rank_id=0,
+                 logger=None,
+                 batch_size=20,
                  ckpt_save_dir='./',
                  main_indicator='hmean',
+                 num_columns_to_net=1,  # TODO: parse eval cfg for short?
+                 num_columns_of_labels=None,
                  val_interval=1,
                  val_start_epoch=1,
+                 log_interval=1,
                  ):
         self.rank_id = rank_id
         self.is_main_device = rank_id in [0, None]
         self.loader_eval = loader
         self.network = network
+        self.logger = print if logger is None else logger.info
         self.val_interval = val_interval
         self.val_start_epoch = val_start_epoch
+        self.log_interval = log_interval
+        self.batch_size = batch_size
         if self.loader_eval is not None:
-            self.net_evaluator = Evaluator(network, loss_fn, postprocessor, metrics)
+            self.net_evaluator = Evaluator(network, loader, loss_fn, postprocessor, metrics, pred_cast_fp32=pred_cast_fp32, num_columns_to_net=num_columns_to_net, num_columns_of_labels=num_columns_of_labels)
             self.main_indicator = main_indicator
             self.best_perf = -1e8
         else:
@@ -140,9 +172,9 @@ class EvalSaveCallback(Callback):
         if not os.path.exists(ckpt_save_dir):
             os.makedirs(ckpt_save_dir)
 
+        self._losses = list()
         self.last_epoch_end_time = time.time()
-
-    def on_train_step_begin(self, run_context):
+        self.epoch_start_time = time.time()
         self.step_start_time = time.time()
 
     def on_train_step_end(self, run_context):
@@ -161,14 +193,28 @@ class EvalSaveCallback(Callback):
         # TODO: need to stop gradient here ?
         self._losses.append(loss.asnumpy())
 
+        if not data_sink_mode and cur_step_in_epoch % self.log_interval == 0:
+            opt = cb_params.train_network.optimizer
+            learning_rate = opt.learning_rate
+            cur_lr = learning_rate(opt.global_step - 1).asnumpy()
+            per_step_time = (time.time() - self.step_start_time) * 1000 / self.log_interval
+            fps = self.batch_size * 1000 / per_step_time
+            loss = np.average(self._losses)
+            msg = "epoch: [%s/%s] step: [%s/%s], loss: %.6f, lr: %.6f, per step time: %.3f ms, fps: %.2f img/s" % (
+                      cur_epoch, cb_params.epoch_num, cur_step_in_epoch, cb_params.batch_num,
+                      loss, cur_lr, per_step_time, fps)
+            self.logger(msg)
+            self.step_start_time = time.time()
+
     def on_train_epoch_begin(self, run_context):
         """
         Called before each epoch beginning.
         Args:
             run_context (RunContext): Include some information of the model.
         """
-        self._losses = []
+        self._losses.clear()
         self.epoch_start_time = time.time()
+        self.step_start_time = time.time()
 
     def on_train_epoch_end(self, run_context):
         """
@@ -181,23 +227,25 @@ class EvalSaveCallback(Callback):
         loss = cb_params.net_outputs
         cur_epoch = cb_params.cur_epoch_num
         train_time = (time.time() - self.epoch_start_time)
-        train_loss = np.average(self._losses) # TODO: aggregate training loss for multiple cards
+        train_loss = np.average(self._losses)  # TODO: aggregate training loss for multiple cards
 
-        print(
-            f"Epoch: {cur_epoch}, "
-            f"loss:{train_loss:.5f}, training time:{train_time:.3f}s"
-        )
+        epoch_time = (time.time() - self.epoch_start_time)
+        per_step_time = epoch_time * 1000 / cb_params.batch_num
+        fps = 1000 * self.batch_size / per_step_time
+        msg = "epoch: [%s/%s], loss: %.6f, epoch time: %.3f s, per step time: %.3f ms, fps: %.2f img/s" % (
+            cur_epoch, cb_params.epoch_num, train_loss, epoch_time, per_step_time, fps)
+        self.logger(msg)
 
         eval_done = False
-        if (self.loader_eval is not None):
+        if self.loader_eval is not None:
             if cur_epoch >= self.val_start_epoch and (cur_epoch - self.val_start_epoch) % self.val_interval == 0:
                 eval_start = time.time()
-                measures = self.net_evaluator.eval(self.loader_eval)
+                measures = self.net_evaluator.eval()
                 eval_done = True
                 if self.is_main_device:
                     perf = measures[self.main_indicator]
                     eval_time = time.time() - eval_start
-                    print(f'Performance: {measures}, eval time: {eval_time}')
+                    self.logger(f'Performance: {measures}, eval time: {eval_time}')
             else:
                 measures = {m_name: None for m_name in self.net_evaluator.metric_names}
                 eval_time = 0
@@ -209,104 +257,30 @@ class EvalSaveCallback(Callback):
         if self.is_main_device:
             # save best models
             if (self.main_indicator == 'train_loss' and perf < self.best_perf) \
-                or (self.main_indicator != 'train_loss' and eval_done and perf > self.best_perf): # when val_while_train enabled, only find best checkpoint after eval done.
-                    self.best_perf = perf
-                    save_checkpoint(self.network, os.path.join(self.ckpt_save_dir, 'best.ckpt'))
-                    print(f'=> Best {self.main_indicator}: {self.best_perf}, checkpoint saved.')
+                    or (
+                    self.main_indicator != 'train_loss' and eval_done and perf > self.best_perf):  # when val_while_train enabled, only find best checkpoint after eval done.
+                self.best_perf = perf
+                save_checkpoint(self.network, os.path.join(self.ckpt_save_dir, 'best.ckpt'))
+                self.logger(f'=> Best {self.main_indicator}: {self.best_perf}, checkpoint saved.')
 
             # record results
             if cur_epoch == 1:
                 if self.loader_eval is not None:
                     perf_columns = ['loss'] + list(measures.keys()) + ['train_time', 'eval_time']
                 else:
-                    perf_columns =  ['loss', 'train_time']
-                self.rec = PerfRecorder(self.ckpt_save_dir, metric_names=perf_columns) # record column names
+                    perf_columns = ['loss', 'train_time']
+                self.rec = PerfRecorder(self.ckpt_save_dir, metric_names=perf_columns)  # record column names
 
             if self.loader_eval is not None:
                 epoch_perf_values = [cur_epoch, train_loss] + list(measures.values()) + [train_time, eval_time]
             else:
                 epoch_perf_values = [cur_epoch, train_loss, train_time]
-            self.rec.add(*epoch_perf_values) # record column values
+            self.rec.add(*epoch_perf_values)  # record column values
 
-        tot_time = time.time()-self.last_epoch_end_time
+        tot_time = time.time() - self.last_epoch_end_time
         self.last_epoch_end_time = time.time()
-        print(f'Total time cost for epoch {cur_epoch}: {tot_time}')
 
     def on_train_end(self, run_context):
         if self.is_main_device:
             self.rec.save_curves()  # save performance curve figure
-            print(f'=> Best {self.main_indicator}: {self.best_perf} \nTraining completed!')
-
-
-class LossCallBack(Callback):
-    """
-    Monitor the loss in training.
-    If the loss in NAN or INF terminating training.
-    """
-
-    def __init__(self, epoch_size, batch_size, logger, per_print_times=1, global_steps=0):
-        super(LossCallBack, self).__init__()
-        self.epoch_size = epoch_size
-        self.batch_size = batch_size
-        self.logger = logger
-        self.global_steps = global_steps
-        self._per_print_times = per_print_times
-        self.step_start_time = time.time()
-        self.epoch_start_time = time.time()
-
-    def _handle_loss(self, net_outputs):
-        """Handle loss"""
-        if isinstance(net_outputs, (tuple, list)):
-            if isinstance(net_outputs[0], ms.Tensor) and isinstance(net_outputs[0].asnumpy(), np.ndarray):
-                loss = net_outputs[0].asnumpy()
-        elif isinstance(net_outputs, ms.Tensor) and isinstance(net_outputs.asnumpy(), np.ndarray):
-            loss = float(np.mean(net_outputs.asumpy()))
-        return loss
-
-    def on_train_epoch_begin(self, run_context):
-        self.epoch_start_time = time.time()
-        self.step_start_time = time.time()
-
-    def on_train_step_end(self, run_context):
-        cb_params = run_context.original_args()
-        loss = self._handle_loss(cb_params.net_outputs)
-        overflow = str(cb_params.net_outputs[1].asnumpy())
-        cur_epoch = cb_params.cur_epoch_num
-        data_sink_mode = cb_params.get('dataset_sink_mode', False)
-        if not data_sink_mode:
-            cur_step_in_epoch = (cb_params.cur_step_num - 1) % cb_params.batch_num + 1
-            if isinstance(loss, float) and (np.isnan(loss) or np.isinf(loss)):
-                raise ValueError(
-                    "epoch: {} step: {}. Invalid loss, terminating training.".format(cur_epoch, cur_step_in_epoch))
-
-            if cur_step_in_epoch % self._per_print_times == 0:
-                per_step_time = (time.time() - self.step_start_time) * 1000 / self._per_print_times
-                fps = self.batch_size * 1000 / per_step_time
-                lr = cb_params.train_network.optimizer.learning_rate
-                cur_lr = lr(ms.Tensor(self.global_steps)).asnumpy()
-                msg = "epoch: [%s/%s] step: [%s/%s], loss: %.6f, overflow: %s, lr: %.6f, per step time: %.3f ms, fps: %.2f img/s" % (
-                    cur_epoch, self.epoch_size, cur_step_in_epoch, cb_params.batch_num,
-                    loss, overflow, cur_lr, per_step_time, fps)
-                self.logger.info(msg)
-                self.step_start_time = time.time()
-        self.global_steps += 1
-
-    def on_train_epoch_end(self, run_context):
-        cb_params = run_context.original_args()
-        loss = self._handle_loss(cb_params.net_outputs)
-        cur_epoch_num = cb_params.cur_epoch_num
-        epoch_time = time.time() - self.epoch_start_time
-        per_step_time = epoch_time * 1000 / cb_params.batch_num
-        fps = 1000 * self.batch_size / per_step_time
-        msg = 'epoch: [%s/%s] loss: %.6f, epoch time: %.3f s, per step time: %.3f ms, fps: %.2f' % (
-            cur_epoch_num, self.epoch_size, loss, epoch_time, per_step_time, fps)
-        self.logger.info(msg)
-
-
-class ResumeCallback(Callback):
-    def __init__(self, start_epoch_num=0):
-        super(ResumeCallback, self).__init__()
-        self.start_epoch_num = start_epoch_num
-
-    def on_train_epoch_begin(self, run_context):
-        run_context.original_args().cur_epoch_num += self.start_epoch_num
+            self.logger(f'=> Best {self.main_indicator}: {self.best_perf} \nTraining completed!')

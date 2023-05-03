@@ -7,7 +7,6 @@ import mindspore.ops as ops
 from mindspore import  Tensor
 from mindspore.communication import get_group_size
 from shapely.geometry import Polygon
-from sklearn.metrics import recall_score, precision_score, f1_score
 
 __all__ = ['DetMetric']
 
@@ -21,6 +20,8 @@ def _get_iou(pd, pg):
 
 
 class DetectionIoUEvaluator:
+    '''
+    '''
     def __init__(self, min_iou=0.5, min_intersect=0.5):
         self._min_iou = min_iou
         self._min_intersect = min_intersect
@@ -77,6 +78,8 @@ class DetectionIoUEvaluator:
 
 
 class DetMetric(nn.Metric):
+    '''
+    '''
     def __init__(self, device_num=1, **kwargs):
         super().__init__()
         self._evaluator = DetectionIoUEvaluator()

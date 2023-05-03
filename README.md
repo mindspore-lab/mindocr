@@ -101,7 +101,7 @@ MX, which is short for [MindX](https://www.hiascend.com/zh/software/mindx-sdk), 
 
 MindOCR supports OCR model inference with MX Engine. Please refer to [mx_infer](docs/cn/inference_tutorial_cn.md) for detailed illustrations.
 
-#### 2.2 Inference with MS Lite 
+#### 2.2 Inference with MindSpore Lite 
 
 Coming soon
 
@@ -132,11 +132,38 @@ For the detailed performance of the trained models, please refer to [configs](./
 
 For detailed inference performance using MX engine, please refer to [mx inference performance](docs/cn/inference_models_cn.md) 
 
+## Datasets
+
+### Download 
+
+We give instructions on how to download the following datasets.
+
+<details open>
+<summary>Text Detection</summary>
+
+- [x] ICDAR2015 [paper](https://rrc.cvc.uab.es/files/short_rrc_2015.pdf) [homepage](https://rrc.cvc.uab.es/?ch=4) [download instruction](docs/en/datasets/icdar2015.md)
+
+- [x] Total-Text [paper](https://arxiv.org/abs/1710.10400) [homepage](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset) [download instruction](docs/en/datasets/totaltext.md)
+
+- [x] Syntext150k [paper](https://arxiv.org/abs/2002.10200) [homepage](https://github.com/aim-uofa/AdelaiDet) [download instruction](docs/en/datasets/syntext150k.md)
+
+- [x] MLT2017 [paper](https://ieeexplore.ieee.org/abstract/document/8270168) [homepage](https://rrc.cvc.uab.es/?ch=8&com=introduction) [download instruction](docs/en/datasets/mlt2017.md)
+
+- [x] MSRA-TD500 [paper](https://ieeexplore.ieee.org/abstract/document/6247787) [homepage](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500)) [download instruction](docs/en/datasets/td500.md)
+
+</details>
+
+### Conversion
+
+After downloading these datasets in the `DATASETS_DIR` folder, you can run `bash tools/convert_datasets.sh` to convert all downloaded datasets into the target format. [Here](tools/dataset_converters/README.md) is an example of icdar2015 dataset converting.
+
 ## Notes
 
 ### Change Log
-- 2023/04/12
-1. Support parameter grouping, which can be configure by the `grouping_strategy` or `no_weight_decay_params` arg. 
+- 2023/04/21
+1. Add parameter grouping to support flexible regularization in training. Usage: add `grouping_strategy` argment in yaml config to select a predefined grouping strategy, or use `no_weight_decay_params` argument to pick layers to exclude from weight decay (e.g., bias, norm). Example can be referred in `configs/rec/crnn/crnn_icdar15.yaml` 
+2. Add gradient accumulation to support large batch size training. Usage: add `gradient_accumulation_steps` in yaml config, the global batch size = batch_size * devices * gradient_accumulation_steps. Example can be referred in `configs/rec/crnn/crnn_icdar15.yaml`
+3. Add gradient clip to support training stablization. Enable it by setting `grad_clip` as True in yaml config.
 
 - 2023/03/23
 1. Add dynamic loss scaler support, compatible with drop overflow update. To enable dynamic loss scaler, please set `type` of `loss_scale` as `dynamic`. A YAML example can be viewed in `configs/rec/crnn/crnn_icdar15.yaml`

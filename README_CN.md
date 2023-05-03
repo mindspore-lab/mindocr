@@ -92,13 +92,13 @@ MX ([MindX](https://www.hiascend.com/zh/software/mindx-sdk)的缩写) 是一个�
 MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_infer](docs/cn/inference_tutorial_cn.md)。
 
 
-#### 2.2 使用Lite推理 
+#### 2.2 使用MindSpore Lite推理 
 
 敬请期待
 
 #### 2.3 使用原生MindSpore推理
 
-敬请期待
+MindOCR支持使用MindSpore训练好的ckpt文件进行文本检测+文本识别串联推理，请参考[此处](docs/cn/predict_ckpt_cn.md)。
 
 ## 模型列表
 
@@ -122,6 +122,31 @@ MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_i
 模型训练的配置及性能结果请见[configs](./configs).
 
 基于MX引擎的推理性能结果及支持模型列表，请见[mx inference performance](docs/cn/inference_models_cn.md) 
+
+## 数据集
+### 下载
+
+我们提供以下数据集的下载说明。
+
+<details open>
+<summary>文本检测</summary>
+
+- [x] ICDAR2015 [论文]((https://rrc.cvc.uab.es/files/short_rrc_2015.pdf)) [主页]((https://rrc.cvc.uab.es/?ch=4)) [下载说明](docs/cn/datasets/icdar2015_CN.md)
+
+- [x] Total-Text [论文](https://arxiv.org/abs/1710.10400) [主页](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset) [下载说明](docs/cn/datasets/totaltext_CN.md)
+
+- [x] Syntext150k [论文](https://arxiv.org/abs/2002.10200) [主页](https://github.com/aim-uofa/AdelaiDet) [下载说明](docs/cn/datasets/syntext150k_CN.md)
+
+- [x] MLT2017 [论文](https://ieeexplore.ieee.org/abstract/document/8270168) [主页](https://rrc.cvc.uab.es/?ch=8&com=introduction) [下载说明](docs/cn/datasets/mlt2017_CN.md)
+
+- [x] MSRA-TD500 [论文](https://ieeexplore.ieee.org/abstract/document/6247787) [主页](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500)) [下载说明](docs/cn/datasets/td500_CN.md)
+
+</details>
+
+### 转换
+
+在 `DATASETS_DIR` 文件夹中下载这些数据集后，您可以运行 `bash tools/convert_datasets.sh` 将所有下载的数据集转换为目标格式。[这里](tools/dataset_converters/README_CN.md)有一个 icdar2015 数据集转换的例子。
+
 
 ## 重要信息
 

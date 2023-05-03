@@ -1,6 +1,9 @@
+from typing import Tuple, Union
 import cv2
 import numpy as np
 from shapely.geometry import Polygon
+import mindspore as ms
+from mindspore import Tensor
 
 from ..data.transforms.det_transforms import expand_poly
 
@@ -19,25 +22,30 @@ class DBPostprocess:
         self._name = pred_name
         self._names = {'binary': 0, 'thresh': 1, 'thresh_binary': 2}
 
-    def __call__(self, pred):
+    def __call__(self, pred, **kwargs):
         """
-        pred:
-            binary: text region segmentation map, with shape (N, H, W)
-            thresh: [if exists] threshold prediction with shape (N, H, W)
-            thresh_binary: [if exists] binarized with threshold, (N, H, W)
+        pred (Union[Tensor, Tuple[Tensor], np.ndarray]):
+            binary: text region segmentation map, with shape (N, 1, H, W)
+            thresh: [if exists] threshold prediction with shape (N, 1, H, W) (optional)
+            thresh_binary: [if exists] binarized with threshold, (N, 1, H, W) (optional)
         Returns:
             result (dict) with keys:
                 polygons: np.ndarray of shape (N, K, 4, 2) for the polygons of objective regions if region_type is 'quad'
                 scores: np.ndarray of shape (N, K), score for each box
         """
-        pred = (pred[self._name] if isinstance(pred, dict) else pred[self._names[self._name]]).squeeze(1)
-        pred = pred.asnumpy()
+        if isinstance(pred, tuple):
+            pred = pred[self._names[self._name]]
+        if isinstance(pred, Tensor):
+            pred = pred.asnumpy()
+        pred = pred.squeeze(1)
+
         segmentation = pred >= self._binary_thresh
 
         # FIXME: dest_size is supposed to be the original image shape (pred.shape -> batch['shape'])
         dest_size = np.array(pred.shape[:0:-1])  # w, h order
         scale = dest_size / np.array(pred.shape[:0:-1])
 
+        # TODO:
         # FIXME: output as dict, keep consistent return format to recognition
         return [self._extract_preds(pr, segm, scale, dest_size) for pr, segm in zip(pred, segmentation)]
 
@@ -95,10 +103,36 @@ class DBPostprocess:
         """
         Finds a minimum rotated rectangle enclosing the contour.
         """
-        box = cv2.minAreaRect(contour)  # returns center of a rect, size, and angle
-        # TODO: does the starting point really matter?
-        points = np.roll(cv2.boxPoints(box), -1, axis=0)  # extract box points from a rotated rectangle
-        return points, min(box[1])
+        # box = cv2.minAreaRect(contour)  # returns center of a rect, size, and angle
+        # # TODO: does the starting point really matter?
+        # points = np.roll(cv2.boxPoints(box), -1, axis=0)  # extract box points from a rotated rectangle
+        # return points, min(box[1])
+        # box = cv2.minAreaRect(contour)  # returns center of a rect, size, and angle
+        # # TODO: does the starting point really matter?
+        # points = np.roll(cv2.boxPoints(box), -1, axis=0)  # extract box points from a rotated rectangle
+        # return points, min(box[1])
+
+        bounding_box = cv2.minAreaRect(contour)
+        points = sorted(list(cv2.boxPoints(bounding_box)), key=lambda x: x[0])
+
+        # index_1, index_2, index_3, index_4 = 0, 1, 2, 3
+        if points[1][1] > points[0][1]:
+            index_1 = 0
+            index_4 = 1
+        else:
+            index_1 = 1
+            index_4 = 0
+        if points[3][1] > points[2][1]:
+            index_2 = 2
+            index_3 = 3
+        else:
+            index_2 = 3
+            index_3 = 2
+
+        box = [
+            points[index_1], points[index_2], points[index_3], points[index_4]
+        ]
+        return box, min(bounding_box[1])
 
     @staticmethod
     def _calc_score(pred, mask, contour):
