@@ -21,21 +21,25 @@ from mindocr.models.backbones.mindcv_models.download import DownLoad
 
 def _create_combs():
     combs = set()
-    task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy = 'rec', False, 1, False, None
+    task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy, ema= 'rec', False, 1, False, None, False
     for task in ["det", "rec"]:
         for val_while_train in [False, True]:
-            combs.add((task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy))
+            combs.add((task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy, ema))
 
     val_while_train = False
     for task in ["det", "rec"]:
         for gradient_accumulation_steps in [1]: #[1, 2]:
             for clip_grad in [False, True]:
-                combs.add((task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy))
+                combs.add((task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy, ema))
 
     task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy = 'rec', False, 1, False, None
     for grouping_strategy in [None, 'filter_norm_and_bias']:
         for gradient_accumulation_steps in [1]: #[1, 2]:
-            combs.add((task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy))
+            combs.add((task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy, ema))
+
+    combs.add(('rec', True, 2, True, 'filter_norm_and_bias', True))
+    #combs.add(('det', True, 2, True, 'filter_norm_and_bias', True))
+
     print(combs)
     return list(combs)
 
@@ -48,8 +52,8 @@ def _create_combs():
 @pytest.mark.parametrize("clip_grad", [False, True])
 @pytest.mark.parametrize("grouping_strategy", [None]) #[None, 'filter_norm_and_bias'])
 '''
-@pytest.mark.parametrize("task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy", _create_combs())
-def test_train_eval(task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy):
+@pytest.mark.parametrize("task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy, ema", _create_combs())
+def test_train_eval(task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy, ema):
 
     # prepare dummy images
     data_dir = gen_dummpy_data(task)
@@ -67,6 +71,7 @@ def test_train_eval(task, val_while_train, gradient_accumulation_steps, clip_gra
                                             gradient_accumulation_steps=gradient_accumulation_steps,
                                             clip_grad=clip_grad,
                                             grouping_strategy=grouping_strategy,
+                                            ema=ema,
                                             )
 
     #dummpy_config_fp = 'tests/st/rec_crnn_test.yaml'
@@ -97,6 +102,6 @@ def test_train_eval(task, val_while_train, gradient_accumulation_steps, clip_gra
 
 if __name__ == '__main__':
     #test_train_eval('rec', True, 1, True, 'filter_norm_and_bias')
-    #test_train_eval('det', True, 1, False, None)
-    test_train_eval('rec', True, 1, True, 'filter_norm_and_bias')
+    #test_train_eval('det', True, 1, False, None, True)
+    test_train_eval('rec', True, 2, True, 'filter_norm_and_bias', True)
     #test_train_eval('rec', True, 2, False, None)
