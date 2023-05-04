@@ -69,9 +69,9 @@ def main(cfg):
                         loss_func=None,
                         postprocessor=postprocessor,
                         metrics=[metric],
-                        input_indices=cfg.eval.dataset.pop('columns_indices_for_net', None),
-                        label_indices=cfg.eval.dataset.pop('columns_indices_for_label', None),
-                        meta_data_indices=cfg.eval.dataset.pop('columns_indices_for_meta_data', None),
+                        input_indices=cfg.eval.dataset.pop('net_input_column_index', None),
+                        label_indices=cfg.eval.dataset.pop('label_column_index', None),
+                        meta_data_indices=cfg.eval.dataset.pop('meta_data_column_index', None),
                         num_epochs=1,
                     )
 

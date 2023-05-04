@@ -34,7 +34,7 @@ def build_dataset(
             - shuffle (boolean): whether to shuffle the order of data samples.
             - transform_pipeline (list[dict]): each element corresponds to a transform operation on image and/or label
             - output_columns (list[str]): list of output features for each sample.
-            - columns_indices_for_net (list[int]): input indices for network forward func in output_columns
+            - net_input_column_index (list[int]): input indices for network forward func in output_columns
         loader_config (dict): dataloader configuration containing keys:
             - batch_size (int): batch size for data loader
             - drop_remainder (boolean): whether to drop the data in the last batch when the total of data can not be divided by the batch_size
@@ -76,7 +76,8 @@ def build_dataset(
         >>>         },
         >>>     ],
         >>>     "output_columns": ['image', 'polys', 'ignore_tags'],
-        >>>     "columns_indices_for_net`": [0]
+        >>>     "net_input_column_index`": [0]
+        >>>     "label_column_index": [1, 2]
         >>> }
         >>> loader_config = dict(shuffle=True, batch_size=16, drop_remainder=False, num_workers=1)
         >>> data_loader = build_dataset(data_config, loader_config, num_shards=1, shard_id=0, is_train=True)

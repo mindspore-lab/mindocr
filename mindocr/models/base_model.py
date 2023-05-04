@@ -11,6 +11,10 @@ class BaseModel(nn.Cell):
         """
         Args:
             config (dict): model config
+
+        Inputs:
+            x (Tensor): The input tensor feeding into the backbone, neck and head sequentially.
+            y (Tensor): The extra input tensor. If it is provided, it will feed into the head. Default: None
         """
         super(BaseModel, self).__init__()
 

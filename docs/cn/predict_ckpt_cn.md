@@ -43,7 +43,6 @@
        transform_pipeline:
          ...
        output_columns: [ 'img_path', 'image', 'raw_img_shape' ]
-       columns_indices_for_net: [0]
      loader:
        shuffle: False
        batch_size: 1

@@ -27,7 +27,7 @@ class Evaluator:
         pred_cast_fp32: whehter to cast network prediction to float 32. Set True if AMP is used.
         input_indices: The indices of the data tuples which will be fed into the network. If it is None, then the first item will be fed only.
         label_indices: The indices of the data tuples which will be marked as label. If it is None, then the second item will be marked as label.
-        meta_data_indices: The indices for the data tuples which will be marked as meta data.
+        meta_data_indices: The indices for the data tuples which will be marked as meta data. If it is None, then the item indices not in input or label indices are marked as meta data.
     """
 
     def __init__(self,
@@ -111,7 +111,11 @@ class Evaluator:
                 if self.meta_data_indices is not None:
                     meta_info = [data[x] for x in self.meta_data_indices]
                 else:
-                    meta_info = list()
+                    # assume the indices not in input_indices or label_indices are all meta_data_indices
+                    input_indices = set(self.input_indices) if not None else {0}
+                    label_indices = set(self.label_indices) if not None else {1}
+                    meta_data_indices = sorted(set(range(len(data))) - input_indices - label_indices)
+                    meta_info = [data[x] for x in meta_data_indices]
 
                 data_info = {'labels': gt, 'img_shape': inputs[0].shape, 'meta_info': meta_info}
                 preds = self.postprocessor(net_preds, **data_info)

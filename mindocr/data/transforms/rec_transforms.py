@@ -322,68 +322,56 @@ if __name__ == '__main__':
     inp = {'label': text}
     out = trans(inp)
     seq = out['text_seq']
-    print(trans.dict)
     gt = np.array([0, 1, 2, 10, 11 ,12] + [trans.blank_idx]*4)
     assert trans.num_valid_chars==36
     assert trans.num_classes==37
     assert out['length'] ==len(text)-2, 'Not equal: {}, {}'.format(out['length'], text) # use_space_char=Flase, space and OOV char excluded
     assert np.array_equal(seq, gt)
-    print(seq)
 
     # test dict and attn label encode
     trans = RecAttnLabelEncode(10, use_space_char=False)
     inp = {'label': text}
     out = trans(inp)
     seq = out['text_seq']
-    print(trans.dict)
     gt = np.array([trans.go_idx] + [2, 3, 4, 12, 13, 14] + [trans.stop_idx] + [trans.go_idx]*2)
     assert trans.num_valid_chars==36
     assert trans.num_classes==38
     assert out['length'] == len(text) - 2, 'Not equal: {}, {}'.format(out['length'], text) # use_space_char=Flase, space and OOV char excluded
     assert np.array_equal(seq, gt)
-    print(seq)
 
     trans = RecCTCLabelEncode(max_text_len=10, use_space_char=True)
     inp = {'label': text}
     out = trans(inp)
     seq = out['text_seq']
-    print(trans.dict)
     gt = np.array([0, 1, 2, trans.space_idx, 10, 11 ,12] + [trans.blank_idx]*3)
     assert trans.num_valid_chars==36+1, 'num_valid_chars is {}'.format(trans.num_valid_chars)
     assert trans.num_classes==37+1
     assert np.array_equal(seq, gt)
     assert out['length'] ==len(text)-1, 'Not equal: {}, {}'.format(out['length'], text) # use_space_char=True, length
-    print(seq)
 
     trans = RecAttnLabelEncode(max_text_len=10, use_space_char=True)
     inp = {'label': text}
     out = trans(inp)
     seq = out['text_seq']
-    print(trans.dict)
     gt = np.array([trans.go_idx] + [2, 3, 4, trans.space_idx, 12, 13, 14] + [trans.stop_idx] + [trans.go_idx]*1)
     assert trans.num_valid_chars==36+1, 'num_valid_chars is {}'.format(trans.num_valid_chars)
     assert trans.num_classes == 38 + 1
     assert np.array_equal(seq, gt)
     assert out['length'] ==len(text)-1, 'Not equal: {}, {}'.format(out['length'], text) # use_space_char=True, length
-    print(seq)
 
     trans = RecCTCLabelEncode(max_text_len=10, character_dict_path='mindocr/utils/dict/en_dict.txt', use_space_char=False)
     inp = {'label': text}
     out = trans(inp)
     seq = out['text_seq']
-    print(trans.dict)
     gt = np.array([ 0, 1, 2, 94, 49, 50, 51, 95, 95, 95])
     assert trans.num_valid_chars==95
     assert trans.num_classes==96
     assert out['length'] ==len(text), 'Not equal: {}, {}'.format(out['length'], text) # use_space_char=False, but the dict contains space, % is also in dict
-    print(seq)
 
     trans = RecAttnLabelEncode(max_text_len=10, character_dict_path='mindocr/utils/dict/en_dict.txt', use_space_char=False)
     inp = {'label': text}
     out = trans(inp)
     seq = out['text_seq']
-    print(trans.dict)
     assert trans.num_valid_chars==95
     assert trans.num_classes==97
     assert out['length'] == len(text), 'Not equal: {}, {}'.format(out['length'], text) # use_space_char=False, but the dict contains space, % is also in dict
-    print(seq)
