@@ -7,7 +7,14 @@ __all__ = ['IaaAugment']
 
 class IaaAugment:
     def __init__(self, **augments):
-        self._augmenter = iaa.Sequential([getattr(iaa, aug)(**args) for aug, args in augments.items()])
+        aug_list = []
+        for name, args in augments.items():
+            if name == 'Affine':    # quick fix. In the future, dependency on imgaug will be deleted
+                p = args.pop('p', 0.5)
+                aug_list.append(iaa.Sometimes(p, iaa.Affine(**args)))
+            else:
+                aug_list.append(getattr(iaa, name)(**args))
+        self._augmenter = iaa.Sequential(aug_list)
 
     def __call__(self, data):
         aug = self._augmenter.to_deterministic()    # to augment an image and its keypoints identically
