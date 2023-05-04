@@ -87,14 +87,16 @@ def main(cfg):
             )
 
     # create model
-    network = build_model(cfg.model)
+    network = build_model(cfg.model,
+                          ckpt_load_path=cfg.model.pop('pretrained', None))
+
     amp_level = cfg.system.get('amp_level', 'O0')
     ms.amp.auto_mixed_precision(network, amp_level=amp_level)
 
     # create loss
     loss_fn = build_loss(cfg.loss.pop('name'), **cfg['loss'])
 
-    net_with_loss = NetWithLossWrapper(network, loss_fn, 
+    net_with_loss = NetWithLossWrapper(network, loss_fn,
                                        pred_cast_fp32=(amp_level!='O0'),
                                     )  # wrap train-one-step cell
 
