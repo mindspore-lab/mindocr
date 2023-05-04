@@ -160,6 +160,11 @@ After downloading these datasets in the `DATASETS_DIR` folder, you can run `bash
 ## Notes
 
 ### Change Log
+- 2023/05/04
+1. Support loading self-defined pretrained checkpoints via setting `model-pretrained` with checkpoint url or local path in yaml. 
+2. Support setting probability for executing augmentation including rotation and flip.
+3. Add Exponential Moving Average(EMA) for model training, which can be enabled by setting `train-ema` (default: False) and `train-ema_decay` in the yaml config. 
+
 - 2023/04/21
 1. Add parameter grouping to support flexible regularization in training. Usage: add `grouping_strategy` argment in yaml config to select a predefined grouping strategy, or use `no_weight_decay_params` argument to pick layers to exclude from weight decay (e.g., bias, norm). Example can be referred in `configs/rec/crnn/crnn_icdar15.yaml` 
 2. Add gradient accumulation to support large batch size training. Usage: add `gradient_accumulation_steps` in yaml config, the global batch size = batch_size * devices * gradient_accumulation_steps. Example can be referred in `configs/rec/crnn/crnn_icdar15.yaml`
