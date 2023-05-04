@@ -104,7 +104,8 @@ train:
       - ToCHWImage: 
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
     output_columns: ['image', 'text_seq']
-    num_columns_to_net: 1 # num inputs for network forward func in output_columns
+    columns_indices_for_net: [0] # input indices for network forward func in output_columns
+    columns_indices_for_label: [1] # input indices marked as label
      
   loader:
       shuffle: True # TODO: tbc
@@ -144,9 +145,10 @@ eval:
       - ToCHWImage: 
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
     output_columns: ['image', 'text_padded', 'text_length', 'img_path']  # TODO return text string padding w/ fixed length, and a scaler to indicate the length 
-    num_columns_to_net: 1 # num inputs for network forward func
-    num_columns_of_labels: 2 # num of label columns 
-     
+    columns_indices_for_net: [0] # input indices for network forward func in output_columns
+    columns_indices_for_label: [1, 2] # input indices marked as label
+    columns_indices_for_meta_data: [3]  # input indices marked as meta data
+
   loader:
       shuffle: False
       batch_size: 7

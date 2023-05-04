@@ -33,13 +33,16 @@ class BaseModel(nn.Cell):
 
         self.model_name = f'{backbone_name}_{neck_name}_{head_name}'
 
-    def construct(self, x):
+    def construct(self, x, y=None):
         # TODO: return bout, hout for debugging, using a dict.
         bout = self.backbone(x)
 
         nout = self.neck(bout)
 
-        hout = self.head(nout)
+        if y is not None:
+            hout = self.head(nout, y)
+        else:
+            hout = self.head(nout)
 
         # resize back for postprocess
         #y = F.interpolate(y, size=(H, W), mode='bilinear', align_corners=True)

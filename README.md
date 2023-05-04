@@ -160,6 +160,10 @@ After downloading these datasets in the `DATASETS_DIR` folder, you can run `bash
 ## Notes
 
 ### Change Log
+- 2023/05/04
+1. 参数修改：`num_columns_to_net` -> `columns_indices_for_net`: change the column number input feeding into the network to the column index.
+2. 参数修改：`num_columns_of_labels` -> `columns_indices_for_label`: change the column number corresponds to the label to the column index.
+
 - 2023/04/21
 1. Add parameter grouping to support flexible regularization in training. Usage: add `grouping_strategy` argment in yaml config to select a predefined grouping strategy, or use `no_weight_decay_params` argument to pick layers to exclude from weight decay (e.g., bias, norm). Example can be referred in `configs/rec/crnn/crnn_icdar15.yaml` 
 2. Add gradient accumulation to support large batch size training. Usage: add `gradient_accumulation_steps` in yaml config, the global batch size = batch_size * devices * gradient_accumulation_steps. Example can be referred in `configs/rec/crnn/crnn_icdar15.yaml`

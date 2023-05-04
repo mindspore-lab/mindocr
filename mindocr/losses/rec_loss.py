@@ -59,6 +59,20 @@ class CTCLoss(LossBase):
         return loss
 
 
+class AttentionLoss(LossBase):
+    def __init__(self, reduction='mean'):
+        super().__init__()
+        # ignore <GO> symbol
+        self.criterion = nn.CrossEntropyLoss(reduction=reduction, ignore_index=0)
+
+    def construct(self, logits, labels):
+        labels = labels[:, 1:]  # wihout <GO> symbol
+        num_classes = logits.shape[-1]
+        logits = ops.reshape(logits, (-1, num_classes))
+        labels = ops.reshape(labels, (-1,))
+        return self.criterion(logits, labels)
+
+
 if __name__ == '__main__':
     max_text_length = 23
     nc = 26

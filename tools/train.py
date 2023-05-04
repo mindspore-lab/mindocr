@@ -94,8 +94,11 @@ def main(cfg):
     # create loss
     loss_fn = build_loss(cfg.loss.pop('name'), **cfg['loss'])
 
-    net_with_loss = NetWithLossWrapper(network, loss_fn, 
+    net_with_loss = NetWithLossWrapper(network, 
+                                       loss_fn, 
                                        pred_cast_fp32=(amp_level!='O0'),
+                                       input_indices=cfg.train.dataset.pop('columns_indices_for_net', None),
+                                       label_indices=cfg.train.dataset.pop('columns_indices_for_label', None)
                                     )  # wrap train-one-step cell
 
     # get loss scale setting for mixed precision training
@@ -145,9 +148,9 @@ def main(cfg):
         batch_size=cfg.train.loader.batch_size,
         ckpt_save_dir=cfg.train.ckpt_save_dir,
         main_indicator=cfg.metric.main_indicator,
-        ema=ema,
-        num_columns_to_net=cfg.eval.dataset.get('num_columns_to_net', 1),
-        num_columns_of_labels=cfg.eval.dataset.get('num_columns_of_labels', None),
+        input_indices=cfg.eval.dataset.pop('columns_indices_for_net', None),
+        label_indices=cfg.eval.dataset.pop('columns_indices_for_label', None),
+        meta_data_indices=cfg.eval.dataset.pop('columns_indices_for_meta_data', None),
         val_interval=cfg.system.get('val_interval', 1),
         val_start_epoch=cfg.system.get('val_start_epoch', 1),
         log_interval=cfg.system.get('log_interval', 100)

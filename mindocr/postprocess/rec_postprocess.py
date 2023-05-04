@@ -1,13 +1,13 @@
 '''
 '''
-from typing import Union, List
+from typing import Union, List, Optional, Tuple, Dict, Any
 import cv2
 import math
 import numpy as np
 import mindspore as ms
 from mindspore import Tensor
 
-__all__ = ['RecCTCLabelDecode']
+__all__ = ['RecCTCLabelDecode', 'RecAttnLabelDecode']
 
 class RecCTCLabelDecode(object):
     ''' Convert text label (str) to a sequence of character indices according to the char dictionary
@@ -138,6 +138,114 @@ class RecCTCLabelDecode(object):
         raw_chars = [[self.character[idx] for idx in pred_indices[b]] for b in range(pred_indices.shape[0])]
 
         texts, confs = self.decode(pred_indices, pred_prob, remove_duplicate=True)
+
+        return {'texts': texts, 'confs': confs, 'raw_chars': raw_chars}
+
+
+class RecAttnLabelDecode:
+    def __init__(self, 
+                 max_text_len: int = 25,
+                 character_dict_path: Optional[str] = None,
+                 use_space_char: bool = False,
+                 lower: bool = False
+        ) -> None:
+        """
+        Convert text label (str) to a sequence of character indices according to the char dictionary
+
+        Args:
+            max_text_len: to pad the label text to a fixed length (max_text_len) of text for attn loss computate.
+            character_dict_path: path to dictionary, if None, a dictionary containing 36 chars (i.e., "0123456789abcdefghijklmnopqrstuvwxyz") will be used.
+            use_space_char(bool): if True, add space char to the dict to recognize the space in between two words
+            lower (bool): if True, all upper-case chars in the label text will be converted to lower case. Set to be True if dictionary only contains lower-case chars. Set to be False if not and want to recognition both upper-case and lower-case.
+
+        Attributes:
+            go_idx: the index of the GO token
+            stop_idx: the index of the STOP token
+            num_valid_chars: the number of valid characters (including space char if used) in the dictionary
+            num_classes: the number of classes (which valid characters char and the speical token for blank padding). so num_classes = num_valid_chars + 1
+        """
+        self.max_text_len = max_text_len
+        self.lower = lower
+
+        # read dict
+        if character_dict_path is None:
+            char_list = list("0123456789abcdefghijklmnopqrstuvwxyz")
+
+            self.lower = True
+            print("INFO: The character_dict_path is None, model can only recognize number and lower letters")
+        else:
+            # parse char dictionary
+            char_list = []
+            with open(character_dict_path, 'r') as f:
+                for line in f:
+                    c = line.rstrip('\n\r')
+                    char_list.append(c)
+
+        # add space char if set
+        if use_space_char:
+            if ' ' not in char_list:
+                char_list.append(' ')
+            self.space_idx = len(char_list) + 1
+        else:
+            if ' ' in char_list:
+                print("WARNING: The dict still contains space char in dict although use_space_char is set to be False, because the space char is coded in the dictionary file ", character_dict_path)
+
+        self.num_valid_chars = len(char_list) # the number of valid chars (including space char if used)
+
+        special_token = ['<GO>', '<STOP>']
+        char_list = special_token + char_list
+
+        self.go_idx = 0
+        self.stop_idx = 1
+
+        self.character = {idx:c for idx, c in enumerate(char_list)}
+
+        self.num_classes = len(self.character)
+
+    def decode(self, char_indices: np.ndarray, probs: np.ndarray) -> Tuple[List[str], List[float]]:
+        texts = list()
+        confs = list()
+    
+        batch_size = len(char_indices)
+        for batch_idx in range(batch_size):
+            text = [self.character[i] for i in char_indices[batch_idx]]
+            text = ''.join(text)
+
+            pred_EOS = text.find('<STOP>')
+
+            if pred_EOS != -1:
+                text = text[:pred_EOS]
+            else:
+                text = ""
+
+            if probs is not None and pred_EOS != -1:
+                conf_list = probs[batch_idx][:pred_EOS]
+            else:
+                conf_list = [0]
+
+            texts.append(text)
+            confs.append(np.mean(conf_list))
+        return texts, confs
+
+    def __call__(self, preds: Union[Tensor, np.ndarray], labels = None, **kwargs) -> Dict[str, Any]:
+        '''
+        Args:
+            preds (dict or tuple): containing prediction tensor in shape [BS, W, num_classes]
+        Return:
+            texts (List[Tuple]): list of string
+        '''
+        if isinstance(preds, tuple):
+            preds = preds[-1]
+
+        if isinstance(preds, Tensor):
+            preds = preds.asnumpy()
+
+        pred_indices = preds.argmax(axis=-1)
+        pred_probs = preds.max(axis=-1)
+
+        raw_chars = [[self.character[idx] for idx in pred_indices[b]] for b in range(pred_indices.shape[0])]
+
+        texts, confs = self.decode(pred_indices, pred_probs)
 
         return {'texts': texts, 'confs': confs, 'raw_chars': raw_chars}
 
