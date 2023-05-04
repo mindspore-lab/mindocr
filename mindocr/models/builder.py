@@ -1,10 +1,12 @@
 '''
 build models
 '''
+import os
 from typing import Union
-from mindspore import load_checkpoint, load_param_into_net
+#from mindspore import load_checkpoint, load_param_into_net
 from ._registry import model_entrypoint, list_models, is_model
 from .base_model import BaseModel
+from .utils import load_model
 
 __all__ = ['build_model']
 
@@ -37,6 +39,7 @@ def build_model(name_or_config: Union[str, dict], **kwargs):
     >>>  net = build_model('dbnet_resnet50', pretrained=True)
 
     '''
+    is_customized_model = True
     if isinstance(name_or_config, str):
         # build model by specific model name
         model_name = name_or_config
@@ -45,19 +48,18 @@ def build_model(name_or_config: Union[str, dict], **kwargs):
             network = create_fn(**kwargs)
         else:
             raise ValueError(f'Invalid model name: {model_name}. Supported models are {list_models()}')
-
+        is_customized_model = False
     elif isinstance(name_or_config, dict):
-        # build model by given architecture config dict
         network = BaseModel(name_or_config)
     else:
         raise ValueError('Type error for config')
 
     # load checkpoint
     if 'ckpt_load_path' in kwargs:
-        ckpt_path = kwargs['ckpt_load_path']
-        assert ckpt_path not in ['', None], f'Please provide the correct \n`eval:\n\tckpt_load_path`\n in the yaml config file '
-        print(f'INFO: Loading checkpoint from {ckpt_path}')
-        params = load_checkpoint(ckpt_path)
-        load_param_into_net(network, params)
+        load_from = kwargs['ckpt_load_path']
+        if isinstance(load_from, bool) and is_customized_model:
+                raise ValueError('Cannot find the pretrained checkpoint for a customized model without giving the url or local path to the checkpoint.\nPlease specify the url or local path by setting `model-pretrained` (if training) or `eval-ckpt_load_path` (if evaluation) in the yaml config')
+
+        load_model(network, load_from)
 
     return network
