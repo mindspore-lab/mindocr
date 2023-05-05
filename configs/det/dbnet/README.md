@@ -34,6 +34,15 @@ The overall architecture of DBNet is presented in _Figure 1._ It consists of mul
 
 ## 2. Results
 
+### SynthText
+
+<div align="center">
+
+| **Model**         | **Context**    | **Backbone** | **Pretrained** |  **Train Loss**|  **Train T.** | **Throughput** | **Recipe**                  | **Download**                 |
+|-------------------|----------------|--------------|----------------|-------------|------------|---------------|-------------|--------------|
+| DBNet (ours)      | D910x1-MS2.0-G | ResNet-50    | ImageNet       |     2.25      |10470 s/epoch  | 82.02 img/s      | [yaml](db_r50_synthtext.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)  |
+</div>
+
 ### ICDAR2015
 
 <div align="center">
@@ -46,7 +55,17 @@ The overall architecture of DBNet is presented in _Figure 1._ It consists of mul
 | DBNet++           | D910x1-MS1.9-G | ResNet-50    | ImageNet       | 82.02%     | 87.38%        | 84.62%      | -            | -              | -                           | -                                                                                                                                                                                                    |
 </div>
 
-> More information of DBNet++ is coming soon. The only difference between _DBNet_ and _DBNet++_ is in the _Adaptive Scale Fusion_ module, which is controlled by the `use_asf` parameter in the `neck` module in yaml config file.
+
+### MSRA-TD500
+
+<div align="center">
+
+| **Model**         | **Context**    | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.** | **Throughput** | **Recipe**                  | **Download**                                                                                                                                                                                         |
+|-------------------|----------------|--------------|----------------|------------|---------------|-------------|--------------|----------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| DBNet (ours)      | D910x1-MS2.0-G | ResNet-50    | SynthText       | 82.47%     | 87.75%        | 85.03%      | 13.3 s/epoch  | 51.1 img/s      | [yaml](db_r50_td500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_td500-0d12b5e8.ckpt)  |
+</div>
+
+> MSRA-TD500 dataset has 300 training images and 200 testing images, reference paper [Real-time Scene Text Detection with Differentiable Binarization](https://arxiv.org/abs/1911.08947), we trained using an extra 400 traning images from HUST-TR400. You can down all [dataset](https://paddleocr.bj.bcebos.com/dataset/TD_TR.tar) for training.
 
 
 #### Notes
@@ -63,8 +82,33 @@ Please refer to the [installation instruction](https://github.com/mindspore-lab/
 
 ### 3.2 Dataset preparation
 
-Please download [ICDAR2015](https://rrc.cvc.uab.es/?ch=4&com=downloads) dataset, and convert the labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
+#### 3.2.1 SynthText dataset
 
+Please download [SynthText](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c) dataset，The directory structure of the extracted data should be as follows:
+
+``` text
+.
+├── SynthText
+│   ├── 1
+│   │   ├── img_1.jpg
+│   │   ├── img_2.jpg
+│   │   └── ...
+│   ├── 2
+│   │   ├── img_1.jpg
+│   │   ├── img_2.jpg
+│   │   └── ...
+│   ├── ...
+│   ├── 200
+│   │   ├── img_1.jpg
+│   │   ├── img_2.jpg
+│   │   └── ...
+│   └── gt.mat
+
+```
+
+#### 3.2.2 ICDAR2015 dataset
+
+Please download [ICDAR2015](https://rrc.cvc.uab.es/?ch=4&com=downloads) dataset, and convert the labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
 
 The prepared dataset file struture should be:  
 
@@ -82,6 +126,30 @@ The prepared dataset file struture should be:
     │   ├── img_2.jpg
     │   └── ....jpg
     └── train_det_gt.txt
+```
+
+#### 3.2.3 MSRA-TD500 数据集
+
+Please download [MSRA-TD500](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500)) dataset，and convert the labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
+
+The prepared dataset file struture should be: 
+
+```txt
+MSRA-TD500
+ ├── test
+ │   ├── IMG_0059.gt 
+ │   ├── IMG_0059.JPG
+ │   ├── IMG_0080.gt
+ │   ├── IMG_0080.JPG
+ │   ├── ...
+ │   ├── train_det_gt.txt
+ ├── train
+ │   ├── IMG_0030.gt 
+ │   ├── IMG_0030.JPG
+ │   ├── IMG_0063.gt
+ │   ├── IMG_0063.JPG
+ │   ├── ...
+ │   ├── test_det_gt.txt
 ```
 
 ### 3.3 Update yaml config file

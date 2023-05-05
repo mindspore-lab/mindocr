@@ -25,6 +25,16 @@ DBNet的整体架构图如图1所示，包含以下阶段:
 
 ## 2. 实验结果
 
+### SynthText
+
+<div align="center">
+
+| **模型**         | **环境配置**    | **骨干网络** | **预训练数据集** | **训练Loss**| **训练时间** | **吞吐量** | **配置文件**                  | **模型权重下载**                 |
+|-----------------|----------------|--------------|----------------|---------|---------|---------------|-------------|--------------|
+| DBNet      | D910x1-MS2.0-G | ResNet-50    | ImageNet       |   2.25    |10470 s/epoch  | 82.02 img/s      | [yaml](db_r50_synthtext.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)  |
+</div>
+
+
 ### ICDAR2015
 <div align="center">
 
@@ -39,6 +49,18 @@ DBNet的整体架构图如图1所示，包含以下阶段:
 
 > DBNet++的详细信息即将发布，敬请期待。DBNet和DBNet++的唯一区别在于_Adaptive Scale Fusion_模块, 在yaml配置文件`neck`模块中的 `use_asf`参数进行设置。
 
+### MSRA-TD500
+
+<div align="center">
+
+| **模型**         | **环境配置**    | **骨干网络** | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间** | **吞吐量** | **配置文件**                  | **模型权重下载**                                                                                                                                                                                         |
+|-------------------|----------------|--------------|----------------|------------|---------------|-------------|--------------|----------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| DBNet (ours)      | D910x1-MS2.0-G | ResNet-50    | SynthText       | 82.47%     | 87.75%        | 85.03%      | 13.3 s/epoch  | 51.1 img/s      | [yaml](db_r50_td500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_td500-0d12b5e8.ckpt)  |
+</div>
+
+> MSRA-TD500数据集有300训练集图片和200测试集图片，参考论文[Real-time Scene Text Detection with Differentiable Binarization](https://arxiv.org/abs/1911.08947)，我们训练此权重额外使用了来自HUST-TR400数据集的400训练集图片。可以在此下载全部[数据集](https://paddleocr.bj.bcebos.com/dataset/TD_TR.tar)用于训练。
+
+
 #### 注释：
 - 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。
 - DBNet的训练时长受数据处理部分和不同运行环境的影响非常大。
@@ -50,6 +72,32 @@ DBNet的整体架构图如图1所示，包含以下阶段:
 请参考MindOCR套件的[安装指南](https://github.com/mindspore-lab/mindocr#installation) 。
 
 ### 3.2 数据准备
+
+#### 3.2.1 SynthText 数据集
+
+请从[该网址](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c)下载SynthText数据集，解压后的数据的目录结构应该如下所示：
+
+``` text
+.
+├── SynthText
+│   ├── 1
+│   │   ├── img_1.jpg
+│   │   ├── img_2.jpg
+│   │   └── ...
+│   ├── 2
+│   │   ├── img_1.jpg
+│   │   ├── img_2.jpg
+│   │   └── ...
+│   ├── ...
+│   ├── 200
+│   │   ├── img_1.jpg
+│   │   ├── img_2.jpg
+│   │   └── ...
+│   └── gt.mat
+
+```
+
+#### 3.2.2 ICDAR2015 数据集
 
 请从[该网址](https://rrc.cvc.uab.es/?ch=4&com=downloads)下载ICDAR2015数据集，然后参考[数据转换](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README_CN.md)对数据集标注进行格式转换。
 
@@ -69,6 +117,30 @@ DBNet的整体架构图如图1所示，包含以下阶段:
     │   ├── img_2.jpg
     │   └── ....jpg
     └── train_det_gt.txt
+```
+
+#### 3.2.3 MSRA-TD500 数据集
+
+请从[该网址](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500))下载MSRA-TD500数据集，然后参考[数据转换](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README_CN.md)对数据集标注进行格式转换。
+
+完成数据准备工作后，数据的目录结构应该如下所示： 
+
+```txt
+MSRA-TD500
+ ├── test
+ │   ├── IMG_0059.gt 
+ │   ├── IMG_0059.JPG
+ │   ├── IMG_0080.gt
+ │   ├── IMG_0080.JPG
+ │   ├── ...
+ │   ├── train_det_gt.txt
+ ├── train
+ │   ├── IMG_0030.gt 
+ │   ├── IMG_0030.JPG
+ │   ├── IMG_0063.gt
+ │   ├── IMG_0063.JPG
+ │   ├── ...
+ │   ├── test_det_gt.txt
 ```
 
 ### 3.3 配置说明
