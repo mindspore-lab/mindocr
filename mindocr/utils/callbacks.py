@@ -25,15 +25,21 @@ class Evaluator:
         postprocessor: post-processor
         metrics: metrics to evaluate network performance
         pred_cast_fp32: whehter to cast network prediction to float 32. Set True if AMP is used.
-        num_columns_to_net: number of inputs to the network in the dataset output columns. Default is 1 for the first column is image.
-        num_columns_of_labels: number of labels in the dataset output columns. Default is None assuming the columns after image (data[1:]) are labels.
-                           If not None, the num_columns_of_labels columns after image (data[1:1+num_columns_of_labels]) are labels, and the remaining columns are additional info like image_path.
+        input_indices: The indices of the data tuples which will be fed into the network. If it is None, then the first item will be fed only.
+        label_indices: The indices of the data tuples which will be marked as label. If it is None, then the second item will be marked as label.
+        meta_data_indices: The indices for the data tuples which will be marked as meta data. If it is None, then the item indices not in input or label indices are marked as meta data.
     """
 
-    def __init__(self, network, dataloader, loss_fn=None, postprocessor=None, metrics=None,
+    def __init__(self,
+                 network,
+                 dataloader,
+                 loss_fn=None,
+                 postprocessor=None,
+                 metrics=None,
                  pred_cast_fp32=False,
-                 num_columns_to_net=1, 
-                 num_columns_of_labels=None, 
+                 input_indices=None,
+                 label_indices=None,
+                 meta_data_indices=None,
                  num_epochs=-1,
                  visualize=False, 
                  verbose=False,
@@ -57,19 +63,18 @@ class Evaluator:
         assert eval_loss == False, 'not impl'
 
         # create iterator
-        self.reload(dataloader, num_columns_to_net, num_columns_of_labels, num_epochs)
+        self.reload(dataloader, input_indices, label_indices, meta_data_indices, num_epochs)
 
 
-    def reload(self, dataloader, num_columns_to_net=1, num_columns_of_labels=None, num_epochs=-1):
+    def reload(self, dataloader, input_indices=None, label_indices=None, meta_data_indices=None, num_epochs=-1):
         # create iterator
         self.iterator = dataloader.create_tuple_iterator(num_epochs=num_epochs, output_numpy=False, do_copy=False)
         self.num_batches_eval = dataloader.get_dataset_size()
 
         # dataset output columns
-        self.num_inputs  = num_columns_to_net
-        self.num_labels = num_columns_of_labels
-        assert self.num_inputs==1, 'Only num_columns_to_net=1 (single input to network) is needed and supported for current networks.'
-
+        self.input_indices = input_indices
+        self.label_indices = label_indices
+        self.meta_data_indices = meta_data_indices
 
     def eval(self):
         """
@@ -83,9 +88,15 @@ class Evaluator:
 
 
         for i, data in tqdm(enumerate(self.iterator), total=self.num_batches_eval):
+            if self.input_indices is not None:
+                inputs = [data[x] for x in self.input_indices]
+            else:
+                inputs = [data[0]]
 
-            inputs = data[:self.num_inputs] # [imgs]
-            gt = data[self.num_inputs:] if self.num_labels is None else data[self.num_inputs: self.num_inputs+self.num_labels]
+            if self.label_indices is not None:
+                gt = [data[x] for x in self.label_indices]
+            else:
+                gt = [data[1]]
 
             net_preds = self.net(*inputs)
 
@@ -97,7 +108,15 @@ class Evaluator:
 
             if self.postprocessor is not None:
                 # additional info such as image path, original image size, pad shape, extracted in data processing
-                meta_info = data[(self.num_inputs+self.num_labels):] if (self.num_labels is not None) else []
+                if self.meta_data_indices is not None:
+                    meta_info = [data[x] for x in self.meta_data_indices]
+                else:
+                    # assume the indices not in input_indices or label_indices are all meta_data_indices
+                    input_indices = set(self.input_indices) if self.input_indices is not None else {0}
+                    label_indices = set(self.label_indices) if self.label_indices is not None else {1}
+                    meta_data_indices = sorted(set(range(len(data))) - input_indices - label_indices)
+                    meta_info = [data[x] for x in meta_data_indices]
+
                 data_info = {'labels': gt, 'img_shape': inputs[0].shape, 'meta_info': meta_info}
                 preds = self.postprocessor(net_preds, **data_info)
 
@@ -148,8 +167,9 @@ class EvalSaveCallback(Callback):
                  ckpt_save_dir='./',
                  main_indicator='hmean',
                  ema=None,
-                 num_columns_to_net=1,  # TODO: parse eval cfg for short?
-                 num_columns_of_labels=None,
+                 input_indices=None,
+                 label_indices=None,
+                 meta_data_indices=None,
                  val_interval=1,
                  val_start_epoch=1,
                  log_interval=1,
@@ -165,7 +185,7 @@ class EvalSaveCallback(Callback):
         self.log_interval = log_interval
         self.batch_size = batch_size
         if self.loader_eval is not None:
-            self.net_evaluator = Evaluator(network, loader, loss_fn, postprocessor, metrics, pred_cast_fp32=pred_cast_fp32, num_columns_to_net=num_columns_to_net, num_columns_of_labels=num_columns_of_labels)
+            self.net_evaluator = Evaluator(network, loader, loss_fn, postprocessor, metrics, pred_cast_fp32=pred_cast_fp32, input_indices=input_indices, label_indices=label_indices, meta_data_indices=meta_data_indices)
             self.main_indicator = main_indicator
             self.best_perf = -1e8
         else:

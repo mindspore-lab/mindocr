@@ -151,6 +151,10 @@ MindOCR支持使用MindOCR训练好的ckpt文件进行文本检测+文本识别�
 ## 重要信息
 
 ### 变更日志
+- 2023/05/04
+1. 参数修改：`num_columns_to_net` -> `net_input_column_index`: 输入网络的columns数量改为输入网络的columns索引
+2. 参数修改：`num_columns_of_labels` -> `label_column_index`: 代表label的columns数量改为代表label的columns索引
+
 - 2023/03/23
 1. 增加dynamic loss scaler支持, 且与drop overflow update兼容。如需使用, 请在配置文件中增加`loss_scale`字段并将`type`参数设为`dynamic`，参考例子请见`configs/rec/crnn/crnn_icdar15.yaml`
 

@@ -164,6 +164,8 @@ After downloading these datasets in the `DATASETS_DIR` folder, you can run `bash
 1. Support loading self-defined pretrained checkpoints via setting `model-pretrained` with checkpoint url or local path in yaml. 
 2. Support setting probability for executing augmentation including rotation and flip.
 3. Add Exponential Moving Average(EMA) for model training, which can be enabled by setting `train-ema` (default: False) and `train-ema_decay` in the yaml config. 
+4. Arg parameter changed：`num_columns_to_net` -> `net_input_column_index`: change the column number feeding into the network to the column index.
+5. Arg parameter changed：`num_columns_of_labels` -> `label_column_index`: change the column number corresponds to the label to the column index.
 
 - 2023/04/21
 1. Add parameter grouping to support flexible regularization in training. Usage: add `grouping_strategy` argument in yaml config to select a predefined grouping strategy, or use `no_weight_decay_params` argument to pick layers to exclude from weight decay (e.g., bias, norm). Example can be referred in `configs/rec/crnn/crnn_icdar15.yaml` 
