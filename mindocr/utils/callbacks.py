@@ -112,8 +112,8 @@ class Evaluator:
                     meta_info = [data[x] for x in self.meta_data_indices]
                 else:
                     # assume the indices not in input_indices or label_indices are all meta_data_indices
-                    input_indices = set(self.input_indices) if not None else {0}
-                    label_indices = set(self.label_indices) if not None else {1}
+                    input_indices = set(self.input_indices) if self.input_indices is not None else {0}
+                    label_indices = set(self.label_indices) if self.label_indices is not None else {1}
                     meta_data_indices = sorted(set(range(len(data))) - input_indices - label_indices)
                     meta_info = [data[x] for x in meta_data_indices]
 
