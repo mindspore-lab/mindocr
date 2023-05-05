@@ -19,7 +19,7 @@ model:
   type: rec
   transform: null
   backbone:
-    name: rec_vgg7 #resnet34@mindcv
+    name: rec_vgg7 
     pretrained: False
   neck:
     name: RNNEncoder
@@ -27,6 +27,7 @@ model:
   head:
     name: CTCHead 
     out_channels: *num_classes 
+  pretrained: https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt # support local path and url
 
 postprocess:
   name: RecCTCLabelDecode
