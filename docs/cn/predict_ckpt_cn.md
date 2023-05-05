@@ -1,6 +1,6 @@
 # MindOCR串联推理
 
-本文档介绍如何使用MindSpore训练出来的ckpt文件进行文本检测+文本识别的串联推理。
+本文档介绍如何使用MindOCR训练出来的ckpt文件进行文本检测+文本识别的串联推理。
 
 ## 1. 支持的串联模型组合
 
@@ -14,7 +14,7 @@
 
 ### 2.1 环境配置
 
-| 环境/设备   | 版本    |
+| 环境        | 版本    |
 |-----------|-------|
 | MindSpore | >=1.9 |
 | Python    | >=3.7 |
@@ -22,7 +22,9 @@
 
 ### 2.2 参数配置
 
-参数配置包含两部分：（1）模型yaml配置文件（2）推理脚本`tools/predict/text/predict_system.py`中的args参数。
+参数配置包含两部分：
+- （1）模型yaml配置文件
+- （2）推理脚本`tools/predict/text/predict_system.py`中的args参数。
 
 **注意：如果在（2）中传入args参数值，则会覆盖（1）yaml配置文件中的相应参数值；否则，将会使用yaml配置文件中的默认参数值，您可以手动更新yaml配置文件中的参数值。**
 
@@ -31,6 +33,7 @@
    检测模型和识别模型各有一个yaml配置文件。请重点关注这**两个**文件中`predict`模块内的内容，重点参数如下。
 
    ```yaml
+   # 检测模型或识别模型的yaml配置文件
    ...
    predict:
      ckpt_load_path: tmp_det/best.ckpt              <--- args.det_ckpt_path覆盖检测yaml, args.rec_ckpt_path覆盖识别yaml; 或手动更新该值
@@ -49,7 +52,7 @@
        ...
    ```
 
-#### (2) args参数列表
+#### (2) 推理脚本`predict_system.py`的args参数列表
 
    | 参数名            | 含义                                   | 默认值                                     |
    |--------------------------------------|-----------------------------------------| -------- |
@@ -75,7 +78,7 @@
 
 ### 2.4 精度评估
 
-   推理完成后，图片名、文字检测框（points）和识别的文字（trancription）将保存在args.result_save_path。推理结果文件格式示例如下：
+   推理完成后，图片名、文字检测框(`points`)和识别的文字(`trancription`)将保存在args.result_save_path。推理结果文件格式示例如下：
    ```text
    img_1.jpg	[{"transcription": "hello", "points": [600, 150, 715, 157, 714, 177, 599, 170]}, {"transcription": "world", "points": [622, 126, 695, 129, 694, 154, 621, 151]}, ...]
    img_2.jpg	[{"transcription": "apple", "points": [553, 338, 706, 318, 709, 342, 556, 362]}, ...]
