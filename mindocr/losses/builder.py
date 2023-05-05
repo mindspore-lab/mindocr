@@ -1,5 +1,4 @@
 import inspect
-from mindspore.nn import CrossEntropyLoss
 from .det_loss import L1BalancedCELoss
 from .rec_loss import CTCLoss, AttentionLoss
 

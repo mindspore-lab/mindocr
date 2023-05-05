@@ -150,6 +150,7 @@ def main(cfg):
         batch_size=cfg.train.loader.batch_size,
         ckpt_save_dir=cfg.train.ckpt_save_dir,
         main_indicator=cfg.metric.main_indicator,
+        ema=ema,
         input_indices=cfg.eval.dataset.pop('net_input_column_index', None),
         label_indices=cfg.eval.dataset.pop('label_column_index', None),
         meta_data_indices=cfg.eval.dataset.pop('meta_data_column_index', None),
