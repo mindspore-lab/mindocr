@@ -19,18 +19,18 @@ def check_args(args):
         print("WARNING: The 'det_ckpt_path' is empty. The detection predictor will load the ckpt from 'ckpt_loat_path' in det yaml file. ")
     else:
         if not os.path.isfile(args.det_ckpt_path):
-            raise ValueError("The ckpt file of detection model is not existed. Please check the arg 'det_ckpt_path'.")
+            raise ValueError("The ckpt file of detection model does not exist. Please check the arg 'det_ckpt_path'.")
 
     if not args.rec_ckpt_path:
         print("WARNING: The 'rec_ckpt_path' is empty. The recognition predictor will load the ckpt from 'ckpt_loat_path' in rec yaml file. ")
     else:
         if not os.path.isfile(args.rec_ckpt_path):
-            raise ValueError("The ckpt file of recognition model is not existed. Please check the arg 'rec_ckpt_path'.")
+            raise ValueError("The ckpt file of recognition model does not exist. Please check the arg 'rec_ckpt_path'.")
 
     if not os.path.isfile(args.det_config_path):
-        raise ValueError("The detection model yaml config file is not existed. Please check the arg 'det_config_path'.")
+        raise ValueError("The detection model yaml config file does not exist. Please check the arg 'det_config_path'.")
     if not os.path.isfile(args.rec_config_path):
-        raise ValueError("The recognition model yaml config file is not existed. Please check the arg 'rec_config_path'.")
+        raise ValueError("The recognition model yaml config file does not exist. Please check the arg 'rec_config_path'.")
 
     if args.crop_save_dir:
         args.crop_save_dir = os.path.realpath(args.crop_save_dir)
@@ -61,13 +61,13 @@ def update_config(args, cfg, model_type):
             cfg.predict.dataset.dataset_root = args.raw_data_dir
             cfg.predict.dataset.data_dir = '.'
         if args.det_ckpt_path:
-            cfg.ckpt_load_path = args.det_ckpt_path
+            cfg.predict.ckpt_load_path = args.det_ckpt_path
     elif model_type == 'rec':
         if args.crop_save_dir:
             cfg.predict.dataset.dataset_root = args.crop_save_dir
             cfg.predict.dataset.data_dir = '.'
         if args.rec_ckpt_path:
-            cfg.ckpt_load_path = args.rec_ckpt_path
+            cfg.predict.ckpt_load_path = args.rec_ckpt_path
     else:
         raise ValueError(f"Invalid value of 'model_type'. It must be 'det' or 'rec'.")
 
