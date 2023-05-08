@@ -147,3 +147,80 @@ class PSEFPN(nn.Cell):
         out = self.concat((p2, p3, p4, p5))
 
         return out
+
+
+class EASTFPN(nn.Cell):
+    def __init__(self, in_channels, out_channels=128):
+        super(EASTFPN, self).__init__()
+        self.in_channels = in_channels[::-1]  # self.in_channels: [2048, 1024, 512, 256]
+        self.out_channels = out_channels
+        self.conv1 = nn.Conv2d(self.in_channels[0] + self.in_channels[1], self.in_channels[0] // 4, 1, has_bias=True)
+        self.bn1 = nn.BatchNorm2d(self.in_channels[0] // 4)
+        self.relu1 = nn.ReLU()
+        self.conv2 = nn.Conv2d(
+            self.in_channels[0] // 4,
+            self.in_channels[0] // 4,
+            3,
+            padding=1,
+            pad_mode='pad',
+            has_bias=True)
+        self.bn2 = nn.BatchNorm2d(self.in_channels[0] // 4)
+        self.relu2 = nn.ReLU()
+
+        self.conv3 = nn.Conv2d(self.in_channels[0] // 4 + self.in_channels[2], self.in_channels[1] // 4, 1, has_bias=True)
+        self.bn3 = nn.BatchNorm2d(self.in_channels[1] // 4)
+        self.relu3 = nn.ReLU()
+        self.conv4 = nn.Conv2d(
+            self.in_channels[1] // 4,
+            self.in_channels[1] // 4,
+            3,
+            padding=1,
+            pad_mode='pad',
+            has_bias=True)
+        self.bn4 = nn.BatchNorm2d(self.in_channels[1] // 4)
+        self.relu4 = nn.ReLU()
+
+        self.conv5 = nn.Conv2d(self.in_channels[1] // 4 + self.in_channels[3], self.in_channels[2] // 4, 1)
+        self.bn5 = nn.BatchNorm2d(self.in_channels[2] // 4)
+        self.relu5 = nn.ReLU()
+        self.conv6 = nn.Conv2d(
+            self.in_channels[2] // 4,
+            self.in_channels[2] // 4,
+            3,
+            padding=1,
+            pad_mode='pad',
+            has_bias=True)
+        self.bn6 = nn.BatchNorm2d(self.in_channels[2] // 4)
+        self.relu6 = nn.ReLU()
+
+        self.conv7 = nn.Conv2d(
+            self.in_channels[2] // 4,
+            self.out_channels,
+            3,
+            padding=1,
+            pad_mode='pad',
+            has_bias=True)
+        self.bn7 = nn.BatchNorm2d(self.out_channels)
+        self.relu7 = nn.ReLU()
+        self.concat = ops.Concat(axis=1)
+
+    def construct(self, features):
+        f1, f2, f3, f4 = features
+
+        out = ops.ResizeBilinear(f3.shape[2:], True)(f4)
+        out = self.concat((out, f3))
+        out = self.relu1(self.bn1(self.conv1(out)))
+        out = self.relu2(self.bn2(self.conv2(out)))
+
+        out = ops.ResizeBilinear(f2.shape[2:], True)(out)
+        out = self.concat((out, f2))
+        out = self.relu3(self.bn3(self.conv3(out)))
+        out = self.relu4(self.bn4(self.conv4(out)))
+
+        out = ops.ResizeBilinear(f1.shape[2:], True)(out)
+        out = self.concat((out, f1))
+        out = self.relu5(self.bn5(self.conv5(out)))
+        out = self.relu6(self.bn6(self.conv6(out)))
+
+        out = self.relu7(self.bn7(self.conv7(out)))
+        return out

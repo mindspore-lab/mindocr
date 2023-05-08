@@ -63,7 +63,7 @@ class DBPostprocess(DetBasePostprocess):
 		Return:
             postprocessing result as a dict with keys:
                 - polys (List[List[np.ndarray]): predicted polygons on the **transformed** (i.e. resized normally) image space, of shape (batch_size, num_polygons, num_points, 2). If `box_type` is 'quad', num_points=4.
-                - scores (np.ndarray): confidence scores for the predicted polygons, shape (batch_size, num_polygons) 
+                - scores (np.ndarray): confidence scores for the predicted polygons, shape (batch_size, num_polygons)
         """
         if isinstance(pred, tuple):
             pred = pred[self._names[self._name]]

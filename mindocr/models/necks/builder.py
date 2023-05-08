@@ -1,11 +1,11 @@
-from .fpn import FPN, DBFPN, PSEFPN
+from .fpn import FPN, DBFPN, PSEFPN, EASTFPN
 from .rnn import RNNEncoder
 from .select import Select
 from .img2seq import Img2Seq
 
 
 __all__ = ['build_neck']
-supported_necks = ['FPN', 'DBFPN', 'RNNEncoder', 'Select', 'Img2Seq', 'PSEFPN']
+supported_necks = ['FPN', 'DBFPN', 'RNNEncoder', 'Select', 'Img2Seq', 'PSEFPN', 'EASTFPN']
 
 
 def build_neck(neck_name, **kwargs):
