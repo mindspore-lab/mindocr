@@ -4,7 +4,7 @@ import mindspore as ms
 from mindspore import Tensor
 import mindspore.numpy as mnp
 
-__all__ = ['L1BalancedCELoss']
+__all__ = ['L1BalancedCELoss', 'EastLoss']
 
 
 class L1BalancedCELoss(nn.LossBase):
@@ -149,3 +149,69 @@ class BalancedBCELoss(nn.LossBase):
 
         return (pos_loss.sum() + neg_loss.sum()) / \
                (pos_count.astype(ms.float32).sum() + neg_count.astype(ms.float32).sum() + self._eps)
+
+
+class DiceCoefficient(nn.Cell):
+    def __init__(self):
+        super(DiceCoefficient, self).__init__()
+        self.sum = ops.ReduceSum()
+        self.eps = 1e-5
+
+    def construct(self, true_cls, pred_cls):
+        intersection = self.sum(true_cls * pred_cls, ())
+        union = self.sum(true_cls, ()) + self.sum(pred_cls, ()) + self.eps
+        loss = 1. - (2 * intersection / union)
+
+        return loss
+
+
+class MyMin(nn.Cell):
+    def __init__(self):
+        super(MyMin, self).__init__()
+        self.abs = ops.Abs()
+
+    def construct(self, a, b):
+        return (a + b - self.abs(a - b)) / 2
+
+
+class EastLoss(nn.Cell):
+    def __init__(self):
+        super(EastLoss, self).__init__()
+        self.split = ops.Split(1, 5)
+        self.min = MyMin()
+        self.log = ops.Log()
+        self.cos = ops.Cos()
+        self.mean = ops.ReduceMean(keep_dims=False)
+        self.sum = ops.ReduceSum()
+        self.eps = 1e-5
+        self.dice = DiceCoefficient()
+
+    def construct(
+            self,
+            pred,
+            score_map,
+            geo_map,
+            training_mask):
+        ans = self.sum(score_map)
+        classification_loss = self.dice(
+            score_map, pred['score'] * (1 - training_mask))
+
+        # n * 5 * h * w
+        d1_gt, d2_gt, d3_gt, d4_gt, theta_gt = self.split(geo_map)
+        d1_pred, d2_pred, d3_pred, d4_pred, theta_pred = self.split(pred['geo'])
+        area_gt = (d1_gt + d3_gt) * (d2_gt + d4_gt)
+        area_pred = (d1_pred + d3_pred) * (d2_pred + d4_pred)
+        w_union = self.min(d2_gt, d2_pred) + self.min(d4_gt, d4_pred)
+        h_union = self.min(d1_gt, d1_pred) + self.min(d3_gt, d3_pred)
+
+        area_intersect = w_union * h_union
+        area_union = area_gt + area_pred - area_intersect
+        iou_loss_map = -self.log((area_intersect + 1.0) /
+                                 (area_union + 1.0))  # iou_loss_map
+        angle_loss_map = 1 - self.cos(theta_pred - theta_gt)  # angle_loss_map
+
+        angle_loss = self.sum(angle_loss_map * score_map) / ans
+        iou_loss = self.sum(iou_loss_map * score_map) / ans
+        geo_loss = 10 * angle_loss + iou_loss
+
+        return geo_loss + classification_loss
