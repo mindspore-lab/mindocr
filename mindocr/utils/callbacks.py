@@ -208,16 +208,15 @@ class EvalSaveCallback(Callback):
         self.step_start_time = time.time()
 
         self._losses = []
-        if device_num is not None:
-            reduce_sum = ms.ops.AllReduce()
 
-            @jit
-            def reduce(x):                          # lamda expression is not supported in MindSpore
-                return reduce_sum(x) / device_num   # average loss across all cards
+        self._reduce_sum = ms.ops.AllReduce()
+        self._device_num = device_num
+        # lamda expression is not supported in jit
+        self._loss_reduce = self._reduce if device_num is not None else lambda x: x
 
-            self._loss_reduce = reduce
-        else:
-            self._loss_reduce = lambda x: x
+    @jit
+    def _reduce(self, x):
+        return self._reduce_sum(x) / self._device_num   # average value across all devices
 
     def on_train_step_end(self, run_context):
         """
