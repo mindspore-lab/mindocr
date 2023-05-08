@@ -128,6 +128,8 @@ class DetDataset(BaseDataset):
 
                 for line in lines:
                     img_name, annot_str = self._parse_annotation(line)
+                    if annot_str =='[]':
+                        continue
                     img_path = os.path.join(img_dir, img_name)
                     assert os.path.exists(img_path), "{} does not exist!".format(img_path)
 
