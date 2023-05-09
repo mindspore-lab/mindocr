@@ -1,16 +1,19 @@
 [English](README.md) | 中文
 
-# DBNet
+# DBNet和DBNet++
 
 <!--- Guideline: use url linked to abstract in ArXiv instead of PDF for fast loading.  -->
 
-> [Real-time Scene Text Detection with Differentiable Binarization](https://arxiv.org/abs/1911.08947)
+> DBNet: [Real-time Scene Text Detection with Differentiable Binarization](https://arxiv.org/abs/1911.08947)  
+> DBNet++: [Real-Time Scene Text Detection with Differentiable Binarization and Adaptive Scale Fusion](https://arxiv.org/abs/2202.10304)
 
 ## 1. 概述
 
+### DBNet
+
 DBNet是一种基于分割的场景文本检测算法。在场景文本检测中，基于分割这类算法可以更加准确的描述各种形状的场景文本（比如弯曲形状的文本），而变得越来越流行。现有的基于分割的业界领先算法存在的缺陷是，概率图转化为文本框的二值化后处理过程通常需要人为设置一个阈值，而且后处理的聚合像素点的操作非常复杂且费时。
 
-为了避免上述问题，DBNet在网络架构中集成了一个叫作“可微分二值化（Differentiable Binarization）”的自适应阈值。可微分二值化简化了后处理过程，增强了文本检测的性能。此外，在推理阶段移除该部分不会使性能降低[[1](#references)]。
+为了避免上述问题，DBNet在网络架构中集成了一个叫作“可微分二值化（Differentiable Binarization）”的自适应阈值。可微分二值化简化了后处理过程，增强了文本检测的性能。此外，在推理阶段移除该部分不会使性能降低[[1](#参考文献)]。
 
 <p align="center"><img alt="Figure 1. Overall DBNet architecture" src="https://user-images.githubusercontent.com/16683750/225589619-d50c506c-e903-4f59-a316-8b62586c73a9.png" width="800"/></p>
 <p align="center"><em>图 1. DBNet整体架构图</em></p>
@@ -22,6 +25,21 @@ DBNet的整体架构图如图1所示，包含以下阶段:
 3. 将第2阶段的特征再次放大到与最大的特征图相同的尺寸，并沿着通道轴连接。
 4. 在最后的特征图（图中的深蓝色块）上应用3×3的卷积算子，和两个步长为2的去卷积算子来预测概率图和阈值图；
 5. 通过可微分二值化将概率图和阈值图合并为一个近似二值图单元近似二值图，并生成文本边界框。
+
+### DBNet++
+
+DBNet++架构与DBNet相似，是DBNet的延伸。两者唯一的区别是，DBNet直接拼接从主干网络中提取和缩放的特征，而DBNet++使用一个自适应的模块（Adaptive Scale Fusion, ASF）来融合这些特征，如图2所示。
+该模块可以自适应地融合不同尺寸的特征，有更好的尺寸（scale）鲁棒性。因此，DBNet++检测不同尺寸的文本的能力有显著提升。[[2](#参考文献)]
+
+<p align="center"><img alt="Figure 2. Overall DBNet++ architecture" src="https://user-images.githubusercontent.com/16683750/236786997-13823b9c-ecaa-4bc5-8037-71299b3baffe.png" width="800"/></p>
+<p align="center"><em>图 2. DBNet++整体架构图</em></p>
+
+<p align="center"><img alt="Figure 3. Detailed architecture of the Adaptive Scale Fusion module" src="https://user-images.githubusercontent.com/16683750/236787093-c0c78d8f-e4f4-4c5e-8259-7120a14b0e31.png" width="700"/></p>
+<p align="center"><em>图 3. Adaptive Scale Fusion模块架构图</em></p>
+
+ASF由两个注意力模块组成——阶段注意力模块（stage-wise attention）和空间注意力模块（spatial attention），后者集成在前者中，如图3所示。
+阶段注意模块学习不同尺寸的特征图的权重，而空间注意力模块学习跨空间维度的attention。这两个模块的组合使得模型可以获得尺寸（scale）鲁棒性很好的特征融合。
+DBNet++在检测不同尺寸的文本方面表现更好，尤其是对于尺寸较大的文本；然而，DBNet在检测尺寸较大的文本时可能会生成不准确或分离的检测框。
 
 ## 2. 实验结果
 
@@ -158,4 +176,8 @@ python tools/eval.py --config configs/det/dbnet/db_r50_icdar15.yaml
 
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 
-[1] Minghui Liao, Zhaoyi Wan, Cong Yao, Kai Chen, Xiang Bai. Real-time Scene Text Detection with Differentiable Binarization. arXiv:1911.08947, 2019
+[1] Minghui Liao, Zhaoyi Wan, Cong Yao, Kai Chen, Xiang Bai. Real-time Scene Text Detection with Differentiable
+Binarization. arXiv:1911.08947, 2019
+
+[2] Minghui Liao, Zhisheng Zou, Zhaoyi Wan, Cong Yao, Xiang Bai. Real-Time Scene Text Detection with Differentiable
+Binarization and Adaptive Scale Fusion. arXiv:2202.10304, 2022
