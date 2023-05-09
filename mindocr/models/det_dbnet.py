@@ -17,7 +17,7 @@ default_cfgs = {
     'dbnet_resnet18': _cfg(
         url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18-0c0c4cfa.ckpt'),
     'dbnet_resnet50': _cfg(
-        url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a.ckpt'),
+        url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24.ckpt'),
     'dbnetpp_resnet50': _cfg(
         url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2.ckpt')
 }
