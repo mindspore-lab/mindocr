@@ -12,7 +12,7 @@ DBNet是一种基于分割的场景文本检测算法。在场景文本检测中
 
 为了避免上述问题，DBNet在网络架构中集成了一个叫作“可微分二值化（Differentiable Binarization）”的自适应阈值。可微分二值化简化了后处理过程，增强了文本检测的性能。此外，在推理阶段移除该部分不会使性能降低[[1](#references)]。
 
-![dbnet_architecture](https://user-images.githubusercontent.com/16683750/225589619-d50c506c-e903-4f59-a316-8b62586c73a9.png)
+<p align="center"><img alt="Figure 1. Overall DBNet architecture" src="https://user-images.githubusercontent.com/16683750/225589619-d50c506c-e903-4f59-a316-8b62586c73a9.png" width="800"/></p>
 <p align="center"><em>图 1. DBNet整体架构图</em></p>
 
 DBNet的整体架构图如图1所示，包含以下阶段:
@@ -28,16 +28,17 @@ DBNet的整体架构图如图1所示，包含以下阶段:
 ### ICDAR2015
 <div align="center">
 
-| **模型**            | **环境配置**       | **骨干网络**    | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间**     | **吞吐量**    | **配置文件**                    | **模型权重下载**                                                                                                                                                                                           |
-|-------------------|----------------|-------------|------------|------------|---------------|-------------|--------------|------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| DBNet (ours)      | D910x1-MS2.0-G | ResNet-18   | ImageNet   | 80.40%     | 83.71%        | 82.02%      | 9.3 s/epoch  | 108 img/s  | [yaml](db_r18_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18-0c0c4cfa.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18-0c0c4cfa-cf46eb8b.mindir)  |
-| DBNet (ours)      | D910x1-MS2.0-G | ResNet-50    | ImageNet       | 83.53%     | 86.49%        | 84.99%      | 12.3 s/epoch | 72 img/s     | [yaml](db_r50_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24-fbf95c82.mindir) |
-| DBNet (PaddleOCR) | -              | ResNet50_vd | SynthText  | 78.72%     | 86.41%        | 82.38%      | -            | -          | -                           | -                                                                                                                                                                                                    |
-| DBNet++           | D910x1-MS1.9-G | ResNet-50   | ImageNet   | 82.02%     | 87.38%        | 84.62%      | -            | -          | -                           | -                                                                                                                                                                                                    |
+| **模型**              | **环境配置**       | **骨干网络**      | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间**     | **吞吐量**   | **配置文件**                      | **模型权重下载**                                                                                                                                                                                              |
+|---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-----------|-------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| DBNet               | D910x1-MS2.0-G | ResNet-18     | ImageNet   | 80.40%     | 83.71%        | 82.02%      | 9.3 s/epoch  | 108 img/s | [yaml](db_r18_icdar15.yaml)   | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18-0c0c4cfa.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18-0c0c4cfa-cf46eb8b.mindir)     |
+| DBNet               | D910x1-MS2.0-G | ResNet-50     | ImageNet   | 83.53%     | 86.49%        | 84.99%      | 12.3 s/epoch | 72 img/s  | [yaml](db_r50_icdar15.yaml)   | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24-fbf95c82.mindir)     |
+| DBNet (PaddleOCR)   | -              | ResNet50_vd   | SynthText  | 78.72%     | 86.41%        | 82.38%      | -            | -         | -                             | -                                                                                                                                                                                                       |
+|                     |                |               |            |            |               |             |              |           |                               |                                                                                                                                                                                                         |
+| DBNet++             | D910x1-MS2.0-G | ResNet-50     | SynthText  | 85.56%     | 87.67%        | 86.60%      | 17.7 s/epoch | 56 img/s  | [yaml](db++_r50_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2-76fcb451.mindir) |
+| DBNet++ (PaddleOCR) | -              | ResNet-50_DCN | SynthText  | 82.66%     | 90.89%        | 86.58%      | -            | -         | -                             | -                                                                                                                                                                                                       |
 
 </div>
 
-> DBNet++的详细信息即将发布，敬请期待。DBNet和DBNet++的唯一区别在于_Adaptive Scale Fusion_模块, 在yaml配置文件`neck`模块中的 `use_asf`参数进行设置。
 
 #### 注释：
 - 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。
