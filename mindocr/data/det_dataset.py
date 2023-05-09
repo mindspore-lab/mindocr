@@ -99,7 +99,7 @@ class DetDataset(BaseDataset):
             output_tuple = tuple(data[k] for k in self.output_columns)
         except Exception as e:
             print(f"Error occurred while processing the image: {self.data_list[index]['img_path']}\n", e, flush=True)
-            return self[random.randint(0, len(self.data_list))]     # return another random sample instead
+            return self[random.randrange(len(self.data_list))]  # return another random sample instead
 
         return output_tuple
 
