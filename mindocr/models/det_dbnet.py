@@ -30,10 +30,11 @@ class DBNet(BaseModel):
 
 @register_model
 def dbnet_resnet18(pretrained=False, **kwargs):
+    pretrained_backbone = not pretrained
     model_config = {
         "backbone": {
             'name': 'det_resnet18',
-            'pretrained': not pretrained
+            'pretrained': pretrained_backbone
         },
         "neck": {
             "name": 'DBFPN',
@@ -59,10 +60,11 @@ def dbnet_resnet18(pretrained=False, **kwargs):
 
 @register_model
 def dbnet_resnet50(pretrained=False, **kwargs):
+    pretrained_backbone = not pretrained
     model_config = {
         "backbone": {
             'name': 'det_resnet50',
-            'pretrained': not pretrained
+            'pretrained': pretrained_backbone
         },
         "neck": {
             "name": 'DBFPN',
@@ -88,10 +90,11 @@ def dbnet_resnet50(pretrained=False, **kwargs):
 
 @register_model
 def dbnetpp_resnet50(pretrained=False, **kwargs):
+    pretrained_backbone = not pretrained
     model_config = {
         "backbone": {
             'name': 'det_resnet50',
-            'pretrained': not pretrained
+            'pretrained': pretrained_backbone
         },
         "neck": {
             "name": 'DBFPN',
