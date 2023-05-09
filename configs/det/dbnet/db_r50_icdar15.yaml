@@ -112,7 +112,7 @@ train:
 
   loader:
     shuffle: True
-    batch_size: 20
+    batch_size: 10
     drop_remainder: True
     num_workers: 8
 
