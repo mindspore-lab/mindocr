@@ -99,7 +99,8 @@ def dbnet_mobilenetv3(pretrained=False, **kwargs):
             'alpha': 0.5,
             'out_stages': [5, 8, 14, 20],
             'bottleneck_params': {'se_version': 'SqueezeExciteV2', 'always_expand': True},
-            'pretrained': False
+            'pretrained': 'https://download.mindspore.cn/toolkits/mindcv/mobilenet/mobilenetv3'
+                          '/mobilenet_v3_large_050_no_scale_se_v2_expand-3c4047ac.ckpt' if not pretrained else False
         },
         "neck": {
             "name": 'DBFPN',

@@ -46,6 +46,6 @@ def det_mobilenet_v3(architecture='large', alpha=1.0, in_channels=3, pretrained:
             default_cfg = default_cfgs[name]
             load_pretrained(model, default_cfg)
         else:
-            raise f'WARNING: no pretrained {name} model found.'
+            raise f'No pretrained {name} backbone found.'
 
     return model
