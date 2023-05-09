@@ -14,7 +14,7 @@ class NetWithLossWrapper(nn.Cell):
         net (nn.Cell): network
         loss_fn: loss function
         input_indices: The indices of the data tuples which will be fed into the network. If it is None, then the first item will be fed only.
-        label_indices: The indices of the data tuples which will be fed into the loss function. If it is None, then the second item will be fed only.
+        label_indices: The indices of the data tuples which will be fed into the loss function. If it is None, then the remaining items will be fed.
     '''
     def __init__(self, net, loss_fn, pred_cast_fp32=False, input_indices=None, label_indices=None):
         super().__init__(auto_prefix=False)
@@ -44,7 +44,7 @@ class NetWithLossWrapper(nn.Cell):
                 pred = [F.cast(p, mstype.float32) for p in pred]
 
         if self.label_indices is None:
-            loss_val = self._loss_fn(pred, args[1])
+            loss_val = self._loss_fn(pred, *args[1:])
         else:
             loss_val = self._loss_fn(pred, *select_inputs_by_indices(args, self.label_indices))
 
@@ -60,7 +60,7 @@ class NetWithEvalWrapper(nn.Cell):
         net (nn.Cell): network
         loss_fn: loss function, if None, will not compute loss for evaluation dataset
         input_indices: The indices of the data tuples which will be fed into the network. If it is None, then the first item will be fed only.
-        label_indices: The indices of the data tuples which will be fed into the loss function. If it is None, then the second item will be fed only.
+        label_indices: The indices of the data tuples which will be fed into the loss function. If it is None, then the remaining items will be fed.
     '''
     def __init__(self, net, loss_fn=None, input_indices=None, label_indices=None):
         super().__init__(auto_prefix=False)
@@ -84,7 +84,7 @@ class NetWithEvalWrapper(nn.Cell):
             pred = self._net(*select_inputs_by_indices(args, self.input_indices))
 
         if self.label_indices is None:
-            labels = [args[1]]
+            labels = args[1:]
         else:
             labels = select_inputs_by_indices(args, self.label_indices)
 
