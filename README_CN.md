@@ -141,6 +141,8 @@ MindOCR支持使用MindOCR训练好的ckpt文件进行文本检测+文本识别�
 
 - [x] MSRA-TD500 [论文](https://ieeexplore.ieee.org/abstract/document/6247787) [主页](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500)) [下载说明](docs/cn/datasets/td500_CN.md)
 
+- [x] SCUT-CTW1500 [论文](https://www.sciencedirect.com/science/article/pii/S0031320319300664) [主页](https://github.com/Yuliang-Liu/Curve-Text-Detector) [下载说明](docs/cn/datasets/ctw1500_CN.md)
+
 </details>
 
 ### 转换
