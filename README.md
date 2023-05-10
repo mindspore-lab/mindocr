@@ -151,6 +151,8 @@ We give instructions on how to download the following datasets.
 
 - [x] MSRA-TD500 [paper](https://ieeexplore.ieee.org/abstract/document/6247787) [homepage](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500)) [download instruction](docs/en/datasets/td500.md)
 
+- [x] SCUT-CTW1500 [paper](https://www.sciencedirect.com/science/article/pii/S0031320319300664) [homepage](https://github.com/Yuliang-Liu/Curve-Text-Detector) [download instruction](docs/en/datasets/ctw1500.md)
+
 </details>
 
 ### Conversion

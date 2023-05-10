@@ -301,3 +301,42 @@ else
           --output_path $DIR/MSRA-TD500/test_det_gt.txt
   fi
 fi
+
+##########################ctw1500#########################
+DIR="$DATASETS_DIR/ctw1500"
+if  [ ! -d $DIR ] || [  ! "$(ls -A $DIR)"  ]; then
+  echo "ctw1500 is Empty! Skipped."
+else
+  unzip $DIR/train_images.zip -d  $DIR/
+  rm $DIR/train_images.zip
+
+  unzip $DIR/test_images.zip -d  $DIR/
+  rm $DIR/test_images.zip
+
+  unzip $DIR/ctw1500_train_labels.zip -d  $DIR/
+  rm $DIR/ctw1500_train_labels.zip
+
+  unzip $DIR/gt_ctw1500.zip -d  $DIR/gt_ctw1500/
+  rm $DIR/gt_ctw1500.zip
+
+  if test -f "$DIR/train_det_gt.txt"; then
+     echo "$DIR/train_det_gt.txt exists."
+  else
+     python tools/dataset_converters/convert.py \
+          --dataset_name  ctw1500 \
+          --task det \
+          --image_dir $DIR/train_images/ \
+          --label_dir $DIR/ctw1500_train_labels/ \
+          --output_path $DIR/train_det_gt.txt
+  fi
+  if test -f "$DIR/test_det_gt.txt"; then
+     echo "$DIR/test_det_gt.txt exists."
+  else
+     python tools/dataset_converters/convert.py \
+          --dataset_name  ctw1500 \
+          --task det \
+          --image_dir $DIR/test_images/ \
+          --label_dir $DIR/gt_ctw1500/ \
+          --output_path $DIR/test_det_gt.txt
+  fi
+fi
