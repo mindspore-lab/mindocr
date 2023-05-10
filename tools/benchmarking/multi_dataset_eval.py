@@ -123,18 +123,22 @@ def main(cfg):
                     loss_func=None,
                     postprocessor=postprocessor,
                     metrics=[metric],
-                    num_columns_to_net=dataset_config.get('num_columns_to_net', 1),
-                    num_columns_of_labels=dataset_config.get('num_columns_of_labels', None),
+                    input_indices=dataset_config.get('net_input_column_index', None),
+                    label_indices=dataset_config.get('label_column_index', None),
+                    meta_data_indices=dataset_config.get('meta_data_column_index', None),
                     num_epochs=1,
-                    )
+                )
                 reload_data = True
-            
+
             else:
                 net_evaluator.reload(
                     loader_eval,
-                    num_columns_to_net=dataset_config.get('num_columns_to_net', 1)
-                    )
-            
+                    input_indices=dataset_config.get('net_input_column_index', None),
+                    label_indices=dataset_config.get('label_column_index', None),
+                    meta_data_indices=dataset_config.get('meta_data_column_index', None),
+                    num_epochs=1,
+                )
+
             # log
             print('='*40)
             print(f'Num batches: {num_batches}')
@@ -150,6 +154,9 @@ def main(cfg):
 
             results.append(measures)
             acc_summary[dirpath] = measures
+
+    if len(results) == 0:
+        raise ValueError(f"Cannot find any dataset under `{data_dir_root}`. Please check the data path is correct.")
 
     # average
     metric_keys = results[0].keys()
