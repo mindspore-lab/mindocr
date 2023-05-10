@@ -69,7 +69,7 @@ def create_group_params(params, weight_decay=0, grouping_strategy=None, no_weigh
     # TODO: assert valid arg names
     gp = grouping_strategy
 
-    print(f'INFO: param grouping startegy: {grouping_strategy}, no_weight_decay_params: ', no_weight_decay_params)
+    #print(f'INFO: param grouping startegy: {grouping_strategy}, no_weight_decay_params: ', no_weight_decay_params)
     if gp is not None:
         if weight_decay == 0:
             print("WARNING: weight decay is 0 in param grouping, which is meaningless. Please check config setting.")

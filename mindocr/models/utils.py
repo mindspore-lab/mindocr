@@ -17,4 +17,4 @@ def load_model(network, load_from: str):
             params = load_checkpoint(load_from)
             load_param_into_net(network, params)
 
-        print(f'==> Finish loading checkoint from {load_from}.')
+        print(f'INFO: Finish loading model checkoint from {load_from}. If no parameter fail-load warning displayed, all checkpoint params have been successfully loaded.')

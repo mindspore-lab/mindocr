@@ -130,7 +130,7 @@ class Evaluator:
 
             # visualize
             if self.verbose:
-                print('Eval data info: ', data_info)
+                print('Data meta info: ', data_info)
 
             if self.visualize:
                 img = img[0].asnumpy()

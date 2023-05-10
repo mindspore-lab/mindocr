@@ -45,7 +45,7 @@ class RecCTCLabelEncode(object):
             char_list = [c for c in  "0123456789abcdefghijklmnopqrstuvwxyz"]
 
             self.lower = True
-            print("INFO: The character_dict_path is None, model can only recognize number and lower letters")
+            #print("INFO: The character_dict_path is None, model can only recognize number and lower letters")
         else:
             # TODO: this is commonly used in other modules, wrap into a func or class.
             # parse char dictionary
