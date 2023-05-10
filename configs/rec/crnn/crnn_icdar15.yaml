@@ -1,11 +1,11 @@
 system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
-  distribute: False 
-  amp_level: 'O0'
+  distribute: False
+  amp_level: 'O3'
   seed: 42
-  log_interval: 100
+  log_interval: 10
   val_while_train: True
-  drop_overflow_update: True
+  drop_overflow_update: False
 
 common:
   character_dict_path: &character_dict_path  #mindocr/utils/dict/en_dict.txt
@@ -19,7 +19,7 @@ model:
   type: rec
   transform: null
   backbone:
-    name: rec_vgg7 
+    name: rec_resnet34
     pretrained: False
   neck:
     name: RNNEncoder
@@ -27,7 +27,7 @@ model:
   head:
     name: CTCHead 
     out_channels: *num_classes 
-  pretrained: https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt # support local path and url
+  pretrained: https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt # support local path and url
 
 postprocess:
   name: RecCTCLabelDecode
@@ -48,17 +48,17 @@ loss:
 
 scheduler: 
   scheduler: "cosine_decay"
-  min_lr: 0.000001
-  lr: 0.0001
-  num_epochs: 100
-  warmup_epochs: 10
-  decay_epochs: 90
+  min_lr: 0.0000006
+  lr: 0.00005
+  num_epochs: 12
+  warmup_epochs: 4
+  decay_epochs: 8
 
 optimizer:
-  opt: adamw
+  opt: lion
   filter_bias_and_bn: False
   momentum: 0.9
-  weight_decay: 0.0001
+  weight_decay: 0.0005
   no_weight_decay_params: ['beta', 'gamma', 'bias'] # filter norm and bias params from weight decay
   #grouping_strategy: "filter_norm_and_bias"  # uncomment this line to use a predefined grouping strategy.
 
@@ -70,16 +70,16 @@ loss_scaler:
   scale_window: 1000  
 
 train:
-  gradient_accumulation_steps: 1
+  gradient_accumulation_steps: 2
   clip_grad: True
-  clip_norm: 0.0001
+  clip_norm: 5.0
   ema: True
-  ema_decay: 0.9997
-  ckpt_save_dir: './tmp_rec'
+  ema_decay: 0.9999
+  ckpt_save_dir: './ckpt_rec_ic15_finetune'
   dataset_sink_mode: False
   dataset:
     type: RecDataset
-    dataset_root: /data/ocr_datasets 
+    dataset_root: /path/to/data_root_dir
     data_dir: ic15/rec/train/ch4_training_word_images_gt
     label_file: ic15/rec/train/rec_gt.txt
     sample_ratio: 1.0
@@ -92,46 +92,7 @@ train:
           max_text_len: *max_text_len 
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
-      - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize. 
-          image_shape: [32, 100] # H, W
-          infer_mode: *infer_mode
-          character_dict_path: *character_dict_path
-          padding: True # aspect ratio will be preserved if true.
-      - NormalizeImage:  # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec. 
-          bgr_to_rgb: True
-          is_hwc: True
-          mean : [127.0, 127.0, 127.0] 
-          std : [127.0, 127.0, 127.0]
-      - ToCHWImage: 
-    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
-    output_columns: ['image', 'text_seq']
-    num_columns_to_net: 1 # num inputs for network forward func in output_columns
-     
-  loader:
-      shuffle: True # TODO: tbc
-      batch_size: *batch_size
-      drop_remainder: True
-      max_rowsize: 16
-      num_workers: 8
-
-eval:
-  ckpt_load_path: './tmp_rec/best.ckpt'
-  dataset_sink_mode: False
-  dataset:
-    type: RecDataset
-    dataset_root: /data/ocr_datasets 
-    data_dir: ic15/rec/test/ch4_test_word_images_gt
-    label_file: ic15/rec/test/rec_gt.txt
-    sample_ratio: 1.0
-    shuffle: False 
-    transform_pipeline:
-      - DecodeImage: 
-          img_mode: BGR
-          to_float32: False
-      - RecCTCLabelEncode:
-          max_text_len: *max_text_len 
-          character_dict_path: *character_dict_path
-          use_space_char: *use_space_char
+          lower: True
       - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize. 
           image_shape: [32, 100] # H, W
           infer_mode: *infer_mode
@@ -144,13 +105,53 @@ eval:
           std : [127.0, 127.0, 127.0]
       - ToCHWImage: 
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
-    output_columns: ['image', 'text_padded', 'text_length', 'img_path']  # TODO return text string padding w/ fixed length, and a scaler to indicate the length 
-    num_columns_to_net: 1 # num inputs for network forward func
-    num_columns_of_labels: 2 # num of label columns 
-     
+    output_columns: ['image', 'text_seq'] #, 'length'] #'img_path'] 
+    net_input_column_index: [0] # input indices for network forward func in output_columns
+    label_column_index: [1] # input indices marked as label
+  loader:
+      shuffle: True # TODO: tbc
+      batch_size: *batch_size
+      drop_remainder: True
+      max_rowsize: 16
+      num_workers: 8
+
+eval:
+  ckpt_load_path: './ckpt_rec_ic15_finetune/best.ckpt'
+  dataset_sink_mode: False
+  dataset:
+    type: RecDataset
+    dataset_root: /path/to/data_root_dir
+    data_dir: ic15/rec/test/ch4_test_word_images_gt
+    label_file: ic15/rec/test/rec_gt.txt
+    sample_ratio: 1.0
+    shuffle: False 
+    transform_pipeline:
+      - DecodeImage: 
+          img_mode: BGR
+          to_float32: False
+      - RecCTCLabelEncode:
+          max_text_len: *max_text_len 
+          character_dict_path: *character_dict_path
+          use_space_char: *use_space_char
+          lower: True
+      - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize. 
+          image_shape: [32, 100] # H, W
+          infer_mode: *infer_mode
+          character_dict_path: *character_dict_path
+          padding: False # aspect ratio will be preserved if true.
+      - NormalizeImage:  # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec. 
+          bgr_to_rgb: True
+          is_hwc: True
+          mean : [127.0, 127.0, 127.0] 
+          std : [127.0, 127.0, 127.0]
+      - ToCHWImage: 
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
+    output_columns: ['image', 'text_padded', 'text_length']  # TODO return text string padding w/ fixed length, and a scaler to indicate the length 
+    net_input_column_index: [0] # input indices for network forward func in output_columns
+    label_column_index: [1, 2] # input indices marked as label
   loader:
       shuffle: False
-      batch_size: 7
+      batch_size: 32
       drop_remainder: False
       max_rowsize: 12
       num_workers: 2

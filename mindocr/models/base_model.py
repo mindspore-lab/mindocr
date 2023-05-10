@@ -11,6 +11,10 @@ class BaseModel(nn.Cell):
         """
         Args:
             config (dict): model config
+
+        Inputs:
+            x (Tensor): The input tensor feeding into the backbone, neck and head sequentially.
+            y (Tensor): The extra input tensor. If it is provided, it will feed into the head. Default: None
         """
         super(BaseModel, self).__init__()
 
@@ -33,13 +37,16 @@ class BaseModel(nn.Cell):
 
         self.model_name = f'{backbone_name}_{neck_name}_{head_name}'
 
-    def construct(self, x):
+    def construct(self, x, y=None):
         # TODO: return bout, hout for debugging, using a dict.
         bout = self.backbone(x)
 
         nout = self.neck(bout)
 
-        hout = self.head(nout)
+        if y is not None:
+            hout = self.head(nout, y)
+        else:
+            hout = self.head(nout)
 
         # resize back for postprocess
         #y = F.interpolate(y, size=(H, W), mode='bilinear', align_corners=True)

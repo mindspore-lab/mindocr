@@ -3,12 +3,11 @@ from mindspore import nn, ops
 
 class AdaptiveScaleFusion(nn.Cell):
     """
-    Adaptive Scale Fusion module from `DBNet++ <https://arxiv.org/abs/2202.10304>`__ paper.
+    Adaptive Scale Fusion module from the `DBNet++ <https://arxiv.org/abs/2202.10304>`__ paper.
     Args:
         channels: number of input to and output channels from ASF
         channel_attention: use channel attention
     """
-
     def __init__(self, channels, channel_attention=True, weight_init='HeUniform'):
         super().__init__()
         out_channels = channels // 4

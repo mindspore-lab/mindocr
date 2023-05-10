@@ -1,12 +1,15 @@
 English | [中文](README_CN.md)
 
-# DBNet
+# DBNet and DBNet++
 
 <!--- Guideline: use url linked to abstract in ArXiv instead of PDF for fast loading.  -->
 
-> [Real-time Scene Text Detection with Differentiable Binarization](https://arxiv.org/abs/1911.08947)
+> DBNet: [Real-time Scene Text Detection with Differentiable Binarization](https://arxiv.org/abs/1911.08947)  
+> DBNet++: [Real-Time Scene Text Detection with Differentiable Binarization and Adaptive Scale Fusion](https://arxiv.org/abs/2202.10304)
 
 ## 1. Introduction
+
+### DBNet
 
 DBNet is a segmentation-based scene text detection method. Segmentation-based methods are gaining popularity for scene
 text detection purposes as they can more accurately describe scene text of various shapes, such as curved text.  
@@ -17,7 +20,7 @@ To eliminate the problem described above, DBNet integrates an adaptive threshold
 into the architecture. DB simplifies post-processing and enhances the performance of text detection.Moreover, it can be
 removed in the inference stage without sacrificing performance.[[1](#references)]
 
-![dbnet_architecture](https://user-images.githubusercontent.com/16683750/225589619-d50c506c-e903-4f59-a316-8b62586c73a9.png)
+<p align="center"><img alt="Figure 1. Overall DBNet architecture" src="https://user-images.githubusercontent.com/16683750/225589619-d50c506c-e903-4f59-a316-8b62586c73a9.png" width="800"/></p>
 <p align="center"><em>Figure 1. Overall DBNet architecture</em></p>
 
 The overall architecture of DBNet is presented in _Figure 1._ It consists of multiple stages:
@@ -31,6 +34,27 @@ The overall architecture of DBNet is presented in _Figure 1._ It consists of mul
    applying 3×3 convolutional operator and two de-convolutional operators with stride 2.
 5. The probability and threshold maps are merged into one approximate binary map by the Differentiable binarization
    module. The approximate binary map is used to generate text bounding boxes.
+
+### DBNet++
+
+DBNet++ is an extension of DBNet and thus replicates its architecture. The only difference is that instead of
+concatenating extracted and scaled features from the backbone as DBNet did, DBNet++ uses an adaptive way to fuse those
+features called Adaptive Scale Fusion (ASF) module (Figure 2). It improves the scale robustness of the network by
+fusing features of different scales adaptively. By using ASF, DBNet++’s ability to detect text instances of diverse
+scales is distinctly strengthened.[[2](#references)]
+
+<p align="center"><img alt="Figure 2. Overall DBNet++ architecture" src="https://user-images.githubusercontent.com/16683750/236786997-13823b9c-ecaa-4bc5-8037-71299b3baffe.png" width="800"/></p>
+<p align="center"><em>Figure 2. Overall DBNet++ architecture</em></p>
+
+<p align="center"><img alt="Figure 3. Detailed architecture of the Adaptive Scale Fusion module" src="https://user-images.githubusercontent.com/16683750/236787093-c0c78d8f-e4f4-4c5e-8259-7120a14b0e31.png" width="700"/></p>
+<p align="center"><em>Figure 3. Detailed architecture of the Adaptive Scale Fusion module</em></p>
+
+ASF consists of two attention modules – stage-wise attention and spatial attention, where the latter is integrated in
+the former as described in the Figure 3. The stage-wise attention module learns the weights of the feature maps of
+different scales. While the spatial attention module learns the attention across the spatial dimensions. The
+combination of these two modules leads to scale-robust feature fusion.  
+DBNet++ performs better in detecting text instances of diverse scales, especially for large-scale text instances where
+DBNet may generate inaccurate or discrete bounding boxes.
 
 ## 2. Results
 
@@ -47,14 +71,15 @@ The overall architecture of DBNet is presented in _Figure 1._ It consists of mul
 
 <div align="center">
 
-| **Model**         | **Context**    | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.** | **Throughput** | **Recipe**                  | **Download**                                                                                                                                                                                         |
-|-------------------|----------------|--------------|----------------|------------|---------------|-------------|--------------|----------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| DBNet (ours)      | D910x1-MS2.0-G | ResNet-18    | ImageNet       | 80.40%     | 83.71%        | 82.02%      | 9.3 s/epoch  | 108 img/s      | [yaml](db_r18_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18-0c0c4cfa.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18-0c0c4cfa-cf46eb8b.mindir)  |
-| DBNet (ours)      | D910x1-MS1.9-G | ResNet-50    | ImageNet       | 81.70%     | 85.84%        | 83.72%      | 25.3 s/epoch | 39.5 img/s     | [yaml](db_r50_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a-bcd7ea35c.mindir) |
-| DBNet (PaddleOCR) | -              | ResNet50_vd  | SynthText      | 78.72%     | 86.41%        | 82.38%      | -            | -              | -                           | -                                                                                                                                                                                                    |
-| DBNet++           | D910x1-MS1.9-G | ResNet-50    | ImageNet       | 82.02%     | 87.38%        | 84.62%      | -            | -              | -                           | -                                                                                                                                                                                                    |
+| **Model**           | **Context**    | **Backbone**  | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.** | **Throughput** | **Recipe**                    | **Download**                                                                                                                                                                                            |
+|---------------------|----------------|---------------|----------------|------------|---------------|-------------|--------------|----------------|-------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| DBNet               | D910x1-MS2.0-G | ResNet-18     | ImageNet       | 80.40%     | 83.71%        | 82.02%      | 9.3 s/epoch  | 108 img/s      | [yaml](db_r18_icdar15.yaml)   | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18-0c0c4cfa.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18-0c0c4cfa-cf46eb8b.mindir)     |
+| DBNet               | D910x1-MS2.0-G | ResNet-50     | ImageNet       | 83.53%     | 86.49%        | 84.99%      | 12.3 s/epoch | 72 img/s       | [yaml](db_r50_icdar15.yaml)   | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24-fbf95c82.mindir)     |
+| DBNet (PaddleOCR)   | -              | ResNet50_vd   | SynthText      | 78.72%     | 86.41%        | 82.38%      | -            | -              | -                             | -                                                                                                                                                                                                       |
+|                     |                |               |                |            |               |             |              |                |                               |                                                                                                                                                                                                         |
+| DBNet++             | D910x1-MS2.0-G | ResNet-50     | SynthText      | 85.56%     | 87.67%        | 86.60%      | 17.7 s/epoch | 56 img/s       | [yaml](db++_r50_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2-76fcb451.mindir) |
+| DBNet++ (PaddleOCR) | -              | ResNet-50_DCN | SynthText      | 82.66%     | 90.89%        | 86.58%      | -            | -              | -                             | -                                                                                                                                                                                                       |
 </div>
-
 
 ### MSRA-TD500
 
@@ -239,4 +264,8 @@ python tools/eval.py -c=configs/det/dbnet/db_r50_icdar15.yaml
 
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 
-[1] Minghui Liao, Zhaoyi Wan, Cong Yao, Kai Chen, Xiang Bai. Real-time Scene Text Detection with Differentiable Binarization. arXiv:1911.08947, 2019
+[1] Minghui Liao, Zhaoyi Wan, Cong Yao, Kai Chen, Xiang Bai. Real-time Scene Text Detection with Differentiable
+Binarization. arXiv:1911.08947, 2019
+
+[2] Minghui Liao, Zhisheng Zou, Zhaoyi Wan, Cong Yao, Xiang Bai. Real-Time Scene Text Detection with Differentiable
+Binarization and Adaptive Scale Fusion. arXiv:2202.10304, 2022

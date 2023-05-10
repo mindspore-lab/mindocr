@@ -10,24 +10,20 @@ class NetWithLossWrapper(nn.Cell):
     '''
     A universal wrapper for any network with any loss.
 
-    Assume dataloader output follows the order (input1, input2, ..., label1, label2, label3, ... )  for network and loss.
-
     Args:
         net (nn.Cell): network
         loss_fn: loss function
-        num_net_inputs: number of network input, e.g. 1
-        num_labels: number of labels used for loss fn computation. If None, all the remaining args will be fed into loss func.
+        input_indices: The indices of the data tuples which will be fed into the network. If it is None, then the first item will be fed only.
+        label_indices: The indices of the data tuples which will be fed into the loss function. If it is None, then the remaining items will be fed.
     '''
-    def __init__(self, net, loss_fn, pred_cast_fp32=False, num_net_inputs=1, num_labels=None):
+    def __init__(self, net, loss_fn, pred_cast_fp32=False, input_indices=None, label_indices=None):
         super().__init__(auto_prefix=False)
         self._net = net
         self._loss_fn = loss_fn
         # TODO: get this automatically from net and loss func
-        self.num_net_inputs = num_net_inputs
-        self.num_labels = num_labels
+        self.input_indices = input_indices
+        self.label_indices = label_indices
         self.pred_cast_fp32 = pred_cast_fp32
-        #self.net_forward_input = ['img']
-        #self.loss_forward_input = ['gt', 'gt_mask', 'thresh_map', 'thresh_mask']
 
     def construct(self, *args):
         '''
@@ -36,16 +32,21 @@ class NetWithLossWrapper(nn.Cell):
         Returns:
             loss_val (Tensor): loss value
         '''
-        pred = self._net(*args[:self.num_net_inputs])
+        if self.input_indices is None:
+            pred = self._net(args[0])
+        else:
+            pred = self._net(*select_inputs_by_indices(args, self.input_indices))
+
         if self.pred_cast_fp32:
             if isinstance(pred, ms.Tensor):
                 pred = F.cast(pred, mstype.float32)
             else:
                 pred = [F.cast(p, mstype.float32) for p in pred]
-        if self.num_labels is None:
-            loss_val = self._loss_fn(pred, *args[self.num_net_inputs:])
+
+        if self.label_indices is None:
+            loss_val = self._loss_fn(pred, *args[1:])
         else:
-            loss_val = self._loss_fn(pred, *args[self.num_net_inputs:self.num_net_inputs+self.num_labels])
+            loss_val = self._loss_fn(pred, *select_inputs_by_indices(args, self.label_indices))
 
         return loss_val
 
@@ -55,23 +56,19 @@ class NetWithEvalWrapper(nn.Cell):
     A universal wrapper for any network with any loss for evaluation pipeline.
     Difference from NetWithLossWrapper: it returns loss_val, pred, and labels.
 
-    Assume dataloader output follows the order (input1, input2, ..., label1, label2, label3, ... )  for network and loss.
-
     Args:
         net (nn.Cell): network
         loss_fn: loss function, if None, will not compute loss for evaluation dataset
-        num_net_inputs: number of network input, e.g. 1
-        num_labels: number of labels used for loss fn computation. If None, all the remaining args will be fed into loss func.
+        input_indices: The indices of the data tuples which will be fed into the network. If it is None, then the first item will be fed only.
+        label_indices: The indices of the data tuples which will be fed into the loss function. If it is None, then the remaining items will be fed.
     '''
-    def __init__(self, net, loss_fn=None, num_net_inputs=1, num_labels=None):
+    def __init__(self, net, loss_fn=None, input_indices=None, label_indices=None):
         super().__init__(auto_prefix=False)
         self._net = net
         self._loss_fn = loss_fn
         # TODO: get this automatically from net and loss func
-        self.num_net_inputs = num_net_inputs
-        self.num_labels = num_labels
-        #self.net_forward_input = ['img']
-        #self.loss_forward_input = ['gt', 'gt_mask', 'thresh_map', 'thresh_mask']
+        self.input_indices = input_indices
+        self.label_indices = label_indices
 
     def construct(self, *args):
         '''
@@ -81,11 +78,15 @@ class NetWithEvalWrapper(nn.Cell):
             Tuple: loss value (Tensor), pred (Union[Tensor, Tuple[Tensor]]), labels (Tuple)
         '''
         # TODO: pred is a dict
-        pred = self._net(*args[:self.num_net_inputs])
-        if self.num_labels is None:
-            labels = args[self.num_net_inputs:]
+        if self.input_indices is None:
+            pred = self._net(args[0])
         else:
-            labels = args[self.num_net_inputs:self.num_net_inputs+self.num_labels]
+            pred = self._net(*select_inputs_by_indices(args, self.input_indices))
+
+        if self.label_indices is None:
+            labels = args[1:]
+        else:
+            labels = select_inputs_by_indices(args, self.label_indices)
 
         if self._loss_fn is not None:
             loss_val = self._loss_fn(pred, *labels)
@@ -93,3 +94,9 @@ class NetWithEvalWrapper(nn.Cell):
             loss_val = None
 
         return loss_val, pred, labels
+
+def select_inputs_by_indices(inputs, indices):
+    new_inputs = list()
+    for x in indices:
+        new_inputs.append(inputs[x])
+    return new_inputs

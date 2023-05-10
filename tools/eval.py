@@ -69,10 +69,11 @@ def main(cfg):
                         loss_func=None,
                         postprocessor=postprocessor,
                         metrics=[metric],
-                        num_columns_to_net=cfg.eval.dataset.get('num_columns_to_net', 1),
-                        num_columns_of_labels=cfg.eval.dataset.get('num_columns_of_labels', None),
+                        input_indices=cfg.eval.dataset.pop('net_input_column_index', None),
+                        label_indices=cfg.eval.dataset.pop('label_column_index', None),
+                        meta_data_indices=cfg.eval.dataset.pop('meta_data_column_index', None),
                         num_epochs=1,
-                        )
+                    )
 
     # log
     print('='*40)

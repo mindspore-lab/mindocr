@@ -32,7 +32,8 @@ class DBFPN(nn.Cell):
         out_channels: Inner channels in Conv2d
 
         bias: Whether conv layers have bias or not.
-        use_asf: use ASF moduel for multi-scale feature aggregation
+        use_asf: use ASF module for multi-scale feature aggregation (DBNet++ only)
+        channel_attention: use channel attention in ASF module
         """
         super().__init__()
         self.out_channels = out_channels
@@ -47,8 +48,7 @@ class DBFPN(nn.Cell):
                        weight_init=weight_init) for _ in range(len(in_channels))]
         )
 
-        self.fuse = AdaptiveScaleFusion(out_channels, channel_attention, weight_init) if use_asf else ops.Concat(
-            axis=1)
+        self.fuse = AdaptiveScaleFusion(out_channels, channel_attention, weight_init) if use_asf else ops.Concat(axis=1)
 
     def construct(self, features):
         for i, uc_op in enumerate(self.unify_channels):

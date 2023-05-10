@@ -12,7 +12,7 @@ def test_mindir_infer(name):
     if 'db' in name:
         task = 'det'
 
-    export(name, task, pretrained=True)
+    export(name, task)
 
     fn = f"{name}.mindir"
 

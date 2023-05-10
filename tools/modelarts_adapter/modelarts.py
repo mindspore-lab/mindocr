@@ -83,7 +83,7 @@ def install_packages(req_path: str='requirements.txt') -> None:
     #requirement_txt = os.path.join(project_dir, "requirements.txt")
     print('INFO: Packages to be installed: ', req_path)
     subprocess.check_call(
-        [sys.executable, "-m", "pip", "install", "--upgrade", "pip"]
+        [sys.executable, "-m", "pip", "install", "-i", url, "--upgrade", "pip"]
     )
     subprocess.check_call(
         [sys.executable, "-m", "pip", "install", "-i", url, "-r", req_path]
