@@ -146,6 +146,7 @@ def main(cfg):
         metrics=[metric],
         pred_cast_fp32=(amp_level!='O0'),
         rank_id=rank_id,
+        device_num=device_num,
         logger=logger,
         batch_size=cfg.train.loader.batch_size,
         ckpt_save_dir=cfg.train.ckpt_save_dir,
