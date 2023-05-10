@@ -54,7 +54,6 @@ def build_backbone(name, **kwargs):
         pretrained = kwargs['pretrained']
         if not isinstance(pretrained, bool):
             load_model(backbone, pretrained)
-        else:
-            print(f'Backbone weights are already loaded from default url defined in {name} python file')
+        # No need to load again if pretrained is bool and True, because pretrained backbone is already loaded in the backbone definition function.')
 
     return backbone

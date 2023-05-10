@@ -18,4 +18,4 @@ def test_logger(task):
         cfg = yaml.safe_load(fp)
     cfg = Dict(cfg)
 
-    logger = get_logger(cfg.train.ckpt_save_dir, rank=0, is_main_device=True)
+    logger = get_logger(cfg.train.ckpt_save_dir, rank=0)

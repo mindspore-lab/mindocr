@@ -3,6 +3,7 @@ Model training
 '''
 import sys
 import os
+import shutil
 
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "..")))
@@ -63,7 +64,7 @@ def main(cfg):
     is_main_device = rank_id in [None, 0]
 
     # create logger, only rank0 log will be output to the screen
-    logger = get_logger(log_dir=cfg.train.ckpt_save_dir, rank=rank_id if rank_id else 0, is_main_device=is_main_device)
+    logger = get_logger(log_dir=cfg.train.ckpt_save_dir, rank=rank_id)
 
     # create dataset
     loader_train = build_dataset(
@@ -170,6 +171,7 @@ def main(cfg):
         f'Model: {model_name}\n'
         f'Data root: {cfg.train.dataset.dataset_root}\n'
         f'Optimizer: {cfg.optimizer.opt}\n'
+        f'Weight decay: {cfg.optimizer.weight_decay} \n'
         f'Batch size: {cfg.train.loader.batch_size}\n'
         f'Num devices: {num_devices}\n'
         f'Gradient accumulation steps: {gradient_accumulation_steps}\n'
@@ -184,10 +186,10 @@ def main(cfg):
         f'Loss scaler: {cfg.loss_scaler}\n'
         f'Drop overflow update: {cfg.system.drop_overflow_update}\n'
         f'{info_seg}\n'
+        f'\nStart training... (The first epoch takes longer, please wait...)\n'
     )
 
     # save args used for training
-    # FIXME: some values are popped and not saved.
     if is_main_device:
         with open(os.path.join(cfg.train.ckpt_save_dir, 'args.yaml'), 'w') as f:
             args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False, sort_keys=False)
@@ -200,11 +202,17 @@ def main(cfg):
 
 
 if __name__ == '__main__':
+    # load and archive yaml config
     yaml_fp = args.config
     with open(yaml_fp) as fp:
         config = yaml.safe_load(fp)
     config = Dict(config)
 
+    ckpt_save_dir = config.train.ckpt_save_dir
+    os.makedirs(ckpt_save_dir, exist_ok=True)
+    shutil.copyfile(yaml_fp, os.path.join(ckpt_save_dir, 'train_config.yaml'))
+    
+    # data sync for modelarts
     if args.enable_modelarts:
         import moxing as mox
         from tools.modelarts_adapter.modelarts import get_device_id, sync_data
@@ -225,7 +233,8 @@ if __name__ == '__main__':
 
     # main train and eval
     main(config)
-
+    
+    # model sync for modelarts 
     if args.enable_modelarts:
         # upload models from local to server
         if get_device_id() == 0:

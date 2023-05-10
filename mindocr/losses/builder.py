@@ -29,7 +29,6 @@ def build_loss(name, **kwargs):
 
     loss_fn = eval(name)(**kwargs)
 
-    # print('loss func inputs: ', loss_fn.construct.__code__.co_varnames)
-    print('==> Loss func input args: \n\t', inspect.signature(loss_fn.construct))
+    # print('=> Loss func input args: \n\t', inspect.signature(loss_fn.construct))
 
     return loss_fn

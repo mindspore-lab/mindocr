@@ -34,7 +34,7 @@ class CTCLoss(LossBase):
         self.ctc_loss = ops.CTCLoss(ctc_merge_repeated=True)
 
         self.reduction = reduction
-        print('D: ', self.label_indices.shape)
+        #print('D: ', self.label_indices.shape)
 
     # TODO: diff from paddle, paddle takes `label_length` as input too.
     def construct(self, pred: Tensor, label: Tensor):

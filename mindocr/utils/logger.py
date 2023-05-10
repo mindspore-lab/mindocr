@@ -12,10 +12,12 @@ class Logger(logging.Logger):
          logger_name: String. Logger name.
          rank: Integer. Rank id.
     """
-    def __init__(self, logger_name, rank=0, is_main_device=False, log_fn=None):
+    def __init__(self, logger_name, rank=0, log_fn=None):
         super(Logger, self).__init__(logger_name)
-        self.rank = rank
+        self.rank = rank or 0 
         self.log_fn = log_fn
+        is_main_device = not rank
+
         if is_main_device:
             console = logging.StreamHandler(sys.stdout)
             console.setLevel(logging.INFO)
@@ -58,8 +60,9 @@ class Logger(logging.Logger):
             self.info(important_msg, *args, **kwargs)
 
 
-def get_logger(log_dir, rank, is_main_device):
+def get_logger(log_dir, rank):
     """Get Logger."""
-    logger = Logger('mindocr', rank, is_main_device)
+    logger = Logger('mindocr', rank)
     logger.setup_logging_file(log_dir)
+
     return logger

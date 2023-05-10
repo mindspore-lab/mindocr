@@ -93,7 +93,7 @@ def build_dataset(
     NUM_WORKERS_MAP = int(cores / num_devices - NUM_WORKERS_BATCH) # optimal num workers assuming all cpu cores are used in this job
     num_workers = loader_config.get("num_workers", NUM_WORKERS_MAP)
     if num_workers > int(cores / num_devices):
-        print(f'WARNING: num_workers is adjusted to {int(cores / num_devices)} since {num_workers}x{num_devices} exceeds the number of CPU cores {cores}')
+        print(f'WARNING: `num_workers` is adjusted to {int(cores / num_devices)} since {num_workers}x{num_devices} exceeds the number of CPU cores {cores}')
         num_workers = int(cores / num_devices)
     ## prefetch_size: the length of the cache queue in the data pipeline for each worker, used to reduce waiting time. Larger value leads to more memory consumption. Default: 16
     prefetch_size = loader_config.get("prefetch_size", 16) #
@@ -113,7 +113,7 @@ def build_dataset(
     dataset = dataset_class(**dataset_args)
 
     dataset_column_names = dataset.get_output_columns()
-    print('==> Dataset output columns: \n\t', dataset_column_names)
+    #print('=> Dataset output columns: \n\t', dataset_column_names)
 
     ## Generate source dataset (source w.r.t. the dataset.map pipeline) based on python callable numpy dataset in parallel
     ds = ms.dataset.GeneratorDataset(
@@ -134,17 +134,21 @@ def build_dataset(
     # get batch of dataset by collecting batch_size consecutive data rows and apply batch operations
     num_samples = ds.get_dataset_size()
     batch_size = loader_config['batch_size']
-    print(f'INFO: num_samples: {num_samples}, batch_size: {batch_size}')
+    
+    device_id = 0 if shard_id is None else shard_id 
+    is_main_device = device_id == 0
+    print(f'INFO: Creating dataloader (training={is_train}) for device {device_id}. Number of data samples: {num_samples}')
+
     if 'refine_batch_size' in kwargs:
         batch_size = _check_batch_size(num_samples, batch_size, refine=kwargs['refine_batch_size'])
 
     drop_remainder = loader_config.get('drop_remainder', is_train)
-    if is_train and drop_remainder == False:
-        print('WARNING: drop_remainder should be True for training, otherwise the last batch may lead to training fail in Graph mode')
+    if is_train and drop_remainder == False and is_main_device: 
+        print('WARNING: `drop_remainder` should be True for training, otherwise the last batch may lead to training fail in Graph mode')
 
     if not is_train:
-        if drop_remainder:
-            print("WARNING: drop_remainder is forced to be False for evaluation to include the last batch for accurate evaluation." )
+        if drop_remainder and is_main_device:
+            print("WARNING: `drop_remainder` is forced to be False for evaluation to include the last batch for accurate evaluation." )
             drop_remainder = False
 
     dataloader = ds.batch(
@@ -157,6 +161,7 @@ def build_dataset(
                     )
 
     return dataloader
+
 
 def _check_dataset_paths(dataset_config):
     if 'dataset_root' in dataset_config:
@@ -181,7 +186,6 @@ def _check_batch_size(num_samples, ori_batch_size=32, refine=True):
         for bs in range(ori_batch_size - 1, 0, -1):
             if num_samples % bs == 0:
                 print(
-                    f"WARNING: num eval samples {num_samples} can not be divided by "
-                    f"the input batch size {ori_batch_size}. The batch size is refined to {bs}"
+                    f"INFO: Batch size for evaluation is refined to {bs} to ensure the last batch will not be dropped/padded in graph mode."
                 )
                 return bs

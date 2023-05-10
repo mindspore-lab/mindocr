@@ -38,7 +38,7 @@ class RecCTCLabelDecode(object):
         if character_dict_path is None:
             char_list = [c for c in  "0123456789abcdefghijklmnopqrstuvwxyz"]
             self.lower = True
-            print("INFO: The character_dict_path is None, model can only recognize number and lower letters")
+            print("INFO: `character_dict_path` for RecCTCLabelDecode is not given. Default dict \"0123456789abcdefghijklmnopqrstuvwxyz\" is applied. Only number and English letters (regardless of lower/upper case) will be recognized and evaluated.")
         else:
             # parse char dictionary
             char_list = []
