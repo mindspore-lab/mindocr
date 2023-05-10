@@ -16,7 +16,7 @@ def _cfg(url='', **kwargs):
 
 default_cfgs = {
     'rare_resnet34': _cfg(
-        url='https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_309dc63e.ckpt')
+        url='https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt')
 }
 
 
