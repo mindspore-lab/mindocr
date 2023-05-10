@@ -37,7 +37,7 @@ Table Format:
 
 | **模型** | **环境配置** | **骨干网络** | **空间变换网络** | **平均准确率** | **训练时间** | **配置文件** | **模型权重下载** | 
 | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
-| RARE (ours)      | D910x4-MS1.10-G | ResNet34_vd | 无 | 85.19%    | 3166 s/epoch         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34.yaml) | [ckpt]() \| [mindir]() |
+| RARE (ours)      | D910x4-MS1.10-G | ResNet34_vd | 无 | 85.19%    | 3166 s/epoch         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_309dc63e.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_309dc63e-b65dd225.mindir) |
 
 
 <details open>

@@ -4,7 +4,7 @@ import mindspore as ms
 import mindspore.nn as nn
 import mindspore.ops as ops
 from mindspore import Tensor
-from .._nn import GRUCell
+from ..utils import GRUCell
 
 
 __all__ = ["AttentionHead"]
