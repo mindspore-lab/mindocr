@@ -207,11 +207,18 @@ if __name__ == '__main__':
 
     if args.enable_modelarts:
         import moxing as mox
+        from ast import literal_eval
         from tools.modelarts_adapter.modelarts import get_device_id, sync_data
 
         dataset_root = '/cache/data/'
         # download dataset from server to local on device 0, other devices will wait until data sync finished.
-        sync_data(args.data_url, dataset_root)
+        if args.multi_data_url:
+            multi_data_url = literal_eval(args.multi_data_url)
+            for x in multi_data_url:
+                sync_data(x['dataset_url'], dataset_root)
+        else:
+            sync_data(args.data_url, dataset_root)
+
         if get_device_id() == 0:
             # mox.file.copy_parallel(src_url=args.data_url, dst_url=dataset_root)
             print(f'INFO: datasets found: {os.listdir(dataset_root)} \n'
