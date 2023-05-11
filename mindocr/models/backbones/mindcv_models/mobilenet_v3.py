@@ -2,14 +2,13 @@
 MindSpore implementation of `MobileNetV3`.
 Refer to Searching for MobileNetV3.
 """
-
 import math
 
 import mindspore.common.initializer as init
 from mindspore import Tensor, nn
 
 from .layers.pooling import GlobalAvgPooling
-from .layers.squeeze_excite import SqueezeExcite
+from .layers.squeeze_excite import SqueezeExcite, SqueezeExciteV2
 from .registry import register_model
 from .utils import load_pretrained, make_divisible
 
@@ -48,29 +47,31 @@ class Bottleneck(nn.Cell):
     """Bottleneck Block of MobilenetV3. depth-wise separable convolutions + inverted residual + squeeze excitation"""
 
     def __init__(
-        self,
-        in_channels: int,
-        mid_channels: int,
-        out_channels: int,
-        kernel_size: int,
-        stride: int = 1,
-        activation: str = "relu",
-        use_se: bool = False,
+            self,
+            in_channels: int,
+            mid_channels: int,
+            out_channels: int,
+            kernel_size: int,
+            stride: int = 1,
+            activation: str = "relu",
+            use_se: bool = False,
+            se_version: str = 'SqueezeExcite',
+            always_expand: bool = False
     ) -> None:
         super().__init__()
-        self.use_se = use_se
         self.use_res_connect = stride == 1 and in_channels == out_channels
         assert activation in ["relu", "hswish"]
         self.activation = nn.HSwish if activation == "hswish" else nn.ReLU
 
         layers = []
         # Expand.
-        if in_channels != mid_channels:
+        if in_channels != mid_channels or always_expand:
             layers.extend([
                 nn.Conv2d(in_channels, mid_channels, 1, 1, pad_mode="pad", padding=0, has_bias=False),
                 nn.BatchNorm2d(mid_channels),
                 self.activation(),
             ])
+
         # DepthWise.
         layers.extend([
             nn.Conv2d(mid_channels, mid_channels, kernel_size, stride,
@@ -79,10 +80,11 @@ class Bottleneck(nn.Cell):
             self.activation(),
         ])
         # SqueezeExcitation.
-        if use_se:
-            layers.append(
-                SqueezeExcite(mid_channels, 1.0 / 4, act_layer=nn.ReLU, gate_layer=nn.HSigmoid)
-            )
+        if use_se and se_version == 'SqueezeExcite':
+            layers.append(SqueezeExcite(mid_channels, 1.0 / 4, act_layer=nn.ReLU, gate_layer=nn.HSigmoid))
+        elif use_se and se_version == 'SqueezeExciteV2':
+            layers.append(SqueezeExciteV2(mid_channels, rd_channels=mid_channels // 4))
+
         # Project.
         layers.extend([
             nn.Conv2d(mid_channels, out_channels, 1, 1, pad_mode="pad", padding=0, has_bias=False),
@@ -109,12 +111,14 @@ class MobileNetV3(nn.Cell):
     """
 
     def __init__(
-        self,
-        arch: str,
-        alpha: float = 1.0,
-        round_nearest: int = 8,
-        in_channels: int = 3,
-        num_classes: int = 1000,
+            self,
+            arch: str,
+            alpha: float = 1.0,
+            round_nearest: int = 8,
+            in_channels: int = 3,
+            num_classes: int = 1000,
+            scale_last: bool = True,
+            bottleneck_params: dict = None
     ) -> None:
         super().__init__()
         input_channels = make_divisible(16 * alpha, round_nearest)
@@ -143,7 +147,7 @@ class MobileNetV3(nn.Cell):
                 [5, 960, 160, True, "hswish", 1],
                 [5, 960, 160, True, "hswish", 1],
             ]
-            last_channels = make_divisible(alpha * 1280, round_nearest)
+            last_channels = make_divisible(alpha * 1280, round_nearest) if scale_last else 1280
         elif arch == "small":
             bottleneck_setting = [
                 [3, 16, 16, True, "relu", 2],
@@ -158,7 +162,7 @@ class MobileNetV3(nn.Cell):
                 [5, 576, 96, True, "hswish", 1],
                 [5, 576, 96, True, "hswish", 1],
             ]
-            last_channels = make_divisible(alpha * 1024, round_nearest)
+            last_channels = make_divisible(alpha * 1024, round_nearest) if scale_last else 1024
         else:
             raise ValueError(f"Unsupported model type {arch}")
 
@@ -170,12 +174,16 @@ class MobileNetV3(nn.Cell):
         ]
         total_reduction = 2
         self.feature_info = [dict(chs=input_channels, reduction=total_reduction, name=f'features.{len(features) - 1}')]
+
+        if bottleneck_params is None:
+            bottleneck_params = {}
+
         # Building bottleneck blocks.
         for k, e, c, se, nl, s in bottleneck_setting:
             exp_channels = make_divisible(alpha * e, round_nearest)
             output_channels = make_divisible(alpha * c, round_nearest)
             features.append(Bottleneck(input_channels, exp_channels, output_channels,
-                                       kernel_size=k, stride=s, activation=nl, use_se=se))
+                                       kernel_size=k, stride=s, activation=nl, use_se=se, **bottleneck_params))
             input_channels = output_channels
             total_reduction *= s
             self.feature_info.append(dict(chs=input_channels, reduction=total_reduction, name=f'features.{len(features) - 1}'))
@@ -188,7 +196,7 @@ class MobileNetV3(nn.Cell):
         ])
         self.feature_info.append(dict(chs=output_channels, reduction=total_reduction, name=f'features.{len(features) - 1}'))
         self.flatten_sequential = True
-        self.features = nn.SequentialCell(features)
+        self.features = nn.CellList(features)
 
         self.pool = GlobalAvgPooling()
         self.classifier = nn.SequentialCell([
@@ -219,7 +227,8 @@ class MobileNetV3(nn.Cell):
                     cell.bias.set_data(init.initializer("zeros", cell.bias.shape, cell.bias.dtype))
 
     def forward_features(self, x: Tensor) -> Tensor:
-        x = self.features(x)
+        for feature in self.features:
+            x = feature(x)
         return x
 
     def forward_head(self, x: Tensor) -> Tensor:

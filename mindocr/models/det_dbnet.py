@@ -14,6 +14,8 @@ def _cfg(url='', **kwargs):
 
 
 default_cfgs = {
+    'dbnet_mobilenetv3': _cfg(
+        url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_mobilenetv3-62c44539.ckpt'),
     'dbnet_resnet18': _cfg(
         url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18-0c0c4cfa.ckpt'),
     'dbnet_resnet50': _cfg(
@@ -26,6 +28,41 @@ default_cfgs = {
 class DBNet(BaseModel):
     def __init__(self, config):
         BaseModel.__init__(self, config)
+
+
+@register_model
+def dbnet_mobilenetv3(pretrained=False, **kwargs):
+    pretrained_backbone = 'https://download.mindspore.cn/toolkits/mindcv/mobilenet/mobilenetv3' \
+                          '/mobilenet_v3_large_050_no_scale_se_v2_expand-3c4047ac.ckpt'
+    model_config = {
+        "backbone": {
+            'name': 'det_mobilenet_v3',
+            'architecture': 'large',
+            'alpha': 0.5,
+            'out_stages': [5, 8, 14, 20],
+            'bottleneck_params': {'se_version': 'SqueezeExciteV2', 'always_expand': True},
+            'pretrained': pretrained_backbone if not pretrained else False
+        },
+        "neck": {
+            "name": 'DBFPN',
+            "out_channels": 256,
+            "bias": False,
+        },
+        "head": {
+            "name": 'DBHead',
+            "k": 50,
+            "bias": False,
+            "adaptive": True
+        }
+    }
+    model = DBNet(model_config)
+
+    # load pretrained weights
+    if pretrained:
+        default_cfg = default_cfgs['dbnet_mobilenetv3']
+        load_pretrained(model, default_cfg)
+
+    return model
 
 
 @register_model
