@@ -5,6 +5,7 @@ from ._registry import *
 
 from .det_dbnet import *
 from .rec_crnn import *
+from .rec_rare import *
 
 __all__ = []
 __all__.extend(builder.__all__)

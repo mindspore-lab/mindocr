@@ -4,6 +4,7 @@ import mindspore as ms
 import mindspore.nn as nn
 import mindspore.ops as ops
 from mindspore import Tensor
+from ..utils import GRUCell
 
 
 __all__ = ["AttentionHead"]
@@ -80,7 +81,7 @@ class AttentionCell(nn.Cell):
         self.i2h = nn.Dense(input_size, hidden_size, has_bias=False)
         self.h2h = nn.Dense(hidden_size, hidden_size)
         self.score = nn.Dense(hidden_size, 1, has_bias=False)
-        self.rnn = nn.GRUCell(input_size + num_embeddings, hidden_size)
+        self.rnn = GRUCell(input_size + num_embeddings, hidden_size)
         self.hidden_size = hidden_size
 
         self.bmm = ops.BatchMatMul()

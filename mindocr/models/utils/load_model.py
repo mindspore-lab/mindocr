@@ -1,6 +1,6 @@
 import os
 from mindspore import load_checkpoint, load_param_into_net
-from .backbones.mindcv_models.utils import load_pretrained
+from ..backbones.mindcv_models.utils import load_pretrained
 
 
 def load_model(network, load_from: str):
