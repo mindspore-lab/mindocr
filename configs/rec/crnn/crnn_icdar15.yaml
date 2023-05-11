@@ -3,6 +3,7 @@ system:
   distribute: False
   amp_level: 'O3'
   seed: 42
+  ckpt_save_policy: top_k # top_k or latest_k
   log_interval: 10
   val_while_train: True
   drop_overflow_update: False
