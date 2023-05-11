@@ -339,6 +339,7 @@ python tools/eval.py --config configs/rec/crnn/crnn_resnet34.yaml
 Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，可选择合适的字典使用。
 
 - `en_dict.txt` 是一个包含96个字符的英文字典，其中有数字，常用符号以及大小写的英文字母。
+- `ch_dict.txt` 是一个包含6623个字符的中文字典，其中有常用的繁简体中文，数字，常用符号以及大小写的英文字母
 
 
 ### 自定义词典

@@ -62,7 +62,6 @@ optimizer:
   momentum: 0.95
   weight_decay: 0.0001
   nesterov: False
-  #use_nesterov: True 
 
 loss_scaler:
   type: static
