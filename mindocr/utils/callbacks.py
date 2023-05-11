@@ -236,7 +236,7 @@ class EvalSaveCallback(Callback):
         if not data_sink_mode and cur_step_in_epoch % self.log_interval == 0:
             opt = cb_params.train_network.optimizer
             learning_rate = opt.learning_rate
-            cur_lr = learning_rate(opt.global_step - 1).asnumpy()
+            cur_lr = learning_rate(opt.global_step - 1).asnumpy().squeeze()
             per_step_time = (time.time() - self.step_start_time) * 1000 / self.log_interval
             fps = self.batch_size * 1000 / per_step_time
             loss = self._losses[-1].asnumpy()
