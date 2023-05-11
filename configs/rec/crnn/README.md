@@ -335,6 +335,7 @@ To transform the groud-truth text into label ids, we have to provide the charact
 There are some built-in dictionaries, which are placed in `mindocr/utils/dict/`, and you can choose the appropriate dictionary to use.
 
 - `en_dict.txt` is an English dictionary containing 96 characters, including numbers, common symbols, and uppercase and lowercase English letters.
+- `ch_dict.txt` is a Chinese dictionary containing 6623 characters, including commonly used simplified and traditional Chinese, numbers, common symbols, uppercase and lowercase English letters.
 
 
 ### Customized Dictionary
@@ -348,6 +349,11 @@ To use a specific dictionary, set the parameter `character_dict_path` to the pat
 **Notes:**
 - You can include the space character by setting the parameter `use_space_char` in configuration yaml to True.
 - Remember to check the value of `dataset->transform_pipeline->RecCTCLabelEncode->lower` in the configuration yaml. Set it to False if you prefer case-sensitive encoding.
+
+
+## 5. Multi-language Training
+
+Currently, the multi-lingual CRNN supported by MindOCR are:
 
 
 ## References
