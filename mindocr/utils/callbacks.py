@@ -12,6 +12,7 @@ from mindspore.train.callback._callback import Callback, _handle_loss
 from .checkpoint import CheckpointManager
 from .visualize import draw_bboxes, show_imgs, recover_image
 from .recorder import PerfRecorder
+from .misc import AverageMeter
 
 __all__ = ['Evaluator', 'EvalSaveCallback']
 
@@ -210,7 +211,7 @@ class EvalSaveCallback(Callback):
         self.epoch_start_time = time.time()
         self.step_start_time = time.time()
 
-        self._losses = []
+        self._loss_avg_meter = AverageMeter()
 
         self._reduce_sum = ms.ops.AllReduce()
         self._device_num = device_num
@@ -241,7 +242,7 @@ class EvalSaveCallback(Callback):
         data_sink_mode = cb_params.dataset_sink_mode
         cur_step_in_epoch = (cb_params.cur_step_num - 1) % cb_params.batch_num + 1
 
-        self._losses.append(self._loss_reduce(loss))
+        self._loss_avg_meter.update(self._loss_reduce(loss))
 
         if not data_sink_mode and cur_step_in_epoch % self.log_interval == 0:
             opt = cb_params.train_network.optimizer
@@ -249,7 +250,7 @@ class EvalSaveCallback(Callback):
             cur_lr = learning_rate(opt.global_step - 1).asnumpy().squeeze()
             per_step_time = (time.time() - self.step_start_time) * 1000 / self.log_interval
             fps = self.batch_size * 1000 / per_step_time
-            loss = self._losses[-1].asnumpy()
+            loss = self._loss_avg_meter.val.asnumpy()
             msg = f"epoch: [{cur_epoch}/{cb_params.epoch_num}] step: [{cur_step_in_epoch}/{cb_params.batch_num}], " \
                   f"loss: {loss:.6f}, lr: {cur_lr:.6f}, per step time: {per_step_time:.3f} ms, fps: {fps:.2f} img/s"
             self.logger(msg)
@@ -261,7 +262,7 @@ class EvalSaveCallback(Callback):
         Args:
             run_context (RunContext): Include some information of the model.
         """
-        self._losses.clear()
+        self._loss_avg_meter.reset()
         self.epoch_start_time = time.time()
         self.step_start_time = time.time()
 
@@ -275,7 +276,7 @@ class EvalSaveCallback(Callback):
         cb_params = run_context.original_args()
         cur_epoch = cb_params.cur_epoch_num
         train_time = (time.time() - self.epoch_start_time)
-        train_loss = ms.ops.stack(self._losses).mean().asnumpy()
+        train_loss = self._loss_avg_meter.avg.asnumpy()
 
         epoch_time = (time.time() - self.epoch_start_time)
         per_step_time = epoch_time * 1000 / cb_params.batch_num
