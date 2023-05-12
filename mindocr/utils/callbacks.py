@@ -180,6 +180,7 @@ class EvalSaveCallback(Callback):
                  val_start_epoch=1,
                  log_interval=1,
                  ckpt_save_policy='top_k',
+                 ckpt_max_keep=10,
                  ):
         self.rank_id = rank_id
         self.is_main_device = rank_id in [0, None]
@@ -220,7 +221,7 @@ class EvalSaveCallback(Callback):
             self.ckpt_save_policy = ckpt_save_policy
             self.ckpt_manager = CheckpointManager(ckpt_save_dir,
                                                   ckpt_save_policy,
-                                                  k=10,
+                                                  k=ckpt_max_keep,
                                                   prefer_low_perf=(self.main_indicator=='train_loss'))
 
     @jit

@@ -43,8 +43,9 @@ class CheckpointManager:
     def remove_ckpt_file(self, file_name):
         """Remove the specified checkpoint file from this checkpoint manager and also from the directory."""
         try:
-            os.chmod(file_name, stat.S_IWRITE)
-            os.remove(file_name)
+            if os.path.exists(file_name):
+                os.chmod(file_name, stat.S_IWRITE)
+                os.remove(file_name)
         except OSError:
             logger.warning("OSError, failed to remove the older ckpt file %s.", file_name)
         except ValueError:
@@ -57,11 +58,10 @@ class CheckpointManager:
         self.ckpt_queue = sorted(self.ckpt_queue, key=lambda x: x[0], reverse=not self.prefer_low_perf) # by default, reverse is True for descending order
         if len(self.ckpt_queue) > self.k:
             to_del = self.ckpt_queue.pop(-1)
-            # save if the perf is better than the mininum in the heap
+            # save if the perf is better than the minimum in the heap
             if to_del[1] != ckpt_name:
                 ms.save_checkpoint(network, os.path.join(self.ckpt_save_dir, ckpt_name))
-            # del
-            if self.del_past:
+                # del minimum
                 self.remove_ckpt_file(os.path.join(self.ckpt_save_dir, to_del[1]))
         else:
             ms.save_checkpoint(network, os.path.join(self.ckpt_save_dir, ckpt_name))
