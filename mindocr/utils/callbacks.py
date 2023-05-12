@@ -9,6 +9,7 @@ from mindspore.ops import functional as F
 from mindspore.common import dtype as mstype
 from mindspore import save_checkpoint
 from mindspore.train.callback._callback import Callback, _handle_loss
+from .checkpoint import CheckpointManager
 from .visualize import draw_bboxes, show_imgs, recover_image
 from .recorder import PerfRecorder
 
@@ -178,6 +179,8 @@ class EvalSaveCallback(Callback):
                  val_interval=1,
                  val_start_epoch=1,
                  log_interval=1,
+                 ckpt_save_policy='top_k',
+                 ckpt_max_keep=10,
                  ):
         self.rank_id = rank_id
         self.is_main_device = rank_id in [0, None]
@@ -213,6 +216,13 @@ class EvalSaveCallback(Callback):
         self._device_num = device_num
         # lamda expression is not supported in jit
         self._loss_reduce = self._reduce if device_num is not None else lambda x: x
+
+        if self.is_main_device:
+            self.ckpt_save_policy = ckpt_save_policy
+            self.ckpt_manager = CheckpointManager(ckpt_save_dir,
+                                                  ckpt_save_policy,
+                                                  k=ckpt_max_keep,
+                                                  prefer_low_perf=(self.main_indicator=='train_loss'))
 
     @jit
     def _reduce(self, x):
@@ -306,6 +316,14 @@ class EvalSaveCallback(Callback):
                 save_checkpoint(self.network, os.path.join(self.ckpt_save_dir, 'best.ckpt'))
 
                 self.logger(f'=> Best {self.main_indicator}: {self.best_perf}, checkpoint saved.')
+
+            # save history checkpoints
+            self.ckpt_manager.save(self.network, perf, ckpt_name=f'e{cur_epoch}.ckpt')
+            if self.ckpt_save_policy=='top_k' and cur_epoch >= self.val_start_epoch:
+                log_str = f'Top K checkpoints:\n{self.main_indicator}\tcheckpoint\n'
+                for p, ckpt_name in self.ckpt_manager.get_ckpt_queue():
+                    log_str += f'{p:.4f}\t{os.path.join(self.ckpt_save_dir, ckpt_name)}\n'
+                self.logger(log_str)
 
             # record results
             if cur_epoch == 1:

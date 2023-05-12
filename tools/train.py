@@ -45,7 +45,7 @@ from mindocr.utils.ema import EMA
 
 def main(cfg):
     # init env
-    ms.set_context(mode=cfg.system.mode)
+    ms.set_context(mode=cfg.system.mode, device_id=6)
     if cfg.system.distribute:
         init()
         device_num = get_group_size()
@@ -158,7 +158,9 @@ def main(cfg):
         meta_data_indices=cfg.eval.dataset.pop('meta_data_column_index', None),
         val_interval=cfg.system.get('val_interval', 1),
         val_start_epoch=cfg.system.get('val_start_epoch', 1),
-        log_interval=cfg.system.get('log_interval', 100)
+        log_interval=cfg.system.get('log_interval', 100),
+        ckpt_save_policy=cfg.system.get('ckpt_save_policy', 'top_k'),
+        ckpt_max_keep=cfg.system.get('ckpt_max_keep', 10),
     )
 
     # log
