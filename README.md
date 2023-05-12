@@ -53,7 +53,7 @@ For distributed training, please install [openmpi 4.0.3](https://www.open-mpi.or
 | Python      | >=3.7   |
 
 > Notes: 
-> - If you [use MX Engine for Inference](#21-inference-with-mx-engine), the version of Python should be 3.9.
+> - If you [use ACL for Inference](#21-inference-with-mindspore-lite-and-acl), the version of Python should be 3.9.
 > - If scikit_image cannot be imported, you can use the following command line to set environment variable `$LD_PRELOAD` referring to [here](https://github.com/opencv/opencv/issues/14884). Change `path/to` to your directory.
 >   ```shell
 >   export LD_PRELOAD=path/to/scikit_image.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
@@ -95,17 +95,12 @@ The training pipeline is fully extendable. To train other text detection/recogni
 
 ### 2. Inference and Deployment
 
-#### 2.1 Inference with MX Engine
+#### 2.1 Inference with MindSpore Lite and ACL
 
-MX, which is short for [MindX](https://www.hiascend.com/zh/software/mindx-sdk), allows efficient model inference and deployment on Ascend devices. 
+MindOCR supports OCR model inference with [MindSpore Lite](https://www.mindspore.cn/lite/en) and [ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html) backends, integrating text detection, classification and recognition pipeline inference.
+Please refer to [here](docs/en/inference/inference_tutorial_en.md) for detailed illustrations.
 
-MindOCR supports OCR model inference with MX Engine. Please refer to [mx_infer](docs/cn/inference_tutorial_cn.md) for detailed illustrations.
-
-#### 2.2 Inference with MindSpore Lite 
-
-Coming soon
-
-#### 2.3 Inference with native MindSpore
+#### 2.2 Inference with native MindSpore
 
 MindOCR provides the detection and recognition prediction pipeline using MindOCR-trained ckpt files. Please check [here](docs/en/predict_ckpt.md).
 
@@ -132,7 +127,7 @@ MindOCR provides the detection and recognition prediction pipeline using MindOCR
 
 For the detailed performance of the trained models, please refer to [configs](./configs).
 
-For detailed inference performance using MX engine, please refer to [mx inference performance](docs/cn/inference_models_cn.md) 
+For detailed support for MindSpore Lite and ACL inference models, please refer to [MindOCR Models Support List](docs/en/inference/models_list_en.md) and [Third-Party Models Support List](docs/en/inference/models_list_thirdparty_en.md).
 
 ## Datasets
 
