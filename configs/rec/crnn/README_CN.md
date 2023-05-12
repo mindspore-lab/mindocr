@@ -355,6 +355,15 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 - 请记住检查配置文件中的 `dataset->transform_pipeline->RecCTCLabelEncode->lower` 参数的值。如果词典中有大小写字母而且想区分大小写的话，请将其设置为 False。
 
 
+## 5. 多语言训练
+
+目前，MindOCR 已支持中文的文字识别，其他语言的模型正在开发中。
+
+| 模型 | 语言 | 骨干网络 | 配置文件 | 模型权重下载 | 
+| :-----: | :-----: | :-----: | :-----: | :-----: |
+| CRNN | 中文 | ResNet34_vd | [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | - |
+
+
 ## 参考文献
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 
