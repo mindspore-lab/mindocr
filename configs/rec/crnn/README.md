@@ -355,6 +355,14 @@ To use a specific dictionary, set the parameter `character_dict_path` to the pat
 
 MindOCR currently supports Chinese text recognition, and other languages ​​are still under development.
 
+### Dataset introduction
+
+| Language | Dataset Document |
+| :------: | :------: |
+| Chinese | [ch_dataeset](../../../docs/en/datasets/chinese_text_recognition.md) | 
+
+### Pretrained models
+
 | Model | Language | Configuration File | Backbone | Download | 
 | :-----: | :-----: | :-----: | :-----: | :-----: |
 | CRNN | Chinese | [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | ResNet34_vd | - |

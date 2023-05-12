@@ -359,6 +359,14 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 
 目前，MindOCR 已支持中文的文字识别，其他语言的模型正在开发中。
 
+### 数据集介绍
+
+| 语言 | 数据说明 |
+| :------: | :------: |
+| Chinese | [中文识别数据集](../../../docs/cn/datasets/chinese_text_recognition_CN.md) | 
+
+### 预训练模型
+
 | 模型 | 语言 | 骨干网络 | 配置文件 | 模型权重下载 | 
 | :-----: | :-----: | :-----: | :-----: | :-----: |
 | CRNN | 中文 | ResNet34_vd | [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | - |
