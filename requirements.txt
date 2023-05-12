@@ -5,8 +5,6 @@ addict
 matplotlib
 addict
 numpy
-shutils
-imgaug>=0.4.0
 tqdm>=4.64.1
 opencv-python-headless>=3.4.18.65
 rapidfuzz>=2.13.7

@@ -12,10 +12,8 @@ import pyclipper
 from shapely.geometry import Polygon, box
 import numpy as np
 
-__all__ = ['DetLabelEncode', 'BorderMap', 'ShrinkBinaryMap', 'expand_poly', 'PSEGtDecode',
-           'ValidatePolygons', 'RandomCropWithBBox', 'RandomCropWithMask',
-           'DetResize', 'GridResize', 'ScalePadImage',
-           ]
+__all__ = ['DetLabelEncode', 'BorderMap', 'ShrinkBinaryMap', 'expand_poly', 'PSEGtDecode', 'ValidatePolygons',
+           'RandomCropWithBBox', 'RandomCropWithMask', 'DetResize', 'GridResize', 'ScalePadImage']
 
 
 class DetLabelEncode:
@@ -77,12 +75,6 @@ class DetLabelEncode:
         data['texts'] = txts
         data['ignore_tags'] = txt_tags
         return data
-
-
-# FIXME:
-#  RuntimeWarning: invalid value encountered in sqrt result = np.sqrt(a_sq * b_sq * sin_sq / c_sq)
-#  RuntimeWarning: invalid value encountered in true_divide cos = (a_sq + b_sq - c_sq) / (2 * np.sqrt(a_sq * b_sq))
-warnings.filterwarnings("ignore")
 
 
 class RandomCropWithBBox:
@@ -155,7 +147,7 @@ class RandomCropWithBBox:
         return np.array([0, 0]), size
 
 
-class RandomCropWithMask(object):
+class RandomCropWithMask:
     def __init__(self, size, main_key, crop_keys, p=3 / 8, **kwargs):
         self.size = size
         self.main_key = main_key
@@ -209,6 +201,10 @@ class RandomCropWithMask(object):
         return data
 
 
+# FIXME: BorderMap
+#  RuntimeWarning: invalid value encountered in sqrt result = np.sqrt(a_sq * b_sq * sin_sq / c_sq)
+#  RuntimeWarning: invalid value encountered in true_divide cos = (a_sq + b_sq - c_sq) / (2 * np.sqrt(a_sq * b_sq))
+warnings.filterwarnings("ignore")
 class BorderMap:
     def __init__(self, shrink_ratio=0.4, thresh_min=0.3, thresh_max=0.7, **kwargs):
         self._thresh_min = thresh_min
@@ -238,7 +234,7 @@ class BorderMap:
         # draw border
         min_vals, max_vals = np.min(padded_polygon, axis=0), np.max(padded_polygon, axis=0)
         width, height = max_vals - min_vals + 1
-        np_poly -= min_vals
+        np_poly = np_poly - min_vals
 
         xs = np.broadcast_to(np.linspace(0, width - 1, num=width).reshape(1, width), (height, width))
         ys = np.broadcast_to(np.linspace(0, height - 1, num=height).reshape(height, 1), (height, width))
@@ -310,7 +306,7 @@ class ShrinkBinaryMap:
         return data
 
 
-class DetResize(object):
+class DetResize:
     """
     Resize the image and text polygons (if have) for text detection
 
@@ -343,7 +339,6 @@ class DetResize(object):
                  interpolation=cv2.INTER_LINEAR,
                  **kwargs,
                  ):
-
 
         if target_size is not None:
             limit_type = None
@@ -443,11 +438,10 @@ class DetResize(object):
         # Only need to transform ground truth polygons in training for generating masks/maps. 
         # For evaluation, we should not change the GT polygons. The metric with input of GT polygons and predicted polygons must be computed in the original image space for consistent comparison. 
         if 'polys' in data and self.is_train:
-                data['polys'][:, :, 0] = data['polys'][:, :, 0] * scale_w
-                data['polys'][:, :, 1] = data['polys'][:, :, 1] * scale_h
-                #print('transform GT polys to: ', data['polys'])
+            data['polys'][:, :, 0] = data['polys'][:, :, 0] * scale_w
+            data['polys'][:, :, 1] = data['polys'][:, :, 1] * scale_h
 
-        if 'shape_list' not in data: 
+        if 'shape_list' not in data:
             src_h, src_w = data.get('raw_img_shape', (h, w))
             data['shape_list'] = [src_h, src_w, scale_h, scale_w]
         else:
@@ -464,13 +458,13 @@ class GridResize(DetResize):
     """
     def __init__(self, factor: int = 32, **kwargs):
         super().__init__(
-                 target_size= None,
-                 keep_ratio=False,
-                 padding=False,
-                 limit_type=None,
-                 force_divisable=True,
-                 divisor=factor,
-                 )
+            target_size=None,
+            keep_ratio=False,
+            padding=False,
+            limit_type=None,
+            force_divisable=True,
+            divisor=factor,
+        )
 
 
 class ScalePadImage(DetResize):
@@ -482,13 +476,13 @@ class ScalePadImage(DetResize):
         target_size: [H, W] of the output image.
     """
     def __init__(self, target_size: list, **kwargs):
-       super().__init__(
-                 target_size=target_size,
-                 keep_ratio=True,
-                 padding=True,
-                 limit_type=None,
-                 force_divisable=False,
-                 )
+        super().__init__(
+            target_size=target_size,
+            keep_ratio=True,
+            padding=True,
+            limit_type=None,
+            force_divisable=False,
+        )
 
 
 def expand_poly(poly, distance: float, joint_type=pyclipper.JT_ROUND) -> List[list]:
@@ -497,8 +491,8 @@ def expand_poly(poly, distance: float, joint_type=pyclipper.JT_ROUND) -> List[li
     return offset.Execute(distance)
 
 
-class PSEGtDecode(object):
-    def __init__(self, kernel_num=7, min_shrink_ratio=0.4, min_shortest_edge=640, **kwargs ):
+class PSEGtDecode:
+    def __init__(self, kernel_num=7, min_shrink_ratio=0.4, min_shortest_edge=640, **kwargs):
         self.kernel_num = kernel_num
         self.min_shrink_ratio = min_shrink_ratio
         self.min_shortest_edge = min_shortest_edge
@@ -591,10 +585,14 @@ class ValidatePolygons:
      2. clipping coordinates of polygons that are partially outside an image to stay within the visible region.
     Args:
         min_area: minimum area below which newly clipped polygons considered as ignored.
+        clip_to_visible_area: (Experimental) clip polygons to a visible area. Number of vertices in a polygon after
+                              clipping may change.
+        min_vertices: minimum number of vertices in a polygon below which newly clipped polygons considered as ignored.
     """
-    def __init__(self, min_area: float = 1.0, **kwargs):
+    def __init__(self, min_area: float = 1.0, clip_to_visible_area: bool = False, min_vertices: int = 4, **kwargs):
         self._min_area = min_area
-        #self.fix_when_invalid = fix_when_invalid
+        self._min_vert = min_vertices
+        self._clip = clip_to_visible_area
 
     def __call__(self, data: dict):
         size = data.get('actual_size', np.array(data['image'].shape[:2]))[::-1]     # convert to x, y coord
@@ -603,26 +601,20 @@ class ValidatePolygons:
         new_polys, new_texts, new_tags = [], [], []
         for np_poly, text, ignore in zip(data['polys'], data['texts'], data['ignore_tags']):
             poly = Polygon(np_poly)
-            if (not poly.is_valid) or (poly.is_empty):
-                #poly = poly.buffer(0)
-                continue
+            if poly.intersects(border):  # if the polygon is fully or partially within the image
+                poly = poly.intersection(border)
+                if poly.area < self._min_area:
+                    ignore = True
 
-            elif ((0 <= np_poly) & (np_poly < size)).all():   # if the polygon is fully within the image
-                new_polys.append(np_poly)
-
-            else:
-                if poly.intersects(border):                 # if the polygon is partially within the image
-                    poly = poly.intersection(border)
-                    if poly.area < self._min_area:
+                if self._clip:  # Clip polygon to a visible area
+                    poly = poly.exterior.coords
+                    np_poly = np.array(poly[:-1])
+                    if len(np_poly) < self._min_vert:
                         ignore = True
-                    poly = poly.exterior
-                    poly = poly.coords[::-1] if poly.is_ccw else poly.coords    # sort in clockwise order
-                    new_polys.append(np.array(poly[:-1]))
 
-                else:                                       # the polygon is fully outside the image
-                    continue
-            new_tags.append(ignore)
-            new_texts.append(text)
+                new_polys.append(np_poly)
+                new_tags.append(ignore)
+                new_texts.append(text)
 
         data['polys'] = new_polys
         data['texts'] = new_texts
