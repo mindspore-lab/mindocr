@@ -24,6 +24,7 @@ class NetWithLossWrapper(nn.Cell):
         self.input_indices = input_indices
         self.label_indices = label_indices
         self.pred_cast_fp32 = pred_cast_fp32
+        self.cast = ops.Cast()
 
     def construct(self, *args):
         '''
@@ -38,10 +39,10 @@ class NetWithLossWrapper(nn.Cell):
             pred = self._net(*select_inputs_by_indices(args, self.input_indices))
 
         if self.pred_cast_fp32:
-            if isinstance(pred, ms.Tensor):
-                pred = F.cast(pred, mstype.float32)
+            if isinstance(pred, list) or isinstance(pred, tuple):
+                pred = [self.cast(p, mstype.float32) for p in pred]
             else:
-                pred = [F.cast(p, mstype.float32) for p in pred]
+                pred = self.cast(pred, mstype.float32)
 
         if self.label_indices is None:
             loss_val = self._loss_fn(pred, *args[1:])

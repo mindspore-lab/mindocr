@@ -99,9 +99,9 @@ def main(cfg):
 
     net_with_loss = NetWithLossWrapper(network,
                                        loss_fn,
-                                       pred_cast_fp32=(amp_level!='O0'),
                                        input_indices=cfg.train.dataset.pop('net_input_column_index', None),
-                                       label_indices=cfg.train.dataset.pop('label_column_index', None)
+                                       label_indices=cfg.train.dataset.pop('label_column_index', None),
+                                       pred_cast_fp32=cfg.train.pop('pred_cast_fp32', amp_level!='O0'),
                                     )  # wrap train-one-step cell
 
     # get loss scale setting for mixed precision training
@@ -214,7 +214,7 @@ if __name__ == '__main__':
     ckpt_save_dir = config.train.ckpt_save_dir
     os.makedirs(ckpt_save_dir, exist_ok=True)
     shutil.copyfile(yaml_fp, os.path.join(ckpt_save_dir, 'train_config.yaml'))
-    
+
     # data sync for modelarts
     if args.enable_modelarts:
         import moxing as mox
@@ -243,8 +243,8 @@ if __name__ == '__main__':
 
     # main train and eval
     main(config)
-    
-    # model sync for modelarts 
+
+    # model sync for modelarts
     if args.enable_modelarts:
         # upload models from local to server
         if get_device_id() == 0:

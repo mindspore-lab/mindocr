@@ -70,6 +70,7 @@ loss_scaler:
 
 train:
   ckpt_save_dir: './tmp_rec'
+  pred_cast_fp32: False # let CTCLoss cast internally  
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset

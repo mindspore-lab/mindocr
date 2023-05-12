@@ -79,6 +79,7 @@ train:
   ema_decay: 0.9999
   ckpt_save_dir: './ckpt_rec_ic15_finetune'
   dataset_sink_mode: False
+  pred_cast_fp32: False # let CTCLoss cast internally  
   dataset:
     type: RecDataset
     dataset_root: /path/to/data_root_dir
