@@ -353,7 +353,11 @@ To use a specific dictionary, set the parameter `character_dict_path` to the pat
 
 ## 5. Multi-language Training
 
-Currently, the multi-lingual CRNN supported by MindOCR are:
+MindOCR currently supports Chinese text recognition, and other languages ​​are still under development.
+
+| Model | Language | Configuration File | Backbone | Download | 
+| :-----: | :-----: | :-----: | :-----: | :-----: |
+| CRNN | Chinese | [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | ResNet34_vd | - |
 
 
 ## References
