@@ -314,6 +314,7 @@ class ValidatePolygons:
     """
     def __init__(self, min_area: float = 1.0):
         self._min_area = min_area
+        #self.fix_when_invalid = fix_when_invalid
 
     def __call__(self, data: dict):
         size = data.get('actual_size', np.array(data['image'].shape[:2]))[::-1]     # convert to x, y coord
@@ -321,23 +322,25 @@ class ValidatePolygons:
 
         new_polys, new_texts, new_tags = [], [], []
         for np_poly, text, ignore in zip(data['polys'], data['texts'], data['ignore_tags']):
-            if ((0 <= np_poly) & (np_poly < size)).all():   # if the polygon is fully within the image
+            poly = Polygon(np_poly) 
+            if (not poly.is_valid) or (poly.is_empty):
+                #poly = poly.buffer(0)
+                continue
+
+            elif ((0 <= np_poly) & (np_poly < size)).all():   # if the polygon is fully within the image
                 new_polys.append(np_poly)
 
             else:
-                poly = Polygon(np_poly)
                 if poly.intersects(border):                 # if the polygon is partially within the image
                     poly = poly.intersection(border)
                     if poly.area < self._min_area:
                         ignore = True
-
                     poly = poly.exterior
                     poly = poly.coords[::-1] if poly.is_ccw else poly.coords    # sort in clockwise order
                     new_polys.append(np.array(poly[:-1]))
 
                 else:                                       # the polygon is fully outside the image
                     continue
-
             new_tags.append(ignore)
             new_texts.append(text)
 
