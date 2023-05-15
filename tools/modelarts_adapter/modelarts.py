@@ -119,7 +119,12 @@ def upload_data(src: str, s3_path: str) -> None:
 def modelarts_setup(args):
     if args.enable_modelarts:
         cur_dir = os.path.dirname(os.path.abspath(__file__))
-        req_path = os.path.join(cur_dir, '../../requirements/modelarts.txt')
+
+        # change relative path of configure file to absolute
+        if not os.path.isabs(args.config):
+            args.config = os.path.abspath(os.path.join(cur_dir, '../../', args.config))
+
+        req_path = os.path.abspath(os.path.join(cur_dir, '../../requirements/modelarts.txt'))
         install_packages(req_path)
         return True
     return False
