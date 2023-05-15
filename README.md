@@ -116,7 +116,8 @@ MindOCR provides the detection and recognition prediction pipeline using MindOCR
 
 - [x] [DBNet](https://arxiv.org/abs/1911.08947) (AAAI'2020) 
 - [x] [DBNet++](https://arxiv.org/abs/2202.10304) (TPAMI'2022)
-- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [dev]
+- [ ] [EAST](https://arxiv.org/abs/1704.03155)(CVPR'2017) [coming soon]
+- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [coming soon]
 
 </details>
 
@@ -124,8 +125,9 @@ MindOCR provides the detection and recognition prediction pipeline using MindOCR
 <summary>Text Recognition</summary>
 
 - [x] [CRNN](https://arxiv.org/abs/1507.05717) (TPAMI'2016)
-- [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [dev]
-- [ ] [SVTR](https://arxiv.org/abs/2205.00159) (IJCAI'2022) [infer only]
+- [x] [CRNN-Seq2Seq](https://arxiv.org/abs/1704.03155) (CVPR'2016)
+- [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
+- [ ] [SVTR](https://arxiv.org/abs/2205.00159) (IJCAI'2022) [infer only, training coming soon]
 
 
 For the detailed performance of the trained models, please refer to [configs](./configs).
@@ -162,6 +164,18 @@ After downloading these datasets in the `DATASETS_DIR` folder, you can run `bash
 ## Notes
 
 ### Change Log
+- 2023/05/15
+1. Add new trained models
+    - [DBNet++](configs/det/dbnet) for text detection
+    - [CRNN-Seq2Seq](configs/rec/rare) for text recognition
+    - DBNet pretrained on SynthText is now available: [checkpoint url](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)
+2. Add more benchmark datasets and their results 
+    - [SynthText](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c), [MSRA-TD500](docs/en/datasets/td500.md), [CTW1500](docs/en/datasets/ctw1500.md) 
+    - More benchmark results for DBNet are reported [here](configs/det/dbnet/README.md).
+3. Add checkpoint manager for saving top-k checkpoints and improve log.
+4. Python inference code refractored. 
+5. Bug fix: use meter to average loss for large datasets, disable `pred_cast_fp32` for ctcloss in AMP training, fix error when invalid polygons exist.
+
 - 2023/05/04
 1. Support loading self-defined pretrained checkpoints via setting `model-pretrained` with checkpoint url or local path in yaml. 
 2. Support setting probability for executing augmentation including rotation and flip.
