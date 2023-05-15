@@ -2,6 +2,3 @@ include LICENSE
 include README.md
 
 recursive-include mindocr *.py
-recursive-include deploy/mx_infer *.py
-recursive-include tools/utils *.py
-recursive-include tools/utils *.ttf

@@ -1,0 +1,17 @@
+postprocess:
+  name: ClsPostprocess
+  label_list: [ '0','180' ]
+
+eval:
+  dataset:
+    transform_pipeline:
+      - DecodeImage: # load image
+          img_mode: BGR
+          channel_first: False
+      - ClsResizeImg:
+          padding: True
+      - NormalizeImage:
+          mean: [ 127.5, 127.5, 127.5 ]
+          std: [ 127.5, 127.5, 127.5 ]
+          is_hwc: True
+      - ToCHWImage:
