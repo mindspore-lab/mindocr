@@ -45,7 +45,7 @@ from mindocr.utils.ema import EMA
 
 def main(cfg):
     # init env
-    ms.set_context(mode=cfg.system.mode, device_id=6)
+    ms.set_context(mode=cfg.system.mode)
     if cfg.system.distribute:
         init()
         device_num = get_group_size()
