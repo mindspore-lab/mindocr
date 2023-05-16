@@ -14,7 +14,7 @@ class SYNTHTEXT_Converter:
     Validate polygons and sort vertices in SynthText dataset. The filtered dataset will be stored
     in the same format as the original one for compatibility purposes.
     """
-    def __init__(self, **kwargs):
+    def __init__(self, *args):
         pass
 
     @staticmethod
