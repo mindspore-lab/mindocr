@@ -43,7 +43,7 @@ In MindOCR, the network architecture of the model is divided into four parts: Tr
 | name | Transformation method name | - | - |
 | **backbone** | Configure backbone network ||
 | name | Backbone network class name | - | Currently defined classes include rec_resnet34, rec_vgg7 and det_resnet50. You can also customize new classes, please refer to the documentation for definition. |
-| pretrained | Whether to use the pre-trained model | False | \ |
+| pretrained | Whether to use the pre-trained model | False | Support local checkpoint path or url |
 | **neck** | Configure Network Neck | |
 | name | Neck class name | - | Currently defined classes include RNNEncoder and DBFPN. New classes can also be customized, please refer to the documentation for definition. |
 | hidden_size | RNN hidden layer unit number | - | \ |
@@ -98,12 +98,12 @@ Please see the code in [mindocr/scheduler](../mindocr/scheduler)
 
 | Parameter | Usage | Default | Remarks |
 | :---- | :---- | :---- | :---- |
-| scheduler | Learning rate adjustment strategy name | 'constant' | Currently supports 'constant', 'cosine_decay', 'step_decay', 'exponential_decay', 'polynomial_decay', 'multi_step_decay' |
-| min_lr | Minimum learning rate | 1e-6 | \ |
-| lr | Peak learning rate | 0.01 | \ |
-| num_epochs | Maximum number of training epochs | 200 | \ |
-| warmup_epochs | learning rate increment epoch number | 3 | \ |
-| decay_epochs | Learning rate decrement epoch number | 10 | \ |
+| scheduler | Learning rate adjustment function name | 'constant' | Currently supports 'constant', 'cosine_decay', 'step_decay', 'exponential_decay', 'polynomial_decay', 'multi_step_decay' |
+| min_lr | Minimum learning rate | 1e-6 | Take 'cosine_decay' as an example, the learning rate increases first and then decays according to the cosine function, `min_lr` indicates the initial value of the learning rate increase and the end value of the decay |
+| lr | Peak learning rate | 0.01 | Take 'cosine_decay' as an example, `lr` represents the maximum value of the learning rate increment, and then the learning rate begins to decay |
+| num_epochs | Maximum number of training epochs | 200 | The number of times a complete training needs to traverse the entire dataset |
+| warmup_epochs | learning rate increment epoch number | 3 | Take 'cosine_decay' as an example, 'warmup_epochs' indicates the total step size of the learning rate increase, and the assumed value is N, which means that the first N epochs, the learning rate increases, and then begins to decay |
+| decay_epochs | Learning rate decrement epoch number | 10 | Take 'cosine_decay' as an example, `decay_epochs` indicates the total step size of the learning rate decay, and the assumed value is M, which means that the learning rate decays from the last M epoch |
 
 
 ### optimizer
@@ -115,7 +115,7 @@ Please see the code location: [mindocr/optim](../mindocr/optim)
 | opt | Optimizer name | 'adam' | Currently supports 'sgd', 'nesterov', 'momentum', 'adam', 'adamw', 'lion', 'rmsprop', 'adagrad', 'lamb'. 'adam' |
 | filter_bias_and_bn | Set whether to exclude the weight decrement of bias and batch norm | True | True/False |
 | momentum | momentum | 0.9 | \ |
-| weight_decay | weight decay rate | 0 | \ |
+| weight_decay | weight decay rate | 0 | In the loss function, `weight_decay` is a coefficient of regularization. Reducing the weight can reduce the complexity of the model and avoid over-fitting of the network |
 | nesterov | Whether to enable Nesterov momentum | False | True/False |
 
 
@@ -127,7 +127,7 @@ Please see the code location: [mindocr/optim](../mindocr/optim)
 | loss_scale | loss scaling factor | 1.0 | \ |
 
 
-## 8. Training and evaluation process (train, eval)
+## 8. Training, evaluation and predict process (train, eval, predict)
 
 The configuration of the training process is placed under `train`, and the configuration of the evaluation phase is placed under `eval`. Note that during model training, if the training-while-evaluation mode is turned on, that is, when val_while_train=True, an evaluation will be run according to the configuration under `eval` after each epoch is trained. During the non-training phase, only the `eval` configuration is read when only running model evaluation.
 
@@ -146,7 +146,8 @@ The configuration of the training process is placed under `train`, and the confi
 | shuffle | Whether to shuffle the data order | True if undering training, otherwise False | True/False |
 | transform_pipeline | Data processing flow | None | For details, please see [transforms](../mindocr/data/transforms) |
 | output_columns | Each data feature name | None | If None, then output all columns |
-| num_columns_to_net | The number of inputs to the network construct function in output_columns | 1 | \ |
+| net_input_column_index | In output_columns, the indices of the input items required by the network construct function | [0] | \ |
+| label_column_index | In output_columns, the indices of the input items required by the loss function | [1] | \ |
 | **loader** | Data Loading Settings ||
 | shuffle | Whether to shuffle the data order for each epoch | True if undering training, otherwise False | True/False |
 | batch_size | Batch size of a single card | - | \ |
@@ -164,3 +165,13 @@ The parameters of `eval` are basically the same as `train`, only a few additiona
 | ckpt_load_path | Set model loading path | - | \ |
 | num_columns_of_labels | Set the number of labels in the dataset output columns | None | If None, assuming the columns after image (data[1:]) are labels. If not None, the num_columns_of_labels columns after image (data[1:1+num_columns_of_labels]) are labels, and the remaining columns are additional info like image_path. |
 | drop_remainder | Whether to discard the last batch of data when the total number of data cannot be divided by batch_size | True if undering training, otherwise False | It is recommended to set it to False when doing model evaluation. If it cannot be divisible, mindocr will automatically select a batch size that is the largest divisible |
+
+
+### Predict process (predict)
+
+The parameters of `predict` are basically the same as `train`, only a few additional parameters are added, and for the rest, please refer to the parameter description of `train` above.
+
+| Parameter | Usage | Default | Remarks |
+| :---- | :---- | :---- | :---- |
+| ckpt_load_path | Set model loading path | - | \ |
+| vis_font_path | Font loading path for visual display of inference results | tools/utils/simfang.ttf | \ |
