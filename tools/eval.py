@@ -36,6 +36,7 @@ def main(cfg):
     else:
         device_num = None
         rank_id = None
+        ms.set_context(device_id=cfg.system.get("device_id", 0))
 
     is_main_device = rank_id in [None, 0]
 
