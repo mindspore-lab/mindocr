@@ -6,6 +6,7 @@ from .models import *
 from .postprocess import *
 from .metrics import *
 from .utils import *
+from .version import __version__
 
 __all__ = []
 __all__.extend(data.__all__)
