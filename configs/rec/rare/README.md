@@ -108,7 +108,7 @@ data_lmdb_release/
 
 #### 3.1.3 Dataset Usage
 
-Here we used the datasets under `training/` folders for training, and the union dataset `validation/` for validation. After training, we used the datasets under `evaluation/` to evluation model accuracy.
+Here we used the datasets under `training/` folders for training, and the union dataset `validation/` for validation. After training, we used the datasets under `evaluation/` to evaluate model accuracy.
 
 **Training:** (total 14,442,049 samples)
 - [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/)
@@ -305,6 +305,7 @@ To transform the groud-truth text into label ids, we have to provide the charact
 There are some built-in dictionaries, which are placed in `mindocr/utils/dict/`, and you can choose the appropriate dictionary to use.
 
 - `en_dict.txt` is an English dictionary containing 96 characters, including numbers, common symbols, and uppercase and lowercase English letters.
+- `ch_dict.txt` is a Chinese dictionary containing 6623 characters, including commonly used simplified and traditional Chinese, numbers, common symbols, uppercase and lowercase English letters.
 
 
 ### Customized Dictionary
@@ -319,6 +320,26 @@ To use a specific dictionary, set the parameter `character_dict_path` to the pat
 - You can include the space character by setting the parameter `use_space_char` in configuration yaml to True.
 - Remember to check the value of `dataset->transform_pipeline->RecAttnLabelEncode->lower` in the configuration yaml. Set it to False if you prefer case-sensitive encoding.
 
+
+## 5. Multi-language Training
+Currently, this model supports multilingual recognition and provides pre-trained models for different languages. Details are as follows:
+
+### Introduction to Pre-trained Model Datasets
+Pre-trained models for different languages use different datasets for pre-training. Data sources, training methods, and evaluation methods can be referred to the link in the **Data Description** column.
+
+| **Language** | **Data Description** |
+| :------: | :------: |
+| Chinese | [ch_dataeset](../../../docs/en/datasets/chinese_text_recognition.md) | 
+
+### Pretrained models
+Pre-trained models have been evaluated on the benchmark test set, with the following results:
+
+| **Model** | **Language** | **Backbone** | **Transform Module** | **Scenes** | **Web Page** | **Documents** | **Recipe** | **Download** | 
+| :-----: | :-----:  | :--------: | :------------: | :--------: | :--------: | :--------: | :---------: | :-----------: |
+| RARE    | Chinese | ResNet34_vd | None | 55.39% | 61.90% | 97.05% |  [rare_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20-017aec13.mindir) |
+
+### Training with Custom Datasets
+You can train models for different languages with your own custom datasets. Please refer to the tutorial [Training Recognition Network with Custom Datasets](../../../docs/en/tutorials/training_recognition_custom_dataset.md).
 
 ## References
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->

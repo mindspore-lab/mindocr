@@ -8,8 +8,8 @@ system:
   drop_overflow_update: False
 
 common:
-  character_dict_path: &character_dict_path
-  num_classes: &num_classes 38 # num_chars_in_dict + 2
+  character_dict_path: &character_dict_path mindocr/utils/dict/ch_dict.txt
+  num_classes: &num_classes 6625 # num_chars_in_dict + 2
   max_text_len: &max_text_len 25
   infer_mode: &infer_mode False
   use_space_char: &use_space_char False
@@ -20,7 +20,8 @@ model:
   transform: null
   backbone:
     name: rec_resnet34
-    pretrained: False
+    pretrained: https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt
+    remove_prefix: True
   neck:
     name: RNNEncoder
     hidden_size: 256
@@ -48,9 +49,9 @@ scheduler:
   scheduler: warmup_cosine_decay
   min_lr: 0.0
   lr: 0.0005
-  num_epochs: 30
-  warmup_epochs: 1
-  decay_epochs: 29
+  num_epochs: 60
+  warmup_epochs: 3
+  decay_epochs: 57
 
 optimizer:
   opt: adamw
@@ -66,10 +67,12 @@ loss_scaler:
 train:
   ckpt_save_dir: "./tmp_rec"
   dataset_sink_mode: False
+  ema: True
+  ema_decay: 0.99999
   dataset:
     type: LMDBDataset
     dataset_root: path/to/data_lmdb_release/
-    data_dir: training/
+    data_dir: ch_benchmark/training/
     label_file: null
     sample_ratio: 1.0
     shuffle: True
@@ -83,7 +86,7 @@ train:
           use_space_char: *use_space_char
           lower: True
       - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize.
-          image_shape: [32, 100] # H, W
+          image_shape: [32, 320] # H, W
           infer_mode: *infer_mode
           character_dict_path: *character_dict_path
           padding: False # aspect ratio will be preserved if true.
@@ -110,7 +113,7 @@ eval:
   dataset:
     type: LMDBDataset
     dataset_root: path/to/data_lmdb_release/
-    data_dir: validation/
+    data_dir: ch_benchmark/validation/
     label_file: null
     sample_ratio: 1.0
     shuffle: False
@@ -124,7 +127,7 @@ eval:
           use_space_char: *use_space_char
           lower: True
       - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize.
-          image_shape: [32, 100] # H, W
+          image_shape: [32, 320] # H, W
           infer_mode: *infer_mode
           character_dict_path: *character_dict_path
           padding: False # aspect ratio will be preserved if true.

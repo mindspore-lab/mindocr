@@ -156,15 +156,12 @@ class RecResNet(nn.Cell):
         y = self.maxpool2d_2(y)
         return [y]
 
-# TODO: load pretrained weight in build_backbone or use a unify wrapper to load
-
 
 @register_backbone
 def rec_resnet34(pretrained: bool = True, **kwargs):
     model = RecResNet(in_channels=3, layers=34, **kwargs)
 
-    # load pretrained weights
-    if pretrained:
+    if pretrained is True:
         raise NotImplementedError
 
     return model

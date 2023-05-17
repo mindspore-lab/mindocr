@@ -219,7 +219,7 @@ if __name__ == '__main__':
     if args.enable_modelarts:
         import moxing as mox
         from ast import literal_eval
-        from tools.modelarts_adapter.modelarts import get_device_id, sync_data
+        from tools.modelarts_adapter.modelarts import get_device_id, sync_data, update_config_value_by_key
 
         dataset_root = '/cache/data/'
         # download dataset from server to local on device 0, other devices will wait until data sync finished.
@@ -240,6 +240,14 @@ if __name__ == '__main__':
             'dataset'], f'`dataset_root` must be provided in the yaml file for training on ModelArts or OpenI, but not found in {yaml_fp}. Please add `dataset_root` to `train:dataset` and `eval:dataset` in the yaml file'
         config.train.dataset.dataset_root = dataset_root
         config.eval.dataset.dataset_root = dataset_root
+
+        cur_dir = os.path.dirname(os.path.abspath(__file__))
+        root_dir = os.path.abspath(os.path.join(cur_dir, '..'))
+        
+        # update character_dict_path if it exists
+        if config.common.character_dict_path:
+            new_dict_path = os.path.join(root_dir, config.common.character_dict_path)
+            update_config_value_by_key(config, "character_dict_path", new_dict_path)
 
     # main train and eval
     main(config)
