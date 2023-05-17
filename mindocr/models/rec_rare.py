@@ -3,7 +3,7 @@ from ._registry import register_model
 from .backbones.mindcv_models.utils import load_pretrained
 
 
-__all__ = ["RARE", "rare_resnet34"]
+__all__ = ["RARE", "rare_resnet34", "rare_resnet34_ch"]
 
 
 def _cfg(url='', input_size=(3, 32, 100), **kwargs):
