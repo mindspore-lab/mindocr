@@ -16,7 +16,7 @@
   <img src="https://user-images.githubusercontent.com/8342575/236731076-f10ae537-c691-4776-8aa3-5a150e14554e.png" width=450 />
 </p>
 <p align="center">
-  <em> 图1. RARE中的SRN结构 [<a href="#references">1</a>] </em>
+  <em> 图1. RARE中的SRN结构 [<a href="#参考文献">1</a>] </em>
 </p>
 
 ## 2. 评估结果

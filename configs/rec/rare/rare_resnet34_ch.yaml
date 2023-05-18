@@ -21,7 +21,7 @@ model:
   backbone:
     name: rec_resnet34
     pretrained: https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt
-    remove_prefix: True
+    remove_prefix: True # remove the prefix "backbone." from the ckpt
   neck:
     name: RNNEncoder
     hidden_size: 256

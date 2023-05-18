@@ -22,7 +22,7 @@ word_421.png	菜肴
 word_1657.png	你好
 word_1814.png	cathay
 ```
-*Note*: Please separate image names and labels using \tag, and avoid using spaces or other delimiters.
+*Note*: Please separate image names and labels using \tab, and avoid using spaces or other delimiters.
 
 The final training set will be stored in the following format:
 
