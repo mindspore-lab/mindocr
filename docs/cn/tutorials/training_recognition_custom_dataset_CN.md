@@ -98,7 +98,7 @@ common:
 ```yaml
 ...
 common:
-  num_classes: &num_classes 96                                        # 数字为 字典字符数量 + 1
+  num_classes: &num_classes 95                                        # 数字为 字典字符数量 + 1
 ...
 ```
 
@@ -107,7 +107,7 @@ common:
 ```yaml
 ...
 common:
-  num_classes: &num_classes 97                                        # 数字为 字典字符数量 + 空格 + 1
+  num_classes: &num_classes 96                                        # 数字为 字典字符数量 + 空格 + 1
   use_space_char: &use_space_char True                                # 额外添加空格输出
 ...
 ```

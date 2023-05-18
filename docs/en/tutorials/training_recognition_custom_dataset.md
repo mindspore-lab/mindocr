@@ -98,7 +98,7 @@ To use the complete English dictionary, users need to modify the `common:num_cla
 ```yaml
 ...
 common:
-  num_classes: &num_classes 96                                        # The number is equal to the number of dictionary characters plus 1
+  num_classes: &num_classes 95                                        # The number is equal to the number of dictionary characters plus 1
 ...
 ```
 
@@ -107,7 +107,7 @@ If the network needs to output spaces, it is necessary to modify the `common.use
 ```bash
 ...
 common:
-  num_classes: &num_classes 97                                      # The number must be equal to the number of characters in the dictionary plus the number of spaces plus 1.
+  num_classes: &num_classes 96                                      # The number must be equal to the number of characters in the dictionary plus the number of spaces plus 1.
   use_space_char: &use_space_char True                                # Output `space` character additonaly
 ...
 ```
