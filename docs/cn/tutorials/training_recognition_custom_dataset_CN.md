@@ -52,7 +52,7 @@ word_1814.png	cathay
 ## 字典准备
 
 为训练中、英文等不同语种的识别网络，用户需配置对应的字典。只有存在于字典中的字符会被模型正确预测。MindOCR现提供中、英两种字典，其中
-- `英文字典`：包括大小写英文、数字、空格和标点符号。存放于`mindocr/utils/dict/en_dict.txt`
+- `英文字典`：包括大小写英文、数字和标点符号。存放于`mindocr/utils/dict/en_dict.txt`
 - `中文字典`：包括常用中文字符、大小写英文、数字和标点符号。存放于`mindocr/utils/dict/ch_dict.txt`
 
 目前MindOCR暂未提供其他语种的字典配置。该功能将在新版本中推出。
