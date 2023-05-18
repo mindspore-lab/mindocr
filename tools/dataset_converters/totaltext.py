@@ -68,6 +68,10 @@ class TOTALTEXT_Converter(object):
                         if transcriptions.startswith('u'):
                             transcriptions = transcriptions[1:]
                         transcriptions = transcriptions.replace("'", "")
+
+                        if transcriptions == '#':
+                            transcriptions = '###'  # unify ignore labels with the rest of the project
+
                         s = []
                         for x, y in zip(xs, ys):
                             if len(x) > 0 and len(y) > 0:
