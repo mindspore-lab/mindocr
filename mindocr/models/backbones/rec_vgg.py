@@ -68,6 +68,6 @@ def rec_vgg7(pretrained: bool=True, **kwargs):
     model = RecVGG(**kwargs)
 
     if pretrained is True:
-        raise NotImplementedError
+        raise NotImplementedError("The default pretrained checkpoint for `rec_vgg7` backbone does not exist.")
 
     return model

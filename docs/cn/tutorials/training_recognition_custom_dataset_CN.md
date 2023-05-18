@@ -52,10 +52,10 @@ word_1814.png	cathay
 ## 字典准备
 
 为训练中、英文等不同语种的识别网络，用户需配置对应的字典。只有存在于字典中的字符会被模型正确预测。MindOCR现提供中、英两种字典，其中
-- `英文字典`：包括大小写英文、数字和标点符号。存放于`mindocr/utils/dict/en_dict.txt`
+- `英文字典`：包括大小写英文、数字、空格和标点符号。存放于`mindocr/utils/dict/en_dict.txt`
 - `中文字典`：包括常用中文字符、大小写英文、数字和标点符号。存放于`mindocr/utils/dict/ch_dict.txt`
 
-目前MindOCR暂未提供自定义字典配置。该功能将在新版本中推出。
+目前MindOCR暂未提供其他语种的字典配置。该功能将在新版本中推出。
 
 ## 配置文件准备
 
@@ -93,6 +93,21 @@ common:
 ...
 ```
 
+由于初始配置文件的字典默认只包含小写英文和数字，为使用完整英文字典，用户需要修改对应的配置文件的`common: num_classes`属性：
+
+```yaml
+...
+common:
+  num_classes: &num_classes 96                                        # 数字为 字典字符数量 + 1
+...
+```
+
+*注意*：由于英文字典已包含空格。用户无需额外修改`common.use_space_char`属性。
+
+##### 配置自定义英文字典
+
+用户可根据需求添加、删改包含在字典内的字符。值得留意的是，字符需以换行符`\n`作为分隔，并且避免相同字符出现在同一字典里。另外用户同时需要修改配置文件中的`common: num_classes`属性，确保`common: num_classes`属性为字典字符数量 + 1（在seq2seq模型中为字典字符数量 + 2)。
+
 ### 配置中文模型
 
 请选择`configs/rec/crnn/crnn_resnet34_ch.yaml`做为初始配置文件，同样修改当中的`train.dataset`和`eval.dataset`内容。
@@ -124,6 +139,20 @@ common:
   character_dict_path: &character_dict_path mindocr/utils/dict/ch_dict.txt
 ...
 ```
+
+如网络需要输出空格，则需要修改`common.use_space_char`属性和`common: num_classes`属性如下
+
+```yaml
+...
+common:
+  num_classes: &num_classes 6625                                      # 数字为 字典字符数量 + 空格 + 1
+  use_space_char: &use_space_char True                                # 额外添加空格输出
+...
+```
+
+##### 配置自定义中文字典
+
+用户可根据需求添加、删改包含在字典内的字符。值得留意的是，字符需以换行符`\n`作为分隔，并且避免相同字符出现在同一字典里。另外用户同时需要修改配置文件中的`common: num_classes`属性，确保`common: num_classes`属性为字典字符数量 + 1（在seq2seq模型中为字典字符数量 + 2)。
 
 ## 训练和评估模型
 

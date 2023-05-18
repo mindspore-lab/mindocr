@@ -55,7 +55,7 @@ To train recognition networks for different languages, users need to configure c
 - `English Dictionary`：includes uppercase and lowercase English letters, numbers, and punctuation marks. It is place at `mindocr/utils/dict/en_dict.txt`
 - `Chinese Dictionary`：includes commonly used Chinese characters, uppercase and lowercase English letters, numbers, and punctuation marks. It is placed at `mindocr/utils/dict/ch_dict.txt`
 
-Currently, MindOCR does not provide custom dictionary configuration. This feature will be launched in the upcoming version.
+Currently, MindOCR does not provide a dictionary configuration for other languages. This feature will be released in a upcoming version.
 
 ## Configuration File Preperation
 
@@ -93,6 +93,21 @@ common:
 ...
 ```
 
+To use the complete English dictionary, users need to modify the `common:num_classes` attribute in the corresponding configuration file, as the initial configuration file’s dictionary only includes lowercase English and numbers.
+
+```yaml
+...
+common:
+  num_classes: &num_classes 96                                        # The number is equal to the number of dictionary characters plus 1
+...
+```
+
+*Note*: Since the English dictionary already includes spaces, users do not need to modify the `common.use_space_char` property additionaly.
+
+##### Configuring a custom English dictionary
+
+The user can add, delete, or modify characters within the dictionary as needed. It is important to note that characters must be separated by newline characters `\n`, and it is necessary to avoid having duplicate characters in the same dictionary. Additionally, the user must also modify the `common: num_classes` attribute in the configuration file to ensure that it is equal to the number of characters in the dictionary plus 1 (in the case of a seq2seq model, it is equal to the number of characters in the dictionary plus 2).
+
 ### Configure an Chinese Model
 
 Please select `configs/rec/crnn/crnn_resnet34_CN.yaml` as the initial configuration file and modify the `train.dataset` and `eval.dataset` fields in it.
@@ -124,6 +139,20 @@ common:
   character_dict_path: &character_dict_path mindocr/utils/dict/ch_dict.txt
 ...
 ```
+
+If the network needs to output spaces, it is necessary to modify the `common.use_space_char` attribute and the `common: num_classes` attribute as follows:
+
+```
+...
+common:
+  num_classes: &num_classes 6625                                      # The number must be equal to the number of characters in the dictionary plus the number of spaces plus 1.
+  use_space_char: &use_space_char True                                # Output `space` character additonaly
+...
+```
+
+##### Configuring a custom Chinese dictionary
+
+The user can add, delete, or modify characters within the dictionary as needed. It is important to note that characters must be separated by newline characters `\n`, and it is necessary to avoid having duplicate characters in the same dictionary. Additionally, the user must also modify the `common: num_classes` attribute in the configuration file to ensure that it is equal to the number of characters in the dictionary plus 1 (in the case of a seq2seq model, it is equal to the number of characters in the dictionary plus 2).
 
 ## Model Training And Evaluation
 

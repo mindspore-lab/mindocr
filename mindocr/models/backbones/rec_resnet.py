@@ -162,6 +162,6 @@ def rec_resnet34(pretrained: bool = True, **kwargs):
     model = RecResNet(in_channels=3, layers=34, **kwargs)
 
     if pretrained is True:
-        raise NotImplementedError
+        raise NotImplementedError("The default pretrained checkpoint for `rec_resnet34` backbone does not exist.")
 
     return model
