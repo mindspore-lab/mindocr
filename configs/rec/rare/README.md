@@ -334,7 +334,7 @@ Pre-trained models for different languages use different datasets for pre-traini
 ### Pretrained models
 Pre-trained models have been evaluated on the benchmark test set, with the following results:
 
-| **Model** | **Language** | **Backbone** | **Transform Module** | **Scenes** | **Web Page** | **Documents** | **Recipe** | **Download** | 
+| **Model** | **Language** | **Backbone** | **Transform Module** | **Scene** | **Web** | **Document** | **Recipe** | **Download** | 
 | :-----: | :-----:  | :--------: | :------------: | :--------: | :--------: | :--------: | :---------: | :-----------: |
 | RARE    | Chinese | ResNet34_vd | None | 55.39% | 61.90% | 97.05% |  [rare_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20-017aec13.mindir) |
 

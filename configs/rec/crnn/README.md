@@ -353,19 +353,24 @@ To use a specific dictionary, set the parameter `character_dict_path` to the pat
 
 ## 5. Multi-language Training
 
-MindOCR currently supports Chinese text recognition, and other languages ​​are still under development.
+Currently, this model supports multilingual recognition and provides pre-trained models for different languages. Details are as follows:
 
-### Dataset introduction
+### Introduction to Pre-trained Model Datasets
+Pre-trained models for different languages use different datasets for pre-training. Data sources, training methods, and evaluation methods can be referred to the link in the **Data Description** column.
 
-| Language | Dataset Document |
+| **Language** | **Data Description** |
 | :------: | :------: |
 | Chinese | [ch_dataeset](../../../docs/en/datasets/chinese_text_recognition.md) | 
 
 ### Pretrained models
+Pre-trained models have been evaluated on the benchmark test set, with the following results:
 
-| Model | Language | Configuration File | Backbone | Download | 
-| :-----: | :-----: | :-----: | :-----: | :-----: |
-| CRNN | Chinese | [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | ResNet34_vd | - |
+| **Model** | **Language** | **Backbone** | **Scene** | **Web** | **Document** | **Recipe** | **Download** | 
+| :-----: | :-----:  | :--------: | :--------: | :--------: | :--------: | :---------: | :-----------: |
+| CRNN    | Chinese | ResNet34_vd | 59.71% | 64.86% | 89.23% |  [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3-f27f763a.mindir) |
+
+### Training with Custom Datasets
+You can train models for different languages with your own custom datasets. Please refer to the tutorial [Training Recognition Network with Custom Datasets](../../../docs/en/tutorials/training_recognition_custom_dataset.md).
 
 
 ## References
