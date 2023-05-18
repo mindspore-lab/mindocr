@@ -35,8 +35,7 @@ def build_backbone(name, **kwargs):
         >>> backbone = build_backbone(**cfg_from_class)
         >>> print(backbone)
     '''
-    #name = config.pop('name')
-    #kwargs = {k:v for k,v in config.items() if v is not None}
+    remove_prefix = kwargs.pop("remove_prefix", False)
 
     if is_backbone(name):
         create_fn = backbone_entrypoint(name)
@@ -53,7 +52,12 @@ def build_backbone(name, **kwargs):
     if 'pretrained' in kwargs:
         pretrained = kwargs['pretrained']
         if not isinstance(pretrained, bool):
-            load_model(backbone, pretrained)
+            if remove_prefix:
+                # remove the prefix with `backbone.`
+                fn = lambda x: {k.replace('backbone.', ''): v for k, v in x.items()}
+            else:
+                fn = None
+            load_model(backbone, pretrained, filter_fn=fn)
         # No need to load again if pretrained is bool and True, because pretrained backbone is already loaded in the backbone definition function.')
 
     return backbone

@@ -115,6 +115,7 @@ MindOCR支持使用MindOCR训练好的ckpt文件进行文本检测+文本识别�
 <summary>文本识别</summary>
 
 - [x] [CRNN](https://arxiv.org/abs/1507.05717) (TPAMI'2016)
+- [x] [CRNN-Seq2Seq](https://arxiv.org/abs/1603.03915) (CVPR'2016)
 - [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [开发中]
 - [ ] [SVTR](https://arxiv.org/abs/2205.00159) (IJCAI'2022) [仅推理]
 

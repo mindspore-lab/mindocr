@@ -62,17 +62,12 @@ class RecVGG(nn.Cell):
         x = self.conv7(x)
         return [x]
 
+
 @register_backbone
 def rec_vgg7(pretrained: bool=True, **kwargs):
     model = RecVGG(**kwargs)
-    
-    # load pretrained weights
-    # TODO: support loading
-    '''
-    if pretrained:
-        default_cfg = default_cfgs['resnet50']
-        load_pretrained(model, default_cfg)
-    '''
+
+    if pretrained is True:
+        raise NotImplementedError("The default pretrained checkpoint for `rec_vgg7` backbone does not exist.")
+
     return model
-
-

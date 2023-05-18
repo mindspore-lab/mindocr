@@ -40,6 +40,7 @@ def load_pretrained(model, default_cfg, num_classes=1000, in_channels=3, filter_
         param_dict = load_checkpoint(os.path.join(download_path, os.path.basename(default_cfg["url"])))
     except:
         print(f'ERROR: Fails to load the checkpoint. Please check whether the checkpoint is downloaded successfully in {download_path} and is not zero-byte. You may try to manually download the checkpoint from ', default_cfg["url"])
+        param_dict = dict()
 
     if auto_mapping:
         net_param = model.get_parameters()

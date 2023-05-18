@@ -125,7 +125,7 @@ MindOCR provides the detection and recognition prediction pipeline using MindOCR
 <summary>Text Recognition</summary>
 
 - [x] [CRNN](https://arxiv.org/abs/1507.05717) (TPAMI'2016)
-- [x] [CRNN-Seq2Seq](https://arxiv.org/abs/1704.03155) (CVPR'2016)
+- [x] [CRNN-Seq2Seq](https://arxiv.org/abs/1603.03915) (CVPR'2016)
 - [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 - [ ] [SVTR](https://arxiv.org/abs/2205.00159) (IJCAI'2022) [infer only, training coming soon]
 

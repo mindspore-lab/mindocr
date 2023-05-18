@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 import time
-from typing import Any, Callable
+from typing import Any, Callable, Union, Dict, List
 
 LOCAL_RANK = int(os.getenv("RANK_ID", 0))
 
@@ -128,3 +128,14 @@ def modelarts_setup(args):
         install_packages(req_path)
         return True
     return False
+
+
+def update_config_value_by_key(config: Union[Dict, List], key: str, value: Any):
+    if isinstance(config, dict):
+        if key in config:
+            config[key] = value
+        for subconfig in config.values():
+            update_config_value_by_key(subconfig, key, value)
+    elif isinstance(config, list):
+        for subconfig in config:
+            update_config_value_by_key(subconfig, key, value)
