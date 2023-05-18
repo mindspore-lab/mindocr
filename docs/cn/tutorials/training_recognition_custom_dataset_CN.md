@@ -102,7 +102,15 @@ common:
 ...
 ```
 
-*注意*：由于英文字典已包含空格。用户无需额外修改`common.use_space_char`属性。
+如网络需要输出空格，则需要修改`common.use_space_char`属性和`common: num_classes`属性如下
+
+```yaml
+...
+common:
+  num_classes: &num_classes 97                                        # 数字为 字典字符数量 + 空格 + 1
+  use_space_char: &use_space_char True                                # 额外添加空格输出
+...
+```
 
 ##### 配置自定义英文字典
 
