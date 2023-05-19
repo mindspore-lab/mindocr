@@ -1,4 +1,4 @@
-English | [中文](../../cn/datasets/synthtext.md)
+English | [中文](../../cn/datasets/synthtext_CN.md)
 
 # Data Downloading
 

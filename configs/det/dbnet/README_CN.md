@@ -255,6 +255,12 @@ MLT_2017
 
 ```
 
+> :warning: 另外, 我们强烈建议在使用 `SynthText` 数据集之前先进行预处理，因为它包含一些错误的数据。可以使用下列的方式进行校正:
+> ```shell
+> python tools/dataset_converters/convert.py --dataset_name=synthtext --task=det --label_dir=/path-to-data-dir/SynthText/gt.mat --output_path=/path-to-data-dir/SynthText/gt_processed.mat
+> ```
+> 以上的操作会产生与`SynthText`原始标注格式相同但是是经过过滤后的标注数据.
+
 ### 3.3 配置说明
 
 在配置文件`configs/det/dbnet/db_r50_icdar15.yaml`中更新如下文件路径。其中`dataset_root`会分别和`dataset_root`以及`label_file`拼接构成完整的数据集目录和标签文件路径。
