@@ -321,25 +321,34 @@ To use a specific dictionary, set the parameter `character_dict_path` to the pat
 - Remember to check the value of `dataset->transform_pipeline->RecAttnLabelEncode->lower` in the configuration yaml. Set it to False if you prefer case-sensitive encoding.
 
 
-## 5. Multi-language Training
+## 5. Chinese Text Recognition Model Training
+
 Currently, this model supports multilingual recognition and provides pre-trained models for different languages. Details are as follows:
 
-### Introduction to Pre-trained Model Datasets
-Pre-trained models for different languages use different datasets for pre-training. Data sources, training methods, and evaluation methods can be referred to the link in the **Data Description** column.
+### Chinese Dataset Preparation and Configuration
 
-| **Language** | **Data Description** |
-| :------: | :------: |
-| Chinese | [ch_dataeset](../../../docs/en/datasets/chinese_text_recognition.md) | 
+We use a public Chinese text benchmark dataset [Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition) for RARE training and evaluation.
 
-### Pretrained models
-Pre-trained models have been evaluated on the benchmark test set, with the following results:
+For detailed instruction of data preparation and yaml configuration, please refer to [ch_dataeset](../../../docs/en/datasets/chinese_text_recognition.md).
+
+### Training
+
+To train with the prepared datsets and config file, please run:
+
+```shell
+mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/rare/rare_resnet34_ch.yaml
+```
+
+### Results and Pretrained Weights
+
+After training, evaluation results on the benchmark test set are as follows, where we also provide the model config and pretrained weights.
 
 | **Model** | **Language** | **Backbone** | **Transform Module** | **Scene** | **Web** | **Document** | **Recipe** | **Download** | 
 | :-----: | :-----:  | :--------: | :------------: | :--------: | :--------: | :--------: | :---------: | :-----------: |
 | RARE    | Chinese | ResNet34_vd | None | 55.39% | 61.90% | 97.05% |  [rare_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20-017aec13.mindir) |
 
 ### Training with Custom Datasets
-You can train models for different languages with your own custom datasets. Please refer to the tutorial [Training Recognition Network with Custom Datasets](../../../docs/en/tutorials/training_recognition_custom_dataset.md).
+You can train models for different languages with your own custom datasets. Loading the pretrained Chinese model to finetune on your own dataset usually yields better results than training from scratch. Please refer to the tutorial [Training Recognition Network with Custom Datasets](../../../docs/en/tutorials/training_recognition_custom_dataset.md).
 
 ## References
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
