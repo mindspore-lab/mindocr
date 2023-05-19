@@ -335,6 +335,7 @@ To transform the groud-truth text into label ids, we have to provide the charact
 There are some built-in dictionaries, which are placed in `mindocr/utils/dict/`, and you can choose the appropriate dictionary to use.
 
 - `en_dict.txt` is an English dictionary containing 96 characters, including numbers, common symbols, and uppercase and lowercase English letters.
+- `ch_dict.txt` is a Chinese dictionary containing 6623 characters, including commonly used simplified and traditional Chinese, numbers, common symbols, uppercase and lowercase English letters.
 
 
 ### Customized Dictionary
@@ -348,6 +349,28 @@ To use a specific dictionary, set the parameter `character_dict_path` to the pat
 **Notes:**
 - You can include the space character by setting the parameter `use_space_char` in configuration yaml to True.
 - Remember to check the value of `dataset->transform_pipeline->RecCTCLabelEncode->lower` in the configuration yaml. Set it to False if you prefer case-sensitive encoding.
+
+
+## 5. Multi-language Training
+
+Currently, this model supports multilingual recognition and provides pre-trained models for different languages. Details are as follows:
+
+### Introduction to Pre-trained Model Datasets
+Pre-trained models for different languages use different datasets for pre-training. Data sources, training methods, and evaluation methods can be referred to the link in the **Data Description** column.
+
+| **Language** | **Data Description** |
+| :------: | :------: |
+| Chinese | [ch_dataeset](../../../docs/en/datasets/chinese_text_recognition.md) | 
+
+### Pretrained models
+Pre-trained models have been evaluated on the benchmark test set, with the following results:
+
+| **Model** | **Language** | **Backbone** | **Scene** | **Web** | **Document** | **Recipe** | **Download** | 
+| :-----: | :-----:  | :--------: | :--------: | :--------: | :--------: | :---------: | :-----------: |
+| CRNN    | Chinese | ResNet34_vd | 59.71% | 64.86% | 89.23% |  [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3-f27f763a.mindir) |
+
+### Training with Custom Datasets
+You can train models for different languages with your own custom datasets. Please refer to the tutorial [Training Recognition Network with Custom Datasets](../../../docs/en/tutorials/training_recognition_custom_dataset.md).
 
 
 ## References

@@ -51,9 +51,10 @@ Similarly, please place all validation images in a single folder, and specify a 
 
 ## Dictionary Preperation
 
-To train recognition networks for different languages, users need to configure corresponding dictionaries. Only characters that exist in the dictionary will be correctly predicted by the model. MindOCR currently provides two dictionaries for Chinese and English, respectively.
-- `English Dictionary`：includes uppercase and lowercase English letters, numbers, and punctuation marks. It is place at `mindocr/utils/dict/en_dict.txt`
-- `Chinese Dictionary`：includes commonly used Chinese characters, uppercase and lowercase English letters, numbers, and punctuation marks. It is placed at `mindocr/utils/dict/ch_dict.txt`
+To train recognition networks for different languages, users need to configure corresponding dictionaries. Only characters that exist in the dictionary will be correctly predicted by the model. MindOCR currently provides three dictionaries, corresponding to Default, Chinese and English respectively.
+- `Default Dictionary`：includes lowercase English letters and numbers only. If users do not configure the dictionay, this one will be used by default.
+- `English Dictionary`：includes uppercase and lowercase English letters, numbers and punctuation marks, it is place at `mindocr/utils/dict/en_dict.txt`.
+- `Chinese Dictionary`：includes commonly used Chinese characters, uppercase and lowercase English letters, numbers, and punctuation marks, it is placed at `mindocr/utils/dict/ch_dict.txt`.
 
 Currently, MindOCR does not provide a dictionary configuration for other languages. This feature will be released in a upcoming version.
 
@@ -119,7 +120,7 @@ The user can add, delete, or modify characters within the dictionary as needed. 
 
 ### Configure an Chinese Model
 
-Please select `configs/rec/crnn/crnn_resnet34_CN.yaml` as the initial configuration file and modify the `train.dataset` and `eval.dataset` fields in it.
+Please select `configs/rec/crnn/crnn_resnet34_ch.yaml` as the initial configuration file and modify the `train.dataset` and `eval.dataset` fields in it.
 
 ```yaml
 ...
