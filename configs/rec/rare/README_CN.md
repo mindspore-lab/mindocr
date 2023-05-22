@@ -321,9 +321,22 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 - 您可以通过将配置文件中的参数 `use_space_char` 设置为 True 来包含空格字符。
 - 请记住检查配置文件中的 `dataset->transform_pipeline->RecAttnLabelEncode->lower` 参数的值。如果词典中有大小写字母而且想区分大小写的话，请将其设置为 False。
 
+## 5. 中文识别模型训练
 
-## 5. 多语种支持
-目前，该模型支持多语种识别和提供不同语种的预训练模型。详细内容如下
+目前，RARE模型支持多语种识别和提供中英预训练模型。详细内容如下
+
+### 中文数据集准备及配置
+
+我们采用公开的中文基准数据集[Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition)进行RARE模型的训练和验证。
+
+详细的数据准备和config文件配置方式, 请参考 [中文识别数据集准备](../../../docs/cn/datasets/chinese_text_recognition_CN.md) 
+
+### 模型训练验证
+
+准备好数据集和配置文件后，执行以下命令开启多卡训练
+```shell
+mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/rare/rare_resnet34_ch.yaml
+```
 
 ### 预训练模型数据集介绍
 不同语种的预训练模型采用不同数据集作为预训练，数据来源、训练方式和评估方式可参考 **数据说明**。
@@ -332,15 +345,15 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 | :------: | :------: |
 | 中文 | [中文识别数据集](../../../docs/cn/datasets/chinese_text_recognition_CN.md) | 
 
-### 预训练模型
-预训练模型提供已在基准测试集上进行评估，结果如下：
+### 评估结果和预训练权重
+模型训练完成后，在测试集不同场景上的准确率评估结果如下。相应的模型配置和预训练权重可通过表中链接下载。
 
 | **模型** | **语种** | **骨干网络** | **空间变换网络** | **街景类** | **网页类** | **文档类** | **配置文件** | **模型权重下载** | 
 | :-----: | :-----:  | :--------: | :------------: | :--------: | :--------: | :--------: | :---------: | :-----------: |
 | RARE    | 中文 | ResNet34_vd | 无 |55.39% | 61.90% | 97.05% |  [rare_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20-017aec13.mindir) |
 
 ### 使用自定义数据集进行训练
-您可以使用自定义的数据集进行不同语种的模型训练。请参考教学 [使用自定义数据集训练识别网络](../../../docs/cn/tutorials/training_recognition_custom_dataset_CN.md)。
+您可以在自定义的数据集基于提供的预训练权重进行微调训练, 以在特定场景获得更高的识别准确率，具体步骤请参考文档 [使用自定义数据集训练识别网络](../../../docs/cn/tutorials/training_recognition_custom_dataset_CN.md)。
 
 
 ## 参考文献

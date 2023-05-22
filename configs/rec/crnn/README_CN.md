@@ -355,26 +355,33 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 - 请记住检查配置文件中的 `dataset->transform_pipeline->RecCTCLabelEncode->lower` 参数的值。如果词典中有大小写字母而且想区分大小写的话，请将其设置为 False。
 
 
-## 5. 多语言训练
+## 5. 中文识别模型训练
 
-目前，该模型支持多语种识别和提供不同语种的预训练模型。详细内容如下
+目前，CRNN模型支持中英文字识别并提供相应的预训练权重。详细内容如下
 
-### 预训练模型数据集介绍
-不同语种的预训练模型采用不同数据集作为预训练，数据来源、训练方式和评估方式可参考 **数据说明**。
+### 中文数据集准备及配置
 
-| **语种** | **数据说明** |
-| :------: | :------: |
-| 中文 | [中文识别数据集](../../../docs/cn/datasets/chinese_text_recognition_CN.md) | 
+我们采用公开的中文基准数据集[Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition)进行CRNN模型的训练和验证。
 
-### 预训练模型
-预训练模型提供已在基准测试集上进行评估，结果如下：
+详细的数据准备和config文件配置方式, 请参考 [中文识别数据集准备](../../../docs/cn/datasets/chinese_text_recognition_CN.md) 
+
+### 模型训练验证
+
+准备好数据集和配置文件后，执行以下命令开启多卡训练
+
+```shell
+mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/crnn_resnet34_ch.yaml
+```
+
+### 评估结果和预训练权重
+模型训练完成后，在测试集不同场景上的准确率评估结果如下。相应的模型配置和预训练权重可通过表中链接下载。
 
 | **模型** | **语种** | **骨干网络** | **街景类** | **网页类** | **文档类** | **配置文件** | **模型权重下载** | 
 | :-----: | :-----:  | :--------: | :--------: | :--------: | :--------: | :---------: | :-----------: |
 | CRNN    | 中文 | ResNet34_vd | 59.71% | 64.86% | 89.23% |  [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3-f27f763a.mindir) |
 
 ### 使用自定义数据集进行训练
-您可以使用自定义的数据集进行不同语种的模型训练。请参考教学 [使用自定义数据集训练识别网络](../../../docs/cn/tutorials/training_recognition_custom_dataset_CN.md)。
+您可以在自定义的数据集基于提供的预训练权重进行微调训练, 以在特定场景获得更高的识别准确率，具体步骤请参考文档 [使用自定义数据集训练识别网络](../../../docs/cn/tutorials/training_recognition_custom_dataset_CN.md)。
 
 
 ## 参考文献
