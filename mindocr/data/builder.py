@@ -134,8 +134,8 @@ def build_dataset(
     # get batch of dataset by collecting batch_size consecutive data rows and apply batch operations
     num_samples = ds.get_dataset_size()
     batch_size = loader_config['batch_size']
-    
-    device_id = 0 if shard_id is None else shard_id 
+
+    device_id = 0 if shard_id is None else shard_id
     is_main_device = device_id == 0
     print(f'INFO: Creating dataloader (training={is_train}) for device {device_id}. Number of data samples: {num_samples}')
 
@@ -143,7 +143,7 @@ def build_dataset(
         batch_size = _check_batch_size(num_samples, batch_size, refine=kwargs['refine_batch_size'])
 
     drop_remainder = loader_config.get('drop_remainder', is_train)
-    if is_train and drop_remainder == False and is_main_device: 
+    if is_train and drop_remainder == False and is_main_device:
         print('WARNING: `drop_remainder` should be True for training, otherwise the last batch may lead to training fail in Graph mode')
 
     if not is_train:
@@ -169,12 +169,12 @@ def _check_dataset_paths(dataset_config):
             dataset_config['data_dir'] = os.path.join(dataset_config['dataset_root'], dataset_config['data_dir']) # to absolute path
         else:
             dataset_config['data_dir'] = [os.path.join(dataset_config['dataset_root'], dd) for dd in dataset_config['data_dir']]
-
         if 'label_file' in dataset_config:
-            if isinstance(dataset_config['label_file'], str):
-                dataset_config['label_file'] = os.path.join(dataset_config['dataset_root'], dataset_config['label_file'])
-            else:
-                dataset_config['label_file'] = [os.path.join(dataset_config['dataset_root'], lf) for lf in dataset_config['label_file']]
+            if dataset_config['label_file']:
+                if isinstance(dataset_config['label_file'], str):
+                    dataset_config['label_file'] = os.path.join(dataset_config['dataset_root'], dataset_config['label_file'])
+                elif isinstance(dataset_config['label_file'], list):
+                    dataset_config['label_file'] = [os.path.join(dataset_config['dataset_root'], lf) for lf in dataset_config['label_file']]
 
     return dataset_config
 
