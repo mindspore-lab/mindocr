@@ -1,0 +1,20 @@
+postprocess:
+  name: DBPostprocess
+  binary_thresh: 0.3
+  box_thresh: 0.6
+  max_candidates: 1000
+  expand_ratio: 1.5
+
+
+eval:
+  dataset:
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          channel_first: False
+      - ScalePadImage:
+      - NormalizeImage:
+          mean: [ 123.675, 116.28 , 103.53 ]
+          std: [ 58.395, 57.12 , 57.375 ]
+          is_hwc: True
+      - ToCHWImage:

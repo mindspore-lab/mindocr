@@ -1,6 +1,6 @@
 from ..preprocess import transforms
 
-PREPROCESS_SKIP_OPS = ["DetLabelEncode", "RecCTCLabelEncode"]
+PREPROCESS_SKIP_OPS = ["DetLabelEncode", "RecCTCLabelEncode", "CTCLabelEncode"]
 
 PREPROCESS_MAPPING_OPS = {
     "DecodeImage": transforms.DecodeImage,
