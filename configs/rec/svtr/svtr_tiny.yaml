@@ -116,7 +116,7 @@ train:
     label_column_index: [1] # input indices marked as label
 
   loader:
-    shuffle: Truex
+    shuffle: True
     batch_size: *batch_size
     drop_remainder: True
     max_rowsize: 12
