@@ -11,7 +11,7 @@ Recognition and Its Application to Scene Text Recognition](https://arxiv.org/abs
 
 卷积递归神经网络 (CRNN) 将 CNN 特征提取和 RNN 序列建模以及转录集成到一个统一的框架中。
 
-如架构图（图 1）所示，CRNN 首先通过卷积层从输入图像中提取特征序列。由此一来，图像由提取的序列特征图表示，其中每个向量都与输入图像上的感受野相关联。 为了进一步处理特征，CRNN 采用循环神经网络层来预测每个帧的标签分布。为了将分布映射到文本字段，CRNN 添加了一个转录层，以将每帧预测转换为最终标签序列。 [<a href="#references">1</a>]
+如架构图（图 1）所示，CRNN 首先通过卷积层从输入图像中提取特征序列。由此一来，图像由提取的序列特征图表示，其中每个向量都与输入图像上的感受野相关联。 为了进一步处理特征，CRNN 采用循环神经网络层来预测每个帧的标签分布。为了将分布映射到文本字段，CRNN 添加了一个转录层，以将每帧预测转换为最终标签序列。 [<a href="#参考文献">1</a>]
 
 <!--- Guideline: If an architecture table/figure is available in the paper, put one here and cite for intuitive illustration. -->
 
@@ -19,7 +19,7 @@ Recognition and Its Application to Scene Text Recognition](https://arxiv.org/abs
   <img src="https://user-images.githubusercontent.com/26082447/224601239-a569a1d4-4b29-4fa8-804b-6690cb50caef.PNG" width=450 />
 </p>
 <p align="center">
-  <em> 图1. CRNN架构图 [<a href="#references">1</a>] </em>
+  <em> 图1. CRNN架构图 [<a href="#参考文献">1</a>] </em>
 </p>
 
 ## 2. 评估结果
@@ -338,7 +338,7 @@ python tools/eval.py --config configs/rec/crnn/crnn_resnet34.yaml
 
 Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，可选择合适的字典使用。
 
-- `en_dict.txt` 是一个包含96个字符的英文字典，其中有数字，常用符号以及大小写的英文字母。
+- `en_dict.txt` 是一个包含94个字符的英文字典，其中有数字，常用符号以及大小写的英文字母。
 - `ch_dict.txt` 是一个包含6623个字符的中文字典，其中有常用的繁简体中文，数字，常用符号以及大小写的英文字母
 
 

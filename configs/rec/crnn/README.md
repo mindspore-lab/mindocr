@@ -334,7 +334,7 @@ To transform the groud-truth text into label ids, we have to provide the charact
 
 There are some built-in dictionaries, which are placed in `mindocr/utils/dict/`, and you can choose the appropriate dictionary to use.
 
-- `en_dict.txt` is an English dictionary containing 96 characters, including numbers, common symbols, and uppercase and lowercase English letters.
+- `en_dict.txt` is an English dictionary containing 94 characters, including numbers, common symbols, and uppercase and lowercase English letters.
 - `ch_dict.txt` is a Chinese dictionary containing 6623 characters, including commonly used simplified and traditional Chinese, numbers, common symbols, uppercase and lowercase English letters.
 
 
