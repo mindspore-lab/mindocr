@@ -51,7 +51,7 @@ loss:
 scheduler: 
   scheduler: warmup_cosine_decay
   min_lr: 0.0
-  lr: 0.0005
+  lr: 0.001
   num_epochs: 60
   warmup_epochs: 6
   decay_epochs: 54
@@ -73,6 +73,7 @@ train:
   ema_decay: 0.9999
   ckpt_save_dir: './tmp_rec'
   dataset_sink_mode: False
+  pred_cast_fp32: False
   dataset:
     type: LMDBDataset
     dataset_root: path/to/chinese_text_recognition/ # Optional, if set, dataset_root will be used as a prefix for data_dir

@@ -6,7 +6,7 @@
 
 ## 数据下载
 
-按照 [Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition) 中的设置，我们使用与 [Datasets] 中描述的相同的训练、验证和评估数据（ https://github.com/FudanVI/benchmarking-chinese-text-recognition#datasets）
+按照 [Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition) 中的设置，我们使用与 [Datasets](https://github.com/FudanVI/benchmarking-chinese-text-recognition#datasets) 中描述的相同的训练、验证和评估数据。
 
 请下载[Download](https://github.com/FudanVI/benchmarking-chinese-text-recognition/blob/main/README.md#download)中介绍的以下LMDB文件：
 
