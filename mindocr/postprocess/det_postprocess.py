@@ -22,7 +22,7 @@ class DBPostprocess:
         self._name = pred_name
         self._names = {'binary': 0, 'thresh': 1, 'thresh_binary': 2}
 
-    def __call__(self, pred, **kwargs):
+    def __call__(self, pred: Union[Tensor, Tuple[Tensor], np.ndarray], img_shape: Tuple[int, ...], **kwargs) -> dict:
         """
         pred (Union[Tensor, Tuple[Tensor], np.ndarray]):
             binary: text region segmentation map, with shape (N, 1, H, W)
@@ -30,7 +30,7 @@ class DBPostprocess:
             thresh_binary: [if exists] binarized with threshold, (N, 1, H, W) (optional)
         Returns:
             result (dict) with keys:
-                polygons: np.ndarray of shape (N, K, 4, 2) for the polygons of objective regions if region_type is 'quad'
+                polys: np.ndarray of shape (N, K, 4, 2) for the polygons of objective regions if region_type is 'quad'
                 scores: np.ndarray of shape (N, K), score for each box
         """
         if isinstance(pred, tuple):
@@ -41,13 +41,17 @@ class DBPostprocess:
 
         segmentation = pred >= self._binary_thresh
 
-        # FIXME: dest_size is supposed to be the original image shape (pred.shape -> batch['shape'])
-        dest_size = np.array(pred.shape[:0:-1])  # w, h order
+        # scale polygons in case when the prediction shape doesn't match the input shape
+        dest_size = np.array(img_shape[:1:-1])          # w, h order
         scale = dest_size / np.array(pred.shape[:0:-1])
 
-        # TODO:
-        # FIXME: output as dict, keep consistent return format to recognition
-        return [self._extract_preds(pr, segm, scale, dest_size) for pr, segm in zip(pred, segmentation)]
+        polys, scores = [], []
+        for pr, segm in zip(pred, segmentation):
+            sample_polys, sample_scores = self._extract_preds(pr, segm, scale, dest_size)
+            polys.append(sample_polys)
+            scores.append(sample_scores)
+
+        return {'polys': polys, 'scores': scores}
 
     def _extract_preds(self, pred, bitmap, scale, dest_size):
         outs = cv2.findContours(bitmap.astype(np.uint8), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
