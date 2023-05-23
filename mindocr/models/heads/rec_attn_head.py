@@ -37,6 +37,8 @@ class AttentionHead(nn.Cell):
         self.one = Tensor(1.0, ms.float32)
         self.zero = Tensor(0.0, ms.float32)
 
+        self.argmax = ops.Argmax(axis=1)
+
     def _char_to_onehot(self, input_char: Tensor, onehot_dim: int) -> Tensor:
         input_one_hot = ops.one_hot(input_char, onehot_dim, self.one, self.zero)
         return input_one_hot
@@ -68,7 +70,7 @@ class AttentionHead(nn.Cell):
                 hidden, _ = self.attention_cell(hidden, inputs, char_onehots)
                 probs_step = self.generator(hidden)
                 probs.append(probs_step)
-                next_input = ops.argmax(probs_step, axis=1)
+                next_input = self.argmax(probs_step)
                 targets = next_input
             probs = ops.stack(probs, axis=1)
             probs = ops.softmax(probs, axis=2)

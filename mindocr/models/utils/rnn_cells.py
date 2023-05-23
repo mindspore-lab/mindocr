@@ -1,7 +1,6 @@
 """RNN Cells that supports FP16 inputs
 """
 import mindspore.ops as P
-import mindspore.common.dtype as mstype
 from mindspore.ops.primitive import constexpr
 from mindspore.nn.layer.rnn_cells import RNNCellBase
 
@@ -26,13 +25,6 @@ def _gru_cell(inputs, hidden, w_ih, w_hh, b_ih, b_hh):
     hy = newgate + inputgate * (hidden - newgate)
 
     return hy
-
-@constexpr
-def _check_is_tensor(param_name, input_data, cls_name):
-    """Internal function, used to check whether the input data is Tensor."""
-    if input_data is not None and not isinstance(P.typeof(input_data), mstype.tensor_type):
-        raise TypeError(f"For '{cls_name}', the '{param_name}' must be '{mstype.tensor_type}', "
-                        f"but got '{P.typeof(input_data)}'")
 
 @constexpr
 def _check_batch_size_equal(batch_size_x, batch_size_hx, cls_name):
@@ -101,8 +93,6 @@ class GRUCell(RNNCellBase):
         super().__init__(input_size, hidden_size, has_bias, num_chunks=3)
 
     def construct(self, x, hx):
-        _check_is_tensor('x', x, self.cls_name)
-        _check_is_tensor('hx', hx, self.cls_name)
         _check_batch_size_equal(x.shape[0], hx.shape[0], self.cls_name)
 
         # FIX: make sure the weight and bias dtype is same as the data type from x
