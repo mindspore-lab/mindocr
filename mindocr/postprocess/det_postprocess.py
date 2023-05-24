@@ -1,9 +1,8 @@
 from typing import Tuple, Union
 import cv2
 import numpy as np
-from shapely.geometry import Polygon
-import mindspore as ms
 from mindspore import Tensor
+from shapely.geometry import Polygon
 
 from ..data.transforms.det_transforms import expand_poly
 
@@ -11,23 +10,40 @@ __all__ = ['DBPostprocess']
 
 
 class DBPostprocess:
-    def __init__(self, binary_thresh=0.3, box_thresh=0.7, max_candidates=1000, expand_ratio=1.5,
-                 output_polygon=False, pred_name='binary'):
+    """
+    DBNet & DBNet++ postprocessing pipeline: extracts polygons / rectangles from a binary map (heatmap) and returns
+        their coordinates.
+    Args:
+        binary_thresh: binarization threshold applied to the heatmap output of DBNet.
+        box_thresh: polygon confidence threshold. Polygons with scores lower than this threshold are filtered out.
+        max_candidates: maximum number of proposed polygons.
+        expand_ratio: controls by how much polygons need to be expanded to recover the original text shape
+            (DBNet predicts shrunken text masks).
+        output_polygon: output polygons or rectangles as the network's predictions.
+        pred_name: heatmap's name used for polygons extraction.
+        scale_polygons: scale polygons to match the groundtruth (use it only in case when input shape to
+            the network != output shape, e.g. when the input shape is not multiple of 32).
+    """
+    def __init__(self, binary_thresh: float = 0.3, box_thresh: float = 0.7, max_candidates: int = 1000,
+                 expand_ratio: float = 1.5, output_polygon=False, pred_name: str = 'binary', scale_polygons=False):
         self._min_size = 3
         self._binary_thresh = binary_thresh
         self._box_thresh = box_thresh
         self._max_candidates = max_candidates
         self._expand_ratio = expand_ratio
         self._out_poly = output_polygon
+        self._scale = scale_polygons
         self._name = pred_name
         self._names = {'binary': 0, 'thresh': 1, 'thresh_binary': 2}
 
-    def __call__(self, pred: Union[Tensor, Tuple[Tensor], np.ndarray], img_shape: Tuple[int, ...], **kwargs) -> dict:
+    def __call__(self, pred: Union[Tensor, Tuple[Tensor], np.ndarray], shape: Union[Tensor, np.ndarray] = None,
+                 **kwargs) -> dict:
         """
         pred (Union[Tensor, Tuple[Tensor], np.ndarray]):
             binary: text region segmentation map, with shape (N, 1, H, W)
             thresh: [if exists] threshold prediction with shape (N, 1, H, W) (optional)
             thresh_binary: [if exists] binarized with threshold, (N, 1, H, W) (optional)
+        shape: network input image shapes, (N, 4). These 4 values represent input image [h, w, scale_h, scale_w]
         Returns:
             result (dict) with keys:
                 polys: np.ndarray of shape (N, K, 4, 2) for the polygons of objective regions if region_type is 'quad'
@@ -41,19 +57,20 @@ class DBPostprocess:
 
         segmentation = pred >= self._binary_thresh
 
-        # scale polygons in case when the prediction shape doesn't match the input shape
-        dest_size = np.array(img_shape[:1:-1])          # w, h order
-        scale = dest_size / np.array(pred.shape[:0:-1])
+        # scale polygons in case when the prediction shape doesn't match the groundtruth shape
+        shapes = [None] * len(pred)
+        if self._scale:
+            shapes = shape.asnumpy() if isinstance(shape, Tensor) else shape
 
         polys, scores = [], []
-        for pr, segm in zip(pred, segmentation):
-            sample_polys, sample_scores = self._extract_preds(pr, segm, scale, dest_size)
+        for pr, segm, sh in zip(pred, segmentation, shapes):
+            sample_polys, sample_scores = self._extract_preds(pr, segm, sh)
             polys.append(sample_polys)
             scores.append(sample_scores)
 
         return {'polys': polys, 'scores': scores}
 
-    def _extract_preds(self, pred, bitmap, scale, dest_size):
+    def _extract_preds(self, pred: np.ndarray, bitmap: np.ndarray, shape: np.ndarray):
         outs = cv2.findContours(bitmap.astype(np.uint8), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
         if len(outs) == 3:  # FIXME: update to OpenCV 4.x and delete this
             _, contours, _ = outs[0], outs[1], outs[2]
@@ -94,8 +111,12 @@ class DBPostprocess:
             # box = np.array(expand_poly(points, distance=box.area * self._expand_ratio / box.length, joint_type=pyclipper.JT_MITER))
             # assert box.shape[0] == 4, print(f'box shape is {box.shape}')
 
-            # predictions may not be the same size as the input image => scale it
-            polys.append(np.clip(np.round(poly * scale), 0, dest_size - 1).astype(np.int16))
+            # predictions may not be the same size as the groundtruth => scale them
+            if self._scale:
+                # shape: [h, w, scale_h, scale_w]
+                poly = np.clip(np.round(poly * shape[:1:-1]), 0, shape[1::-1] - 1).astype(np.int16)
+
+            polys.append(poly)
             scores.append(score)
 
         if self._out_poly:
