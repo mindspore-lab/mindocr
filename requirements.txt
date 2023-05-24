@@ -14,3 +14,4 @@ Pillow>=9.1.1
 PyYAML>=6.0
 xml-python>=0.4.3
 packaging
+Cython

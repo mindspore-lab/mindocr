@@ -4,7 +4,7 @@ from .mindcv_models.resnet import ResNet, BasicBlock, Bottleneck, default_cfgs
 from .mindcv_models.utils import load_pretrained
 from ._registry import register_backbone, register_backbone_class
 
-__all__ = ['DetResNet', 'det_resnet50', 'det_resnet18']
+__all__ = ['DetResNet', 'det_resnet50', 'det_resnet18', 'det_resnet152']
 
 
 @register_backbone_class
@@ -58,6 +58,17 @@ def det_resnet50(pretrained: bool = True, **kwargs):
     # load pretrained weights
     if pretrained:
         default_cfg = default_cfgs['resnet50']
+        load_pretrained(model, default_cfg)
+
+    return model
+
+
+@register_backbone
+def det_resnet152(pretrained: bool = True, **kwargs):
+    model = DetResNet(Bottleneck, [3, 8, 36, 3], **kwargs)
+    # load pretrained weights
+    if pretrained:
+        default_cfg = default_cfgs['resnet152']
         load_pretrained(model, default_cfg)
 
     return model

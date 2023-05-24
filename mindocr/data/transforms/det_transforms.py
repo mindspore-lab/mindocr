@@ -11,7 +11,7 @@ import pyclipper
 from shapely.geometry import Polygon
 import numpy as np
 
-__all__ = ['DetLabelEncode', 'BorderMap', 'ShrinkBinaryMap', 'DetResize', 'expand_poly']
+__all__ = ['DetLabelEncode', 'BorderMap', 'ShrinkBinaryMap', 'DetResize', 'expand_poly', 'PSEGtDecode']
 
 
 class DetLabelEncode:
@@ -79,6 +79,8 @@ class DetLabelEncode:
 #  RuntimeWarning: invalid value encountered in sqrt result = np.sqrt(a_sq * b_sq * sin_sq / c_sq)
 #  RuntimeWarning: invalid value encountered in true_divide cos = (a_sq + b_sq - c_sq) / (2 * np.sqrt(a_sq * b_sq))
 warnings.filterwarnings("ignore")
+
+
 class BorderMap:
     def __init__(self, shrink_ratio=0.4, thresh_min=0.3, thresh_max=0.7):
         self._thresh_min = thresh_min
@@ -114,14 +116,14 @@ class BorderMap:
         ys = np.broadcast_to(np.linspace(0, height - 1, num=height).reshape(height, 1), (height, width))
 
         distance_map = [self._distance(xs, ys, p1, p2) for p1, p2 in zip(np_poly, np.roll(np_poly, 1, axis=0))]
-        distance_map = np.clip(np.array(distance_map, dtype=np.float32) / distance, 0, 1).min(axis=0)   # NOQA
+        distance_map = np.clip(np.array(distance_map, dtype=np.float32) / distance, 0, 1).min(axis=0)  # NOQA
 
         min_valid = np.clip(min_vals, 0, np.array(border.shape[::-1]) - 1)  # shape reverse order: w, h
         max_valid = np.clip(max_vals, 0, np.array(border.shape[::-1]) - 1)
 
         border[min_valid[1]: max_valid[1] + 1, min_valid[0]: max_valid[0] + 1] = np.fmax(
             1 - distance_map[min_valid[1] - min_vals[1]: max_valid[1] - max_vals[1] + height,
-                             min_valid[0] - min_vals[0]: max_valid[0] - max_vals[0] + width],
+                min_valid[0] - min_vals[0]: max_valid[0] - max_vals[0] + width],
             border[min_valid[1]: max_valid[1] + 1, min_valid[0]: max_valid[0] + 1]
         )
 
@@ -208,8 +210,8 @@ class DetResize(object):
                  padding=False,
                  limit_type='min',
                  limit_side_len=736,
-                 force_divisable = True,
-                 divisor = 32,
+                 force_divisable=True,
+                 divisor=32,
                  interpolation=cv2.INTER_LINEAR):
 
         if target_size is not None:
@@ -227,13 +229,15 @@ class DetResize(object):
         if limit_type in ['min', 'max']:
             keep_ratio = True
             padding = False
-            print('INFO: `limit_type` is {limit_type}. Image will be resized by limiting the {limit_type} side length to {limit_side_len}.')
+            print(
+                'INFO: `limit_type` is {limit_type}. Image will be resized by limiting the {limit_type} side length to {limit_side_len}.')
         elif not limit_type:
             assert target_size is not None or force_divisable is not None, 'One of `target_size` or `force_divisable` is required when limit_type is not set. Please set at least one of them.'
             if target_size and force_divisable:
                 if (target_size[0] % divisor != 0) or (target_size[1] % divisor != 0):
-                    self.target_size= [max(round(x / self.divisor) * self.divisor, self.divisor) for x in target_size]
-                    print(f'WARNING: `force_divisable` is enabled but the set target size {target_size} is not divisable by {divisor}. Target size is ajusted to {self.target_size}')
+                    self.target_size = [max(round(x / self.divisor) * self.divisor, self.divisor) for x in target_size]
+                    print(
+                        f'WARNING: `force_divisable` is enabled but the set target size {target_size} is not divisable by {divisor}. Target size is ajusted to {self.target_size}')
             if (target_size is not None) and keep_ratio and (not padding):
                 print(f'WARNING: output shape can be dynamic if keep_ratio but no padding.')
         else:
@@ -258,10 +262,10 @@ class DetResize(object):
         scale_ratio = 1.0
         allow_padding = False
         if self.limit_type == 'min':
-            if min(h, w) < self.limit_side_len: # upscale
+            if min(h, w) < self.limit_side_len:  # upscale
                 scale_ratio = self.limit_side_len / float(min(h, w))
         elif self.limit_type == 'max':
-            if max(h, w) > self.limit_side_len: # downscale
+            if max(h, w) > self.limit_side_len:  # downscale
                 scale_ratio = self.limit_side_len / float(max(h, w))
         elif not self.limit_type:
             if self.keep_ratio:
@@ -277,7 +281,8 @@ class DetResize(object):
             resize_h = tar_h
 
         if self.force_divisable:
-            if not (allow_padding and self.padding): # no need to round it the image will be padded to the target size which is divisable.
+            if not (
+                    allow_padding and self.padding):  # no need to round it the image will be padded to the target size which is divisable.
                 # adjust the size slightly so that both sides of the image are divisable by divisor e.g. 32, which could be required by the network
                 resize_h = max(round(resize_h / self.divisor) * self.divisor, self.divisor)
                 resize_w = max(round(resize_w / self.divisor) * self.divisor, self.divisor)
@@ -290,7 +295,8 @@ class DetResize(object):
                 padded_img[:resize_h, :resize_w, :] = resized_img
                 data['image'] = padded_img
             else:
-                raise ValueError(f'`target_size` must be set to be not smaller than (resize_h, resize_w) for padding, but found {self.target_size}')
+                raise ValueError(
+                    f'`target_size` must be set to be not smaller than (resize_h, resize_w) for padding, but found {self.target_size}')
         else:
             data['image'] = resized_img
 
@@ -308,3 +314,90 @@ def expand_poly(poly, distance: float, joint_type=pyclipper.JT_ROUND) -> List[li
     offset = pyclipper.PyclipperOffset()
     offset.AddPath(poly, joint_type, pyclipper.ET_CLOSEDPOLYGON)
     return offset.Execute(distance)
+
+
+class PSEGtDecode(object):
+    def __init__(self, kernel_num=7, min_shrink_ratio=0.4, min_shortest_edge=640):
+        self.kernel_num = kernel_num
+        self.min_shrink_ratio = min_shrink_ratio
+        self.min_shortest_edge = min_shortest_edge
+
+    @staticmethod
+    def _dist(point_1, point_2):
+        return np.sqrt(np.sum((point_1 - point_2) ** 2))
+
+    def _perimeter(self, bbox):
+        peri = 0.0
+        for i in range(bbox.shape[0]):
+            peri += self._dist(bbox[i], bbox[(i + 1) % bbox.shape[0]])
+        return peri
+
+    def _shrink(self, text_polys, rate, max_shr=20):
+        rate = rate * rate
+        shrinked_text_polys = []
+        for bbox in text_polys:
+            area = Polygon(bbox).area
+            peri = self._perimeter(bbox)
+
+            pco = pyclipper.PyclipperOffset()
+            pco.AddPath(bbox, pyclipper.JT_ROUND, pyclipper.ET_CLOSEDPOLYGON)
+            offset = min((int)(area * (1 - rate) / (peri + 0.001) + 0.5), max_shr)
+
+            shrinked_bbox = pco.Execute(-offset)  # (N, 2) shape, N maybe larger than or smaller than 4.
+            if not shrinked_bbox:
+                shrinked_text_polys.append(bbox)
+                continue
+
+            shrinked_bbox = np.array(shrinked_bbox)[0]
+            if shrinked_bbox.shape[0] <= 2:
+                shrinked_text_polys.append(bbox)
+                continue
+
+            shrinked_text_polys.append(shrinked_bbox)
+
+        return shrinked_text_polys
+
+    def __call__(self, data):
+
+        image = data['image']
+        text_polys = data['polys']
+        ignore_tags = data['ignore_tags']
+
+        h, w, _ = image.shape
+        short_edge = min(h, w)
+        if short_edge < self.min_shortest_edge:
+            # keep short_size >= self.min_short_edge
+            scale = self.min_shortest_edge / short_edge
+            image = cv2.resize(image, dsize=None, fx=scale, fy=scale)
+            text_polys *= scale
+
+        # get gt_text and training_mask
+        img_h, img_w = image.shape[0: 2]
+        gt_text = np.zeros((img_h, img_w), dtype=np.float32)
+        training_mask = np.ones((img_h, img_w), dtype=np.float32)
+        if text_polys.shape[0] > 0:
+            text_polys = text_polys.astype('int32')
+            for i in range(text_polys.shape[0]):
+                cv2.drawContours(gt_text, [text_polys[i]], 0, i + 1, -1)
+                if ignore_tags[i]:
+                    cv2.drawContours(training_mask, [text_polys[i]], 0, 0, -1)
+
+        # get gt_kernels
+        gt_kernels = []
+        for i in range(1, self.kernel_num):
+            rate = 1.0 - (1.0 - self.min_shrink_ratio) / (self.kernel_num - 1) * i
+            gt_kernel = np.zeros((img_h, img_w), dtype=np.float32)
+            kernel_text_polys = self._shrink(text_polys, rate)
+            for j in range(len(kernel_text_polys)):
+                cv2.drawContours(gt_kernel, [kernel_text_polys[j]], 0, 1, -1)
+            gt_kernels.append(gt_kernel)
+
+        gt_text[gt_text > 0] = 1
+        gt_kernels = np.array(gt_kernels)
+
+        data['image'] = image
+        data['polys'] = text_polys
+        data['gt_kernels'] = gt_kernels
+        data['gt_text'] = gt_text
+        data['mask'] = training_mask
+        return data
