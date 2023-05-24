@@ -19,11 +19,12 @@ class DecodeImage:
     img_mode (str): The channel order of the output, 'BGR' and 'RGB'. Default to 'BGR'.
     channel_first (bool): if True, image shpae is CHW. If False, HWC. Default to False
     """
-    def __init__(self, img_mode='BGR', channel_first=False, to_float32=False, ignore_orientation=False, **kwargs):
+    def __init__(self, img_mode='BGR', channel_first=False, to_float32=False, ignore_orientation=False, keep_ori=False, **kwargs):
         self.img_mode = img_mode
         self.to_float32 = to_float32
         self.channel_first = channel_first
         self.flag = cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR if ignore_orientation else cv2.IMREAD_COLOR
+        self.keep_ori = keep_ori
 
     def __call__(self, data):
         if 'img_path' in data:
@@ -45,6 +46,10 @@ class DecodeImage:
         data['image'] = img
         # data['ori_image'] = img.copy()
         data['raw_img_shape'] = img.shape[:2]
+
+        if self.keep_ori:
+            data['image_ori'] = img.copy()
+
         return data
 
 
@@ -322,7 +327,7 @@ class ValidatePolygons:
 
         new_polys, new_texts, new_tags = [], [], []
         for np_poly, text, ignore in zip(data['polys'], data['texts'], data['ignore_tags']):
-            poly = Polygon(np_poly) 
+            poly = Polygon(np_poly)
             if (not poly.is_valid) or (poly.is_empty):
                 #poly = poly.buffer(0)
                 continue
