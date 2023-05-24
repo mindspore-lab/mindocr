@@ -98,7 +98,7 @@ MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_i
 
 #### 2.3 使用原生MindSpore推理
 
-MindOCR支持使用MindOCR训练好的ckpt文件进行文本检测+文本识别串联推理，请参考[此处](docs/cn/predict_ckpt_cn.md)。
+MindOCR支持使用MindOCR训练好的ckpt文件进行文本检测+文本识别串联推理，请参考[此处](toos/infer/text/README.md)。
 
 ## 模型列表
 

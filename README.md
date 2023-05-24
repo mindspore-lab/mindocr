@@ -107,7 +107,7 @@ Coming soon
 
 #### 2.3 Inference with native MindSpore
 
-MindOCR provides the detection and recognition prediction pipeline using MindOCR-trained ckpt files. Please check [here](docs/en/predict_ckpt.md).
+MindOCR provides the detection and recognition prediction pipeline using MindOCR-trained ckpt files. Please check [here](tools/infer/text/README.md).
 
 ## Model List
 

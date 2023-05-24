@@ -102,6 +102,6 @@ def test_train_eval(task, val_while_train, gradient_accumulation_steps, clip_gra
 
 if __name__ == '__main__':
     #test_train_eval('rec', True, 1, True, 'filter_norm_and_bias')
-    #test_train_eval('det', True, 1, False, None, True)
-    test_train_eval('rec', True, 2, True, 'filter_norm_and_bias', True)
+    test_train_eval('det', True, 1, False, None, True)
+    #test_train_eval('rec', True, 2, True, 'filter_norm_and_bias', True)
     #test_train_eval('rec', True, 2, False, None)

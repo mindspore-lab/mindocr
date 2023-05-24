@@ -94,6 +94,8 @@ def load_pretrained(model, default_cfg, num_classes=1000, in_channels=3, filter_
 
     load_param_into_net(model, param_dict)
 
+    print('INFO: Finish loading model checkpoint from: ', os.path.join(download_path, os.path.basename(default_cfg["url"])))
+
 
 def make_divisible(
     v: float,

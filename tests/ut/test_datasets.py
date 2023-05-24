@@ -10,7 +10,7 @@ import time
 import mindspore as ms
 import mindocr
 from mindocr.data import build_dataset
-from mindocr.utils.visualize import show_img, draw_bboxes, recover_image
+from mindocr.utils.visualize import show_img, draw_boxes, recover_image
 
 
 @pytest.mark.parametrize('task', ['det', 'rec'])
@@ -56,7 +56,7 @@ def test_build_dataset(task, phase, verbose=False, visualize=False):
             if task == 'det' and phase == 'eval':
                 img = batch['image'][0].asnumpy()
                 polys = batch['polys'][0].asnumpy()
-                img_polys = draw_bboxes(recover_image(img), polys)
+                img_polys = draw_boxes(recover_image(img), polys)
                 show_img(img_polys)
 
         start = time.time()
