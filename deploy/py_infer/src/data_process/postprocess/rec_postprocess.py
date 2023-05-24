@@ -19,6 +19,7 @@ class RecCTCLabelDecode(object):
     def __init__(self,
                  character_dict_path=None,
                  use_space_char=False,
+                 use_redundant_space_char=False,
                  blank_at_last=True,
                  lower=False,
                  ):
@@ -47,6 +48,9 @@ class RecCTCLabelDecode(object):
                 print(
                     "WARNING: The dict still contains space char in dict although use_space_char is set to be False, because the space char is coded in the dictionary file ",
                     character_dict_path)
+
+        if use_redundant_space_char:
+            char_list.append(' ')  # paddleOCR rec models need two space char
 
         self.num_valid_chars = len(char_list)  # the number of valid chars (including space char if used)
 

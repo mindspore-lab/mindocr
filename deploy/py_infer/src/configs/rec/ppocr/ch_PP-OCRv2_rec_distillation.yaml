@@ -1,0 +1,15 @@
+postprocess:
+  name: DistillationCTCLabelDecode
+  use_space_char: True
+  blank_at_last: False
+
+eval:
+  dataset:
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          channel_first: False
+          to_float32: True
+      - RecResizeImg:
+          padding: True
+      - ToCHWImage:
