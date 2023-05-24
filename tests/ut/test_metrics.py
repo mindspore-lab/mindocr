@@ -13,44 +13,41 @@ from mindocr.metrics.rec_metrics import RecMetric
 @pytest.mark.parametrize('task', ['det', 'rec'])
 @pytest.mark.parametrize('device_num', [1, 8])
 def test_build_metric(task, device_num):
-  if task == 'det':
-      config_fp = 'configs/det/dbnet/db_r50_icdar15.yaml'
-  elif task=='rec':
-      config_fp = 'configs/rec/crnn/crnn_icdar15.yaml'
+    if task == 'det':
+        config_fp = 'configs/det/dbnet/db_r50_icdar15.yaml'
+    elif task == 'rec':
+        config_fp = 'configs/rec/crnn/crnn_icdar15.yaml'
 
-  with open(config_fp) as fp:
-      cfg = yaml.safe_load(fp)
-  cfg = Dict(cfg)
+    with open(config_fp) as fp:
+        cfg = yaml.safe_load(fp)
+    cfg = Dict(cfg)
 
-  metric = build_metric(cfg.metric, device_num=device_num)
+    metric = build_metric(cfg.metric, device_num=device_num)
 
 
 def test_det_metric():
-    pred_polys = [ 
-                  [
-                    [[0, 0], [0, 10], [10, 10], [10, 0]],
-                    [[10, 10], [10, 20], [20, 20], [20, 10]],
-                    [[20, 20], [20, 30], [30, 30], [30, 20]],
-                  ],
-                 ]
+    pred_polys = [
+        [
+            [[0, 0], [0, 10], [10, 10], [10, 0]],
+            [[10, 10], [10, 20], [20, 20], [20, 10]],
+            [[20, 20], [20, 30], [30, 30], [30, 20]],
+        ]
+    ]
     pred_polys = np.array(pred_polys, dtype=np.float32)
     confs = np.array([[1.0, 0.8, 0.9]])
-    num_images = pred_polys.shape[0]
-    num_boxes = pred_polys.shape[1]
-    print(num_images, num_boxes)
-    preds = [(pred_polys[i], confs[i]) for i in range(num_images)]
+    preds = {'polys': pred_polys, 'scores': confs}
 
-    gt_polys = [ 
-                  [
-                    [[0, 0], [0, 9], [9, 9], [9, 0]],
-                    [[10, 10], [-10, -20], [-20, -20], [-20, -10]],
-                    [[20, 20], [20, 30], [30, 30], [30, 20]],
-                  ],
-                 ]
+    gt_polys = [
+        [
+            [[0, 0], [0, 9], [9, 9], [9, 0]],
+            [[10, 10], [-10, -20], [-20, -20], [-20, -10]],
+            [[20, 20], [20, 30], [30, 30], [30, 20]],
+        ]
+    ]
     gt_polys = ms.Tensor(np.array(gt_polys, dtype=np.float32))
     ignore_tags = ms.Tensor([[False, False, True]])
     gts = (gt_polys, ignore_tags)
-    
+
     m = DetMetric()
     m.update(preds, gts)
 
@@ -78,6 +75,6 @@ def test_rec_metric():
     assert (perf['norm_edit_distance'] - 0.92857) < 1e-4
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     test_det_metric()
-    #test_rec_metric()
+    # test_rec_metric()
