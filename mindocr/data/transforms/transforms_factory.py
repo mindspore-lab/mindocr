@@ -39,7 +39,6 @@ def create_transforms(transform_pipeline, global_config=None):
                 param.update(global_config)
             # TODO: assert undefined transform class
 
-            # print(trans_name, param)
             transform = eval(trans_name)(**param)
             transforms.append(transform)
         elif callable(transform_config):
