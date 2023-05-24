@@ -104,13 +104,15 @@ class Evaluator:
             else:
                 gt = data[1:]
 
-            net_preds = self.net(*inputs)
+            preds = self.net(*inputs)
 
             if self.pred_cast_fp32:
-                if isinstance(net_preds, ms.Tensor):
-                    net_preds = F.cast(net_preds, mstype.float32)
+                if isinstance(preds, ms.Tensor):
+                    preds = F.cast(preds, mstype.float32)
                 else:
-                    net_preds = [F.cast(p, mstype.float32) for p in net_preds]
+                    preds = [F.cast(p, mstype.float32) for p in preds]
+
+            data_info = {'labels': gt, 'img_shape': inputs[0].shape}
 
             if self.postprocessor is not None:
                 # additional info such as image path, original image size, pad shape, extracted in data processing
@@ -123,8 +125,8 @@ class Evaluator:
                     meta_data_indices = sorted(set(range(len(data))) - input_indices - label_indices)
                     meta_info = [data[x] for x in meta_data_indices]
 
-                data_info = {'labels': gt, 'img_shape': inputs[0].shape, 'meta_info': meta_info}
-                preds = self.postprocessor(net_preds, **data_info)
+                data_info['meta_info'] = meta_info
+                preds = self.postprocessor(preds, **data_info)
 
             # metric internal update
             for m in self.metrics:
