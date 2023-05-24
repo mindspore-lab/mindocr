@@ -37,13 +37,17 @@ Table Format:
 
 According to our experiments, the evaluation results on public benchmark datasets (IC03, IC13, IC15, IIIT, SVT, SVTP, CUTE) is as follow:
 
+<div align="center">
+
 | **Model** | **Context**    | **Backbone** | **Avg Accuracy** | **Train T.** | **Recipe** | **Download** | 
 | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
 | CRNN (ours)      | D910x8-MS1.8-G | VGG7 | 82.03%    | 2445 s/epoch          | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-3a19e349.mindir)   |
 | CRNN (ours)      | D910x8-MS1.8-G | ResNet34_vd | 84.45%    | 2118 s/epoch         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-2f016384.mindir) |
 | CRNN (PaddleOCR) | -              | ResNet34_vd | 83.99%           | -                      | -                                                                                              | -                                                                                          |
+</div>
 
 <details open>
+  <div align="center">
   <summary>Detailed accuracy results for each benchmark dataset</summary>
 
   | **Model** | **Backbone** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
@@ -51,7 +55,7 @@ According to our experiments, the evaluation results on public benchmark dataset
   | CRNN (ours) | VGG7 | 94.53% | 94.00% | 92.18% | 90.74% | 71.95% | 66.06% | 84.10% | 83.93% | 73.33% | 69.44% | 82.03% |
   | CRNN (ours) | ResNet34_vd | 94.42% | 94.23% | 93.35% | 92.02% | 75.92% | 70.15% | 87.73% | 86.40% | 76.28% | 73.96% | 84.45% |
   | CRNN (PaddleOCR) | ResNet34_vd | 95.23% | 94.35% | 93.47% | 92.71% | 72.34% | 66.35% | 87.67% | 87.64% | 73.80% | 76.39% | 83.99% |
-
+  </div>
 </details>
 
 ### Performance
@@ -373,9 +377,12 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/
 
 After training, evaluation results on the benchmark test set are as follows, where we also provide the model config and pretrained weights.
 
+<div align="center">
+
 | **Model** | **Language** | **Backbone** | **Scene** | **Web** | **Document** | **Recipe** | **Download** | 
 | :-----: | :-----:  | :--------: | :--------: | :--------: | :--------: | :---------: | :-----------: |
 | CRNN    | Chinese | ResNet34_vd | 59.71% | 64.86% | 89.23% |  [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3-f27f763a.mindir) |
+</div>
 
 ### Training with Custom Datasets
 You can train models for different languages with your own custom datasets. Loading the pretrained Chinese model to finetune on your own dataset usually yields better results than training from scratch. Please refer to the tutorial [Training Recognition Network with Custom Datasets](../../../docs/en/tutorials/training_recognition_custom_dataset.md).

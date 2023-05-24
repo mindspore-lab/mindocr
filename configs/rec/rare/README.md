@@ -33,17 +33,21 @@ Table Format:
 
 According to our experiments, the evaluation results on public benchmark datasets (IC03, IC13, IC15, IIIT, SVT, SVTP, CUTE) is as follow:
 
+<div align="center">
+
 | **Model** | **Context**    | **Backbone** | **Transform Module** | **Avg Accuracy** | **Train T.** | **Recipe** | **Download** | 
 | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
 | RARE (ours)      | D910x4-MS1.10-G | ResNet34_vd | None | 85.19%    | 3166 s/epoch         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e-b65dd225.mindir) |
+</div>
 
 <details open>
+  <div align="center">
   <summary>Detailed accuracy results for each benchmark dataset</summary>
 
   | **Model** | **Backbone** | **Transform Module** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
   | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
   | RARE (ours) | ResNet34_vd | None | 95.12% | 94.58% | 94.28% | 92.71% | 75.31% | 69.52% | 88.17% | 87.33% | 78.91% | 76.04% | 85.19% |
-
+  </div>
 </details>
 
 **Notes:**
@@ -342,10 +346,12 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/rare/
 ### Results and Pretrained Weights
 
 After training, evaluation results on the benchmark test set are as follows, where we also provide the model config and pretrained weights.
+<div align="center">
 
 | **Model** | **Language** | **Backbone** | **Transform Module** | **Scene** | **Web** | **Document** | **Recipe** | **Download** | 
 | :-----: | :-----:  | :--------: | :------------: | :--------: | :--------: | :--------: | :---------: | :-----------: |
 | RARE    | Chinese | ResNet34_vd | None | 55.39% | 61.90% | 97.05% |  [rare_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20-017aec13.mindir) |
+</div>
 
 ### Training with Custom Datasets
 You can train models for different languages with your own custom datasets. Loading the pretrained Chinese model to finetune on your own dataset usually yields better results than training from scratch. Please refer to the tutorial [Training Recognition Network with Custom Datasets](../../../docs/en/tutorials/training_recognition_custom_dataset.md).

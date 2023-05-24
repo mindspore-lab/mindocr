@@ -34,19 +34,21 @@ Table Format:
 
 根据我们的实验，在公开基准数据集（IC03，IC13，IC15，IIIT，SVT，SVTP，CUTE）上的评估结果如下：
 
+<div align="center">
 
 | **模型** | **环境配置** | **平均准确率** | **训练时间** | **配置文件** | **模型权重下载** | 
 | :-----: | :-----:  | :-----: | :-----: | :-----: | :-----: |
 | SVTR-Tiny (ours)      | D910x4-MS1.10-G | 89.02%    | 4866 s/epoch        | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb-d5389653.mindir) |
-
+</div>
 
 <details open>
+  <div align="center">
   <summary>在各个基准数据集上的准确率</summary>
 
   | **模型** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **平均准确率** |
   | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
  | SVTR-Tiny (ours)  | 95.58% | 95.39% | 94.75% | 93.60% | 82.88% | 76.99% | 91.03% | 90.11% | 84.81% | 85.07% | 89.02% |
-
+  </div>
 </details>
 
 **注意:**

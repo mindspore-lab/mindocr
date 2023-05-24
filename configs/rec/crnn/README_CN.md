@@ -37,15 +37,17 @@ Table Format:
 
 根据我们的实验，在公开基准数据集（IC03，IC13，IC15，IIIT，SVT，SVTP，CUTE）上的评估结果如下：
 
+<div align="center">
 
 | **模型** | **环境配置** | **骨干网络** |**平均准确率** | **训练时间** | **配置文件** | **模型权重下载** | 
 | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
 | CRNN (ours)      | D910x8-MS1.8-G | VGG7  | 82.03%    | 2445 s/epoch | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-3a19e349.mindir)   |
 | CRNN (ours)      | D910x8-MS1.8-G | ResNet34_vd | 84.45%    | 2118 s/epoch         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-2f016384.mindir) |
 | CRNN (PaddleOCR) | -              | ResNet34_vd | 83.99%    | -             | -                                                                                              | -                                                                                          |
-
+</div>
 
 <details open>
+  <div align="center">
   <summary>在各个基准数据集上的准确率</summary>
 
   | **模型** | **骨干网络** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **平均准确率** |
@@ -53,7 +55,7 @@ Table Format:
   | CRNN (ours) | VGG7 | 94.53% | 94.00% | 92.18% | 90.74% | 71.95% | 66.06% | 84.10% | 83.93% | 73.33% | 69.44% | 82.03% |
   | CRNN (ours) | ResNet34_vd | 94.42% | 94.23% | 93.35% | 92.02% | 75.92% | 70.15% | 87.73% | 86.40% | 76.28% | 73.96% | 84.45% |
   | CRNN (PaddleOCR) | ResNet34_vd | 95.23% | 94.35% | 93.47% | 92.71% | 72.34% | 66.35% | 87.67% | 87.64% | 73.80% | 76.39% | 83.99% |
-
+  </div>
 </details>
 
 
@@ -376,9 +378,12 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/
 ### 评估结果和预训练权重
 模型训练完成后，在测试集不同场景上的准确率评估结果如下。相应的模型配置和预训练权重可通过表中链接下载。
 
+<div align="center">
+
 | **模型** | **语种** | **骨干网络** | **街景类** | **网页类** | **文档类** | **配置文件** | **模型权重下载** | 
 | :-----: | :-----:  | :--------: | :--------: | :--------: | :--------: | :---------: | :-----------: |
 | CRNN    | 中文 | ResNet34_vd | 59.71% | 64.86% | 89.23% |  [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3-f27f763a.mindir) |
+</div>
 
 ### 使用自定义数据集进行训练
 您可以在自定义的数据集基于提供的预训练权重进行微调训练, 以在特定场景获得更高的识别准确率，具体步骤请参考文档 [使用自定义数据集训练识别网络](../../../docs/cn/tutorials/training_recognition_custom_dataset_CN.md)。
