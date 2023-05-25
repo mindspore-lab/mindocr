@@ -352,9 +352,9 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/rare/
 
 <div align="center">
 
-| **模型** | **语种** | **骨干网络** | **空间变换网络** | **街景类** | **网页类** | **文档类** | **配置文件** | **模型权重下载** | 
-| :-----: | :-----:  | :--------: | :------------: | :--------: | :--------: | :--------: | :---------: | :-----------: |
-| RARE    | 中文 | ResNet34_vd | 无 |55.39% | 61.90% | 97.05% |  [rare_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20-017aec13.mindir) |
+| **模型** | **语种** | **骨干网络** | **空间变换网络** | **街景类** | **网页类** | **文档类** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** | 
+| :-----: | :-----:  | :--------: | :------------: | :--------: | :--------: | :--------: |:--------: | :--------: |:--------: | :--------: |
+| RARE    | 中文 | ResNet34_vd | 无 |55.39% | 61.90% | 97.05% | 683 s/epoch | 373 | [rare_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20-017aec13.mindir) |
 </div>
 
 ### 使用自定义数据集进行训练
