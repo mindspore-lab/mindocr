@@ -36,9 +36,9 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 <div align="center">
 
-| **Model** | **Context** | **Avg Accuracy** | **Train T.** | **Recipe** | **Download** | 
-| :-----: | :-----------: | :--------------: | :----------: | :--------: | :----------: |
-| SVTR-Tiny      | D910x4-MS1.10-G | 89.02%    | 4866 s/epoch       | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb-d5389653.mindir) |
+| **Model** | **Context** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** | 
+| :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |
+| SVTR-Tiny      | D910x4-MS1.10-G | 89.02%    | 4866 s/epoch       | 845 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb-d5389653.mindir) |
 </div>
 
 <details open>
