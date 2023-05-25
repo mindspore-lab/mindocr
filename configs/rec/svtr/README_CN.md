@@ -38,7 +38,7 @@ Table Format:
 
 | **模型** | **环境配置** | **平均准确率** | **训练时间** | **配置文件** | **模型权重下载** | 
 | :-----: | :-----:  | :-----: | :-----: | :-----: | :-----: |
-| SVTR-Tiny (ours)      | D910x4-MS1.10-G | 89.02%    | 4866 s/epoch        | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb-d5389653.mindir) |
+| SVTR-Tiny      | D910x4-MS1.10-G | 89.02%    | 4866 s/epoch        | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb-d5389653.mindir) |
 </div>
 
 <details open>
@@ -47,7 +47,7 @@ Table Format:
 
   | **模型** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **平均准确率** |
   | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
- | SVTR-Tiny (ours)  | 95.58% | 95.39% | 94.75% | 93.60% | 82.88% | 76.99% | 91.03% | 90.11% | 84.81% | 85.07% | 89.02% |
+ | SVTR-Tiny  | 95.58% | 95.39% | 94.75% | 93.60% | 82.88% | 76.99% | 91.03% | 90.11% | 84.81% | 85.07% | 89.02% |
   </div>
 </details>
 
@@ -164,7 +164,7 @@ eval:
 如要重现报告的评估结果，您可以：
 - 方法 1：对所有单个数据集重复评估步骤：CUTE80、IC03_860、IC03_867、IC13_857、IC131015、IC15_1811、IC15_2077、IIIT5k_3000、SVT、SVTP。然后取平均分。
 
-- 方法 2：将所有基准数据集文件夹放在同一目录下，例如`评估/`。并使用脚本`tools/benchmarking/multi_dataset_eval.py`。
+- 方法 2：将所有基准数据集文件夹放在同一目录下，例如`evaluation/`。并使用脚本`tools/benchmarking/multi_dataset_eval.py`。
 
 1.评估一个特定的数据集
 
@@ -309,7 +309,7 @@ python tools/eval.py --config configs/rec/svtr/svtr_tiny.yaml
 Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，可选择合适的字典使用。
 
 - `en_dict.txt` 是一个包含94个字符的英文字典，其中有数字，常用符号以及大小写的英文字母。
-- `ch_dict.txt` 是一个包含6623个字符的中文字典，其中有常用的繁简体中文，数字，常用符号以及大小写的英文字母
+- `ch_dict.txt` 是一个包含6623个字符的中文字典，其中有常用的繁简体中文，数字，常用符号以及大小写的英文字母。
 
 
 ### 自定义词典

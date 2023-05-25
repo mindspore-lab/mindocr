@@ -38,7 +38,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 | **Model** | **Context** | **Avg Accuracy** | **Train T.** | **Recipe** | **Download** | 
 | :-----: | :-----------: | :--------------: | :----------: | :--------: | :----------: |
-| SVTR-Tiny (ours)      | D910x4-MS1.10-G | 89.02%    | 4866 s/epoch       | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb-d5389653.mindir) |
+| SVTR-Tiny      | D910x4-MS1.10-G | 89.02%    | 4866 s/epoch       | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb-d5389653.mindir) |
 </div>
 
 <details open>
@@ -47,7 +47,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 
   | **Model** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
   | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-  | SVTR-Tiny (ours)  | 95.58% | 95.39% | 94.75% | 93.60% | 82.88% | 76.99% | 91.03% | 90.11% | 84.81% | 85.07% | 89.02% |
+  | SVTR-Tiny  | 95.58% | 95.39% | 94.75% | 93.60% | 82.88% | 76.99% | 91.03% | 90.11% | 84.81% | 85.07% | 89.02% |
   </div>
 </details>
 
