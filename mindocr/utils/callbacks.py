@@ -45,6 +45,7 @@ class Evaluator:
                  postprocessor=None,
                  metrics=None,
                  pred_cast_fp32=False,
+                 loader_output_columns=[],
                  input_indices=None,
                  label_indices=None,
                  meta_data_indices=None,
@@ -71,14 +72,15 @@ class Evaluator:
         assert eval_loss == False, 'not impl'
 
         # create iterator
-        self.reload(dataloader, input_indices, label_indices, meta_data_indices, num_epochs)
+        self.reload(dataloader, loader_output_columns, input_indices, label_indices, meta_data_indices, num_epochs)
 
-    def reload(self, dataloader, input_indices=None, label_indices=None, meta_data_indices=None, num_epochs=-1):
+    def reload(self, dataloader, loader_output_columns=[], input_indices=None, label_indices=None, meta_data_indices=None, num_epochs=-1):
         # create iterator
         self.iterator = dataloader.create_tuple_iterator(num_epochs=num_epochs, output_numpy=False, do_copy=False)
         self.num_batches_eval = dataloader.get_dataset_size()
 
         # dataset output columns
+        self.loader_output_columns = loader_output_columns 
         self.input_indices = input_indices
         self.label_indices = label_indices
         self.meta_data_indices = meta_data_indices
@@ -123,7 +125,15 @@ class Evaluator:
                     meta_data_indices = sorted(set(range(len(data))) - input_indices - label_indices)
                     meta_info = [data[x] for x in meta_data_indices]
 
-                data_info = {'labels': gt, 'img_shape': inputs[0].shape, 'meta_info': meta_info}
+                #data_info = {'labels': gt, 'img_shape': inputs[0].shape}
+                #NOTES: add more if new postprocess moduels need new keys. shape_list is commonly needed by detection
+                possible_keys_for_postprocess = ['shape_list', 'raw_img_shape'] 
+                #TODO: remove raw_img_shape (used in tools/infer/text/parallel). shape_list = [h, w, ratio_h, ratio_w] already contain raw image shape.
+                data_info = {}
+                for k in possible_keys_for_postprocess:
+                    if k in self.loader_output_columns:
+                        data_info[k] = data[self.loader_output_columns.index(k)]
+                    
                 preds = self.postprocessor(net_preds, **data_info)
 
             # metric internal update
@@ -174,6 +184,7 @@ class EvalSaveCallback(Callback):
                  ckpt_save_dir='./',
                  main_indicator='hmean',
                  ema=None,
+                 loader_output_columns=[],
                  input_indices=None,
                  label_indices=None,
                  meta_data_indices=None,
@@ -195,8 +206,9 @@ class EvalSaveCallback(Callback):
         self.batch_size = batch_size
         if self.loader_eval is not None:
             self.net_evaluator = Evaluator(network, loader, loss_fn, postprocessor, metrics,
-                                           pred_cast_fp32=pred_cast_fp32, input_indices=input_indices,
-                                           label_indices=label_indices, meta_data_indices=meta_data_indices)
+                                           pred_cast_fp32=pred_cast_fp32, loader_output_columns=loader_output_columns,
+                                           input_indices=input_indices, label_indices=label_indices, 
+                                           meta_data_indices=meta_data_indices)
             self.main_indicator = main_indicator
             self.best_perf = -1e8
         else:

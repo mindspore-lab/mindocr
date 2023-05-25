@@ -54,8 +54,8 @@ class Preprocessor(object):
                             'CRNN':     dict(target_height=32, target_width=100, padding=False, keep_ratio=False) ,
                             'CRNN_CH':  dict(target_height=32, taget_width=320, padding=True, keep_ratio=True) ,
                             'RARE':     dict(target_height=32, target_width=100, padding=False, keep_ratio=False) ,
-                            'RARE_CH':  dict(target_height=32, taget_width=320, padding=True, keep_ratio=True) ,
-                            'SVTR':     dict(tagget_height=64),
+                            'RARE_CH':  dict(target_height=32, target_width=320, padding=True, keep_ratio=True) ,
+                            'SVTR':     dict(target_height=64,target_width=256,  padding=False, keep_ratio=False),
                             }
             parsed_img_shape =  kwargs.get('rec_image_shape', '3, 32, 320').split(',')
             parsed_height, parsed_width = int(parsed_img_shape[1]), int(parsed_img_shape[2])

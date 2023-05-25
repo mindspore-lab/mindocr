@@ -32,7 +32,7 @@ model:
 
 postprocess:
   name: DBPostprocess
-  output_polygon: False   # whether to output a polygon or a box
+  box_type: quad   # whether to output a polygon or a box
   binary_thresh: 0.3      # binarization threshold
   box_thresh: 0.6         # box score threshold
   max_candidates: 1000

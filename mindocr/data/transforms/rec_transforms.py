@@ -311,6 +311,7 @@ class RecResizeImg(object):
                                                     self.padding)
         data['image'] = norm_img
         data['valid_ratio'] = valid_ratio
+        # TODO: data['shape_list'] = ?
         return data
 
 
@@ -372,7 +373,7 @@ class RecResizeForInfer(object):
 
         resized_img = cv2.resize(img, (resize_w, resize_h), interpolation=self.interpolation)
 
-        data['shape'] = [h, w, resize_h / h, resize_w / w] # TODO: reformat, currently align to det
+        data['shape_list'] = [h, w, resize_h / h, resize_w / w] # TODO: reformat, currently align to det
         if self.padding and self.keep_ratio:
             padded_img = np.zeros((self.tar_h, self.tar_w, 3), dtype=np.uint8)
             padded_img[:, :resize_w, :] = resized_img

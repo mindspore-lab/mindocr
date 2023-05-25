@@ -31,6 +31,7 @@ from mindocr.utils.visualize import draw_boxes, show_imgs
 algo_to_model_name = {'DB': 'dbnet_resnet50',
                       'DB++': 'dbnetpp_resnet50',
                       'DB_MV3': 'dbnet_mobilenetv3',
+                      'PSE': 'psenet_resnet152',
                       }
 
 
@@ -58,7 +59,7 @@ class TextDetector(object):
                                        )
 
         self.postprocess = Postprocessor(task='det', algo=args.det_algorithm,
-                                         output_polygon=(args.det_box_type=='poly')) # TODO: likewise
+                                         box_type=args.det_box_type)
 
         self.vis_dir = args.draw_img_save_dir
         os.makedirs(self.vis_dir, exist_ok=True)

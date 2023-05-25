@@ -12,13 +12,13 @@ __all__ = ['DBPostprocess', 'PSEPostprocess']
 
 class DBPostprocess:
     def __init__(self, binary_thresh=0.3, box_thresh=0.7, max_candidates=1000, expand_ratio=1.5,
-                 output_polygon=False, pred_name='binary'):
+                 box_type='quad', pred_name='binary'):
         self._min_size = 3
         self._binary_thresh = binary_thresh
         self._box_thresh = box_thresh
         self._max_candidates = max_candidates
         self._expand_ratio = expand_ratio
-        self._out_poly = output_polygon
+        self._out_poly = (box_type == 'poly') 
         self._name = pred_name
         self._names = {'binary': 0, 'thresh': 1, 'thresh_binary': 2}
 
@@ -41,7 +41,7 @@ class DBPostprocess:
 
         segmentation = pred >= self._binary_thresh
 
-        # FIXME: dest_size is supposed to be the original image shape (pred.shape -> batch['shape'])
+        # FIXME: dest_size is supposed to be the original image shape (pred.shape -> batch['shape_list'])
         dest_size = np.array(pred.shape[:0:-1])  # w, h order
         scale = dest_size / np.array(pred.shape[:0:-1])
 
@@ -161,11 +161,20 @@ class PSEPostprocess:
         self._rescale_fields = rescale_fields
         self._pse = pse
 
-    def __call__(self, pred, **kwargs):  # pred: N 7 H W
+    def __call__(self, pred, shape_list=None, **kwargs):  # pred: N 7 H W
+        '''
+        Args:
+            pred (Tensor): network prediction with shape [BS, C, H, W]
+            shape_list (List[List[float]]: a list of shape info [raw_img_h, raw_img_w, ratio_h, ratio_w] for each sample in batch  
+        '''
         if not isinstance(pred, Tensor):
             pred = Tensor(pred)
-        shape_idx = 2
-        shape_list = kwargs['labels'][shape_idx].asnumpy()
+        
+        if shape_list:
+            assert len(shape_list) > 0 and len(shape_list[0]==4), f'The length of each element in shape_list must be 4 for [raw_img_h, raw_img_w, scale_h, scale_w]. But get shape list {shape_list}'
+        else:
+            shape_list = [[pred.shape[2], pred.shape[3], 1.0, 1.0] for i in range(pred.shape[0])] # H, W
+            
         pred = self._interpolate(pred, scale_factor=4 // self._scale)
         score = self._sigmoid(pred[:, 0, :, :])
 

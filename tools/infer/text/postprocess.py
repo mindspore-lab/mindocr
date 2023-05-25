@@ -7,17 +7,25 @@ class Postprocessor(object):
         if task == 'det':
             if algo.startswith('DB'):
                 postproc_cfg = dict(name='DBPostprocess',
-                                    output_polygon=False,
+                                    box_type='quad',
                                     binary_thresh=0.3,
                                     box_thresh=0.6,
                                     max_candidates=1000,
                                     expand_ratio=1.5,
                                    )
+            elif algo.startswith('PSE'):
+                postproc_cfg = dict(name='PSEPostprocess',
+                                    box_type='quad',
+                                    binary_thresh=0.,
+                                    box_thresh=0.85,
+                                    min_area=16,
+                                    scale=1,
+                                   )
             else:
                 raise ValueError(f'No postprocess config defined for {algo}. Please check the algorithm name.')
         elif task=='rec':
             # TODO: update character_dict_path and use_space_char after CRNN trained using en_dict.txt released
-            if algo.startswith('CRNN'):
+            if algo.startswith('CRNN') or algo.startswith('SVTR'):
                 # TODO: allow users to input char dict path
                 dict_path = 'mindocr/utils/dict/ch_dict.txt' if algo == 'CRNN_CH' else None
                 postproc_cfg = dict(
@@ -56,11 +64,17 @@ class Postprocessor(object):
         output = self.postprocess(pred)
 
         if self.task == 'det':
-            scale_h, scale_w = data['shape'][2:]
+            scale_h, scale_w = data['shape_list'][2:]
             # TODO: change return as dict in mindocr/postprocess
             # TODO: leave an option to do scale-back for polygons in build_postprocess
-            polys, scores = output[0]
-            if len(polys) > 0:
+            if isinstance(output, dict):
+                polys = output['polys'][0]
+                scores = output['scores'][0]
+            else:
+                polys, scores = output[0]
+            #print(polys)
+        
+            if len(polys) > 0: 
                 if not isinstance(polys, list):
                     polys[:,:,0] = polys[:,:,0] / scale_w  #
                     polys[:,:,1] = polys[:,:,1] / scale_h

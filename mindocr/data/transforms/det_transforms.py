@@ -230,7 +230,7 @@ class DetResize(object):
             keep_ratio = True
             padding = False
             print(
-                'INFO: `limit_type` is {limit_type}. Image will be resized by limiting the {limit_type} side length to {limit_side_len}.')
+                f'INFO: `limit_type` is {limit_type}. Image will be resized by limiting the {limit_type} side length to {limit_side_len}.')
         elif not limit_type:
             assert target_size is not None or force_divisable is not None, 'One of `target_size` or `force_divisable` is required when limit_type is not set. Please set at least one of them.'
             if target_size and force_divisable:
@@ -305,7 +305,7 @@ class DetResize(object):
         if 'polys' in data:
             data['polys'][:, :, 0] = data['polys'][:, :, 0] * scale_w
             data['polys'][:, :, 1] = data['polys'][:, :, 1] * scale_h
-        data['shape'] = [h, w, scale_h, scale_w]
+        data['shape_list'] = [h, w, scale_h, scale_w]
 
         return data
 

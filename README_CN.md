@@ -85,33 +85,40 @@ MindOCR支持多种文本识别模型及数据集，在此我们使用**CRNN**�
 
 ### 2. 推理与部署
 
-#### 2.1 使用MindSpore Lite和ACL推理
+#### 2.1 使用MindSpore Lite和ACL推理(Ascend 310)
 
 MindOCR集成了[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)推理后端，
-集成了文本检测、分类和识别串联推理，请参考[此处](docs/cn/inference/inference_tutorial_cn.md)。
+集成了文本检测、分类和识别串联推理。
 
-#### 2.2 使用原生MindSpore推理
+具体说明请参考[MindOCR 310推理](docs/cn/inference/inference_tutorial_cn.md)。
 
-MindOCR支持使用MindOCR训练好的ckpt文件进行文本检测+文本识别串联推理，请参考[此处](toos/infer/text/README.md)。
+#### 2.2 使用原生MindSpore在线推理(CPU/GPU/Ascend 910)
+
+MindOCR提供易用的文本检测识别推理工具，支持CPU/GPU/Ascend 910硬件平台。在线推理基于使用MindOCR训练p完成的模型进行推理。
+
+具体用法和效果请参考 [MindOCR在线推理](tools/infer/text/README.md)。
 
 ## 模型列表
 
 <details open>
 <summary>文本检测</summary>
 
-- [x] [DBNet](https://arxiv.org/abs/1911.08947) (AAAI'2020) 
-- [x] [DBNet++](https://arxiv.org/abs/2202.10304) (TPAMI'2022)
-- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [开发中]
+- [x] [DBNet](configs/det/dbnet/README.md) (AAAI'2020) 
+- [x] [DBNet++](configs/det/dbnet/README.md) (TPAMI'2022)
+- [x] [PSENet](configs/det/psenet/README.md) (CVPR'2019)
+- [ ] [EAST](https://arxiv.org/abs/1704.03155)(CVPR'2017) [coming soon]
+- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [coming soon]
 
 </details>
 
 <details open>
 <summary>文本识别</summary>
 
-- [x] [CRNN](https://arxiv.org/abs/1507.05717) (TPAMI'2016)
-- [x] [CRNN-Seq2Seq](https://arxiv.org/abs/1603.03915) (CVPR'2016)
-- [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [开发中]
-- [ ] [SVTR](https://arxiv.org/abs/2205.00159) (IJCAI'2022) [仅推理]
+
+- [x] [CRNN](configs/rec/crnn/README.md) (TPAMI'2016)
+- [x] [CRNN-Seq2Seq/RARE](configs/rec/rare/README.md) (CVPR'2016)
+- [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022) 
+- [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 
 
 模型训练的配置及性能结果请见[configs](./configs).

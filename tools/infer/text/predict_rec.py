@@ -30,6 +30,7 @@ algo_to_model_name = {'CRNN': 'crnn_resnet34',
                       'RARE': 'rare_resnet34',
                       'CRNN_CH': 'crnn_resnet34_ch',
                       'RARE_CH': 'rare_resnet34_ch',
+                      'SVTR': 'svtr_tiny',
                       }
 
 
@@ -58,14 +59,7 @@ class TextRecognizer(object):
         # build preprocess and postprocess
         # NOTE: most process hyper-params should be set optimally for the pick algo.
         self.preprocess = Preprocessor(task='rec',
-                                       algo=args.rec_algorithm,
-                                       rec_image_shape=args.rec_image_shape,
-                                       rec_batch_mode=self.batch_mode,
-                                       rec_batch_num=self.batch_num,)
 
-        # TODO: try GeneratorDataset to wrap preprocess transform on batch for possible speed-up. if use_ms_dataset: ds = ms.dataset.GeneratorDataset(wrap_preprocess, ) in run_batchwise
-
-        self.postprocess = Postprocessor(task='rec', algo=args.rec_algorithm)
 
         self.vis_dir = args.draw_img_save_dir
         os.makedirs(self.vis_dir, exist_ok=True)
