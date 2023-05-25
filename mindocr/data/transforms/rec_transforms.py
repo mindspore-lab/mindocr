@@ -326,6 +326,7 @@ class SVTRRecResizeImg(object):
                                                 self.padding)
         data['image'] = norm_img
         data['valid_ratio'] = valid_ratio
+        return data
 
 
 class RecResizeForInfer(object):

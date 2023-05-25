@@ -62,7 +62,7 @@ def run_transforms(data, transforms=None, verbose=False):
             print(f'\tOutput: ', {k: data[k].shape for k in data if isinstance(data[k], np.ndarray)})
 
         if data is None:
-            return None
+            raise RuntimeError(f"Empty result is returned from transform `{transform}`")
     return data
 
 
