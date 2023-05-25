@@ -8,7 +8,7 @@
 ## 1. 模型描述
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
-识别自然图像中的文本是一个包含许多未解决问题的挑战性任务。与文档中的文字不同，自然图像中的文字通常具有不规则的形状，这是由透视畸变、曲线字符等因素引起的。该论文提出了RARE（Robust Scene Text Recognition with Automatic Rectification），这是一种对不规则文本具有鲁棒性的识别模型。RARE是一种特别设计的深度神经网络，由空间变换网络（STN）和序列识别网络（SRN）组成。在测试中，图像首先通过预测的Thin-Plate-Spline（TPS）变换进行矫正，成为接下来的SRN可以识别的更加“可读”的图像，SRN通过序列识别方法识别文本。研究表明，该模型能够识别多种类型的不规则文本，包括透视文本和曲线文本。RARE是端到端可训练的，只需要图像和相关的文本标签，这使得训练和部署模型在实际系统中变得更加方便。在几个基准数据集上，该模型达到了SOTA性能，充分证明了所提出模型的有效性。
+识别自然图像中的文本是一个包含许多未解决问题的挑战性任务。与文档中的文字不同，自然图像中的文字通常具有不规则的形状，这是由透视畸变、曲线字符等因素引起的。该论文提出了RARE（Robust Scene Text Recognition with Automatic Rectification），这是一种对不规则文本具有鲁棒性的识别模型。RARE是一种特别设计的深度神经网络，由空间变换网络（STN）和序列识别网络（SRN）组成。在测试中，图像首先通过预测的Thin-Plate-Spline（TPS）变换进行矫正，成为接下来的SRN可以识别的更加“可读”的图像，SRN通过序列识别方法识别文本。研究表明，该模型能够识别多种类型的不规则文本，包括透视文本和曲线文本。RARE是端到端可训练的，只需要图像和相关的文本标签，这使得训练和部署模型在实际系统中变得更加方便。在几个基准数据集上，该模型达到了SOTA性能，充分证明了所提出模型的有效性。 [<a href="#参考文献">1</a>]
 
 <!--- Guideline: If an architecture table/figure is available in the paper, put one here and cite for intuitive illustration. -->
 
@@ -34,19 +34,21 @@ Table Format:
 
 根据我们的实验，在公开基准数据集（IC03，IC13，IC15，IIIT，SVT，SVTP，CUTE）上的评估结果如下：
 
+<div align="center">
 
-| **模型** | **环境配置** | **骨干网络** | **空间变换网络** | **平均准确率** | **训练时间** | **配置文件** | **模型权重下载** | 
-| :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
-| RARE (ours)      | D910x4-MS1.10-G | ResNet34_vd | 无 | 85.19%    | 3166 s/epoch         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e-b65dd225.mindir) |
-
+| **模型** | **环境配置** | **骨干网络** | **空间变换网络** | **平均准确率** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** | 
+| :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :--------: |:-----: |
+| RARE      | D910x4-MS1.10-G | ResNet34_vd | 无 | 85.19%    | 3166 s/epoch         | 4561    | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e-b65dd225.mindir) |
+</div>
 
 <details open>
+  <div align="center">
   <summary>在各个基准数据集上的准确率</summary>
 
   | **模型** | **骨干网络** | **空间变换网络** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **平均准确率** |
   | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-  | RARE (ours) | ResNet34_vd | None | 95.12% | 94.58% | 94.28% | 92.71% | 75.31% | 69.52% | 88.17% | 87.33% | 78.91% | 76.04% | 85.19% |
-
+  | RARE  | ResNet34_vd | None | 95.12% | 94.58% | 94.28% | 92.71% | 75.31% | 69.52% | 88.17% | 87.33% | 78.91% | 76.04% | 85.19% |
+  </div>
 </details>
 
 **注意:**
@@ -162,7 +164,7 @@ eval:
 如要重现报告的评估结果，您可以：
 - 方法 1：对所有单个数据集重复评估步骤：CUTE80、IC03_860、IC03_867、IC13_857、IC131015、IC15_1811、IC15_2077、IIIT5k_3000、SVT、SVTP。然后取平均分。
 
-- 方法 2：将所有基准数据集文件夹放在同一目录下，例如`评估/`。并使用脚本`tools/benchmarking/multi_dataset_eval.py`。
+- 方法 2：将所有基准数据集文件夹放在同一目录下，例如`evaluation/`。并使用脚本`tools/benchmarking/multi_dataset_eval.py`。
 
 1.评估一个特定的数据集
 
@@ -305,8 +307,8 @@ python tools/eval.py --config configs/rec/rare/rare_resnet34.yaml
 
 Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，可选择合适的字典使用。
 
-- `en_dict.txt` 是一个包含96个字符的英文字典，其中有数字，常用符号以及大小写的英文字母。
-- `ch_dict.txt` 是一个包含6623个字符的中文字典，其中有常用的繁简体中文，数字，常用符号以及大小写的英文字母
+- `en_dict.txt` 是一个包含94个字符的英文字典，其中有数字，常用符号以及大小写的英文字母。
+- `ch_dict.txt` 是一个包含6623个字符的中文字典，其中有常用的繁简体中文，数字，常用符号以及大小写的英文字母。
 
 
 ### 自定义词典
@@ -348,9 +350,12 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/rare/
 ### 评估结果和预训练权重
 模型训练完成后，在测试集不同场景上的准确率评估结果如下。相应的模型配置和预训练权重可通过表中链接下载。
 
-| **模型** | **语种** | **骨干网络** | **空间变换网络** | **街景类** | **网页类** | **文档类** | **配置文件** | **模型权重下载** | 
-| :-----: | :-----:  | :--------: | :------------: | :--------: | :--------: | :--------: | :---------: | :-----------: |
-| RARE    | 中文 | ResNet34_vd | 无 |55.39% | 61.90% | 97.05% |  [rare_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20-017aec13.mindir) |
+<div align="center">
+
+| **模型** | **语种** | **骨干网络** | **空间变换网络** | **街景类** | **网页类** | **文档类** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** | 
+| :-----: | :-----:  | :--------: | :------------: | :--------: | :--------: | :--------: |:--------: | :--------: |:--------: | :--------: |
+| RARE    | 中文 | ResNet34_vd | 无 |55.39% | 61.90% | 97.05% | 683 s/epoch | 1493 | [rare_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20-017aec13.mindir) |
+</div>
 
 ### 使用自定义数据集进行训练
 您可以在自定义的数据集基于提供的预训练权重进行微调训练, 以在特定场景获得更高的识别准确率，具体步骤请参考文档 [使用自定义数据集训练识别网络](../../../docs/cn/tutorials/training_recognition_custom_dataset_CN.md)。
