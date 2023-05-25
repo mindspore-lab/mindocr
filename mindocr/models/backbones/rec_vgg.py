@@ -64,7 +64,7 @@ class RecVGG(nn.Cell):
 
 
 @register_backbone
-def rec_vgg7(pretrained: bool=True, **kwargs):
+def rec_vgg7(pretrained: bool = False, **kwargs):
     model = RecVGG(**kwargs)
 
     if pretrained is True:

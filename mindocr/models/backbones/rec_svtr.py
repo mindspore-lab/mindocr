@@ -617,7 +617,7 @@ class SVTRNet(nn.Cell):
 
 
 @register_backbone
-def rec_svtr(pretrained: bool = True, **kwargs):
+def rec_svtr(pretrained: bool = False, **kwargs):
     model = SVTRNet(**kwargs)
 
     # load pretrained weights
