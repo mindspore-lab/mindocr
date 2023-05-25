@@ -42,4 +42,4 @@ jobs:
         pytest tests/ut/*.py
     - name: Test with pytest (ST)
       run: |
-        pytest tests/st/test_train_eval_dummy.py
+        pytest tests/st/*.py
