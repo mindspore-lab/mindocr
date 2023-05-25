@@ -50,7 +50,7 @@ pip install -r requirements.txt
 
 
 > 注意：
-> - 如果[使用MX Engine推理](#21-使用mx-engine推理)，Python版本需为3.9。
+> - 如果[使用ACL推理](#21-使用mindspore-lite和acl推理)，Python版本需为3.9。
 > - 如果遇到scikit_image导入错误，参考[此处](https://github.com/opencv/opencv/issues/14884)，你需要设置环境变量`$LD_PRELOAD`，命令如下。替换`path/to`为你的目录。
 >   ```shell
 >   export LD_PRELOAD=path/to/scikit_image.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
@@ -85,18 +85,12 @@ MindOCR支持多种文本识别模型及数据集，在此我们使用**CRNN**�
 
 ### 2. 推理与部署
 
-#### 2.1 使用MX Engine推理
+#### 2.1 使用MindSpore Lite和ACL推理
 
-MX ([MindX](https://www.hiascend.com/zh/software/mindx-sdk)的缩写) 是一个支持昇腾设备高效推理与部署的工具。
+MindOCR集成了[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)推理后端，
+集成了文本检测、分类和识别串联推理，请参考[此处](docs/cn/inference/inference_tutorial_cn.md)。
 
-MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_infer](docs/cn/inference_tutorial_cn.md)。
-
-
-#### 2.2 使用MindSpore Lite推理 
-
-敬请期待
-
-#### 2.3 使用原生MindSpore推理
+#### 2.2 使用原生MindSpore推理
 
 MindOCR支持使用MindOCR训练好的ckpt文件进行文本检测+文本识别串联推理，请参考[此处](toos/infer/text/README.md)。
 
@@ -122,7 +116,7 @@ MindOCR支持使用MindOCR训练好的ckpt文件进行文本检测+文本识别�
 
 模型训练的配置及性能结果请见[configs](./configs).
 
-基于MX引擎的推理性能结果及支持模型列表，请见[mx inference performance](docs/cn/inference_models_cn.md) 
+MindSpore Lite和ACL模型推理的支持列表，请见[MindOCR模型推理支持列表](docs/cn/inference/models_list_cn.md)和[第三方模型推理支持列表](docs/cn/inference/models_list_thirdparty_cn.md).
 
 ## 数据集
 ### 下载
