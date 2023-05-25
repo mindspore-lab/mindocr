@@ -4,6 +4,8 @@
 
 Compared to offline inference (which is implemented in `deploy/py_infer` in MindOCR), online inferece does not require model conversion for target platforms and can run directly on the training devices (e.g. Ascend 910). But it requires installing the heavy AI framework and the model is not optimized for deployment. 
 
+Thus, online inference is more suitable for demonstration and to visually evaluate model generalization ability on unseen data.   
+
 ## Dependency and Installation
 
 | Environment | Version |
@@ -32,7 +34,7 @@ For MindSpore(>=1.9) installation, please follow the official [installation inst
 To run text detection on an input image or a directory containing multiple images, please execute
 
 ```shell
-python tools/infer/text/predict_det.py  --image_dir {path_to_img or dir_to_imgs} --rec_algorithm DB++
+python tools/infer/text/predict_det.py  --image_dir {path_to_img or dir_to_imgs} --det_algorithm DB++
 ```
 
 After running, the inference results will be saved in `{args.draw_img_save_dir}/det_results.txt`, where `--draw_img_save_dir` is the directory for saving  results and is set to `./inference_results` by default Here are some results for examples.  
@@ -47,7 +49,7 @@ Example 1:
 
 , where the saved txt file is as follows
 ```
-img_108.jpg	[[[228.0, 440.0], [403.0, 413.0], [406.0, 433.0], [231.0, 459.0]], [[282.0, 280.0], [493.0, 252.0], [499.0, 293.0], [288.0, 321.0]], [[500.0, 253.0], [636.0, 232.0], [641.0, 269.0], [505.0, 289.0]], ...]
+img_108.jpg	[[[228, 440], [403, 413], [406, 433], [231, 459]], [[282, 280], [493, 252], [499, 293], [288, 321]], [[500, 253], [636, 232], [641, 269], [505, 289]], ...]
 ```
 
 Example 2:
@@ -61,7 +63,7 @@ Example 2:
 
 , where the saved txt file is as follows
 ```
-paper_sam.png	[[[1161.0, 340.0], [1277.0, 340.0], [1277.0, 378.0], [1161.0, 378.0]], [[895.0, 335.0], [1152.0, 340.0], [1152.0, 382.0], [894.0, 378.0]], ...]
+paper_sam.png	[[[1161, 340], [1277, 340], [1277, 378], [1161, 378]], [[895, 335], [1152, 340], [1152, 382], [894, 378]], ...]
 ```
 
 **Notes:** 
@@ -192,13 +194,13 @@ Example 2:
   <img src="https://github.com/SamitHuang/mindocr-1/assets/8156835/c58fb182-32b0-4b73-b4fd-7ba393e3f397" width=480 />
 </p>
 <p align="center">
-  <em> Visualization of text detection and recognition result on web_cvpr_0.png </em>
+  <em> Visualization of text detection and recognition result on web_cvpr.png </em>
 </p>
 
 , where the saved txt file is as follows
 
 ```text
-web_cvpr_0	[{"transcription": "canada", "points": [[430, 148], [540, 148], [540, 171], [430, 171]]}, {"transcription": "vancouver", "points": [[263, 148], [420, 148], [420, 171], [263, 171]]}, {"transcription": "cvpr", "points": [[32, 69], [251, 63], [254, 174], [35, 180]]}, {"transcription": "2023", "points": [[194, 44], [256, 45], [255, 72], [194, 70]]}, {"transcription": "june", "points": [[36, 45], [110, 44], [110, 70], [37, 71]]}, {"transcription": "1822", "points": [[114, 43], [190, 45], [190, 70], [113, 69]]}]
+web_cvpr.png	[{"transcription": "canada", "points": [[430, 148], [540, 148], [540, 171], [430, 171]]}, {"transcription": "vancouver", "points": [[263, 148], [420, 148], [420, 171], [263, 171]]}, {"transcription": "cvpr", "points": [[32, 69], [251, 63], [254, 174], [35, 180]]}, {"transcription": "2023", "points": [[194, 44], [256, 45], [255, 72], [194, 70]]}, {"transcription": "june", "points": [[36, 45], [110, 44], [110, 70], [37, 71]]}, {"transcription": "1822", "points": [[114, 43], [190, 45], [190, 70], [113, 69]]}]
 ```
 
 
@@ -222,8 +224,8 @@ python tools/infer/text/predict_system.py --image_dir /path/to/icdar15/det/test_
 After running, the results including image names, bounding boxes (`points`) and recognized texts (`transcription`) will be saved in `{args.draw_img_save_dir}/system_results.txt`. The format of prediction results is shown as follows.
 
 ```text
-   img_1.jpg	[{"transcription": "hello", "points": [600, 150, 715, 157, 714, 177, 599, 170]}, {"transcription": "world", "points": [622, 126, 695, 129, 694, 154, 621, 151]}, ...]
-   img_2.jpg	[{"transcription": "apple", "points": [553, 338, 706, 318, 709, 342, 556, 362]}, ...]
+img_1.jpg	[{"transcription": "hello", "points": [600, 150, 715, 157, 714, 177, 599, 170]}, {"transcription": "world", "points": [622, 126, 695, 129, 694, 154, 621, 151]}, ...]
+img_2.jpg	[{"transcription": "apple", "points": [553, 338, 706, 318, 709, 342, 556, 362]}, ...]
    ...
 ```
 
