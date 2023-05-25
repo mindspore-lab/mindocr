@@ -1,0 +1,162 @@
+system:
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: True
+  amp_level: "O2"
+  amp_level_infer: "O2" # running inference in O2 mode
+  seed: 42
+  log_interval: 100
+  val_while_train: True
+  drop_overflow_update: False
+
+common:
+  character_dict_path: &character_dict_path
+  num_classes: &num_classes 37 # num_chars_in_dict + 1
+  max_text_len: &max_text_len 24
+  use_space_char: &use_space_char False
+  batch_size: &batch_size 512
+
+model:
+  type: rec
+  transform:
+    name: STN_ON
+    in_channels: 3
+    tps_inputsize: [32, 64]
+    tps_outputsize: [32, 100]
+    num_control_points: 20
+    tps_margins: [0.05,0.05]
+    stn_activation: none
+  backbone:
+    name: SVTRNet
+    pretrained: False
+    img_size: [32, 100]
+    out_channels: 192
+    patch_merging: 'Conv'
+    embed_dim: [64, 128, 256]
+    depth: [3, 6, 3]
+    num_heads: [2, 4, 8]
+    mixer: ['Local','Local','Local','Local','Local','Local','Global','Global','Global','Global','Global','Global']
+    local_mixer: [[7, 11], [7, 11], [7, 11]]
+    last_stage: True
+    prenorm: False
+  neck:
+    name: Img2Seq
+  head:
+    name: CTCHead
+    out_channels: *num_classes
+
+postprocess:
+  name: RecCTCLabelDecode
+  character_dict_path: *character_dict_path
+  use_space_char: *use_space_char
+ 
+metric:
+  name: RecMetric
+  main_indicator: acc
+  character_dict_path: *character_dict_path
+  ignore_space: True
+  print_flag: False
+
+loss:
+  name: CTCLoss 
+  pred_seq_len: 25
+  max_label_len: *max_text_len  # this value should be smaller than pre_seq_len
+  batch_size: *batch_size
+
+scheduler:
+  scheduler: warmup_cosine_decay
+  min_lr: 0.00001
+  lr: 0.001
+  num_epochs: 30
+  warmup_epochs: 3
+  decay_epochs: 27
+
+optimizer:
+  opt: adamw
+  grouping_strategy: svtr
+  filter_bias_and_bn: False
+  weight_decay: 0.05
+
+loss_scaler:
+  type: dynamic
+  loss_scale: 512
+  scale_factor: 2.0
+  scale_window: 1000
+
+train:
+  ckpt_save_dir: "./tmp_rec"
+  dataset_sink_mode: False
+  dataset:
+    type: LMDBDataset
+    dataset_root: path/to/data_lmdb_release/
+    data_dir: training/
+    sample_ratio: 1.0
+    shuffle: True
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          to_float32: False
+      - SVTRRecAug:
+          aug_type: 0
+      - RecCTCLabelEncode:
+          max_text_len: *max_text_len
+          character_dict_path: *character_dict_path
+          use_space_char: *use_space_char
+          lower: True
+      - SVTRRecResizeImg:
+          image_shape: [64, 256] # H, W
+          padding: False
+      - NormalizeImage:
+          bgr_to_rgb: True
+          is_hwc: True
+          mean: [127.0, 127.0, 127.0]
+          std: [127.0, 127.0, 127.0]
+      - ToCHWImage:
+    output_columns: ["image", "text_seq"]
+    net_input_column_index: [0] # input indices for network forward func in output_columns
+    label_column_index: [1] # input indices marked as label
+
+  loader:
+    shuffle: True
+    batch_size: *batch_size
+    drop_remainder: True
+    max_rowsize: 12
+    num_workers: 8
+
+eval:
+  ckpt_load_path: "./tmp_rec/best.ckpt"
+  dataset_sink_mode: False
+  dataset:
+    type: LMDBDataset
+    dataset_root: path/to/data_lmdb_release/
+    data_dir: validation/
+    sample_ratio: 1.0
+    shuffle: False
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          to_float32: False
+      - RecCTCLabelEncode:
+          max_text_len: *max_text_len
+          character_dict_path: *character_dict_path
+          use_space_char: *use_space_char
+          lower: True
+      - SVTRRecResizeImg:
+          image_shape: [64, 256] # H, W
+          padding: False
+      - NormalizeImage:
+          bgr_to_rgb: True
+          is_hwc: True
+          mean: [127.0, 127.0, 127.0]
+          std: [127.0, 127.0, 127.0]
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
+    output_columns: ["image", "text_padded", "text_length"]
+    net_input_column_index: [0] # input indices for network forward func in output_columns
+    label_column_index: [1, 2] # input indices marked as label
+
+  loader:
+    shuffle: False
+    batch_size: 512
+    drop_remainder: False
+    max_rowsize: 12
+    num_workers: 8

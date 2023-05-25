@@ -1,25 +1,22 @@
-[English](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/README.md) | 中文
+[English](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/README.md) | 中文
 
-# CRNN
+# SVTR
 <!--- Guideline: use url linked to abstract in ArXiv instead of PDF for fast loading.  -->
 
-> [An End-to-End Trainable Neural Network for Image-based Sequence
-Recognition and Its Application to Scene Text Recognition](https://arxiv.org/abs/1507.05717)
+> [SVTR: Scene Text Recognition with a Single Visual Model](https://arxiv.org/abs/2205.00159)
 
 ## 1. 模型描述
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
-卷积递归神经网络 (CRNN) 将 CNN 特征提取和 RNN 序列建模以及转录集成到一个统一的框架中。
-
-如架构图（图 1）所示，CRNN 首先通过卷积层从输入图像中提取特征序列。由此一来，图像由提取的序列特征图表示，其中每个向量都与输入图像上的感受野相关联。 为了进一步处理特征，CRNN 采用循环神经网络层来预测每个帧的标签分布。为了将分布映射到文本字段，CRNN 添加了一个转录层，以将每帧预测转换为最终标签序列。 [<a href="#参考文献">1</a>]
+主流的场景文字识别模型通常包含两个基本构建部分，一个视觉模型用于特征提取和一个序列模型用于文本转换。虽然这种混合架构非常准确，但也相对复杂和低效。因此，作者提出了一种新的方法：单一视觉模型。这种方法在图形标记化（image tokenization）框架下建立，完全抛弃了顺序的建模方式。作者的方法将图像划分成小的补丁，并通过逐层组件级别的混合、合并和/或组合进行操作以实现层级。作者还设计了全局和局部混合块以识别多颗粒度的字符组件模式，从而进行字符识别。作者实验了英文和中文场景文本识别任务，结果表明作者的模型SVTR是有效的。作者的大型模型SVTR-L在英文方面能提供高准确度的性能，在中文方面也表现优越且速度更快。作者的小型模型SVTR-T在推断方面也有很好的表现。[<a href="#参考文献">1</a>]
 
 <!--- Guideline: If an architecture table/figure is available in the paper, put one here and cite for intuitive illustration. -->
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/26082447/224601239-a569a1d4-4b29-4fa8-804b-6690cb50caef.PNG" width=450 />
+  <img src="https://github.com/zhtmike/mindocr/assets/8342575/27da30e5-f0af-4a11-afc8-a902785e44c1" width=450 />
 </p>
 <p align="center">
-  <em> 图1. CRNN架构图 [<a href="#参考文献">1</a>] </em>
+  <em> 图1. SVTR结构 [<a href="#参考文献">1</a>] </em>
 </p>
 
 ## 2. 评估结果
@@ -39,47 +36,26 @@ Table Format:
 
 <div align="center">
 
-| **模型** | **环境配置** | **骨干网络** |**平均准确率** | **训练时间** | **配置文件** | **模型权重下载** | 
-| :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
-| CRNN      | D910x8-MS1.8-G | VGG7  | 82.03%    | 2445 s/epoch | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-3a19e349.mindir)   |
-| CRNN      | D910x8-MS1.8-G | ResNet34_vd | 84.45%    | 2118 s/epoch         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-2f016384.mindir) |
+| **模型** | **环境配置** | **平均准确率** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** | 
+| :-----: | :-----:  | :-----: | :-----: | :-----: |:--------: | :-----: |
+| SVTR-Tiny      | D910x4-MS1.10-G | 89.02%    | 4866 s/epoch        | 2968 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb-d5389653.mindir) |
 </div>
 
 <details open>
   <div align="center">
   <summary>在各个基准数据集上的准确率</summary>
 
-  | **模型** | **骨干网络** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **平均准确率** |
-  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | 
-  | CRNN | VGG7 | 94.53% | 94.00% | 92.18% | 90.74% | 71.95% | 66.06% | 84.10% | 83.93% | 73.33% | 69.44% | 82.03% |
-  | CRNN | ResNet34_vd | 94.42% | 94.23% | 93.35% | 92.02% | 75.92% | 70.15% | 87.73% | 86.40% | 76.28% | 73.96% | 84.45% |
+  | **模型** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **平均准确率** |
+  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
+ | SVTR-Tiny  | 95.58% | 95.39% | 94.75% | 93.60% | 82.88% | 76.99% | 91.03% | 90.11% | 84.81% | 85.07% | 89.02% |
   </div>
 </details>
 
-
-### 性能
-
-#### 训练性能
-
-| 设备 | 模型 | 骨干网络 | 数据集 | 参数量 | 单卡批量 | 图模式8卡训练 (s/epoch) | 图模式8卡训练 (ms/step) | 图模式8卡训练 (FPS) |
-| :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
-| Ascend910| CRNN | VGG7 | MJ+ST | 8.72 M | 16 | 2488.82 | 22.06 | 5802.71 |
-| Ascend910| CRNN | ResNet34_vd | MJ+ST | 24.48 M | 64 | 2157.18 | 76.48 | 6694.84 |
-
-#### 推理性能
-
-| 设备 | 编译环境 | 模型 | 骨干网络 | 参数量 | 测试集 | 批量大小 | 图模式单卡推理 (FPS) |
-| :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | 
-| Ascend310P | Lite2.0 | CRNN | ResNet34_vd | 24.48 M | IC15 | 1 | 361.09 |
-| Ascend310P | Lite2.0 | CRNN | ResNet34_vd | 24.48 M | SVT | 1 | 274.67 |
-
-
 **注意:**
-- 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。例如，D910x8-MS1.8-G 用于使用图形模式在8张昇腾910 NPU上依赖Mindspore1.8版本进行训练。
+- 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。例如，D910x4-MS1.10-G 用于使用图形模式在4张昇腾910 NPU上依赖Mindspore1.10版本进行训练。
 - 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
 - 模型所能识别的字符都是默认的设置，即所有英文小写字母a至z及数字0至9，详细请看[4. 字符词典](#4-字符词典)
 - 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[数据集下载及使用](#312-数据集下载)章节。
-
 
 ## 3. 快速开始
 ### 3.1 环境及数据准备
@@ -135,7 +111,7 @@ data_lmdb_release/
     └── lock.mdb
 ```
 
-在这里，我们使用 `training/` 文件夹下的数据集进行 **training**，并使用联合数据集 `validation/` 进行验证。训练后，我们使用 `evaluation/` 下的数据集来评估模型的准确性。
+在这里，我们使用 `training/` 文件夹下的数据集进行训练，并使用联合数据集 `validation/` 进行验证。训练后，我们使用 `evaluation/` 下的数据集来评估模型的准确性。
 
 **Training:** (total 14,442,049 samples)
 - [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/)
@@ -172,14 +148,12 @@ train:
     type: LMDBDataset
     dataset_root: dir/to/data_lmdb_release/                           # 训练数据集根目录
     data_dir: training/                                               # 训练数据集目录，将与`dataset_root`拼接形成完整训练数据集目录
-    # label_files:                                                    # 训练数据集的标签文件路径，将与`dataset_root`拼接形成完整的训练数据的标签文件路径。当数据集为LMDB格式时无需配置
 ...
 eval:
   dataset:
     type: LMDBDataset
     dataset_root: dir/to/data_lmdb_release/                           # 验证数据集根目录
     data_dir: validation/                                             # 验证数据集目录，将与`dataset_root`拼接形成完整验证数据集目录
-    # label_file:                                                     # 验证数据集的标签文件路径，将与`dataset_root`拼接形成完整的验证或评估数据的标签文件路径。当数据集为LMDB格式时无需配置
   ...
 ```
 
@@ -206,7 +180,6 @@ eval:
     type: LMDBDataset
     dataset_root: dir/to/data_lmdb_release/                           # 训练数据集根目录
     data_dir: evaluation/CUTE80/                                      # 评估数据集目录，将与`dataset_root`拼接形成完整验证或评估数据集目录
-    # label_file:                                                     # 评估数据集的标签文件路径，将与`dataset_root`拼接形成完整的评估数据的标签文件路径。当数据集为LMDB格式时无需配置
   ...
 ```
 
@@ -247,7 +220,6 @@ eval:
     type: LMDBDataset
     dataset_root: dir/to/data_lmdb_release/                           # Root dir of evaluation dataset
     data_dir: evaluation/                                   # Dir of evaluation dataset, concatenated with `dataset_root` to be the complete dir of evaluation dataset
-    # label_file:                                                     # Path of evaluation label file, concatenated with `dataset_root` to be the complete path of evaluation label file, not required when using LMDBDataset
   ...
 ```
 
@@ -258,13 +230,14 @@ eval:
 ```yaml
 system:
   distribute: True                                                    # 分布式训练为True，单卡训练为False
-  amp_level: 'O3'
+  amp_level: 'O2'
+  amp_level_infer: "O2"
   seed: 42
   val_while_train: True                                               # 边训练边验证
   drop_overflow_update: False
 common:
   ...
-  batch_size: &batch_size 64                                          # 训练批大小
+  batch_size: &batch_size 512                                         # 训练批大小
 ...
 train:
   ckpt_save_dir: './tmp_rec'                                          # 训练结果（包括checkpoint、每个epoch的性能和曲线图）保存目录
@@ -273,7 +246,6 @@ train:
     type: LMDBDataset
     dataset_root: dir/to/data_lmdb_release/                           # 训练数据集根目录
     data_dir: training/                                               # 训练数据集目录，将与`dataset_root`拼接形成完整训练数据集目录
-    # label_files:                                                    # 训练数据集的标签文件路径，将与`dataset_root`拼接形成完整的训练数据的标签文件路径。当数据集为LMDB格式时无需配置
 ...
 eval:
   ckpt_load_path: './tmp_rec/best.ckpt'                               # checkpoint文件路径
@@ -282,11 +254,10 @@ eval:
     type: LMDBDataset
     dataset_root: dir/to/data_lmdb_release/                           # 验证或评估数据集根目录
     data_dir: validation/                                             # 验证或评估数据集目录，将与`dataset_root`拼接形成完整验证或评估数据集目录
-    # label_file:                                                     # 验证或评估数据集的标签文件路径，将与`dataset_root`拼接形成完整的验证或评估数据的标签文件路径。当数据集为LMDB格式时无需配置
   ...
   loader:
       shuffle: False
-      batch_size: 64                                                  # 验证或评估批大小
+      batch_size: 512                                                 # 验证或评估批大小
 ...
 ```
 
@@ -303,7 +274,7 @@ eval:
 
 ```shell
 # 在多个 GPU/Ascend 设备上进行分布式训练
-mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
+mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/svtr/svtr_tiny.yaml
 ```
 
 
@@ -313,7 +284,7 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/
 
 ```shell
 # CPU/GPU/Ascend 设备上的单卡训练
-python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
+python tools/train.py --config configs/rec/svtr/svtr_tiny.yaml
 ```
 
 训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的目录下，默认为`./tmp_rec`。 
@@ -322,8 +293,8 @@ python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 
 若要评估已训练模型的准确性，可以使用`eval.py`。请在yaml配置文件的`eval`部分将参数`ckpt_load_path`设置为模型checkpoint的文件路径，设置`distribute`为False，然后运行：
 
-```
-python tools/eval.py --config configs/rec/crnn/crnn_resnet34.yaml
+```shell
+python tools/eval.py --config configs/rec/svtr/svtr_tiny.yaml
 ```
 
 ## 4. 字符词典
@@ -351,42 +322,9 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 
 **注意：**
 - 您可以通过将配置文件中的参数 `use_space_char` 设置为 True 来包含空格字符。
-- 请记住检查配置文件中的 `dataset->transform_pipeline->RecCTCLabelEncode->lower` 参数的值。如果词典中有大小写字母而且想区分大小写的话，请将其设置为 False。
-
-
-## 5. 中文识别模型训练
-
-目前，CRNN模型支持中英文字识别并提供相应的预训练权重。详细内容如下
-
-### 中文数据集准备及配置
-
-我们采用公开的中文基准数据集[Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition)进行CRNN模型的训练和验证。
-
-详细的数据准备和config文件配置方式, 请参考 [中文识别数据集准备](../../../docs/cn/datasets/chinese_text_recognition_CN.md) 
-
-### 模型训练验证
-
-准备好数据集和配置文件后，执行以下命令开启多卡训练
-
-```shell
-mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/crnn_resnet34_ch.yaml
-```
-
-### 评估结果和预训练权重
-模型训练完成后，在测试集不同场景上的准确率评估结果如下。相应的模型配置和预训练权重可通过表中链接下载。
-
-<div align="center">
-
-| **模型** | **语种** | **骨干网络** | **街景类** | **网页类** | **文档类** | **配置文件** | **模型权重下载** | 
-| :-----: | :-----:  | :--------: | :--------: | :--------: | :--------: | :---------: | :-----------: |
-| CRNN    | 中文 | ResNet34_vd | 59.71% | 64.86% | 89.23% |  [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3-f27f763a.mindir) |
-</div>
-
-### 使用自定义数据集进行训练
-您可以在自定义的数据集基于提供的预训练权重进行微调训练, 以在特定场景获得更高的识别准确率，具体步骤请参考文档 [使用自定义数据集训练识别网络](../../../docs/cn/tutorials/training_recognition_custom_dataset_CN.md)。
-
+- 请记住检查配置文件中的 `dataset->transform_pipeline->RecAttnLabelEncode->lower` 参数的值。如果词典中有大小写字母而且想区分大小写的话，请将其设置为 False。
 
 ## 参考文献
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 
-[1] Baoguang Shi, Xiang Bai, Cong Yao. An End-to-End Trainable Neural Network for Image-based Sequence Recognition and Its Application to Scene Text Recognition. arXiv preprint arXiv:1507.05717, 2015.
+[1] Yongkun Du, Zhineng Chen, Caiyan Jia, Xiaoting Yin, Tianlun Zheng, Chenxia Li, Yuning Du, Yu-Gang Jiang. SVTR: Scene Text Recognition with a Single Visual Model. arXiv preprint arXiv:2205.00159, 2022.

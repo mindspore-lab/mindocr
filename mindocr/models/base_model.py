@@ -1,5 +1,6 @@
 from addict import Dict
 from mindspore import nn
+from .transforms import build_trans
 from .backbones import build_backbone
 from .necks import build_neck
 from .heads import build_head
@@ -19,6 +20,13 @@ class BaseModel(nn.Cell):
         super(BaseModel, self).__init__()
 
         config = Dict(config)
+
+        if config.transform:
+            transform_name = config.transform.pop('name')
+            self.transform = build_trans(transform_name, **config.transform)
+        else:
+            self.transform = None
+
         backbone_name = config.backbone.pop('name')
         self.backbone = build_backbone(backbone_name, **config.backbone)
 
@@ -38,8 +46,13 @@ class BaseModel(nn.Cell):
         self.model_name = f'{backbone_name}_{neck_name}_{head_name}'
 
     def construct(self, x, y=None):
+        if self.transform is not None:
+            tout = self.transform(x)
+        else:
+            tout = x
+
         # TODO: return bout, hout for debugging, using a dict.
-        bout = self.backbone(x)
+        bout = self.backbone(tout)
 
         nout = self.neck(bout)
 
