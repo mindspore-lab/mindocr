@@ -1,10 +1,11 @@
 from typing import Tuple, Union
 from mindspore import nn, ops
+import mindspore.common.dtype as mstype
 import mindspore as ms
 from mindspore import Tensor
 import mindspore.numpy as mnp
 
-__all__ = ['L1BalancedCELoss']
+__all__ = ['L1BalancedCELoss', 'PSEDiceLoss']
 
 
 class L1BalancedCELoss(nn.LossBase):
@@ -14,6 +15,7 @@ class L1BalancedCELoss(nn.LossBase):
     DiceLoss on `thresh_binary`.
     Note: The meaning of inputs can be figured out in `SegDetectorLossBuilder`.
     """
+
     def __init__(self, eps=1e-6, bce_scale=5, l1_scale=10, bce_replace="bceloss"):
         super().__init__()
 
@@ -30,7 +32,8 @@ class L1BalancedCELoss(nn.LossBase):
         self.l1_scale = l1_scale
         self.bce_scale = bce_scale
 
-    def construct(self, pred: Union[Tensor, Tuple[Tensor]], gt: Tensor, gt_mask: Tensor, thresh_map: Tensor, thresh_mask: Tensor):
+    def construct(self, pred: Union[Tensor, Tuple[Tensor]], gt: Tensor, gt_mask: Tensor, thresh_map: Tensor,
+                  thresh_mask: Tensor):
         """
         Compute dbnet loss
         Args:
@@ -110,6 +113,7 @@ class MaskL1Loss(nn.LossBase):
 
 class BalancedBCELoss(nn.LossBase):
     """Balanced cross entropy loss."""
+
     def __init__(self, negative_ratio=3, eps=1e-6):
         super().__init__()
         self._negative_ratio = negative_ratio
@@ -148,4 +152,163 @@ class BalancedBCELoss(nn.LossBase):
         neg_loss = neg_loss_mask * neg_loss
 
         return (pos_loss.sum() + neg_loss.sum()) / \
-               (pos_count.astype(ms.float32).sum() + neg_count.astype(ms.float32).sum() + self._eps)
+            (pos_count.astype(ms.float32).sum() + neg_count.astype(ms.float32).sum() + self._eps)
+
+
+class PSEDiceLoss(nn.Cell):
+    def __init__(self):
+        super().__init__()
+
+        self.threshold0 = Tensor(0.5, mstype.float32)
+        self.zero_float32 = Tensor(0.0, mstype.float32)
+        self.k = int(640 * 640)
+        self.negative_one_int32 = Tensor(-1, mstype.int32)
+        self.concat = ops.Concat()
+        self.less_equal = ops.LessEqual()
+        self.greater = ops.Greater()
+        self.reduce_sum = ops.ReduceSum()
+        self.reduce_sum_keep_dims = ops.ReduceSum(keep_dims=True)
+        self.reduce_mean = ops.ReduceMean()
+        self.reduce_min = ops.ReduceMin()
+        self.cast = ops.Cast()
+        self.minimum = ops.Minimum()
+        self.expand_dims = ops.ExpandDims()
+        self.select = ops.Select()
+        self.fill = ops.Fill()
+        self.topk = ops.TopK(sorted=True)
+        self.shape = ops.Shape()
+        self.sigmoid = ops.Sigmoid()
+        self.reshape = ops.Reshape()
+        self.slice = ops.Slice()
+        self.logical_and = ops.LogicalAnd()
+        self.logical_or = ops.LogicalOr()
+        self.equal = ops.Equal()
+        self.zeros_like = ops.ZerosLike()
+        self.add = ops.Add()
+        self.gather = ops.Gather()
+        self.upsample = nn.ResizeBilinear()
+
+    def ohem_batch(self, scores, gt_texts, training_masks):
+        '''
+
+        :param scores: [N * H * W]
+        :param gt_texts:  [N * H * W]
+        :param training_masks: [N * H * W]
+        :return: [N * H * W]
+        '''
+        batch_size = scores.shape[0]
+        selected_masks = ()
+        for i in range(batch_size):
+            score = self.slice(scores, (i, 0, 0), (1, 640, 640))
+            score = self.reshape(score, (640, 640))
+
+            gt_text = self.slice(gt_texts, (i, 0, 0), (1, 640, 640))
+            gt_text = self.reshape(gt_text, (640, 640))
+
+            training_mask = self.slice(training_masks, (i, 0, 0), (1, 640, 640))
+            training_mask = self.reshape(training_mask, (640, 640))
+
+            selected_mask = self.ohem_single(score, gt_text, training_mask)
+            selected_masks = selected_masks + (selected_mask,)
+
+        selected_masks = self.concat(selected_masks)
+        return selected_masks
+
+    def ohem_single(self, score, gt_text, training_mask):
+        pos_num = self.logical_and(self.greater(gt_text, self.threshold0),
+                                   self.greater(training_mask, self.threshold0))
+        pos_num = self.reduce_sum(self.cast(pos_num, mstype.float32))
+
+        neg_num = self.less_equal(gt_text, self.threshold0)
+        neg_num = self.reduce_sum(self.cast(neg_num, mstype.float32))
+        neg_num = self.minimum(3 * pos_num, neg_num)
+        neg_num = self.cast(neg_num, mstype.int32)
+
+        neg_num = neg_num + self.k - 1
+        neg_mask = self.less_equal(gt_text, self.threshold0)
+        ignore_score = self.fill(mstype.float32, (640, 640), -1e3)
+        neg_score = self.select(neg_mask, score, ignore_score)
+        neg_score = self.reshape(neg_score, (640 * 640,))
+
+        topk_values, _ = self.topk(neg_score, self.k)
+        threshold = self.gather(topk_values, neg_num, 0)
+
+        selected_mask = self.logical_and(
+            self.logical_or(self.greater(score, threshold),
+                            self.greater(gt_text, self.threshold0)),
+            self.greater(training_mask, self.threshold0))
+
+        selected_mask = self.cast(selected_mask, mstype.float32)
+        selected_mask = self.expand_dims(selected_mask, 0)
+
+        return selected_mask
+
+    def dice_loss(self, input_params, target, mask):
+        '''
+
+        :param input: [N, H, W]
+        :param target: [N, H, W]
+        :param mask: [N, H, W]
+        :return:
+        '''
+        batch_size = input_params.shape[0]
+        input_sigmoid = self.sigmoid(input_params)
+
+        input_reshape = self.reshape(input_sigmoid, (batch_size, 640 * 640))
+        target = self.reshape(target, (batch_size, 640 * 640))
+        mask = self.reshape(mask, (batch_size, 640 * 640))
+
+        input_mask = input_reshape * mask
+        target = target * mask
+
+        a = self.reduce_sum(input_mask * target, 1)
+        b = self.reduce_sum(input_mask * input_mask, 1) + 0.001
+        c = self.reduce_sum(target * target, 1) + 0.001
+        d = (2 * a) / (b + c)
+        dice_loss = self.reduce_mean(d)
+        return 1 - dice_loss
+
+    def avg_losses(self, loss_list):
+        loss_kernel = loss_list[0]
+        for i in range(1, len(loss_list)):
+            loss_kernel += loss_list[i]
+        loss_kernel = loss_kernel / len(loss_list)
+        return loss_kernel
+
+    def construct(self, model_predict, gt_texts, gt_kernels, training_masks):
+        '''
+
+        :param model_predict: [N * 7 * H * W]
+        :param gt_texts: [N * H * W]
+        :param gt_kernels:[N * 6 * H * W]
+        :param training_masks:[N * H * W]
+        :return:
+        '''
+        batch_size = model_predict.shape[0]
+        model_predict = self.upsample(model_predict, scale_factor=4)
+        texts = self.slice(model_predict, (0, 0, 0, 0), (batch_size, 1, 640, 640))
+        texts = self.reshape(texts, (batch_size, 640, 640))
+        selected_masks_text = self.ohem_batch(texts, gt_texts, training_masks)
+        loss_text = self.dice_loss(texts, gt_texts, selected_masks_text)
+
+        kernels = []
+        loss_kernels = []
+        for i in range(1, 7):
+            kernel = self.slice(model_predict, (0, i, 0, 0), (batch_size, 1, 640, 640))
+            kernel = self.reshape(kernel, (batch_size, 640, 640))
+            kernels.append(kernel)
+
+        mask0 = self.sigmoid(texts)
+        selected_masks_kernels = self.logical_and(self.greater(mask0, self.threshold0),
+                                                  self.greater(training_masks, self.threshold0))
+        selected_masks_kernels = self.cast(selected_masks_kernels, mstype.float32)
+
+        for i in range(6):
+            gt_kernel = self.slice(gt_kernels, (0, i, 0, 0), (batch_size, 1, 640, 640))
+            gt_kernel = self.reshape(gt_kernel, (batch_size, 640, 640))
+            loss_kernel_i = self.dice_loss(kernels[i], gt_kernel, selected_masks_kernels)
+            loss_kernels.append(loss_kernel_i)
+        loss_kernel = self.avg_losses(loss_kernels)
+
+        loss = 0.7 * loss_text + 0.3 * loss_kernel
+        return loss
