@@ -227,10 +227,8 @@ class DetResize(object):
         self.divisor = divisor
 
         if limit_type in ['min', 'max']:
-            keep_ratio = True
-            padding = False
             print(
-                'INFO: `limit_type` is {limit_type}. Image will be resized by limiting the {limit_type} side length to {limit_side_len}.')
+                f'INFO: `limit_type` is {limit_type}. Image will be resized by limiting the {limit_type} side length to {limit_side_len}.')
         elif not limit_type:
             assert target_size is not None or force_divisable is not None, 'One of `target_size` or `force_divisable` is required when limit_type is not set. Please set at least one of them.'
             if target_size and force_divisable:
