@@ -52,11 +52,11 @@ def main(cfg):
     network = build_model(cfg.model, ckpt_load_path=cfg.eval.ckpt_load_path)
     network.set_train(False)
 
-    if cfg.system.amp_level != 'O0':
+    if not cfg.system.amp_level_infer and cfg.system.amp_level != 'O0':
         print('INFO: Evaluation will run in full-precision(fp32)')
 
-    # TODO: check float type conversion in official Model.eval
-    #ms.amp.auto_mixed_precision(network, amp_level='O0')
+    if cfg.system.amp_level_infer:
+        ms.amp.auto_mixed_precision(network, amp_level=cfg.system.amp_level_infer)
 
     # postprocess, metric
     postprocessor = build_postprocess(cfg.postprocess)
@@ -69,6 +69,7 @@ def main(cfg):
                         loss_func=None,
                         postprocessor=postprocessor,
                         metrics=[metric],
+                        loader_output_columns=cfg.eval.dataset.output_columns,
                         input_indices=cfg.eval.dataset.pop('net_input_column_index', None),
                         label_indices=cfg.eval.dataset.pop('label_column_index', None),
                         meta_data_indices=cfg.eval.dataset.pop('meta_data_column_index', None),

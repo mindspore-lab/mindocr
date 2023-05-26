@@ -50,7 +50,7 @@ pip install -r requirements.txt
 
 
 > 注意：
-> - 如果[使用MX Engine推理](#21-使用mx-engine推理)，Python版本需为3.9。
+> - 如果[使用ACL推理](#21-使用mindspore-lite和acl推理)，Python版本需为3.9。
 > - 如果遇到scikit_image导入错误，参考[此处](https://github.com/opencv/opencv/issues/14884)，你需要设置环境变量`$LD_PRELOAD`，命令如下。替换`path/to`为你的目录。
 >   ```shell
 >   export LD_PRELOAD=path/to/scikit_image.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
@@ -85,44 +85,45 @@ MindOCR支持多种文本识别模型及数据集，在此我们使用**CRNN**�
 
 ### 2. 推理与部署
 
-#### 2.1 使用MX Engine推理
+#### 2.1 使用MindSpore Lite和ACL推理(Ascend 310)
 
-MX ([MindX](https://www.hiascend.com/zh/software/mindx-sdk)的缩写) 是一个支持昇腾设备高效推理与部署的工具。
+MindOCR集成了[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)推理后端，
+集成了文本检测、分类和识别串联推理。
 
-MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_infer](docs/cn/inference_tutorial_cn.md)。
+具体说明请参考[MindOCR 310推理](docs/cn/inference/inference_tutorial_cn.md)。
 
+#### 2.2 使用原生MindSpore在线推理(CPU/GPU/Ascend 910)
 
-#### 2.2 使用MindSpore Lite推理 
+MindOCR提供易用的文本检测识别推理工具，支持CPU/GPU/Ascend 910硬件平台。在线推理基于使用MindOCR训练完成的模型进行推理。
 
-敬请期待
-
-#### 2.3 使用原生MindSpore推理
-
-MindOCR支持使用MindOCR训练好的ckpt文件进行文本检测+文本识别串联推理，请参考[此处](docs/cn/predict_ckpt_cn.md)。
+具体用法和效果请参考 [MindOCR在线推理](tools/infer/text/README.md)。
 
 ## 模型列表
 
 <details open>
 <summary>文本检测</summary>
 
-- [x] [DBNet](https://arxiv.org/abs/1911.08947) (AAAI'2020) 
-- [x] [DBNet++](https://arxiv.org/abs/2202.10304) (TPAMI'2022)
-- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [开发中]
+- [x] [DBNet](configs/det/dbnet/README.md) (AAAI'2020) 
+- [x] [DBNet++](configs/det/dbnet/README.md) (TPAMI'2022)
+- [x] [PSENet](configs/det/psenet/README.md) (CVPR'2019)
+- [ ] [EAST](https://arxiv.org/abs/1704.03155)(CVPR'2017) [coming soon]
+- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [coming soon]
 
 </details>
 
 <details open>
 <summary>文本识别</summary>
 
-- [x] [CRNN](https://arxiv.org/abs/1507.05717) (TPAMI'2016)
-- [x] [CRNN-Seq2Seq](https://arxiv.org/abs/1603.03915) (CVPR'2016)
-- [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [开发中]
-- [ ] [SVTR](https://arxiv.org/abs/2205.00159) (IJCAI'2022) [仅推理]
+
+- [x] [CRNN](configs/rec/crnn/README.md) (TPAMI'2016)
+- [x] [CRNN-Seq2Seq/RARE](configs/rec/rare/README.md) (CVPR'2016)
+- [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022) 
+- [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 
 
 模型训练的配置及性能结果请见[configs](./configs).
 
-基于MX引擎的推理性能结果及支持模型列表，请见[mx inference performance](docs/cn/inference_models_cn.md) 
+MindSpore Lite和ACL模型推理的支持列表，请见[MindOCR模型推理支持列表](docs/cn/inference/models_list_cn.md)和[第三方模型推理支持列表](docs/cn/inference/models_list_thirdparty_cn.md).
 
 ## 数据集
 ### 下载

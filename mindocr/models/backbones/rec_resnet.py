@@ -158,7 +158,7 @@ class RecResNet(nn.Cell):
 
 
 @register_backbone
-def rec_resnet34(pretrained: bool = True, **kwargs):
+def rec_resnet34(pretrained: bool = False, **kwargs):
     model = RecResNet(in_channels=3, layers=34, **kwargs)
 
     if pretrained is True:

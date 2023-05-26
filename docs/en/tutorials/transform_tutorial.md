@@ -117,7 +117,7 @@ print('raw annotation: ', annot)
 
 ```python
 #img_path = '/Users/Samit/Data/datasets/ic15/det/train/ch4_training_images/img_1.jpg'
-decode_image = general_transforms.DecodeImage(img_mode='BGR')
+decode_image = general_transforms.DecodeImage(img_mode='RGB')
 
 # TODO: check the input keys and output keys for the trans. func.
 
@@ -163,9 +163,9 @@ data = decode_image(data)
 print(data['texts'])
 
 # visualize
-from mindocr.utils.visualize import draw_bboxes
+from mindocr.utils.visualize import draw_boxes
 
-res = draw_bboxes(data['image'], data['polys'])
+res = draw_boxes(data['image'], data['polys'])
 show_img(res)
 
 ```
@@ -194,7 +194,7 @@ for i in range(2):
     data_cache = copy.deepcopy(data)
     data_cropped = crop_data(data_cache)
 
-    res_crop = draw_bboxes(data_cropped['image'], data_cropped['polys'])
+    res_crop = draw_boxes(data_cropped['image'], data_cropped['polys'])
     show_img(res_crop)
 ```
 

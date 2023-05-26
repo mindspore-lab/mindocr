@@ -29,7 +29,7 @@ model:
 
 postprocess:
   name: DBPostprocess
-  output_polygon: False   # whether to output a polygon or a box
+  box_type: quad   # whether to output a polygon or a box
   binary_thresh: 0.3      # binarization threshold
   box_thresh: 0.6         # box score threshold
   max_candidates: 1000
@@ -134,8 +134,12 @@ eval:
           img_mode: RGB
           to_float32: False
       - DetLabelEncode:
-      - ScalePadImage:
-          target_size: [ 1152, 2048 ] # h, w
+      #- ScalePadImage:
+      #    target_size: [ 1152, 2048 ] # h, w
+      - DetResize: 
+          target_size: [ 1152, 2048]
+          keep_ratio: True
+          padding: True
       - NormalizeImage:
           bgr_to_rgb: False
           is_hwc: True

@@ -23,4 +23,4 @@ def load_model(network, load_from: str, filter_fn: Optional[Callable[[Dict], Dic
                 params = filter_fn(params)
             load_param_into_net(network, params)
 
-        print(f'INFO: Finish loading model checkoint from {load_from}. If no parameter fail-load warning displayed, all checkpoint params have been successfully loaded.')
+            print(f'INFO: Finish loading model checkoint from {load_from}. If no parameter fail-load warning displayed, all checkpoint params have been successfully loaded.')

@@ -7,13 +7,13 @@ from shapely.geometry import Polygon
 
 class DBPostProcess:
     def __init__(self, binary_thresh=0.3, box_thresh=0.6, max_candidates=1000, expand_ratio=1.5,
-                 output_polygon=False, pred_name='binary'):
+                 box_type='quad', pred_name='binary'):
         self._min_size = 3
         self._binary_thresh = binary_thresh
         self._box_thresh = box_thresh
         self._max_candidates = max_candidates
         self._expand_ratio = expand_ratio
-        self._out_poly = output_polygon
+        self._out_poly = box_type=='poly'
         self._name = pred_name
         self._names = {'binary': 0, 'thresh': 1, 'thresh_binary': 2}
 

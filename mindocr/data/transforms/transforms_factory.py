@@ -8,6 +8,7 @@ from .general_transforms import *
 from .det_transforms import *
 from .rec_transforms import *
 from .iaa_augment import *
+from .svtr_transform import *
 
 __all__ = ['create_transforms', 'run_transforms', 'transforms_dbnet_icdar15']
 
@@ -39,7 +40,6 @@ def create_transforms(transform_pipeline, global_config=None):
                 param.update(global_config)
             # TODO: assert undefined transform class
 
-            # print(trans_name, param)
             transform = eval(trans_name)(**param)
             transforms.append(transform)
         elif callable(transform_config):
@@ -62,7 +62,7 @@ def run_transforms(data, transforms=None, verbose=False):
             print(f'\tOutput: ', {k: data[k].shape for k in data if isinstance(data[k], np.ndarray)})
 
         if data is None:
-            return None
+            raise RuntimeError(f"Empty result is returned from transform `{transform}`")
     return data
 
 

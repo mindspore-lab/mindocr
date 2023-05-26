@@ -8,7 +8,7 @@ English | [中文](https://github.com/mindspore-lab/mindocr/blob/main/configs/re
 ## 1. Introduction
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
-Recognizing text in natural images is a challenging task with many unsolved problems. Different from those in documents, words in natural images often possess irregular shapes, which are caused by perspective distortion, curved character placement, etc. The paper proposes RARE (Robust text recognizer with Automatic REctification), a recognition model that is robust to irregular text. RARE is a specially-designed deep neural network, which consists of a Spatial Transformer Network (STN) and a Sequence Recognition Network (SRN). In testing, an image is firstly rectified via a predicted Thin-Plate-Spline (TPS) transformation, into a more "readable" image for the following SRN, which recognizes text through a sequence recognition approach. It shows that the model is able to recognize several types of irregular text, including perspective text and curved text. RARE is end-to-end trainable, requiring only images and associated text labels, making it convenient to train and deploy the model in practical systems. State-of-the-art or highly-competitive performance achieved on several benchmarks well demonstrates the effectiveness of the proposed model.
+Recognizing text in natural images is a challenging task with many unsolved problems. Different from those in documents, words in natural images often possess irregular shapes, which are caused by perspective distortion, curved character placement, etc. The paper proposes RARE (Robust text recognizer with Automatic REctification), a recognition model that is robust to irregular text. RARE is a specially-designed deep neural network, which consists of a Spatial Transformer Network (STN) and a Sequence Recognition Network (SRN). In testing, an image is firstly rectified via a predicted Thin-Plate-Spline (TPS) transformation, into a more "readable" image for the following SRN, which recognizes text through a sequence recognition approach. It shows that the model is able to recognize several types of irregular text, including perspective text and curved text. RARE is end-to-end trainable, requiring only images and associated text labels, making it convenient to train and deploy the model in practical systems. State-of-the-art or highly-competitive performance achieved on several benchmarks well demonstrates the effectiveness of the proposed model. [<a href="#references">1</a>]
 
 <!--- Guideline: If an architecture table/figure is available in the paper, put one here and cite for intuitive illustration. -->
 <p align="center">
@@ -33,17 +33,21 @@ Table Format:
 
 According to our experiments, the evaluation results on public benchmark datasets (IC03, IC13, IC15, IIIT, SVT, SVTP, CUTE) is as follow:
 
-| **Model** | **Context**    | **Backbone** | **Transform Module** | **Avg Accuracy** | **Train T.** | **Recipe** | **Download** | 
-| :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
-| RARE (ours)      | D910x4-MS1.10-G | ResNet34_vd | None | 85.19%    | 3166 s/epoch         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e-b65dd225.mindir) |
+<div align="center">
+
+| **Model** | **Context**    | **Backbone** | **Transform Module** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** | 
+| :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :--------: |:-----: |
+| RARE     | D910x4-MS1.10-G | ResNet34_vd | None | 85.19%    | 3166 s/epoch         | 4561 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e-b65dd225.mindir) |
+</div>
 
 <details open>
+  <div align="center">
   <summary>Detailed accuracy results for each benchmark dataset</summary>
 
   | **Model** | **Backbone** | **Transform Module** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
   | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-  | RARE (ours) | ResNet34_vd | None | 95.12% | 94.58% | 94.28% | 92.71% | 75.31% | 69.52% | 88.17% | 87.33% | 78.91% | 76.04% | 85.19% |
-
+  | RARE | ResNet34_vd | None | 95.12% | 94.58% | 94.28% | 92.71% | 75.31% | 69.52% | 88.17% | 87.33% | 78.91% | 76.04% | 85.19% |
+  </div>
 </details>
 
 **Notes:**
@@ -304,7 +308,7 @@ To transform the groud-truth text into label ids, we have to provide the charact
 
 There are some built-in dictionaries, which are placed in `mindocr/utils/dict/`, and you can choose the appropriate dictionary to use.
 
-- `en_dict.txt` is an English dictionary containing 96 characters, including numbers, common symbols, and uppercase and lowercase English letters.
+- `en_dict.txt` is an English dictionary containing 94 characters, including numbers, common symbols, and uppercase and lowercase English letters.
 - `ch_dict.txt` is a Chinese dictionary containing 6623 characters, including commonly used simplified and traditional Chinese, numbers, common symbols, uppercase and lowercase English letters.
 
 
@@ -342,10 +346,12 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/rare/
 ### Results and Pretrained Weights
 
 After training, evaluation results on the benchmark test set are as follows, where we also provide the model config and pretrained weights.
+<div align="center">
 
-| **Model** | **Language** | **Backbone** | **Transform Module** | **Scene** | **Web** | **Document** | **Recipe** | **Download** | 
-| :-----: | :-----:  | :--------: | :------------: | :--------: | :--------: | :--------: | :---------: | :-----------: |
-| RARE    | Chinese | ResNet34_vd | None | 55.39% | 61.90% | 97.05% |  [rare_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20-017aec13.mindir) |
+| **Model** | **Language** | **Backbone** | **Transform Module** | **Scene** | **Web** | **Document** | **Train T.** | **FPS** | **Recipe** | **Download** | 
+| :-----: | :-----:  | :--------: | :------------: | :--------: | :--------: | :--------: | :--------: | :--------: |:---------: | :-----------: |
+| RARE    | Chinese | ResNet34_vd | None | 55.39% | 61.90% | 97.05% | 683 s/epoch | 1493 |  [rare_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20-017aec13.mindir) |
+</div>
 
 ### Training with Custom Datasets
 You can train models for different languages with your own custom datasets. Loading the pretrained Chinese model to finetune on your own dataset usually yields better results than training from scratch. Please refer to the tutorial [Training Recognition Network with Custom Datasets](../../../docs/en/tutorials/training_recognition_custom_dataset.md).

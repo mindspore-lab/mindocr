@@ -2,11 +2,12 @@ from typing import Tuple, Union, List
 import cv2
 import numpy as np
 from mindspore import Tensor
+from mindspore import nn
 from shapely.geometry import Polygon
 
 from ..data.transforms.det_transforms import expand_poly
 
-__all__ = ['DBPostprocess']
+__all__ = ['DBPostprocess', 'PSEPostprocess']
 
 
 class DetBasePostprocess:
@@ -17,10 +18,10 @@ class DetBasePostprocess:
         rescale_fields: name of fields to scale back to the shape of the original image.
     """
     def __init__(self, rescale_fields: List[str] = None):
-        self._scale_fields = rescale_fields
+        self._rescale_fields = rescale_fields
 
     @staticmethod
-    def _scale_sample(sample: Union[List[np.ndarray], np.ndarray], shape: np.ndarray):
+    def _rescale_sample(sample: Union[List[np.ndarray], np.ndarray], shape: np.ndarray):
         # shape: [h, w, scale_h, scale_w]
         if isinstance(sample, np.ndarray):
             result = np.round(sample * shape[:1:-1])
@@ -29,11 +30,11 @@ class DetBasePostprocess:
 
         return result
 
-    def scale(self, processed: dict, shapes: Union[Tensor, np.ndarray]) -> dict:
+    def rescale(self, processed: dict, shapes: Union[Tensor, np.ndarray]) -> dict:
         shapes = shapes.asnumpy() if isinstance(shapes, Tensor) else shapes
         shapes[:, 2:] = 1 / shapes[:, 2:]   # reverse scale values from the dataloader
-        for field in self._scale_fields:
-            processed[field] = [self._scale_sample(sample, shape) for sample, shape in zip(processed[field], shapes)]
+        for field in self._rescale_fields:
+            processed[field] = [self._rescale_sample(sample, shape) for sample, shape in zip(processed[field], shapes)]
 
         return processed
 
@@ -53,7 +54,7 @@ class DBPostprocess(DetBasePostprocess):
         rescale_fields: name of fields to scale back to the shape of the original image.
     """
     def __init__(self, binary_thresh: float = 0.3, box_thresh: float = 0.7, max_candidates: int = 1000,
-                 expand_ratio: float = 1.5, output_polygon=False, pred_name: str = 'binary', rescale_fields: List[str] = None):
+                 expand_ratio: float = 1.5,  box_type='quad', pred_name: str = 'binary', rescale_fields: List[str] = None):
         super().__init__(rescale_fields)
 
         self._min_size = 3
@@ -61,7 +62,7 @@ class DBPostprocess(DetBasePostprocess):
         self._box_thresh = box_thresh
         self._max_candidates = max_candidates
         self._expand_ratio = expand_ratio
-        self._out_poly = output_polygon
+        self._out_poly = (box_type == 'poly') 
         self._name = pred_name
         self._names = {'binary': 0, 'thresh': 1, 'thresh_binary': 2}
 
@@ -99,7 +100,7 @@ class DBPostprocess(DetBasePostprocess):
             scores.append(sample_scores)
 
         output = {'polys': polys, 'scores': scores}
-        if self._scale_fields:
+        if self._rescale_fields:
             output = self.scale(output, shapes)
 
         return output
@@ -197,3 +198,90 @@ class DBPostprocess(DetBasePostprocess):
         max_vals = np.clip(np.ceil(np.max(contour, axis=0)), 0, np.array(pred.shape[::-1]) - 1).astype(np.int32)
         return cv2.mean(pred[min_vals[1]:max_vals[1] + 1, min_vals[0]:max_vals[0] + 1],
                         mask[min_vals[1]:max_vals[1] + 1, min_vals[0]:max_vals[0] + 1].astype(np.uint8))[0]
+
+
+class PSEPostprocess:
+    def __init__(self, binary_thresh=0.5, box_thresh=0.85, min_area=16,
+                 box_type='quad', scale=4, rescale_fields=None):
+        from .pse import pse
+        self._binary_thresh = binary_thresh
+        self._box_thresh = box_thresh
+        self._min_area = min_area
+        self._box_type = box_type
+        self._scale = scale
+        self._interpolate = nn.ResizeBilinear()
+        self._sigmoid = nn.Sigmoid()
+        if rescale_fields is None:
+            rescale_fields = []
+        self._rescale_fields = rescale_fields
+        self._pse = pse
+
+    def __call__(self, pred, shape_list=None, **kwargs):  # pred: N 7 H W
+        '''
+        Args:
+            pred (Tensor): network prediction with shape [BS, C, H, W]
+            shape_list (List[List[float]]: a list of shape info [raw_img_h, raw_img_w, ratio_h, ratio_w] for each sample in batch  
+        '''
+        if not isinstance(pred, Tensor):
+            pred = Tensor(pred)
+        
+        if shape_list:
+            assert len(shape_list) > 0 and len(shape_list[0]==4), f'The length of each element in shape_list must be 4 for [raw_img_h, raw_img_w, scale_h, scale_w]. But get shape list {shape_list}'
+        else:
+            shape_list = [[pred.shape[2], pred.shape[3], 1.0, 1.0] for i in range(pred.shape[0])] # H, W
+            
+        pred = self._interpolate(pred, scale_factor=4 // self._scale)
+        score = self._sigmoid(pred[:, 0, :, :])
+
+        kernels = (pred > self._binary_thresh).astype(ms.float32)
+        text_mask = kernels[:, :1, :, :]
+        text_mask = text_mask.astype(ms.int8)
+
+        kernels[:, 1:, :, :] = kernels[:, 1:, :, :] * text_mask
+        score = score.asnumpy()
+        kernels = kernels.asnumpy().astype(np.uint8)
+        poly_list, score_list = [], []
+        for batch_idx in range(pred.shape[0]):
+            boxes, scores = self._boxes_from_bitmap(score[batch_idx],
+                                                    kernels[batch_idx],
+                                                    shape_list[batch_idx])
+            poly_list.append(boxes)
+            score_list.append(scores)
+
+        return {'polys': poly_list, 'scores': score_list}
+
+    def _boxes_from_bitmap(self, score, kernels, shape):
+        label = self._pse(kernels, self._min_area)
+        return self._generate_box(score, label, shape)
+
+    def _generate_box(self, score, label, shape):
+        src_h, src_w, ratio_h, ratio_w = shape
+        label_num = np.max(label) + 1
+        boxes = []
+        scores = []
+        for i in range(1, label_num):
+            ind = label == i
+            points = np.array(np.where(ind)).transpose((1, 0))[:, ::-1]
+            if points.shape[0] < self._min_area:
+                label[ind] = 0
+                continue
+
+            score_i = np.mean(score[ind])
+            if score_i < self._box_thresh:
+                label[ind] = 0
+                continue
+
+            if self._box_type == 'quad':
+                rect = cv2.minAreaRect(points)
+                bbox = cv2.boxPoints(rect)
+            else:
+                raise NotImplementedError(
+                    f"The value of param 'box_type' can only be 'quad', but got '{self._box_type}'.")
+
+            if 'polys' in self._rescale_fields:
+                bbox[:, 0] = np.clip(np.round(bbox[:, 0] / ratio_w), 0, src_w)
+                bbox[:, 1] = np.clip(np.round(bbox[:, 1] / ratio_h), 0, src_h)
+            boxes.append(bbox)
+            scores.append(score_i)
+
+        return boxes, scores
