@@ -21,5 +21,3 @@ python tools/export.py --model_name dbnet_resnet50  --ckpt_load_path /path/to/ch
 ```
 
 For more usage, run `python tools/export.py -h`.
-
-I

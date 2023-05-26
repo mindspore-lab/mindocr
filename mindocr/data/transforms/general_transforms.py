@@ -165,7 +165,7 @@ class ScalePadImage:
         if 'polys' in data:
             data['polys'] *= scale
 
-        data['shape'] = np.concatenate((size, np.array([scale, scale])), dtype=np.float32)
+        data['shape_list'] = np.concatenate((size, np.array([scale, scale])), dtype=np.float32)
         return data
 
 

@@ -83,6 +83,7 @@ paper_sam.png	[[[1161, 340], [1277, 340], [1277, 378], [1161, 378]], [[895, 335]
   | DB  | dbnet_resnet50 | English |
   | DB++ | dbnetpp_resnet50 | English |
   | DB_MV3 | dbnet_mobilenetv3 | English |
+  | PSE | psenet_resnet152 | English |
   
 </div>
 
@@ -153,6 +154,7 @@ doc_cn3.png 马拉松选手不会为短暂的领先感到满意，而是永远�
   | :------: | :------: | :------: | 
   | CRNN | crnn_resnet34 | English | 
   | RARE | rare_resnet34 | English |
+  | SVTR | svtr_tiny | English|
   | CRNN_CH | crnn_resnet34_ch | Chinese |
   | RARE_CH | rare_resnet34_ch | Chinese |
   
@@ -214,10 +216,10 @@ web_cvpr.png	[{"transcription": "canada", "points": [[430, 148], [540, 148], [54
 To infer on the whole [ICDAR15](https://rrc.cvc.uab.es/?ch=4&com=downloads) test set, please run:
 ```
 python tools/infer/text/predict_system.py --image_dir /path/to/icdar15/det/test_images  /
-                                          --det_algorithm DB    /
-                                          --rec_algorithm CRNN  /
+                                          --det_algorithm {DET_ALGO}    /
+                                          --rec_algorithm {REC_ALGO}  /
                                           --det_limit_type min  /
-                                          --det_limit_side_len 736
+                                          --det_limit_side_len 720
 ```
 > Note: Here we set`det_limit_type` as `min` for better performance, due to the input image in ICDAR15 is of high resolution (720x1280).  
 
@@ -235,16 +237,23 @@ Prepare the **ground truth** file (in the same format as above), which can be ob
 python deploy/eval_utils/eval_pipeline.py --gt_path path/to/gt.txt --pred_path path/to/system_results.txt
 ```
 
-Evaluation results are shown as follows.
+Evaluation of the text spotting inference results on Ascend 910 with MindSpore 2.0rc1 are shown as follows.
 
 <div align="center">
   
-| Det. Algorithm| Rec. Algorithm |  Dataset     | Accuracy |
-|---------|----------|--------------|---------------|
-| DBNet   | CRNN    | ICDAR15 | 56.48% | 
-| DBNet++   | RARE | ICDAR15 | 57.97 % | 
-
+| Det. Algorithm| Rec. Algorithm |  Dataset     | Accuracy(%) | FPS (imgs/s) |
+|---------|----------|--------------|---------------|-------|
+| DBNet   | CRNN    | ICDAR15 | 57.97 | 4.79 | 
+| PSENet  | CRNN    | ICDAR15 | 47.91 | 1.65| 
+| PSENet (det_limit_side_len=1472 )  | CRNN    | ICDAR15 | 55.51 | 0.44 | 
+| DBNet++   | RARE | ICDAR15 | 58.16  | 3.5 | 
+| DBNet++   | SVTR | ICDAR15 | 63.07  | 1.46 | 
 </div>
+
+**Notes:** 
+1. Currently, online inference pipeline is not optimized for efficiency, thus FPS is only for comparison between models. FPS for [Inference on Ascend 310](docs/en/inference/inference_tutorial_en.md) will be much higher.
+2. Unless extra inidication, all experiments are run with `--det_limit_type`="min" and `--det_limit_side`=720. 
+3. SVTR is run on wth mixed precision (`amp_level` O2) since it is optimized for O2.
 
 ## Argument List 
 

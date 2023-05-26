@@ -69,6 +69,7 @@ def main(cfg):
                         loss_func=None,
                         postprocessor=postprocessor,
                         metrics=[metric],
+                        loader_output_columns=cfg.eval.dataset.output_columns,
                         input_indices=cfg.eval.dataset.pop('net_input_column_index', None),
                         label_indices=cfg.eval.dataset.pop('label_column_index', None),
                         meta_data_indices=cfg.eval.dataset.pop('meta_data_column_index', None),
