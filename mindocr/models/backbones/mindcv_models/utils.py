@@ -7,6 +7,7 @@ import logging
 import os
 from itertools import repeat
 from typing import List, Optional
+from copy import deepcopy
 
 from mindspore import load_checkpoint, load_param_into_net
 
@@ -25,8 +26,8 @@ class ConfigDict(dict):
     __delattr__ = dict.__delitem__
 
 
-def load_pretrained(model, default_cfg, num_classes=1000, in_channels=3, filter_fn=None, auto_mapping=False):
-    """load pretrained model depending on cfgs of model"""
+def download_pretrained(default_cfg):
+    """Download the pretrained ckpt from url to local path"""
     if "url" not in default_cfg or not default_cfg["url"]:
         logging.warning("Pretrained model URL is invalid")
         return
@@ -34,34 +35,47 @@ def load_pretrained(model, default_cfg, num_classes=1000, in_channels=3, filter_
     # download files
     download_path = get_checkpoint_download_root()
     os.makedirs(download_path, exist_ok=True)
-    DownLoad().download_url(default_cfg["url"], path=download_path)
+    file_path = DownLoad().download_url(default_cfg["url"], path=download_path)
+    return file_path
+
+
+def auto_map(model, param_dict):
+    """Raname part of the param_dict such that names from checkpoint and model are consistent"""
+    updated_param_dict = deepcopy(param_dict)
+    net_param = model.get_parameters()
+    ckpt_param = list(updated_param_dict.keys())
+    remap = {}
+    for param in net_param:
+        if param.name not in ckpt_param:
+            print('Cannot find a param to load: ', param.name)
+            poss = difflib.get_close_matches(param.name, ckpt_param, n=3, cutoff=0.6)
+            if len(poss) > 0:
+                print('=> Find most matched param: ', poss[0], ', loaded')
+                updated_param_dict[param.name] = updated_param_dict.pop(poss[0]) # replace
+                remap[param.name] = poss[0]
+            else:
+                raise ValueError('Cannot find any matching param from: ', ckpt_param)
+
+    if remap != {}:
+        print('WARNING: Auto mapping succeed. Please check the found mapping names to ensure correctness')
+        print('\tNet Param\t<---\tCkpt Param')
+        for k in remap:
+            print(f'\t{k}\t<---\t{remap[k]}')
+    return updated_param_dict
+
+
+def load_pretrained(model, default_cfg, num_classes=1000, in_channels=3, filter_fn=None, auto_mapping=False):
+    """load pretrained model depending on cfgs of model"""
+    file_path = download_pretrained(default_cfg)
 
     try:
-        param_dict = load_checkpoint(os.path.join(download_path, os.path.basename(default_cfg["url"])))
+        param_dict = load_checkpoint(file_path)
     except:
-        print(f'ERROR: Fails to load the checkpoint. Please check whether the checkpoint is downloaded successfully in {download_path} and is not zero-byte. You may try to manually download the checkpoint from ', default_cfg["url"])
+        print(f'ERROR: Fails to load the checkpoint. Please check whether the checkpoint is downloaded successfully as `{file_path}` and is not zero-byte. You may try to manually download the checkpoint from ', default_cfg["url"])
         param_dict = dict()
 
     if auto_mapping:
-        net_param = model.get_parameters()
-        ckpt_param = list(param_dict.keys())
-        remap = {}
-        for param in net_param:
-            if param.name not in ckpt_param:
-                print('Cannot find a param to load: ', param.name)
-                poss = difflib.get_close_matches(param.name, ckpt_param, n=3, cutoff=0.6)
-                if len(poss) > 0:
-                    print('=> Find most matched param: ', poss[0], ', loaded')
-                    param_dict[param.name] = param_dict.pop(poss[0]) # replace
-                    remap[param.name] = poss[0]
-                else:
-                    raise ValueError('Cannot find any matching param from: ', ckpt_param)
-
-        if remap != {}:
-            print('WARNING: Auto mapping succeed. Please check the found mapping names to ensure correctness')
-            print('\tNet Param\t<---\tCkpt Param')
-            for k in remap:
-                print(f'\t{k}\t<---\t{remap[k]}')
+        param_dict = auto_map(model, param_dict)
 
     if in_channels == 1:
         conv1_name = default_cfg["first_conv"]
@@ -94,7 +108,7 @@ def load_pretrained(model, default_cfg, num_classes=1000, in_channels=3, filter_
 
     load_param_into_net(model, param_dict)
 
-    print('INFO: Finish loading model checkpoint from: ', os.path.join(download_path, os.path.basename(default_cfg["url"])))
+    print('INFO: Finish loading model checkpoint from: ', file_path)
 
 
 def make_divisible(

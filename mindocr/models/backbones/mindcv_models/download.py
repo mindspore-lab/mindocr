@@ -140,7 +140,7 @@ class DownLoad:
         # Check if the file is exists.
         if os.path.isfile(file_path):
             if not md5 or self.check_md5(file_path, md5):
-                return
+                return file_path
 
         # Download the file.
         try:
@@ -157,6 +157,8 @@ class DownLoad:
                     ssl._create_default_https_context = ssl.create_default_context
             else:
                 raise e
+        
+        return file_path
 
     def download_and_extract_archive(
         self,
