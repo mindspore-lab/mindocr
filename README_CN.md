@@ -94,7 +94,7 @@ MindOCR集成了[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://
 
 #### 2.2 使用原生MindSpore在线推理(CPU/GPU/Ascend 910)
 
-MindOCR提供易用的文本检测识别推理工具，支持CPU/GPU/Ascend 910硬件平台。在线推理基于使用MindOCR训练p完成的模型进行推理。
+MindOCR提供易用的文本检测识别推理工具，支持CPU/GPU/Ascend 910硬件平台。在线推理基于使用MindOCR训练完成的模型进行推理。
 
 具体用法和效果请参考 [MindOCR在线推理](tools/infer/text/README.md)。
 

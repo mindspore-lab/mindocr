@@ -99,7 +99,7 @@ The training pipeline is fully extendable. To train other text detection/recogni
 
 MindOCR supports OCR model inference with [MindSpore Lite](https://www.mindspore.cn/lite/en) and [ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html) (Ascend Computation Language)  backends. It integrates efficient text detection, classification and recognition inference pipeline for deployment. 
 
-Please refer to [MindOCR Inference on Ascend 310](tools/infer/text/README.md) for detailed illustrations.
+Please refer to [MindOCR Inference on Ascend 310](docs/en/inference/inference_tutorial_en.md) for detailed illustrations.
 
 #### 2.2 Inference with native MindSpore on Ascend910/GPU/CPU
 

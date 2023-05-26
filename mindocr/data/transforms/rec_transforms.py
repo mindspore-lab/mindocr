@@ -6,7 +6,7 @@ import cv2
 import math
 import numpy as np
 
-__all__ = ['RecCTCLabelEncode', 'RecAttnLabelEncode', 'RecResizeImg', 'RecResizeForInfer', 'SVTRRecResizeImg']
+__all__ = ['RecCTCLabelEncode', 'RecAttnLabelEncode', 'RecResizeImg', 'RecResizeNormForInfer', 'SVTRRecResizeImg']
 
 
 class RecCTCLabelEncode(object):
@@ -330,29 +330,33 @@ class SVTRRecResizeImg(object):
         return data
 
 
-class RecResizeForInfer(object):
+class RecResizeNormForInfer(object):
     '''
     Resize image for text recognition
 
     Args:
         target_height: target height after resize. Commonly, 32 for crnn, 48 for svtr. default is 32.
-        target_width: target width. Default is None so that image width is scaled to make aspect ratio unchanged.
+        target_width: target width. Default is 320. If None, image width is scaled to make aspect ratio unchanged.
         keep_ratio: keep aspect ratio. If True, resize the image with ratio=target_height / input_height (certain image height is required by recognition network).
                     If False, simply resize to targte size (`target_height`, `target_width`)
         padding: If True, pad the resized image to the targte size with zero RGB values. only used when `keep_ratio` is True.
-        max_wh_ratio: limit the maximum image width to `max_wh_ratio*target_height` after resize, to avoid producing over-long text image.
 
     Notes:
         1. The default choice (keep_ratio, not padding) is suitable for inference for better accuracy.
     '''
-    def __init__(self, target_height=32, target_width=None, keep_ratio=True, padding=False, max_wh_ratio=15, interpolation=cv2.INTER_LINEAR):
+    def __init__(self, target_height=32, target_width=320, keep_ratio=True, padding=False, interpolation=cv2.INTER_LINEAR, norm_before_pad=False,  mean=[127.0, 127.0, 127.0], std=[127.0, 127.0, 127.0]):
         self.keep_ratio = keep_ratio
         self.padding = padding
-        self.max_wh_ratio = max_wh_ratio
         #self.targt_shape = target_shape
         self.tar_h = target_height
         self.tar_w = target_width
         self.interpolation = interpolation
+        self.norm_before_pad = norm_before_pad
+        self.mean = np.array(mean, dtype="float32") 
+        self.std = np.array(std, dtype="float32")
+
+    def norm(self, img):
+        return (img - self.mean) / self.std
 
     def __call__(self, data):
         '''
@@ -362,24 +366,34 @@ class RecResizeForInfer(object):
         h, w = img.shape[:2]
         #tar_h, tar_w = self.targt_shape
         resize_h = self.tar_h
+        
+        max_wh_ratio = self.tar_w / float(self.tar_h)      
 
         if self.keep_ratio==False:
             assert self.tar_w is not None, 'Must specify target_width if keep_ratio is False'
             resize_w = self.tar_w #if self.tar_w is not None else resized_h * self.max_wh_ratio
         else:
-            wh_ratio = w / float(h)
-            resize_w = min(wh_ratio, self.max_wh_ratio) * self.tar_h
-            resize_w = math.ceil(resize_w)
+            src_wh_ratio = w / float(h)
+            resize_w = int(min(src_wh_ratio, max_wh_ratio) * resize_h)
+        #print('Rec resize: ', h, w, "->", resize_h, resize_w)
 
         resized_img = cv2.resize(img, (resize_w, resize_h), interpolation=self.interpolation)
 
+        # TODO: norm before padding
+
         data['shape_list'] = [h, w, resize_h / h, resize_w / w] # TODO: reformat, currently align to det
+        if self.norm_before_pad:
+            resized_img = self.norm(resized_img) 
+
         if self.padding and self.keep_ratio:
-            padded_img = np.zeros((self.tar_h, self.tar_w, 3), dtype=np.uint8)
+            padded_img = np.zeros((self.tar_h, self.tar_w, 3), dtype=resized_img.dtype)
             padded_img[:, :resize_w, :] = resized_img
             data['image'] = padded_img
         else:
             data['image'] = resized_img
+
+        if not self.norm_before_pad:
+            data['image'] = self.norm(data['image']) 
 
         return data
 

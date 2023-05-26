@@ -14,6 +14,8 @@ import sys
 from typing import List
 import json
 import mindspore as ms
+import mindspore.ops as ops
+from mindspore.common import dtype as mstype
 import numpy as np
 from time import time
 
@@ -54,12 +56,28 @@ class TextRecognizer(object):
 
         self.model = build_model(model_name, pretrained=pretrained, ckpt_load_path=ckpt_load_path)
         self.model.set_train(False)
+
+        #amp_level = 'O2' if args.rec_algorithm.startswith('SVTR') else args.rec_amp_level
+        amp_level = args.rec_amp_level
+        if  args.rec_algorithm.startswith('SVTR') and amp_level!='O2':
+            print('WARNING: SVTR recognition model is optimized for amp_level O2. ampl_level for rec model is changed to O2')
+            amp_level = 'O2'
+        ms.amp.auto_mixed_precision(self.model, amp_level=amp_level)
+        self.cast_pred_fp32 = amp_level != 'O0'
+        if self.cast_pred_fp32:
+            self.cast = ops.Cast()
         print('INFO: Init recognition model: {} --> {}. Model weights loaded from {}'.format(args.rec_algorithm, model_name, 'pretrained url' if pretrained else ckpt_load_path))
 
         # build preprocess and postprocess
         # NOTE: most process hyper-params should be set optimally for the pick algo.
         self.preprocess = Preprocessor(task='rec',
+                                       algo=args.rec_algorithm,
+                                       rec_image_shape=args.rec_image_shape,
+                                       rec_batch_mode=self.batch_mode,
+                                       rec_batch_num=self.batch_num,)
 
+        # TODO: try GeneratorDataset to wrap preprocess transform on batch for possible speed-up. if use_ms_dataset: ds = ms.dataset.GeneratorDataset(wrap_preprocess, ) in run_batchwise
+        self.postprocess = Postprocessor(task='rec', algo=args.rec_algorithm)
 
         self.vis_dir = args.draw_img_save_dir
         os.makedirs(self.vis_dir, exist_ok=True)
@@ -124,8 +142,15 @@ class TextRecognizer(object):
                               is_chw=True, show=False, save_path=os.path.join(self.vis_dir, fn+'_rec_preproc.png'))
 
             img_batch = np.stack(img_batch) if len(img_batch) > 1 else np.expand_dims(img_batch[0], axis=0)
+
             # infer
             net_pred = self.model(ms.Tensor(img_batch))
+            if self.cast_pred_fp32:
+                if isinstance(net_pred, list) or isinstance(net_pred, tuple):
+                    net_pred = [self.cast(p, mstype.float32) for p in net_pred]
+                else:
+                    net_pred = self.cast(net_pred, mstype.float32)
+
             # postprocess
             batch_res = self.postprocess(net_pred)
             rec_res.extend(list(zip(batch_res['texts'], batch_res['confs'])))
@@ -161,10 +186,16 @@ class TextRecognizer(object):
         if len(input_np.shape) == 3:
             net_input = np.expand_dims(input_np, axis=0)
 
-        net_output = self.model(ms.Tensor(net_input))
+        net_pred = self.model(ms.Tensor(net_input))
+        if self.cast_pred_fp32:
+            if isinstance(net_pred, list) or isinstance(net_pred, tuple):
+                net_pred = [self.cast(p, mstype.float32) for p in net_pred]
+            else:
+                net_pred = self.cast(net_pred, mstype.float32)
+
 
         # postprocess
-        rec_res = self.postprocess(net_output)
+        rec_res = self.postprocess(net_pred)
         #if 'raw_chars' in rec_res:
         #    rec_res.pop('raw_chars')
 
@@ -200,6 +231,7 @@ if __name__ == '__main__':
     #img_paths = img_paths[:250]
 
     ms.set_context(mode=args.mode)
+
 
     # init detector
     text_recognize = TextRecognizer(args)

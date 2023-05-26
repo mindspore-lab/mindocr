@@ -26,7 +26,7 @@ def create_parser():
 
     parser = argparse.ArgumentParser(description='Inference Config Args')
     # params for prediction engine
-    parser.add_argument("--mode", type=int, default=0, help='0 for graph mode, 1 for pynative mode ')
+    parser.add_argument("--mode", type=int, default=0, help='0 for graph mode, 1 for pynative mode ') #added
     #parser.add_argument("--use_gpu", type=str2bool, default=True)
     #parser.add_argument("--use_npu", type=str2bool, default=False)
     #parser.add_argument("--ir_optim", type=str2bool, default=True)
@@ -65,6 +65,8 @@ def create_parser():
     # params for text recognizer
     parser.add_argument("--rec_algorithm", type=str, default='CRNN', choices=['CRNN', 'RARE', 'CRNN_CH', 'RARE_CH', 'SVTR'],
             help='recognition algorithm')
+    parser.add_argument("--rec_amp_level", type=str, default='O0', choices=['O0', 'O2', 'O3'],
+                        help='Auto Mixed Precision level. This setting only works on GPU and Ascend') #added
     parser.add_argument("--rec_model_dir", type=str,
             help='directory containing the recognition model checkpoint best.ckpt, or path to a specific checkpoint file.') # determine the network weights
     #parser.add_argument("--rec_image_inverse", type=str2bool, default=True)
@@ -85,7 +87,7 @@ def create_parser():
             help='Path to ground truth labels of the recognition result') # added
 
     #
-    parser.add_argument("--draw_img_save_dir", type=str, default="./inference_results", 
+    parser.add_argument("--draw_img_save_dir", type=str, default="./inference_results",
             help='Dir to save visualization and detection/recogintion/system prediction results')
     parser.add_argument("--save_crop_res", type=str2bool, default=False, help='Whether to save images cropped from text detection results.')
     parser.add_argument("--crop_res_save_dir", type=str, default="./output", help='Dir to save the cropped images for text boxes')
