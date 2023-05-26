@@ -11,7 +11,7 @@ graph LR;
     ckpt --> |export| MindIR --> |"converter_lite(offline conversion)"| o[MindIR];
 ```
 
-Please prepare the model file first. You can [export](../../../tools/export.py) MindIR from the trained ckpt file, or directly download the pre-exported MindIR from the [model list](models_list_en.md).
+Please prepare the model file first. You can [export](../../../configs/README.md) MindIR from the trained ckpt file, or directly download the pre-exported MindIR from the [model list](models_list_en.md).
 And then run the `converter_lite` command to convert the ckpt trained model to a MindIR offline model.
 
 The tutorial for the `converter_lite` command can refer to [Offline Conversion of Inference Models](https://www.mindspore.cn/lite/docs/en/r2.0/use/cloud_infer/converter_tool.html).
