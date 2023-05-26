@@ -114,6 +114,8 @@ class Evaluator:
                 else:
                     net_preds = [F.cast(p, mstype.float32) for p in net_preds]
 
+            data_info = {'labels': gt, 'img_shape': inputs[0].shape}
+
             if self.postprocessor is not None:
                 # additional info such as image path, original image size, pad shape, extracted in data processing
                 if self.meta_data_indices is not None:
@@ -235,7 +237,7 @@ class EvalSaveCallback(Callback):
             self.ckpt_manager = CheckpointManager(ckpt_save_dir,
                                                   ckpt_save_policy,
                                                   k=ckpt_max_keep,
-                                                  prefer_low_perf=(self.main_indicator=='train_loss'))
+                                                  prefer_low_perf=(self.main_indicator == 'train_loss'))
 
     @jit
     def _reduce(self, x):
@@ -325,18 +327,13 @@ class EvalSaveCallback(Callback):
                     or (
                     self.main_indicator != 'train_loss' and eval_done and perf > self.best_perf):  # when val_while_train enabled, only find best checkpoint after eval done.
                 self.best_perf = perf
-                # ema weight will be saved if enable.
+                # ema weight will be saved if enabled.
                 save_checkpoint(self.network, os.path.join(self.ckpt_save_dir, 'best.ckpt'))
 
                 self.logger(f'=> Best {self.main_indicator}: {self.best_perf}, checkpoint saved.')
 
             # save history checkpoints
             self.ckpt_manager.save(self.network, perf, ckpt_name=f'e{cur_epoch}.ckpt')
-            if self.ckpt_save_policy=='top_k' and cur_epoch >= self.val_start_epoch:
-                log_str = f'Top K checkpoints:\n{self.main_indicator}\tcheckpoint\n'
-                for p, ckpt_name in self.ckpt_manager.get_ckpt_queue():
-                    log_str += f'{p:.4f}\t{os.path.join(self.ckpt_save_dir, ckpt_name)}\n'
-                self.logger(log_str)
 
             # record results
             if cur_epoch == 1:
@@ -363,3 +360,9 @@ class EvalSaveCallback(Callback):
         if self.is_main_device:
             self.rec.save_curves()  # save performance curve figure
             self.logger(f'=> Best {self.main_indicator}: {self.best_perf} \nTraining completed!')
+
+            if self.ckpt_save_policy == 'top_k':
+                log_str = f'Top K checkpoints:\n{self.main_indicator}\tcheckpoint\n'
+                for p, ckpt_name in self.ckpt_manager.get_ckpt_queue():
+                    log_str += f'{p:.4f}\t{os.path.join(self.ckpt_save_dir, ckpt_name)}\n'
+                self.logger(log_str)
