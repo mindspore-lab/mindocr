@@ -45,9 +45,15 @@ class DBPostprocess:
         dest_size = np.array(pred.shape[:0:-1])  # w, h order
         scale = dest_size / np.array(pred.shape[:0:-1])
 
-        # TODO:
-        # FIXME: output as dict, keep consistent return format to recognition
-        return [self._extract_preds(pr, segm, scale, dest_size) for pr, segm in zip(pred, segmentation)]
+        polys = []
+        scores = []
+        for i, pr in enumerate(pred):
+            poly, score = self._extract_preds(pr, segmentation[i], scale, dest_size)
+            polys.append(poly)
+            scores.append(score)
+
+        ret = {'polys': polys, 'scores': scores}
+        return ret
 
     def _extract_preds(self, pred, bitmap, scale, dest_size):
         outs = cv2.findContours(bitmap.astype(np.uint8), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
