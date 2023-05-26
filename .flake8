@@ -1,0 +1,12 @@
+[flake8]
+max-line-length = 120
+extend-exclude =
+    docs/*,
+    examples/*,
+    setup.py
+extend-ignore = E203
+per-file-ignores =
+    */__init__.py:F401,F403
+    mindocr/data/__init__.py:F403,F405
+    examples/*,tests/*:E402
+    recipes/text/cleaners.py:E402
