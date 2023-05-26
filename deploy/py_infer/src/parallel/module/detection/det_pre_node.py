@@ -19,9 +19,9 @@ class DetPreNode(ModuleBase):
             self.send_to_next_module(input_data)
             return
 
-        input = input_data.frame
-        output = self.text_detector.preprocess(input)
+        image = input_data.frame
+        data = self.text_detector.preprocess(image)
 
-        input_data.input = output
+        input_data.data = data
 
         self.send_to_next_module(input_data)

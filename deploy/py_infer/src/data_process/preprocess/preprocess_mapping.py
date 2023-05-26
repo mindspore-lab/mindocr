@@ -1,14 +1,20 @@
-from ..preprocess import transforms
+import functools
 
-PREPROCESS_SKIP_OPS = ["DetLabelEncode", "RecCTCLabelEncode", "CTCLabelEncode"]
+from . import transforms
 
+# other ops node will be skipped
 PREPROCESS_MAPPING_OPS = {
+    # general
     "DecodeImage": transforms.DecodeImage,
     "NormalizeImage": transforms.NormalizeImage,
     "ToCHWImage": transforms.ToCHWImage,
-    "GridResize": transforms.ResizeImage,
-    "ResizeImage": transforms.ResizeImage,
+    "GridResize": functools.partial(transforms.DetResize, keep_ratio=False, padding=False),
     "ScalePadImage": transforms.ScalePadImage,
+    # det
+    "DetResize": transforms.DetResize,
+    # rec
     "RecResizeImg": transforms.RecResizeImg,
-    "ClsResizeImg": transforms.ClsResizeImg
+    "RecResizeNormForInfer": transforms.RecResizeNormForInfer,
+    # cls
+    "ClsResizeNormForInfer": transforms.ClsResizeNormForInfer
 }

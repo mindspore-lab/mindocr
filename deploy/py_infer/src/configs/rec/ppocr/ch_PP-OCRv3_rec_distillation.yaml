@@ -10,9 +10,10 @@ eval:
       - DecodeImage: # load image
           img_mode: BGR
           channel_first: False
-      - RecResizeImg:
-          padding: True
-      - NormalizeImage:
+      - RecResizeNormForInfer:
+          keep_ratio: False
+          padding: False
+          norm_before_pad: True
           mean: [ 127.5, 127.5, 127.5 ]
           std: [ 127.5, 127.5, 127.5 ]
           is_hwc: True

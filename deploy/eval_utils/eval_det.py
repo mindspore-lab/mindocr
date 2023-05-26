@@ -16,20 +16,21 @@ def _det_adapt_train_pred(content):
     boxes = []
     for con in content:
         if isinstance(con, dict):
-            box = np.array(con['points']).reshape((4, 2))
+            box = np.array(con['points'])
         else:
-            box = np.array(con).reshape((4, 2))
+            box = np.array(con)
         boxes.append(box)
 
     boxes = np.array(boxes)
+    boxes = boxes.reshape(1, *boxes.shape)
 
     conf_score = np.ones([len(boxes)])   # TODO: Hard code condidence score to be 1, which is not true.
-    return [(boxes, conf_score)]
+    return {'polys': boxes, 'score': conf_score}
 
 def _det_adapt_train_label(content):
     boxes = []
     for con in content:
-        boxes.append(np.array(con['points']).reshape((4, 2)))
+        boxes.append(np.array(con['points']))
 
     ignored_tag = []
     for con in content:
