@@ -14,7 +14,7 @@
 2. `__call__()` method: 
     - Input args:
         - `pred` (Union[Tensor, Tuple[Tensor]]): network prediction 
-        - `shape_list` (List[float]=None):  [h, w, scale_h, scale_w], scale_h and scale_w are the scale ratio of image height and width in data processing respectively. 
+        - `shape_list` (Union[List[List[float]], np.ndarray, ms.Tensor]=None):  [h, w, scale_h, scale_w], scale_h and scale_w are the scale ratio of image height and width in data processing respectively. 
         - `**kwargs`: args for extension
 
     - Return: det_res as a dictionary with the following keys

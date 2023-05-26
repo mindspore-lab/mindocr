@@ -165,13 +165,18 @@ class PSEPostprocess:
         '''
         Args:
             pred (Tensor): network prediction with shape [BS, C, H, W]
-            shape_list (List[List[float]]: a list of shape info [raw_img_h, raw_img_w, ratio_h, ratio_w] for each sample in batch  
+            shape_list (Union[List[List[float]], np.ndarray, ms.Tensor]: a list of shape info [raw_img_h, raw_img_w, ratio_h, ratio_w] for each sample in batch  
         '''
         if not isinstance(pred, Tensor):
             pred = Tensor(pred)
         
-        if shape_list:
-            assert len(shape_list) > 0 and len(shape_list[0]==4), f'The length of each element in shape_list must be 4 for [raw_img_h, raw_img_w, scale_h, scale_w]. But get shape list {shape_list}'
+        if isinstance(shape_list, Tensor):
+            shape_list = shape_list.asnumpy()
+        #if isinstance(shape_list, np.ndarray):
+        #    shape_list = shape_list.tolist()
+
+        if shape_list is not None:
+            assert len(shape_list) > 0 and len(shape_list[0])==4, f'The length of each element in shape_list must be 4 for [raw_img_h, raw_img_w, scale_h, scale_w]. But get shape list {shape_list}'
         else:
             shape_list = [[pred.shape[2], pred.shape[3], 1.0, 1.0] for i in range(pred.shape[0])] # H, W
             

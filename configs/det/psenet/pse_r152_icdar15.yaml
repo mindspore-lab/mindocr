@@ -60,7 +60,7 @@ train:
   dataset_sink_mode: True
   dataset:
     type: DetDataset
-    dataset_root: ../ocr_datasets
+    dataset_root: /data/ocr_datasets
     data_dir: ic15/ch4_training_images
     label_file: ic15/train_det_gt.txt
     sample_ratio: 1.0
@@ -105,9 +105,9 @@ eval:
   dataset_sink_mode: False
   dataset:
     type: DetDataset
-    dataset_root: ../ocr_datasets
-    data_dir: ic15/ch4_test_images # ic15/ch4_test_images
-    label_file: ic15/test_det_gt.txt # ic15/test_det_gt.txt
+    dataset_root: /data/ocr_datasets
+    data_dir: ic15/det/test/ch4_test_images
+    label_file: ic15/det/test/det_gt.txt
     sample_ratio: 1.0
     transform_pipeline:
       - DecodeImage:
@@ -124,8 +124,9 @@ eval:
           std: imagenet
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the labels for evaluation
-    output_columns: [ 'image', 'polys', 'ignore_tags', 'shape']
+    output_columns: [ 'image', 'polys', 'ignore_tags', 'shape_list']
     net_input_column_index: [ 0 ]
+    label_column_index: [ 1, 2]  # input indices marked as label
 
   loader:
     shuffle: False
