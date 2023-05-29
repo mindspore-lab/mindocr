@@ -101,18 +101,24 @@ class DetBasePostprocess:
 
 
     @staticmethod
-    def _rescale_polygons(polygons: List[np.ndarray], shape_list: np.ndarray):
+    def _rescale_polygons(polygons: Union[List[np.ndarray], np.ndarray], shape_list: np.ndarray):
         """
-        polygons (List[np.ndarray]): polygons for an image, shape [num_polygons, num_points, 2], value: xy coordinates for all polygon points
+        polygons (Union[List[np.ndarray], np.ndarray]): polygons for an image, shape [num_polygons, num_points, 2], value: xy coordinates for all polygon points
         shape_list (np.ndarray): shape and scale info for the image, shape [4,], value: [src_h, src_w, scale_h, scale_w]
         """
         scale_w_h = shape_list[:1:-1]
+        src_h, src_w = shape_list[0], shape_list[1]
 
         #print('DEBUG: before rescale, poly 0: ', polygons[0], 'shape list: ', shape_list[0])
         if isinstance(polygons, np.ndarray):
             polygons = np.round(polygons / scale_w_h)
+            polygons[...,0] = np.clip(polygons[..., 0], 0, src_w - 1)
+            polygons[...,1] = np.clip(polygons[..., 1], 0, src_h - 1)
         else:
             polygons = [np.round(poly / scale_w_h) for poly in polygons]
+            for i, poly in enumerate(polygons):
+                polygons[i][:,0] = np.clip(poly[:, 0], 0, src_w - 1)
+                polygons[i][:,1] = np.clip(poly[:, 1], 0, src_h - 1)
 
         #print('DEBUG: After rescale, poly 0: ', polygons[0])
 
