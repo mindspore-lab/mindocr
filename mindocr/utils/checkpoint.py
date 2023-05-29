@@ -7,6 +7,8 @@ import numpy as np
 import mindspore as ms
 from mindspore import log as logger
 
+from .loss_scaler import get_loss_scales
+
 
 class CheckpointManager:
     """
@@ -96,3 +98,15 @@ class CheckpointManager:
                 f"The expected 'ckpt_save_policy' is None, top_k or latest_k, but got: {self.ckpt_save_policy}."
             )
 
+def resume_train_network(network, optimizer, resume_ckpt):
+    resume_param = ms.load_checkpoint(resume_ckpt)
+    start_epoch = int(resume_param.get('epoch_num', ms.Tensor(0, ms.int32)).asnumpy().item())
+    loss_scale = int(resume_param.get('loss_scale', ms.Tensor(0, ms.int32)).asnumpy().item())
+    ms.load_param_into_net(network, resume_param)
+    ms.load_param_into_net(optimizer, resume_param)
+    print(
+        f'INFO: Finish loading network and optimizer resume checkoint from {resume_ckpt}. '
+        f'If no parameter fail-load warning displayed, all checkpoint params have been successfully loaded. \n'
+        f'Resume train from epoch: {start_epoch + 1}')
+
+    return start_epoch, loss_scale

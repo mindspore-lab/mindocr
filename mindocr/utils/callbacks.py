@@ -60,6 +60,7 @@ class EvalSaveCallback(Callback):
         log_interval=1,
         ckpt_save_policy="top_k",
         ckpt_max_keep=10,
+        start_epoch=0,
     ):
         self.rank_id = rank_id
         self.is_main_device = rank_id in [0, None]
@@ -113,6 +114,7 @@ class EvalSaveCallback(Callback):
                 k=ckpt_max_keep,
                 prefer_low_perf=(self.main_indicator == "train_loss"),
             )
+        self.start_epoch = start_epoch
 
     @jit
     def _reduce(self, x):
@@ -129,7 +131,7 @@ class EvalSaveCallback(Callback):
         """
         cb_params = run_context.original_args()
         loss = _handle_loss(cb_params.net_outputs)
-        cur_epoch = cb_params.cur_epoch_num
+        cur_epoch = cb_params.cur_epoch_num + self.start_epoch
         data_sink_mode = cb_params.dataset_sink_mode
         cur_step_in_epoch = (cb_params.cur_step_num - 1) % cb_params.batch_num + 1
 
@@ -145,7 +147,7 @@ class EvalSaveCallback(Callback):
             fps = self.batch_size * 1000 / per_step_time
             loss = self._loss_avg_meter.val.asnumpy()
             msg = (
-                f"epoch: [{cur_epoch}/{cb_params.epoch_num}] step: [{cur_step_in_epoch}/{cb_params.batch_num}], "
+                f"epoch: [{cur_epoch}/{cb_params.epoch_num + self.start_epoch}] step: [{cur_step_in_epoch}/{cb_params.batch_num}], "
                 f"loss: {loss:.6f}, lr: {cur_lr:.6f}, per step time: {per_step_time:.3f} ms, fps: {fps:.2f} img/s"
             )
             self.logger(msg)
@@ -169,15 +171,21 @@ class EvalSaveCallback(Callback):
             run_context (RunContext): Include some information of the model.
         """
         cb_params = run_context.original_args()
-        cur_epoch = cb_params.cur_epoch_num
+        cur_epoch = cb_params.cur_epoch_num + self.start_epoch
         train_time = time.time() - self.epoch_start_time
         train_loss = self._loss_avg_meter.avg.asnumpy()
+
+        data_sink_mode = cb_params.dataset_sink_mode
+        if data_sink_mode:
+            loss_scale_manager = cb_params.train_network.network.loss_scaling_manager
+        else:
+            loss_scale_manager = cb_params.train_network.loss_scaling_manager
 
         epoch_time = time.time() - self.epoch_start_time
         per_step_time = epoch_time * 1000 / cb_params.batch_num
         fps = 1000 * self.batch_size / per_step_time
         msg = (
-            f"epoch: [{cur_epoch}/{cb_params.epoch_num}], loss: {train_loss:.6f}, "
+            f"epoch: [{cur_epoch}/{cb_params.epoch_num + self.start_epoch}], loss: {train_loss:.6f}, "
             f"epoch time: {epoch_time:.3f} s, per step time: {per_step_time:.3f} ms, fps: {fps:.2f} img/s"
         )
         self.logger(msg)
@@ -226,7 +234,8 @@ class EvalSaveCallback(Callback):
 
             # save history checkpoints
             self.ckpt_manager.save(self.network, perf, ckpt_name=f"e{cur_epoch}.ckpt")
-
+            ms.save_checkpoint(cb_params.train_network, os.path.join(self.ckpt_save_dir, 'train_resume.ckpt'),
+                               append_dict={"epoch_num": cur_epoch, "loss_scale": loss_scale_manager.get_loss_scale()})
             # record results
             if cur_epoch == 1:
                 if self.loader_eval is not None:
@@ -238,6 +247,8 @@ class EvalSaveCallback(Callback):
                 self.rec = PerfRecorder(
                     self.ckpt_save_dir, metric_names=perf_columns
                 )  # record column names
+            elif cur_epoch == self.start_epoch + 1:
+                self.rec = PerfRecorder(self.ckpt_save_dir, resume=True)
 
             if self.loader_eval is not None:
                 epoch_perf_values = (
