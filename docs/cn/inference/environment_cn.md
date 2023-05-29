@@ -6,13 +6,12 @@ MindOCR支持Ascend310/Ascend310P设备的推理。
 
 请确保系统正确安装了昇腾AI处理器配套软件包，如果没有安装，请先参考[安装昇腾AI处理器配套软件包](https://www.mindspore.cn/install#安装昇腾ai处理器配套软件包)小节进行安装。
 
-MindOCR后端支持[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)和[MindSpore Lite](https://www.mindspore.cn/lite/docs/zh-CN/master/index.html)两种推理模式，请根据使用场景选择安装环境，区别如下：
+MindOCR后端支持[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)和[MindSpore Lite](https://www.mindspore.cn/lite/docs/zh-CN/master/index.html)两种推理模式，使用ACL模式推理前需使用[ATC工具](https://www.hiascend.com/document/detail/zh/)将模型转换成om格式，使用MindSpore Lite推理前需使用[converter_lite工具](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)将模型转换成MindIR格式，具体区别如下：
 
-|        | ACL                                                                                                                     | Lite                                                                                                  |
-|:-------|:------------------------------------------------------------------------------------------------------------------------|:------------------------------------------------------------------------------------------------------|
-| 文件后缀 | .om                                                                                                                     | .mindir                                                                                               |
-| 转换工具 | [ATC](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/atctool/atctool_000001.html) | [converter_lite](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html) |
-| 适用场景 | 第三方模型的推理，模型需要转为OM文件                                                                                          | 1. MindSpore模型的推理<br>2. 第三方模型的推理<br>模型需要转为MindIR文件                                       |
+|        |       ACL        |    Mindspore Lite  |
+|:------:|:----------------:|:------------------:|
+|  转换工具  |       ATC        |    converter_lite  |
+| 推理模型格式 |        om        |        MindIR      |
 
 ### 1. ACL推理
 
@@ -47,9 +46,9 @@ pip install *.whl
 
 ### 2. MindSpore Lite推理
 
-对于MindOCR的MindSpore Lite推理，需要安装2.0.0-rc1以上版本的[MindSpore Lite](https://www.mindspore.cn/lite/docs/zh-CN/master/index.html)的**云侧**推理工具包。
+对于MindOCR的MindSpore Lite推理，需要安装2.0.0-rc1或以上版本的[MindSpore Lite](https://www.mindspore.cn/lite/docs/zh-CN/master/index.html)的**云侧**推理工具包。
 
-先[下载](https://www.mindspore.cn/lite/docs/zh-CN/master/use/downloads.html)Ascend版的云侧版本的推理工具包tar.gz文件，以及Python接口Wheel包。
+先下载Ascend版的云侧版本的[推理工具包tar.gz](https://www.mindspore.cn/lite/docs/zh-CN/master/use/downloads.html)文件，以及Python接口Wheel包。
 
 下载地址中提供了3.7版本的Python包，如需其它版本可参考[编译](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/build.html)教程。
 

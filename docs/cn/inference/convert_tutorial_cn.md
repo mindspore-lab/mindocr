@@ -11,7 +11,7 @@ graph LR;
     ckpt --> |export| MindIR --> |"converter_lite(离线转换)"| o[MindIR];
 ```
 
-先准备模型文件，可以从训练端ckpt文件[导出](../../../tools/export.py)MindIR，或者直接从[模型列表](./models_list_cn.md)中下载已预先导出的MindIR，
+先准备模型文件，可以从训练端ckpt文件[导出](../../../configs/README.md)MindIR，或者直接从[模型列表](./models_list_cn.md)中下载已预先导出的MindIR，
 然后再执行converter_lite模型转换命令，从而将ckpt训练模型转换为MindSpore Lite支持的MindIR模型。
 
 converter_lite的详细教程见[推理模型离线转换](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)，

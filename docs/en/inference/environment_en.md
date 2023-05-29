@@ -11,14 +11,12 @@ to install it.
 
 The MindOCR backend supports two types of inference:
 [ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)
-and [MindSpore Lite](https://www.mindspore.cn/lite/docs/zh-CN/master/index.html). Please choose the installation
-environment based on the usage scenario, with the following differences:
+and [MindSpore Lite](https://www.mindspore.cn/lite/docs/zh-CN/master/index.html). Before inference using ACL mode, you need to use [ATC tool](https://www.hiascend.com/document/detail/zh/) to convert the model to om format, or to use [converter_lite tool](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html) to convert the model to MindIR format, the specific differences are as follows:
 
-|                    | ACL                                                                                                                     | Lite                                                                                                             |
-|:-------------------|:------------------------------------------------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------|
-| file extension     | .om                                                                                                                     | .mindir                                                                                                          |
-| conversion tool    | [ATC](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/atctool/atctool_000001.html) | [converter_lite](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)            |
-| application scenes | inference for third-party model, it needs to be converted to an OM file                                                 | 1. inference for MindSpore model<br>2. inference for third-party model<br>it needs to be converted to an OM file |
+|        |       ACL        |    Mindspore Lite  |
+|:------:|:----------------:|:------------------:|
+|  Conversion Tool  |       ATC        |    converter_lite  |
+| Inference Model Format |        om        |        MindIR      |
 
 ### 1. ACL inference
 
@@ -59,8 +57,8 @@ pip install *.whl
 For the MindSpore Lite inference of MindOCR, It requires the version 2.0.0-rc1 or higher of the
 [MindSpore Lite](https://www.mindspore.cn/lite/docs/zh-CN/master/index.html) **cloud-side** inference toolkit.
 
-[Download](https://www.mindspore.cn/lite/docs/zh-CN/master/use/downloads.html) the Ascend version of the cloud-side
-inference toolkit tar.gz file, as well as the Python interface Wheel package.
+Download the Ascend version of the cloud-side
+[inference toolkit tar.gz](https://www.mindspore.cn/lite/docs/zh-CN/master/use/downloads.html) file, as well as the Python interface Wheel package.
 
 The download address provides the Python package for version 3.7. If you need other versions, please refer to the
 [compilation tutorial]().
