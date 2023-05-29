@@ -47,12 +47,10 @@ class BaseModel(nn.Cell):
 
     def construct(self, x, y=None):
         if self.transform is not None:
-            tout = self.transform(x)
-        else:
-            tout = x
+            x = self.transform(x)
 
         # TODO: return bout, hout for debugging, using a dict.
-        bout = self.backbone(tout)
+        bout = self.backbone(x)
 
         nout = self.neck(bout)
 
