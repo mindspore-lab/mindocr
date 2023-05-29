@@ -1,3 +1,4 @@
+from .modelarts_adapter.modelarts import modelarts_setup
 import argparse
 import yaml
 
@@ -64,7 +65,7 @@ def _merge_options(config, options):
             
     return config
 
-def parse_args_and_config(args=None):
+def parse_args_and_config():
     '''
     Return:
         args: command line argments
@@ -72,6 +73,8 @@ def parse_args_and_config(args=None):
     '''
     parser = create_parser()
     args = parser.parse_args() # CLI args
+
+    modelarts_setup(args)
 
     with open(args.config, "r") as f:
         cfg = yaml.safe_load(f)
@@ -83,8 +86,5 @@ def parse_args_and_config(args=None):
     if args.opt:
         options = _parse_options(args.opt)
         cfg = _merge_options(cfg, options)
-	
-	# TODO: check whether modelarts requires to install addict
-    #cfg = Dict(cfg)
 
     return args, cfg
