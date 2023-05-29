@@ -1,4 +1,4 @@
-from typing import Tuple, Union, List
+from typing import Tuple, Union, List, Dict
 import cv2
 import numpy as np
 import mindspore as ms
@@ -43,7 +43,7 @@ class DetBasePostprocess:
         Return:
             postprocessing result as a dict with keys:
                 - polys (List[List[np.ndarray]): predicted polygons on the **transformed** (i.e. resized normally) image space, of shape (batch_size, num_polygons, num_points, 2). If `box_type` is 'quad', num_points=4.
-                - scores (np.ndarray): confidence scores for the predicted polygons, shape (batch_size, num_polygons) 
+                - scores (np.ndarray): confidence scores for the predicted polygons, shape (batch_size, num_polygons)
 
         Notes:
             - Please cast `pred` to the type you need in your implementation. Some postprocesssing steps use ops from mindspore.nn and prefer Tensor type, while some steps prefer np.ndarray type required in other libraries.
@@ -68,7 +68,7 @@ class DetBasePostprocess:
         Returns:
             detection result as a dict with keys:
                 - polys (List[List[np.ndarray]): predicted polygons mapped on the **original** image space, shape [batch_size, num_polygons, num_points, 2]. If `box_type` is 'quad', num_points=4, and the internal np.ndarray is of shape [4, 2]
-                - scores (np.ndarray): confidence scores for the predicted polygons, shape (batch_size, num_polygons) 
+                - scores (np.ndarray): confidence scores for the predicted polygons, shape (batch_size, num_polygons)
         """
 
         # 1. Check input type. Covert shape_list to np.ndarray
@@ -118,7 +118,7 @@ class DetBasePostprocess:
 
         return polygons
 
-    def rescale(self, result: dict, shape_list: np.ndarray) -> dict:
+    def rescale(self, result: Dict, shape_list: np.ndarray) -> dict:
         """
         rescale result back to orginal image shape
 

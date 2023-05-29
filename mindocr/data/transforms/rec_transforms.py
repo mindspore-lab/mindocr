@@ -32,7 +32,7 @@ class RecCTCLabelEncode(object):
                 use_space_char=False,
                 blank_at_last=True,
                 lower=False,
-                **kwrags,
+                **kwargs,
                 #start_token='<BOS>',
                 #end_token='<EOS>',
                 #unkown_token='',

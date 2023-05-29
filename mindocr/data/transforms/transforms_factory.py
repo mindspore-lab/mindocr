@@ -1,7 +1,7 @@
 """
 Create and run transformations from a config or predefined transformation pipeline
 """
-from typing import List
+from typing import List, Dict
 import numpy as np
 
 from .general_transforms import *
@@ -14,7 +14,7 @@ __all__ = ['create_transforms', 'run_transforms', 'transforms_dbnet_icdar15']
 
 
 # TODO: use class with __call__, to perform transformation
-def create_transforms(transform_pipeline: list, global_config: dict=None):
+def create_transforms(transform_pipeline: List, global_config: Dict=None):
     """
     Create a squence of callable transforms.
 
