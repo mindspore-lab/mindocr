@@ -10,25 +10,15 @@ sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "..")))
 
 from tools.arg_parser import parse_args_and_config
 
-# args = parse_args()
 args, config = parse_args_and_config()
-
-# modelarts
-from tools.modelarts_adapter.modelarts import modelarts_setup
-
-modelarts_setup(args)  # setup env for modelarts platform if enabled
 
 import yaml
 from addict import Dict
-import cv2
 
 import mindspore as ms
-from mindspore import nn
 from mindspore.communication import init, get_rank, get_group_size
-from mindspore.train import LossMonitor, TimeMonitor
-
-from mindocr.optim import create_optimizer, create_group_params  # adopted from mindcv
-from mindocr.scheduler import create_scheduler  # adopted from mindcv
+from mindocr.optim import create_optimizer, create_group_params
+from mindocr.scheduler import create_scheduler
 
 from mindocr.data import build_dataset
 from mindocr.models import build_model
