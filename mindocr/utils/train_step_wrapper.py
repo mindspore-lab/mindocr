@@ -152,7 +152,7 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
             if self.ema is not None:
                 self.ema.ema_update()
         else:
-            #print("WARNING: Gradient overflow! update skipped.")
-            pass
+            # update LR in each gradient step but not optimize net parameter to ensure the LR curve is consistent
+            loss = F.depend(loss, self.optimizer.get_lr()) # .get_lr() will make lr step increased by 1
 
         return loss, cond, scaling_sens
