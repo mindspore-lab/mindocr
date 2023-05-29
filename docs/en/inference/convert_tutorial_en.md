@@ -233,3 +233,33 @@ converter_lite \
 
 The conversion process is completely the same as the [MindOCR models](#1-mindocr-models),
 except that `--fmk` needs to specify that the input is the ONNX, which will not be repeated here.
+
+### 3. MMOCR models
+
+MMOCR uses Pytorch, and its model files typically have a pth format suffix. You need to first export it to ONNX format
+and then convert to an OM/MindIR format file supported by
+[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)/[MindSpore Lite](https://www.mindspore.cn/lite).
+
+```mermaid
+graph LR;
+    pth -- export -->  ONNX;
+    ONNX -- atc --> o1(OM);
+    ONNX -- converter_lite --> o2(MindIR);
+```
+
+#### 3.1 MMOCR model -> ONNX
+
+MMDeploy provides the command to export MMOCR models to ONNX. For detailed tutorials, please refer to
+[How to convert model](https://github.com/open-mmlab/mmdeploy/blob/main/docs/en/02-how-to-run/convert_model.md).
+
+For parameter `deploy_cfg`, you need to select the `*_onnxruntime_dynamic.py` file in directory
+[mmdeploy/configs/mmocr](https://github.com/open-mmlab/mmdeploy/tree/main/configs/mmocr) to export as a dynamic shape
+ONNX model.
+
+#### 3.2 ONNX -> OM
+
+Please refer to [ONNX -> OM](#23-onnx---om) in the PaddleOCR section above.
+
+#### 3.3 ONNX -> MindIR
+
+Please refer to [ONNX -> MIndIR](#23-onnx---mindir) in the PaddleOCR section above.
