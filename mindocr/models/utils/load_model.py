@@ -49,6 +49,8 @@ def load_model(
     if load_from[:4] == "http":
         url_cfg = {"url": load_from}
         local_ckpt_path = download_pretrained(url_cfg)
+    else:
+        local_ckpt_path = load_from
 
     assert local_ckpt_path and os.path.exists(local_ckpt_path), (
         f"Failed to load checkpoint. `{local_ckpt_path}` NOT exist. \n"
