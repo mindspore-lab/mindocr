@@ -1,6 +1,8 @@
-from .modelarts_adapter.modelarts import modelarts_setup
 import argparse
 import yaml
+
+from .modelarts_adapter.modelarts import modelarts_setup
+
 
 def create_parser():
     parser = argparse.ArgumentParser(description='Training Config', add_help=False)
