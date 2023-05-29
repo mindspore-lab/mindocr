@@ -32,6 +32,7 @@ class RecCTCLabelEncode(object):
                 use_space_char=False,
                 blank_at_last=True,
                 lower=False,
+                **kwrags,
                 #start_token='<BOS>',
                 #end_token='<EOS>',
                 #unkown_token='',
@@ -112,7 +113,8 @@ class RecAttnLabelEncode:
                  max_text_len: int = 25,
                  character_dict_path: Optional[str] = None,
                  use_space_char: bool = False,
-                 lower: bool = False
+                 lower: bool = False,
+                 **kwargs,
     ) -> None:
         """
         Convert text label (str) to a sequence of character indices according to the char dictionary
@@ -344,7 +346,7 @@ class RecResizeNormForInfer(object):
     Notes:
         1. The default choice (keep_ratio, not padding) is suitable for inference for better accuracy.
     '''
-    def __init__(self, target_height=32, target_width=320, keep_ratio=True, padding=False, interpolation=cv2.INTER_LINEAR, norm_before_pad=False,  mean=[127.0, 127.0, 127.0], std=[127.0, 127.0, 127.0]):
+    def __init__(self, target_height=32, target_width=320, keep_ratio=True, padding=False, interpolation=cv2.INTER_LINEAR, norm_before_pad=False,  mean=[127.0, 127.0, 127.0], std=[127.0, 127.0, 127.0], **kwargs):
         self.keep_ratio = keep_ratio
         self.padding = padding
         #self.targt_shape = target_shape

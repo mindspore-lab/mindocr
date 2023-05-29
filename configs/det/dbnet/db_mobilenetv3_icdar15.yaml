@@ -112,7 +112,7 @@ train:
           std: imagenet
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visualize
-    output_columns: [ 'image', 'binary_map', 'mask', 'thresh_map', 'thresh_mask' ] #'img_path']
+    output_columns: [ 'image', 'binary_map', 'mask', 'thresh_map', 'thresh_mask']
 #    output_columns: ['image'] # for debug op performance
     net_input_column_index: [0] # input indices for network forward func in output_columns
     label_column_index: [1, 2, 3, 4] # input indices marked as label
@@ -150,7 +150,7 @@ eval:
           std: imagenet
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the labels for evaluation
-    output_columns: [ 'image', 'polys', 'ignore_tags' ]
+    output_columns: [ 'image', 'polys', 'ignore_tags', 'shape_list' ]
     net_input_column_index: [0] # input indices for network forward func in output_columns
     label_column_index: [1, 2] # input indices marked as label
 

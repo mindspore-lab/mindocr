@@ -1,5 +1,6 @@
+## Guideline for Data Module
 
-## Code Structure
+### Code Structure
 ``` text
 ├── README.md
 ├── __init__.py
@@ -17,7 +18,7 @@
     └── transforms_factory.py			# API for create and run transforms 
 ```
 
-## How to add your own dataset class
+### How to add your own dataset class
 
 1. Inherit from BaseDataset class  
 
@@ -26,3 +27,7 @@
     def load_data_list(self, label_file: Union[str, List[str]], sample_ratio: Union[float, List] = 1.0,  shuffle: bool = False, **kwargs) -> List[dict]
 
     def _parse_annotation(self, data_line: str) -> Union[dict, List[dict]]
+
+### How to add your own data transformation
+
+Please refer to [Guideline for Developing Your Transformation](./transforms/README.md)
