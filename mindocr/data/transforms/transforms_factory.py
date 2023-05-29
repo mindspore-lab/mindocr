@@ -1,7 +1,7 @@
 """
 Create and run transformations from a config or predefined transformation pipeline
 """
-from typing import List
+from typing import List, Dict
 import numpy as np
 
 from .general_transforms import *
@@ -14,7 +14,7 @@ __all__ = ['create_transforms', 'run_transforms', 'transforms_dbnet_icdar15']
 
 
 # TODO: use class with __call__, to perform transformation
-def create_transforms(transform_pipeline, global_config=None):
+def create_transforms(transform_pipeline: List, global_config: Dict=None):
     """
     Create a squence of callable transforms.
 
@@ -35,7 +35,6 @@ def create_transforms(transform_pipeline, global_config=None):
             assert len(transform_config) == 1, "yaml format error in transforms"
             trans_name = list(transform_config.keys())[0]
             param = {} if transform_config[trans_name] is None else transform_config[trans_name]
-            #  TODO: not each transform needs global config
             if global_config is not None:
                 param.update(global_config)
             # TODO: assert undefined transform class

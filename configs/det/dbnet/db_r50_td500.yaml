@@ -70,8 +70,8 @@ train:
   dataset:
     type: DetDataset
     dataset_root: /data/ocr_datasets
-    data_dir: TD500_TR400/data
-    label_file: TD500_TR400/data/train_gt_all_labels.txt
+    data_dir: TD500_TR400/train_images
+    label_file: TD500_TR400/train_gt_labels.txt
     sample_ratio: 1.0
     transform_pipeline:
       - DecodeImage:
@@ -124,20 +124,16 @@ eval:
   dataset:
     type: DetDataset
     dataset_root: /data/ocr_datasets
-    data_dir: TD500_TR400/data
-    label_file: TD500_TR400/data/test_gt_labels.txt
+    data_dir: MSRA-TD500/test
+    label_file: MSRA-TD500/test_det_gt.txt
     sample_ratio: 1.0
     transform_pipeline:
       - DecodeImage:
           img_mode: RGB
           to_float32: False
       - DetLabelEncode:
-      - GridResize:
-          factor: 32
-      # GridResize already sets the evaluation size to [ 736, 1280 ].
-      # Uncomment ScalePadImage block for other resolutions.
       - ScalePadImage:
-          target_size: [ 736, 736 ] # h, w
+          target_size: [ 800, 800] # h, w
       - NormalizeImage:
           bgr_to_rgb: False
           is_hwc: True
@@ -145,7 +141,7 @@ eval:
           std: imagenet
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the labels for evaluation
-    output_columns: [ 'image', 'polys', 'ignore_tags' ]
+    output_columns: [ 'image', 'polys', 'ignore_tags', 'shape_list' ]
     net_input_column_index: [0] # input indices for network forward func in output_columns
     label_column_index: [1, 2] # input indices marked as label
 

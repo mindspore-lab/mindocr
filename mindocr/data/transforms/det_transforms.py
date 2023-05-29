@@ -4,14 +4,18 @@ transforms for text detection tasks.
 import warnings
 from typing import List
 import math
+import random
 
 import json
 import cv2
 import pyclipper
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, box
 import numpy as np
 
-__all__ = ['DetLabelEncode', 'BorderMap', 'ShrinkBinaryMap', 'DetResize', 'expand_poly', 'PSEGtDecode']
+__all__ = ['DetLabelEncode', 'BorderMap', 'ShrinkBinaryMap', 'expand_poly', 'PSEGtDecode',
+           'ValidatePolygons', 'RandomCropWithBBox', 'RandomCropWithMask',
+           'DetResize', 'GridResize', 'ScalePadImage',
+           ]
 
 
 class DetLabelEncode:
@@ -81,8 +85,132 @@ class DetLabelEncode:
 warnings.filterwarnings("ignore")
 
 
+class RandomCropWithBBox:
+    """
+    Randomly cuts a crop from an image along with polygons in the way that the crop doesn't intersect any polygons
+    (i.e. any given polygon is either fully inside or fully outside the crop).
+
+    Args:
+        max_tries: number of attempts to try to cut a crop with a polygon in it. If fails, scales the whole image to
+                   match the `crop_size`.
+        min_crop_ratio: minimum size of a crop in respect to an input image size.
+        crop_size: target size of the crop (resized and padded, if needed), preserves sides ratio.
+        p: probability of the augmentation being applied to an image.
+    """
+    def __init__(self, max_tries=10, min_crop_ratio=0.1, crop_size=(640, 640), p: float = 0.5, **kwargs):
+        self._crop_size = crop_size
+        self._ratio = min_crop_ratio
+        self._max_tries = max_tries
+        self._p = p
+
+    def __call__(self, data):
+        if random.random() < self._p:   # cut a crop
+            start, end = self._find_crop(data)
+        else:                           # scale and pad the whole image
+            start, end = np.array([0, 0]), np.array(data['image'].shape[:2])
+
+        scale = min(self._crop_size / (end - start))
+
+        data['image'] = cv2.resize(data['image'][start[0]: end[0], start[1]: end[1]], None, fx=scale, fy=scale)
+        data['actual_size'] = np.array(data['image'].shape[:2])
+        data['image'] = np.pad(data['image'],
+                               (*tuple((0, cs - ds) for cs, ds in zip(self._crop_size, data['image'].shape[:2])), (0, 0)))
+
+        data['polys'] = (data['polys'] - start[::-1]) * scale
+
+        return data
+
+    def _find_crop(self, data):
+        size = np.array(data['image'].shape[:2])
+        polys = [poly for poly, ignore in zip(data['polys'], data['ignore_tags']) if not ignore]
+
+        if polys:
+            # do not crop through polys => find available "empty" coordinates
+            h_array, w_array = np.zeros(size[0], dtype=np.int32), np.zeros(size[1], dtype=np.int32)
+            for poly in polys:
+                points = np.maximum(np.round(poly).astype(np.int32), 0)
+                w_array[points[:, 0].min(): points[:, 0].max() + 1] = 1
+                h_array[points[:, 1].min(): points[:, 1].max() + 1] = 1
+
+            if not h_array.all() and not w_array.all():     # if texts do not occupy full image
+                # find available coordinates that don't include text
+                h_avail = np.where(h_array == 0)[0]
+                w_avail = np.where(w_array == 0)[0]
+
+                min_size = np.ceil(size * self._ratio).astype(np.int32)
+                for _ in range(self._max_tries):
+                    y = np.sort(np.random.choice(h_avail, size=2))
+                    x = np.sort(np.random.choice(w_avail, size=2))
+                    start, end = np.array([y[0], x[0]]), np.array([y[1], x[1]])
+
+                    if ((end - start) < min_size).any():    # NOQA
+                        continue
+
+                    # check that at least one polygon is within the crop
+                    for poly in polys:
+                        if (poly.max(axis=0) > start[::-1]).all() and (poly.min(axis=0) < end[::-1]).all():     # NOQA
+                            return start, end
+
+        # failed to generate a crop or all polys are marked as ignored
+        return np.array([0, 0]), size
+
+
+class RandomCropWithMask(object):
+    def __init__(self, size, main_key, crop_keys, p=3 / 8, **kwargs):
+        self.size = size
+        self.main_key = main_key
+        self.crop_keys = crop_keys
+        self.p = p
+
+    def __call__(self, data):
+        image = data['image']
+
+        h, w = image.shape[0:2]
+        th, tw = self.size
+        if w == tw and h == th:
+            return data
+
+        mask = data[self.main_key]
+        if np.max(mask) > 0 and np.random.random() > self.p:
+            # make sure to crop the text region
+            tl = np.min(np.where(mask > 0), axis=1) - (th, tw)
+            tl[tl < 0] = 0
+            br = np.max(np.where(mask > 0), axis=1) - (th, tw)
+            br[br < 0] = 0
+
+            br[0] = min(br[0], h - th)
+            br[1] = min(br[1], w - tw)
+
+            i = np.random.randint(tl[0], br[0]) if tl[0] < br[0] else 0
+            j = np.random.randint(tl[1], br[1]) if tl[1] < br[1] else 0
+        else:
+            i = np.random.randint(0, h - th) if h - th > 0 else 0
+            j = np.random.randint(0, w - tw) if w - tw > 0 else 0
+
+        # return i, j, th, tw
+        for k in data:
+            if k in self.crop_keys:
+                if len(data[k].shape) == 3:
+                    if np.argmin(data[k].shape) == 0:
+                        img = data[k][:, i:i + th, j:j + tw]
+                        if img.shape[1] != img.shape[2]:
+                            a = 1
+                    elif np.argmin(data[k].shape) == 2:
+                        img = data[k][i:i + th, j:j + tw, :]
+                        if img.shape[1] != img.shape[0]:
+                            a = 1
+                    else:
+                        img = data[k]
+                else:
+                    img = data[k][i:i + th, j:j + tw]
+                    if img.shape[0] != img.shape[1]:
+                        a = 1
+                data[k] = img
+        return data
+
+
 class BorderMap:
-    def __init__(self, shrink_ratio=0.4, thresh_min=0.3, thresh_max=0.7):
+    def __init__(self, shrink_ratio=0.4, thresh_min=0.3, thresh_max=0.7, **kwargs):
         self._thresh_min = thresh_min
         self._thresh_max = thresh_max
         self._dist_coef = 1 - shrink_ratio ** 2
@@ -152,7 +280,7 @@ class ShrinkBinaryMap:
     Making binary mask from detection data with ICDAR format.
     Typically following the process of class `MakeICDARData`.
     """
-    def __init__(self, min_text_size=8, shrink_ratio=0.4):
+    def __init__(self, min_text_size=8, shrink_ratio=0.4, **kwargs):
         self._min_text_size = min_text_size
         self._dist_coef = 1 - shrink_ratio ** 2
 
@@ -212,7 +340,10 @@ class DetResize(object):
                  limit_side_len=736,
                  force_divisable=True,
                  divisor=32,
-                 interpolation=cv2.INTER_LINEAR):
+                 interpolation=cv2.INTER_LINEAR,
+                 **kwargs,
+                 ):
+
 
         if target_size is not None:
             limit_type = None
@@ -225,6 +356,8 @@ class DetResize(object):
         self.interpolation = interpolation
         self.force_divisable = force_divisable
         self.divisor = divisor
+
+        self.is_train = kwargs.get('is_train', False)
 
         if limit_type in ['min', 'max']:
             keep_ratio = True
@@ -268,46 +401,94 @@ class DetResize(object):
             if max(h, w) > self.limit_side_len:  # downscale
                 scale_ratio = self.limit_side_len / float(max(h, w))
         elif not self.limit_type:
-            if self.keep_ratio:
+            if self.keep_ratio and self.target_size:
                 # scale the image until it fits in the target size at most. The left part could be filled by padding.
                 scale_ratio = min(tar_h / h, tar_w / w)
                 allow_padding = True
 
-        if (self.limit_type in ['min', 'max']) or self.keep_ratio:
+        if (self.limit_type in ['min', 'max']) or (self.target_size and self.keep_ratio):
             resize_w = math.ceil(w * scale_ratio)
             resize_h = math.ceil(h * scale_ratio)
-        else:
+        elif self.target_size:
             resize_w = tar_w
             resize_h = tar_h
+        else: # both target_size and limit_type is None. resize by force_divisable
+            resize_w = w
+            resize_h = h
 
         if self.force_divisable:
             if not (
                     allow_padding and self.padding):  # no need to round it the image will be padded to the target size which is divisable.
                 # adjust the size slightly so that both sides of the image are divisable by divisor e.g. 32, which could be required by the network
-                resize_h = max(round(resize_h / self.divisor) * self.divisor, self.divisor)
-                resize_w = max(round(resize_w / self.divisor) * self.divisor, self.divisor)
+                resize_h = max(math.ceil(resize_h / self.divisor) * self.divisor, self.divisor) # diff from resize_image_type0 in pp which uses round()
+                resize_w = max(math.ceil(resize_w / self.divisor) * self.divisor, self.divisor)
 
         resized_img = cv2.resize(img, (resize_w, resize_h), interpolation=self.interpolation)
 
         if allow_padding and self.padding:
             if self.target_size and (tar_h >= resize_h and tar_w >= resize_w):
+                # do padding
                 padded_img = np.zeros((tar_h, tar_w, 3), dtype=np.uint8)
                 padded_img[:resize_h, :resize_w, :] = resized_img
                 data['image'] = padded_img
             else:
-                raise ValueError(
-                    f'`target_size` must be set to be not smaller than (resize_h, resize_w) for padding, but found {self.target_size}')
+                print(
+                    f'WARNING: Image shape after resize is ({resize_h}, {resize_w}), which is larger than target_size {self.target_size}. Skip padding for the current image. You may disable `force_divisable` to avoid this warning.')
         else:
             data['image'] = resized_img
 
         scale_h = resize_h / h
         scale_w = resize_w / w
-        if 'polys' in data:
-            data['polys'][:, :, 0] = data['polys'][:, :, 0] * scale_w
-            data['polys'][:, :, 1] = data['polys'][:, :, 1] * scale_h
-        data['shape_list'] = [h, w, scale_h, scale_w]
+
+        # Only need to transform ground truth polygons in training for generating masks/maps. 
+        # For evaluation, we should not change the GT polygons. The metric with input of GT polygons and predicted polygons must be computed in the original image space for consistent comparison. 
+        if 'polys' in data and self.is_train:
+                data['polys'][:, :, 0] = data['polys'][:, :, 0] * scale_w
+                data['polys'][:, :, 1] = data['polys'][:, :, 1] * scale_h
+                #print('transform GT polys to: ', data['polys'])
+
+        if 'shape_list' not in data: 
+            src_h, src_w = data.get('raw_img_shape', (h, w))
+            data['shape_list'] = [src_h, src_w, scale_h, scale_w]
+        else:
+            data['shape_list'][2] = data['shape_list'][2] * scale_h
+            data['shape_list'][3] = data['shape_list'][3] * scale_h
 
         return data
+
+
+class GridResize(DetResize):
+    """
+    Resize image to make it divisible by a specified factor exactly.
+    Resize polygons correspondingly, if provided.
+    """
+    def __init__(self, factor: int = 32, **kwargs):
+        super().__init__(
+                 target_size= None,
+                 keep_ratio=False,
+                 padding=False,
+                 limit_type=None,
+                 force_divisable=True,
+                 divisor=factor,
+                 )
+
+
+class ScalePadImage(DetResize):
+    """
+    Scale image and polys by the shorter side, then pad to the target_size.
+    input image format: hwc
+
+    Args:
+        target_size: [H, W] of the output image.
+    """
+    def __init__(self, target_size: list, **kwargs):
+       super().__init__(
+                 target_size=target_size,
+                 keep_ratio=True,
+                 padding=True,
+                 limit_type=None,
+                 force_divisable=False,
+                 )
 
 
 def expand_poly(poly, distance: float, joint_type=pyclipper.JT_ROUND) -> List[list]:
@@ -317,7 +498,7 @@ def expand_poly(poly, distance: float, joint_type=pyclipper.JT_ROUND) -> List[li
 
 
 class PSEGtDecode(object):
-    def __init__(self, kernel_num=7, min_shrink_ratio=0.4, min_shortest_edge=640):
+    def __init__(self, kernel_num=7, min_shrink_ratio=0.4, min_shortest_edge=640, **kwargs ):
         self.kernel_num = kernel_num
         self.min_shrink_ratio = min_shrink_ratio
         self.min_shortest_edge = min_shortest_edge
@@ -400,4 +581,51 @@ class PSEGtDecode(object):
         data['gt_kernels'] = gt_kernels
         data['gt_text'] = gt_text
         data['mask'] = training_mask
+        return data
+
+
+class ValidatePolygons:
+    """
+    Validate polygons by:
+     1. filtering out polygons outside an image.
+     2. clipping coordinates of polygons that are partially outside an image to stay within the visible region.
+    Args:
+        min_area: minimum area below which newly clipped polygons considered as ignored.
+    """
+    def __init__(self, min_area: float = 1.0, **kwargs):
+        self._min_area = min_area
+        #self.fix_when_invalid = fix_when_invalid
+
+    def __call__(self, data: dict):
+        size = data.get('actual_size', np.array(data['image'].shape[:2]))[::-1]     # convert to x, y coord
+        border = box(0, 0, *size)
+
+        new_polys, new_texts, new_tags = [], [], []
+        for np_poly, text, ignore in zip(data['polys'], data['texts'], data['ignore_tags']):
+            poly = Polygon(np_poly)
+            if (not poly.is_valid) or (poly.is_empty):
+                #poly = poly.buffer(0)
+                continue
+
+            elif ((0 <= np_poly) & (np_poly < size)).all():   # if the polygon is fully within the image
+                new_polys.append(np_poly)
+
+            else:
+                if poly.intersects(border):                 # if the polygon is partially within the image
+                    poly = poly.intersection(border)
+                    if poly.area < self._min_area:
+                        ignore = True
+                    poly = poly.exterior
+                    poly = poly.coords[::-1] if poly.is_ccw else poly.coords    # sort in clockwise order
+                    new_polys.append(np.array(poly[:-1]))
+
+                else:                                       # the polygon is fully outside the image
+                    continue
+            new_tags.append(ignore)
+            new_texts.append(text)
+
+        data['polys'] = new_polys
+        data['texts'] = new_texts
+        data['ignore_tags'] = np.array(new_tags)
+
         return data

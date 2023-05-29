@@ -243,11 +243,11 @@ Evaluation of the text spotting inference results on Ascend 910 with MindSpore 2
   
 | Det. Algorithm| Rec. Algorithm |  Dataset     | Accuracy(%) | FPS (imgs/s) |
 |---------|----------|--------------|---------------|-------|
-| DBNet   | CRNN    | ICDAR15 | 57.97 | 4.79 | 
+| DBNet   | CRNN    | ICDAR15 | 57.82 | 4.86 | 
 | PSENet  | CRNN    | ICDAR15 | 47.91 | 1.65| 
 | PSENet (det_limit_side_len=1472 )  | CRNN    | ICDAR15 | 55.51 | 0.44 | 
-| DBNet++   | RARE | ICDAR15 | 58.16  | 3.5 | 
-| DBNet++   | SVTR | ICDAR15 | 63.07  | 1.46 | 
+| DBNet++   | RARE | ICDAR15 | 59.17  | 3.47 | 
+| DBNet++   | SVTR | ICDAR15 | 64.42  | 2.49 | 
 </div>
 
 **Notes:** 

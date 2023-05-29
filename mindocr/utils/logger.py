@@ -29,9 +29,12 @@ class Logger(logging.Logger):
         """Setup logging file."""
         if not os.path.exists(log_dir):
             os.makedirs(log_dir, exist_ok=True)
-        log_name = 'log_%s.txt' % self.rank
-        self.log_fn = os.path.join(log_dir, log_name)
-        fh = logging.FileHandler(self.log_fn)
+        if self.log_fn is None:
+            log_name = 'log_%s.txt' % self.rank
+            self.log_save_path = os.path.join(log_dir, log_name)
+        else:
+            self.log_save_path = os.path.join(log_dir, self.log_fn)
+        fh = logging.FileHandler(self.log_save_path)
         fh.setLevel(logging.INFO)
         formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(message)s')
         fh.setFormatter(formatter)
@@ -60,9 +63,9 @@ class Logger(logging.Logger):
             self.info(important_msg, *args, **kwargs)
 
 
-def get_logger(log_dir, rank):
+def get_logger(log_dir, rank, log_fn=None):
     """Get Logger."""
-    logger = Logger('mindocr', rank)
+    logger = Logger('mindocr', rank, log_fn=log_fn)
     logger.setup_logging_file(log_dir)
 
     return logger

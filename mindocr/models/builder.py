@@ -1,18 +1,19 @@
-'''
+"""
 build models
-'''
+"""
 import os
 from typing import Union
-#from mindspore import load_checkpoint, load_param_into_net
+
+# from mindspore import load_checkpoint, load_param_into_net
 from ._registry import model_entrypoint, list_models, is_model
 from .base_model import BaseModel
 from .utils import load_model
 
-__all__ = ['build_model']
+__all__ = ["build_model"]
 
 
 def build_model(name_or_config: Union[str, dict], **kwargs):
-    '''
+    """
     There are two ways to build a model.
         1. load a predefined model according the given model name.
         2. build the model according to the detailed configuration of the each module (transform, backbone, neck and head), for lower-level architecture customization.
@@ -38,7 +39,7 @@ def build_model(name_or_config: Union[str, dict], **kwargs):
     >>>  net = build_model(cfg['model'], ckpt_load_path='./r50_fpn_dbhead.ckpt') # build network and load checkpoint
     >>>  net = build_model('dbnet_resnet50', pretrained=True)
 
-    '''
+    """
     is_customized_model = True
     if isinstance(name_or_config, str):
         # build model by specific model name
@@ -47,18 +48,22 @@ def build_model(name_or_config: Union[str, dict], **kwargs):
             create_fn = model_entrypoint(model_name)
             network = create_fn(**kwargs)
         else:
-            raise ValueError(f'Invalid model name: {model_name}. Supported models are {list_models()}')
+            raise ValueError(
+                f"Invalid model name: {model_name}. Supported models are {list_models()}"
+            )
         is_customized_model = False
     elif isinstance(name_or_config, dict):
         network = BaseModel(name_or_config)
     else:
-        raise ValueError('Type error for config')
+        raise ValueError("Type error for config")
 
     # load checkpoint
-    if 'ckpt_load_path' in kwargs:
-        load_from = kwargs['ckpt_load_path']
+    if "ckpt_load_path" in kwargs:
+        load_from = kwargs["ckpt_load_path"]
         if isinstance(load_from, bool) and is_customized_model:
-                raise ValueError('Cannot find the pretrained checkpoint for a customized model without giving the url or local path to the checkpoint.\nPlease specify the url or local path by setting `model-pretrained` (if training) or `eval-ckpt_load_path` (if evaluation) in the yaml config')
+            raise ValueError(
+                "Cannot find the pretrained checkpoint for a customized model without giving the url or local path to the checkpoint.\nPlease specify the url or local path by setting `model-pretrained` (if training) or `eval-ckpt_load_path` (if evaluation) in the yaml config"
+            )
 
         load_model(network, load_from)
 

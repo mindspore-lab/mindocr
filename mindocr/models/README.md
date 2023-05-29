@@ -1,4 +1,4 @@
-# Model Writing Guideline
+# Guideline for Model Module
 
 ## How to Add a New Model in MindOCR
 

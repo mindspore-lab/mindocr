@@ -38,7 +38,8 @@ def convert(dataset_name, task, image_dir, label_path, output_path=None, path_mo
     if dataset_name in supported_datasets:
         if not output_path:
             root_dir = '/'.join(label_path.split('/')[:-1])
-            output_path = os.path.join(root_dir, f'{task}_gt.txt')
+            dir_name = os.path.basename(image_dir)
+            output_path = os.path.join(root_dir, f'{dir_name}_{task}_gt.txt')
         assert path_mode in ['relative', 'abs'], f'Invalid mode: {path_mode}'
 
         class_name = dataset_name.upper() + '_Converter'
@@ -53,26 +54,31 @@ def convert(dataset_name, task, image_dir, label_path, output_path=None, path_mo
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        '-d',
         '--dataset_name',
         type=str,
         default="ic15",
         help=f'Name of the dataset to convert. Valid choices: {supported_datasets}')
     parser.add_argument(
+        '-t',
         '--task',
         type=str,
         default="det",
         help='Target task, text detection or recognition, valid choices: det, rec')
     parser.add_argument(
+        '-i',
         '--image_dir',
         type=str,
         default="./ic15/det/images/",
         help='Directory to the images of the dataset')
     parser.add_argument(
+        '-l',
         '--label_dir',
         type=str,
         default="./ic15/det/annotation/",
         help='Directory of the labels (if many), or path to the label file (if one) of the dataset')
     parser.add_argument(
+        '-o',
         '--output_path',
         type=str,
         default="",
