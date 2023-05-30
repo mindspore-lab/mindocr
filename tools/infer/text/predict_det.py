@@ -2,7 +2,7 @@
 Text detection inference
 
 Example:
-    $ python tools/infer/text/predict_det.py  --image_dir {path_to_img} --rec_algorithm DB++
+    $ python tools/infer/text/predict_det.py  --image_dir {img_dir_or_img_path} --rec_algorithm DB++
 """
 
 import json
@@ -222,7 +222,6 @@ def save_det_res(det_res_all: List[dict], img_paths: List[str], include_score=Fa
 
     with open(save_path, "w") as f:
         f.writelines(lines)
-        f.close()
 
 
 if __name__ == "__main__":

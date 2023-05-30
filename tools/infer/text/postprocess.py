@@ -35,7 +35,7 @@ class Postprocessor(object):
                 raise ValueError(f"No postprocess config defined for {algo}. Please check the algorithm name.")
             self.rescale_internally = True
             self.round = True
-        elif task == "rec":
+        elif task in ("rec", "cls"):
             # TODO: update character_dict_path and use_space_char after CRNN trained using en_dict.txt released
             if algo.startswith("CRNN") or algo.startswith("SVTR"):
                 # TODO: allow users to input char dict path
@@ -52,7 +52,10 @@ class Postprocessor(object):
                     character_dict_path=dict_path,
                     use_space_char=False,
                 )
-
+            elif algo.startswith("MV"):
+                postproc_cfg = dict(
+                    name="ClsPostprocess",
+                )
             else:
                 raise ValueError(f"No postprocess config defined for {algo}. Please check the algorithm name.")
 
@@ -108,6 +111,6 @@ class Postprocessor(object):
             det_res = dict(polys=polys, scores=scores)
 
             return det_res
-        elif self.task == "rec":
+        elif self.task in ("rec", "cls"):
             output = self.postprocess(pred)
             return output

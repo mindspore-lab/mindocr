@@ -8,7 +8,6 @@ from .det_psenet import *
 from .rec_crnn import *
 from .rec_rare import *
 from .rec_svtr import *
-from .cls_mv3 import *
 
 __all__ = []
 __all__.extend(builder.__all__)

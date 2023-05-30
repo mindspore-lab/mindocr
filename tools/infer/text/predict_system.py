@@ -2,10 +2,12 @@
 Text detection and recognition inference
 
 Example:
-    $ python tools/infer/text/predict_system.py --image_dir {path_to_img_file} --det_algorithm DB++ \
+    $ python tools/infer/text/predict_system.py --image_dir {img_dir_or_img_path} --det_algorithm DB++ \
       --rec_algorithm CRNN
-    $ python tools/infer/text/predict_system.py --image_dir {path_to_img_dir} --det_algorithm DB++ \
+    $ python tools/infer/text/predict_system.py --image_dir {img_dir_or_img_path} --det_algorithm DB++ \
       --rec_algorithm CRNN_CH
+    $ python tools/infer/text/predict_system.py --image_dir {img_dir_or_img_path} --det_algorithm DB++ \
+      --cls_algorithm MV3 --rec_algorithm CRNN_CH
 """
 
 import json
@@ -17,6 +19,7 @@ from typing import Union
 import cv2
 import numpy as np
 from config import parse_args
+from predict_cls import DirectionClassifier
 from predict_det import TextDetector
 from predict_rec import TextRecognizer
 from utils import crop_text_region, get_image_paths
@@ -36,7 +39,10 @@ class TextSystem(object):
     def __init__(self, args):
         self.text_detect = TextDetector(args)
         self.text_recognize = TextRecognizer(args)
+        if args.cls_algorithm:
+            self.direction_classify = DirectionClassifier(args)
 
+        self.cls_algorithm = args.cls_algorithm
         self.box_type = args.det_box_type
         self.drop_score = args.drop_score
         self.save_crop_res = args.save_crop_res
@@ -85,6 +91,12 @@ class TextSystem(object):
             if self.save_crop_res:
                 cv2.imwrite(os.path.join(self.crop_res_save_dir, f"{fn}_crop_{i}.jpg"), cropped_img)
         # show_imgs(crops, is_bgr_img=False)
+
+        # classify the text direction of cropped images
+        # TODO: support cls run_single, and then put cls into crop process
+        if self.cls_algorithm:
+            _, crops = self.direction_classify(crops)
+        # import pdb; pdb.set_trace()
 
         # recognize cropped images
         rs = time()
@@ -162,6 +174,7 @@ def main():
     # img_paths = img_paths[:10]
 
     ms.set_context(mode=args.mode)
+    ms.set_context(device_id=5)
 
     # init text system with detector and recognizer
     text_spot = TextSystem(args)

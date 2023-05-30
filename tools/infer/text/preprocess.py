@@ -54,7 +54,7 @@ class Preprocessor(object):
             # TODO: modify the base pipeline for non-DBNet network if needed
             # if algo == 'DB++':
             #    pipeline[1]['DetResize']['limit_side_len'] = 1152
-        elif task == "rec":
+        elif task in ("rec", "cls"):
             # defalut value if not claim in optim_hparam
             DEFAULT_PADDING = True
             DEFAULT_KEEP_RATIO = True
@@ -64,29 +64,35 @@ class Preprocessor(object):
 
             # register optimal hparam for each model
             optimal_hparam = {
-                # 'CRNN': dict(target_height=32, target_width=100, padding=True, keep_ratio=True, norm_before_pad=True),
+                # "CRNN": dict(target_height=32, target_width=100, padding=True, keep_ratio=True, norm_before_pad=True),
                 "CRNN": dict(target_height=32, target_width=100, padding=False, keep_ratio=False),
-                "CRNN_CH": dict(target_height=32, taget_width=320, padding=True, keep_ratio=True),
+                "CRNN_CH": dict(target_height=32, target_width=320, padding=True, keep_ratio=True),
                 "RARE": dict(target_height=32, target_width=100, padding=False, keep_ratio=False),
                 "RARE_CH": dict(target_height=32, target_width=320, padding=True, keep_ratio=True),
                 "SVTR": dict(target_height=64, target_width=256, padding=False, keep_ratio=False),
+                "MV3": dict(target_height=48, target_width=192, padding=False, keep_ratio=False),
             }
 
-            # get hparam by combining default value, optimal value, and arg parser value. Prior: optimal value ->
-            # parser value -> default value
-            parsed_img_shape = kwargs.get("rec_image_shape", "3, 32, 320").split(",")
+            # get hparam by combining default value, optimal value, and arg parser value.
+            # priority: optimal value -> parser value -> default value
+            if task == "cls":
+                parsed_img_shape = kwargs.get("cls_image_shape", "3, 48, 192").split(",")
+                batch_mode = kwargs.get("cls_batch_mode", False)  # and (batch_num > 1)
+            else:
+                parsed_img_shape = kwargs.get("rec_image_shape", "3, 32, 100").split(",")
+                batch_mode = kwargs.get("rec_batch_mode", False)  # and (batch_num > 1)
+
             parsed_height, parsed_width = int(parsed_img_shape[1]), int(parsed_img_shape[2])
             if algo in optimal_hparam:
                 target_height = optimal_hparam[algo]["target_height"]
+                norm_before_pad = optimal_hparam[algo].get("norm_before_pad", DEFAULT_NORM_BEFORE_PAD)
             else:
                 target_height = parsed_height
-
-            norm_before_pad = optimal_hparam[algo].get("norm_before_pad", DEFAULT_NORM_BEFORE_PAD)
+                norm_before_pad = DEFAULT_NORM_BEFORE_PAD
 
             # TODO: update max_wh_ratio for each batch
             # max_wh_ratio = parsed_width /  float(parsed_height)
             # batch_num = kwargs.get('rec_batch_num', 1)
-            batch_mode = kwargs.get("rec_batch_mode", False)  # and (batch_num > 1)
             if not batch_mode:
                 # For single infer, the optimal choice is to resize the image to target height while keeping
                 # aspect ratio, no padding. limit the max width.
@@ -106,13 +112,14 @@ class Preprocessor(object):
 
             if (target_height != parsed_height) or (target_width != parsed_width):
                 _logger.warning(
-                    f"`rec_image_shape` {parsed_img_shape[1:]} dose not meet the network input requirement or "
-                    f"is not optimal, which should be [{target_height}, {target_width}] under batch mode = {batch_mode}"
+                    f"`{task}_image_shape` {parsed_img_shape[1:]} dose not meet the network input requirement "
+                    f"or is not optimal, which should be [{target_height}, {target_width}] under "
+                    f"batch mode = {batch_mode}."
                 )
 
             _logger.info(
-                f"Pick optimal preprocess hyper-params for rec algo {algo}:\n"
-                + "\n".join(
+                f"Pick optimal preprocess hyper-params for {task} algo {algo}:\n",
+                "\n".join(
                     [
                         f"{k}:\t{str(v)}"
                         for k, v in dict(
