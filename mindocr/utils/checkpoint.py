@@ -101,7 +101,7 @@ class CheckpointManager:
 def resume_train_network(network, optimizer, resume_ckpt):
     resume_param = ms.load_checkpoint(resume_ckpt)
     start_epoch = int(resume_param.get('epoch_num', ms.Tensor(0, ms.int32)).asnumpy().item())
-    loss_scale = int(resume_param.get('loss_scale', ms.Tensor(0, ms.int32)).asnumpy().item())
+    loss_scale = float(resume_param.get('loss_scale', ms.Tensor(0, ms.float32)).asnumpy().item())
     cur_iter = resume_param.get('current_iterator_step', ms.Tensor(0, ms.int32))
     last_overflow_iter = resume_param.get('last_overflow_iterator_step', ms.Tensor(0, ms.int32))
     ms.load_param_into_net(network, resume_param)
