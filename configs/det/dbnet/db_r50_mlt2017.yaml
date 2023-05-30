@@ -88,9 +88,12 @@ train:
       - RandomColorAdjust:
           brightness: 0.1255  # 32.0 / 255
           saturation: 0.5
-      - IaaAugment:
-          Fliplr: { p: 0.5 }
-          Affine: { rotate: [ -10, 10 ], p: 1.0 }
+      - RandomHorizontalFlip:
+          p: 0.5
+      - RandomRotate:
+          degrees: [ -10, 10 ]
+          expand_canvas: False
+          p: 1.0
       - ValidatePolygons:
       - ShrinkBinaryMap:
           min_text_size: 8
