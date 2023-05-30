@@ -17,7 +17,8 @@ class DecodeImage:
     img_mode (str): The channel order of the output, 'BGR' and 'RGB'. Default to 'BGR'.
     channel_first (bool): if True, image shpae is CHW. If False, HWC. Default to False
     """
-    def __init__(self, img_mode='BGR', channel_first=False, to_float32=False, ignore_orientation=False, keep_ori=False, **kwargs):
+    def __init__(self, img_mode='BGR', channel_first=False, to_float32=False, ignore_orientation=False, keep_ori=False,
+                 **kwargs):
         self.img_mode = img_mode
         self.to_float32 = to_float32
         self.channel_first = channel_first
@@ -53,7 +54,7 @@ class DecodeImage:
 
 class NormalizeImage:
     """
-    normalize image, substract mean, divide std
+    normalize image, subtract mean, divide std
     input image: by default, np.uint8, [0, 255], HWC format.
     return image: float32 numpy array
     """
@@ -162,9 +163,10 @@ class RandomScale:
 
         return data
 
+
 class RandomColorAdjust:
     def __init__(self, brightness=32.0 / 255, saturation=0.5, **kwargs):
-        contrast  = kwargs.get('contrast', (1,1))
+        contrast = kwargs.get('contrast', (1, 1))
         hue = kwargs.get('hue', (0, 0))
         self._jitter = MSRandomColorAdjust(brightness=brightness, saturation=saturation, contrast=contrast, hue=hue)
         self._pil = ToPIL()
