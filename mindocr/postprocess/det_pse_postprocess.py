@@ -43,6 +43,8 @@ class PSEPostprocess(DetBasePostprocess):
         Args:
             pred (Tensor): network prediction with shape [BS, C, H, W]
         """
+        if isinstance(pred, tuple):  # used when inference, only need the first output
+            pred = pred[0]
         if not isinstance(pred, Tensor):
             pred = Tensor(pred)
 

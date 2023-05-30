@@ -29,7 +29,7 @@ PSENet的整体架构图如图1所示，包含以下阶段:
 
 | **模型**              | **环境配置**       | **骨干网络**      | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间**     | **吞吐量**   | **配置文件**                            | **模型权重下载**                                                                                                                                                                                                |
 |---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-----------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 79.39%     | 84.83%        | 82.02%      | 138 s/epoch   | 7.57 img/s | [yaml](pse_r152_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) 
+| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 79.39%     | 84.91%        | 82.06%      | 138 s/epoch   | 7.57 img/s | [yaml](pse_r152_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir) 
 </div>
 
 #### 注释：
@@ -150,6 +150,47 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/det/psene
 python tools/eval.py --config configs/det/psenet/pse_r152_icdar15.yaml
 ```
 
+### 3.6 MindSpore Lite 推理
+
+在进行推理前，请确保PSENet的后处理部分已编译（参考训练章节的后处理部分），并完成[推理环境搭建](../../../docs/cn/inference/environment_cn.md)。完成上述步骤后，请先下载[MindIR模型](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)文件或使用以下命令将已训练完成的ckpt导出成MindIR文件:
+
+``` shell
+python tools/export.py --model_name psenet_resnet152 --data_shape 1472 2624 --local_ckpt_path /path/to/local_ckpt.ckpt
+```
+使用converter_lite工具将MindIR转换成MindSpore Lite支持的MindIR模型：
+```shell
+converter_lite \
+    --saveType=MINDIR \
+    --NoFusion=false \
+    --fmk=MINDIR \
+    --device=Ascend \
+    --modelFile=psenet_resnet152.mindir \
+    --outputFile=output \
+    --configFile=config.txt
+```
+上述命令将生成output.om以及output.mindir模型文件。其中，config.txt文件配置如下：
+```
+ [ascend_context]
+ input_format=NCHW
+ input_shape=x:[1,3,1472,2624]
+```
+
+完成output.mindir文件导出后，在/mindocr/deploy/py_infer目录下使用以下命令即可进行推理和评估：
+```shell
+python infer.py \
+    --input_images_dir=/your_path_to/test_images \
+    --device=Ascend \
+    --device_id=your_device_id \
+    --parallel_num=2 \
+    --precision_mode=fp32 \
+    --det_model_path=your_path_to/output.mindir \
+    --det_model_name=en_ms_det_psenet_resnet152 \
+    --backend=lite \
+    --save_log_dir=your_logs_dir \
+    --res_save_dir=your_prediction_result_dir
+
+python ../eval_utils/eval_det.py --gt_path=/your_path_to/det_gt.txt --pred_path=your_prediction_result_dir/det_results.txt
+```
 ## 参考文献
 
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->

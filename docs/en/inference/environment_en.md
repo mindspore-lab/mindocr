@@ -1,6 +1,6 @@
 English | [中文](../../cn/inference/environment_cn.md)
 
-## Inference - Environment Installationn
+## Inference - Environment Installation
 
 MindOCR supports inference for Ascend310/Ascend310P device.
 
@@ -11,7 +11,7 @@ to install it.
 
 The MindOCR backend supports two types of inference:
 [ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)
-and [MindSpore Lite](https://www.mindspore.cn/lite/docs/zh-CN/master/index.html). Before inference using ACL mode, you need to use [ATC tool](https://www.hiascend.com/document/detail/zh/) to convert the model to om format, or to use [converter_lite tool](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html) to convert the model to MindIR format, the specific differences are as follows:
+and [MindSpore Lite](https://www.mindspore.cn/lite/docs/zh-CN/master/index.html). Before inference using ACL mode, you need to use [ATC tool](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/atctool/atctool_000001.html) to convert the model to om format, or to use [converter_lite tool](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html) to convert the model to MindIR format, the specific differences are as follows:
 
 |        |       ACL        |    Mindspore Lite  |
 |:------:|:----------------:|:------------------:|
