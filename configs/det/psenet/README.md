@@ -29,7 +29,7 @@ The overall architecture of PSENet is presented in Figure 1. It consists of mult
 
 | **Model**              | **Context**       | **Backbone**      | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.**     | **Throughput**   | **Recipe**                            | **Download**                                                                                                                                                                                                |
 |---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-----------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 79.39%     | 84.83%        | 82.02%      | 138 s/epoch   | 7.57 img/s | [yaml](pse_r152_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) 
+| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 79.39%     | 84.91%        | 82.06%      | 138 s/epoch   | 7.57 img/s | [yaml](pse_r152_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir) 
 </div>
 
 #### Notes：
@@ -150,6 +150,46 @@ To evaluate the accuracy of the trained model, you can use `eval.py`. Please set
 python tools/eval.py --config configs/det/psenet/pse_r152_icdar15.yaml
 ```
 
+### 3.6 MindSpore Lite Inference
+
+Before inference, please ensure that the post-processing part of PSENet has been compiled (refer to the post-processing part of the training chapter), and complete [Inference Environment Installation](../../../docs/en/inference/environment_en.md ). After completing the above steps, please download the [MindIR model](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir) file or use the following command to export the trained ckpt model to MindIR file: 
+
+``` shell
+python tools/export.py --model_name psenet_resnet152 --data_shape 1472 2624 --local_ckpt_path /path/to/local_ckpt.ckpt
+```
+Use the converter_lite tool to convert this MindIR file to a MindIR model supported by MindSpore Lite:
+```shell
+converter_lite \
+    --saveType=MINDIR \
+    --NoFusion=false \
+    --fmk=MINDIR \
+    --device=Ascend \
+    --modelFile=psenet_resnet152.mindir \
+    --outputFile=output \
+    --configFile=config.txt
+```
+The above command will generate output.om and output.mindir model files. The config.txt file is configured as follows:
+```
+ [ascend_context]
+ input_format=NCHW
+ input_shape=x:[1,3,1472,2624]
+```
+After exporting the output.mindir file, use the following commands in the /mindocr/deploy/py_infer directory to perform inference and evaluation:
+```shell
+python infer.py \
+    --input_images_dir=/your_path_to/test_images \
+    --device=Ascend \
+    --device_id=your_device_id \
+    --parallel_num=2 \
+    --precision_mode=fp32 \
+    --det_model_path=your_path_to/output.mindir \
+    --det_model_name=en_ms_det_psenet_resnet152 \
+    --backend=lite \
+    --save_log_dir=your_logs_dir \
+    --res_save_dir=your_prediction_result_dir
+
+python ../eval_utils/eval_det.py --gt_path=/your_path_to/det_gt.txt --pred_path=your_prediction_result_dir/det_results.txt
+```
 ## References
 
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->

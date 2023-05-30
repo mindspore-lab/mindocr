@@ -5,7 +5,8 @@ import subprocess
 python_path = sys.executable
 
 ori_path = os.getcwd()
-os.chdir('mindocr/postprocess/pse')
+curr_file_dir = os.path.split(os.path.realpath(__file__))[0]  # get current file dir
+os.chdir(curr_file_dir)
 files = os.listdir()
 if 'pse.cpp' not in files or 'build' not in files:  # check whether pse codes have been compiled
     if subprocess.call(
