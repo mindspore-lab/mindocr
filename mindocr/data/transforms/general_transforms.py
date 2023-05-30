@@ -188,7 +188,7 @@ class RandomRotate:
                        maintain the original size (the rotated image will be cropped back to the original size).
         p: probability of the augmentation being applied to an image.
     """
-    def __init__(self, degrees=(-10, 10), expand_canvas=True, p: float = 1.0):
+    def __init__(self, degrees=(-10, 10), expand_canvas=True, p: float = 1.0, **kwargs):
         self._degrees = degrees
         self._canvas = expand_canvas
         self._p = p
@@ -224,7 +224,7 @@ class RandomHorizontalFlip:
     Args:
         p: probability of the augmentation being applied to an image.
     """
-    def __init__(self, p: float = 0.5):
+    def __init__(self, p: float = 0.5, **kwargs):
         self._p = p
 
     def __call__(self, data: dict) -> dict:
