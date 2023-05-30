@@ -116,7 +116,7 @@ Please refer to [MindOCR Online Inference](tools/infer/text/README.md) for detai
 - [x] [DBNet](configs/det/dbnet/README.md) (AAAI'2020) 
 - [x] [DBNet++](configs/det/dbnet/README.md) (TPAMI'2022)
 - [x] [PSENet](configs/det/psenet/README.md) (CVPR'2019)
-- [ ] [EAST](https://arxiv.org/abs/1704.03155)(CVPR'2017) [coming soon]
+- [x] [EAST](configs/det/east/README.md)(CVPR'2017)
 - [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [coming soon]
 
 </details>
