@@ -131,7 +131,7 @@ class EvalSaveCallback(Callback):
         """
         cb_params = run_context.original_args()
         loss = _handle_loss(cb_params.net_outputs)
-        cur_epoch = cb_params.cur_epoch_num + self.start_epoch
+        cur_epoch = cb_params.cur_epoch_num
         data_sink_mode = cb_params.dataset_sink_mode
         cur_step_in_epoch = (cb_params.cur_step_num - 1) % cb_params.batch_num + 1
 
@@ -147,7 +147,7 @@ class EvalSaveCallback(Callback):
             fps = self.batch_size * 1000 / per_step_time
             loss = self._loss_avg_meter.val.asnumpy()
             msg = (
-                f"epoch: [{cur_epoch}/{cb_params.epoch_num + self.start_epoch}] step: [{cur_step_in_epoch}/{cb_params.batch_num}], "
+                f"epoch: [{cur_epoch}/{cb_params.epoch_num}] step: [{cur_step_in_epoch}/{cb_params.batch_num}], "
                 f"loss: {loss:.6f}, lr: {cur_lr:.6f}, per step time: {per_step_time:.3f} ms, fps: {fps:.2f} img/s"
             )
             self.logger(msg)
@@ -171,7 +171,7 @@ class EvalSaveCallback(Callback):
             run_context (RunContext): Include some information of the model.
         """
         cb_params = run_context.original_args()
-        cur_epoch = cb_params.cur_epoch_num + self.start_epoch
+        cur_epoch = cb_params.cur_epoch_num
         train_time = time.time() - self.epoch_start_time
         train_loss = self._loss_avg_meter.avg.asnumpy()
 
@@ -185,7 +185,7 @@ class EvalSaveCallback(Callback):
         per_step_time = epoch_time * 1000 / cb_params.batch_num
         fps = 1000 * self.batch_size / per_step_time
         msg = (
-            f"epoch: [{cur_epoch}/{cb_params.epoch_num + self.start_epoch}], loss: {train_loss:.6f}, "
+            f"epoch: [{cur_epoch}/{cb_params.epoch_num}], loss: {train_loss:.6f}, "
             f"epoch time: {epoch_time:.3f} s, per step time: {per_step_time:.3f} ms, fps: {fps:.2f} img/s"
         )
         self.logger(msg)

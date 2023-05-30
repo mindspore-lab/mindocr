@@ -111,10 +111,13 @@ def main(cfg):
     # resume ckpt
     start_epoch = 0
     if cfg.model.resume:
-        resume_ckpt = os.path.join(cfg.train.ckpt_save_dir, 'train_resume.ckpt') if isinstance(cfg.model.resume,
+        resume_ckpt = os.path.join(cfg.train.ckpt_save_dir, "train_resume.ckpt") if isinstance(cfg.model.resume,
                                                                                                bool) else cfg.model.resume
-        start_epoch, loss_scale = resume_train_network(network, optimizer, resume_ckpt)
+        start_epoch, loss_scale, cur_iter, last_overflow_iter = resume_train_network(network, optimizer, resume_ckpt)
         loss_scale_manager.loss_scale_value = loss_scale
+        if cfg.loss_scaler.type == "dynamic":
+            loss_scale_manager.cur_iter = cur_iter
+            loss_scale_manager.last_overflow_iter = last_overflow_iter
 
     # build train step cell
     gradient_accumulation_steps = cfg.train.get("gradient_accumulation_steps", 1)
@@ -217,10 +220,11 @@ def main(cfg):
     # training
     model = ms.Model(train_net)
     model.train(
-        cfg.scheduler.num_epochs - start_epoch,
+        cfg.scheduler.num_epochs,
         loader_train,
         callbacks=[eval_cb],
         dataset_sink_mode=cfg.train.dataset_sink_mode,
+        initial_epoch=start_epoch,
     )
 
 
