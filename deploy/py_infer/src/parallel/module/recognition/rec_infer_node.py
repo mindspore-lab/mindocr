@@ -18,11 +18,10 @@ class RecInferNode(ModuleBase):
             self.send_to_next_module(input_data)
             return
 
-        input = input_data.input
+        data = input_data.data
 
-        output = self.text_recognizer.model_infer(input["image"])
+        pred = self.text_recognizer.model_infer(data)
 
-        input_data.output = output
-        input_data.input = None
+        input_data.data = {"pred": pred}
 
         self.send_to_next_module(input_data)

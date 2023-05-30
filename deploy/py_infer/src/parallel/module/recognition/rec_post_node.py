@@ -20,15 +20,19 @@ class RecPostNode(ModuleBase):
             self.send_to_next_module(input_data)
             return
 
-        output = input_data.output
+        data = input_data.data
         batch = input_data.sub_image_size
 
-        texts = self.text_recognizer.postprocess(output, batch)
+        output = self.text_recognizer.postprocess(data["pred"], batch)
 
         if self.task_type == TaskType.REC:
-            input_data.infer_result = texts[0]
+            # TODO: only support batch=1
+            input_data.infer_result = output["texts"][0]
         else:
+            texts = output["texts"]
             for result, text in zip(input_data.infer_result, texts):
                 result.append(text)
+
+        input_data.data = None
 
         self.send_to_next_module(input_data)

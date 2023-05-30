@@ -23,14 +23,13 @@ class ClsInferNode(ModuleBase):
             self.send_to_next_module(input_data)
             return
 
-        input = input_data.input
+        data = input_data.data
         sub_images = input_data.sub_image_list
 
         batch = input_data.sub_image_size
-        output = self.text_classifier.model_infer(input["image"])
+        pred = self.text_classifier.model_infer(data)
 
-        output = output[0][:batch, ...]
-        output = self.text_classifier.postprocess_ops(output)
+        output = self.text_classifier.postprocess(pred, batch)
 
         if self.task_type == TaskType.DET_CLS_REC:
             for i in range(batch):
@@ -39,8 +38,9 @@ class ClsInferNode(ModuleBase):
                     sub_images[i] = cv2.rotate(sub_images[i], cv2.ROTATE_180)
             input_data.sub_image_list = sub_images
         else:
+            # TODO: only support batch=1
             input_data.infer_result = output[0]
 
-        input_data.input = None
+        input_data.data = None
 
         self.send_to_next_module(input_data)
