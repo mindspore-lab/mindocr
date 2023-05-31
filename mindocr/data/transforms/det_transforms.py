@@ -12,10 +12,8 @@ import pyclipper
 from shapely.geometry import Polygon, box
 import numpy as np
 
-__all__ = ['DetLabelEncode', 'BorderMap', 'ShrinkBinaryMap', 'expand_poly', 'PSEGtDecode',
-           'ValidatePolygons', 'RandomCropWithBBox', 'RandomCropWithMask',
-           'DetResize', 'GridResize', 'ScalePadImage',
-           ]
+__all__ = ['DetLabelEncode', 'BorderMap', 'ShrinkBinaryMap', 'expand_poly', 'PSEGtDecode', 'ValidatePolygons',
+           'RandomCropWithBBox', 'RandomCropWithMask', 'DetResize', 'GridResize', 'ScalePadImage']
 
 
 class DetLabelEncode:
@@ -510,8 +508,8 @@ class PSEGtDecode(object):
             poly = Polygon(bbox)
             area, peri = poly.area, poly.length
 
-            offset = min((int)(area * (1 - rate) / (peri + 0.001) + 0.5), max_shr)
-            shrinked_bbox = expand_poly(bbox, -offset, pyclipper.JT_ROUND) # (N, 2) shape, N maybe larger than or smaller than 4.
+            offset = min(int(area * (1 - rate) / (peri + 0.001) + 0.5), max_shr)
+            shrinked_bbox = expand_poly(bbox, -offset)  # (N, 2) shape, N maybe larger than or smaller than 4.
             if not shrinked_bbox:
                 shrinked_text_polys.append(bbox)
                 continue
@@ -527,7 +525,6 @@ class PSEGtDecode(object):
         return shrinked_text_polys
 
     def __call__(self, data):
-
         image = data['image']
         text_polys = data['polys']
         ignore_tags = data['ignore_tags']
@@ -606,6 +603,7 @@ class ValidatePolygons:
                     poly = poly.exterior
                     poly = poly.coords[::-1] if poly.is_ccw else poly.coords    # sort in clockwise order
                     new_polys.append(np.array(poly[:-1]))
+
                 else:                                       # the polygon is fully outside the image
                     continue
             new_tags.append(ignore)
@@ -614,4 +612,5 @@ class ValidatePolygons:
         data['polys'] = new_polys
         data['texts'] = new_texts
         data['ignore_tags'] = np.array(new_tags)
+
         return data
