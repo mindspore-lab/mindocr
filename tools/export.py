@@ -2,7 +2,7 @@
 Export ckpt files to mindir files for inference.
 
 Args:
-    model_name (str): Name of the model to be converted.
+    model_name (str): Name of the model to be converted, or the path to the model YAML config file
     data_shape (int): The data shape [H, W] for exporting mindir files.
     local_ckpt_path (str): Path to a local checkpoint. If set, export mindir by loading local ckpt. Otherwise, export mindir by downloading online ckpt.
     save_dir (str): Directory to save the exported mindir file.
@@ -12,6 +12,8 @@ Example:
     >>> python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280
     >>> # Export mindir of model `dbnet_resnet50` by loading local ckpt
     >>> python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt
+    >>> # Export mindir of model whose architecture is defined by crnn_resnet34.yaml with local checkpoint
+    >>> python tools/export.py --model_name configs/rec/crnn/crnn_resnet34.yaml --local_ckpt_path ~/.mindspore/models/crnn_resnet34-83f37f07.ckpt --data_shape 32 100
 
 Notes:
     - Args `model_name` and `data_shape` are required to be specified when running export.py.
@@ -21,6 +23,7 @@ Notes:
 
 import sys
 import os
+import yaml
 
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "..")))
@@ -31,12 +34,23 @@ from mindocr import list_models, build_model
 import numpy as np
 
 
-def export(name, data_shape, local_ckpt_path="", save_dir=""):
+def export(name_or_config, data_shape, local_ckpt_path="", save_dir=""):
     ms.set_context(mode=ms.GRAPH_MODE) #, device_target='Ascend')
-    if local_ckpt_path:
-        net = build_model(name, pretrained=False, ckpt_load_path=local_ckpt_path)
+
+    if name_or_config.endswith('.yml') or name_or_config.endswith('.yaml'):
+        with open(name_or_config, "r") as f:
+            model_cfg = yaml.safe_load(f)['model']
+        name = os.path.basename(name_or_config).split('.')[0]
+        assert local_ckpt_path, 'Checkpoint path must be specified if using YAML config file to define model architecture. Please set checkpoint path via `--local_ckpt_path`.'
     else:
-        net = build_model(name, pretrained=True)
+        model_cfg = name_or_config
+        name = name_or_config
+
+    if local_ckpt_path:
+        net = build_model(model_cfg, pretrained=False, ckpt_load_path=local_ckpt_path)
+    else:
+        net = build_model(model_cfg, pretrained=True)
+
     net.set_train(False)
 
     h, w = data_shape
@@ -63,8 +77,8 @@ if __name__ == '__main__':
         type=str,
         default="",
         required=True,
-        choices=list_models(),
-        help=f'Name of the model to be converted. Available choices: {list_models()}.')
+        #choices=list_models(),
+        help=f'Name of the model to be converted or the path to model YAML config file. Available choices for names: {list_models()}.')
     parser.add_argument(
         '--data_shape',
         type=int,
