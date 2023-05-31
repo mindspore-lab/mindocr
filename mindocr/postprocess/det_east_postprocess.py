@@ -24,7 +24,6 @@ class EASTPostprocess(DetBasePostprocess):
                 pred (tuple) - (score, geo)
                     'score'       : score map from model <Tensor, (bs,1,row,col)>
                     'geo'         : geo map from model <Tensor, (bs,5,row,col)>
-                shape_list (List[List[float]]: a list of shape info [raw_img_h, raw_img_w, ratio_h, ratio_w] for each sample in batch
         Output:
                 boxes       : dict of polys and scores {'polys': <numpy.ndarray, (bs,n,4,2)>, 'scores': numpy.ndarray, (bs,n,1)>)}
         """

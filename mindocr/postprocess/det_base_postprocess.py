@@ -41,13 +41,13 @@ class DetBasePostprocess:
         raise NotImplementedError
 
     def __call__(self, pred: Union[ms.Tensor, Tuple[ms.Tensor], np.ndarray],
-                 shape_list: Union[List, np.ndarray, ms.Tensor] = None, **kwargs) -> dict:
+                 shape_list: Union[np.ndarray, ms.Tensor] = None, **kwargs) -> dict:
         """
         Execution entry for postprocessing, which postprocess network prediction on the transformed image space to get text boxes and then rescale them back to the original image space.
 
         Args:
             pred (Union[Tensor, Tuple[Tensor], np.ndarray]): network prediction for input batch data, shape [batch_size, ...]
-            shape_list (Union[List, np.ndarray, ms.Tensor]): shape and scale info for each image in the batch, shape [batch_size, 4]. Each internal array is [src_h, src_w, scale_h, scale_w], where src_h and src_w are height and width of the original image, and scale_h and scale_w are their scale ratio during image resizing.
+            shape_list (Union[np.ndarray, ms.Tensor]): shape and scale info for each image in the batch, shape [batch_size, 4]. Each internal array is [src_h, src_w, scale_h, scale_w], where src_h and src_w are height and width of the original image, and scale_h and scale_w are their scale ratio during image resizing.
 
         Returns:
             detection result as a dict with keys:
@@ -58,8 +58,6 @@ class DetBasePostprocess:
         # 1. Check input type. Covert shape_list to np.ndarray
         if isinstance(shape_list, Tensor):
             shape_list = shape_list.asnumpy()
-        elif isinstance(shape_list, List):
-            shape_list = np.array(shape_list, dtype="float32")
 
         if shape_list is not None:
             assert shape_list.shape[0] == pred.shape[0] and shape_list.shape[1] == 4, \
