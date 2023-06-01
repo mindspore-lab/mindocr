@@ -191,7 +191,7 @@ MindSpore Lite和ACL模型推理的支持列表，请见[MindOCR模型推理支�
 
 ### 许可
 
-本项目遵从[Apache License 2.0](LICENSE.md)开源许可。
+本项目遵从[Apache License 2.0](LICENSE)开源许可。
 
 ### 引用
 

@@ -219,7 +219,7 @@ Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for the contributing guidelin
 
 ### License
 
-This project follows the [Apache License 2.0](LICENSE.md) open-source license.
+This project follows the [Apache License 2.0](LICENSE) open-source license.
 
 ### Citation
 
