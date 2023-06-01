@@ -156,12 +156,12 @@ class BalancedBCELoss(nn.LossBase):
 
 
 class PSEDiceLoss(nn.Cell):
-    def __init__(self):
+    def __init__(self, alpha=0.7, ohem_ratio=3):
         super().__init__()
-
         self.threshold0 = Tensor(0.5, mstype.float32)
         self.zero_float32 = Tensor(0.0, mstype.float32)
-        self.k = int(640 * 640)
+        self.alpha = alpha
+        self.ohem_ratio = ohem_ratio
         self.negative_one_int32 = Tensor(-1, mstype.int32)
         self.concat = ops.Concat()
         self.less_equal = ops.LessEqual()
@@ -197,16 +197,17 @@ class PSEDiceLoss(nn.Cell):
         :return: [N * H * W]
         '''
         batch_size = scores.shape[0]
+        h, w = scores.shape[1:]
         selected_masks = ()
         for i in range(batch_size):
-            score = self.slice(scores, (i, 0, 0), (1, 640, 640))
-            score = self.reshape(score, (640, 640))
+            score = self.slice(scores, (i, 0, 0), (1, h, w))
+            score = self.reshape(score, (h, w))
 
-            gt_text = self.slice(gt_texts, (i, 0, 0), (1, 640, 640))
-            gt_text = self.reshape(gt_text, (640, 640))
+            gt_text = self.slice(gt_texts, (i, 0, 0), (1, h, w))
+            gt_text = self.reshape(gt_text, (h, w))
 
-            training_mask = self.slice(training_masks, (i, 0, 0), (1, 640, 640))
-            training_mask = self.reshape(training_mask, (640, 640))
+            training_mask = self.slice(training_masks, (i, 0, 0), (1, h, w))
+            training_mask = self.reshape(training_mask, (h, w))
 
             selected_mask = self.ohem_single(score, gt_text, training_mask)
             selected_masks = selected_masks + (selected_mask,)
@@ -215,22 +216,24 @@ class PSEDiceLoss(nn.Cell):
         return selected_masks
 
     def ohem_single(self, score, gt_text, training_mask):
+        h, w = score.shape[0:2]
+        k = int(h * w)
         pos_num = self.logical_and(self.greater(gt_text, self.threshold0),
                                    self.greater(training_mask, self.threshold0))
         pos_num = self.reduce_sum(self.cast(pos_num, mstype.float32))
 
         neg_num = self.less_equal(gt_text, self.threshold0)
         neg_num = self.reduce_sum(self.cast(neg_num, mstype.float32))
-        neg_num = self.minimum(3 * pos_num, neg_num)
+        neg_num = self.minimum(self.ohem_ratio * pos_num, neg_num)
         neg_num = self.cast(neg_num, mstype.int32)
 
-        neg_num = neg_num + self.k - 1
+        neg_num = neg_num + k - 1
         neg_mask = self.less_equal(gt_text, self.threshold0)
-        ignore_score = self.fill(mstype.float32, (640, 640), -1e3)
+        ignore_score = self.fill(mstype.float32, (h, w), -1e3)
         neg_score = self.select(neg_mask, score, ignore_score)
-        neg_score = self.reshape(neg_score, (640 * 640,))
+        neg_score = self.reshape(neg_score, (h * w,))
 
-        topk_values, _ = self.topk(neg_score, self.k)
+        topk_values, _ = self.topk(neg_score, k)
         threshold = self.gather(topk_values, neg_num, 0)
 
         selected_mask = self.logical_and(
@@ -254,9 +257,9 @@ class PSEDiceLoss(nn.Cell):
         batch_size = input_params.shape[0]
         input_sigmoid = self.sigmoid(input_params)
 
-        input_reshape = self.reshape(input_sigmoid, (batch_size, 640 * 640))
-        target = self.reshape(target, (batch_size, 640 * 640))
-        mask = self.reshape(mask, (batch_size, 640 * 640))
+        input_reshape = self.reshape(input_sigmoid, (batch_size, -1))
+        target = self.reshape(target, (batch_size, -1))
+        mask = self.reshape(mask, (batch_size, -1))
 
         input_mask = input_reshape * mask
         target = target * mask
@@ -286,16 +289,16 @@ class PSEDiceLoss(nn.Cell):
         '''
         batch_size = model_predict.shape[0]
         model_predict = self.upsample(model_predict, scale_factor=4)
-        texts = self.slice(model_predict, (0, 0, 0, 0), (batch_size, 1, 640, 640))
-        texts = self.reshape(texts, (batch_size, 640, 640))
+        h, w = model_predict.shape[2:]
+        texts = self.slice(model_predict, (0, 0, 0, 0), (batch_size, 1, h, w))
+        texts = self.reshape(texts, (batch_size, h, w))
         selected_masks_text = self.ohem_batch(texts, gt_texts, training_masks)
         loss_text = self.dice_loss(texts, gt_texts, selected_masks_text)
-
         kernels = []
         loss_kernels = []
         for i in range(1, 7):
-            kernel = self.slice(model_predict, (0, i, 0, 0), (batch_size, 1, 640, 640))
-            kernel = self.reshape(kernel, (batch_size, 640, 640))
+            kernel = self.slice(model_predict, (0, i, 0, 0), (batch_size, 1, h, w))
+            kernel = self.reshape(kernel, (batch_size, h, w))
             kernels.append(kernel)
 
         mask0 = self.sigmoid(texts)
@@ -304,13 +307,13 @@ class PSEDiceLoss(nn.Cell):
         selected_masks_kernels = self.cast(selected_masks_kernels, mstype.float32)
 
         for i in range(6):
-            gt_kernel = self.slice(gt_kernels, (0, i, 0, 0), (batch_size, 1, 640, 640))
-            gt_kernel = self.reshape(gt_kernel, (batch_size, 640, 640))
+            gt_kernel = self.slice(gt_kernels, (0, i, 0, 0), (batch_size, 1, h, w))
+            gt_kernel = self.reshape(gt_kernel, (batch_size, h, w))
             loss_kernel_i = self.dice_loss(kernels[i], gt_kernel, selected_masks_kernels)
             loss_kernels.append(loss_kernel_i)
         loss_kernel = self.avg_losses(loss_kernels)
 
-        loss = 0.7 * loss_text + 0.3 * loss_kernel
+        loss = self.alpha * loss_text + (1 - self.alpha) * loss_kernel
         return loss
 
 
