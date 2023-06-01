@@ -19,6 +19,7 @@ python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280
 # Export mindir of model `dbnet_resnet50` by loading local ckpt
 python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt
 
-```
+# Export mindir of model whose architecture is defined by crnn_resnet34.yaml with local checkpoint
+python tools/export.py --model_name configs/rec/crnn/crnn_resnet34.yaml --local_ckpt_path ~/.mindspore/models/crnn_resnet34-83f37f07.ckpt --data_shape 32 100
 
 For more usage, run `python tools/export.py -h`.
