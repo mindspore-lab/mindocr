@@ -1,13 +1,14 @@
-from typing import Union, List
-import numpy as np
-import random
-import lmdb
+from typing import List, Optional, Any
 import os
+import numpy as np
+import lmdb
 
 from .transforms.transforms_factory import create_transforms, run_transforms
 from .base_dataset import BaseDataset
 
+
 __all__ = ['LMDBDataset']
+
 
 class LMDBDataset(BaseDataset):
     """Data iterator for ocr datasets including ICDAR15 dataset. 
@@ -20,10 +21,10 @@ class LMDBDataset(BaseDataset):
         transform_pipeline: list of dict, key - transform class name, value - a dict of param config.
                     e.g., [{'DecodeImage': {'img_mode': 'BGR', 'channel_first': False}}]
             -       if None, default transform pipeline for text detection will be taken.
-        output_columns (list): required, indicates the keys in data dict that are expected to output for dataloader. if None, all data keys will be used for return. 
-        global_config: additional info, used in data transformation, possible keys:
-            - character_dict_path
-            
+        output_columns (list): optional, indicates the keys in data dict that are expected to output for dataloader. 
+            if None, all data keys will be used for return. 
+        filter_max_len (bool): Filter the records where the label is longer than the `max_text_len`.
+        max_text_len (int): The maximum text length the dataloader expected.
 
     Returns:
         data (tuple): Depending on the transform pipeline, __get_item__ returns a tuple for the specified data item. 
@@ -41,31 +42,42 @@ class LMDBDataset(BaseDataset):
             ├── ... 
     """
     def __init__(self, 
-            is_train: bool = True, 
-            data_dir: str = '', 
-            sample_ratio: float = 1.0, 
-            shuffle: bool = None,
-            transform_pipeline: List[dict] = None, 
-            output_columns: List[str] = None,
-            #global_config: dict = None,
-            **kwargs
-            ):
-
+            is_train: bool = True,
+            data_dir: str = '',
+            sample_ratio: float = 1.0,
+            shuffle: Optional[bool] = None,
+            transform_pipeline: Optional[List[dict]] = None, 
+            output_columns: Optional[List[str]] = None,
+            filter_max_len: bool = False,
+            max_text_len: Optional[int] = None,
+            **kwargs: Any
+        ):
         self.data_dir = data_dir
-        assert isinstance(shuffle, bool), f'type error of {shuffle}'
+        self.filter_max_len = filter_max_len
+        self.max_text_len = max_text_len
+
         shuffle = shuffle if shuffle is not None else is_train
 
         self.lmdb_sets = self.load_list_of_hierarchical_lmdb_dataset(data_dir)
         if len(self.lmdb_sets) == 0:
             raise ValueError(f"Cannot find any lmdb dataset under `{data_dir}`. Please check the data path is correct.")
         self.data_idx_order_list = self.get_dataset_idx_orders(sample_ratio, shuffle)
-        
+
+        # filter the max length
+        if filter_max_len:
+            if max_text_len is None:
+                raise ValueError("`max_text_len` must be provided when `filter_max_len` is True.")
+            self.data_idx_order_list = self.filter_idx_list(self.data_idx_order_list)
+
         # create transform
         if transform_pipeline is not None:
-            self.transforms = create_transforms(transform_pipeline) #, global_config=global_config)
+            self.transforms = create_transforms(transform_pipeline)
         else:
             raise ValueError('No transform pipeline is specified!')
 
+        self.prefetch(output_columns)
+
+    def prefetch(self, output_columns):
         # prefetch the data keys, to fit GeneratorDataset
         _data = self.data_idx_order_list[0]
         lmdb_idx, file_idx = self.data_idx_order_list[0]
@@ -87,7 +99,21 @@ class LMDBDataset(BaseDataset):
                 if k in _data:
                     self.output_columns.append(k)
                 else:
-                    raise ValueError(f'Key {k} does not exist in data (available keys: {_data.keys()}). Please check the name or the completeness transformation pipeline.')
+                    raise ValueError(f"Key {k} does not exist in data (available keys: {_data.keys()}). "
+                                     "Please check the name or the completeness transformation pipeline.")
+
+    def filter_idx_list(self, idx_list: np.ndarray) -> np.ndarray:
+        print("Start filtering the idx list...")
+        new_idx_list = list()
+        for lmdb_idx, file_idx in idx_list:
+            label = self.get_lmdb_sample_info(self.lmdb_sets[int(lmdb_idx)]['txn'], int(file_idx), label_only=True)
+            if len(label) > self.max_text_len:
+                print(f"WARNING: skip the label with length ({len(label)}), which is longer than than max length ({self.max_text_len}).")
+                continue
+            new_idx_list.append((lmdb_idx, file_idx))
+        new_idx_list = np.array(new_idx_list)
+        return new_idx_list
+
 
     def load_list_of_hierarchical_lmdb_dataset(self, data_dir):
         if isinstance(data_dir, str):
@@ -104,7 +130,6 @@ class LMDBDataset(BaseDataset):
         return results
 
     def load_hierarchical_lmdb_dataset(self, data_dir, start_idx=0):
-        
         lmdb_sets = {}
         dataset_idx = start_idx
         for rootdir, dirs, _ in os.walk(data_dir + '/'):
@@ -144,12 +169,16 @@ class LMDBDataset(BaseDataset):
 
         return data_idx_order_list
 
-    def get_lmdb_sample_info(self, txn, idx):
+    def get_lmdb_sample_info(self, txn, idx, label_only=False):
         label_key = 'label-%09d'.encode() % idx
         label = txn.get(label_key)
         if label is None:
-            return None
+            raise ValueError(f"Cannot find key {label_key}")
         label = label.decode('utf-8')
+
+        if label_only:
+            return label
+
         img_key = 'image-%09d'.encode() % idx
         imgbuf = txn.get(img_key)
         return imgbuf, label
@@ -158,18 +187,14 @@ class LMDBDataset(BaseDataset):
         lmdb_idx, file_idx = self.data_idx_order_list[idx]
         sample_info = self.get_lmdb_sample_info(self.lmdb_sets[int(lmdb_idx)]['txn'],
                                                 int(file_idx))
-        if sample_info is None:
-            random_idx = np.random.randint(self.__len__())
-            return self.__getitem__(random_idx)
         
         data = {
             "img_lmdb": sample_info[0],
             "label": sample_info[1]
         }
-        
+
         # perform transformation on data
         data = run_transforms(data, transforms=self.transforms)
-            
         output_tuple = tuple(data[k] for k in self.output_columns) 
 
         return output_tuple

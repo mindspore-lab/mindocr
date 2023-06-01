@@ -327,6 +327,39 @@ To use a specific dictionary, set the parameter `character_dict_path` to the pat
 - Remember to check the value of `dataset->transform_pipeline->RecAttnLabelEncode->lower` in the configuration yaml. Set it to False if you prefer case-sensitive encoding.
 
 
+## 5. Chinese Text Recognition Model Training
+
+Currently, this model supports multilingual recognition and provides pre-trained models for different languages. Details are as follows:
+
+### Chinese Dataset Preparation and Configuration
+
+We use a public Chinese text benchmark dataset [Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition) for SVTR training and evaluation.
+
+For detailed instruction of data preparation and yaml configuration, please refer to [ch_dataeset](../../../docs/en/datasets/chinese_text_recognition.md).
+
+### Training
+
+To train with the prepared datsets and config file, please run:
+
+```shell
+mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/svtr/svtr_tiny_ch.yaml
+```
+
+### Results and Pretrained Weights
+
+After training, evaluation results on the benchmark test set are as follows, where we also provide the model config and pretrained weights.
+
+<div align="center">
+
+| **Model** | **Language** | **Context**  | **Scene** | **Web** | **Document** | **Train T.** | **FPS** | **Recipe** | **Download** | 
+| :-----: | :-----:  | :--------: | :--------: | :--------: | :--------: | :---------: | :--------: | :---------: | :-----------: |
+| SVTR-Tiny    | Chinese | D910x4-MS1.10-G | 65.93% | 69.64% | 98.01% | 647 s/epoch | 1580 | [svtr_tiny_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4-3e495768.mindir) |
+</div>
+
+### Training with Custom Datasets
+You can train models for different languages with your own custom datasets. Loading the pretrained Chinese model to finetune on your own dataset usually yields better results than training from scratch. Please refer to the tutorial [Training Recognition Network with Custom Datasets](../../../docs/en/tutorials/training_recognition_custom_dataset.md).
+
+
 ## References
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 

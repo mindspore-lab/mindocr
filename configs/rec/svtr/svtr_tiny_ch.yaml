@@ -10,27 +10,20 @@ system:
   ckpt_max_keep: 5
 
 common:
-  character_dict_path: &character_dict_path
-  num_classes: &num_classes 37 # num_chars_in_dict + 1
-  max_text_len: &max_text_len 24
+  character_dict_path: &character_dict_path mindocr/utils/dict/ch_dict.txt
+  num_classes: &num_classes 6624 # num_chars_in_dict + 1
+  max_text_len: &max_text_len 40
   use_space_char: &use_space_char False
-  batch_size: &batch_size 512
+  batch_size: &batch_size 256
 
 model:
   type: rec
-  transform:
-    name: STN_ON
-    in_channels: 3
-    tps_inputsize: [32, 64]
-    tps_outputsize: [32, 100]
-    num_control_points: 20
-    tps_margins: [0.05, 0.05]
-    stn_activation: none
+  transform: null
   backbone:
     name: SVTRNet
     pretrained: False
-    img_size: [32, 100]
-    out_channels: 192
+    img_size: [32, 320]
+    out_channels: 96
     patch_merging: Conv
     embed_dim: [64, 128, 256]
     depth: [3, 6, 3]
@@ -73,7 +66,7 @@ metric:
 
 loss:
   name: CTCLoss
-  pred_seq_len: 25 # 100 / 4
+  pred_seq_len: 80 # 320 / 4
   max_label_len: *max_text_len # this value should be smaller than pre_seq_len
   batch_size: *batch_size
 
@@ -81,9 +74,9 @@ scheduler:
   scheduler: warmup_cosine_decay
   min_lr: 0.00001
   lr: 0.001
-  num_epochs: 30
-  warmup_epochs: 3
-  decay_epochs: 27
+  num_epochs: 60
+  warmup_epochs: 6
+  decay_epochs: 54
 
 optimizer:
   opt: adamw
@@ -100,26 +93,31 @@ loss_scaler:
 train:
   ckpt_save_dir: ./tmp_rec
   dataset_sink_mode: False
+  clip_grad: True
+  clip_norm: 0.1
   dataset:
     type: LMDBDataset
     dataset_root: path/to/data_lmdb_release/
     data_dir: training/
     sample_ratio: 1.0
     shuffle: True
+    filter_max_len: True
+    max_text_len: *max_text_len
     transform_pipeline:
       - DecodeImage:
           img_mode: BGR
           to_float32: False
-      - SVTRRecAug:
-          aug_type: 0
       - RecCTCLabelEncode:
           max_text_len: *max_text_len
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
           lower: True
+      - Rotate90IfVertical:
+          threshold: 2.0
+          direction: anti_clockwise
       - SVTRRecResizeImg:
-          image_shape: [64, 256]
-          padding: False
+          image_shape: [32, 320]
+          padding: True
       - NormalizeImage:
           bgr_to_rgb: True
           is_hwc: True
@@ -135,7 +133,7 @@ train:
     batch_size: *batch_size
     drop_remainder: True
     max_rowsize: 12
-    num_workers: 8
+    num_workers: 1
 
 eval:
   ckpt_load_path: ./tmp_rec/best.ckpt
@@ -155,9 +153,12 @@ eval:
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
           lower: True
+      - Rotate90IfVertical:
+          threshold: 2.0
+          direction: anti_clockwise
       - SVTRRecResizeImg:
-          image_shape: [64, 256]
-          padding: False
+          image_shape: [32, 320] # H, W
+          padding: True
       - NormalizeImage:
           bgr_to_rgb: True
           is_hwc: True
@@ -170,7 +171,7 @@ eval:
 
   loader:
     shuffle: False
-    batch_size: 512
+    batch_size: 64
     drop_remainder: False
     max_rowsize: 12
-    num_workers: 8
+    num_workers: 1

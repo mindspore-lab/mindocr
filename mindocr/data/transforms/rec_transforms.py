@@ -6,7 +6,7 @@ import cv2
 import math
 import numpy as np
 
-__all__ = ['RecCTCLabelEncode', 'RecAttnLabelEncode', 'RecResizeImg', 'RecResizeNormForInfer', 'SVTRRecResizeImg']
+__all__ = ['RecCTCLabelEncode', 'RecAttnLabelEncode', 'RecResizeImg', 'RecResizeNormForInfer', 'SVTRRecResizeImg', 'Rotate90IfVertical']
 
 
 class RecCTCLabelEncode(object):
@@ -397,6 +397,30 @@ class RecResizeNormForInfer(object):
         if not self.norm_before_pad:
             data['image'] = self.norm(data['image']) 
 
+        return data
+
+
+class Rotate90IfVertical:
+    """Rotate the image by 90 degree when the height/width ratio is larger than the given threshold.
+    Note: It needs to be called before image resize."""
+    def __init__(self, threshold: float = 2.0, direction: str = 'anti_clockwise',  **kwargs):
+        self.threshold = threshold
+
+        if direction == 'anti_clockwise':
+            self.flag = cv2.ROTATE_90_COUNTERCLOCKWISE
+        elif direction == 'clockwise':
+            self.flag = cv2.ROTATE_90_CLOCKWISE
+        else:
+            raise ValueError("Unsupported direction")
+
+    def __call__(self, data):
+        img = data['image']
+
+        h, w, _ = img.shape
+        if h / w > self.threshold:
+            img = cv2.rotate(img, self.flag)
+
+        data['image'] = img
         return data
 
 

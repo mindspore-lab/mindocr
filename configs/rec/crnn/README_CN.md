@@ -369,7 +369,7 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 准备好数据集和配置文件后，执行以下命令开启多卡训练
 
 ```shell
-mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/crnn_resnet34_ch.yaml
+mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/crnn/crnn_resnet34_ch.yaml
 ```
 
 ### 评估结果和预训练权重
@@ -377,9 +377,9 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/
 
 <div align="center">
 
-| **模型** | **语种** | **骨干网络** | **街景类** | **网页类** | **文档类** | **配置文件** | **模型权重下载** | 
-| :-----: | :-----:  | :--------: | :--------: | :--------: | :--------: | :---------: | :-----------: |
-| CRNN    | 中文 | ResNet34_vd | 59.71% | 64.86% | 89.23% |  [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3-f27f763a.mindir) |
+| **模型** | **语种** | **环境配置** | **骨干网络** | **街景类** | **网页类** | **文档类** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** | 
+| :-----: | :-----:  | :-------:  |:--------: | :--------: | :--------: | :--------: | :---------: |:--------: | :---------: | :-----------: |
+| CRNN    | 中文 | D910x4-MS1.10-G | ResNet34_vd | 60.45% | 65.95% | 97.68% | 647 s/epoch | 1180 | [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-7a342e3c.ckpt) \| [mindir]() |
 </div>
 
 ### 使用自定义数据集进行训练
