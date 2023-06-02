@@ -34,7 +34,8 @@ The overall architecture of PSENet is presented in Figure 1. It consists of mult
 
 #### Notes：
 - Context：Training context denoted as {device}x{pieces}-{MS version}{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
-- The training time of PSENet is highly affected by data processing and varies on different machines。
+- The training time of PSENet is highly affected by data processing and varies on different machines.
+- The input_shape for exported MindIR in the link is `(1,3,1472,2624)`.
 
 ## 3. Quick Start
 
@@ -152,44 +153,47 @@ python tools/eval.py --config configs/det/psenet/pse_r152_icdar15.yaml
 
 ### 3.6 MindSpore Lite Inference
 
-Before inference, please ensure that the post-processing part of PSENet has been compiled (refer to the post-processing part of the training chapter), and complete [Inference Environment Installation](../../../docs/en/inference/environment_en.md ). After completing the above steps, please download the [MindIR model](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir) file or use the following command to export the trained ckpt model to MindIR file: 
+Please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial_en.md) for model inference based on MindSpot Lite on Ascend 310, including the following steps:
 
-``` shell
-python tools/export.py --model_name psenet_resnet152 --data_shape 1472 2624 --local_ckpt_path /path/to/local_ckpt.ckpt
-```
-Use the converter_lite tool to convert this MindIR file to a MindIR model supported by MindSpore Lite:
+- Model Export
+
+Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../README.md) tutorial and use the following command to export the trained ckpt model to  MindIR file:
+
 ```shell
-converter_lite \
-    --saveType=MINDIR \
-    --NoFusion=false \
-    --fmk=MINDIR \
-    --device=Ascend \
-    --modelFile=psenet_resnet152.mindir \
-    --outputFile=output \
-    --configFile=config.txt
+python tools/export.py --model_name psenet_resnet152 --data_shape 1472 2624 --local_ckpt_path /path/to/local_ckpt.ckpt
+# or
+python tools/export.py --model_name configs/det/psenet/pse_r152_icdar15.yaml --data_shape 1472 2624 --local_ckpt_path /path/to/local_ckpt.ckpt
 ```
-The above command will generate output.om and output.mindir model files. The config.txt file is configured as follows:
-```
- [ascend_context]
- input_format=NCHW
- input_shape=x:[1,3,1472,2624]
-```
-After exporting the output.mindir file, use the following commands in the /mindocr/deploy/py_infer directory to perform inference and evaluation:
+
+The `data_shape` is the model input shape of height and width for MindIR file. The shape value of MindIR in the download link can be found in [Notes](#notes).
+
+- Environment Installation
+
+Please refer to [Environment Installation](../../../docs/en/inference/environment_en.md#2-mindspore-lite-inference) tutorial to configure the MindSpore Lite inference environment.
+
+- Model Conversion
+
+Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial_en.md#1-mindocr-models),
+and use the `converter_lite` tool for offline conversion of the MindIR file, where the `input_shape` in `configFile` needs to be filled in with the value from MindIR export,
+as mentioned above (1, 3, 1472, 2624), and the format is NCHW.
+
+- Inference
+
+Before inference, please ensure that the post-processing part of PSENet has been compiled (refer to the post-processing part of the [Training](#34-training) chapter).
+
+Assuming that you obtain output.mindir after model conversion, go to the `deploy/py_infer` directory, and use the following command for inference:
+
 ```shell
 python infer.py \
     --input_images_dir=/your_path_to/test_images \
     --device=Ascend \
-    --device_id=your_device_id \
-    --parallel_num=2 \
-    --precision_mode=fp32 \
+    --device_id=0 \
     --det_model_path=your_path_to/output.mindir \
-    --det_model_name=en_ms_det_psenet_resnet152 \
+    --det_config_path=../../configs/det/psenet/pse_r152_icdar15.yaml \
     --backend=lite \
-    --save_log_dir=your_logs_dir \
-    --res_save_dir=your_prediction_result_dir
-
-python ../eval_utils/eval_det.py --gt_path=/your_path_to/det_gt.txt --pred_path=your_prediction_result_dir/det_results.txt
+    --res_save_dir=results_dir
 ```
+
 ## References
 
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
