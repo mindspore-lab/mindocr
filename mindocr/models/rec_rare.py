@@ -66,7 +66,7 @@ def rare_resnet34_ch(pretrained=False, **kwargs):
         },
         "neck": {
             "name": 'RNNEncoder',
-            "hidden_size": 256,
+            "hidden_size": 64,
         },
         "head": {
             "name": 'AttentionHead',
