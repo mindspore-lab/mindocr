@@ -100,7 +100,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '--amp_level',
         type=str,
-        default="O0",
+        required=True,
+        choices=['O0', 'O1', 'O2', 'O3'],
         help='AMP Level for the network to be exported.')
 
     args = parser.parse_args()

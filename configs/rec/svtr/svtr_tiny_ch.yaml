@@ -116,7 +116,7 @@ train:
           lower: False
       - Rotate90IfVertical:
           threshold: 2.0
-          direction: anti_clockwise
+          direction: counterclockwise
       - SVTRRecResizeImg:
           image_shape: [32, 320]
           padding: True
@@ -158,7 +158,7 @@ eval:
           lower: False
       - Rotate90IfVertical:
           threshold: 2.0
-          direction: anti_clockwise
+          direction: counterclockwise
       - SVTRRecResizeImg:
           image_shape: [32, 320] # H, W
           padding: True

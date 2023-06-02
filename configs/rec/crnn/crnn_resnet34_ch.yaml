@@ -93,7 +93,7 @@ train:
           lower: False
       - Rotate90IfVertical:
           threshold: 2.0
-          direction: anti_clockwise
+          direction: counterclockwise
       - RecResizeImg:
           image_shape: [32, 320]
           infer_mode: *infer_mode
@@ -137,7 +137,7 @@ eval:
           lower: False
       - Rotate90IfVertical:
           threshold: 2.0
-          direction: anti_clockwise
+          direction: counterclockwise
       - RecResizeImg:
           image_shape: [32, 320]
           infer_mode: *infer_mode

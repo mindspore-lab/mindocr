@@ -403,10 +403,10 @@ class RecResizeNormForInfer(object):
 class Rotate90IfVertical:
     """Rotate the image by 90 degree when the height/width ratio is larger than the given threshold.
     Note: It needs to be called before image resize."""
-    def __init__(self, threshold: float = 2.0, direction: str = 'anti_clockwise',  **kwargs):
+    def __init__(self, threshold: float = 1.5, direction: str = 'counterclockwise',  **kwargs):
         self.threshold = threshold
 
-        if direction == 'anti_clockwise':
+        if direction == 'counterclockwise':
             self.flag = cv2.ROTATE_90_COUNTERCLOCKWISE
         elif direction == 'clockwise':
             self.flag = cv2.ROTATE_90_CLOCKWISE

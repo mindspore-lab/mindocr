@@ -13,6 +13,7 @@ def _cfg(url="", input_size=(3, 32, 100), **kwargs):
 default_cfgs = {
     "svtr_tiny": _cfg(
         url="https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb.ckpt",
+        input_size=(3, 64, 256),
     ),
     "svtr_tiny_ch": _cfg(
         url="https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4.ckpt",

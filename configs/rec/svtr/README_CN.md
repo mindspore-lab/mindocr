@@ -38,7 +38,7 @@ Table Format:
 
 | **模型** | **环境配置** | **平均准确率** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** | 
 | :-----: | :-----:  | :-----: | :-----: | :-----: |:--------: | :-----: |
-| SVTR-Tiny      | D910x4-MS1.10-G | 89.02%    | 4866 s/epoch        | 2968 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb-d5389653.mindir) |
+| SVTR-Tiny      | D910x4-MS1.10-G | 89.02%    | 4866 s/epoch        | 2968 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb.ckpt) \| [mindir]() |
 </div>
 
 <details open>
