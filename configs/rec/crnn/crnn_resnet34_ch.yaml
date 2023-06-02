@@ -2,6 +2,7 @@ system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
   distribute: True
   amp_level: O2
+  amp_level_infer: O2 # running inference in O2 mode
   seed: 42
   log_interval: 100
   val_while_train: True
