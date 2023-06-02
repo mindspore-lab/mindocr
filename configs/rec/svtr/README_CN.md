@@ -38,7 +38,7 @@ Table Format:
 
 | **模型** | **环境配置** | **平均准确率** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** | 
 | :-----: | :-----:  | :-----: | :-----: | :-----: |:--------: | :-----: |
-| SVTR-Tiny      | D910x4-MS1.10-G | 89.02%    | 4866 s/epoch        | 2968 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb-d5389653.mindir) |
+| SVTR-Tiny      | D910x4-MS1.10-G | 89.02%    | 4866 s/epoch        | 2968 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb.ckpt) \| [mindir]() |
 </div>
 
 <details open>
@@ -323,6 +323,37 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 **注意：**
 - 您可以通过将配置文件中的参数 `use_space_char` 设置为 True 来包含空格字符。
 - 请记住检查配置文件中的 `dataset->transform_pipeline->RecAttnLabelEncode->lower` 参数的值。如果词典中有大小写字母而且想区分大小写的话，请将其设置为 False。
+
+## 5. 中文识别模型训练
+
+目前，SVTR模型支持中英文字识别并提供相应的预训练权重。详细内容如下
+
+### 中文数据集准备及配置
+
+我们采用公开的中文基准数据集[Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition)进行SVTR模型的训练和验证。
+
+详细的数据准备和config文件配置方式, 请参考 [中文识别数据集准备](../../../docs/cn/datasets/chinese_text_recognition_CN.md) 
+
+### 模型训练验证
+
+准备好数据集和配置文件后，执行以下命令开启多卡训练
+
+```shell
+mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/svtr/svtr_tiny_ch.yaml
+```
+
+### 评估结果和预训练权重
+模型训练完成后，在测试集不同场景上的准确率评估结果如下。相应的模型配置和预训练权重可通过表中链接下载。
+
+<div align="center">
+
+| **模型** | **语种** | **环境配置** | **街景类** | **网页类** | **文档类** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** | 
+| :-----: | :-----:  | :-------:  | :--------: | :--------: | :--------: | :---------: |:--------: | :---------: | :-----------: |
+| SVTR-Tiny    | 中文 | D910x4-MS1.10-G | 65.93% | 69.64% | 98.01% | 647 s/epoch | 1580 | [svtr_tiny_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4.ckpt) \| [mindir]() |
+</div>
+
+### 使用自定义数据集进行训练
+您可以在自定义的数据集基于提供的预训练权重进行微调训练, 以在特定场景获得更高的识别准确率，具体步骤请参考文档 [使用自定义数据集训练识别网络](../../../docs/cn/tutorials/training_recognition_custom_dataset_CN.md)。
 
 ## 参考文献
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->

@@ -367,7 +367,7 @@ For detailed instruction of data preparation and yaml configuration, please refe
 To train with the prepared datsets and config file, please run:
 
 ```shell
-mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/crnn_resnet34_ch.yaml
+mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/crnn/crnn_resnet34_ch.yaml
 ```
 
 ### Results and Pretrained Weights
@@ -376,9 +376,9 @@ After training, evaluation results on the benchmark test set are as follows, whe
 
 <div align="center">
 
-| **Model** | **Language** | **Backbone** | **Scene** | **Web** | **Document** | **Recipe** | **Download** | 
-| :-----: | :-----:  | :--------: | :--------: | :--------: | :--------: | :---------: | :-----------: |
-| CRNN    | Chinese | ResNet34_vd | 59.71% | 64.86% | 89.23% |  [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3-f27f763a.mindir) |
+| **Model** | **Language** | **Context**  |**Backbone** | **Scene** | **Web** | **Document** | **Train T.** | **FPS** | **Recipe** | **Download** | 
+| :-----: | :-----:  | :--------: | :--------: | :--------: | :--------: | :--------: | :---------: | :--------: | :---------: | :-----------: |
+| CRNN    | Chinese | D910x4-MS1.10-G | ResNet34_vd | 60.45% | 65.95% | 97.68% | 647 s/epoch | 1180 | [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-7a342e3c.ckpt) \| [mindir]() |
 </div>
 
 ### Training with Custom Datasets

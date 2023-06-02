@@ -1,34 +1,36 @@
 system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
   distribute: True
-  amp_level: "O2"
+  amp_level: O2
+  amp_level_infer: O2 # running inference in O2 mode
   seed: 42
   log_interval: 100
   val_while_train: True
   drop_overflow_update: False
+  ckpt_max_keep: 5
 
 common:
   character_dict_path: &character_dict_path mindocr/utils/dict/ch_dict.txt
   num_classes: &num_classes 6625 # num_chars_in_dict + 2
-  max_text_len: &max_text_len 25
+  max_text_len: &max_text_len 40
   infer_mode: &infer_mode False
   use_space_char: &use_space_char False
-  batch_size: &batch_size 512
+  batch_size: &batch_size 256
 
 model:
   type: rec
   transform: null
   backbone:
     name: rec_resnet34
-    pretrained: https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt
-    remove_prefix: True # remove the prefix "backbone." from the ckpt
+    pretrained: False
   neck:
     name: RNNEncoder
-    hidden_size: 256
+    hidden_size: 64
   head:
     name: AttentionHead
     hidden_size: 256
     out_channels: *num_classes
+    batch_max_length: *max_text_len
 
 postprocess:
   name: RecAttnLabelDecode
@@ -38,6 +40,7 @@ postprocess:
 metric:
   name: RecMetric
   main_indicator: acc
+  lower: False
   character_dict_path: *character_dict_path
   ignore_space: True
   print_flag: False
@@ -47,11 +50,11 @@ loss:
 
 scheduler:
   scheduler: warmup_cosine_decay
-  min_lr: 0.0
-  lr: 0.0005
+  min_lr: 0.00001
+  lr: 0.001
   num_epochs: 60
-  warmup_epochs: 3
-  decay_epochs: 57
+  warmup_epochs: 6
+  decay_epochs: 54
 
 optimizer:
   opt: adamw
@@ -65,17 +68,19 @@ loss_scaler:
   scale_window: 1000
 
 train:
-  ckpt_save_dir: "./tmp_rec"
+  ckpt_save_dir: ./tmp_rec
   dataset_sink_mode: False
-  ema: True
-  ema_decay: 0.99999
+  clip_grad: True
+  clip_norm: 0.1
   dataset:
     type: LMDBDataset
-    dataset_root: path/to/data_lmdb_release/
-    data_dir: ch_benchmark/training/
+    dataset_root: path/to/chinese_text_recognition/
+    data_dir: training/
     label_file: null
     sample_ratio: 1.0
     shuffle: True
+    filter_max_len: True
+    max_text_len: *max_text_len
     transform_pipeline:
       - DecodeImage:
           img_mode: BGR
@@ -84,36 +89,39 @@ train:
           max_text_len: *max_text_len
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
-          lower: True
-      - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize.
-          image_shape: [32, 320] # H, W
+          lower: False
+      - Rotate90IfVertical:
+          threshold: 2.0
+          direction: counterclockwise
+      - RecResizeImg:
+          image_shape: [32, 320]
           infer_mode: *infer_mode
           character_dict_path: *character_dict_path
-          padding: False # aspect ratio will be preserved if true.
-      - NormalizeImage: # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec.
+          padding: True
+      - NormalizeImage:
           bgr_to_rgb: True
           is_hwc: True
           mean: [127.0, 127.0, 127.0]
           std: [127.0, 127.0, 127.0]
       - ToCHWImage:
     output_columns: ["image", "text_seq"]
-    net_input_column_index: [0, 1] # input indices for network forward func in output_columns
-    label_column_index: [1] # input indices marked as label
+    net_input_column_index: [0, 1]
+    label_column_index: [1]
 
   loader:
-    shuffle: True # TODO: tbc
+    shuffle: True
     batch_size: *batch_size
     drop_remainder: True
     max_rowsize: 12
     num_workers: 1
 
 eval:
-  ckpt_load_path: "./tmp_rec/best.ckpt"
+  ckpt_load_path: ./tmp_rec/best.ckpt
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
-    dataset_root: path/to/data_lmdb_release/
-    data_dir: ch_benchmark/validation/
+    dataset_root: path/to/chinese_text_recognition/
+    data_dir: validation/
     label_file: null
     sample_ratio: 1.0
     shuffle: False
@@ -125,26 +133,28 @@ eval:
           max_text_len: *max_text_len
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
-          lower: True
-      - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize.
-          image_shape: [32, 320] # H, W
+          lower: False
+      - Rotate90IfVertical:
+          threshold: 2.0
+          direction: counterclockwise
+      - RecResizeImg:
+          image_shape: [32, 320]
           infer_mode: *infer_mode
           character_dict_path: *character_dict_path
-          padding: False # aspect ratio will be preserved if true.
-      - NormalizeImage: # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec.
+          padding: True
+      - NormalizeImage:
           bgr_to_rgb: True
           is_hwc: True
           mean: [127.0, 127.0, 127.0]
           std: [127.0, 127.0, 127.0]
       - ToCHWImage:
-    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
     output_columns: ["image", "text_padded", "text_length"]
-    net_input_column_index: [0] # input indices for network forward func in output_columns
-    label_column_index: [1, 2] # input indices marked as label
+    net_input_column_index: [0]
+    label_column_index: [1, 2]
 
   loader:
     shuffle: False
-    batch_size: 512
+    batch_size: 64
     drop_remainder: False
     max_rowsize: 12
     num_workers: 1

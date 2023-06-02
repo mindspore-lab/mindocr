@@ -34,7 +34,7 @@ from mindocr import list_models, build_model
 import numpy as np
 
 
-def export(name_or_config, data_shape, local_ckpt_path="", save_dir=""):
+def export(name_or_config, data_shape, local_ckpt_path="", save_dir="", amp_level="O0"):
     ms.set_context(mode=ms.GRAPH_MODE) #, device_target='Ascend')
 
     if name_or_config.endswith('.yml') or name_or_config.endswith('.yaml'):
@@ -50,6 +50,10 @@ def export(name_or_config, data_shape, local_ckpt_path="", save_dir=""):
         net = build_model(model_cfg, pretrained=False, ckpt_load_path=local_ckpt_path)
     else:
         net = build_model(model_cfg, pretrained=True)
+
+    if amp_level in ["O1", "O2", "O3"]:
+        print(f"Set the AMP level of the model to be `{amp_level}`.")
+        net = ms.amp.auto_mixed_precision(net, amp_level=amp_level)
 
     net.set_train(False)
 
@@ -75,15 +79,12 @@ if __name__ == '__main__':
     parser.add_argument(
         '--model_name',
         type=str,
-        default="",
         required=True,
-        #choices=list_models(),
         help=f'Name of the model to be converted or the path to model YAML config file. Available choices for names: {list_models()}.')
     parser.add_argument(
         '--data_shape',
         type=int,
         nargs=2,
-        default="",
         required=True,
         help=f'The data shape [H, W] for exporting mindir files. It is recommended to be the same as the rescaled data shape in evaluation to get the best inference performance.')
     parser.add_argument(
@@ -96,8 +97,14 @@ if __name__ == '__main__':
         type=str,
         default="",
         help='Directory to save the exported mindir file.')
+    parser.add_argument(
+        '--amp_level',
+        type=str,
+        required=True,
+        choices=['O0', 'O1', 'O2', 'O3'],
+        help='AMP Level for the network to be exported.')
 
     args = parser.parse_args()
     check_args(args)
 
-    export(args.model_name, args.data_shape, args.local_ckpt_path, args.save_dir)
+    export(args.model_name, args.data_shape, args.local_ckpt_path, args.save_dir, amp_level=args.amp_level)

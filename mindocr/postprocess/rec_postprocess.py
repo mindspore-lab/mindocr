@@ -104,6 +104,9 @@ class RecCTCLabelDecode(object):
             if len(conf_list) == 0:
                 conf_list = [0]
 
+            if self.lower:
+                char_list = [x.lower() for x in char_list]
+
             text = ''.join(char_list)
 
             #result_list.append((text, np.mean(conf_list).tolist()))
@@ -143,8 +146,7 @@ class RecCTCLabelDecode(object):
 
 
 class RecAttnLabelDecode:
-    def __init__(self, 
-                 max_text_len: int = 25,
+    def __init__(self,
                  character_dict_path: Optional[str] = None,
                  use_space_char: bool = False,
                  lower: bool = False
@@ -153,7 +155,6 @@ class RecAttnLabelDecode:
         Convert text label (str) to a sequence of character indices according to the char dictionary
 
         Args:
-            max_text_len: to pad the label text to a fixed length (max_text_len) of text for attn loss computate.
             character_dict_path: path to dictionary, if None, a dictionary containing 36 chars (i.e., "0123456789abcdefghijklmnopqrstuvwxyz") will be used.
             use_space_char(bool): if True, add space char to the dict to recognize the space in between two words
             lower (bool): if True, all upper-case chars in the label text will be converted to lower case. Set to be True if dictionary only contains lower-case chars. Set to be False if not and want to recognition both upper-case and lower-case.
@@ -164,7 +165,6 @@ class RecAttnLabelDecode:
             num_valid_chars: the number of valid characters (including space char if used) in the dictionary
             num_classes: the number of classes (which valid characters char and the speical token for blank padding). so num_classes = num_valid_chars + 1
         """
-        self.max_text_len = max_text_len
         self.lower = lower
 
         # read dict
@@ -208,8 +208,12 @@ class RecAttnLabelDecode:
     
         batch_size = len(char_indices)
         for batch_idx in range(batch_size):
-            text = [self.character[i] for i in char_indices[batch_idx]]
-            text = ''.join(text)
+            char_list = [self.character[i] for i in char_indices[batch_idx]]
+
+            if self.lower:
+                char_list = [x.lower() for x in char_list]
+
+            text = ''.join(char_list)
 
             pred_EOS = text.find('<STOP>')
 
