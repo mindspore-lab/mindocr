@@ -383,7 +383,7 @@ class RecResizeNormForInfer(object):
 
         # TODO: norm before padding
 
-        data['shape_list'] = np.array([h, w, resize_h / h, resize_w / w])   # TODO: reformat, currently align to det
+        data['shape_list'] = np.array([h, w, resize_h / h, resize_w / w], dtype=np.float32)    # TODO: reformat, currently align to det
         if self.norm_before_pad:
             resized_img = self.norm(resized_img) 
 
