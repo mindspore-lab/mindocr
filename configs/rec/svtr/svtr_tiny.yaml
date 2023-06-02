@@ -104,6 +104,7 @@ train:
     type: LMDBDataset
     dataset_root: path/to/data_lmdb_release/
     data_dir: training/
+    label_file: null
     sample_ratio: 1.0
     shuffle: True
     transform_pipeline:
@@ -144,6 +145,7 @@ eval:
     type: LMDBDataset
     dataset_root: path/to/data_lmdb_release/
     data_dir: validation/
+    label_file: null
     sample_ratio: 1.0
     shuffle: False
     transform_pipeline:

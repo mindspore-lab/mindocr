@@ -28,6 +28,7 @@ model:
     name: AttentionHead
     hidden_size: 256
     out_channels: *num_classes
+    batch_max_length: *max_text_len
 
 postprocess:
   name: RecAttnLabelDecode

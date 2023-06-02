@@ -37,6 +37,7 @@ postprocess:
 metric:
   name: RecMetric
   main_indicator: acc
+  lower: False
   character_dict_path: *character_dict_path
   ignore_space: True
   print_flag: False
@@ -75,6 +76,7 @@ train:
     type: LMDBDataset
     dataset_root: path/to/chinese_text_recognition/
     data_dir: training/
+    label_file: null
     sample_ratio: 1.0
     shuffle: True
     filter_max_len: True
@@ -87,7 +89,7 @@ train:
           max_text_len: *max_text_len
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
-          lower: True
+          lower: False
       - Rotate90IfVertical:
           threshold: 2.0
           direction: anti_clockwise
@@ -120,6 +122,7 @@ eval:
     type: LMDBDataset
     dataset_root: path/to/chinese_text_recognition/
     data_dir: validation/
+    label_file: null
     sample_ratio: 1.0
     shuffle: False
     transform_pipeline:
@@ -130,7 +133,7 @@ eval:
           max_text_len: *max_text_len
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
-          lower: True
+          lower: False
       - Rotate90IfVertical:
           threshold: 2.0
           direction: anti_clockwise
