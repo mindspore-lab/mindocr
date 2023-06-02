@@ -34,7 +34,7 @@ from mindocr import list_models, build_model
 import numpy as np
 
 
-def export(name_or_config, data_shape, local_ckpt_path="", save_dir="", amp_level="O2"):
+def export(name_or_config, data_shape, local_ckpt_path="", save_dir="", amp_level="O0"):
     ms.set_context(mode=ms.GRAPH_MODE) #, device_target='Ascend')
 
     if name_or_config.endswith('.yml') or name_or_config.endswith('.yaml'):
