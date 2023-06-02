@@ -13,3 +13,4 @@ PyYAML>=6.0
 xml-python>=0.4.3
 packaging
 Cython
+lanms>=1.0.2

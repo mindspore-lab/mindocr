@@ -29,6 +29,7 @@ from mindocr.utils.logger import get_logger
 from mindocr.utils.model_wrapper import NetWithLossWrapper
 from mindocr.utils.train_step_wrapper import TrainOneStepWrapper
 from mindocr.utils.callbacks import EvalSaveCallback
+from mindocr.utils.checkpoint import resume_train_network
 from mindocr.utils.seed import set_seed
 from mindocr.utils.loss_scaler import get_loss_scales
 from mindocr.utils.ema import EMA
@@ -107,6 +108,17 @@ def main(cfg):
     params = create_group_params(network.trainable_params(), **cfg.optimizer)
     optimizer = create_optimizer(params, **cfg.optimizer)
 
+    # resume ckpt
+    start_epoch = 0
+    if cfg.model.resume:
+        resume_ckpt = os.path.join(cfg.train.ckpt_save_dir, "train_resume.ckpt") if isinstance(cfg.model.resume,
+                                                                                               bool) else cfg.model.resume
+        start_epoch, loss_scale, cur_iter, last_overflow_iter = resume_train_network(network, optimizer, resume_ckpt)
+        loss_scale_manager.loss_scale_value = loss_scale
+        if cfg.loss_scaler.type == "dynamic":
+            loss_scale_manager.cur_iter = cur_iter
+            loss_scale_manager.last_overflow_iter = last_overflow_iter
+
     # build train step cell
     gradient_accumulation_steps = cfg.train.get("gradient_accumulation_steps", 1)
     clip_grad = cfg.train.get("clip_grad", False)
@@ -159,6 +171,7 @@ def main(cfg):
         log_interval=cfg.system.get("log_interval", 100),
         ckpt_save_policy=cfg.system.get("ckpt_save_policy", "top_k"),
         ckpt_max_keep=cfg.system.get("ckpt_max_keep", 10),
+        start_epoch=start_epoch,
     )
 
     # log
@@ -211,6 +224,7 @@ def main(cfg):
         loader_train,
         callbacks=[eval_cb],
         dataset_sink_mode=cfg.train.dataset_sink_mode,
+        initial_epoch=start_epoch,
     )
 
 

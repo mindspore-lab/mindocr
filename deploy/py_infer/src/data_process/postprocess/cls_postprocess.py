@@ -6,6 +6,9 @@ class ClsPostprocess(object):
         self.label_list = label_list
 
     def __call__(self, preds):
+        if isinstance(preds, (tuple, list)):
+            preds = preds[0]
+
         label_list = self.label_list
         if label_list is None:
             label_list = {idx: idx for idx in range(preds.shape[-1])}

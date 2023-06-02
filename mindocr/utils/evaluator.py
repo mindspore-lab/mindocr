@@ -1,18 +1,11 @@
-import os
-import time
-from tqdm import tqdm
 from typing import List
-from packaging import version
 
+from tqdm import tqdm
 import mindspore as ms
 from mindspore.ops import functional as F
 from mindspore.common import dtype as mstype
-from mindspore import save_checkpoint
-from mindspore.train.callback._callback import Callback, _handle_loss
-from .checkpoint import CheckpointManager
+
 from .visualize import draw_boxes, show_imgs, recover_image
-from .recorder import PerfRecorder
-from .misc import AverageMeter
 
 __all__ = ["Evaluator"]
 
@@ -25,28 +18,28 @@ class Evaluator:
         loss_fn: loss function
         postprocessor: post-processor
         metrics: metrics to evaluate network performance
-        pred_cast_fp32: whehter to cast network prediction to float 32. Set True if AMP is used.
+        pred_cast_fp32: whether to cast network prediction to float 32. Set True if AMP is used.
         input_indices: The indices of the data tuples which will be fed into the network. If it is None, then the first item will be fed only.
         label_indices: The indices of the data tuples which will be marked as label. If it is None, then the remaining items will be marked as label.
-        meta_data_indices: The indices for the data tuples which will be marked as meta data. If it is None, then the item indices not in input or label indices are marked as meta data.
+        meta_data_indices: The indices for the data tuples which will be marked as metadata. If it is None, then the item indices not in input or label indices are marked as meta data.
     """
 
     def __init__(
-        self,
-        network,
-        dataloader,
-        loss_fn=None,
-        postprocessor=None,
-        metrics=None,
-        pred_cast_fp32=False,
-        loader_output_columns=[],
-        input_indices=None,
-        label_indices=None,
-        meta_data_indices=None,
-        num_epochs=-1,
-        visualize=False,
-        verbose=False,
-        **kwargs,
+            self,
+            network,
+            dataloader,
+            loss_fn=None,
+            postprocessor=None,
+            metrics=None,
+            pred_cast_fp32=False,
+            loader_output_columns=None,
+            input_indices=None,
+            label_indices=None,
+            meta_data_indices=None,
+            num_epochs=-1,
+            visualize=False,
+            verbose=False,
+            **kwargs,
     ):
         self.net = network
         self.postprocessor = postprocessor
@@ -65,7 +58,7 @@ class Evaluator:
         if loss_fn is not None:
             eval_loss = True
             self.loss_fn = loss_fn
-        assert eval_loss == False, "not impl"
+        assert not eval_loss, "not impl"
 
         # create iterator
         self.reload(
@@ -78,13 +71,13 @@ class Evaluator:
         )
 
     def reload(
-        self,
-        dataloader,
-        loader_output_columns=[],
-        input_indices=None,
-        label_indices=None,
-        meta_data_indices=None,
-        num_epochs=-1,
+            self,
+            dataloader,
+            loader_output_columns=None,
+            input_indices=None,
+            label_indices=None,
+            meta_data_indices=None,
+            num_epochs=-1,
     ):
         # create iterator
         self.iterator = dataloader.create_tuple_iterator(
@@ -93,7 +86,7 @@ class Evaluator:
         self.num_batches_eval = dataloader.get_dataset_size()
 
         # dataset output columns
-        self.loader_output_columns = loader_output_columns
+        self.loader_output_columns = loader_output_columns or []
         self.input_indices = input_indices
         self.label_indices = label_indices
         self.meta_data_indices = meta_data_indices
@@ -119,13 +112,13 @@ class Evaluator:
             else:
                 gt = data[1:]
 
-            net_preds = self.net(*inputs)
+            preds = self.net(*inputs)
 
             if self.pred_cast_fp32:
-                if isinstance(net_preds, ms.Tensor):
-                    net_preds = F.cast(net_preds, mstype.float32)
+                if isinstance(preds, ms.Tensor):
+                    preds = F.cast(preds, mstype.float32)
                 else:
-                    net_preds = [F.cast(p, mstype.float32) for p in net_preds]
+                    preds = [F.cast(p, mstype.float32) for p in preds]
 
             data_info = {"labels": gt, "img_shape": inputs[0].shape}
 
@@ -150,8 +143,9 @@ class Evaluator:
                     )
                     meta_info = [data[x] for x in meta_data_indices]
 
-                # data_info = {'labels': gt, 'img_shape': inputs[0].shape}
-                # NOTES: add more if new postprocess moduels need new keys. shape_list is commonly needed by detection
+                data_info['meta_info'] = meta_info
+
+                # NOTES: add more if new postprocess modules need new keys. shape_list is commonly needed by detection
                 possible_keys_for_postprocess = ["shape_list", "raw_img_shape"]
                 # TODO: remove raw_img_shape (used in tools/infer/text/parallel). shape_list = [h, w, ratio_h, ratio_w] already contain raw image shape.
                 data_info = {}
@@ -159,7 +153,7 @@ class Evaluator:
                     if k in self.loader_output_columns:
                         data_info[k] = data[self.loader_output_columns.index(k)]
 
-                preds = self.postprocessor(net_preds, **data_info)
+                preds = self.postprocessor(preds, **data_info)
 
             # metric internal update
             for m in self.metrics:
@@ -171,19 +165,11 @@ class Evaluator:
 
             if self.visualize:
                 img = img[0].asnumpy()
-                assert ("polys" in preds) or (
-                    "polygons" in preds
-                ), "Only support detection"
+                assert "polys" in preds, "Only detection is currently supported for visualization"
                 gt_img_polys = draw_boxes(recover_image(img), gt[0].asnumpy())
-                pred_img_polys = draw_boxes(
-                    recover_image(img), preds["polygons"].asnumpy()
-                )
-                show_imgs(
-                    [gt_img_polys, pred_img_polys],
-                    is_bgr_img=True,
-                    show=False,
-                    save_path=f"results/det_vis/gt_pred_{i}.png",
-                )
+                pred_img_polys = draw_boxes(recover_image(img), preds["polys"].asnumpy())
+                show_imgs([gt_img_polys, pred_img_polys], is_bgr_img=True, show=False,
+                          save_path=f"results/det_vis/gt_pred_{i}.png")
 
         for m in self.metrics:
             res_dict = m.eval()

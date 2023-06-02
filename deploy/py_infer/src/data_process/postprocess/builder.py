@@ -1,4 +1,6 @@
-from ..utils.process_parser import parse_from_yaml
+import yaml
+
+from . import postprocess_mapping
 
 __all__ = ["build_postprocess"]
 
@@ -13,7 +15,20 @@ class Postprocessor:
         return self._ops_func(*args, **kwargs)
 
 
+def parse_postprocess_from_yaml(config_path):
+    with open(config_path) as fp:
+        cfg = yaml.safe_load(fp)
+
+    ops_params = cfg['postprocess']
+
+    ops_node = postprocess_mapping.POSTPROCESS_MAPPING_OPS[ops_params["name"]]
+    ops_params.pop("name")
+    ops = {ops_node: ops_params}
+
+    return ops
+
+
 def build_postprocess(config_path, **kwargs):
-    _, tasks = parse_from_yaml(config_path)
+    tasks = parse_postprocess_from_yaml(config_path)
     processor = Postprocessor(tasks, **kwargs)
     return processor

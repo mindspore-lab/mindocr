@@ -109,6 +109,7 @@ class RecMetric(nn.Metric):
 
             if self.lower: # convert to lower case
                 label = label.lower()
+                pred = pred.lower()
 
             if self.filter_ood: # filter out of dictionary characters
                 label = ''.join([c for c in label if c in self.dict])

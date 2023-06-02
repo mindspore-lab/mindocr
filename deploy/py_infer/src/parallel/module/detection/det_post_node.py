@@ -20,8 +20,8 @@ class DetPostNode(ModuleBase):
             self.send_to_next_module(input_data)
             return
 
-        input = input_data.output
-        boxes = self.text_detector.postprocess(input["pred"], input["shape"])
+        data = input_data.data
+        boxes = self.text_detector.postprocess(data["pred"], data["shape_list"])
 
         infer_res_list = []
         for box in boxes:
@@ -39,7 +39,7 @@ class DetPostNode(ModuleBase):
                 sub_image_list.append(sub_image)
             input_data.sub_image_list = sub_image_list
 
-        input_data.output = None
+        input_data.data = None
 
         if not (self.args.save_crop_res_dir
                 or self.args.save_vis_det_save_dir

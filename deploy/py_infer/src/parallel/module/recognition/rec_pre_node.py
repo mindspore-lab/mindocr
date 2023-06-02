@@ -32,12 +32,12 @@ class RecPreNode(ModuleBase):
             self.process_with_det_rec(input_data)
 
     def process_with_single_rec(self, input_data):
-        inputs = [input_data.frame]
-        _, split_outputs = self.text_recognizer.preprocess(inputs)
+        images = [input_data.frame]
+        _, split_data = self.text_recognizer.preprocess(images)
 
         send_data = ProcessData(sub_image_size=1,
                                 image_path=input_data.image_path, image_total=input_data.image_total,
-                                input=split_outputs[0], frame=input_data.frame,
+                                data=split_data[0], frame=input_data.frame,
                                 sub_image_total=1, image_name=input_data.image_name,
                                 image_id=input_data.image_id)
 
@@ -47,15 +47,15 @@ class RecPreNode(ModuleBase):
         sub_images = input_data.sub_image_list
         sub_results = input_data.infer_result
 
-        split_inputs_bs, split_outputs = self.text_recognizer.preprocess(sub_images)
+        split_sub_bs, split_sub_data = self.text_recognizer.preprocess(sub_images)
 
-        split_sub_images = gear_utils.split_by_size(sub_images, split_inputs_bs)
-        split_sub_results = gear_utils.split_by_size(sub_results, split_inputs_bs)
+        split_sub_images = gear_utils.split_by_size(sub_images, split_sub_bs)
+        split_sub_results = gear_utils.split_by_size(sub_results, split_sub_bs)
 
-        for split_image, split_output, split_result in zip(split_sub_images, split_outputs, split_sub_results):
+        for split_image, split_data, split_result in zip(split_sub_images, split_sub_data, split_sub_results):
             send_data = ProcessData(sub_image_size=len(split_image),
                                     image_path=input_data.image_path, image_total=input_data.image_total,
-                                    infer_result=split_result, input=split_output, frame=input_data.frame,
+                                    infer_result=split_result, data=split_data, frame=input_data.frame,
                                     sub_image_total=input_data.sub_image_total, image_name=input_data.image_name,
                                     image_id=input_data.image_id)
             self.send_to_next_module(send_data)

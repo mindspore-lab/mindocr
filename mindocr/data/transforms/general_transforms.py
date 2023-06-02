@@ -141,7 +141,7 @@ class RandomScale:
     def __init__(self, scale_range: Union[tuple, list], p: float = 0.5, **kwargs):
         self._range = scale_range
         self._p = p
-        self.is_train = kwargs.get('is_train', True)
+        assert kwargs.get('is_train', True), ValueError('RandomScale augmentation must be used for training only')
 
     def __call__(self, data: dict):
         """
@@ -156,10 +156,7 @@ class RandomScale:
             scale = np.random.uniform(*self._range)
             data['image'] = cv2.resize(data['image'], dsize=None, fx=scale, fy=scale)
             if 'polys' in data:
-                if self.is_train:
-                    data['polys'] *= scale
-                else:
-                    raise ValueError('Test time augmentation is not supported for detection currently. RandomScale should only be used for training.')
+                data['polys'] *= scale
 
         return data
 

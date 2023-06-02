@@ -106,7 +106,7 @@ MindOCR提供易用的文本检测识别推理工具，支持CPU/GPU/Ascend 910�
 - [x] [DBNet](configs/det/dbnet/README.md) (AAAI'2020) 
 - [x] [DBNet++](configs/det/dbnet/README.md) (TPAMI'2022)
 - [x] [PSENet](configs/det/psenet/README.md) (CVPR'2019)
-- [ ] [EAST](https://arxiv.org/abs/1704.03155)(CVPR'2017) [coming soon]
+- [x] [EAST](configs/det/east/README.md)(CVPR'2017)
 - [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [coming soon]
 
 </details>
@@ -191,7 +191,7 @@ MindSpore Lite和ACL模型推理的支持列表，请见[MindOCR模型推理支�
 
 ### 许可
 
-本项目遵从[Apache License 2.0](LICENSE.md)开源许可。
+本项目遵从[Apache License 2.0](LICENSE)开源许可。
 
 ### 引用
 

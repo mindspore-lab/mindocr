@@ -1,7 +1,15 @@
-import numpy as np
+import os
+import sys
+
+# add mindocr root path, and import postprocess from mindocr
+mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../.."))
+sys.path.insert(0, mindocr_path)
+
+from mindocr.postprocess import rec_postprocess
 
 
-class RecCTCLabelDecode(object):
+#  TODO: unify RecCTCLabelDecode with with trained side
+class RecCTCLabelDecode(rec_postprocess.RecCTCLabelDecode):
     ''' Convert text label (str) to a sequence of character indices according to the char dictionary
 
     Args:
@@ -22,6 +30,7 @@ class RecCTCLabelDecode(object):
                  use_redundant_space_char=False,
                  blank_at_last=True,
                  lower=False,
+                 **kwargs
                  ):
         self.space_idx = None
         self.lower = lower
@@ -69,37 +78,6 @@ class RecCTCLabelDecode(object):
 
         self.num_classes = len(self.character)
 
-    def decode(self, char_indices, remove_duplicate=False):
-        '''
-        Convert to a squence of char indices to text string
-        Args:
-            char_indices (np.ndarray): in shape [BS, W]
-        Returns:
-            text
-        '''
-
-        """ convert text-index into text-label. """
-        texts = []
-        batch_size = len(char_indices)
-        for batch_idx in range(batch_size):
-            selection = np.ones(len(char_indices[batch_idx]), dtype=bool)
-            if remove_duplicate:
-                selection[1:] = char_indices[batch_idx][1:] != char_indices[
-                                                                   batch_idx][:-1]
-            for ignored_token in self.ignore_indices:
-                selection &= char_indices[batch_idx] != ignored_token
-
-            char_list = [
-                self.character[text_id]
-                for text_id in char_indices[batch_idx][selection]
-            ]
-
-            text = ''.join(char_list)
-
-            texts.append(text)
-
-        return texts
-
     def __call__(self, preds):
         '''
         Args:
@@ -114,6 +92,6 @@ class RecCTCLabelDecode(object):
         else:
             pred_indices = preds
 
-        texts = self.decode(pred_indices, remove_duplicate=True)
+        texts, confs = self.decode(pred_indices, remove_duplicate=True)
 
-        return texts
+        return {'texts': texts, 'confs': confs}

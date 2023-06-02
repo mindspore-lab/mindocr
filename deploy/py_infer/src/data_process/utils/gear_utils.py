@@ -1,4 +1,5 @@
 from bisect import bisect_right
+from typing import Union, Dict, List
 
 import numpy as np
 from math import floor
@@ -33,7 +34,7 @@ def get_matched_gear_bs(image_num: int, bs_list: list):
     return batch_list
 
 
-def padding_to_batch(input: np.ndarray, bs: int):
+def padding_to_batch(input: Union[np.ndarray, Dict], bs: int):
     image = input["image"] if isinstance(input, dict) else input
 
     sample_size, channel, height, width = image.shape
@@ -46,6 +47,13 @@ def padding_to_batch(input: np.ndarray, bs: int):
         output = {**input, "image": output}
 
     return output
+
+
+def get_batch_from_padding(input: Union[np.ndarray, List], batch: int):
+    if batch is not None:
+        input = input[:batch, ...] if isinstance(input, np.ndarray) else [x[:batch, ...] for x in input]
+
+    return input
 
 
 def split_by_size(input: list, size: list):

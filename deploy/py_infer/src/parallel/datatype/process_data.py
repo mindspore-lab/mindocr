@@ -22,8 +22,7 @@ class ProcessData:
     original_height: int = 0
     sub_image_list: list = field(default_factory=lambda: [])
     sub_image_size: int = 0
-    input: Union[np.ndarray, List[np.ndarray], Dict] = None
-    output: Union[np.ndarray, List[np.ndarray], Dict] = None
+    data: Union[np.ndarray, List[np.ndarray], Dict] = None
 
 
 @dataclass

@@ -50,7 +50,8 @@ class PerfRecorder(object):
             save_dir,
             metric_names: List=['loss', 'precision', 'recall', 'hmean', 's/epoch'],
             file_name='result.log',
-            separator='\t'):
+            separator='\t',
+            resume=False):
 
         self.save_dir = save_dir
         self.sep = separator
@@ -59,9 +60,10 @@ class PerfRecorder(object):
             print(f'{save_dir} not exist. Created.')
 
         self.log_txt_fp = os.path.join(save_dir, file_name)
-        result_log = separator.join(['Epoch'] + metric_names)
-        with open(self.log_txt_fp, "w", encoding="utf-8") as fp:
-            fp.write(result_log + '\n')
+        if not resume:
+            result_log = separator.join(['Epoch'] + metric_names)
+            with open(self.log_txt_fp, "w", encoding="utf-8") as fp:
+                fp.write(result_log + '\n')
 
     def add(self, epoch, *measures):
         '''

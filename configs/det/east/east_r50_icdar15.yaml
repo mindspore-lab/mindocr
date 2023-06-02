@@ -1,0 +1,130 @@
+system:
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: True
+  amp_level: 'O0'
+  seed: 17
+  ckpt_save_policy: top_k
+  ckpt_max_keep: 5
+  log_interval: 10
+  val_while_train: True
+  drop_overflow_update: False
+
+model:
+  type: det
+  transform: null
+  backbone:
+    name: det_resnet50
+    pretrained: True
+  neck:
+    name: EASTFPN
+    out_channels: 128
+  head:
+    name: EASTHead
+
+postprocess:
+  name: EASTPostprocess
+  score_thresh: 0.8
+  nms_thresh: 0.2
+
+metric:
+  name: DetMetric
+  main_indicator: f-score
+
+loss:
+  name: EASTLoss
+
+scheduler:
+  scheduler: 'cosine_decay'
+  lr: 0.001
+  min_lr: 0.00001
+  num_epochs: 5000
+  warmup_epochs: 10
+  decay_epochs: 4900
+
+
+optimizer:
+  opt: AdamW
+  beta1: 0.9
+  beta2: 0.999
+  weight_decay: 1.0e-4
+
+# only used for mixed precision training
+loss_scaler:
+  type: dynamic
+  loss_scale: 512
+  scale_factor: 2
+  scale_window: 1000
+
+train:
+  ema: True
+  ckpt_save_dir: './tmp_det'
+  dataset_sink_mode: True
+  dataset:
+    type: DetDataset
+    dataset_root: /data/ocr_datasets
+    data_dir: ic15/det/train/ch4_training_images
+    label_file: ic15/det/train/det_gt.txt
+    sample_ratio: 1.0
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: RGB
+          to_float32: False
+      - DetLabelEncode:
+      - EASTProcessTrain:
+          scale: 0.25
+          length: 512
+      - RandomColorAdjust:
+          brightness: 0.1255  # 32.0 / 255
+          saturation: 0.5
+      - NormalizeImage:
+          bgr_to_rgb: False
+          is_hwc: True
+          mean: imagenet
+          std: imagenet
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visualize
+    output_columns: ['image', 'score_map', 'geo_map', 'training_mask']
+    net_input_column_index: [ 0 ]
+    label_column_index: [ 1, 2, 3 ]
+#    output_columns: ['image'] # for debug op performance
+#    num_columns_to_net: 1 # num inputs for network forward func in output_columns
+
+  loader:
+    shuffle: True
+    batch_size: 20
+    drop_remainder: True
+    num_workers: 8
+
+eval:
+  ckpt_load_path: 'tmp_det/best.ckpt'
+  dataset_sink_mode: False
+  dataset:
+    type: DetDataset
+    dataset_root: /data/ocr_datasets
+    data_dir: ic15/det/test/ch4_test_images
+    label_file: ic15/det/test/det_gt.txt
+    sample_ratio: 1.0
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: RGB
+          to_float32: False
+      - DetLabelEncode:
+      - DetResize:
+          target_size: [720, 1280]
+          force_divisable: False
+      - NormalizeImage:
+          bgr_to_rgb: False
+          is_hwc: True
+          mean: imagenet
+          std: imagenet
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the labels for evaluation
+    output_columns: [ 'image', 'polys', 'ignore_tags', 'shape_list' ]
+    net_input_column_index: [ 0 ] # input indices for network forward func in output_columns
+    label_column_index: [ 1, 2 ] # input indices marked as label
+
+  loader:
+    shuffle: False
+    batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
+    drop_remainder: False
+    num_workers: 1
