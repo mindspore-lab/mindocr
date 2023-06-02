@@ -28,6 +28,6 @@ PADDLEOCR_MODELS = {
     "latin_pp_rec_OCRv3": "rec/ppocr/latin_PP-OCRv3_rec.yaml",                       # latin_PP-OCRv3_rec
     "arabic_pp_rec_OCRv3": "rec/ppocr/arabic_PP-OCRv3_rec.yaml",                     # arabic_PP-OCRv3_rec
     "cyrillic_pp_rec_OCRv3": "rec/ppocr/cyrillic_PP-OCRv3_rec.yaml",                 # cyrillic_PP-OCRv3_rec
-    "devanagari_pp_rec_OCRv3": "rec/ppocr/devanagari_PP-OCRv3_rec.yaml"              # devanagari_PP-OCRv3_rec
-
+    "devanagari_pp_rec_OCRv3": "rec/ppocr/devanagari_PP-OCRv3_rec.yaml",             # devanagari_PP-OCRv3_rec
+    "en_pp_det_PSENet_resnet50vd": "det/ppocr/det_r50_vd_pse.yaml",                  # pse_resnet50_vd
 }
