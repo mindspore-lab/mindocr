@@ -19,7 +19,7 @@ default_cfgs = {
         url="https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt",
     ),
     "rare_resnet34_ch": _cfg(
-        url="https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20.ckpt",
+        url="https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-5f3023e2.ckpt",
         input_size=(3, 32, 320),
     ),
 }
