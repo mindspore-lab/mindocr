@@ -447,7 +447,7 @@ class DetResize(object):
                 data['polys'][:, :, 1] = data['polys'][:, :, 1] * scale_h
                 #print('transform GT polys to: ', data['polys'])
 
-        if 'shape_list' not in data: 
+        if 'shape_list' not in data:
             src_h, src_w = data.get('raw_img_shape', (h, w))
             data['shape_list'] = [src_h, src_w, scale_h, scale_w]
         else:
@@ -503,33 +503,21 @@ class PSEGtDecode(object):
         self.min_shrink_ratio = min_shrink_ratio
         self.min_shortest_edge = min_shortest_edge
 
-    @staticmethod
-    def _dist(point_1, point_2):
-        return np.sqrt(np.sum((point_1 - point_2) ** 2))
-
-    def _perimeter(self, bbox):
-        peri = 0.0
-        for i in range(bbox.shape[0]):
-            peri += self._dist(bbox[i], bbox[(i + 1) % bbox.shape[0]])
-        return peri
-
     def _shrink(self, text_polys, rate, max_shr=20):
         rate = rate * rate
         shrinked_text_polys = []
         for bbox in text_polys:
-            area = Polygon(bbox).area
-            peri = self._perimeter(bbox)
+            poly = Polygon(bbox)
+            area, peri = poly.area, poly.length
 
-            pco = pyclipper.PyclipperOffset()
-            pco.AddPath(bbox, pyclipper.JT_ROUND, pyclipper.ET_CLOSEDPOLYGON)
             offset = min((int)(area * (1 - rate) / (peri + 0.001) + 0.5), max_shr)
-
-            shrinked_bbox = pco.Execute(-offset)  # (N, 2) shape, N maybe larger than or smaller than 4.
+            shrinked_bbox = expand_poly(bbox, -offset, pyclipper.JT_ROUND) # (N, 2) shape, N maybe larger than or smaller than 4.
             if not shrinked_bbox:
                 shrinked_text_polys.append(bbox)
                 continue
 
             shrinked_bbox = np.array(shrinked_bbox)[0]
+            shrinked_bbox = np.array(shrinked_bbox)
             if shrinked_bbox.shape[0] <= 2:
                 shrinked_text_polys.append(bbox)
                 continue
@@ -618,7 +606,6 @@ class ValidatePolygons:
                     poly = poly.exterior
                     poly = poly.coords[::-1] if poly.is_ccw else poly.coords    # sort in clockwise order
                     new_polys.append(np.array(poly[:-1]))
-
                 else:                                       # the polygon is fully outside the image
                     continue
             new_tags.append(ignore)
@@ -627,5 +614,4 @@ class ValidatePolygons:
         data['polys'] = new_polys
         data['texts'] = new_texts
         data['ignore_tags'] = np.array(new_tags)
-
         return data
