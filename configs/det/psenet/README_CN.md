@@ -32,10 +32,19 @@ PSENet的整体架构图如图1所示，包含以下阶段:
 | PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 79.39%     | 84.91%        | 82.06%      | 138 s/epoch   | 7.57 img/s | [yaml](pse_r152_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)
 </div>
 
+### SCUT-CTW1500
+<div align="center">
+
+| **模型**              | **环境配置**       | **骨干网络**      | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间**     | **吞吐量**   | **配置文件**                            | **模型权重下载**                                                                                                                                                                                                |
+|---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-----------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 73.69%     | 74.38%        | 74.04%      | 67 s/epoch   | 14.33 img/s | [yaml](pse_r152_ctw1500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ctw1500-58b1b1ff.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ctw1500-58b1b1ff-b95c7f85.mindir)
+</div>
+
 #### 注释：
 - 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。
 - PSENet的训练时长受数据处理部分超参和不同运行环境的影响非常大。
-- 链接中MindIR导出时的输入Shape为`(1,3,1472,2624)` 。
+- 在ICDAR15数据集上，MindIR导出时的输入Shape为`(1,3,1472,2624)` 。
+- 在SCUT-CTW1500数据集上，MindIR导出时的输入Shape为`(1,3,1024,1024)` 。
 
 ## 3. 快速上手
 
@@ -65,6 +74,26 @@ PSENet的整体架构图如图1所示，包含以下阶段:
     │   ├── img_2.jpg
     │   └── ....jpg
     └── train_det_gt.txt
+```
+
+#### 3.2.2 SCUT-CTW1500 数据集
+
+请从[该网址](https://github.com/Yuliang-Liu/Curve-Text-Detector)下载SCUT-CTW1500数据集，然后参考[数据转换](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README_CN.md)对数据集标注进行格式转换。
+
+完成数据准备工作后，数据的目录结构应该如下所示：
+
+```txt
+ctw1500
+ ├── test_images
+ │   ├── 1001.jpg
+ │   ├── 1002.jpg
+ │   ├── ...
+ ├── train_images
+ │   ├── 0001.jpg
+ │   ├── 0002.jpg
+ │   ├── ...
+ ├── test_det_gt.txt
+ ├── train_det_gt.txt
 ```
 
 ### 3.3 配置说明
