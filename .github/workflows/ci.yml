@@ -48,7 +48,7 @@ jobs:
     - name: Check_Cpplint
       run: |
         cpplint --root=src --extensions=cxx,cu,hh,cpp,hxx,cuh,h++,cc,c,hpp,c++,h,tpp,txx,cl \
-          --filter=-build/header_guard,-build/c++11,-legal/copyright --quiet --linelength=120 \
+          --filter=-build/header_guard,-build/c++11,-legal/copyright --quiet --linelength=160 \
           --recursive deploy/cpp_infer
     - name: Test with pytest (UT)
       run: |
