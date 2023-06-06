@@ -1,29 +1,16 @@
 import os
 import time
-from tqdm import tqdm
-from typing import List
-from packaging import version
 
 import mindspore as ms
-from mindspore.ops import functional as F
-from mindspore.common import dtype as mstype
-from mindspore import save_checkpoint
-from mindspore.train.callback._callback import Callback, _handle_loss
+import numpy as np
+from mindspore import save_checkpoint, Tensor
+from mindspore.train.callback._callback import Callback
 from .checkpoint import CheckpointManager
-from .visualize import draw_boxes, show_imgs, recover_image
 from .recorder import PerfRecorder
 from .misc import AverageMeter
 from .evaluator import Evaluator
 
 __all__ = ["EvalSaveCallback"]
-
-# WARNING: `mindspore.ms_function` will be deprecated and removed in a future version.
-if version.parse(ms.__version__) >= version.parse("2.0.0rc"):
-    from mindspore import jit
-else:
-    from mindspore import ms_function
-
-    jit = ms_function
 
 
 class EvalSaveCallback(Callback):
@@ -101,10 +88,8 @@ class EvalSaveCallback(Callback):
 
         self._loss_avg_meter = AverageMeter()
 
-        self._reduce_sum = ms.ops.AllReduce()
         self._device_num = device_num
-        # lamda expression is not supported in jit
-        self._loss_reduce = self._reduce if device_num is not None else lambda x: x
+        self._loss_reduce = lambda x: x
 
         if self.is_main_device:
             self.ckpt_save_policy = ckpt_save_policy
@@ -116,13 +101,7 @@ class EvalSaveCallback(Callback):
             )
         self.start_epoch = start_epoch
 
-    @jit
-    def _reduce(self, x):
-        return (
-            self._reduce_sum(x) / self._device_num
-        )  # average value across all devices
-
-    def on_train_step_end(self, run_context):
+    def step_end(self, run_context):
         """
         Print training loss at the end of step.
 
@@ -153,7 +132,7 @@ class EvalSaveCallback(Callback):
             self.logger(msg)
             self.step_start_time = time.time()
 
-    def on_train_epoch_begin(self, run_context):
+    def epoch_begin(self, run_context):
         """
         Called before each epoch beginning.
         Args:
@@ -163,7 +142,7 @@ class EvalSaveCallback(Callback):
         self.epoch_start_time = time.time()
         self.step_start_time = time.time()
 
-    def on_train_epoch_end(self, run_context):
+    def epoch_end(self, run_context):
         """
         Called after each training epoch end.
 
@@ -267,7 +246,7 @@ class EvalSaveCallback(Callback):
         tot_time = time.time() - self.last_epoch_end_time
         self.last_epoch_end_time = time.time()
 
-    def on_train_end(self, run_context):
+    def end(self, run_context):
         if self.is_main_device:
             self.rec.save_curves()  # save performance curve figure
             self.logger(
@@ -281,3 +260,13 @@ class EvalSaveCallback(Callback):
                         f"{p:.4f}\t{os.path.join(self.ckpt_save_dir, ckpt_name)}\n"
                     )
                 self.logger(log_str)
+
+
+def _handle_loss(loss):
+    """Handle loss."""
+    if isinstance(loss, (tuple, list)):
+        if isinstance(loss[0], Tensor) and isinstance(loss[0].asnumpy(), np.ndarray):
+            loss = loss[0]
+    elif isinstance(loss, Tensor) and isinstance(loss.asnumpy(), np.ndarray):
+        loss = float(np.mean(loss.asnumpy()))
+    return loss

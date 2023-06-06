@@ -79,7 +79,7 @@ def run_with_single_rank(
 
 @run_with_single_rank(local_rank=LOCAL_RANK, signal="/tmp/INSTALL_SUCCESS")
 def install_packages(req_path: str='requirements.txt') -> None:
-    url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+    url = "https://pypi.doubanio.com/simple/"
     #requirement_txt = os.path.join(project_dir, "requirements.txt")
     print('INFO: Packages to be installed: ', req_path)
     subprocess.check_call(

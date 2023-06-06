@@ -40,6 +40,8 @@ class RNNEncoder(nn.Cell):
             c0 = Tensor(np.zeros([2 * 2, batch_size, hidden_size]).astype(np.float32))
             self.hx = (h0, c0)
 
+        self.squeeze = ops.Squeeze(axis=2)
+
     def construct(self, features):
         """
         Args:
@@ -51,8 +53,7 @@ class RNNEncoder(nn.Cell):
             Tensor: Encoded features . Shape :math:`(W, N, 2*C)` where
         """
         x = features[0]
-        assert x.shape[2]==1, f'Feature height must be 1, but got {x.shape[2]} from x.shape {x.shape}'
-        x = ops.squeeze(x, axis=2) # [N, C, W]
+        x = self.squeeze(x) # [N, C, W]
         x = ops.transpose(x, (2, 0, 1)) # [W, N, C]
 
         if self.hx is None:

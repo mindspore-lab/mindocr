@@ -33,6 +33,7 @@ from mindocr.utils.checkpoint import resume_train_network
 from mindocr.utils.seed import set_seed
 from mindocr.utils.loss_scaler import get_loss_scales
 from mindocr.utils.ema import EMA
+from mindocr.utils.amp import auto_mixed_precision
 
 
 def main(cfg):
@@ -84,7 +85,7 @@ def main(cfg):
     network = build_model(cfg.model, ckpt_load_path=cfg.model.pop("pretrained", None))
 
     amp_level = cfg.system.get("amp_level", "O0")
-    ms.amp.auto_mixed_precision(network, amp_level=amp_level)
+    auto_mixed_precision(network, amp_level=amp_level)
 
     # create loss
     loss_fn = build_loss(cfg.loss.pop("name"), **cfg["loss"])
@@ -224,7 +225,6 @@ def main(cfg):
         loader_train,
         callbacks=[eval_cb],
         dataset_sink_mode=cfg.train.dataset_sink_mode,
-        initial_epoch=start_epoch,
     )
 
 

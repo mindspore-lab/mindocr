@@ -38,9 +38,14 @@ class AttentionHead(nn.Cell):
         self.zero = Tensor(0.0, ms.float32)
 
         self.argmax = ops.Argmax(axis=1)
+        self.one_hot = ops.OneHot()
+        self.softmax = ops.Softmax(axis=2)
+        self.concat = ops.Concat(axis=1)
+        self.expand_dims = ops.ExpandDims()
+        self.stack = ops.Stack(axis=1)
 
     def _char_to_onehot(self, input_char: Tensor, onehot_dim: int) -> Tensor:
-        input_one_hot = ops.one_hot(input_char, onehot_dim, self.one, self.zero)
+        input_one_hot = self.one_hot(input_char, onehot_dim, self.one, self.zero)
         return input_one_hot
 
     def construct(self, inputs: Tensor, targets: Optional[Tensor] = None) -> Tensor:
@@ -57,8 +62,8 @@ class AttentionHead(nn.Cell):
             for i in range(num_steps):
                 char_onehots = self._char_to_onehot(targets[:, i], self.num_classes)
                 hidden, _ = self.attention_cell(hidden, inputs, char_onehots)
-                output_hiddens.append(ops.expand_dims(hidden, axis=1))
-            output = ops.concat(output_hiddens, axis=1)
+                output_hiddens.append(self.expand_dims(hidden, 1))
+            output = self.concat(output_hiddens)
             probs = self.generator(output)
         else:
             # inference branch
@@ -72,8 +77,8 @@ class AttentionHead(nn.Cell):
                 probs.append(probs_step)
                 next_input = self.argmax(probs_step)
                 targets = next_input
-            probs = ops.stack(probs, axis=1)
-            probs = ops.softmax(probs, axis=2)
+            probs = self.stack(probs)
+            probs = self.softmax(probs)
         return probs
 
 
@@ -87,22 +92,26 @@ class AttentionCell(nn.Cell):
         self.hidden_size = hidden_size
 
         self.bmm = ops.BatchMatMul()
+        self.softmax = ops.Softmax(axis=1)
+        self.concat = ops.Concat(axis=1)
+        self.squeeze = ops.Squeeze(axis=1)
+        self.expand_dims = ops.ExpandDims()
 
     def construct(
         self, prev_hidden: Tensor, batch_H: Tensor, char_onehots: Tensor
     ) -> Tuple[Tensor, Tensor]:
         batch_H_proj = self.i2h(batch_H)
         prev_hidden_proj = self.h2h(prev_hidden)
-        prev_hidden_proj = ops.expand_dims(prev_hidden_proj, 1)
+        prev_hidden_proj = self.expand_dims(prev_hidden_proj, 1)
 
         res = ops.add(batch_H_proj, prev_hidden_proj)
         res = ops.tanh(res)
         e = self.score(res)
 
-        alpha = ops.softmax(e, axis=1)
+        alpha = self.softmax(e)
         alpha = ops.transpose(alpha, (0, 2, 1))
-        context = ops.squeeze(self.bmm(alpha, batch_H), axis=1)
-        concat_context = ops.concat([context, char_onehots], 1)
+        context = self.squeeze(self.bmm(alpha, batch_H))
+        concat_context = self.concat([context, char_onehots])
 
         cur_hidden = self.rnn(concat_context, prev_hidden)
         return cur_hidden, alpha

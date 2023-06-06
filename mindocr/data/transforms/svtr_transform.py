@@ -5,8 +5,8 @@ import random
 import cv2
 import numpy as np
 
-from mindspore.dataset.transforms import Compose
-from mindspore.dataset.vision import RandomColorAdjust
+from mindspore.dataset.transforms.py_transforms import Compose
+from mindspore.dataset.vision.py_transforms import RandomColorAdjust
 
 
 __all__ = ['SVTRRecAug']
