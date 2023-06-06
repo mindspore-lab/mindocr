@@ -26,7 +26,7 @@ class TD500_Converter(object):
     Format annotation to standard form for MSRA-TD500 dataset.
     """
 
-    def __init__(self, path_mode="relative"):
+    def __init__(self, path_mode="relative", **kwargs):
         self.path_mode = path_mode
 
     def convert(self, task="det", image_dir=None, label_path=None, output_path=None):

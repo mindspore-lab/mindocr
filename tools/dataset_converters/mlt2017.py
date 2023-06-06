@@ -24,7 +24,7 @@ class MLT2017_Converter:
     If the transcription is provided as "###", then text block (word) is considered as "don't care".
     """
 
-    def __init__(self, path_mode="relative"):
+    def __init__(self, path_mode="relative", **kwargs):
         self._relative = path_mode == "relative"
 
     def convert(self, task="det", image_dir=None, label_path=None, output_path=None):
