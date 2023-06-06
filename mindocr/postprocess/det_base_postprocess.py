@@ -60,8 +60,9 @@ class DetBasePostprocess:
             shape_list = shape_list.asnumpy()
 
         if shape_list is not None:
-            assert shape_list.shape[0] == pred.shape[0] and shape_list.shape[1] == 4, \
-                f"The length of each element in shape_list must be 4 for [raw_img_h, raw_img_w, scale_h, scale_w]. But get shape list {shape_list}"
+            assert shape_list.shape[0] and shape_list.shape[1] == 4, \
+                "The shape of each item in shape_list must be 4: [raw_img_h, raw_img_w, scale_h, scale_w]. " \
+                f"But got shape_list of shape {shape_list.shape}"
         else:
             # shape_list = [[pred.shape[2], pred.shape[3], 1.0, 1.0] for i in range(pred.shape[0])] # H, W
             # shape_list = np.array(shape_list, dtype='float32')
