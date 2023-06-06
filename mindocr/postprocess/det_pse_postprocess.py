@@ -91,6 +91,14 @@ class PSEPostprocess(DetBasePostprocess):
             if self._box_type == "quad":
                 rect = cv2.minAreaRect(points)
                 bbox = cv2.boxPoints(rect)
+            elif self._box_type == 'poly':
+                box_height = np.max(points[:, 1]) + 10
+                box_width = np.max(points[:, 0]) + 10
+                mask = np.zeros((box_height, box_width), np.uint8)
+                mask[points[:, 1], points[:, 0]] = 255
+                contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL,
+                                               cv2.CHAIN_APPROX_SIMPLE)
+                bbox = np.squeeze(contours[0], 1)
             else:
                 raise NotImplementedError(
                     f"The value of param 'box_type' can only be 'quad', but got '{self._box_type}'."
