@@ -74,6 +74,8 @@ DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total
 | DBNet++             | D910x1-MS2.0-G | ResNet-50     | [SynthText](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)  | 85.70%     | 87.81%        | 86.74%      | 17.7 s/epoch | 56 img/s  | [yaml](db++_r50_icdar15.yaml)       | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2-9934aff0.mindir)   |
 </div>
 
+> The input_shape for exported DBNet MindIR and DBNet++ MindIR in the link are `(1,3,736,1280)` and `(1,3,1152,2048)`, respectively.
+
 ### MSRA-TD500
 
 <div align="center">
@@ -358,6 +360,47 @@ To evaluate the accuracy of the trained model, you can use `eval.py`. Please set
 
 ```shell
 python tools/eval.py -c=configs/det/dbnet/db_r50_icdar15.yaml
+```
+
+### 3.6 MindSpore Lite Inference
+
+Please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial_en.md) for model inference based on MindSpot Lite on Ascend 310, including the following steps:
+
+- Model Export
+
+Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../README.md) tutorial and use the following command to export the trained ckpt model to  MindIR file:
+
+```shell
+python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+# or
+python tools/export.py --model_name configs/det/dbnet/db_r50_icdar15.yaml --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+```
+
+The `data_shape` is the model input shape of height and width for MindIR file. The shape value of MindIR in the download link can be found in [ICDAR2015 Notes](#ICDAR2015).
+
+- Environment Installation
+
+Please refer to [Environment Installation](../../../docs/en/inference/environment_en.md#2-mindspore-lite-inference) tutorial to configure the MindSpore Lite inference environment.
+
+- Model Conversion
+
+Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial_en.md#1-mindocr-models),
+and use the `converter_lite` tool for offline conversion of the MindIR file, where the `input_shape` in `configFile` needs to be filled in with the value from MindIR export,
+as mentioned above (1, 3, 736, 1280), and the format is NCHW.
+
+- Inference
+
+Assuming that you obtain output.mindir after model conversion, go to the `deploy/py_infer` directory, and use the following command for inference:
+
+```shell
+python infer.py \
+    --input_images_dir=/your_path_to/test_images \
+    --device=Ascend \
+    --device_id=0 \
+    --det_model_path=your_path_to/output.mindir \
+    --det_config_path=../../configs/det/dbnet/db_r50_icdar15.yaml \
+    --backend=lite \
+    --res_save_dir=results_dir
 ```
 
 ## References
