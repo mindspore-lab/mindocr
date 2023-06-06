@@ -1,8 +1,10 @@
 import os
 
-PADDLEOCR_CONFIG_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../configs"))
+PADDLEOCR_CONFIG_PATH = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "../../configs")
+)
 
-
+# fmt: off
 PADDLEOCR_MODELS = {
     "ch_pp_server_det_v2.0": "det/ppocr/ch_det_res18_db_v2.0.yaml",                  # ch_ppocr_server_v2.0_det
     "ch_pp_det_OCRv3": "det/ppocr/ch_PP-OCRv3_det_cml.yaml",                         # ch_PP-OCRv3_det
@@ -29,5 +31,9 @@ PADDLEOCR_MODELS = {
     "arabic_pp_rec_OCRv3": "rec/ppocr/arabic_PP-OCRv3_rec.yaml",                     # arabic_PP-OCRv3_rec
     "cyrillic_pp_rec_OCRv3": "rec/ppocr/cyrillic_PP-OCRv3_rec.yaml",                 # cyrillic_PP-OCRv3_rec
     "devanagari_pp_rec_OCRv3": "rec/ppocr/devanagari_PP-OCRv3_rec.yaml",             # devanagari_PP-OCRv3_rec
-    "en_pp_det_PSENet_resnet50vd": "det/ppocr/det_r50_vd_pse.yaml",                  # pse_resnet50_vd
+    "en_pp_det_psenet_resnet50vd": "det/ppocr/det_r50_vd_pse.yaml",                  # pse_resnet50_vd
+    "en_pp_det_dbnet_resnet50vd": "det/ppocr/det_r50_vd_db.yaml",                    # dbnet resnet50_vd
+    "en_pp_det_east_resnet50vd": "det/ppocr/det_r50_vd_east.yaml",                   # east resnet50_vd
+    "en_pp_rec_crnn_resnet34vd": "rec/ppocr/rec_r34_vd_none_bilstm_ctc.yaml",        # crnn resnet34_vd
 }
+# fmt: on
