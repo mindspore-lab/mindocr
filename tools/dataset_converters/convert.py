@@ -22,37 +22,57 @@ __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../..")))
 
 
+from cocotext import COCOTEXT_Converter
+from ctw import CTW_Converter
 from ctw1500 import CTW1500_Converter
 from ic15 import IC15_Converter
+from ic19_art import IC19_ART_Converter
 from mlt2017 import MLT2017_Converter
+from rects import RECTS_Converter
 from svt import SVT_Converter
 from syntext150k import SYNTEXT150K_Converter
 from synthadd import SYNTHADD_Converter
 from synthtext import SYNTHTEXT_Converter
 from td500 import TD500_Converter
+from textocr import TEXTOCR_Converter
 from totaltext import TOTALTEXT_Converter
 
-supported_datasets = ["ic15", "totaltext", "mlt2017", "syntext150k", "svt", "td500", "ctw1500", "synthtext", "synthadd"]
+supported_datasets = [
+    "ic15",
+    "totaltext",
+    "mlt2017",
+    "syntext150k",
+    "svt",
+    "td500",
+    "ctw1500",
+    "synthtext",
+    "synthadd",
+    "ctw",
+    "textocr",
+    "rects",
+    "ic19_art",
+    "cocotext",
+]
 
 
-def convert(dataset_name, task, image_dir, label_path, output_path=None, path_mode="relative"):
+def convert(dataset_name, task, image_dir, label_dir, output_path=None, path_mode="relative", **kwargs):
     """
     Args:
       image_dir: path to the images
-      label_path: path to the annotation, support folder path or file path
+      label_dir: path to the annotation, support folder path or file path
       output_path: path to save the converted annotation. If None, the file will be saved as '{task}_gt.txt' along with
-          `label_path`
+          `label_dir`
     """
     if dataset_name in supported_datasets:
         if not output_path:
-            root_dir = "/".join(label_path.split("/")[:-1])
+            root_dir = "/".join(label_dir.split("/")[:-1])
             dir_name = os.path.basename(image_dir)
             output_path = os.path.join(root_dir, f"{dir_name}_{task}_gt.txt")
         assert path_mode in ["relative", "abs"], f"Invalid mode: {path_mode}"
 
         class_name = dataset_name.upper() + "_Converter"
-        cvt = eval(class_name)(path_mode)
-        cvt.convert(task, image_dir, label_path, output_path)
+        cvt = eval(class_name)(path_mode, **kwargs)
+        cvt.convert(task, image_dir, label_dir, output_path)
         print(f"Conversion complete.\nResult saved in {output_path}")
 
     else:
@@ -99,7 +119,11 @@ if __name__ == "__main__":
         help="If abs, the image path in the output annotation file will be an absolute path. If relative, "
         "it will be a relative path related to the image dir ",
     )
+    parser.add_argument(
+        "--split",
+        type=str,
+        help="Specify the set split for datasets with multiple sets in a single file (e.g. train, val, test).",
+    )
 
-    args = parser.parse_args()
-
-    convert(args.dataset_name, args.task, args.image_dir, args.label_dir, args.output_path)
+    args = vars(parser.parse_args())
+    convert(**args)
