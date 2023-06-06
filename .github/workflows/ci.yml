@@ -25,6 +25,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        # requites to  grab the history of the PR
+        fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
@@ -38,6 +41,10 @@ jobs:
         # MindSpore must be installed following the instruction from official web, but not from pypi.
         # That's why we exclude mindspore from requirements.txt. Does this work?
         pip install "mindspore>=1.9,<=1.10"
+    - name: Lint with pre-commit
+      uses: pre-commit/action@v3.0.0
+      with:
+        extra_args: --color=always --from-ref ${{ github.event.pull_request.base.sha }} --to-ref ${{ github.event.pull_request.head.sha }}
     - name: Check_Cpplint
       run: |
         cpplint --root=src --extensions=cxx,cu,hh,cpp,hxx,cuh,h++,cc,c,hpp,c++,h,tpp,txx,cl \
