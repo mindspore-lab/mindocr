@@ -1,3 +1,4 @@
+>NOTE: This branch adapts **CRNN and CRNN-Seq2Seq** (a.k.a. RARE) models to MindSpore 1.7. Other models are NOT tested on MindSpore 1.7.
 
 <div align="center">
 
