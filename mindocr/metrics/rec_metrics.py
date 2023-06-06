@@ -1,13 +1,8 @@
 """Metric for accuracy evaluation."""
-import string
-import numpy as np
 from rapidfuzz.distance import Levenshtein
 
-from mindspore import nn, ms_function
+from mindspore import nn
 import mindspore as ms
-import mindspore.ops as ops
-from mindspore import  Tensor
-from mindspore.communication import get_group_size
 
 
 __all__ = ['RecMetric']
@@ -41,7 +36,7 @@ class RecMetric(nn.Metric):
         self.print_flag = print_flag
 
         self.device_num = device_num
-        self.all_reduce = None if device_num==1 else ops.AllReduce()
+        self.all_reduce = lambda x: x
         self.metric_names = ['acc', 'norm_edit_distance']
 
         # TODO: use parsed dictionary object
@@ -124,7 +119,6 @@ class RecMetric(nn.Metric):
 
             self._total_num += 1
 
-    @ms_function
     def all_reduce_fun(self, x):
         res = self.all_reduce(x)
         return res

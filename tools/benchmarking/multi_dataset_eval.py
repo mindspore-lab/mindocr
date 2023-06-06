@@ -56,6 +56,7 @@ from mindocr.models import build_model
 from mindocr.postprocess import build_postprocess
 from mindocr.metrics import build_metric
 from mindocr.utils.callbacks import Evaluator
+from mindocr.utils.amp import auto_mixed_precision
 
 def main(cfg):
     # env init
@@ -83,7 +84,7 @@ def main(cfg):
         print('INFO: Evaluation will run in full-precision(fp32)')
 
     if cfg.system.amp_level_infer:
-        ms.amp.auto_mixed_precision(network, amp_level=cfg.system.amp_level_infer)
+        auto_mixed_precision(network, amp_level=cfg.system.amp_level_infer)
 
     # postprocess, metric
     postprocessor = build_postprocess(cfg.postprocess)
