@@ -15,6 +15,7 @@ PREPROCESS_MAPPING_OPS = {
     # rec
     "RecResizeImg": transforms.RecResizeImg,
     "RecResizeNormForInfer": transforms.RecResizeNormForInfer,
+    "RecResizeNormForViTSTR": transforms.RecResizeNormForViTSTR,
     # cls
     "ClsResizeNormForInfer": transforms.ClsResizeNormForInfer,
 }

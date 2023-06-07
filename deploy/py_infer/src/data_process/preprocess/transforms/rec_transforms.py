@@ -2,6 +2,7 @@ import os
 import sys
 
 import cv2
+import numpy as np
 
 # add mindocr root path, and import transforms from mindocr
 mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../../.."))
@@ -9,7 +10,7 @@ sys.path.insert(0, mindocr_path)
 
 from mindocr.data.transforms import rec_transforms  # noqa
 
-__all__ = ["RecResizeImg", "SVTRRecResizeImg", "RecResizeNormForInfer"]
+__all__ = ["RecResizeImg", "SVTRRecResizeImg", "RecResizeNormForInfer", "RecResizeNormForViTSTR"]
 
 
 class RecResizeImg(rec_transforms.RecResizeImg):
@@ -68,3 +69,17 @@ class RecResizeNormForInfer(rec_transforms.RecResizeNormForInfer):
     def __call__(self, data):
         self.tar_h, self.tar_w = data["target_size"]
         return super().__call__(data)
+
+
+class RecResizeNormForViTSTR(object):
+
+    def __call__(self, data):
+        self.tar_h, self.tar_w = data["target_size"]
+        img = data['image']
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        img = cv2.resize(img, [self.tar_w, self.tar_h], interpolation=cv2.INTER_CUBIC)
+        img = np.array(img)
+        norm_img = np.expand_dims(img, -1)
+        norm_img = norm_img.astype(np.float32) / 255.
+        data['image'] = norm_img
+        return data

@@ -25,9 +25,6 @@ class Model:
 
         batchsize, channel, height, width = shape
 
-        if channel not in (3,):
-            raise ValueError(f"Input channel number must be 3, but got {channel} for {model_path}.")
-
         # static shape or dynamic shape without gear
         if -1 not in shape:
             return ShapeType.STATIC_SHAPE, (batchsize, channel, height, width)
