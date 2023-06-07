@@ -14,6 +14,7 @@
 | ch_pp_mobile_det_v2.0 | DB  | MobileNetV3 | MLT17 | 0.2403 | 0.4597 | 0.3156 | PaddleOCR |
 | en_pp_det_OCRv3 | DB  | MobileNetV3 | IC15 | 0.3866 | 0.4630 | 0.4214 | PaddleOCR |
 | ml_pp_det_OCRv3 | DB  | MobileNetV3 | MLT17 | 0.5992 | 0.7348 | 0.6601 | PaddleOCR |
+| en_pp_det_sast_resnet50vd | SAST  | ResNet50_vd | IC15 | 0.7463 | 0.9043 | 0.8177 | PaddleOCR |
 
 ### 2. 文本识别
 | 名称 |  模型  | 骨干网络 | 测试数据 | accuracy | norm edit distance | 来源 |
