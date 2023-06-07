@@ -1,8 +1,8 @@
 from bisect import bisect_right
-from typing import Union, Dict, List
+from math import floor
+from typing import Dict, List, Union
 
 import numpy as np
-from math import floor
 
 from ...utils import safe_div
 
@@ -59,5 +59,5 @@ def get_batch_from_padding(input: Union[np.ndarray, List], batch: int):
 def split_by_size(input: list, size: list):
     start_index = 0
     for batch in size:
-        yield input[start_index: start_index + batch]
+        yield input[start_index : start_index + batch]
         start_index += batch

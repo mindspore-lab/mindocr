@@ -6,9 +6,7 @@ import mindspore as ms
 from . import det_east_postprocess
 
 # add mindocr root path, and import postprocess from mindocr
-mindocr_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "../../../../..")
-)
+mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../.."))
 sys.path.insert(0, mindocr_path)
 
 from mindocr.postprocess import det_db_postprocess, det_pse_postprocess  # noqa

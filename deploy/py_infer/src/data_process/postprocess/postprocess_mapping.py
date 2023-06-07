@@ -1,4 +1,4 @@
-from . import det_postprocess, rec_postprocess, cls_postprocess
+from . import cls_postprocess, det_postprocess, rec_postprocess
 
 POSTPROCESS_MAPPING_OPS = {
     # det

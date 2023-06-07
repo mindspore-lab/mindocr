@@ -19,7 +19,7 @@ def parse_postprocess_from_yaml(config_path):
     with open(config_path) as fp:
         cfg = yaml.safe_load(fp)
 
-    ops_params = cfg['postprocess']
+    ops_params = cfg["postprocess"]
 
     ops_node = postprocess_mapping.POSTPROCESS_MAPPING_OPS[ops_params["name"]]
     ops_params.pop("name")

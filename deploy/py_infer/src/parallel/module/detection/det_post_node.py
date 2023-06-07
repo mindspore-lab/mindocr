@@ -1,6 +1,6 @@
-from ...framework import ModuleBase
 from ....data_process.utils import cv_utils
-from ....infer import TextDetector, TaskType
+from ....infer import TaskType, TextDetector
+from ...framework import ModuleBase
 
 
 class DetPostNode(ModuleBase):
@@ -41,9 +41,7 @@ class DetPostNode(ModuleBase):
 
         input_data.data = None
 
-        if not (self.args.save_crop_res_dir
-                or self.args.save_vis_det_save_dir
-                or self.args.save_vis_pipeline_save_dir):
+        if not (self.args.save_crop_res_dir or self.args.save_vis_det_save_dir or self.args.save_vis_pipeline_save_dir):
             input_data.frame = None
 
         if not infer_res_list:

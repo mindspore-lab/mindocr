@@ -6,9 +6,7 @@ import lanms
 import numpy as np
 
 # add mindocr root path, and import postprocess from mindocr
-mindocr_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "../../../../..")
-)
+mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../.."))
 sys.path.insert(0, mindocr_path)
 
 from mindocr.postprocess import det_east_postprocess  # noqa
@@ -75,16 +73,12 @@ class EASTPostprocess(det_east_postprocess.EASTPostprocess):
         Restore rectangle from quadrangle.
         """
         # quad
-        origin_concat = np.concatenate(
-            (origin, origin, origin, origin), axis=1
-        )  # (n, 8)
+        origin_concat = np.concatenate((origin, origin, origin, origin), axis=1)  # (n, 8)
         pred_quads = origin_concat - geometry
         pred_quads = pred_quads.reshape((-1, 4, 2))  # (n, 4, 2)
         return pred_quads
 
-    def detect(
-        self, score_map, geo_map, score_thresh=0.8, cover_thresh=0.1, nms_thresh=0.2
-    ):
+    def detect(self, score_map, geo_map, score_thresh=0.8, cover_thresh=0.1, nms_thresh=0.2):
         """
         restore text boxes from score map and geo map
         """
@@ -99,9 +93,7 @@ class EASTPostprocess(det_east_postprocess.EASTPostprocess):
         # sort the text boxes via the y axis
         xy_text = xy_text[np.argsort(xy_text[:, 0])]
         # restore quad proposals
-        text_box_restored = self.restore_rectangle_quad(
-            xy_text[:, ::-1] * 4, geo_map[xy_text[:, 0], xy_text[:, 1], :]
-        )
+        text_box_restored = self.restore_rectangle_quad(xy_text[:, ::-1] * 4, geo_map[xy_text[:, 0], xy_text[:, 1], :])
         boxes = np.zeros((text_box_restored.shape[0], 9), dtype=np.float32)
         boxes[:, :8] = text_box_restored.reshape((-1, 8))
         boxes[:, 8] = score_map[xy_text[:, 0], xy_text[:, 1]]

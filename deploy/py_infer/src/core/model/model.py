@@ -1,14 +1,11 @@
 import numpy as np
 
-from .backend import MindXModel, LiteModel
+from .backend import LiteModel, MindXModel
 from .shape import ShapeType
 
-__all__ = ['Model']
+__all__ = ["Model"]
 
-_INFER_BACKEND_MAP = {
-    "acl": MindXModel,
-    "lite": LiteModel
-}
+_INFER_BACKEND_MAP = {"acl": MindXModel, "lite": LiteModel}
 
 
 class Model:
@@ -45,7 +42,8 @@ class Model:
 
         if len(set(batchsize_list)) > 1 and (len(set(height_list)) > 1 or len(set(width_list)) > 1):
             raise ValueError(
-                f"Input shape do not support batch_size and image_size as dynamic_dims together for {model_path}.")
+                f"Input shape do not support batch_size and image_size as dynamic_dims together for {model_path}."
+            )
 
         # dynamic_batch_size
         if len(set(batchsize_list)) > 1:

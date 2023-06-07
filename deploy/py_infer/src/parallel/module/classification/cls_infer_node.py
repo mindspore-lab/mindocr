@@ -1,8 +1,8 @@
 import cv2
 
-from ...framework import ModuleBase
 from ....data_process.utils.constants import CLS_ROTATE180_THRESHOLD
-from ....infer import TextClassifier, TaskType
+from ....infer import TaskType, TextClassifier
+from ...framework import ModuleBase
 
 
 class ClsInferNode(ModuleBase):
@@ -34,7 +34,7 @@ class ClsInferNode(ModuleBase):
         if self.task_type == TaskType.DET_CLS_REC:
             for i in range(batch):
                 label, score = output[i]
-                if '180' == label and score > self.cls_thresh:
+                if "180" == label and score > self.cls_thresh:
                     sub_images[i] = cv2.rotate(sub_images[i], cv2.ROTATE_180)
             input_data.sub_image_list = sub_images
         else:
