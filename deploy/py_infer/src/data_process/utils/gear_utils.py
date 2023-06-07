@@ -13,15 +13,15 @@ def get_matched_gear_hw(image_hw: tuple, hw_list: list):
     if find the matched gear, return tuple of (h,w)
     if not find the gear, return hw_list[-1]
     """
-    index = len(hw_list)
+    origin_h, origin_w = image_hw[0], image_hw[1]
+    matched_shape = None
+    min_diff = float("inf")
     for i, (height, width) in enumerate(hw_list):
-        if height >= image_hw[0] and width >= image_hw[1]:
-            index = i
-            break
-    if index == len(hw_list):
-        return hw_list[-1]
-
-    return hw_list[index]
+        dist = abs(height - origin_h) + abs(width - origin_w)
+        if dist < min_diff:
+            min_diff = dist
+            matched_shape = hw_list[i]
+    return matched_shape
 
 
 def get_matched_gear_bs(image_num: int, bs_list: list):
