@@ -1,8 +1,8 @@
+import json
 import logging
 import math
 import os
 
-import json
 import cv2
 import numpy as np
 from tqdm import tqdm
@@ -42,13 +42,19 @@ class DatasetAnalyzer:
         self.n_std = self.config.mean_std.n_std
         self.expand_ratio = self.config.max_min.expand_ratio
 
-        self.batch_size, _, self.input_height, self.input_width = list(map(int, self.args.input_shape.split(',')))
+        self.batch_size, _, self.input_height, self.input_width = list(
+            map(int, self.args.input_shape.split(","))
+        )
 
     def algorithm_min_max(self, widths):
         w_origin_min = min(widths)
         w_origin_max = max(widths)
-        w_expand_min = w_origin_min - (w_origin_max - w_origin_min) * self.expand_ratio / 2
-        w_expand_max = w_origin_max + (w_origin_max - w_origin_min) * self.expand_ratio / 2
+        w_expand_min = (
+            w_origin_min - (w_origin_max - w_origin_min) * self.expand_ratio / 2
+        )
+        w_expand_max = (
+            w_origin_max + (w_origin_max - w_origin_min) * self.expand_ratio / 2
+        )
 
         return w_expand_min, w_expand_max
 
@@ -74,7 +80,7 @@ class DatasetAnalyzer:
                 else:
                     ratio = float(self.limit_side_len) / w
             else:
-                ratio = 1.
+                ratio = 1.0
             resize_h = int(h * ratio)
             resize_w = int(w * ratio)
 
@@ -88,30 +94,38 @@ class DatasetAnalyzer:
 
     def read_rec_data(self, dataset_path, widths, heights):
         lens = []
-        with open(dataset_path, 'r', encoding='utf8') as f:
-            lines = f.read().split('\n')
+        with open(dataset_path, "r", encoding="utf8") as f:
+            lines = f.read().split("\n")
             for line in tqdm(lines):
                 if not line:
                     continue
-                split_line = line.split('\t')
+                split_line = line.split("\t")
                 if len(split_line) < 2:
                     continue
                 data_list = json.loads(split_line[1])
                 lens.append(len(data_list))
                 for data in data_list:
-                    points = [np.array(point) for point in data['points']]
+                    points = [np.array(point) for point in data["points"]]
                     img_crop_width = int(
                         max(
                             np.linalg.norm(points[0] - points[1]),
-                            np.linalg.norm(points[2] - points[3])))
+                            np.linalg.norm(points[2] - points[3]),
+                        )
+                    )
                     img_crop_height = int(
                         max(
                             np.linalg.norm(points[0] - points[3]),
-                            np.linalg.norm(points[1] - points[2])))
+                            np.linalg.norm(points[1] - points[2]),
+                        )
+                    )
                     if self.input_height == -1 and self.input_width != -1:
-                        heights.append(int(img_crop_height * self.input_width / img_crop_width))
+                        heights.append(
+                            int(img_crop_height * self.input_width / img_crop_width)
+                        )
                     elif self.input_width == -1 and self.input_height != -1:
-                        widths.append(int(img_crop_width * self.input_height / img_crop_height))
+                        widths.append(
+                            int(img_crop_width * self.input_height / img_crop_height)
+                        )
                     else:
                         heights.append(img_crop_height)
                         widths.append(img_crop_width)
@@ -125,7 +139,9 @@ class DatasetAnalyzer:
                 b_range = self.algorithm_min_max(lens)
             else:
                 b_range = self.algorithm_mean_std(lens)
-            self.b_scaling = list(filter(lambda x: b_range[0] <= x <= b_range[1], self.b_scaling))
+            self.b_scaling = list(
+                filter(lambda x: b_range[0] <= x <= b_range[1], self.b_scaling)
+            )
 
         return widths, heights
 
@@ -153,9 +169,15 @@ class DatasetAnalyzer:
         b_scaling = self.b_scaling
         if self.batch_size != -1:
             b_scaling = []
-        logging.info(f"Auto-scaling data are as followed: \nbatch_size: {b_scaling}, \nheight: {h_scaling}, "
-                     f"\nwidth: {w_scaling}")
-        scaling_data = {"batch_size": b_scaling, "height": h_scaling, "width": w_scaling}
+        logging.info(
+            f"Auto-scaling data are as followed: \nbatch_size: {b_scaling}, \nheight: {h_scaling}, "
+            f"\nwidth: {w_scaling}"
+        )
+        scaling_data = {
+            "batch_size": b_scaling,
+            "height": h_scaling,
+            "width": w_scaling,
+        }
 
         return scaling_data
 
