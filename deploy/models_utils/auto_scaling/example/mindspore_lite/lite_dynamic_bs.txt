@@ -1,0 +1,4 @@
+[ascend_context]
+input_format=NCHW
+input_shape=x:[-1,3,48,192]
+dynamic_dims=[1],[4],[8],[16],[32]
