@@ -32,11 +32,12 @@ class EASTPostprocess(det_east_postprocess.EASTPostprocess):
 
         if from_ppocr:
             self._cover_thresh = cover_thresh
-            self.from_ppocr = from_ppocr
             assert box_type == "quad"
 
+        self._from_ppocr = from_ppocr
+
     def _postprocess(self, pred, **kwargs):
-        if not self.from_ppocr:
+        if not self._from_ppocr:
             return super()._postprocess(pred)
         else:
             return self._postprocess_ppocr(pred)
