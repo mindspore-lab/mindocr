@@ -164,6 +164,18 @@ After downloading these datasets in the `DATASETS_DIR` folder, you can run `bash
 ## Notes
 
 ### Change Log
+
+- 2023/06/07
+1. Add new trained models
+    - [PSENet](configs/det/psenet) for text detection
+    - [EAST](configs/det/east) for text detection
+    - [SVTR](configs/rec/svtr) for text recognition
+2. Add more benchmark datasets and their results 
+    - [totaltext](docs/en/datasets/totaltext.md)
+    - [mlt2017](docs/en/datasets/mlt2017.md)
+    - [chinese_text_recognition](docs/en/datasets/chinese_text_recognition.md)
+3. Add resume training function, which can be used in case of unexpected interruption in training. Usage: add the `resume` parameter under the `model` field in the yaml config. Allow specific paths to be passed in `resume: /path/to/train_resume.ckpt` or load it in ckpt_save_dir by setting `resume: True`.
+
 - 2023/05/15
 1. Add new trained models
     - [DBNet++](configs/det/dbnet) for text detection
