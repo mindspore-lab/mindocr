@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Union, Dict
+from typing import Dict, List, Union
 
 import numpy as np
 
@@ -13,9 +13,9 @@ class ProcessData:
     skip: bool = False
 
     # image basic info
-    image_path: str = ''
-    image_name: str = ''
-    image_id: int = ''
+    image_path: str = ""
+    image_name: str = ""
+    image_id: int = ""
     frame: np.ndarray = None
 
     original_width: int = 0

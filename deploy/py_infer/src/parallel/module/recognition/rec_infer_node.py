@@ -1,5 +1,5 @@
-from ...framework import ModuleBase
 from ....infer import TextRecognizer
+from ...framework import ModuleBase
 
 
 class RecInferNode(ModuleBase):

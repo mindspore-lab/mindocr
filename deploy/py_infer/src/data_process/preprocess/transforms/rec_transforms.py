@@ -7,7 +7,7 @@ import cv2
 mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../../.."))
 sys.path.insert(0, mindocr_path)
 
-from mindocr.data.transforms import rec_transforms
+from mindocr.data.transforms import rec_transforms  # noqa
 
 __all__ = ["RecResizeImg", "SVTRRecResizeImg", "RecResizeNormForInfer"]
 
@@ -39,19 +39,30 @@ class SVTRRecResizeImg(rec_transforms.SVTRRecResizeImg):
 
 
 class RecResizeNormForInfer(rec_transforms.RecResizeNormForInfer):
-    def __init__(self,
-                 keep_ratio=True,
-                 padding=False,
-                 interpolation=cv2.INTER_LINEAR,
-                 norm_before_pad=False,
-                 mean=[127.0, 127.0, 127.0],
-                 std=[127.0, 127.0, 127.0],
-                 **kwargs):
+    def __init__(
+        self,
+        keep_ratio=True,
+        padding=False,
+        interpolation=cv2.INTER_LINEAR,
+        norm_before_pad=False,
+        mean=[127.0, 127.0, 127.0],
+        std=[127.0, 127.0, 127.0],
+        **kwargs
+    ):
         skipped = ("target_height", "target_width")
         [kwargs.pop(name, None) for name in skipped]
 
-        super().__init__(target_height=None, target_width=None, keep_ratio=keep_ratio, padding=padding,
-                         interpolation=interpolation, norm_before_pad=norm_before_pad, mean=mean, std=std, **kwargs)
+        super().__init__(
+            target_height=None,
+            target_width=None,
+            keep_ratio=keep_ratio,
+            padding=padding,
+            interpolation=interpolation,
+            norm_before_pad=norm_before_pad,
+            mean=mean,
+            std=std,
+            **kwargs
+        )
 
     # move 'target_height' and 'target_width' to __call__ from __init__
     def __call__(self, data):

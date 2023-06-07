@@ -1,5 +1,5 @@
-from ...framework import ModuleBase
 from ....data_process.utils import cv_utils
+from ...framework import ModuleBase
 
 
 class DecodeNode(ModuleBase):

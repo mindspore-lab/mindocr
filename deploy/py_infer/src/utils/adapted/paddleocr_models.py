@@ -1,8 +1,6 @@
 import os
 
-PADDLEOCR_CONFIG_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "../../configs")
-)
+PADDLEOCR_CONFIG_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../configs"))
 
 # fmt: off
 PADDLEOCR_MODELS = {

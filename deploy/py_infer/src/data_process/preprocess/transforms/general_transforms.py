@@ -10,7 +10,7 @@ import numpy as np
 mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../../.."))
 sys.path.insert(0, mindocr_path)
 
-from mindocr.data.transforms import general_transforms
+from mindocr.data.transforms import general_transforms  # noqa
 
 __all__ = ["DecodeImage", "NormalizeImage", "ToCHWImage", "ToBatch"]
 
@@ -19,7 +19,7 @@ ToCHWImage = general_transforms.ToCHWImage
 
 
 class DecodeImage:
-    def __init__(self, img_mode='BGR', channel_first=False, to_float32=False, **kwargs):
+    def __init__(self, img_mode="BGR", channel_first=False, to_float32=False, **kwargs):
         self.img_mode = img_mode
         self.to_float32 = to_float32
         self.channel_first = channel_first
@@ -29,14 +29,14 @@ class DecodeImage:
         return data
 
     def _decode(self, img):
-        if self.img_mode == 'RGB':
+        if self.img_mode == "RGB":
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         if self.channel_first:
             img = img.transpose((2, 0, 1))
 
         if self.to_float32:
-            img = img.astype('float32')
+            img = img.astype("float32")
 
         return img
 
