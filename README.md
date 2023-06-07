@@ -174,7 +174,7 @@ After downloading these datasets in the `DATASETS_DIR` folder, you can run `bash
     - [totaltext](docs/en/datasets/totaltext.md)
     - [mlt2017](docs/en/datasets/mlt2017.md)
     - [chinese_text_recognition](docs/en/datasets/chinese_text_recognition.md)
-3. Add resume training function, which can be used in case of unexpected interruption in training. Usage: add the `resume` parameter under the `model` field in the yaml config. Allow specific paths to be passed in `resume: /path/to/train_resume.ckpt` or load it in ckpt_save_dir by setting `resume: True`.
+3. Add resume training function, which can be used in case of unexpected interruption in training. Usage: add the `resume` parameter under the `model` field in the yaml config, e.g.,`resume: True`, load and resume training from {ckpt_save_dir}/train_resume.ckpt or `resume: /path/to/train_resume.ckpt`, load and resume training from the given path.
 
 - 2023/05/15
 1. Add new trained models
@@ -182,7 +182,7 @@ After downloading these datasets in the `DATASETS_DIR` folder, you can run `bash
     - [CRNN-Seq2Seq](configs/rec/rare) for text recognition
     - DBNet pretrained on SynthText is now available: [checkpoint url](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)
 2. Add more benchmark datasets and their results 
-    - [SynthText](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c), [MSRA-TD500](docs/en/datasets/td500.md), [CTW1500](docs/en/datasets/ctw1500.md) 
+    - [SynthText](https://www.robots.ox.ac.uk/~vgg/data/scenetext/), [MSRA-TD500](docs/en/datasets/td500.md), [CTW1500](docs/en/datasets/ctw1500.md) 
     - More benchmark results for DBNet are reported [here](configs/det/dbnet/README.md).
 3. Add checkpoint manager for saving top-k checkpoints and improve log.
 4. Python inference code refractored. 
