@@ -35,5 +35,6 @@ PADDLEOCR_MODELS = {
     "en_pp_det_dbnet_resnet50vd": "det/ppocr/det_r50_vd_db.yaml",                    # dbnet resnet50_vd
     "en_pp_det_east_resnet50vd": "det/ppocr/det_r50_vd_east.yaml",                   # east resnet50_vd
     "en_pp_rec_crnn_resnet34vd": "rec/ppocr/rec_r34_vd_none_bilstm_ctc.yaml",        # crnn resnet34_vd
+    "en_pp_rec_rosetta_resnet34vd": "rec/ppocr/rec_r34_vd_none_none_ctc.yaml",       # en_pp_rec_rosetta_resnet34vd
 }
 # fmt: on
