@@ -356,7 +356,7 @@ class DetResize(object):
         self.divisor = divisor
 
         self.is_train = kwargs.get('is_train', False)
-
+        assert target_size is None or limit_type is None, "Only one of limit_type and target_size should be provided."
         if limit_type in ['min', 'max']:
             keep_ratio = True
             padding = False
@@ -407,6 +407,9 @@ class DetResize(object):
         if (self.limit_type in ['min', 'max']) or (self.target_size and self.keep_ratio):
             resize_w = math.ceil(w * scale_ratio)
             resize_h = math.ceil(h * scale_ratio)
+            if self.target_size:
+                resize_w = min(resize_w, tar_w)
+                resize_h = min(resize_h, tar_h)
         elif self.target_size:
             resize_w = tar_w
             resize_h = tar_h

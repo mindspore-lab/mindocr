@@ -68,7 +68,10 @@ class DBPostprocess(DetBasePostprocess):
             pred = pred[self._names[self._name]]
         if isinstance(pred, Tensor):
             pred = pred.asnumpy()
-        pred = pred.squeeze(1)
+        if len(pred.shape) == 4 and pred.shape[1] != 1:  # pred shape (N, 3, H, W)
+            pred = pred[:, :1, :, :]  # only need the first output
+        if len(pred.shape) == 4:  # handle pred shape: (N, H, W) skip
+            pred = pred.squeeze(1)
 
         segmentation = pred >= self._binary_thresh
 
