@@ -58,6 +58,8 @@ DBNet和DBNet++在ICDAR2015，MSRA-TD500，SCUT-CTW1500，Total-Text和MLT2017�
 
 </div>
 
+> 链接中模型DBNet的MindIR导出时的输入Shape为`(1,3,736,1280)`，模型DBNet++的MindIR导出时的输入Shape为`(1,3,1152,2048)`。
+
 ### MSRA-TD500
 
 <div align="center">
@@ -113,6 +115,7 @@ DBNet和DBNet++在ICDAR2015，MSRA-TD500，SCUT-CTW1500，Total-Text和MLT2017�
 #### 注释：
 - 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。
 - DBNet的训练时长受数据处理部分和不同运行环境的影响非常大。
+
 
 ## 3. 快速上手
 
@@ -336,6 +339,48 @@ mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet
 ``` shell
 python tools/eval.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
+
+### 3.6 MindSpore Lite 推理
+
+请参考[MindOCR 推理](../../../docs/cn/inference/inference_tutorial_cn.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
+
+- 模型导出
+
+请先[下载](#2-实验结果)已导出的MindIR文件，或者参考[模型导出](../../README.md)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
+
+```shell
+python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+# or
+python tools/export.py --model_name configs/det/dbnet/db_r50_icdar15.yaml --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+```
+
+其中，`data_shape`是导出MindIR时的模型输入Shape的height和width，下载链接中MindIR对应的shape值见[ICDAR2015注释](#ICDAR2015)。
+
+- 环境搭建
+
+请参考[环境安装](../../../docs/cn/inference/environment_cn.md#2-mindspore-lite推理)教程，配置MindSpore Lite推理运行环境。
+
+- 模型转换
+
+请参考[模型转换](../../../docs/cn/inference/convert_tutorial_cn.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换，
+其中`configFile`文件中的`input_shape`需要填写模型导出时shape，如上述的(1,3,736,1280)，格式为NCHW。
+
+- 执行推理
+
+
+假设在模型转换后得到output.mindir文件，在`deploy/py_infer`目录下使用以下命令进行推理：
+
+```shell
+python infer.py \
+    --input_images_dir=/your_path_to/test_images \
+    --device=Ascend \
+    --device_id=0 \
+    --det_model_path=your_path_to/output.mindir \
+    --det_config_path=../../configs/det/dbnet/db_r50_icdar15.yaml \
+    --backend=lite \
+    --res_save_dir=results_dir
+```
+ 
 
 ## 参考文献
 
