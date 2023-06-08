@@ -10,6 +10,7 @@ POSTPROCESS_MAPPING_OPS = {
     "RecCTCLabelDecode": rec_postprocess.RecCTCLabelDecode,
     "CTCLabelDecode": rec_postprocess.RecCTCLabelDecode,
     "DistillationCTCLabelDecode": rec_postprocess.RecCTCLabelDecode,
+    "ViTSTRLabelDecode": rec_postprocess.ViTSTRLabelDecode,
     # cls
     "ClsPostprocess": cls_postprocess.ClsPostprocess,
 }
