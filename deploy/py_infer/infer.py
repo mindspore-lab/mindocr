@@ -4,8 +4,8 @@ import sys
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, __dir__)  # src path
 
-from src import infer_args  # noqa
-from src.parallel import ParallelPipeline  # noqa
+from src import infer_args
+from src.parallel import ParallelPipeline
 
 
 def main():

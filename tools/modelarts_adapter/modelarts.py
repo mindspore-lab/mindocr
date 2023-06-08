@@ -3,24 +3,25 @@ import os
 import subprocess
 import sys
 import time
-from typing import Any, Callable, Union, Dict, List
+from typing import Any, Callable, Dict, List, Union
 
 LOCAL_RANK = int(os.getenv("RANK_ID", 0))
 
 _global_sync_count = 0
 
+
 def get_device_id():
-    device_id = os.getenv('DEVICE_ID', '0')
+    device_id = os.getenv("DEVICE_ID", "0")
     return int(device_id)
 
 
 def get_device_num():
-    device_num = os.getenv('RANK_SIZE', '1')
+    device_num = os.getenv("RANK_SIZE", "1")
     return int(device_num)
 
 
 def get_rank_id():
-    global_rank_id = os.getenv('RANK_ID', '0')
+    global_rank_id = os.getenv("RANK_ID", "0")
     return int(global_rank_id)
 
 
@@ -30,8 +31,10 @@ def sync_data(from_path, to_path):
     1) if `from_path` is remote url and `to_path` is local path, download data from remote obs to local directory
     2) if `from_path` is local path and `to_path` is remote url, upload data from local directory to remote obs .
     """
-    import moxing as mox
     import time
+
+    import moxing as mox
+
     global _global_sync_count
     sync_lock = "/tmp/copy_sync.lock" + str(_global_sync_count)
     _global_sync_count += 1
@@ -55,9 +58,8 @@ def sync_data(from_path, to_path):
 
     print("Finish sync data from {} to {}.".format(from_path, to_path))
 
-def run_with_single_rank(
-    local_rank: int = 0, signal: str = "/tmp/SUCCESS"
-) -> Callable[..., Any]:
+
+def run_with_single_rank(local_rank: int = 0, signal: str = "/tmp/SUCCESS") -> Callable[..., Any]:
     """Run the task on 0th rank, perform synchronzation before return"""
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
@@ -78,20 +80,16 @@ def run_with_single_rank(
 
 
 @run_with_single_rank(local_rank=LOCAL_RANK, signal="/tmp/INSTALL_SUCCESS")
-def install_packages(req_path: str='requirements.txt') -> None:
+def install_packages(req_path: str = "requirements.txt") -> None:
     url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-    #requirement_txt = os.path.join(project_dir, "requirements.txt")
-    print('INFO: Packages to be installed: ', req_path)
-    subprocess.check_call(
-        [sys.executable, "-m", "pip", "install", "-i", url, "--upgrade", "pip"]
-    )
-    subprocess.check_call(
-        [sys.executable, "-m", "pip", "install", "-i", url, "-r", req_path]
-    )
+    # requirement_txt = os.path.join(project_dir, "requirements.txt")
+    print("INFO: Packages to be installed: ", req_path)
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-i", url, "--upgrade", "pip"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-i", url, "-r", req_path])
 
 
-#@run_with_single_rank(local_rank=LOCAL_RANK, signal="/tmp/DOWNLOAD_DATA_SUCCESS")
-#def download_data(s3_path: str, dest: str) -> None:
+# @run_with_single_rank(local_rank=LOCAL_RANK, signal="/tmp/DOWNLOAD_DATA_SUCCESS")
+# def download_data(s3_path: str, dest: str) -> None:
 #    if not os.path.isdir(dest):
 #        os.makedirs(dest)
 #    DownLoad().download_url(url=s3_path, path=dest)
@@ -106,6 +104,7 @@ def download_ckpt(s3_path: str, dest: str) -> str:
     dst_url = os.path.join(dest, filename)
 
     import moxing as mox
+
     mox.file.copy(src_url=s3_path, dst_url=dst_url)
     return dst_url
 
@@ -114,7 +113,9 @@ def upload_data(src: str, s3_path: str) -> None:
     abs_src = os.path.abspath(src)
     print(f"Uploading data from {abs_src} to s3")
     import moxing as mox
+
     mox.file.copy_parallel(src_url=abs_src, dst_url=s3_path)
+
 
 def modelarts_setup(args):
     if args.enable_modelarts:
@@ -122,9 +123,9 @@ def modelarts_setup(args):
 
         # change relative path of configure file to absolute
         if not os.path.isabs(args.config):
-            args.config = os.path.abspath(os.path.join(cur_dir, '../../', args.config))
+            args.config = os.path.abspath(os.path.join(cur_dir, "../../", args.config))
 
-        req_path = os.path.abspath(os.path.join(cur_dir, '../../requirements/modelarts.txt'))
+        req_path = os.path.abspath(os.path.join(cur_dir, "../../requirements/modelarts.txt"))
         install_packages(req_path)
         return True
     return False

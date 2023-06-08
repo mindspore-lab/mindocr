@@ -1,8 +1,10 @@
-from typing import Tuple, List
+from typing import List
+
 from mindspore import Tensor
-from .mindcv_models.resnet import ResNet, BasicBlock, Bottleneck, default_cfgs
-from .mindcv_models.utils import load_pretrained
+
 from ._registry import register_backbone, register_backbone_class
+from .mindcv_models.resnet import BasicBlock, Bottleneck, ResNet, default_cfgs
+from .mindcv_models.utils import load_pretrained
 
 __all__ = ['DetResNet', 'det_resnet50', 'det_resnet18', 'det_resnet152']
 

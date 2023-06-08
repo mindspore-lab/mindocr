@@ -10,7 +10,6 @@ import urllib
 import urllib.error
 import urllib.request
 import zipfile
-import ssl
 from copy import deepcopy
 from typing import Optional
 
@@ -157,7 +156,7 @@ class DownLoad:
                     ssl._create_default_https_context = ssl.create_default_context
             else:
                 raise e
-        
+
         return file_path
 
     def download_and_extract_archive(

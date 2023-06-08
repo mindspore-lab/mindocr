@@ -1,5 +1,5 @@
-from typing import Tuple, List
-from mindspore import nn, Tensor, ops
+from mindspore import nn
+
 from ._registry import register_backbone, register_backbone_class
 
 __all__ = ['RecResNet', 'rec_resnet34']
@@ -26,9 +26,9 @@ class ConvNormLayer(nn.Cell):
             stride=1 if is_vd_mode else stride,
             pad_mode='pad',
             padding=(kernel_size - 1) // 2,
-            )
+        )
         self.norm = nn.BatchNorm2d(num_features=out_channels, eps=1e-5, momentum=0.9,
-                                          gamma_init=1, beta_init=0, moving_mean_init=0, moving_var_init=1)
+                                   gamma_init=1, beta_init=0, moving_mean_init=0, moving_var_init=1)
         self.act_func = nn.ReLU()
         self.act = act
 
@@ -97,7 +97,7 @@ class RecResNet(nn.Cell):
         self.layers = layers
         supported_layers = [34]
         assert layers in supported_layers, "only support {} layers but input layer is {}".format(
-                supported_layers, layers)
+            supported_layers, layers)
 
         depth = [3, 4, 6, 3]
         num_channels = [64, 64, 128, 256]
@@ -135,12 +135,12 @@ class RecResNet(nn.Cell):
                 is_first = block_id == i == 0
                 in_channels = num_channels[block_id] if i == 0 else num_filters[block_id]
                 basic_block = BasicBlock(
-                                in_channels=in_channels,
-                                out_channels=num_filters[block_id],
-                                stride=stride,
-                                shortcut=shortcut,
-                                if_first=is_first
-                                )
+                    in_channels=in_channels,
+                    out_channels=num_filters[block_id],
+                    stride=stride,
+                    shortcut=shortcut,
+                    if_first=is_first
+                )
                 shortcut = True
                 self.block_list.append(basic_block)
 

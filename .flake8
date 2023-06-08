@@ -6,7 +6,31 @@ extend-exclude =
     setup.py
 extend-ignore = E203
 per-file-ignores =
-    */__init__.py:F401,F403
-    mindocr/data/__init__.py:F403,F405
-    examples/*,tests/*:E402
-    recipes/text/cleaners.py:E402
+    */__init__.py:F401,F403,E402
+    */builder.py:F401,F403,E402
+    tools/eval.py:E402
+    tools/train.py:E402
+    tools/infer/text/postprocess.py:E402
+    tools/infer/text/preprocess.py:E402
+    tools/infer/text/predict_det.py:E402
+    tools/benchmarking/multi_dataset_eval.py:E402
+    tools/export.py:E402
+    tools/infer/text/parallel/base_predict.py:E402
+    tools/infer/text/parallel/predict_system.py:E402
+    tools/infer/text/predict_system.py:E402
+    tools/infer/text/predict_rec.py:E402
+    deploy/demo/mindocr_lite/infer.py:E402
+    deploy/eval_utils/eval_det.py:E402
+    deploy/models_utils/auto_scaling/converter.py:E402
+    deploy/py_infer/infer.py:E402
+    deploy/py_infer/src/data_process/postprocess/det_east_postprocess.py:E402
+    deploy/py_infer/src/data_process/postprocess/det_postprocess.py:E402
+    deploy/eval_utils/eval_rec.py:E402
+    deploy/py_infer/src/data_process/postprocess/rec_postprocess.py:E402
+    deploy/py_infer/src/data_process/preprocess/transforms/det_transforms.py:E402
+    deploy/py_infer/src/data_process/preprocess/transforms/general_transforms.py:E402
+    deploy/py_infer/src/data_process/preprocess/transforms/rec_transforms.py:E402
+    mindocr/data/transforms/transforms_factory.py:F401,F403
+    tests/*:E402
+    tests/ut/dataset_convert/test_dataset_converter.py:E402
+    tests/ut/test_datasets.py:F401,E402

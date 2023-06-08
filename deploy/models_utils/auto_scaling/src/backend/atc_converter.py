@@ -6,13 +6,10 @@ import time
 class ATCConverter:
     def __init__(self, params):
         try:
-            subprocess.Popen(
-                ["atc"], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            )
+            subprocess.Popen(["atc"], shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except FileNotFoundError as file_error:
             logging.error(
-                "atc tools is not available. please set environment variables of ascend-toolkit and "
-                "ensure valid."
+                "atc tools is not available. please set environment variables of ascend-toolkit and " "ensure valid."
             )
             raise file_error
         finally:

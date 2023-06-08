@@ -13,9 +13,7 @@ class LiteConverter:
                 stderr=subprocess.PIPE,
             )
         except FileNotFoundError as file_error:
-            logging.error(
-                "Mindspore Lite tools is not available. please set environment variables and ensure valid."
-            )
+            logging.error("Mindspore Lite tools is not available. please set environment variables and ensure valid.")
             raise file_error
         finally:
             time.sleep(1)

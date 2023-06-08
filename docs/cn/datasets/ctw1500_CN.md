@@ -12,7 +12,7 @@
 ```txt
 ctw1500
  ├── ctw1500_train_labels
- │   ├── 0001.xml 
+ │   ├── 0001.xml
  │   ├── 0002.xml
  │   ├── ...
  ├── gt_ctw_1500
@@ -40,14 +40,14 @@ python tools/dataset_converters/convert.py \
     --dataset_name ctw1500 --task det \
     --image_dir path/to/ctw1500/train_images/ \
     --label_dir path/to/ctw1500/ctw_1500_train_labels \
-    --output_path path/to/ctw1500/train_det_gt.txt 
+    --output_path path/to/ctw1500/train_det_gt.txt
 ```
 ```bash
 python tools/dataset_converters/convert.py \
     --dataset_name ctw1500 --task det \
     --image_dir path/to/ctw1500/test_images/ \
     --label_dir path/to/ctw1500/gt_ctw_1500 \
-    --output_path path/to/ctw1500/test_det_gt.txt 
+    --output_path path/to/ctw1500/test_det_gt.txt
 ```
 
 运行后，在文件夹 `ctw1500/` 下有两个注释文件 `train_det_gt.txt` 和 `test_det_gt.txt`。

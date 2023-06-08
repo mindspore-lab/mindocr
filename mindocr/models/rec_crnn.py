@@ -1,11 +1,9 @@
-import mindspore.nn as nn
-from mindspore.ops import operations as ops
-from .base_model import BaseModel
 from ._registry import register_model
 from .backbones.mindcv_models.utils import load_pretrained
-
+from .base_model import BaseModel
 
 __all__ = ['CRNN', 'crnn_resnet34', 'crnn_vgg7', 'crnn_resnet34_ch']
+
 
 def _cfg(url='', input_size=(3, 32, 100), **kwargs):
     return {

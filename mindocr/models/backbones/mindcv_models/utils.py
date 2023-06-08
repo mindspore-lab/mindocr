@@ -5,9 +5,9 @@ import collections.abc
 import difflib
 import logging
 import os
+from copy import deepcopy
 from itertools import repeat
 from typing import List, Optional
-from copy import deepcopy
 
 from mindspore import load_checkpoint, load_param_into_net
 
@@ -51,7 +51,7 @@ def auto_map(model, param_dict):
             poss = difflib.get_close_matches(param.name, ckpt_param, n=3, cutoff=0.6)
             if len(poss) > 0:
                 print('=> Find most matched param: ', poss[0], ', loaded')
-                updated_param_dict[param.name] = updated_param_dict.pop(poss[0]) # replace
+                updated_param_dict[param.name] = updated_param_dict.pop(poss[0])  # replace
                 remap[param.name] = poss[0]
             else:
                 raise ValueError('Cannot find any matching param from: ', ckpt_param)
@@ -70,8 +70,10 @@ def load_pretrained(model, default_cfg, num_classes=1000, in_channels=3, filter_
 
     try:
         param_dict = load_checkpoint(file_path)
-    except:
-        print(f'ERROR: Fails to load the checkpoint. Please check whether the checkpoint is downloaded successfully as `{file_path}` and is not zero-byte. You may try to manually download the checkpoint from ', default_cfg["url"])
+    except Exception:
+        print(f'ERROR: Fails to load the checkpoint. Please check whether the checkpoint is downloaded successfully as '
+              f'`{file_path}` and is not zero-byte. You may try to manually download the checkpoint from ',
+              default_cfg["url"])
         param_dict = dict()
 
     if auto_mapping:

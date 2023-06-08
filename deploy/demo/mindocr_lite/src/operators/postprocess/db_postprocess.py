@@ -1,4 +1,5 @@
 from typing import List
+
 import cv2
 import numpy as np
 import pyclipper
@@ -6,16 +7,23 @@ from shapely.geometry import Polygon
 
 
 class DBPostProcess:
-    def __init__(self, binary_thresh=0.3, box_thresh=0.6, max_candidates=1000, expand_ratio=1.5,
-                 box_type='quad', pred_name='binary'):
+    def __init__(
+        self,
+        binary_thresh=0.3,
+        box_thresh=0.6,
+        max_candidates=1000,
+        expand_ratio=1.5,
+        box_type="quad",
+        pred_name="binary",
+    ):
         self._min_size = 3
         self._binary_thresh = binary_thresh
         self._box_thresh = box_thresh
         self._max_candidates = max_candidates
         self._expand_ratio = expand_ratio
-        self._out_poly = box_type=='poly'
+        self._out_poly = box_type == "poly"
         self._name = pred_name
-        self._names = {'binary': 0, 'thresh': 1, 'thresh_binary': 2}
+        self._names = {"binary": 0, "thresh": 1, "thresh_binary": 2}
 
     def __call__(self, pred: np.ndarray, src_width, src_height):
         pre_pred = pred.squeeze(1)[0]
@@ -35,7 +43,7 @@ class DBPostProcess:
             contours, _ = outs[0], outs[1]
 
         polys, scores = [], []
-        for contour in contours[:self._max_candidates]:
+        for contour in contours[: self._max_candidates]:
             contour = contour.squeeze(1)
             score = self._calc_score(pred, bitmap, contour)
             if score < self._box_thresh:
@@ -65,7 +73,8 @@ class DBPostProcess:
 
             # TODO: an alternative solution to avoid calling self._fit_box twice:
             # box = Polygon(points)
-            # box = np.array(expand_poly(points, distance=box.area * self._expand_ratio / box.length, joint_type=pyclipper.JT_MITER))
+            # box = np.array(
+            # expand_poly(points, distance=box.area * self._expand_ratio / box.length, joint_type=pyclipper.JT_MITER))
             # assert box.shape[0] == 4, print(f'box shape is {box.shape}')
 
             # predictions may not be the same size as the input image => scale it
@@ -103,9 +112,7 @@ class DBPostProcess:
             index_2 = 3
             index_3 = 2
 
-        box = [
-            points[index_1], points[index_2], points[index_3], points[index_4]
-        ]
+        box = [points[index_1], points[index_2], points[index_3], points[index_4]]
         return box, min(bounding_box[1])
 
     @staticmethod
@@ -115,12 +122,13 @@ class DBPostProcess:
         """
         min_vals = np.clip(np.floor(np.min(contour, axis=0)), 0, np.array(pred.shape[::-1]) - 1).astype(np.int32)
         max_vals = np.clip(np.ceil(np.max(contour, axis=0)), 0, np.array(pred.shape[::-1]) - 1).astype(np.int32)
-        return cv2.mean(pred[min_vals[1]:max_vals[1] + 1, min_vals[0]:max_vals[0] + 1],
-                        mask[min_vals[1]:max_vals[1] + 1, min_vals[0]:max_vals[0] + 1].astype(np.uint8))[0]
+        return cv2.mean(
+            pred[min_vals[1] : max_vals[1] + 1, min_vals[0] : max_vals[0] + 1],
+            mask[min_vals[1] : max_vals[1] + 1, min_vals[0] : max_vals[0] + 1].astype(np.uint8),
+        )[0]
 
     @staticmethod
     def expand_poly(poly, distance: float, joint_type=pyclipper.JT_ROUND) -> List[list]:
         offset = pyclipper.PyclipperOffset()
         offset.AddPath(poly, joint_type, pyclipper.ET_CLOSEDPOLYGON)
         return offset.Execute(distance)
-

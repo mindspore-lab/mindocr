@@ -1,7 +1,7 @@
 [English](../../en/datasets/icdar2015.md) | 中文
 
 # 数据集下载
-ICDAR 2015 [文章](https://rrc.cvc.uab.es/?ch=4) 
+ICDAR 2015 [文章](https://rrc.cvc.uab.es/?ch=4)
 
 [下载地址](https://rrc.cvc.uab.es/?ch=4&com=downloads): 在下载之前，您需要先注册一个账号。
 

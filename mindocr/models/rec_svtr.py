@@ -2,7 +2,6 @@ from ._registry import register_model
 from .backbones.mindcv_models.utils import load_pretrained
 from .base_model import BaseModel
 
-
 __all__ = ["SVTR", "svtr_tiny", "svtr_tiny_ch"]
 
 

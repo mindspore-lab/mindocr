@@ -8,8 +8,7 @@ import numpy as np
 from mindspore.dataset.transforms import Compose
 from mindspore.dataset.vision import RandomColorAdjust
 
-
-__all__ = ['SVTRRecAug']
+__all__ = ["SVTRRecAug"]
 
 
 def sample_asym(magnitude, size=None):
@@ -37,9 +36,7 @@ def get_interpolation(type="random"):
     elif type == "area":
         interpolation = cv2.INTER_AREA
     else:
-        raise TypeError(
-            "Interpolation types only nearest, linear, cubic, area are supported!"
-        )
+        raise TypeError("Interpolation types only nearest, linear, cubic, area are supported!")
     return interpolation
 
 
@@ -56,9 +53,7 @@ class CVRandomRotation(object):
     def __call__(self, img):
         angle = self.get_params(self.degrees)
         src_h, src_w = img.shape[:2]
-        M = cv2.getRotationMatrix2D(
-            center=(src_w / 2, src_h / 2), angle=angle, scale=1.0
-        )
+        M = cv2.getRotationMatrix2D(center=(src_w / 2, src_h / 2), angle=angle, scale=1.0)
         abs_cos, abs_sin = abs(M[0, 0]), abs(M[0, 1])
         dst_w = int(src_h * abs_sin + src_w * abs_cos)
         dst_h = int(src_h * abs_cos + src_w * abs_sin)
@@ -66,9 +61,7 @@ class CVRandomRotation(object):
         M[1, 2] += (dst_h - src_h) / 2
 
         flags = get_interpolation()
-        return cv2.warpAffine(
-            img, M, (dst_w, dst_h), flags=flags, borderMode=cv2.BORDER_REPLICATE
-        )
+        return cv2.warpAffine(img, M, (dst_w, dst_h), flags=flags, borderMode=cv2.BORDER_REPLICATE)
 
 
 class CVRandomAffine(object):
@@ -98,9 +91,7 @@ class CVRandomAffine(object):
         if shear is not None:
             if isinstance(shear, numbers.Number):
                 if shear < 0:
-                    raise ValueError(
-                        "If shear is a single number, it must be positive."
-                    )
+                    raise ValueError("If shear is a single number, it must be positive.")
                 self.shear = [shear]
             else:
                 assert isinstance(shear, (tuple, list)) and (
@@ -119,8 +110,7 @@ class CVRandomAffine(object):
 
         if not isinstance(shear, (tuple, list)) and len(shear) == 2:
             raise ValueError(
-                "Shear should be a single value or a tuple/list containing "
-                + "two values. Got {}".format(shear)
+                "Shear should be a single value or a tuple/list containing " + "two values. Got {}".format(shear)
             )
 
         rot = math.radians(angle)
@@ -176,20 +166,17 @@ class CVRandomAffine(object):
 
     def __call__(self, img):
         src_h, src_w = img.shape[:2]
-        angle, translate, scale, shear = self.get_params(
-            self.degrees, self.translate, self.scale, self.shear, src_h
-        )
+        angle, translate, scale, shear = self.get_params(self.degrees, self.translate, self.scale, self.shear, src_h)
 
-        M = self._get_inverse_affine_matrix(
-            (src_w / 2, src_h / 2), angle, (0, 0), scale, shear
-        )
+        M = self._get_inverse_affine_matrix((src_w / 2, src_h / 2), angle, (0, 0), scale, shear)
         M = np.array(M).reshape(2, 3)
 
         startpoints = [(0, 0), (src_w - 1, 0), (src_w - 1, src_h - 1), (0, src_h - 1)]
-        project = lambda x, y, a, b, c: int(a * x + b * y + c)
-        endpoints = [
-            (project(x, y, *M[0]), project(x, y, *M[1])) for x, y in startpoints
-        ]
+
+        def project(x, y, a, b, c):
+            return int(a * x + b * y + c)
+
+        endpoints = [(project(x, y, *M[0]), project(x, y, *M[1])) for x, y in startpoints]
 
         rect = cv2.minAreaRect(np.array(endpoints))
         bbox = cv2.boxPoints(rect).astype(dtype=np.int)
@@ -210,9 +197,7 @@ class CVRandomAffine(object):
             M[1, 2] += abs(translate[1])
 
         flags = get_interpolation()
-        return cv2.warpAffine(
-            img, M, (dst_w, dst_h), flags=flags, borderMode=cv2.BORDER_REPLICATE
-        )
+        return cv2.warpAffine(img, M, (dst_w, dst_h), flags=flags, borderMode=cv2.BORDER_REPLICATE)
 
 
 class CVRandomPerspective(object):
@@ -229,9 +214,7 @@ class CVRandomPerspective(object):
 
         startpoints = [(0, 0), (width - 1, 0), (width - 1, height - 1), (0, height - 1)]
         endpoints = [topleft, topright, botright, botleft]
-        return np.array(startpoints, dtype=np.float32), np.array(
-            endpoints, dtype=np.float32
-        )
+        return np.array(startpoints, dtype=np.float32), np.array(endpoints, dtype=np.float32)
 
     def __call__(self, img):
         height, width = img.shape[:2]
@@ -246,9 +229,7 @@ class CVRandomPerspective(object):
         min_x, min_y = max(min_x, 0), max(min_y, 0)
 
         flags = get_interpolation()
-        img = cv2.warpPerspective(
-            img, M, (max_x, max_y), flags=flags, borderMode=cv2.BORDER_REPLICATE
-        )
+        img = cv2.warpPerspective(img, M, (max_x, max_y), flags=flags, borderMode=cv2.BORDER_REPLICATE)
         img = img[min_y:, min_x:]
         return img
 
@@ -278,9 +259,7 @@ class CVRescale(object):
         scale_img = cv2.resize(img, (cur_w, cur_h), interpolation=get_interpolation())
         for _ in range(self.factor):
             scale_img = cv2.pyrDown(scale_img)
-        scale_img = cv2.resize(
-            scale_img, (src_w, src_h), interpolation=get_interpolation()
-        )
+        scale_img = cv2.resize(scale_img, (src_w, src_h), interpolation=get_interpolation())
         return scale_img
 
 
@@ -314,9 +293,7 @@ class CVMotionBlur(object):
         M = cv2.getRotationMatrix2D((self.degree // 2, self.degree // 2), self.angle, 1)
         motion_blur_kernel = np.zeros((self.degree, self.degree))
         motion_blur_kernel[self.degree // 2, :] = 1
-        motion_blur_kernel = cv2.warpAffine(
-            motion_blur_kernel, M, (self.degree, self.degree)
-        )
+        motion_blur_kernel = cv2.warpAffine(motion_blur_kernel, M, (self.degree, self.degree))
         motion_blur_kernel = motion_blur_kernel / self.degree
         img = cv2.filter2D(img, -1, motion_blur_kernel)
         img = np.clip(img, 0, 255).astype(np.uint8)
@@ -326,9 +303,7 @@ class CVMotionBlur(object):
 class CVColorJitter(object):
     def __init__(self, brightness=0.5, contrast=0.5, saturation=0.5, hue=0.1, p=0.5):
         self.p = p
-        self.transforms = RandomColorAdjust(
-            brightness=brightness, contrast=contrast, saturation=saturation, hue=hue
-        )
+        self.transforms = RandomColorAdjust(brightness=brightness, contrast=contrast, saturation=saturation, hue=hue)
 
     def __call__(self, img):
         if random.random() < self.p:
@@ -373,11 +348,7 @@ class SVTRGeometry(object):
         self.p = p
         self.transforms = []
         self.transforms.append(CVRandomRotation(degrees=degrees))
-        self.transforms.append(
-            CVRandomAffine(
-                degrees=degrees, translate=translate, scale=scale, shear=shear
-            )
-        )
+        self.transforms.append(CVRandomAffine(degrees=degrees, translate=translate, scale=scale, shear=shear))
         self.transforms.append(CVRandomPerspective(distortion=distortion))
 
     def __call__(self, img):
@@ -394,9 +365,7 @@ class SVTRGeometry(object):
 
 
 class SVTRRecAug(object):
-    def __init__(
-        self, aug_type=0, geometry_p=0.5, deterioration_p=0.25, colorjitter_p=0.25
-    ):
+    def __init__(self, aug_type=0, geometry_p=0.5, deterioration_p=0.25, colorjitter_p=0.25):
         self.transforms = Compose(
             [
                 SVTRGeometry(

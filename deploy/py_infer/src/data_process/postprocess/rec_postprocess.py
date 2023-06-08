@@ -7,7 +7,7 @@ import numpy as np
 mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../.."))
 sys.path.insert(0, mindocr_path)
 
-from mindocr.postprocess import rec_postprocess  # noqa
+from mindocr.postprocess import rec_postprocess
 
 
 #  TODO: unify RecCTCLabelDecode with with trained side
@@ -91,14 +91,15 @@ class RecCTCLabelDecode(rec_postprocess.RecCTCLabelDecode):
 
 
 class ViTSTRLabelDecode(rec_postprocess.RecCTCLabelDecode):
-    def __init__(self, character_dict_path=None,
-                 use_space_char=False,
-                 use_redundant_space_char=False,
-                 blank_at_last=True,
-                 **kwargs):
-        super().__init__(
-            character_dict_path, use_space_char, use_redundant_space_char, blank_at_last, **kwargs
-        )
+    def __init__(
+        self,
+        character_dict_path=None,
+        use_space_char=False,
+        use_redundant_space_char=False,
+        blank_at_last=True,
+        **kwargs,
+    ):
+        super().__init__(character_dict_path, use_space_char, use_redundant_space_char, blank_at_last, **kwargs)
         char_list = list(self.character.values())[1:]
         char_list = ["<s>", "</s>"] + char_list
         self.character = {idx: c for idx, c in enumerate(char_list)}
@@ -114,13 +115,13 @@ class ViTSTRLabelDecode(rec_postprocess.RecCTCLabelDecode):
             for idx in range(len(char_indices[batch_idx])):
                 try:
                     char_idx = self.character[int(char_indices[batch_idx][idx])]
-                except:
+                except Exception:
                     continue
                 if char_idx == "</s>":
                     break
                 char_list.append(char_idx)
                 conf_list.append(prob[batch_idx][idx]) if prob is not None else conf_list.append(1)
-            texts.append(''.join(char_list).lower())
+            texts.append("".join(char_list).lower())
             confs.append(np.mean(conf_list))
         return texts, confs
 
@@ -130,4 +131,4 @@ class ViTSTRLabelDecode(rec_postprocess.RecCTCLabelDecode):
         pred_indices = preds.argmax(axis=-1)
         preds_prob = preds.max(axis=2)
         texts, confs = self.decode(pred_indices, preds_prob, remove_duplicate=True)
-        return {'texts': texts, 'confs': confs}
+        return {"texts": texts, "confs": confs}

@@ -12,13 +12,13 @@
 ```txt
 MSRA-TD500
  ├── test
- │   ├── IMG_0059.gt 
+ │   ├── IMG_0059.gt
  │   ├── IMG_0059.JPG
  │   ├── IMG_0080.gt
  │   ├── IMG_0080.JPG
  │   ├── ...
  ├── train
- │   ├── IMG_0030.gt 
+ │   ├── IMG_0030.gt
  │   ├── IMG_0030.JPG
  │   ├── IMG_0063.gt
  │   ├── IMG_0063.JPG
@@ -36,14 +36,14 @@ python tools/dataset_converters/convert.py \
     --dataset_name td500 --task det \
     --image_dir path/to/MSRA-TD500/train/ \
     --label_dir path/to/MSRA-TD500/train \
-    --output_path path/to/MSRA-TD500/train_det_gt.txt 
+    --output_path path/to/MSRA-TD500/train_det_gt.txt
 ```
 ```bash
 python tools/dataset_converters/convert.py \
     --dataset_name td500 --task det \
     --image_dir path/to/MSRA-TD500/test/ \
     --label_dir path/to/MSRA-TD500/test \
-    --output_path path/to/MSRA-TD500/test_det_gt.txt 
+    --output_path path/to/MSRA-TD500/test_det_gt.txt
 ```
 
 运行后，在文件夹 `MSRA-TD500/` 下有两个注释文件 `train_det_gt.txt` 和 `test_det_gt.txt`。

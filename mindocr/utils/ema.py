@@ -1,11 +1,10 @@
 import mindspore as ms
 from mindspore import Parameter, Tensor, nn, ops
-from mindspore.common import RowTensor
 from mindspore.ops import composite as C
 from mindspore.ops import functional as F
-from mindspore.ops import operations as P
 
 _ema_op = C.MultitypeFuncGraph("grad_ema_op")
+
 
 @_ema_op.register("Tensor", "Tensor", "Tensor")
 def _ema_weights(factor, ema_weight, weight):
@@ -13,10 +12,11 @@ def _ema_weights(factor, ema_weight, weight):
 
 
 class EMA(nn.Cell):
-    '''
+    """
     Args:
         updates: number of ema updates, which can be restored from resumed training.
-    '''
+    """
+
     def __init__(self, network, ema_decay=0.9999, updates=0):
         super().__init__()
         # TODO: net.trainable_params() is more reasonable?
@@ -30,7 +30,6 @@ class EMA(nn.Cell):
         self.hyper_map = C.HyperMap()
         self.map = ops.HyperMap()
 
-
     def ema_update(self):
         """Update EMA parameters."""
         self.updates += 1
@@ -40,7 +39,7 @@ class EMA(nn.Cell):
         self.updates = F.depend(self.updates, success)
         return self.updates
 
-    #@ms_function
+    # @ms_function
     def swap_before_eval(self):
         # net -> swap
         success = self.map(ops.assign, self.swap_cache, self.net_weight)
@@ -48,7 +47,7 @@ class EMA(nn.Cell):
         success = F.depend(success, self.map(ops.assign, self.net_weight, self.ema_weight))
         return success
 
-    #@ms_function
+    # @ms_function
     def swap_after_eval(self):
         # swap -> net
         success = self.map(ops.assign, self.net_weight, self.swap_cache)

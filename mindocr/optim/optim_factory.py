@@ -1,7 +1,7 @@
 """ optim factory """
+import inspect
 import os
 from typing import Optional
-import inspect
 
 from mindspore import load_checkpoint, load_param_into_net, nn
 
@@ -30,18 +30,18 @@ def init_group_params(params, weight_decay):
 
 
 def create_optimizer(
-        params,
-        opt: str = "adam",
-        lr: Optional[float] = 1e-3,
-        weight_decay: float = 0,
-        momentum: float = 0.9,
-        nesterov: bool = False,
-        filter_bias_and_bn: bool = True,
-        loss_scale: float = 1.0,
-        schedule_decay: float = 4e-3,
-        checkpoint_path: str = "",
-        eps: float = 1e-10,
-        **kwargs,
+    params,
+    opt: str = "adam",
+    lr: Optional[float] = 1e-3,
+    weight_decay: float = 0,
+    momentum: float = 0.9,
+    nesterov: bool = False,
+    filter_bias_and_bn: bool = True,
+    loss_scale: float = 1.0,
+    schedule_decay: float = 4e-3,
+    checkpoint_path: str = "",
+    eps: float = 1e-10,
+    **kwargs,
 ):
     r"""Creates optimizer by name.
 
@@ -70,17 +70,21 @@ def create_optimizer(
     opt = opt.lower()
 
     if weight_decay and filter_bias_and_bn:
-        if not isinstance(params[0], dict):     # check whether param grouping strategy is encoded in `params`
+        if not isinstance(params[0], dict):  # check whether param grouping strategy is encoded in `params`
             params = init_group_params(params, weight_decay)
         else:
-            print("WARNING: Customized param grouping strategy detected in `params`. "
-                  "filter_bias_and_bn (default=True) will be disabled")
+            print(
+                "WARNING: Customized param grouping strategy detected in `params`. "
+                "filter_bias_and_bn (default=True) will be disabled"
+            )
 
     # opt_args = dict(**kwargs)
     # if lr is not None:
     #    opt_args.setdefault('lr', lr)
 
-    assert loss_scale == 1.0, 'loss scale must be 1.0 in optimizer due to gradients are already scaled previously in TrainStepWrapper.'
+    assert (
+        loss_scale == 1.0
+    ), "loss scale must be 1.0 in optimizer due to gradients are already scaled previously in TrainStepWrapper."
 
     # non-adaptive: SGD, momentum, and nesterov
     if opt == "sgd":
@@ -195,9 +199,11 @@ def create_optimizer(
 
 def _collect_args(kwargs, optim_class):
     ret = {}
-    valid_args = list(inspect.signature(optim_class.__init__).parameters.keys())[1:] # remove self
+    valid_args = list(inspect.signature(optim_class.__init__).parameters.keys())[1:]  # remove self
     for arg in valid_args:
-        assert arg != 'clip', ValueError('Gradient clipping should not be set in `optimizer`. Please set it in `train`.')
+        assert arg != "clip", ValueError(
+            "Gradient clipping should not be set in `optimizer`. Please set it in `train`."
+        )
         if arg in kwargs:
             ret[arg] = kwargs[arg]
     return ret

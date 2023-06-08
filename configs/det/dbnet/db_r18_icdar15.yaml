@@ -131,7 +131,7 @@ eval:
           img_mode: RGB
           to_float32: False
       - DetLabelEncode:
-      - DetResize: 
+      - DetResize:
           target_size: [ 736, 1280 ]
           keep_ratio: False
       - NormalizeImage:

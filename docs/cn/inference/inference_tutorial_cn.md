@@ -206,7 +206,7 @@ MindOCR除了支持自身训练端导出模型的推理外，还支持第三方�
           --character_dict_path /path/to/ppocr_keys_v1.txt \
           --res_save_dir det_cls_rec
   ```
-  
+
   结果保存在det_cls_rec/pipeline_results.txt，格式如下：
 
   ```

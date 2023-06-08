@@ -1,11 +1,11 @@
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
 import mindspore as ms
 import mindspore.nn as nn
 import mindspore.ops as ops
 from mindspore import Tensor
-from ..utils import GRUCell
 
+from ..utils import GRUCell
 
 __all__ = ["AttentionHead"]
 

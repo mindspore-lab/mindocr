@@ -21,7 +21,7 @@ SupportedTaskOrder = {
     InferModelComb.DET: [InferModelComb.DET],
     InferModelComb.REC: [InferModelComb.REC],
     InferModelComb.DET_REC: [InferModelComb.DET, InferModelComb.REC],
-    InferModelComb.DET_CLS_REC: [InferModelComb.DET, InferModelComb.CLS, InferModelComb.REC]
+    InferModelComb.DET_CLS_REC: [InferModelComb.DET, InferModelComb.CLS, InferModelComb.REC],
 }
 
 

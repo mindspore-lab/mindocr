@@ -12,9 +12,9 @@ class ProcessData:
     skip: bool = False
 
     # image basic info
-    image_path: str = ''
-    image_name: str = ''
-    image_id: int = ''
+    image_path: str = ""
+    image_name: str = ""
+    image_id: int = ""
     frame: np.ndarray = None
 
     original_width: int = 0

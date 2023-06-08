@@ -1,5 +1,6 @@
-from mindspore import nn, ops
 from math import pi
+
+from mindspore import nn, ops
 
 
 class EASTHead(nn.Cell):

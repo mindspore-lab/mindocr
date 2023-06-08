@@ -54,7 +54,7 @@ EAST的整体架构图如图1所示，包含以下阶段:
 
 请从[该网址](https://rrc.cvc.uab.es/?ch=4&com=downloads)下载ICDAR2015数据集，然后参考[数据转换](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README_CN.md)对数据集标注进行格式转换。
 
-完成数据准备工作后，数据的目录结构应该如下所示： 
+完成数据准备工作后，数据的目录结构应该如下所示：
 
 ``` text
 .
@@ -123,7 +123,7 @@ model:
 
 请确保yaml文件中的`distribute`参数为False。
 
-``` shell 
+``` shell
 # train east on ic15 dataset
 python tools/train.py --config configs/det/east/east_r50_icdar15.yaml
 ```
@@ -137,11 +137,11 @@ python tools/train.py --config configs/det/east/east_r50_icdar15.yaml
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/det/east/east_r50_icdar15.yaml
 ```
 
-训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为`./tmp_det`。 
+训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为`./tmp_det`。
 
 ### 3.5 评估
 
-评估环节，在yaml配置文件中将`ckpt_load_path`参数配置为checkpoint文件的路径，设置`distribute`为False，然后运行： 
+评估环节，在yaml配置文件中将`ckpt_load_path`参数配置为checkpoint文件的路径，设置`distribute`为False，然后运行：
 
 ``` shell
 python tools/eval.py --config configs/det/east/east_r50_icdar15.yaml

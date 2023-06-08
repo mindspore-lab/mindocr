@@ -4,7 +4,7 @@
 
 <!--- Guideline: use url linked to abstract in ArXiv instead of PDF for fast loading.  -->
 
-> PSENet: [Shape Robust Text Detection With Progressive Scale Expansion Network](https://openaccess.thecvf.com/content_CVPR_2019/html/Wang_Shape_Robust_Text_Detection_With_Progressive_Scale_Expansion_Network_CVPR_2019_paper.html)  
+> PSENet: [Shape Robust Text Detection With Progressive Scale Expansion Network](https://openaccess.thecvf.com/content_CVPR_2019/html/Wang_Shape_Robust_Text_Detection_With_Progressive_Scale_Expansion_Network_CVPR_2019_paper.html)
 
 ## 1. 概述
 
@@ -29,7 +29,7 @@ PSENet的整体架构图如图1所示，包含以下阶段:
 
 | **模型**              | **环境配置**       | **骨干网络**      | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间**     | **吞吐量**   | **配置文件**                            | **模型权重下载**                                                                                                                                                                                                |
 |---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-----------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 79.39%     | 84.91%        | 82.06%      | 138 s/epoch   | 7.57 img/s | [yaml](pse_r152_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir) 
+| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 79.39%     | 84.91%        | 82.06%      | 138 s/epoch   | 7.57 img/s | [yaml](pse_r152_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)
 </div>
 
 #### 注释：
@@ -49,7 +49,7 @@ PSENet的整体架构图如图1所示，包含以下阶段:
 
 请从[该网址](https://rrc.cvc.uab.es/?ch=4&com=downloads)下载ICDAR2015数据集，然后参考[数据转换](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README_CN.md)对数据集标注进行格式转换。
 
-完成数据准备工作后，数据的目录结构应该如下所示： 
+完成数据准备工作后，数据的目录结构应该如下所示：
 
 ``` text
 .
@@ -103,7 +103,7 @@ model:
   type: det
   transform: null
   backbone:
-    name: det_resnet152  
+    name: det_resnet152
     pretrained: True    # 是否使用ImageNet数据集上的预训练权重
   neck:
     name: PSEFPN         # PSENet的特征金字塔网络
@@ -119,7 +119,7 @@ model:
 
 训练前，请确保在/mindocr/postprocess/pse目录下按照以下方式编译后处理代码：
 
-``` shell 
+``` shell
 python3 setup.py build_ext --inplace
 ```
 
@@ -127,7 +127,7 @@ python3 setup.py build_ext --inplace
 
 请确保yaml文件中的`distribute`参数为False。
 
-``` shell 
+``` shell
 # train psenet on ic15 dataset
 python tools/train.py --config configs/det/psenet/pse_r152_icdar15.yaml
 ```
@@ -141,11 +141,11 @@ python tools/train.py --config configs/det/psenet/pse_r152_icdar15.yaml
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/det/psenet/pse_r152_icdar15.yaml
 ```
 
-训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为`./tmp_det`。 
+训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为`./tmp_det`。
 
 ### 3.5 评估
 
-评估环节，在yaml配置文件中将`ckpt_load_path`参数配置为checkpoint文件的路径，设置`distribute`为False，然后运行： 
+评估环节，在yaml配置文件中将`ckpt_load_path`参数配置为checkpoint文件的路径，设置`distribute`为False，然后运行：
 
 ``` shell
 python tools/eval.py --config configs/det/psenet/pse_r152_icdar15.yaml

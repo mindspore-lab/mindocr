@@ -1,21 +1,17 @@
 from sys import modules
 
-from .classification import CLSPreProcess, CLSInferProcess
-from .common import HandoutProcess, CollectProcess, DecodeProcess
-from .detection import DetPreProcess, DetInferProcess, DetPostProcess, SUPPORT_DET_MODEL
-from .recognition import RecPreProcess, RecInferProcess, RecPostProcess, SUPPORT_REC_MODEL
 from ..framework import InferModelComb
 from ..utils import log
+from .classification import CLSInferProcess, CLSPreProcess
+from .common import CollectProcess, DecodeProcess, HandoutProcess
+from .detection import SUPPORT_DET_MODEL, DetInferProcess, DetPostProcess, DetPreProcess
+from .recognition import SUPPORT_REC_MODEL, RecInferProcess, RecPostProcess, RecPreProcess
 
-DET_DESC = [('DetPreProcess', 1), ('DetInferProcess', 1), ('DetPostProcess', 1)]
-REC_DESC = [('RecPreProcess', 1), ('RecInferProcess', 1), ('RecPostProcess', 1)]
-CLS_DESC = [('CLSPreProcess', 1), ('CLSInferProcess', 1)]
+DET_DESC = [("DetPreProcess", 1), ("DetInferProcess", 1), ("DetPostProcess", 1)]
+REC_DESC = [("RecPreProcess", 1), ("RecInferProcess", 1), ("RecPostProcess", 1)]
+CLS_DESC = [("CLSPreProcess", 1), ("CLSInferProcess", 1)]
 
-MODEL_DICT = {
-    InferModelComb.DET: DET_DESC,
-    InferModelComb.REC: REC_DESC,
-    InferModelComb.CLS: CLS_DESC
-}
+MODEL_DICT = {InferModelComb.DET: DET_DESC, InferModelComb.REC: REC_DESC, InferModelComb.CLS: CLS_DESC}
 
 
 def processor_initiator(classname):

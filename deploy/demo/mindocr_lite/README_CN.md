@@ -57,8 +57,8 @@ python tools/export.py --model_name crnn_resnet34 --ckpt_load_path=crnn_resnet34
     export LD_LIBRARY_PATH=$LITE_HOME/runtime/lib:$LITE_HOME/tools/converter/lib:$LD_LIBRARY_PATH
     export PATH=$LITE_HOME/tools/converter/converter:$LITE_HOME/tools/benchmark:$PATH
     ```
-   
-    Python接口的Wheel包则使用pip安装： 
+
+    Python接口的Wheel包则使用pip安装：
 
     ```shell
     pip install mindspore_lite-{version}-{python_version}-linux_{arch}.whl

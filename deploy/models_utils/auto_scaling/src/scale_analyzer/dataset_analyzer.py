@@ -42,19 +42,13 @@ class DatasetAnalyzer:
         self.n_std = self.config.mean_std.n_std
         self.expand_ratio = self.config.max_min.expand_ratio
 
-        self.batch_size, _, self.input_height, self.input_width = list(
-            map(int, self.args.input_shape.split(","))
-        )
+        self.batch_size, _, self.input_height, self.input_width = list(map(int, self.args.input_shape.split(",")))
 
     def algorithm_min_max(self, widths):
         w_origin_min = min(widths)
         w_origin_max = max(widths)
-        w_expand_min = (
-            w_origin_min - (w_origin_max - w_origin_min) * self.expand_ratio / 2
-        )
-        w_expand_max = (
-            w_origin_max + (w_origin_max - w_origin_min) * self.expand_ratio / 2
-        )
+        w_expand_min = w_origin_min - (w_origin_max - w_origin_min) * self.expand_ratio / 2
+        w_expand_max = w_origin_max + (w_origin_max - w_origin_min) * self.expand_ratio / 2
 
         return w_expand_min, w_expand_max
 
@@ -119,13 +113,9 @@ class DatasetAnalyzer:
                         )
                     )
                     if self.input_height == -1 and self.input_width != -1:
-                        heights.append(
-                            int(img_crop_height * self.input_width / img_crop_width)
-                        )
+                        heights.append(int(img_crop_height * self.input_width / img_crop_width))
                     elif self.input_width == -1 and self.input_height != -1:
-                        widths.append(
-                            int(img_crop_width * self.input_height / img_crop_height)
-                        )
+                        widths.append(int(img_crop_width * self.input_height / img_crop_height))
                     else:
                         heights.append(img_crop_height)
                         widths.append(img_crop_width)
@@ -139,9 +129,7 @@ class DatasetAnalyzer:
                 b_range = self.algorithm_min_max(lens)
             else:
                 b_range = self.algorithm_mean_std(lens)
-            self.b_scaling = list(
-                filter(lambda x: b_range[0] <= x <= b_range[1], self.b_scaling)
-            )
+            self.b_scaling = list(filter(lambda x: b_range[0] <= x <= b_range[1], self.b_scaling))
 
         return widths, heights
 

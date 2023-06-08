@@ -1,7 +1,7 @@
 import os
 from collections import defaultdict
 
-from ...framework import ModuleBase, Model
+from ...framework import Model, ModuleBase
 from ...utils import check_valid_dir
 
 
@@ -11,8 +11,7 @@ class RecInferProcess(ModuleBase):
         self.model_list = defaultdict()
 
     def get_single_model(self, filename):
-        model = Model(engine_type=self.args.engine_type, model_path=filename,
-                      device_id=self.args.device_id)
+        model = Model(engine_type=self.args.engine_type, model_path=filename, device_id=self.args.device_id)
 
         _, shape_info = model.get_shape_info()
 

@@ -1,6 +1,6 @@
+from ._registry import register_model
 from .backbones.mindcv_models.utils import load_pretrained
 from .base_model import BaseModel
-from ._registry import register_model
 
 __all__ = ['EAST', 'east_resnet50']
 

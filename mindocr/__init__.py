@@ -1,10 +1,9 @@
-from . import data, losses, models, postprocess, metrics, utils
-
+from . import data, losses, metrics, models, postprocess, utils
 from .data import *
 from .losses import *
+from .metrics import *
 from .models import *
 from .postprocess import *
-from .metrics import *
 from .utils import *
 from .version import __version__
 

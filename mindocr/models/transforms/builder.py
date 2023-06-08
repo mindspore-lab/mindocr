@@ -1,7 +1,7 @@
-from .stn import STN_ON
-
 __all__ = ["build_trans"]
 supported_trans = ["STN_ON"]
+
+from .stn import STN_ON
 
 
 def build_trans(trans_name, **kwargs):

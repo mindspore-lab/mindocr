@@ -1,14 +1,13 @@
 from typing import List
 
 import numpy as np
-import mindspore as ms
-from mindspore import nn, ms_function
-import mindspore.ops as ops
-from mindspore import Tensor
-from mindspore.communication import get_group_size
 from shapely.geometry import Polygon
 
-__all__ = ['DetMetric']
+import mindspore as ms
+import mindspore.ops as ops
+from mindspore import Tensor, ms_function, nn
+
+__all__ = ["DetMetric"]
 
 
 def _get_intersect(pd, pg):
@@ -20,8 +19,8 @@ def _get_iou(pd, pg):
 
 
 class DetectionIoUEvaluator:
-    '''
-    '''
+    """ """
+
     def __init__(self, min_iou=0.5, min_intersect=0.5):
         self._min_iou = min_iou
         self._min_intersect = min_intersect
@@ -30,9 +29,9 @@ class DetectionIoUEvaluator:
         # filter invalid groundtruth polygons and split them into useful and ignored
         gt_polys, gt_ignore = [], []
         for sample in gt:
-            poly = Polygon(sample['polys'])
+            poly = Polygon(sample["polys"])
             if poly.is_valid and poly.is_simple:
-                if not sample['ignore']:
+                if not sample["ignore"]:
                     gt_polys.append(poly)
                 else:
                     gt_ignore.append(poly)
@@ -78,15 +77,15 @@ class DetectionIoUEvaluator:
 
 
 class DetMetric(nn.Metric):
-    '''
-    '''
+    """ """
+
     def __init__(self, device_num=1, **kwargs):
         super().__init__()
         self._evaluator = DetectionIoUEvaluator()
         self._gt_labels, self._det_labels = [], []
         self.device_num = device_num
         self.all_reduce = None if device_num == 1 else ops.AllReduce()
-        self.metric_names = ['recall', 'precision', 'f-score']
+        self.metric_names = ["recall", "precision", "f-score"]
 
     def clear(self):
         self._gt_labels, self._det_labels = [], []
@@ -100,15 +99,16 @@ class DetMetric(nn.Metric):
                     preds (dict): text detection prediction as a dictionary with keys:
                         polys: np.ndarray of shape (N, K, 4, 2)
                         score: np.ndarray of shape (N, K), confidence score
-                    gts (tuple): ground truth - (polygons, ignore_tags), where polygons are in shape [num_images, num_boxes, 4, 2],
+                    gts (tuple): ground truth
+                        - (polygons, ignore_tags), where polygons are in shape [num_images, num_boxes, 4, 2],
                         ignore_tags are in shape [num_images, num_boxes], which can be defined by output_columns in yaml
         """
         preds, gts = inputs
-        preds = preds['polys']
+        preds = preds["polys"]
         polys, ignore = gts[0].asnumpy().astype(np.float32), gts[1].asnumpy()
 
         for sample_id in range(len(polys)):
-            gt = [{'polys': poly, 'ignore': ig} for poly, ig in zip(polys[sample_id], ignore[sample_id])]
+            gt = [{"polys": poly, "ignore": ig} for poly, ig in zip(polys[sample_id], ignore[sample_id])]
             gt_label, det_label = self._evaluator(gt, preds[sample_id])
             self._gt_labels.append(gt_label)
             self._det_labels.append(det_label)
@@ -134,8 +134,8 @@ class DetMetric(nn.Metric):
             f-score: f-score
         """
         # flatten predictions and labels into 1D-array
-        self._det_labels = np.array([l for label in self._det_labels for l in label])
-        self._gt_labels = np.array([l for label in self._gt_labels for l in label])
+        self._det_labels = np.array([lbl for label in self._det_labels for lbl in label])
+        self._gt_labels = np.array([lbl for label in self._gt_labels for lbl in label])
 
         tp, fp, fn = self.cal_matrix(self._det_labels, self._gt_labels)
         if self.all_reduce:
@@ -146,14 +146,10 @@ class DetMetric(nn.Metric):
         recall = _safe_divide(tp, (tp + fn))
         precision = _safe_divide(tp, (tp + fp))
         f_score = _safe_divide(2 * recall * precision, (recall + precision))
-        return {
-            'recall': recall,
-            'precision': precision,
-            'f-score': f_score
-        }
+        return {"recall": recall, "precision": precision, "f-score": f_score}
 
 
-def _safe_divide(numerator, denominator, val_if_zero_divide=0.):
+def _safe_divide(numerator, denominator, val_if_zero_divide=0.0):
     if denominator == 0:
         return val_if_zero_divide
     else:

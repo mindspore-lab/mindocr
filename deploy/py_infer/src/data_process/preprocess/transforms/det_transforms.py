@@ -7,7 +7,7 @@ import cv2
 mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../../.."))
 sys.path.insert(0, mindocr_path)
 
-from mindocr.data.transforms import det_transforms  # noqa
+from mindocr.data.transforms import det_transforms
 
 __all__ = ["DetResize", "ScalePadImage"]
 

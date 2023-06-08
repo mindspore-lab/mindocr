@@ -1,0 +1,15 @@
+[tool.isort]
+profile = "black"
+line_length = 120
+known_mindspore = ["mindspore"]
+known_first_party = ["mindocr"]
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "MINDSPORE", "FIRSTPARTY", "LOCALFOLDER"]
+
+[tool.black]
+line-length = 120
+force-exclude = '''
+(
+  docs
+  | ^/mindocr/models  # exclude the models folder where reviewers MUST check the script WORD BY WORD.
+)
+'''
