@@ -10,6 +10,7 @@ __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../..")))
 from mindocr.metrics import build_metric
 from mindspore import Tensor
+import mindspore as ms
 
 def _rec_adapt_train_pred(content):
     return {'texts': [content]}
@@ -17,8 +18,8 @@ def _rec_adapt_train_pred(content):
 def _rec_adapt_train_label(content):
     return Tensor(np.array([content]))
 
-def eval_rec_adapt_train(preds, labels):
-    metric_config = {"name": "RecMetric", "main_indicator": "acc", "character_dict_path": None,
+def eval_rec_adapt_train(preds, labels, character_dict_path):
+    metric_config = {"name": "RecMetric", "main_indicator": "acc", "character_dict_path": character_dict_path,
                           "ignore_space": True, "print_flag": False}
     metric = build_metric(metric_config)
 
@@ -49,13 +50,16 @@ def read_content(filename):
 
 
 if __name__ == '__main__':
+    ms.set_context(device_target="CPU")
     parser = argparse.ArgumentParser()
     parser.add_argument('--gt_path', required=True, type=str)
     parser.add_argument('--pred_path', required=True, type=str)
+    parser.add_argument('--character_dict_path', required=False, default=None, type=str)
     args = parser.parse_args()
 
     gt_path = args.gt_path
     pred_path = args.pred_path
+    character_dict_path = args.character_dict_path
 
     labels = read_content(gt_path)
     preds = read_content(pred_path)
@@ -66,6 +70,6 @@ if __name__ == '__main__':
         raise ValueError(f"The images in gt_path and pred_path must be the same.")
 
     print('----- Start adapted eval rec------')
-    eval_res = eval_rec_adapt_train(preds, labels)
+    eval_res = eval_rec_adapt_train(preds, labels, character_dict_path)
     print(eval_res)
     print('----- End adapted eval rec------')

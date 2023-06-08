@@ -50,26 +50,17 @@ def eval_det_adapt_train(preds, labels):
 
     adapted_preds = {}
     for img_name, content in preds.items():
-        if not content:  # content is empty
-            continue
         adapted_pred = _det_adapt_train_pred(content)
         adapted_preds[img_name] = adapted_pred
 
     adapted_labels = {}
     for img_name, content in labels.items():
-        if not content:  # content is empty
-            continue
         adapted_label = _det_adapt_train_label(content)
         adapted_labels[img_name] = adapted_label
 
-    if len(adapted_preds) != len(adapted_labels):
-        print(f"WARNING: The len of adapted_preds ({len(adapted_preds)}) is not equal to the len of adapted_labels ({len(adapted_labels)})."
-                      "Some contents are empty in pred or labels files.")
-
     for img_name, label in adapted_labels.items():
         pred = adapted_preds.get(img_name, None)
-        if pred:   # TODO: ignore the empty preds img, but it should be a valid but wrong pred results
-            metric.update(pred, label)
+        metric.update(pred, label)
 
     eval_res = metric.eval()
     return eval_res
