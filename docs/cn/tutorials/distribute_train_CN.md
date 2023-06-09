@@ -82,7 +82,8 @@ hccl_8p_10234567_127.0.0.1.json
 ``` shell
 bash ascend8p.sh
 ```
-其中`ascend8p.sh`脚本为：
+
+以CRNN训练为例，其`ascend8p.sh`脚本为：
 ``` shell
 #!/bin/bash
 export DEVICE_NUM=8
@@ -95,12 +96,14 @@ for ((i = 0; i < ${DEVICE_NUM}; i++)); do
     echo "Launching rank: ${RANK_ID}, device: ${DEVICE_ID}"
     if [ $i -eq 0 ]; then
   echo 'i am 0'
-      python -u tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml &> ./train.log &
+      python -u tools/train.py --config configs/rec/crnn/crnn_resnet34_zh.yaml &> ./train.log &
     else
   echo 'not 0'
-      python -u tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml &> /dev/null &
+      python -u tools/train.py --config configs/rec/crnn/crnn_resnet34_zh.yaml &> /dev/null &
     fi
 done
 ```
-其他模型可进行相应替换`python -u tools/train.py --config path/to/model_config.yaml`，
+
+当需要训练其他模型时，只要将脚本中的yaml config文件路径替换即可，即`python -u tools/train.py --config path/to/model_config.yaml`
+
 此时训练已经开始，可在`train.log`中查看训练日志。
