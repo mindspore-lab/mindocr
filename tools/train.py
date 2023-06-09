@@ -81,10 +81,8 @@ def main(cfg):
         )
 
     # create model
-    network = build_model(cfg.model, ckpt_load_path=cfg.model.pop("pretrained", None))
-
     amp_level = cfg.system.get("amp_level", "O0")
-    ms.amp.auto_mixed_precision(network, amp_level=amp_level)
+    network = build_model(cfg.model, ckpt_load_path=cfg.model.pop("pretrained", None), amp_level=amp_level)
 
     # create loss
     loss_fn = build_loss(cfg.loss.pop("name"), **cfg["loss"])
@@ -200,7 +198,7 @@ def main(cfg):
         f"Num epochs: {cfg.scheduler.num_epochs}\n"
         f"Clip gradient: {clip_grad}\n"
         f"EMA: {use_ema}\n"
-        f"AMP level: {cfg.system.amp_level}\n"
+        f"AMP level: {amp_level}\n"
         f"Loss scaler: {cfg.loss_scaler}\n"
         f"Drop overflow update: {cfg.system.drop_overflow_update}\n"
         f"{info_seg}\n"

@@ -23,7 +23,7 @@ def test_mindir_infer(model_name):
     else:
         c, h, w = 3, 736, 1280
 
-    export(model_name, [h, w])
+    export(model_name, [h, w], local_ckpt_path="", save_dir="")
 
     fn = f"{model_name}.mindir"
     graph = ms.load(fn)
