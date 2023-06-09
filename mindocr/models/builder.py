@@ -1,11 +1,11 @@
 """
 build models
 """
-import os
 from typing import Union
 
-# from mindspore import load_checkpoint, load_param_into_net
-from ._registry import model_entrypoint, list_models, is_model
+from mindspore.amp import auto_mixed_precision
+
+from ._registry import is_model, list_models, model_entrypoint
 from .base_model import BaseModel
 from .utils import load_model
 
@@ -16,17 +16,20 @@ def build_model(name_or_config: Union[str, dict], **kwargs):
     """
     There are two ways to build a model.
         1. load a predefined model according the given model name.
-        2. build the model according to the detailed configuration of the each module (transform, backbone, neck and head), for lower-level architecture customization.
+        2. build the model according to the detailed configuration of the each module (transform, backbone, neck and
+        head), for lower-level architecture customization.
 
     Args:
         name_or_config (Union[dict, str]): model name or config
             if it's a string, it should be a model name (which can be found by mindocr.list_models())
-            if it's a dict, it should be an architecture configuration defining the backbone/neck/head components (e.g., parsed from yaml config).
+            if it's a dict, it should be an architecture configuration defining the backbone/neck/head components
+            (e.g., parsed from yaml config).
 
         kwargs (dict): options
             if name_or_config is a model name, supported args in kwargs are:
                 - pretrained (bool): if True, pretrained checkpoint will be downloaded and loaded into the network.
-                - ckpt_load_path (str): path to checkpoint file. if a non-empty string given, the local checkpoint will loaded into the network.
+                - ckpt_load_path (str): path to checkpoint file. if a non-empty string given, the local checkpoint will
+                  loaded into the network.
             if name_or_config is an architecture definition dict, supported args are:
                 - ckpt_load_path (str): path to checkpoint file.
 
@@ -62,9 +65,14 @@ def build_model(name_or_config: Union[str, dict], **kwargs):
         load_from = kwargs["ckpt_load_path"]
         if isinstance(load_from, bool) and is_customized_model:
             raise ValueError(
-                "Cannot find the pretrained checkpoint for a customized model without giving the url or local path to the checkpoint.\nPlease specify the url or local path by setting `model-pretrained` (if training) or `eval-ckpt_load_path` (if evaluation) in the yaml config"
+                "Cannot find the pretrained checkpoint for a customized model without giving the url or local path "
+                "to the checkpoint.\nPlease specify the url or local path by setting `model-pretrained` (if training) "
+                "or `eval-ckpt_load_path` (if evaluation) in the yaml config"
             )
 
         load_model(network, load_from)
+
+    if "amp_level" in kwargs:
+        auto_mixed_precision(network, amp_level=kwargs["amp_level"])
 
     return network

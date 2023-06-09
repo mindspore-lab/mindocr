@@ -6,15 +6,15 @@ from multiprocessing import Manager
 import cv2
 import numpy as np
 
-from ...data_type import StopData, ProcessData, ProfilingData
-from ...framework import ModuleBase, InferModelComb
-from ...utils import safe_list_writer, log, Visualization, VisMode
+from ...data_type import ProcessData, ProfilingData, StopData
+from ...framework import InferModelComb, ModuleBase
+from ...utils import VisMode, Visualization, log, safe_list_writer
 
 _RESULTS_SAVE_FILENAME = {
-    InferModelComb.DET: 'det_results.txt',
-    InferModelComb.REC: 'rec_results.txt',
-    InferModelComb.DET_REC: 'pipeline_results.txt',
-    InferModelComb.DET_CLS_REC: 'pipeline_results.txt'
+    InferModelComb.DET: "det_results.txt",
+    InferModelComb.REC: "rec_results.txt",
+    InferModelComb.DET_REC: "pipeline_results.txt",
+    InferModelComb.DET_CLS_REC: "pipeline_results.txt",
 }
 
 
@@ -46,7 +46,7 @@ class CollectProcess(ModuleBase):
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             crop_list = vis_tool(image, box_list)
             for i, crop in enumerate(crop_list):
-                cv2.imwrite(filename + '_crop_' + str(i) + '.jpg', crop)
+                cv2.imwrite(filename + "_crop_" + str(i) + ".jpg", crop)
 
         if self.args.save_vis_pipeline_save_dir:
             filename = os.path.join(self.args.vis_pipeline_save_dir, os.path.splitext(image_name)[0])
@@ -55,7 +55,7 @@ class CollectProcess(ModuleBase):
             text_list = [x["transcription"] for x in self.image_pipeline_res[image_name]]
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             box_text = vis_tool(image, box_list, text_list, font_path=self.args.vis_font_path)
-            cv2.imwrite(filename + '.jpg', box_text)
+            cv2.imwrite(filename + ".jpg", box_text)
 
         if self.args.save_vis_det_save_dir:
             filename = os.path.join(self.args.vis_det_save_dir, os.path.splitext(image_name)[0])
@@ -63,20 +63,21 @@ class CollectProcess(ModuleBase):
             box_list = [np.array(x).reshape(-1, 2) for x in self.image_pipeline_res[image_name]]
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             box_line = vis_tool(image, box_list)
-            cv2.imwrite(filename + '.jpg', box_line)
+            cv2.imwrite(filename + ".jpg", box_line)
 
         log.info(f"{image_name} is finished.")
 
     def final_text_save(self):
         save_filename = os.path.join(self.res_save_dir, self.save_filename)
         safe_list_writer(self.image_pipeline_res, save_filename)
-        log.info(f'save infer result to {save_filename} successfully')
+        log.info(f"save infer result to {save_filename} successfully")
 
     def result_handle(self, input_data):
         if self.task_type in (InferModelComb.DET_REC, InferModelComb.DET_CLS_REC):
             for result in input_data.infer_result:
                 self.image_pipeline_res[input_data.image_name].append(
-                    {"transcription": result[-1], "points": result[:-1]})
+                    {"transcription": result[-1], "points": result[:-1]}
+                )
             if not input_data.infer_result:
                 self.image_pipeline_res[input_data.image_name] = []
         elif self.task_type == InferModelComb.DET:
@@ -84,7 +85,7 @@ class CollectProcess(ModuleBase):
         elif self.task_type == InferModelComb.REC:
             self.image_pipeline_res[input_data.image_name] = input_data.infer_result[0]
         else:
-            raise NotImplementedError(f"Task type do not support.")
+            raise NotImplementedError("Task type do not support.")
 
         if input_data.image_id in self.image_sub_remaining:
             self.image_sub_remaining[input_data.image_id] -= len(input_data.infer_result)
@@ -106,15 +107,20 @@ class CollectProcess(ModuleBase):
         elif isinstance(input_data, StopData):
             self.stop_handle(input_data)
         else:
-            raise ValueError('unknown input data')
+            raise ValueError("unknown input data")
 
         if self.image_total.value and self.infer_size == self.image_total.value:
             self.final_text_save()
-            self.send_to_next_module('stop')
+            self.send_to_next_module("stop")
 
     def stop(self):
-        profiling_data = ProfilingData(module_name=self.module_name, instance_id=self.instance_id,
-                                       device_id=self.device_id, process_cost_time=self.process_cost.value,
-                                       send_cost_time=self.send_cost.value, image_total=self.image_total.value)
+        profiling_data = ProfilingData(
+            module_name=self.module_name,
+            instance_id=self.instance_id,
+            device_id=self.device_id,
+            process_cost_time=self.process_cost.value,
+            send_cost_time=self.send_cost.value,
+            image_total=self.image_total.value,
+        )
         self.msg_queue.put(profiling_data, block=False)
         self.is_stop = True

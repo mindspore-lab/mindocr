@@ -1,11 +1,11 @@
 import math
-from typing import Union, List
+from typing import List, Union
 
 import cv2
 import numpy as np
 
+from ...utils import expand, get_hw_of_img, safe_div, to_chw_image
 from ..utils import constant
-from ...utils import to_chw_image, expand, get_hw_of_img, safe_div
 
 
 class RGB2BGR:
@@ -24,9 +24,7 @@ class RGB2BGR:
 
 
 class NormalizeImage:
-    def __init__(self,
-                 std=constant.NORMALIZE_STD,
-                 mean=constant.NORMALIZE_MEAN):
+    def __init__(self, std=constant.NORMALIZE_STD, mean=constant.NORMALIZE_MEAN):
         self.std = np.array(std).reshape((1, 1, 3)).astype(np.float32)
         self.mean = np.array(mean).reshape((1, 1, 3)).astype(np.float32)
 
@@ -80,9 +78,9 @@ class LimitMaxSide:
 
 
 class ResizeKeepAspectRatio:
-    def __call__(self,
-                 image: Union[np.ndarray, List[np.ndarray]],
-                 dst_hw: tuple) -> Union[np.ndarray, List[np.ndarray]]:
+    def __call__(
+        self, image: Union[np.ndarray, List[np.ndarray]], dst_hw: tuple
+    ) -> Union[np.ndarray, List[np.ndarray]]:
         if isinstance(image, (list, tuple)):
             dst_image = [self.resize(img, dst_hw) for img in image]
         else:
@@ -111,14 +109,14 @@ class ResizeKeepAspectRatio:
         height, width = get_hw_of_img(image_src=image_src)
         gear_h, gear_w = gear
         padding_h, padding_w = gear_h - height, gear_w - width
-        image_dst = cv2.copyMakeBorder(image_src, 0, padding_h, 0, padding_w, cv2.BORDER_CONSTANT, value=0.)
+        image_dst = cv2.copyMakeBorder(image_src, 0, padding_h, 0, padding_w, cv2.BORDER_CONSTANT, value=0.0)
         return image_dst
-    
-    
+
+
 class Resize:
-    def __call__(self,
-                 image: Union[np.ndarray, List[np.ndarray]],
-                 dst_hw: tuple) -> Union[np.ndarray, List[np.ndarray]]:
+    def __call__(
+        self, image: Union[np.ndarray, List[np.ndarray]], dst_hw: tuple
+    ) -> Union[np.ndarray, List[np.ndarray]]:
         if isinstance(image, (list, tuple)):
             dst_image = [self.resize(img, dst_hw) for img in image]
         else:
@@ -132,4 +130,3 @@ class Resize:
         dst_image = cv2.resize(image, (dst_w, dst_h))
 
         return dst_image
-

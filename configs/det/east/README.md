@@ -43,7 +43,8 @@ After determining the location and size of the text region, EAST further classif
 
 #### Notes：
 - Context: Training context denoted as {device}x{pieces}-{MS version}{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
-- The training time of EAST is highly affected by data processing and varies on different machines。
+- The training time of EAST is highly affected by data processing and varies on different machines.
+- The input_shape for exported MindIR in the link is `(1,3,720,1280)`.
 
 ## 3. Quick Start
 
@@ -57,7 +58,7 @@ Please refer to the [installation instruction](https://github.com/mindspore-lab/
 
 Please download [ICDAR2015](https://rrc.cvc.uab.es/?ch=4&com=downloads) dataset, and convert the labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
 
-The prepared dataset file struture should be: 
+The prepared dataset file struture should be:
 
 ``` text
 .
@@ -126,7 +127,7 @@ model:
 
 Please set `distribute` in yaml config file to be False.
 
-``` shell 
+``` shell
 # train east on ic15 dataset
 python tools/train.py --config configs/det/east/east_r50_icdar15.yaml
 ```
@@ -140,14 +141,55 @@ Please set `distribute` in yaml config file to be True.
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/det/east/east_r50_icdar15.yaml
 ```
 
-The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir` in yaml config file. The default directory is `./tmp_det`. 
+The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir` in yaml config file. The default directory is `./tmp_det`.
 
 ### 3.5 Evaluation
 
-To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run: 
+To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 
 ``` shell
 python tools/eval.py --config configs/det/east/east_r50_icdar15.yaml
+```
+
+### 3.6 MindSpore Lite Inference
+
+Please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial_en.md) for model inference based on MindSpot Lite on Ascend 310, including the following steps:
+
+- Model Export
+
+Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../README.md) tutorial and use the following command to export the trained ckpt model to  MindIR file:
+
+``` shell
+python tools/export.py --model_name east_resnet50 --data_shape 720 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+# or
+python tools/export.py --model_name configs/det/east/east_r50_icdar15.yaml --data_shape 720 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+```
+
+The `data_shape` is the model input shape of height and width for MindIR file. The shape value of MindIR in the download link can be found in [Notes](#notes).
+
+- Environment Installation
+
+Please refer to [Environment Installation](../../../docs/en/inference/environment_en.md#2-mindspore-lite-inference) tutorial to configure the MindSpore Lite inference environment.
+
+- Model Conversion
+
+Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial_en.md#1-mindocr-models),
+and use the `converter_lite` tool for offline conversion of the MindIR file, where the `input_shape` in `configFile` needs to be filled in with the value from MindIR export,
+as mentioned above (1, 3, 720, 1280), and the format is NCHW.
+
+- Inference
+
+Assuming that you obtain output.mindir after model conversion, go to the `deploy/py_infer` directory, and use the following command for inference:
+
+```shell
+python infer.py \
+    --input_images_dir=/your_path_to/test_images \
+    --device=Ascend \
+    --device_id=0 \
+    --det_model_path=your_path_to/output.mindir \
+    --det_config_path=../../configs/det/east/east_r50_icdar15.yaml \
+    --backend=lite \
+    --res_save_dir=results_dir
 ```
 
 ## References

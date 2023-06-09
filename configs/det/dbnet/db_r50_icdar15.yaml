@@ -136,7 +136,7 @@ eval:
       # Uncomment ScalePadImage block for other resolutions.
 #      - ScalePadImage:
 #          target_size: [ 736, 1280 ] # h, w
-      - DetResize: 
+      - DetResize:
           target_size: [ 736, 1280 ]
           keep_ratio: False
           force_divisable: True #  GridResize 32
@@ -192,4 +192,3 @@ predict:
     batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
     drop_remainder: False
     num_workers: 2
-

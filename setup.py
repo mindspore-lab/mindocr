@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 exec(open("mindocr/version.py").read())
+
 
 def read_requirements(fps):
     reqs = []
@@ -11,6 +12,7 @@ def read_requirements(fps):
             reqs.extend(f.readlines())
 
     return reqs
+
 
 setup(
     name="mindocr",
@@ -25,7 +27,7 @@ setup(
     license="Apache Software License 2.0",
     include_package_data=True,
     packages=find_packages(include=["mindocr", "mindocr.*"]),
-    install_requires=read_requirements(['requirements.txt']),
+    install_requires=read_requirements(["requirements.txt"]),
     python_requires=">=3.7",
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",

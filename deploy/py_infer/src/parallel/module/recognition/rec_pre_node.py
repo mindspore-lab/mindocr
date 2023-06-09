@@ -1,7 +1,7 @@
+from ....data_process.utils import gear_utils
+from ....infer import TaskType, TextRecognizer
 from ...datatype import ProcessData
 from ...framework import ModuleBase
-from ....data_process.utils import gear_utils
-from ....infer import TextRecognizer, TaskType
 
 
 class RecPreNode(ModuleBase):
@@ -35,11 +35,16 @@ class RecPreNode(ModuleBase):
         images = [input_data.frame]
         _, split_data = self.text_recognizer.preprocess(images)
 
-        send_data = ProcessData(sub_image_size=1,
-                                image_path=input_data.image_path, image_total=input_data.image_total,
-                                data=split_data[0], frame=input_data.frame,
-                                sub_image_total=1, image_name=input_data.image_name,
-                                image_id=input_data.image_id)
+        send_data = ProcessData(
+            sub_image_size=1,
+            image_path=input_data.image_path,
+            image_total=input_data.image_total,
+            data=split_data[0],
+            frame=input_data.frame,
+            sub_image_total=1,
+            image_name=input_data.image_name,
+            image_id=input_data.image_id,
+        )
 
         self.send_to_next_module(send_data)
 
@@ -53,9 +58,15 @@ class RecPreNode(ModuleBase):
         split_sub_results = gear_utils.split_by_size(sub_results, split_sub_bs)
 
         for split_image, split_data, split_result in zip(split_sub_images, split_sub_data, split_sub_results):
-            send_data = ProcessData(sub_image_size=len(split_image),
-                                    image_path=input_data.image_path, image_total=input_data.image_total,
-                                    infer_result=split_result, data=split_data, frame=input_data.frame,
-                                    sub_image_total=input_data.sub_image_total, image_name=input_data.image_name,
-                                    image_id=input_data.image_id)
+            send_data = ProcessData(
+                sub_image_size=len(split_image),
+                image_path=input_data.image_path,
+                image_total=input_data.image_total,
+                infer_result=split_result,
+                data=split_data,
+                frame=input_data.frame,
+                sub_image_total=input_data.sub_image_total,
+                image_name=input_data.image_name,
+                image_id=input_data.image_id,
+            )
             self.send_to_next_module(send_data)

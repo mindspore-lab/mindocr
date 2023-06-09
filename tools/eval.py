@@ -1,25 +1,24 @@
 """
 Model evaluation
 """
-import sys
 import os
+import sys
 
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "..")))
 
-from tools.arg_parser import parse_args_and_config
-import yaml
 from addict import Dict
 
 import mindspore as ms
-from mindspore.communication import init, get_rank, get_group_size
+from mindspore.communication import get_group_size, get_rank, init
 
 from mindocr.data import build_dataset
+from mindocr.metrics import build_metric
 from mindocr.models import build_model
 from mindocr.postprocess import build_postprocess
-from mindocr.metrics import build_metric
 from mindocr.utils.evaluator import Evaluator
 from mindocr.utils.logger import get_logger
+from tools.arg_parser import parse_args_and_config
 
 
 def main(cfg):
@@ -59,13 +58,9 @@ def main(cfg):
 
     # model
     cfg.model.backbone.pretrained = False
-    network = build_model(cfg.model, ckpt_load_path=cfg.eval.ckpt_load_path)
+    amp_level = cfg.system.get("amp_level_infer", "O0")
+    network = build_model(cfg.model, ckpt_load_path=cfg.eval.ckpt_load_path, amp_level=amp_level)
     network.set_train(False)
-
-    amp_level = "O0"
-    if cfg.system.amp_level_infer in ["O1", "O2", "O3"]:
-        ms.amp.auto_mixed_precision(network, amp_level=cfg.system.amp_level_infer)
-        amp_level = cfg.system.amp_level_infer
 
     # postprocess, metric
     postprocessor = build_postprocess(cfg.postprocess)
@@ -91,7 +86,9 @@ def main(cfg):
         if "shape_list" not in cfg.eval.dataset.output_columns:
             allow_postprocess_rescale = False
             logger.warning(
-                "`shape_list` is NOT found in yaml config, which is used to rescale postprocessing result back to orginal image space for detection. Please add it to `eval.dataset.output_columns` for a fair evaluation. [CRITICAL!!!!!]"
+                "`shape_list` is NOT found in yaml config, which is used to rescale postprocessing result back to "
+                "orginal image space for detection. Please add it to `eval.dataset.output_columns` for a fair "
+                "evaluation. [CRITICAL!!!!!]"
             )
 
     model_name = (
@@ -101,12 +98,11 @@ def main(cfg):
     )
     info_seg = "=" * 40
     det_spec = (
-        f"Allow rescaling polygons for Det postprocess: {allow_postprocess_rescale}"
-        if cfg.model.type == "det"
-        else ""
+        f"Allow rescaling polygons for Det postprocess: {allow_postprocess_rescale}" if cfg.model.type == "det" else ""
     )
     rec_spec = (
-        f"Character dict path: {cfg.common.character_dict_path}\nUse space char: {cfg.common.use_space_char}\nNum classes: {cfg.common.num_classes}"
+        f"Character dict path: {cfg.common.character_dict_path}\nUse space char: {cfg.common.use_space_char}\n"
+        f"Num classes: {cfg.common.num_classes}"
         if cfg.model.type == "rec"
         else ""
     )

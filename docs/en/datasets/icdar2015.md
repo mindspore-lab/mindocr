@@ -1,7 +1,7 @@
 English | [中文](../../cn/datasets/icdar2015_CN.md)
 
 # Data Downloading
-ICDAR 2015 [paper](https://rrc.cvc.uab.es/?ch=4) 
+ICDAR 2015 [paper](https://rrc.cvc.uab.es/?ch=4)
 
 [download source](https://rrc.cvc.uab.es/?ch=4&com=downloads): one must register an account to download the dataset.
 
@@ -12,7 +12,7 @@ ICDAR 2015 Challenge has three tasks. Task 1 is Text Localization. Task 3 is Wor
 
 ### Text Localization
 
-The four files downloaded from [web](https://rrc.cvc.uab.es/?ch=4&com=downloads) for task 1 are 
+The four files downloaded from [web](https://rrc.cvc.uab.es/?ch=4&com=downloads) for task 1 are
 ```
 ch4_training_images.zip
 ch4_training_localization_transcription_gt.zip
@@ -22,7 +22,7 @@ Challenge4_Test_Task1_GT.zip
 
 ### Word Recognition
 
-The three files downloaded from [web](https://rrc.cvc.uab.es/?ch=4&com=downloads) for task 3 are 
+The three files downloaded from [web](https://rrc.cvc.uab.es/?ch=4&com=downloads) for task 3 are
 ```
 ch4_training_word_images_gt.zip
 ch4_test_word_images_gt.zip
@@ -36,7 +36,7 @@ The three files are only needed for training word recognition models. Training t
 
 ### E2E
 
-The nine files downloaded from [web](https://rrc.cvc.uab.es/?ch=4&com=downloads) for task 4 are the union of the four files in the text localization task (task 1) and five vocabulary files 
+The nine files downloaded from [web](https://rrc.cvc.uab.es/?ch=4&com=downloads) for task 4 are the union of the four files in the text localization task (task 1) and five vocabulary files
 ```
 ch4_training_vocabulary.txt
 ch4_training_vocabularies_per_image.zip

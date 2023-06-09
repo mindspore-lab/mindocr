@@ -1,8 +1,10 @@
 import mindspore.nn as nn
 from mindspore.common.initializer import TruncatedNormal
+
 from ._registry import register_backbone, register_backbone_class
 
 __all__ = ['RecVGG', 'rec_vgg7']
+
 
 class Conv(nn.Cell):
     def __init__(self, in_channel, out_channel, kernel_size=3, stride=1, use_bn=False, pad_mode='pad', padding=0):

@@ -4,7 +4,6 @@ import mindspore.nn as nn
 import mindspore.ops as ops
 from mindspore import Tensor
 
-
 __all__ = ["Img2Seq"]
 
 

@@ -1,10 +1,11 @@
 import math
-import numpy as np
+
 import cv2
+import numpy as np
 from PIL import Image
 from shapely.geometry import Polygon
 
-__all__ = ['EASTProcessTrain']
+__all__ = ["EASTProcessTrain"]
 
 
 class EASTProcessTrain:
@@ -14,27 +15,25 @@ class EASTProcessTrain:
         self.length = length
 
     def __call__(self, data):
-        vertices, labels = self._extract_vertices(data['label'])
-        img = Image.fromarray(data['image'])
+        vertices, labels = self._extract_vertices(data["label"])
+        img = Image.fromarray(data["image"])
         img, vertices = self._adjust_height(img, vertices)
         img, vertices = self._adjust_width(img, vertices)
         if np.random.rand() < 0.5:
             img, vertices = self._rotate_img(img, vertices)
         img, vertices = self._crop_img(img, vertices, labels, self.length)
-        score_map, geo_map, ignored_map = self._get_score_geo(
-            img, vertices, labels, self.scale, self.length)
+        score_map, geo_map, ignored_map = self._get_score_geo(img, vertices, labels, self.scale, self.length)
         score_map = score_map.transpose(2, 0, 1)
         ignored_map = ignored_map.transpose(2, 0, 1)
         geo_map = geo_map.transpose(2, 0, 1)
         if np.sum(score_map) < 1:
             score_map[0, 0, 0] = 1
         image = np.asarray(img)
-        data['image'] = image
-        data['score_map'] = score_map
-        data['geo_map'] = geo_map
-        data['training_mask'] = ignored_map
+        data["image"] = image
+        data["score_map"] = score_map
+        data["geo_map"] = geo_map
+        data["training_mask"] = ignored_map
         return data
-
 
     def _cal_distance(self, x1, y1, x2, y2):
         """calculate the Euclidean distance"""
@@ -63,11 +62,7 @@ class EASTProcessTrain:
         r2 = r[index2]
         length_x = vertices[x1_index] - vertices[x2_index]
         length_y = vertices[y1_index] - vertices[y2_index]
-        length = self._cal_distance(
-            vertices[x1_index],
-            vertices[y1_index],
-            vertices[x2_index],
-            vertices[y2_index])
+        length = self._cal_distance(vertices[x1_index], vertices[y1_index], vertices[x2_index], vertices[y2_index])
         if length > 1:
             ratio = (r1 * coef) / length
             vertices[x1_index] += ratio * (-length_x)
@@ -94,8 +89,9 @@ class EASTProcessTrain:
         r = [r1, r2, r3, r4]
 
         # obtain offset to perform move_points() automatically
-        if self._cal_distance(x1, y1, x2, y2) + self._cal_distance(x3, y3, x4, y4) > \
-                self._cal_distance(x2, y2, x3, y3) + self._cal_distance(x1, y1, x4, y4):
+        if self._cal_distance(x1, y1, x2, y2) + self._cal_distance(x3, y3, x4, y4) > self._cal_distance(
+            x2, y2, x3, y3
+        ) + self._cal_distance(x1, y1, x4, y4):
             offset = 0  # two longer edges are (x1y1-x2y2) & (x3y3-x4y4)
         else:
             offset = 1  # two longer edges are (x2y2-x3y3) & (x4y4-x1y1)
@@ -109,8 +105,7 @@ class EASTProcessTrain:
 
     def _get_rotate_mat(self, theta):
         """positive theta value means rotate clockwise"""
-        return np.array([[math.cos(theta), -math.sin(theta)],
-                         [math.sin(theta), math.cos(theta)]])
+        return np.array([[math.cos(theta), -math.sin(theta)], [math.sin(theta), math.cos(theta)]])
 
     def _rotate_vertices(self, vertices, theta, anchor=None):
         """
@@ -155,10 +150,12 @@ class EASTProcessTrain:
         """
         x_min, x_max, y_min, y_max = self._get_boundary(vertices)
         x1, y1, x2, y2, x3, y3, x4, y4 = vertices
-        err = self._cal_distance(x1, y1, x_min, y_min) + \
-              self._cal_distance(x2, y2, x_max, y_min) + \
-              self._cal_distance(x3, y3, x_max, y_max) + \
-              self._cal_distance(x4, y4, x_min, y_max)
+        err = (
+            self._cal_distance(x1, y1, x_min, y_min)
+            + self._cal_distance(x2, y2, x_max, y_min)
+            + self._cal_distance(x3, y3, x_max, y_max)
+            + self._cal_distance(x4, y4, x_min, y_max)
+        )
         return err
 
     def _find_min_rect_angle(self, vertices):
@@ -175,16 +172,11 @@ class EASTProcessTrain:
         for theta in angle_list:
             rotated = self._rotate_vertices(vertices, theta / 180 * math.pi)
             x1, y1, x2, y2, x3, y3, x4, y4 = rotated
-            temp_area = (max(x1, x2, x3, x4) - min(x1, x2, x3, x4)) * \
-                        (max(y1, y2, y3, y4) - min(y1, y2, y3, y4))
+            temp_area = (max(x1, x2, x3, x4) - min(x1, x2, x3, x4)) * (max(y1, y2, y3, y4) - min(y1, y2, y3, y4))
             area_list.append(temp_area)
 
-        sorted_area_index = sorted(
-            list(
-                range(
-                    len(area_list))),
-            key=lambda k: area_list[k])
-        min_error = float('inf')
+        sorted_area_index = sorted(list(range(len(area_list))), key=lambda k: area_list[k])
+        min_error = float("inf")
         best_index = -1
         rank_num = 10
         # find the best angle with correct orientation
@@ -209,11 +201,9 @@ class EASTProcessTrain:
         if vertices.size == 0:
             return False
         start_w, start_h = start_loc
-        a = np.array([start_w, start_h, start_w +
-                      length, start_h, start_w +
-                      length, start_h +
-                      length, start_w, start_h +
-                      length]).reshape((4, 2))
+        a = np.array(
+            [start_w, start_h, start_w + length, start_h, start_w + length, start_h + length, start_w, start_h + length]
+        ).reshape((4, 2))
         p1 = Polygon(a).convex_hull
         for vertice in vertices:
             p2 = Polygon(vertice.reshape((4, 2))).convex_hull
@@ -242,7 +232,7 @@ class EASTProcessTrain:
             img = img.resize((int(w * length / h), length), Image.BILINEAR)
         ratio_w = img.width / w
         ratio_h = img.height / h
-        assert (ratio_w >= 1 and ratio_h >= 1)
+        assert ratio_w >= 1 and ratio_h >= 1
 
         new_vertices = np.zeros(vertices.shape)
         if vertices.size > 0:
@@ -258,8 +248,7 @@ class EASTProcessTrain:
             cnt += 1
             start_w = int(np.random.rand() * remain_w)
             start_h = int(np.random.rand() * remain_h)
-            flag = self._is_cross_text([start_w, start_h], length,
-                                 new_vertices[labels == 1, :])
+            flag = self._is_cross_text([start_w, start_h], length, new_vertices[labels == 1, :])
         box = (start_w, start_h, start_w + length, start_h + length)
         region = img.crop(box)
         if new_vertices.size == 0:
@@ -287,10 +276,9 @@ class EASTProcessTrain:
         x_lin = x.reshape((1, x.size))
         y_lin = y.reshape((1, x.size))
         coord_mat = np.concatenate((x_lin, y_lin), 0)
-        rotated_coord = np.matmul(rotate_mat.astype(np.float16),
-                                  (coord_mat - np.array([[anchor_x],
-                                                         [anchor_y]])).astype(np.float16)) + np.array([[anchor_x],
-                                                                                                       [anchor_y]])
+        rotated_coord = np.matmul(
+            rotate_mat.astype(np.float16), (coord_mat - np.array([[anchor_x], [anchor_y]])).astype(np.float16)
+        ) + np.array([[anchor_x], [anchor_y]])
         rotated_x = rotated_coord[0, :].reshape(x.shape)
         rotated_y = rotated_coord[1, :].reshape(y.shape)
         return rotated_x, rotated_y
@@ -355,9 +343,9 @@ class EASTProcessTrain:
         new_vertices = np.zeros(vertices.shape)
         for i, vertice in enumerate(vertices):
             new_vertices[i, :] = self._rotate_vertices(
-                vertice, -angle / 180 * math.pi, np.array([[center_x], [center_y]]))
+                vertice, -angle / 180 * math.pi, np.array([[center_x], [center_y]])
+            )
         return img, new_vertices
-
 
     def _get_score_geo(self, img, vertices, labels, scale, length):
         """
@@ -371,12 +359,9 @@ class EASTProcessTrain:
         Output:
           score gt, geo gt, ignored
         """
-        score_map = np.zeros(
-            (int(img.height * scale), int(img.width * scale), 1), np.float32)
-        geo_map = np.zeros(
-            (int(img.height * scale), int(img.width * scale), 5), np.float32)
-        ignored_map = np.zeros(
-            (int(img.height * scale), int(img.width * scale), 1), np.float32)
+        score_map = np.zeros((int(img.height * scale), int(img.width * scale), 1), np.float32)
+        geo_map = np.zeros((int(img.height * scale), int(img.width * scale), 5), np.float32)
+        ignored_map = np.zeros((int(img.height * scale), int(img.width * scale), 1), np.float32)
 
         index = np.arange(0, length, int(1 / scale))
         index_x, index_y = np.meshgrid(index, index)
@@ -431,9 +416,9 @@ class EASTProcessTrain:
         labels_list = []
         data_labels = eval(data_labels)
         for data_label in data_labels:
-            vertices = data_label['points']
+            vertices = data_label["points"]
             vertices = [item for point in vertices for item in point]
             vertices_list.append(vertices)
-            labels = 0 if data_label['transcription'] == '###' else 1
+            labels = 0 if data_label["transcription"] == "###" else 1
             labels_list.append(labels)
         return np.array(vertices_list), np.array(labels_list)

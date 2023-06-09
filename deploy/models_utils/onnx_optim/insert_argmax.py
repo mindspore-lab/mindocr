@@ -20,7 +20,7 @@ def resize_norm_img(img, max_wh_ratio, img_c, img_h):
     else:
         resized_w = math.ceil(img_h * ratio)
     resized_image = cv2.resize(img, (resized_w, img_h))
-    resized_image = resized_image.astype('float32')
+    resized_image = resized_image.astype("float32")
     if len(resized_image.shape) < 3:
         resized_image = np.expand_dims(resized_image, 2)
     resized_image = resized_image.transpose((2, 0, 1)) / 255
@@ -31,46 +31,54 @@ def resize_norm_img(img, max_wh_ratio, img_c, img_h):
     return padding_im
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_path', type=str, required=True)
-    parser.add_argument('--check_output_onnx', type=ast.literal_eval, required=False, default=True,
-                        choices=[True, False])
+    parser.add_argument("--model_path", type=str, required=True)
+    parser.add_argument(
+        "--check_output_onnx",
+        type=ast.literal_eval,
+        required=False,
+        default=True,
+        choices=[True, False],
+    )
     args = parser.parse_args()
 
     model = onnx.load(args.model_path)
     graph = model.graph
     node = graph.node
-    print(f'Input Channel of Net: {graph.input[0].type.tensor_type.shape.dim[1].dim_value}')
-    print(f'Input Height of Net: {graph.input[0].type.tensor_type.shape.dim[2].dim_value}')
+    print(f"Input Channel of Net: {graph.input[0].type.tensor_type.shape.dim[1].dim_value}")
+    print(f"Input Height of Net: {graph.input[0].type.tensor_type.shape.dim[2].dim_value}")
     result_path = os.path.dirname(args.model_path)
     basename, ext = os.path.splitext(os.path.basename(args.model_path))
     img_c = graph.input[0].type.tensor_type.shape.dim[1].dim_value
     img_h = graph.input[0].type.tensor_type.shape.dim[2].dim_value
     img_h = 32 if img_h == -1 else img_h
-    output_name = 'argmax_0.tmp_0'
-    input_name = ''
+    output_name = "argmax_0.tmp_0"
+    input_name = ""
     insert_index = 0
     for i in range(len(node)):
-        if node[i].op_type == 'Softmax':
+        if node[i].op_type == "Softmax":
             input_name = node[i].output[0]
             insert_index = i
-        if node[i].op_type == 'ArgMax':
-            raise ValueError('ArgMax Op found. The model already has ArgMax Op. Please check the type of model. Input '
-                             'model type should be CRNN or SVTR.')
+        if node[i].op_type == "ArgMax":
+            raise ValueError(
+                "ArgMax Op found. The model already has ArgMax Op. Please check the type of model. Input "
+                "model type should be CRNN or SVTR."
+            )
 
     if not input_name:
         raise ValueError(
-            'Softmax Op not found. Please check the type of the model. Input model type should be CRNN or SVTR.')
+            "Softmax Op not found. Please check the type of the model. Input model type should be CRNN or SVTR."
+        )
     axis = 2
     keepdims = 0
     argmax_operator = onnx.helper.make_node(
-        'ArgMax',
+        "ArgMax",
         inputs=[input_name],
         outputs=[output_name],
-        name='ArgMax_0',
+        name="ArgMax_0",
         axis=axis,
-        keepdims=keepdims
+        keepdims=keepdims,
     )
 
     node.insert(insert_index, argmax_operator)
@@ -83,7 +91,7 @@ if __name__ == '__main__':
     graph.output[0].name = output_name
     graph.output[0].type.tensor_type.shape.dim.pop()
 
-    save_name = basename + '_argmax' + ext
+    save_name = basename + "_argmax" + ext
     save_path = os.path.join(result_path, save_name)
     onnx.save(model, save_path)
 
@@ -98,13 +106,13 @@ if __name__ == '__main__':
         try:
             session = onnxruntime.InferenceSession(save_path)
             session.get_modelmeta()
-            output2 = session.run(['argmax_0.tmp_0'], {'x': image})
+            output2 = session.run(["argmax_0.tmp_0"], {"x": image})
         except (RuntimeError, InvalidArgument) as error:
-            print('------------------------------------------------------------------------------------')
-            print(f'onnx check failed. Please check the error Message and contact the support engineer.')
-            print('------------------------------------------------------------------------------------')
+            print("------------------------------------------------------------------------------------")
+            print("onnx check failed. Please check the error Message and contact the support engineer.")
+            print("------------------------------------------------------------------------------------")
             raise error
         else:
-            print(f'onnx check pass. The new model saved in {save_path}')
+            print(f"onnx check pass. The new model saved in {save_path}")
     else:
-        print(f'The new model saved in {save_path}')
+        print(f"The new model saved in {save_path}")

@@ -3,16 +3,16 @@ from abc import abstractmethod
 from ctypes import c_longdouble
 from multiprocessing import Manager
 
-from .module_data_type import ModuleInitArgs
 from ..data_type import ProfilingData
 from ..utils import log
+from .module_data_type import ModuleInitArgs
 
 
 class ModuleBase(object):
     def __init__(self, args, msg_queue):
         self.args = args
-        self.pipeline_name = ''
-        self.module_name = ''
+        self.pipeline_name = ""
+        self.module_name = ""
         self.without_input_queue = False
         self.instance_id = 0
         self.device_id = -1
@@ -34,7 +34,7 @@ class ModuleBase(object):
         try:
             self.init_self_args()
         except Exception as error:
-            log.error(f'{self.__class__.__name__} init failed: {error}')
+            log.error(f"{self.__class__.__name__} init failed: {error}")
             raise error
 
         while not self.msg_queue.full() and stop_manager.full():
@@ -55,7 +55,7 @@ class ModuleBase(object):
             try:
                 self.process(send_data)
             except Exception as error:
-                log.exception(f'ERROR occurred in {self.module_name} module for {send_data.image_name}: {error}.')
+                log.exception(f"ERROR occurred in {self.module_name} module for {send_data.image_name}: {error}.")
             cost_time = time.time() - start_time
             self.process_cost.value += cost_time
 
@@ -65,8 +65,8 @@ class ModuleBase(object):
 
     @abstractmethod
     def init_self_args(self):
-        self.msg_queue.put(f'{self.__class__.__name__} instance id {self.instance_id} init complete')
-        log.info(f'{self.__class__.__name__} instance id {self.instance_id} init complete')
+        self.msg_queue.put(f"{self.__class__.__name__} instance id {self.instance_id} init complete")
+        log.info(f"{self.__class__.__name__} instance id {self.instance_id} init complete")
 
     def send_to_next_module(self, output_data):
         if self.is_stop:
@@ -83,8 +83,12 @@ class ModuleBase(object):
         return self.instance_id
 
     def stop(self):
-        profiling_data = ProfilingData(module_name=self.module_name, instance_id=self.instance_id,
-                                       device_id=self.device_id, process_cost_time=self.process_cost.value,
-                                       send_cost_time=self.send_cost.value)
+        profiling_data = ProfilingData(
+            module_name=self.module_name,
+            instance_id=self.instance_id,
+            device_id=self.device_id,
+            process_cost_time=self.process_cost.value,
+            send_cost_time=self.send_cost.value,
+        )
         self.msg_queue.put(profiling_data, block=False)
         self.is_stop = True

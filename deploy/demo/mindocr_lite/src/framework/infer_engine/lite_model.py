@@ -1,7 +1,7 @@
 import re
 
-from .model_base import ModelBase
 from ...utils import check_valid_file
+from .model_base import ModelBase
 
 
 class LiteModel(ModelBase):
@@ -21,7 +21,7 @@ class LiteModel(ModelBase):
             raise ValueError(f"Only support mindspore lite >= 2.0, but got version {mslite.__version__}.")
 
         context = mslite.Context()
-        context.target = ['ascend']
+        context.target = ["ascend"]
         context.ascend.device_id = self.device_id
         if self.precision_mode == "fp32":
             context.ascend.precision_mode = "enforce_fp32"
@@ -37,12 +37,14 @@ class LiteModel(ModelBase):
         inputs = self.model.get_inputs()
         input_num = len(inputs)
         if input_num != 1:
-            raise ValueError(f"Only support single input for model inference, "
-                             f"but got {input_num} inputs for {self.model_path}.")
+            raise ValueError(
+                f"Only support single input for model inference, " f"but got {input_num} inputs for {self.model_path}."
+            )
 
         if inputs[0].format != mslite.Format.NCHW:
-            raise ValueError(f"Model inference only support NCHW format, "
-                             f"but got {inputs[0].format.name} for {self.model_path}.")
+            raise ValueError(
+                f"Model inference only support NCHW format, " f"but got {inputs[0].format.name} for {self.model_path}."
+            )
 
         self._input_shape = inputs[0].shape  # shape before resize
 
@@ -63,7 +65,7 @@ class LiteModel(ModelBase):
         gears = []
 
         # MSLite does not provide API to get gear value, so we parse it from origin file.
-        with open(self.model_path, 'rb') as f:
+        with open(self.model_path, "rb") as f:
             content = f.read()
 
         matched = re.search(rb"_all_origin_gears_inputs.*?\xa0", content, flags=re.S)
@@ -74,11 +76,12 @@ class LiteModel(ModelBase):
         shape_text = re.findall(rb"(?<=:4:)\d+,\d+,\d+,\d+", matched_text)
 
         if not shape_text:
-            raise ValueError(f"Get gear value failed for {self.model_path}. "
-                             f"Please Check converter_lite conversion process!")
+            raise ValueError(
+                f"Get gear value failed for {self.model_path}. " f"Please Check converter_lite conversion process!"
+            )
 
         for text in shape_text:
-            gear = [int(x) for x in text.decode(encoding='utf-8').split(",")]
+            gear = [int(x) for x in text.decode(encoding="utf-8").split(",")]
             gears.append(gear)
 
         return gears

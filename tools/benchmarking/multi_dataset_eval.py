@@ -1,7 +1,7 @@
-'''A script to evaluate multiple datasets under the same folder at once.
+"""A script to evaluate multiple datasets under the same folder at once.
 
 DATASET STRUCTURE:
-    Assume you have put all benckmark datasets (e.g. CUTE80, IC03_860, IC13_1015) under evaluation/ as shown below: 
+    Assume you have put all benckmark datasets (e.g. CUTE80, IC03_860, IC13_1015) under evaluation/ as shown below:
 
     data_lmdb_release/
     ├── evaluation
@@ -25,7 +25,8 @@ YAML CONFIGURATION:
         dataset:
             type: LMDBDataset
             dataset_root: dir/to/data_lmdb_release/          # Root dir of evaluation dataset
-            data_dir: evaluation/                            # Dir of evaluation dataset, concatenated with `dataset_root` to be the complete dir of evaluation dataset
+            # Dir of evaluation dataset, concatenated with `dataset_root` to be the complete dir of evaluation dataset
+            data_dir: evaluation/
         ...
     ```
 
@@ -36,26 +37,29 @@ USAGE:
     ```
 
     You can then get the performance of each individual dataset as well as the average score under evaluation/.
-'''
+"""
 
-import sys
-import os
 import copy
+import os
+import sys
+
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../..")))
 
-import yaml
 import argparse
+
+import yaml
 from addict import Dict
 
 import mindspore as ms
-from mindspore.communication import init, get_rank, get_group_size
+from mindspore.communication import get_group_size, get_rank, init
 
 from mindocr.data import build_dataset
+from mindocr.metrics import build_metric
 from mindocr.models import build_model
 from mindocr.postprocess import build_postprocess
-from mindocr.metrics import build_metric
 from mindocr.utils.callbacks import Evaluator
+
 
 def main(cfg):
     # env init
@@ -64,10 +68,11 @@ def main(cfg):
         init()
         device_num = get_group_size()
         rank_id = get_rank()
-        ms.set_auto_parallel_context(device_num=device_num,
-                                     parallel_mode='data_parallel',
-                                     gradients_mean=True,
-                                     )
+        ms.set_auto_parallel_context(
+            device_num=device_num,
+            parallel_mode="data_parallel",
+            gradients_mean=True,
+        )
     else:
         device_num = None
         rank_id = None
@@ -76,14 +81,12 @@ def main(cfg):
 
     # model
     cfg.model.backbone.pretrained = False
-    network = build_model(cfg.model, ckpt_load_path=cfg.eval.ckpt_load_path)
+    amp_level = cfg.system.get("amp_level_infer", "O0")
+    network = build_model(cfg.model, ckpt_load_path=cfg.eval.ckpt_load_path, amp_level=amp_level)
     network.set_train(False)
 
-    if not cfg.system.amp_level_infer and cfg.system.amp_level != 'O0':
-        print('INFO: Evaluation will run in full-precision(fp32)')
-
-    if cfg.system.amp_level_infer:
-        ms.amp.auto_mixed_precision(network, amp_level=cfg.system.amp_level_infer)
+    if not cfg.system.amp_level_infer and cfg.system.amp_level != "O0":
+        print("INFO: Evaluation will run in full-precision(fp32)")
 
     # postprocess, metric
     postprocessor = build_postprocess(cfg.postprocess)
@@ -98,7 +101,7 @@ def main(cfg):
     results = []
     acc_summary = {}
     reload_data = False
-    for dirpath, dirnames, _ in os.walk(data_dir_root + '/'):
+    for dirpath, dirnames, _ in os.walk(data_dir_root + "/"):
         print(dirpath)
         if not dirnames:
             dataset_config = copy.deepcopy(cfg.eval.dataset)
@@ -112,8 +115,8 @@ def main(cfg):
                 shard_id=rank_id,
                 is_train=False,
                 refine_batch_size=True,
-                )
-            
+            )
+
             num_batches = loader_eval.get_dataset_size()
 
             if not reload_data:
@@ -123,9 +126,9 @@ def main(cfg):
                     loss_func=None,
                     postprocessor=postprocessor,
                     metrics=[metric],
-                    input_indices=dataset_config.get('net_input_column_index', None),
-                    label_indices=dataset_config.get('label_column_index', None),
-                    meta_data_indices=dataset_config.get('meta_data_column_index', None),
+                    input_indices=dataset_config.get("net_input_column_index", None),
+                    label_indices=dataset_config.get("label_column_index", None),
+                    meta_data_indices=dataset_config.get("meta_data_column_index", None),
                     num_epochs=1,
                 )
                 reload_data = True
@@ -133,24 +136,24 @@ def main(cfg):
             else:
                 net_evaluator.reload(
                     loader_eval,
-                    input_indices=dataset_config.get('net_input_column_index', None),
-                    label_indices=dataset_config.get('label_column_index', None),
-                    meta_data_indices=dataset_config.get('meta_data_column_index', None),
+                    input_indices=dataset_config.get("net_input_column_index", None),
+                    label_indices=dataset_config.get("label_column_index", None),
+                    meta_data_indices=dataset_config.get("meta_data_column_index", None),
                     num_epochs=1,
                 )
 
             # log
-            print('='*40)
-            print(f'Num batches: {num_batches}')
-            if 'name' in cfg.model:
-                print(f'Model: {cfg.model.name}')
+            print("=" * 40)
+            print(f"Num batches: {num_batches}")
+            if "name" in cfg.model:
+                print(f"Model: {cfg.model.name}")
             else:
-                print(f'Model: {cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}')
-            print('='*40)
+                print(f"Model: {cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}")
+            print("=" * 40)
 
             measures = net_evaluator.eval()
             if is_main_device:
-                print('Performance: ', measures)
+                print("Performance: ", measures)
 
             results.append(measures)
             acc_summary[dirpath] = measures
@@ -170,21 +173,22 @@ def main(cfg):
 
     print("Average score:")
     print(avg_dict)
-    
+
     print("Summary:")
     print(acc_summary)
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Evaluation Config', add_help=False)
-    parser.add_argument('-c', '--config', type=str, default='',
-                        help='YAML config file specifying default arguments (default='')')
+    parser = argparse.ArgumentParser(description="Evaluation Config", add_help=False)
+    parser.add_argument(
+        "-c", "--config", type=str, default="", help="YAML config file specifying default arguments (default=" ")"
+    )
     args = parser.parse_args()
 
     return args
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # argpaser
     args = parse_args()
     yaml_fp = args.config
@@ -192,6 +196,6 @@ if __name__ == '__main__':
         config = yaml.safe_load(fp)
     config = Dict(config)
 
-    #print(config)
+    # print(config)
 
     main(config)

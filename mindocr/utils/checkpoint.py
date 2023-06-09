@@ -2,12 +2,8 @@
 import os
 import stat
 
-import numpy as np
-
 import mindspore as ms
 from mindspore import log as logger
-
-from .loss_scaler import get_loss_scales
 
 
 class CheckpointManager:
@@ -15,15 +11,16 @@ class CheckpointManager:
     Manage checkpoint files according to ckpt_save_policy of checkpoint.
     Args:
         ckpt_save_dir (str): directory to save the checkpoints
-        ckpt_save_policy (str): Checkpoint saving strategy. Option: None, "top_k", or "latest_k". 
+        ckpt_save_policy (str): Checkpoint saving strategy. Option: None, "top_k", or "latest_k".
             None means to save each checkpoint, top_k means to save K checkpoints with the best performance,
             and latest_k means saving the latest K checkpoint. Default: top_k.
         k (int): top k value
-        prefer_low_perf (bool): standard for selecting the top k performance. If False, pick top k checkpoints with highest performance e.g. accuracy. If True, pick top k checkpoints with the lowest performance, e.g. loss. 
+        prefer_low_perf (bool): standard for selecting the top k performance. If False, pick top k checkpoints with
+            highest performance e.g. accuracy. If True, pick top k checkpoints with the lowest performance, e.g. loss.
 
     """
 
-    def __init__(self, ckpt_save_dir, ckpt_save_policy='top_k', k=10, prefer_low_perf=False, del_past=True):
+    def __init__(self, ckpt_save_dir, ckpt_save_policy="top_k", k=10, prefer_low_perf=False, del_past=True):
         self.ckpt_save_dir = ckpt_save_dir
         self._ckpt_filelist = []
         self.ckpt_save_policy = ckpt_save_policy
@@ -53,11 +50,12 @@ class CheckpointManager:
         except ValueError:
             logger.warning("ValueError, failed to remove the older ckpt file %s.", file_name)
 
-
     def save_top_k(self, network, perf, ckpt_name, verbose=True):
         """Save and return Top K checkpoint address and accuracy."""
         self.ckpt_queue.append((perf, ckpt_name))
-        self.ckpt_queue = sorted(self.ckpt_queue, key=lambda x: x[0], reverse=not self.prefer_low_perf) # by default, reverse is True for descending order
+        self.ckpt_queue = sorted(
+            self.ckpt_queue, key=lambda x: x[0], reverse=not self.prefer_low_perf
+        )  # by default, reverse is True for descending order
         if len(self.ckpt_queue) > self.k:
             to_del = self.ckpt_queue.pop(-1)
             # save if the perf is better than the minimum in the heap
@@ -81,13 +79,14 @@ class CheckpointManager:
         ms.save_checkpoint(network, ckpt_path)
 
     def save(self, network, perf=None, ckpt_name=None):
-        """Save checkpoint according to different save strategy.
-        """
+        """Save checkpoint according to different save strategy."""
         if self.ckpt_save_policy is None:
             ms.save_checkpoint(network, os.path.join(self.ckpt_save_dir, ckpt_name))
         elif self.ckpt_save_policy == "top_k":
             if perf is None:
-                raise ValueError(f"The expected 'metric' is not None, but got: {metric}.")
+                raise ValueError(
+                    "Evaluation performance is None, but `top_k` ckpt save policy requires evaluation performance"
+                )
             self.save_top_k(network, perf, ckpt_name)
             return self.ckpt_queue
         elif self.ckpt_save_policy == "latest_k":
@@ -98,17 +97,19 @@ class CheckpointManager:
                 f"The expected 'ckpt_save_policy' is None, top_k or latest_k, but got: {self.ckpt_save_policy}."
             )
 
+
 def resume_train_network(network, optimizer, resume_ckpt):
     resume_param = ms.load_checkpoint(resume_ckpt)
-    start_epoch = int(resume_param.get('epoch_num', ms.Tensor(0, ms.int32)).asnumpy().item())
-    loss_scale = float(resume_param.get('loss_scale', ms.Tensor(0, ms.float32)).asnumpy().item())
-    cur_iter = resume_param.get('current_iterator_step', ms.Tensor(0, ms.int32))
-    last_overflow_iter = resume_param.get('last_overflow_iterator_step', ms.Tensor(0, ms.int32))
+    start_epoch = int(resume_param.get("epoch_num", ms.Tensor(0, ms.int32)).asnumpy().item())
+    loss_scale = float(resume_param.get("loss_scale", ms.Tensor(0, ms.float32)).asnumpy().item())
+    cur_iter = resume_param.get("current_iterator_step", ms.Tensor(0, ms.int32))
+    last_overflow_iter = resume_param.get("last_overflow_iterator_step", ms.Tensor(0, ms.int32))
     ms.load_param_into_net(network, resume_param)
     ms.load_param_into_net(optimizer, resume_param)
     print(
-        f'INFO: Finish loading network and optimizer resume checkoint from {resume_ckpt}. '
-        f'If no parameter fail-load warning displayed, all checkpoint params have been successfully loaded. \n'
-        f'Resume train from epoch: {start_epoch + 1}')
+        f"INFO: Finish loading network and optimizer resume checkoint from {resume_ckpt}. "
+        f"If no parameter fail-load warning displayed, all checkpoint params have been successfully loaded. \n"
+        f"Resume train from epoch: {start_epoch + 1}"
+    )
 
     return start_epoch, loss_scale, cur_iter, last_overflow_iter

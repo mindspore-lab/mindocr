@@ -1,5 +1,5 @@
 from ...framework import ModuleBase
-from ...utils import safe_img_read, get_hw_of_img
+from ...utils import get_hw_of_img, safe_img_read
 
 
 class DecodeProcess(ModuleBase):

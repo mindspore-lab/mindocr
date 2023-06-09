@@ -11,8 +11,12 @@ from mindspore.nn.optim.optimizer import opt_init_args_register
 
 def _check_param_value(beta1, beta2, prim_name):
     """Check the type of inputs."""
-    assert isinstance(beta1, float), f"For '{prim_name}', the type of 'beta1' must be 'float', but got type '{type(beta1).__name__}'."
-    assert isinstance(beta2, float), f"For '{prim_name}', the type of 'beta2' must be 'float', but got type '{type(beta2).__name__}'."
+    assert isinstance(
+        beta1, float
+    ), f"For '{prim_name}', the type of 'beta1' must be 'float', but got type '{type(beta1).__name__}'."
+    assert isinstance(
+        beta2, float
+    ), f"For '{prim_name}', the type of 'beta2' must be 'float', but got type '{type(beta2).__name__}'."
     assert 0.0 < beta1 < 1.0, f"For '{prim_name}', the range of 'beta1' must be (0.0, 1.0), but got {beta1}."
     assert 0.0 < beta2 < 1.0, f"For '{prim_name}', the range of 'beta2' must be (0.0, 1.0), but got {beta2}."
 

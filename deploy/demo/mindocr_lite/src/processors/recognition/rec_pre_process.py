@@ -2,10 +2,9 @@ import math
 import os
 
 from ...data_type import ProcessData
-from ...framework import ModuleBase, InferModelComb, Model, ShapeType
+from ...framework import InferModelComb, Model, ModuleBase, ShapeType
 from ...operators import build_preprocess
-from ...utils import get_batch_list_greedy, get_hw_of_img, safe_div, get_matched_gear_hw, \
-    padding_batch, check_valid_dir
+from ...utils import check_valid_dir, get_batch_list_greedy, get_hw_of_img, get_matched_gear_hw, padding_batch, safe_div
 
 
 class RecPreProcess(ModuleBase):
@@ -27,7 +26,8 @@ class RecPreProcess(ModuleBase):
         if shape_type == ShapeType.DYNAMIC_BATCHSIZE:
             raise ValueError(
                 f"Input shape don't support dynamic batch_size for single recognition model, "
-                f"but got dynamic batch_size={shape_info[0]} for {filename}.")
+                f"but got dynamic batch_size={shape_info[0]} for {filename}."
+            )
 
         if shape_type == ShapeType.STATIC_SHAPE:
             n, _, h, w = shape_info
@@ -58,14 +58,16 @@ class RecPreProcess(ModuleBase):
                 if self.shape_type in (ShapeType.STATIC_SHAPE, ShapeType.DYNAMIC_SHAPE):
                     raise FileNotFoundError(
                         f"rec_model_dir must be a file when use static or dynamic shape for recognition model, "
-                        f"but got rec_model_dir={model_path} is a dir.")
+                        f"but got rec_model_dir={model_path} is a dir."
+                    )
                 chw_list.append(str((shape[2:])))
 
             if len(set(chw_list)) != 1 or len(set(self.batchsize_list)) != len(self.batchsize_list):
                 raise ValueError(
                     f"Input shape must have same image_size and different batch_size when use the combination of "
                     f"dynamic batch_size and image_size for recognition model. "
-                    f"Please check every model file in {model_path}.")
+                    f"Please check every model file in {model_path}."
+                )
 
         self.batchsize_list.sort()
         self.max_dot_gear = self.gear_list[-1]
@@ -76,8 +78,9 @@ class RecPreProcess(ModuleBase):
 
     def get_resized_hw(self, image_list):
         if self.shape_type != ShapeType.DYNAMIC_SHAPE:
-            resized_hw_list = [get_matched_gear_hw(get_hw_of_img(image), self.gear_list, self.max_dot_gear)
-                               for image in image_list]
+            resized_hw_list = [
+                get_matched_gear_hw(get_hw_of_img(image), self.gear_list, self.max_dot_gear) for image in image_list
+            ]
             max_h, max_w = max(resized_hw_list, key=lambda x: x[0] * x[1])
         else:
             model_h, model_w = self.gear_list[0]
@@ -105,22 +108,23 @@ class RecPreProcess(ModuleBase):
 
     def process_without_sub_image(self, input_data):
         split_input = [input_data.frame]
-        resized_params = {
-            "Resize": {
-                "dst_hw": self.get_resized_hw(split_input)
-            }
-        }
+        resized_params = {"Resize": {"dst_hw": self.get_resized_hw(split_input)}}
 
         batch = 1 if self.batchsize_list[0] == -1 else self.batchsize_list[0]
 
         rec_model_inputs = self.preprocess(split_input, resized_params)
         rec_model_inputs = padding_batch(rec_model_inputs, batch)
 
-        send_data = ProcessData(sub_image_size=1,
-                                image_path=input_data.image_path, image_total=input_data.image_total,
-                                input_array=rec_model_inputs, frame=input_data.frame,
-                                sub_image_total=1, image_name=input_data.image_name,
-                                image_id=input_data.image_id)
+        send_data = ProcessData(
+            sub_image_size=1,
+            image_path=input_data.image_path,
+            image_total=input_data.image_total,
+            input_array=rec_model_inputs,
+            frame=input_data.frame,
+            sub_image_total=1,
+            image_name=input_data.image_name,
+            image_id=input_data.image_id,
+        )
 
         self.send_to_next_module(send_data)
 
@@ -128,27 +132,32 @@ class RecPreProcess(ModuleBase):
         sub_image_list = input_data.sub_image_list
         infer_res_list = input_data.infer_result
 
-        batch_list = get_batch_list_greedy(input_data.sub_image_size, self.batchsize_list) \
-            if self.batchsize_list[0] > 0 else [input_data.sub_image_size]
+        batch_list = (
+            get_batch_list_greedy(input_data.sub_image_size, self.batchsize_list)
+            if self.batchsize_list[0] > 0
+            else [input_data.sub_image_size]
+        )
 
         start_index = 0
         for batch in batch_list:
             upper_bound = min(start_index + batch, input_data.sub_image_size)
             split_input = sub_image_list[start_index:upper_bound]
             split_infer_res = infer_res_list[start_index:upper_bound]
-            resized_params = {
-                "Resize": {
-                    "dst_hw": self.get_resized_hw(split_input)
-                }
-            }
+            resized_params = {"Resize": {"dst_hw": self.get_resized_hw(split_input)}}
             rec_model_inputs = self.preprocess(split_input, resized_params)
             rec_model_inputs = padding_batch(rec_model_inputs, batch)
 
-            send_data = ProcessData(sub_image_size=min(upper_bound - start_index, batch),
-                                    image_path=input_data.image_path, image_total=input_data.image_total,
-                                    infer_result=split_infer_res, input_array=rec_model_inputs, frame=input_data.frame,
-                                    sub_image_total=input_data.sub_image_total, image_name=input_data.image_name,
-                                    image_id=input_data.image_id)
+            send_data = ProcessData(
+                sub_image_size=min(upper_bound - start_index, batch),
+                image_path=input_data.image_path,
+                image_total=input_data.image_total,
+                infer_result=split_infer_res,
+                input_array=rec_model_inputs,
+                frame=input_data.frame,
+                sub_image_total=input_data.sub_image_total,
+                image_name=input_data.image_name,
+                image_id=input_data.image_id,
+            )
 
             start_index += batch
             self.send_to_next_module(send_data)

@@ -1,11 +1,11 @@
 import functools
-from typing import Union, List, Tuple, Dict
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
 
-from .infer_base import InferBase
 from ..core import Model, ShapeType
-from ..data_process import gear_utils, build_preprocess, build_postprocess
+from ..data_process import build_postprocess, build_preprocess, gear_utils
+from .infer_base import InferBase
 
 
 class TextClassifier(InferBase):
@@ -14,8 +14,9 @@ class TextClassifier(InferBase):
         self._bs_list = []
 
     def init(self, warmup=False):
-        self.model = Model(backend=self.args.backend, model_path=self.args.cls_model_path,
-                           device_id=self.args.device_id)
+        self.model = Model(
+            backend=self.args.backend, model_path=self.args.cls_model_path, device_id=self.args.device_id
+        )
         shape_type, shape_info = self.model.get_shape_info()
 
         if shape_type not in (ShapeType.DYNAMIC_BATCHSIZE, ShapeType.STATIC_SHAPE):

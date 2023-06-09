@@ -36,9 +36,9 @@ class DetPostProcess(ModuleBase):
 
         input_data.output_array = None
 
-        if not (self.args.save_pipeline_crop_res
-                or self.args.save_vis_det_save_dir
-                or self.args.save_vis_pipeline_save_dir):
+        if not (
+            self.args.save_pipeline_crop_res or self.args.save_vis_det_save_dir or self.args.save_vis_pipeline_save_dir
+        ):
             input_data.frame = None
 
         if not sub_image_list:

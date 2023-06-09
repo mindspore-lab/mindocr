@@ -1,21 +1,21 @@
-from mindspore import nn
-import mindspore as ms
 import mindspore.ops as ops
-from mindspore.communication import get_group_size
+from mindspore import nn
 from mindspore.common import dtype as mstype
-from mindspore.ops import functional as F
 
 
 class NetWithLossWrapper(nn.Cell):
-    '''
+    """
     A universal wrapper for any network with any loss.
 
     Args:
         net (nn.Cell): network
         loss_fn: loss function
-        input_indices: The indices of the data tuples which will be fed into the network. If it is None, then the first item will be fed only.
-        label_indices: The indices of the data tuples which will be fed into the loss function. If it is None, then the remaining items will be fed.
-    '''
+        input_indices: The indices of the data tuples which will be fed into the network.
+            If it is None, then the first item will be fed only.
+        label_indices: The indices of the data tuples which will be fed into the loss function.
+            If it is None, then the remaining items will be fed.
+    """
+
     def __init__(self, net, loss_fn, pred_cast_fp32=False, input_indices=None, label_indices=None):
         super().__init__(auto_prefix=False)
         self._net = net
@@ -27,12 +27,12 @@ class NetWithLossWrapper(nn.Cell):
         self.cast = ops.Cast()
 
     def construct(self, *args):
-        '''
+        """
         Args:
             args (Tuple): contains network inputs, labels (given by data loader)
         Returns:
             loss_val (Tensor): loss value
-        '''
+        """
         if self.input_indices is None:
             pred = self._net(args[0])
         else:
@@ -53,16 +53,19 @@ class NetWithLossWrapper(nn.Cell):
 
 
 class NetWithEvalWrapper(nn.Cell):
-    '''
+    """
     A universal wrapper for any network with any loss for evaluation pipeline.
     Difference from NetWithLossWrapper: it returns loss_val, pred, and labels.
 
     Args:
         net (nn.Cell): network
         loss_fn: loss function, if None, will not compute loss for evaluation dataset
-        input_indices: The indices of the data tuples which will be fed into the network. If it is None, then the first item will be fed only.
-        label_indices: The indices of the data tuples which will be fed into the loss function. If it is None, then the remaining items will be fed.
-    '''
+        input_indices: The indices of the data tuples which will be fed into the network.
+            If it is None, then the first item will be fed only.
+        label_indices: The indices of the data tuples which will be fed into the loss function.
+            If it is None, then the remaining items will be fed.
+    """
+
     def __init__(self, net, loss_fn=None, input_indices=None, label_indices=None):
         super().__init__(auto_prefix=False)
         self._net = net
@@ -72,12 +75,12 @@ class NetWithEvalWrapper(nn.Cell):
         self.label_indices = label_indices
 
     def construct(self, *args):
-        '''
+        """
         Args:
             args (Tuple): contains network inputs, labels (given by data loader)
         Returns:
             Tuple: loss value (Tensor), pred (Union[Tensor, Tuple[Tensor]]), labels (Tuple)
-        '''
+        """
         # TODO: pred is a dict
         if self.input_indices is None:
             pred = self._net(args[0])
@@ -95,6 +98,7 @@ class NetWithEvalWrapper(nn.Cell):
             loss_val = None
 
         return loss_val, pred, labels
+
 
 def select_inputs_by_indices(inputs, indices):
     new_inputs = list()

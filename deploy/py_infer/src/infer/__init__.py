@@ -20,5 +20,5 @@ SUPPORTED_TASK_BASIC_MODULE = {
     TaskType.CLS: [TaskType.CLS],
     TaskType.REC: [TaskType.REC],
     TaskType.DET_REC: [TaskType.DET, TaskType.REC],
-    TaskType.DET_CLS_REC: [TaskType.DET, TaskType.CLS, TaskType.REC]
+    TaskType.DET_CLS_REC: [TaskType.DET, TaskType.CLS, TaskType.REC],
 }

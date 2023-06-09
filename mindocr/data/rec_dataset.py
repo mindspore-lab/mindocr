@@ -1,12 +1,13 @@
 from .det_dataset import DetDataset
 
-__all__ = ['RecDataset']
+__all__ = ["RecDataset"]
+
 
 class RecDataset(DetDataset):
-    ''' 
+    """
     General dataset for text recognition
     The annotation format should follow:
-    
+
     .. code-block: none
 
         # image file name\tground truth text
@@ -33,10 +34,10 @@ class RecDataset(DetDataset):
         You can specify the `output_columns` arg to order the output data for dataloader.
 
     Notes:
-        1. The data file structure should be like 
-            ├── data_dir  
+        1. The data file structure should be like
+            ├── data_dir
             │     ├── 000001.jpg
             │     ├── 000002.jpg
             │     ├── {image_file_name}
             ├── label_file.txt
-    ''' 
+    """

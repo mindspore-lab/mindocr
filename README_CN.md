@@ -103,7 +103,7 @@ MindOCR提供易用的文本检测识别推理工具，支持CPU/GPU/Ascend 910�
 <details open>
 <summary>文本检测</summary>
 
-- [x] [DBNet](configs/det/dbnet/README.md) (AAAI'2020) 
+- [x] [DBNet](configs/det/dbnet/README.md) (AAAI'2020)
 - [x] [DBNet++](configs/det/dbnet/README.md) (TPAMI'2022)
 - [x] [PSENet](configs/det/psenet/README.md) (CVPR'2019)
 - [x] [EAST](configs/det/east/README.md)(CVPR'2017)
@@ -117,7 +117,7 @@ MindOCR提供易用的文本检测识别推理工具，支持CPU/GPU/Ascend 910�
 
 - [x] [CRNN](configs/rec/crnn/README.md) (TPAMI'2016)
 - [x] [CRNN-Seq2Seq/RARE](configs/rec/rare/README.md) (CVPR'2016)
-- [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022) 
+- [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022)
 - [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 
 

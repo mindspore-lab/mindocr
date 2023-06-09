@@ -1,0 +1,21 @@
+# auto scaling config file
+auto_scaling:
+  # statistics algorithm choices=["mean_std", "max_min"], default mean_std
+  strategy: mean_std
+  mean_std:
+    n_std: 3
+  max_min:
+    expand_ratio: 0.2
+  # original images H,W size limit
+  limit_side_len: 1280
+  # after statistics algorithm H,W range
+  width_range: [1,8192]
+  height_range: [1,8192]
+  interval: 32
+  max_scaling_num: 100
+  # model batch size
+  batch_choices: [1, 4, 8, 16, 32, 64]
+  default_scaling:
+    batch_size: [1, 4, 8, 16, 32]
+    height: [32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 480, 512, 544, 576, 608, 640]
+    width: [64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448, 480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800, 832, 864, 896, 928, 960]

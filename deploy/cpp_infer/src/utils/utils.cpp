@@ -288,4 +288,3 @@ TaskType Utils::GetTaskType(CommandParser *options) {
     return TaskType::UNSUPPORTED;
   }
 }
-

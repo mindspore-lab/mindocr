@@ -30,7 +30,7 @@ MindOCR is an open-source toolbox for OCR development and application based on [
 
 - **Modulation design**: We decouple the OCR task into several configurable modules. Users can set up the training and evaluation pipeline easily for customized data and models with a few lines of modification.
 - **High-performance**: MindOCR provides pretrained weights and the used training recipes that reach competitive performance on OCR tasks.
-- **Low-cost-to-apply**: We provide easy-to-use inference tools to perform text detection and recognition tasks. 
+- **Low-cost-to-apply**: We provide easy-to-use inference tools to perform text detection and recognition tasks.
 </details>
 
 
@@ -43,7 +43,7 @@ To install the dependency, please run
 pip install -r requirements.txt
 ```
 
-Additionally, please install MindSpore(>=1.9) following the official [installation instructions](https://www.mindspore.cn/install) for the best fit of your machine. 
+Additionally, please install MindSpore(>=1.9) following the official [installation instructions](https://www.mindspore.cn/install) for the best fit of your machine.
 
 For distributed training, please install [openmpi 4.0.3](https://www.open-mpi.org/software/ompi/v4.0/).
 
@@ -52,7 +52,7 @@ For distributed training, please install [openmpi 4.0.3](https://www.open-mpi.or
 | MindSpore   | >=1.9   |
 | Python      | >=3.7   |
 
-> Notes: 
+> Notes:
 > - If you [use ACL for Inference](#21-inference-with-mindspore-lite-and-acl), the version of Python should be 3.9.
 > - If scikit_image cannot be imported, you can use the following command line to set environment variable `$LD_PRELOAD` referring to [here](https://github.com/opencv/opencv/issues/14884). Change `path/to` to your directory.
 >   ```shell
@@ -84,9 +84,9 @@ We will take **DBNet** model and **ICDAR2015** dataset as an example to illustra
 Please refer to [DBNet Readme](configs/det/dbnet/README.md#3-quick-start) for detailed instructions.
 
 
-#### 1.2 Text Recognition 
+#### 1.2 Text Recognition
 
-We will take **CRNN** model and **LMDB** dataset as an illustration on how to configure and launch the training process easily. 
+We will take **CRNN** model and **LMDB** dataset as an illustration on how to configure and launch the training process easily.
 
 Detailed instructions can be viewed in [CRNN Readme](configs/rec/crnn/README.md#3-quick-start).
 
@@ -95,15 +95,15 @@ The training pipeline is fully extendable. To train other text detection/recogni
 
 ### 2. Inference and Deployment
 
-#### 2.1 Inference with MindSpore Lite and ACL on Ascend 310 
+#### 2.1 Inference with MindSpore Lite and ACL on Ascend 310
 
-MindOCR supports OCR model inference with [MindSpore Lite](https://www.mindspore.cn/lite/en) and [ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html) (Ascend Computation Language)  backends. It integrates efficient text detection, classification and recognition inference pipeline for deployment. 
+MindOCR supports OCR model inference with [MindSpore Lite](https://www.mindspore.cn/lite/en) and [ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html) (Ascend Computation Language)  backends. It integrates efficient text detection, classification and recognition inference pipeline for deployment.
 
 Please refer to [MindOCR Inference on Ascend 310](docs/en/inference/inference_tutorial_en.md) for detailed illustrations.
 
 #### 2.2 Inference with native MindSpore on Ascend910/GPU/CPU
 
-MindOCR provides easy-to-use text detection and recognition inference tools supporting CPU/GPU/Ascend910 devices, based on the MindOCR-trained models. 
+MindOCR provides easy-to-use text detection and recognition inference tools supporting CPU/GPU/Ascend910 devices, based on the MindOCR-trained models.
 
 Please refer to [MindOCR Online Inference](tools/infer/text/README.md) for details.
 
@@ -113,7 +113,7 @@ Please refer to [MindOCR Online Inference](tools/infer/text/README.md) for detai
 <details open>
 <summary>Text Detection</summary>
 
-- [x] [DBNet](configs/det/dbnet/README.md) (AAAI'2020) 
+- [x] [DBNet](configs/det/dbnet/README.md) (AAAI'2020)
 - [x] [DBNet++](configs/det/dbnet/README.md) (TPAMI'2022)
 - [x] [PSENet](configs/det/psenet/README.md) (CVPR'2019)
 - [x] [EAST](configs/det/east/README.md)(CVPR'2017)
@@ -126,7 +126,7 @@ Please refer to [MindOCR Online Inference](tools/infer/text/README.md) for detai
 
 - [x] [CRNN](configs/rec/crnn/README.md) (TPAMI'2016)
 - [x] [CRNN-Seq2Seq/RARE](configs/rec/rare/README.md) (CVPR'2016)
-- [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022) 
+- [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022)
 - [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 
 
@@ -136,7 +136,7 @@ For detailed support for MindSpore Lite and ACL inference models, please refer t
 
 ## Datasets
 
-### Download 
+### Download
 
 We give instructions on how to download the following datasets.
 
@@ -181,22 +181,22 @@ After downloading these datasets in the `DATASETS_DIR` folder, you can run `bash
     - [DBNet++](configs/det/dbnet) for text detection
     - [CRNN-Seq2Seq](configs/rec/rare) for text recognition
     - DBNet pretrained on SynthText is now available: [checkpoint url](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)
-2. Add more benchmark datasets and their results 
-    - [SynthText](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c), [MSRA-TD500](docs/en/datasets/td500.md), [CTW1500](docs/en/datasets/ctw1500.md) 
+2. Add more benchmark datasets and their results
+    - [SynthText](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c), [MSRA-TD500](docs/en/datasets/td500.md), [CTW1500](docs/en/datasets/ctw1500.md)
     - More benchmark results for DBNet are reported [here](configs/det/dbnet/README.md).
 3. Add checkpoint manager for saving top-k checkpoints and improve log.
-4. Python inference code refractored. 
+4. Python inference code refractored.
 5. Bug fix: use meter to average loss for large datasets, disable `pred_cast_fp32` for ctcloss in AMP training, fix error when invalid polygons exist.
 
 - 2023/05/04
-1. Support loading self-defined pretrained checkpoints via setting `model-pretrained` with checkpoint url or local path in yaml. 
+1. Support loading self-defined pretrained checkpoints via setting `model-pretrained` with checkpoint url or local path in yaml.
 2. Support setting probability for executing augmentation including rotation and flip.
-3. Add Exponential Moving Average(EMA) for model training, which can be enabled by setting `train-ema` (default: False) and `train-ema_decay` in the yaml config. 
+3. Add Exponential Moving Average(EMA) for model training, which can be enabled by setting `train-ema` (default: False) and `train-ema_decay` in the yaml config.
 4. Arg parameter changed：`num_columns_to_net` -> `net_input_column_index`: change the column number feeding into the network to the column index.
 5. Arg parameter changed：`num_columns_of_labels` -> `label_column_index`: change the column number corresponds to the label to the column index.
 
 - 2023/04/21
-1. Add parameter grouping to support flexible regularization in training. Usage: add `grouping_strategy` argument in yaml config to select a predefined grouping strategy, or use `no_weight_decay_params` argument to pick layers to exclude from weight decay (e.g., bias, norm). Example can be referred in `configs/rec/crnn/crnn_icdar15.yaml` 
+1. Add parameter grouping to support flexible regularization in training. Usage: add `grouping_strategy` argument in yaml config to select a predefined grouping strategy, or use `no_weight_decay_params` argument to pick layers to exclude from weight decay (e.g., bias, norm). Example can be referred in `configs/rec/crnn/crnn_icdar15.yaml`
 2. Add gradient accumulation to support large batch size training. Usage: add `gradient_accumulation_steps` in yaml config, the global batch size = batch_size * devices * gradient_accumulation_steps. Example can be referred in `configs/rec/crnn/crnn_icdar15.yaml`
 3. Add gradient clip to support training stablization. Enable it by setting `grad_clip` as True in yaml config.
 

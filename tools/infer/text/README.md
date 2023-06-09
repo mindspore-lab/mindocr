@@ -1,10 +1,10 @@
 # MindOCR Online Inference
 
-**About Online Inference:** Online inference is to infer based on the native MindSpore framework by loading the model checkpoint file then running prediction with MindSpore APIs. 
+**About Online Inference:** Online inference is to infer based on the native MindSpore framework by loading the model checkpoint file then running prediction with MindSpore APIs.
 
-Compared to offline inference (which is implemented in `deploy/py_infer` in MindOCR), online inferece does not require model conversion for target platforms and can run directly on the training devices (e.g. Ascend 910). But it requires installing the heavy AI framework and the model is not optimized for deployment. 
+Compared to offline inference (which is implemented in `deploy/py_infer` in MindOCR), online inferece does not require model conversion for target platforms and can run directly on the training devices (e.g. Ascend 910). But it requires installing the heavy AI framework and the model is not optimized for deployment.
 
-Thus, online inference is more suitable for demonstration and to visually evaluate model generalization ability on unseen data.   
+Thus, online inference is more suitable for demonstration and to visually evaluate model generalization ability on unseen data.
 
 ## Dependency and Installation
 
@@ -13,7 +13,7 @@ Thus, online inference is more suitable for demonstration and to visually evalua
 | MindSpore   | >=1.9   |
 | Python      | >=3.7   |
 
-Supported platforms: Linux, MacOS, Windows (Not tested) 
+Supported platforms: Linux, MacOS, Windows (Not tested)
 Supported devices: CPU, GPU, and Ascend.
 
 Please clone MindOCR at first
@@ -26,7 +26,7 @@ Then install the dependency by
 pip install -r requirements.txt
 ```
 
-For MindSpore(>=1.9) installation, please follow the official [installation instructions](https://www.mindspore.cn/install) for the best fit of your machine. 
+For MindSpore(>=1.9) installation, please follow the official [installation instructions](https://www.mindspore.cn/install) for the best fit of your machine.
 
 
 ## Text Detection
@@ -37,7 +37,7 @@ To run text detection on an input image or a directory containing multiple image
 python tools/infer/text/predict_det.py  --image_dir {path_to_img or dir_to_imgs} --det_algorithm DB++
 ```
 
-After running, the inference results will be saved in `{args.draw_img_save_dir}/det_results.txt`, where `--draw_img_save_dir` is the directory for saving  results and is set to `./inference_results` by default Here are some results for examples.  
+After running, the inference results will be saved in `{args.draw_img_save_dir}/det_results.txt`, where `--draw_img_save_dir` is the directory for saving  results and is set to `./inference_results` by default Here are some results for examples.
 
 Example 1:
 <p align="center">
@@ -66,7 +66,7 @@ Example 2:
 paper_sam.png	[[[1161, 340], [1277, 340], [1277, 378], [1161, 378]], [[895, 335], [1152, 340], [1152, 382], [894, 378]], ...]
 ```
 
-**Notes:** 
+**Notes:**
 - For input images with high resolution, please set `--det_limit_side_len` larger, e.g., 1280. `--det_limit_type` can be set as "min" or "max", where "min " means limiting the image size to be at least  `--det_limit_side_len`, "max" means limiting the image size to be at most `--det_limit_side_len`.
 
 - For more argument illustrations and usage, please run `python tools/infer/text/predict_det.py -h` or view `tools/infer/text/config.py`
@@ -74,17 +74,17 @@ paper_sam.png	[[[1161, 340], [1277, 340], [1277, 378], [1161, 378]], [[895, 335]
 - Currently, this script runs serially to avoid dynamic shape issue and achieve better performance.
 
 
-### Supported Detection Algorithms and Networks 
+### Supported Detection Algorithms and Networks
 
 <div align="center">
-  
-  | **Algorithm Name** | **Network Name** | **Language** |  
-  | :------: | :------: | :------: | 
+
+  | **Algorithm Name** | **Network Name** | **Language** |
+  | :------: | :------: | :------: |
   | DB  | dbnet_resnet50 | English |
   | DB++ | dbnetpp_resnet50 | English |
   | DB_MV3 | dbnet_mobilenetv3 | English |
   | PSE | psenet_resnet152 | English |
-  
+
 </div>
 
 The algorithm-network mapping is defined in `tools/infer/text/predict_det.py`.
@@ -96,7 +96,7 @@ To run text recognition on an input image or a directory containing multiple ima
 ```shell
 python tools/infer/text/predict_rec.py  --image_dir {path_to_img or dir_to_imgs} --rec_algorithm CRNN
 ```
-After running, the inference results will be saved in `{args.draw_img_save_dir}/rec_results.txt`, where `--draw_img_save_dir` is the directory for saving  results and is set to `./inference_results` by default. Here are some results for examples.  
+After running, the inference results will be saved in `{args.draw_img_save_dir}/rec_results.txt`, where `--draw_img_save_dir` is the directory for saving  results and is set to `./inference_results` by default. Here are some results for examples.
 
 - English text recognition
 
@@ -142,22 +142,22 @@ cert_id.png 公民身份号码44052419
 doc_cn3.png 马拉松选手不会为短暂的领先感到满意，而是永远在奔跑。
 ```
 
-**Notes:** 
+**Notes:**
 - For more argument illustrations and usage, please run `python tools/infer/text/predict_rec.py -h` or view `tools/infer/text/config.py`
 - Both batch-wise and single-mode inference are supported. Batch mode is enabled by default for better speed. You can set the batch size via `--rec_batch_size`. You can also run in single-mode by set `--det_batch_mode` False, which may improve accuracy if the text length varies a lot.
 
-### Supported Recognition Algorithms and Networks 
+### Supported Recognition Algorithms and Networks
 
 <div align="center">
-  
-  | **Algorithm Name** | **Network Name** | **Language** |  
-  | :------: | :------: | :------: | 
-  | CRNN | crnn_resnet34 | English | 
+
+  | **Algorithm Name** | **Network Name** | **Language** |
+  | :------: | :------: | :------: |
+  | CRNN | crnn_resnet34 | English |
   | RARE | rare_resnet34 | English |
   | SVTR | svtr_tiny | English|
   | CRNN_CH | crnn_resnet34_ch | Chinese |
   | RARE_CH | rare_resnet34_ch | Chinese |
-  
+
 </div>
 
 The algorithm-network mapping is defined in `tools/infer/text/predict_rec.py`
@@ -174,7 +174,7 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
                                           --rec_algorithm CRNN
 ```
 
-After running, the inference results will be saved in `{args.draw_img_save_dir}/system_results.txt`,  where `--draw_img_save_dir` is the directory for saving  results and is set to `./inference_results` by default. Here are some results for examples.  
+After running, the inference results will be saved in `{args.draw_img_save_dir}/system_results.txt`,  where `--draw_img_save_dir` is the directory for saving  results and is set to `./inference_results` by default. Here are some results for examples.
 
 Example 1:
 
@@ -206,7 +206,7 @@ web_cvpr.png	[{"transcription": "canada", "points": [[430, 148], [540, 148], [54
 ```
 
 
-**Notes:** 
+**Notes:**
 1. For more argument illustrations and usage, please run `python tools/infer/text/predict_system.py -h` or view `tools/infer/text/config.py`
 
 
@@ -221,7 +221,7 @@ python tools/infer/text/predict_system.py --image_dir /path/to/icdar15/det/test_
                                           --det_limit_type min  /
                                           --det_limit_side_len 720
 ```
-> Note: Here we set`det_limit_type` as `min` for better performance, due to the input image in ICDAR15 is of high resolution (720x1280).  
+> Note: Here we set`det_limit_type` as `min` for better performance, due to the input image in ICDAR15 is of high resolution (720x1280).
 
 After running, the results including image names, bounding boxes (`points`) and recognized texts (`transcription`) will be saved in `{args.draw_img_save_dir}/system_results.txt`. The format of prediction results is shown as follows.
 
@@ -240,47 +240,44 @@ python deploy/eval_utils/eval_pipeline.py --gt_path path/to/gt.txt --pred_path p
 Evaluation of the text spotting inference results on Ascend 910 with MindSpore 2.0rc1 are shown as follows.
 
 <div align="center">
-  
+
 | Det. Algorithm| Rec. Algorithm |  Dataset     | Accuracy(%) | FPS (imgs/s) |
 |---------|----------|--------------|---------------|-------|
-| DBNet   | CRNN    | ICDAR15 | 57.82 | 4.86 | 
-| PSENet  | CRNN    | ICDAR15 | 47.91 | 1.65| 
-| PSENet (det_limit_side_len=1472 )  | CRNN    | ICDAR15 | 55.51 | 0.44 | 
-| DBNet++   | RARE | ICDAR15 | 59.17  | 3.47 | 
-| DBNet++   | SVTR | ICDAR15 | 64.42  | 2.49 | 
+| DBNet   | CRNN    | ICDAR15 | 57.82 | 4.86 |
+| PSENet  | CRNN    | ICDAR15 | 47.91 | 1.65|
+| PSENet (det_limit_side_len=1472 )  | CRNN    | ICDAR15 | 55.51 | 0.44 |
+| DBNet++   | RARE | ICDAR15 | 59.17  | 3.47 |
+| DBNet++   | SVTR | ICDAR15 | 64.42  | 2.49 |
 </div>
 
-**Notes:** 
+**Notes:**
 1. Currently, online inference pipeline is not optimized for efficiency, thus FPS is only for comparison between models. If FPS is your highest priority, please refer to [Inference on Ascend 310](docs/en/inference/inference_tutorial_en.md), which is much faster.
-2. Unless extra inidication, all experiments are run with `--det_limit_type`="min" and `--det_limit_side`=720. 
+2. Unless extra inidication, all experiments are run with `--det_limit_type`="min" and `--det_limit_side`=720.
 3. SVTR is run in mixed precision mode (amp_level=O2) since it is optimized for O2.
 
-## Argument List 
+## Argument List
 
-All CLI argument definition can be viewed via `python tools/infer/text/predict_system.py -h` or reading `tools/infer/text/config.py`. 
+All CLI argument definition can be viewed via `python tools/infer/text/predict_system.py -h` or reading `tools/infer/text/config.py`.
 
 
 ## Developer Guide - How to Add a New Model for Inference
 
-### Preprocessing 
+### Preprocessing
 
-The optimal preprocessing strategy can vary from model to model, especially for the resize setting (keep_ratio, padding, etc). We define the preprocessing pipeline for each model in `tools/infer/text/preprocess.py` for different tasks. 
+The optimal preprocessing strategy can vary from model to model, especially for the resize setting (keep_ratio, padding, etc). We define the preprocessing pipeline for each model in `tools/infer/text/preprocess.py` for different tasks.
 
 If you find the default preprocessing pipeline or hyper-params does not meet the network requirement, please extend by changing the if-else conditions or adding a new key-value pair to the `optimal_hparam` dict in `tools/infer/text/preprocess.py`, where key is the algorithm name and the value is the suitable hyper-param setting for the target network inference.
 
 ### Network Inference
 
-Supported alogirhtms and their corresponding network names (which can be checked by using the `list_model()` API) are defined in the `algo_to_model_name` dict in `predict_det.py` and `predict_rec.py`. 
+Supported alogirhtms and their corresponding network names (which can be checked by using the `list_model()` API) are defined in the `algo_to_model_name` dict in `predict_det.py` and `predict_rec.py`.
 
-To add a new detection model for inference, please add a new key-value pair to `algo_to_model_name` dict, where the key is an algorithm name and the value is the corresponding network name registered in `mindocr/models/{your_model}.py`. 
+To add a new detection model for inference, please add a new key-value pair to `algo_to_model_name` dict, where the key is an algorithm name and the value is the corresponding network name registered in `mindocr/models/{your_model}.py`.
 
-By default, model weights will be loaded from the pro-defined URL in `mindocr/models/{your_model}.py`. If you want to load a local checkpoint instead, please set `--det_model_dir` or `--rec_model_dir` to the path of your local checkpoint or the directory containing a model checkpoint.  
+By default, model weights will be loaded from the pro-defined URL in `mindocr/models/{your_model}.py`. If you want to load a local checkpoint instead, please set `--det_model_dir` or `--rec_model_dir` to the path of your local checkpoint or the directory containing a model checkpoint.
 
 ### Postproprocess
 
 Similar to preprocessing, the postprocessing method for each algorithm can vary. The postprocessing method for each algorithm is defined in `tools/infer/text/postprocess.py`.
 
-If you find the default postprocessing method or hyper-params does not meet the model need, please extend the if-else conditions or add a new key-value pair  to the `optimal_hparam` dict in `tools/infer/text/postprocess.py`, where the key is an algorithm name and the value is the hyper-param setting. 
-
-
-
+If you find the default postprocessing method or hyper-params does not meet the model need, please extend the if-else conditions or add a new key-value pair  to the `optimal_hparam` dict in `tools/infer/text/postprocess.py`, where the key is an algorithm name and the value is the hyper-param setting.

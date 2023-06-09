@@ -14,5 +14,5 @@ def main():
     parallel_pipeline.infer_for_images(args.input_images_dir)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

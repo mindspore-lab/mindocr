@@ -1,13 +1,10 @@
-from typing import Tuple, Union, List
 import cv2
 import numpy as np
+
 import mindspore as ms
-from mindspore import Tensor
-from mindspore import nn
-from shapely.geometry import Polygon
+from mindspore import Tensor, nn
 
 from .det_base_postprocess import DetBasePostprocess
-from ..data.transforms.det_transforms import expand_poly
 
 __all__ = ["PSEPostprocess"]
 
@@ -60,9 +57,7 @@ class PSEPostprocess(DetBasePostprocess):
         kernels = kernels.asnumpy().astype(np.uint8)
         poly_list, score_list = [], []
         for batch_idx in range(pred.shape[0]):
-            boxes, scores = self._boxes_from_bitmap(
-                score[batch_idx], kernels[batch_idx]
-            )
+            boxes, scores = self._boxes_from_bitmap(score[batch_idx], kernels[batch_idx])
             poly_list.append(boxes)
             score_list.append(scores)
 
@@ -91,6 +86,13 @@ class PSEPostprocess(DetBasePostprocess):
             if self._box_type == "quad":
                 rect = cv2.minAreaRect(points)
                 bbox = cv2.boxPoints(rect)
+            elif self._box_type == "poly":
+                box_height = np.max(points[:, 1]) + 10
+                box_width = np.max(points[:, 0]) + 10
+                mask = np.zeros((box_height, box_width), np.uint8)
+                mask[points[:, 1], points[:, 0]] = 255
+                contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                bbox = np.squeeze(contours[0], 1)
             else:
                 raise NotImplementedError(
                     f"The value of param 'box_type' can only be 'quad', but got '{self._box_type}'."

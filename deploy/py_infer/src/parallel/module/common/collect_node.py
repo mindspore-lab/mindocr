@@ -5,18 +5,18 @@ from multiprocessing import Manager
 
 import numpy as np
 
-from ...datatype import StopData, ProcessData, ProfilingData
-from ...framework import ModuleBase
 from ....data_process.utils import cv_utils
 from ....infer import TaskType
-from ....utils import safe_list_writer, log, Visualization, VisMode
+from ....utils import VisMode, Visualization, log, safe_list_writer
+from ...datatype import ProcessData, ProfilingData, StopData
+from ...framework import ModuleBase
 
 RESULTS_SAVE_FILENAME = {
-    TaskType.DET: 'det_results.txt',
-    TaskType.CLS: 'cls_results.txt',
-    TaskType.REC: 'rec_results.txt',
-    TaskType.DET_REC: 'pipeline_results.txt',
-    TaskType.DET_CLS_REC: 'pipeline_results.txt'
+    TaskType.DET: "det_results.txt",
+    TaskType.CLS: "cls_results.txt",
+    TaskType.REC: "rec_results.txt",
+    TaskType.DET_REC: "pipeline_results.txt",
+    TaskType.DET_CLS_REC: "pipeline_results.txt",
 }
 
 
@@ -45,7 +45,7 @@ class CollectNode(ModuleBase):
             box_list = [np.array(x["points"]).reshape(-1, 2) for x in self.image_pipeline_res[image_name]]
             crop_list = vis_tool(image, box_list)
             for i, crop in enumerate(crop_list):
-                cv_utils.img_write(filename + '_crop_' + str(i) + '.jpg', crop)
+                cv_utils.img_write(filename + "_crop_" + str(i) + ".jpg", crop)
 
         if self.args.save_vis_pipeline_save_dir:
             filename = os.path.join(self.args.vis_pipeline_save_dir, os.path.splitext(image_name)[0])
@@ -53,27 +53,28 @@ class CollectNode(ModuleBase):
             box_list = [np.array(x["points"]).reshape(-1, 2) for x in self.image_pipeline_res[image_name]]
             text_list = [x["transcription"] for x in self.image_pipeline_res[image_name]]
             box_text = vis_tool(image, box_list, text_list, font_path=self.args.vis_font_path)
-            cv_utils.img_write(filename + '.jpg', box_text)
+            cv_utils.img_write(filename + ".jpg", box_text)
 
         if self.args.save_vis_det_save_dir:
             filename = os.path.join(self.args.vis_det_save_dir, os.path.splitext(image_name)[0])
             vis_tool = Visualization(VisMode.bbox)
             box_list = [np.array(x).reshape(-1, 2) for x in self.image_pipeline_res[image_name]]
             box_line = vis_tool(image, box_list)
-            cv_utils.img_write(filename + '.jpg', box_line)
+            cv_utils.img_write(filename + ".jpg", box_line)
 
         log.info(f"{image_name} is finished.")
 
     def final_text_save(self):
         save_filename = os.path.join(self.res_save_dir, self.save_filename)
         safe_list_writer(self.image_pipeline_res, save_filename)
-        log.info(f'save infer result to {save_filename} successfully')
+        log.info(f"save infer result to {save_filename} successfully")
 
     def result_handle(self, input_data):
         if self.task_type in (TaskType.DET_REC, TaskType.DET_CLS_REC):
             for result in input_data.infer_result:
                 self.image_pipeline_res[input_data.image_name].append(
-                    {"transcription": result[-1], "points": result[:-1]})
+                    {"transcription": result[-1], "points": result[:-1]}
+                )
             if not input_data.infer_result:
                 self.image_pipeline_res[input_data.image_name] = []
         elif self.task_type == TaskType.DET:
@@ -81,7 +82,7 @@ class CollectNode(ModuleBase):
         elif self.task_type in (TaskType.REC, TaskType.CLS):
             self.image_pipeline_res[input_data.image_name] = input_data.infer_result
         else:
-            raise NotImplementedError(f"Task type do not support.")
+            raise NotImplementedError("Task type do not support.")
 
         if input_data.image_id in self.image_sub_remaining:
             self.image_sub_remaining[input_data.image_id] -= input_data.sub_image_size
@@ -103,15 +104,20 @@ class CollectNode(ModuleBase):
         elif isinstance(input_data, StopData):
             self.stop_handle(input_data)
         else:
-            raise ValueError('unknown input data')
+            raise ValueError("unknown input data")
 
         if self.image_total.value and self.infer_size == self.image_total.value:
             self.final_text_save()
-            self.send_to_next_module('stop')
+            self.send_to_next_module("stop")
 
     def stop(self):
-        profiling_data = ProfilingData(module_name=self.module_name, instance_id=self.instance_id,
-                                       device_id=self.device_id, process_cost_time=self.process_cost.value,
-                                       send_cost_time=self.send_cost.value, image_total=self.image_total.value)
+        profiling_data = ProfilingData(
+            module_name=self.module_name,
+            instance_id=self.instance_id,
+            device_id=self.device_id,
+            process_cost_time=self.process_cost.value,
+            send_cost_time=self.send_cost.value,
+            image_total=self.image_total.value,
+        )
         self.msg_queue.put(profiling_data, block=False)
         self.is_stop = True
