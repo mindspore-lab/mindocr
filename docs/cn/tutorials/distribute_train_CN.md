@@ -15,11 +15,67 @@ mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet
 
 使用此种方法在进行分布式训练前需要创建json格式的HCCL配置文件，即生成RANK_TABLE_FILE文件，以下为生成8卡相应配置文件命令，更具体信息及相应脚本参见[hccl_tools](https://gitee.com/mindspore/models/tree/master/utils/hccl_tools)中的说明，
 ``` shell
-python python hccl_tools.py --device_num "[0,8)"
+python hccl_tools.py --device_num "[0,8)"
 ```
 输出为：
 ```
 hccl_8p_10234567_127.0.0.1.json
+```
+其中`hccl_8p_10234567_127.0.0.1.json`中内容示例为：
+```
+{
+    "version": "1.0",
+    "server_count": "1",
+    "server_list": [
+        {
+            "server_id": "127.0.0.1",
+            "device": [
+                {
+                    "device_id": "0",
+                    "device_ip": "192.168.100.101",
+                    "rank_id": "0"
+                },
+                {
+                    "device_id": "1",
+                    "device_ip": "192.168.101.101",
+                    "rank_id": "1"
+                },
+                {
+                    "device_id": "2",
+                    "device_ip": "192.168.102.101",
+                    "rank_id": "2"
+                },
+                {
+                    "device_id": "3",
+                    "device_ip": "192.168.103.101",
+                    "rank_id": "3"
+                },
+                {
+                    "device_id": "4",
+                    "device_ip": "192.168.100.100",
+                    "rank_id": "4"
+                },
+                {
+                    "device_id": "5",
+                    "device_ip": "192.168.101.100",
+                    "rank_id": "5"
+                },
+                {
+                    "device_id": "6",
+                    "device_ip": "192.168.102.100",
+                    "rank_id": "6"
+                },
+                {
+                    "device_id": "7",
+                    "device_ip": "192.168.103.100",
+                    "rank_id": "7"
+                }
+            ],
+            "host_nic_ip": "reserve"
+        }
+    ],
+    "status": "completed"
+}
 ```
 
 之后运行以下命令即可，运行命令前请确保yaml文件中的`distribute`参数为True。
@@ -46,4 +102,5 @@ for ((i = 0; i < ${DEVICE_NUM}; i++)); do
     fi
 done
 ```
+其他模型可进行相应替换`python -u tools/train.py --config path/to/model_config.yaml`，
 此时训练已经开始，可在`train.log`中查看训练日志。
