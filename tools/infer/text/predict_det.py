@@ -51,7 +51,9 @@ class TextDetector(object):
             f"Supported detection algorithms are {list(algo_to_model_name.keys())}"
         )
         model_name = algo_to_model_name[args.det_algorithm]
-        self.model = build_model(model_name, pretrained=pretrained, ckpt_load_path=ckpt_load_path)
+        self.model = build_model(
+            model_name, pretrained=pretrained, ckpt_load_path=ckpt_load_path, amp_level=args.det_amp_level
+        )
         self.model.set_train(False)
         print(
             "INFO: Init detection model: {} --> {}. Model weights loaded from {}".format(

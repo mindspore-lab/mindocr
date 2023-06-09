@@ -62,9 +62,6 @@ class TextRecognizer(object):
         )
         model_name = algo_to_model_name[args.rec_algorithm]
 
-        self.model = build_model(model_name, pretrained=pretrained, ckpt_load_path=ckpt_load_path)
-        self.model.set_train(False)
-
         # amp_level = 'O2' if args.rec_algorithm.startswith('SVTR') else args.rec_amp_level
         amp_level = args.rec_amp_level
         if args.rec_algorithm.startswith("SVTR") and amp_level != "O2":
@@ -73,7 +70,10 @@ class TextRecognizer(object):
                 "ampl_level for rec model is changed to O2"
             )
             amp_level = "O2"
-        ms.amp.auto_mixed_precision(self.model, amp_level=amp_level)
+
+        self.model = build_model(model_name, pretrained=pretrained, ckpt_load_path=ckpt_load_path, amp_level=amp_level)
+        self.model.set_train(False)
+
         self.cast_pred_fp32 = amp_level != "O0"
         if self.cast_pred_fp32:
             self.cast = ops.Cast()

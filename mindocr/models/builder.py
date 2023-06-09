@@ -3,6 +3,8 @@ build models
 """
 from typing import Union
 
+from mindspore.amp import auto_mixed_precision
+
 from ._registry import is_model, list_models, model_entrypoint
 from .base_model import BaseModel
 from .utils import load_model
@@ -69,5 +71,8 @@ def build_model(name_or_config: Union[str, dict], **kwargs):
             )
 
         load_model(network, load_from)
+
+    if "amp_level" in kwargs:
+        auto_mixed_precision(network, amp_level=kwargs["amp_level"])
 
     return network
