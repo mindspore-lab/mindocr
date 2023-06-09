@@ -41,6 +41,15 @@ USAGE:
 import sys
 import os
 import copy
+import shutil
+
+# copy some library
+SRC = "/usr/lib64/libgeos_c.so"
+DEST = "/home/ms-user/anaconda3/envs/Mindspore/lib/libgeos_c.so"
+if os.path.isdir(os.path.dirname(DEST)):
+    if os.path.isfile(SRC) and not os.path.isfile(DEST):
+        shutil.copy(SRC, DEST)
+
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../..")))
 

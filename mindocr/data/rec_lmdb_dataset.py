@@ -134,7 +134,11 @@ class LMDBDataset(BaseDataset):
         dataset_idx = start_idx
         for rootdir, dirs, _ in os.walk(data_dir + '/'):
             if not dirs:
-                env = lmdb.open(rootdir, max_readers=32, readonly=True, lock=False, readahead=False, meminit=False)
+                try:
+                    env = lmdb.open(rootdir, max_readers=32, readonly=True, lock=False, readahead=False, meminit=False)
+                except lmdb.Error as e:  # handle the empty folder
+                    print(e)
+                    continue
                 txn = env.begin(write=False)
                 data_size = int(txn.get('num-samples'.encode()))
                 lmdb_sets[dataset_idx] = {
