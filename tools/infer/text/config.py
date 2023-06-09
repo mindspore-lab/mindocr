@@ -50,6 +50,13 @@ def create_parser():
         help="detection algorithm.",
     )  # determine the network architecture
     parser.add_argument(
+        "--det_amp_level",
+        type=str,
+        default="O0",
+        choices=["O0", "O1", "O2", "O3"],
+        help="Auto Mixed Precision level. This setting only works on GPU and Ascend",
+    )  # added
+    parser.add_argument(
         "--det_model_dir",
         type=str,
         default=None,
@@ -95,7 +102,7 @@ def create_parser():
         "--rec_amp_level",
         type=str,
         default="O0",
-        choices=["O0", "O2", "O3"],
+        choices=["O0", "O1", "O2", "O3"],
         help="Auto Mixed Precision level. This setting only works on GPU and Ascend",
     )  # added
     parser.add_argument(

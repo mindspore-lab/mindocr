@@ -58,13 +58,9 @@ def main(cfg):
 
     # model
     cfg.model.backbone.pretrained = False
-    network = build_model(cfg.model, ckpt_load_path=cfg.eval.ckpt_load_path)
+    amp_level = cfg.system.get("amp_level_infer", "O0")
+    network = build_model(cfg.model, ckpt_load_path=cfg.eval.ckpt_load_path, amp_level=amp_level)
     network.set_train(False)
-
-    amp_level = "O0"
-    if cfg.system.amp_level_infer in ["O1", "O2", "O3"]:
-        ms.amp.auto_mixed_precision(network, amp_level=cfg.system.amp_level_infer)
-        amp_level = cfg.system.amp_level_infer
 
     # postprocess, metric
     postprocessor = build_postprocess(cfg.postprocess)
