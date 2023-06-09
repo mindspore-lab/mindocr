@@ -39,7 +39,7 @@ Table Format:
 
 <div align="center">
 
-| **模型** | **环境配置** | **骨干网络** |**平均准确率** | **训练时间** | **配置文件** | **模型权重下载** | 
+| **模型** | **环境配置** | **骨干网络** |**平均准确率** | **训练时间** | **配置文件** | **模型权重下载** |
 | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
 | CRNN      | D910x8-MS1.8-G | VGG7  | 82.03%    | 2445 s/epoch | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-3a19e349.mindir)   |
 | CRNN      | D910x8-MS1.8-G | ResNet34_vd | 84.45%    | 2118 s/epoch         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-2f016384.mindir) |
@@ -50,7 +50,7 @@ Table Format:
   <summary>在各个基准数据集上的准确率</summary>
 
   | **模型** | **骨干网络** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **平均准确率** |
-  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | 
+  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
   | CRNN | VGG7 | 94.53% | 94.00% | 92.18% | 90.74% | 71.95% | 66.06% | 84.10% | 83.93% | 73.33% | 69.44% | 82.03% |
   | CRNN | ResNet34_vd | 94.42% | 94.23% | 93.35% | 92.02% | 75.92% | 70.15% | 87.73% | 86.40% | 76.28% | 73.96% | 84.45% |
   </div>
@@ -69,7 +69,7 @@ Table Format:
 #### 推理性能
 
 | 设备 | 编译环境 | 模型 | 骨干网络 | 参数量 | 测试集 | 批量大小 | 图模式单卡推理 (FPS) |
-| :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | 
+| :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
 | Ascend310P | Lite2.0 | CRNN | ResNet34_vd | 24.48 M | IC15 | 1 | 361.09 |
 | Ascend310P | Lite2.0 | CRNN | ResNet34_vd | 24.48 M | SVT | 1 | 274.67 |
 
@@ -93,8 +93,8 @@ LMDB格式的训练及验证数据集可以从[这里](https://www.dropbox.com/s
     - `training.zip` 包括两个数据集，分别是 [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) 和 [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)
     - `validation.zip` 是多个单独数据集的训练集的一个合集，包括[IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), 和 [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset)。
     - `evaluation.zip` 包含多个基准评估数据集，有[IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset), [IC03](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions), [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf)和 [CUTE](http://cs-chan.com/downloads_CUTE80_dataset.html)
-- `validation.zip`: 与 data_lmdb_release.zip 中的validation/ 一样。 
-- `evaluation.zip`: 与 data_lmdb_release.zip 中的evaluation/ 一样。 
+- `validation.zip`: 与 data_lmdb_release.zip 中的validation/ 一样。
+- `evaluation.zip`: 与 data_lmdb_release.zip 中的evaluation/ 一样。
 
 #### 3.1.3 数据集使用
 
@@ -145,7 +145,7 @@ data_lmdb_release/
 - [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)
   - Train: 16.0 GB, 5522808 samples
 
-**Validation:** 
+**Validation:**
 - Valid: 138 MB, 6992 samples
 
 **Evaluation:** (total 12,067 samples)
@@ -252,7 +252,7 @@ eval:
 ```
 
 #### 3.1.4 检查配置文件
-除了数据集的设置，请同时重点关注以下变量的配置：`system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`, 
+除了数据集的设置，请同时重点关注以下变量的配置：`system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`,
 `eval.ckpt_load_path`, `eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.dataset.label_file`, `eval.loader.batch_size`。说明如下：
 
 ```yaml
@@ -290,7 +290,7 @@ eval:
 ...
 ```
 
-**注意:**  
+**注意:**
 - 由于全局批大小 （batch_size x num_devices） 是对结果复现很重要，因此当GPU/NPU卡数发生变化时，调整`batch_size`以保持全局批大小不变，或将学习率线性调整为新的全局批大小。
 
 
@@ -316,7 +316,7 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/
 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
-训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的目录下，默认为`./tmp_rec`。 
+训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的目录下，默认为`./tmp_rec`。
 
 ### 3.3 模型评估
 
@@ -362,14 +362,14 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 
 我们采用公开的中文基准数据集[Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition)进行CRNN模型的训练和验证。
 
-详细的数据准备和config文件配置方式, 请参考 [中文识别数据集准备](../../../docs/cn/datasets/chinese_text_recognition_CN.md) 
+详细的数据准备和config文件配置方式, 请参考 [中文识别数据集准备](../../../docs/cn/datasets/chinese_text_recognition_CN.md)
 
 ### 模型训练验证
 
 准备好数据集和配置文件后，执行以下命令开启多卡训练
 
 ```shell
-mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/crnn_resnet34_ch.yaml
+mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/crnn/crnn_resnet34_ch.yaml
 ```
 
 ### 评估结果和预训练权重
@@ -377,9 +377,9 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/
 
 <div align="center">
 
-| **模型** | **语种** | **骨干网络** | **街景类** | **网页类** | **文档类** | **配置文件** | **模型权重下载** | 
-| :-----: | :-----:  | :--------: | :--------: | :--------: | :--------: | :---------: | :-----------: |
-| CRNN    | 中文 | ResNet34_vd | 59.71% | 64.86% | 89.23% |  [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3-f27f763a.mindir) |
+| **模型** | **语种** | **环境配置** | **骨干网络** | **街景类** | **网页类** | **文档类** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** |
+| :-----: | :-----:  | :-------:  |:--------: | :--------: | :--------: | :--------: | :---------: |:--------: | :---------: | :-----------: |
+| CRNN    | 中文 | D910x4-MS1.10-G | ResNet34_vd | 60.45% | 65.95% | 97.68% | 647 s/epoch | 1180 | [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-7a342e3c.ckpt) \| [mindir]() |
 </div>
 
 ### 使用自定义数据集进行训练

@@ -1,0 +1,14 @@
+postprocess:
+  name: ViTSTRLabelDecode
+  use_space_char: True
+  blank_at_last: False
+
+
+eval:
+  dataset:
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          channel_first: False
+      - RecResizeNormForViTSTR:
+      - ToCHWImage:

@@ -50,7 +50,7 @@ If each inference is computed at the maximum Batch Size or maximum Image Size, i
 
 Therefore, it needs to support dynamic batch size and dynamic image size scenarios during inference. Lite is implemented by configuring the `dynamic_dims` parameters in `[ascend_context]` through `--configFile`.
 
-Please refer to the [Dynamic Shape Configuration](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool_ascend.html#dynamic-shape-configuration) for details.  
+Please refer to the [Dynamic Shape Configuration](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool_ascend.html#dynamic-shape-configuration) for details.
 Hereafter we will refer to it as Model Shape Scaling for short.
 
 Assuming the exported model input shape is (-1, 3, -1, -1), and the NHW axes are dynamic. Therefore, some optional values can be set during model conversion to adapt to input images of various size during inference.
@@ -98,7 +98,7 @@ For detailed tutorials, please refer to [Model Shape Scaling](./convert_dynamic_
 
 ### 2. PaddleOCR models
 
-The PaddleOCR models support two inference backends: [ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html) and [MindSpore Lite](https://www.mindspore.cn/lite),  
+The PaddleOCR models support two inference backends: [ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html) and [MindSpore Lite](https://www.mindspore.cn/lite),
 corresponding to the OM model and MindIR model, respectively.
 
 

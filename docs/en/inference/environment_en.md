@@ -43,7 +43,7 @@ chmod +x Ascend-mindxsdk-mxvision_{version}_linux-{arch}.run
 source mxVision/set_env.sh
 ```
 
-After installation, test whether mindx can be imported normally：`python -c "import mindx"`
+If use python interface, after installation, test whether mindx can be imported normally：`python -c "import mindx"`
 
 If prompted that mindx cannot be found, go to the mxVision/Python directory and install the corresponding Whl package:
 
@@ -51,6 +51,7 @@ If prompted that mindx cannot be found, go to the mxVision/Python directory and 
 cd mxVision/python
 pip install *.whl
 ```
+If use C++ interface, the above steps are not necessary.
 
 ### 2. MindSpore Lite inference
 
@@ -67,12 +68,13 @@ Just decompress the inference toolkit, and set environment variables:
 
 ```shell
 export LITE_HOME=/your_path_to/mindspore-lite
-export LD_LIBRARY_PATH=$LITE_HOME/runtime/lib:$LITE_HOME/tools/converter/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$LITE_HOME/runtime/lib::$LITE_HOME/runtime/third_party/dnnl:$LITE_HOME/tools/converter/lib:$LD_LIBRARY_PATH
 export PATH=$LITE_HOME/tools/converter/converter:$LITE_HOME/tools/benchmark:$PATH
 ```
 
-The wheel package of the python interface is installed using pip:
+If using python interface, install the required .whl package using pip:
 
 ```shell
 pip install mindspore_lite-{version}-{python_version}-linux_{arch}.whl
 ```
+The installation is not necessary if using the C++ interface.

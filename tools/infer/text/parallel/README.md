@@ -2,7 +2,7 @@
 
 This folder contains code and scripts for MindOCR online parallel inference. Instead of inferring detection for one image followed by recognizing all the detected regions batch-wisely, the parallel version intends to infer detection for all input images at first, save all the cropped images for the detected regions, and finally run text recognition on all the crop images at once.
 > The current code only support batch size = 1.
-> To run it for your model, please add `predict` section in the model yaml config file to describe the data processing and loading pipeline for inference. 
+> To run it for your model, please add `predict` section in the model yaml config file to describe the data processing and loading pipeline for inference.
 
 This doc introduces how to run the detection and recognition prediction pipeline using MindOCR-trained ckpt files.
 
@@ -27,11 +27,11 @@ This doc introduces how to run the detection and recognition prediction pipeline
 
 ### 2.2 Argument configuration
 
-Argument configuration includes two parts: 
+Argument configuration includes two parts:
 - (1) yaml config file
 - (2) args in `tools/predict/text/predict_system.py`
 
-**Note that if you set the values of the args by (2), those args values will overwrite their counterparts in (1) yaml config file. 
+**Note that if you set the values of the args by (2), those args values will overwrite their counterparts in (1) yaml config file.
 Otherwise, the args values in (1) yaml config file will be used by default. You can also update the args values in yaml config file directly.**
 
 #### (1) yaml config file

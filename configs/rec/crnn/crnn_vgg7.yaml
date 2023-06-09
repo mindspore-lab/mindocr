@@ -1,6 +1,6 @@
 system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
-  distribute: True 
+  distribute: True
   amp_level: 'O3'
   seed: 42
   log_interval: 100
@@ -23,18 +23,18 @@ model:
     pretrained: False
   neck:
     name: RNNEncoder
-    hidden_size: 256 
+    hidden_size: 256
   head:
-    name: CTCHead 
+    name: CTCHead
     weight_init: crnn_customised
     bias_init: crnn_customised
-    out_channels: *num_classes 
+    out_channels: *num_classes
 
 postprocess:
   name: RecCTCLabelDecode
   character_dict_path: *character_dict_path
   use_space_char: *use_space_char
- 
+
 metric:
   name: RecMetric
   main_indicator: acc
@@ -43,12 +43,12 @@ metric:
   print_flag: False
 
 loss:
-  name: CTCLoss 
+  name: CTCLoss
   pred_seq_len: 24 # TODO: retrieve from the network output shape.
   max_label_len: *max_text_len  # this value should be smaller than pre_seq_len
   batch_size: *batch_size
 
-scheduler: 
+scheduler:
   scheduler: warmup_cosine_decay
   min_lr: 0.0
   lr: 0.0005
@@ -62,7 +62,7 @@ optimizer:
   momentum: 0.95
   weight_decay: 0.0001
   nesterov: False
-  #use_nesterov: True 
+  #use_nesterov: True
 
 loss_scaler:
   type: static
@@ -70,7 +70,7 @@ loss_scaler:
 
 train:
   ckpt_save_dir: './tmp_rec'
-  pred_cast_fp32: False # let CTCLoss cast internally  
+  pred_cast_fp32: False # let CTCLoss cast internally
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
@@ -80,31 +80,31 @@ train:
     sample_ratio: 1.0
     shuffle: True
     transform_pipeline:
-      - DecodeImage: 
+      - DecodeImage:
           img_mode: BGR
           to_float32: False
       - RecCTCLabelEncode:
-          max_text_len: *max_text_len 
+          max_text_len: *max_text_len
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
           lower: True
-      - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize. 
+      - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize.
           image_shape: [32, 100] # H, W
           infer_mode: *infer_mode
           character_dict_path: *character_dict_path
           padding: False # aspect ratio will be preserved if true.
-      - NormalizeImage:  # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec. 
+      - NormalizeImage:  # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec.
           bgr_to_rgb: True
           is_hwc: True
-          mean : [127.0, 127.0, 127.0] 
+          mean : [127.0, 127.0, 127.0]
           std : [127.0, 127.0, 127.0]
-      - ToCHWImage: 
-    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
-    output_columns: ['image', 'text_seq'] #, 'length'] #'img_path'] 
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
+    output_columns: ['image', 'text_seq'] #, 'length'] #'img_path']
     net_input_column_index: [0] # input indices for network forward func in output_columns
     label_column_index: [1] # input indices marked as label
-    #keys_for_loss: 4 # num labels for loss func 
-     
+    #keys_for_loss: 4 # num labels for loss func
+
   loader:
       shuffle: True # TODO: tbc
       batch_size: *batch_size
@@ -123,30 +123,30 @@ eval:
     sample_ratio: 1.0
     shuffle: False
     transform_pipeline:
-      - DecodeImage: 
+      - DecodeImage:
           img_mode: BGR
           to_float32: False
       - RecCTCLabelEncode:
-          max_text_len: *max_text_len 
+          max_text_len: *max_text_len
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
           lower: True
-      - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize. 
+      - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize.
           image_shape: [32, 100] # H, W
           infer_mode: *infer_mode
           character_dict_path: *character_dict_path
           padding: False # aspect ratio will be preserved if true.
-      - NormalizeImage:  # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec. 
+      - NormalizeImage:  # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec.
           bgr_to_rgb: True
           is_hwc: True
-          mean : [127.0, 127.0, 127.0] 
+          mean : [127.0, 127.0, 127.0]
           std : [127.0, 127.0, 127.0]
-      - ToCHWImage: 
-    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize 
-    output_columns: ['image', 'text_padded', 'text_length']  # TODO return text string padding w/ fixed length, and a scaler to indicate the length 
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
+    output_columns: ['image', 'text_padded', 'text_length']  # TODO return text string padding w/ fixed length, and a scaler to indicate the length
     net_input_column_index: [0] # input indices for network forward func in output_columns
     label_column_index: [1, 2] # input indices marked as label
-     
+
   loader:
       shuffle: False # TODO: tbc
       batch_size: 16

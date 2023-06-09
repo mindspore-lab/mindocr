@@ -2,10 +2,10 @@ import enum
 
 import numpy as np
 
-from .infer_engine import MindXModel, LiteModel
+from .infer_engine import LiteModel, MindXModel
 from .module_data_type import ShapeType
 
-__all__ = ['InferEngine', 'Model']
+__all__ = ["InferEngine", "Model"]
 
 
 @enum.unique
@@ -14,10 +14,7 @@ class InferEngine(enum.Enum):
     Lite = 1
 
 
-_INFER_ENGINE_MAP = {
-    InferEngine.MindX: MindXModel,
-    InferEngine.Lite: LiteModel
-}
+_INFER_ENGINE_MAP = {InferEngine.MindX: MindXModel, InferEngine.Lite: LiteModel}
 
 
 class Model:
@@ -55,7 +52,8 @@ class Model:
 
         if len(set(batchsize_list)) > 1 and (len(set(height_list)) > 1 or len(set(width_list)) > 1):
             raise ValueError(
-                f"Input shape do not support batch_size and image_size as dynamic_dims together for {model_path}.")
+                f"Input shape do not support batch_size and image_size as dynamic_dims together for {model_path}."
+            )
 
         # dynamic_batch_size
         if len(set(batchsize_list)) > 1:

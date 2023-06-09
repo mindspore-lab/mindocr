@@ -6,11 +6,11 @@ from multiprocessing import Process, Queue
 
 import tqdm
 
-from .datatype import StopSign, ModuleDesc, ModuleConnectDesc
-from .framework import ModuleManager
-from .module import MODEL_DICT
 from ..infer import SUPPORTED_TASK_BASIC_MODULE
 from ..utils import log, safe_div
+from .datatype import ModuleConnectDesc, ModuleDesc, StopSign
+from .framework import ModuleManager
+from .module import MODEL_DICT
 
 
 class ParallelPipeline:
@@ -42,7 +42,7 @@ class ParallelPipeline:
         """
         task_type = self.args.task_type
         parallel_num = self.args.parallel_num
-        module_desc_list = [ModuleDesc('HandoutNode', 1), ModuleDesc('DecodeNode', parallel_num)]
+        module_desc_list = [ModuleDesc("HandoutNode", 1), ModuleDesc("DecodeNode", parallel_num)]
 
         module_order = SUPPORTED_TASK_BASIC_MODULE[task_type]
 
@@ -51,14 +51,15 @@ class ParallelPipeline:
             for name, count in MODEL_DICT.get(model_name, []):
                 module_desc_list.append(ModuleDesc(name, count * parallel_num))
 
-        module_desc_list.append(ModuleDesc('CollectNode', 1))
+        module_desc_list.append(ModuleDesc("CollectNode", 1))
         module_connect_desc_list = []
         for i in range(len(module_desc_list) - 1):
-            module_connect_desc_list.append(ModuleConnectDesc(module_desc_list[i].module_name,
-                                                              module_desc_list[i + 1].module_name))
+            module_connect_desc_list.append(
+                ModuleConnectDesc(module_desc_list[i].module_name, module_desc_list[i + 1].module_name)
+            )
 
         module_size = sum(desc.module_count for desc in module_desc_list)
-        log.info(f'module_size: {module_size}')
+        log.info(f"module_size: {module_size}")
         msg_queue = Queue(module_size)
 
         manager = ModuleManager(msg_queue, self.input_queue, self.args)
@@ -96,9 +97,11 @@ class ParallelPipeline:
 
         self.profiling(profiling_data, image_total)
 
-        print(f'Number of images: {image_total}, '
-              f'total cost {cost_time:.2f}s, '
-              f'FPS: {safe_div(image_total, cost_time):.2f}')
+        print(
+            f"Number of images: {image_total}, "
+            f"total cost {cost_time:.2f}s, "
+            f"FPS: {safe_div(image_total, cost_time):.2f}"
+        )
 
         msg_queue.close()
         msg_queue.join_thread()
@@ -110,13 +113,14 @@ class ParallelPipeline:
         if os.path.isdir(images):
             show_progressbar = not self.args.show_log
             input_image_list = [os.path.join(images, path) for path in os.listdir(images)]
-            for image_path in tqdm.tqdm(input_image_list, desc="send image to pipeline") \
-                    if show_progressbar else input_image_list:
+            for image_path in (
+                tqdm.tqdm(input_image_list, desc="send image to pipeline") if show_progressbar else input_image_list
+            ):
                 self.input_queue.put(image_path, block=True)
         elif os.path.isfile(images):
             self.input_queue.put(images, block=True)
         else:
-            raise ValueError(f"images must be a image path or dir.")
+            raise ValueError("images must be a image path or dir.")
 
     def profiling(self, profiling_data, image_total):
         e2e_cost_time_per_image = 0
@@ -127,10 +131,12 @@ class ParallelPipeline:
             send_time = data[1]
             process_avg = safe_div(process_time * 1000, image_total)
             e2e_cost_time_per_image += process_avg
-            log.info(f'{module_name} cost total {total_time:.2f} s, process avg cost {process_avg:.2f} ms, '
-                     f'send waiting time avg cost {safe_div(send_time * 1000, image_total):.2f} ms')
-            log.info('----------------------------------------------------')
-        log.info(f'e2e cost time per image {e2e_cost_time_per_image}ms')
+            log.info(
+                f"{module_name} cost total {total_time:.2f} s, process avg cost {process_avg:.2f} ms, "
+                f"send waiting time avg cost {safe_div(send_time * 1000, image_total):.2f} ms"
+            )
+            log.info("----------------------------------------------------")
+        log.info(f"e2e cost time per image {e2e_cost_time_per_image}ms")
 
     def __del__(self):
         if hasattr(self, "process") and self.process:

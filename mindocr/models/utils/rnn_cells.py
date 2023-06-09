@@ -1,9 +1,8 @@
 """RNN Cells that supports FP16 inputs
 """
 import mindspore.ops as P
-from mindspore.ops.primitive import constexpr
 from mindspore.nn.layer.rnn_cells import RNNCellBase
-
+from mindspore.ops.primitive import constexpr
 
 __all__ = ["GRUCell"]
 
@@ -25,6 +24,7 @@ def _gru_cell(inputs, hidden, w_ih, w_hh, b_ih, b_hh):
     hy = newgate + inputgate * (hidden - newgate)
 
     return hy
+
 
 @constexpr
 def _check_batch_size_equal(batch_size_x, batch_size_hx, cls_name):

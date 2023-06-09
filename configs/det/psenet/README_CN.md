@@ -4,7 +4,7 @@
 
 <!--- Guideline: use url linked to abstract in ArXiv instead of PDF for fast loading.  -->
 
-> PSENet: [Shape Robust Text Detection With Progressive Scale Expansion Network](https://openaccess.thecvf.com/content_CVPR_2019/html/Wang_Shape_Robust_Text_Detection_With_Progressive_Scale_Expansion_Network_CVPR_2019_paper.html)  
+> PSENet: [Shape Robust Text Detection With Progressive Scale Expansion Network](https://openaccess.thecvf.com/content_CVPR_2019/html/Wang_Shape_Robust_Text_Detection_With_Progressive_Scale_Expansion_Network_CVPR_2019_paper.html)
 
 ## 1. 概述
 
@@ -29,12 +29,13 @@ PSENet的整体架构图如图1所示，包含以下阶段:
 
 | **模型**              | **环境配置**       | **骨干网络**      | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间**     | **吞吐量**   | **配置文件**                            | **模型权重下载**                                                                                                                                                                                                |
 |---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-----------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 79.39%     | 84.91%        | 82.06%      | 138 s/epoch   | 7.57 img/s | [yaml](pse_r152_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir) 
+| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 79.39%     | 84.91%        | 82.06%      | 138 s/epoch   | 7.57 img/s | [yaml](pse_r152_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)
 </div>
 
 #### 注释：
 - 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。
 - PSENet的训练时长受数据处理部分超参和不同运行环境的影响非常大。
+- 链接中MindIR导出时的输入Shape为`(1,3,1472,2624)` 。
 
 ## 3. 快速上手
 
@@ -48,7 +49,7 @@ PSENet的整体架构图如图1所示，包含以下阶段:
 
 请从[该网址](https://rrc.cvc.uab.es/?ch=4&com=downloads)下载ICDAR2015数据集，然后参考[数据转换](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README_CN.md)对数据集标注进行格式转换。
 
-完成数据准备工作后，数据的目录结构应该如下所示： 
+完成数据准备工作后，数据的目录结构应该如下所示：
 
 ``` text
 .
@@ -102,7 +103,7 @@ model:
   type: det
   transform: null
   backbone:
-    name: det_resnet152  
+    name: det_resnet152
     pretrained: True    # 是否使用ImageNet数据集上的预训练权重
   neck:
     name: PSEFPN         # PSENet的特征金字塔网络
@@ -118,7 +119,7 @@ model:
 
 训练前，请确保在/mindocr/postprocess/pse目录下按照以下方式编译后处理代码：
 
-``` shell 
+``` shell
 python3 setup.py build_ext --inplace
 ```
 
@@ -126,7 +127,7 @@ python3 setup.py build_ext --inplace
 
 请确保yaml文件中的`distribute`参数为False。
 
-``` shell 
+``` shell
 # train psenet on ic15 dataset
 python tools/train.py --config configs/det/psenet/pse_r152_icdar15.yaml
 ```
@@ -140,11 +141,11 @@ python tools/train.py --config configs/det/psenet/pse_r152_icdar15.yaml
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/det/psenet/pse_r152_icdar15.yaml
 ```
 
-训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为`./tmp_det`。 
+训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为`./tmp_det`。
 
 ### 3.5 评估
 
-评估环节，在yaml配置文件中将`ckpt_load_path`参数配置为checkpoint文件的路径，设置`distribute`为False，然后运行： 
+评估环节，在yaml配置文件中将`ckpt_load_path`参数配置为checkpoint文件的路径，设置`distribute`为False，然后运行：
 
 ``` shell
 python tools/eval.py --config configs/det/psenet/pse_r152_icdar15.yaml
@@ -152,45 +153,46 @@ python tools/eval.py --config configs/det/psenet/pse_r152_icdar15.yaml
 
 ### 3.6 MindSpore Lite 推理
 
-在进行推理前，请确保PSENet的后处理部分已编译（参考训练章节的后处理部分），并完成[推理环境搭建](../../../docs/cn/inference/environment_cn.md)。完成上述步骤后，请先下载[MindIR模型](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)文件或使用以下命令将已训练完成的ckpt导出成MindIR文件:
+请参考[MindOCR 推理](../../../docs/cn/inference/inference_tutorial_cn.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
 
-``` shell
-python tools/export.py --model_name psenet_resnet152 --data_shape 1472 2624 --local_ckpt_path /path/to/local_ckpt.ckpt
-```
-使用converter_lite工具将MindIR转换成MindSpore Lite支持的MindIR模型：
+- 模型导出
+
+请先[下载](#2-实验结果)已导出的MindIR文件，或者参考[模型导出](../../README.md)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
+
 ```shell
-converter_lite \
-    --saveType=MINDIR \
-    --NoFusion=false \
-    --fmk=MINDIR \
-    --device=Ascend \
-    --modelFile=psenet_resnet152.mindir \
-    --outputFile=output \
-    --configFile=config.txt
-```
-上述命令将生成output.om以及output.mindir模型文件。其中，config.txt文件配置如下：
-```
- [ascend_context]
- input_format=NCHW
- input_shape=x:[1,3,1472,2624]
+python tools/export.py --model_name psenet_resnet152 --data_shape 1472 2624 --local_ckpt_path /path/to/local_ckpt.ckpt
+# or
+python tools/export.py --model_name configs/det/psenet/pse_r152_icdar15.yaml --data_shape 1472 2624 --local_ckpt_path /path/to/local_ckpt.ckpt
 ```
 
-完成output.mindir文件导出后，在/mindocr/deploy/py_infer目录下使用以下命令即可进行推理和评估：
+其中，`data_shape`是导出MindIR时的模型输入Shape的height和width，下载链接中MindIR对应的shape值见[注释](#注释)。
+
+- 环境搭建
+
+请参考[环境安装](../../../docs/cn/inference/environment_cn.md#2-mindspore-lite推理)教程，配置MindSpore Lite推理运行环境。
+
+- 模型转换
+
+请参考[模型转换](../../../docs/cn/inference/convert_tutorial_cn.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换，
+其中`configFile`文件中的`input_shape`需要填写模型导出时shape，如上述的(1,3,1472,2624)，格式为NCHW。
+
+- 执行推理
+
+在进行推理前，请确保PSENet的后处理部分已编译，参考[训练](#34-训练)的后处理部分。
+
+假设在模型转换后得到output.mindir文件，在`deploy/py_infer`目录下使用以下命令进行推理：
+
 ```shell
 python infer.py \
     --input_images_dir=/your_path_to/test_images \
     --device=Ascend \
-    --device_id=your_device_id \
-    --parallel_num=2 \
-    --precision_mode=fp32 \
+    --device_id=0 \
     --det_model_path=your_path_to/output.mindir \
-    --det_model_name=en_ms_det_psenet_resnet152 \
+    --det_config_path=../../configs/det/psenet/pse_r152_icdar15.yaml \
     --backend=lite \
-    --save_log_dir=your_logs_dir \
-    --res_save_dir=your_prediction_result_dir
-
-python ../eval_utils/eval_det.py --gt_path=/your_path_to/det_gt.txt --pred_path=your_prediction_result_dir/det_results.txt
+    --res_save_dir=results_dir
 ```
+
 ## 参考文献
 
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->

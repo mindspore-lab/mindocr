@@ -1,6 +1,7 @@
 from typing import Tuple, Union
-import mindspore.nn as nn
+
 import mindspore as ms
+import mindspore.nn as nn
 
 
 class DBHead(nn.Cell):

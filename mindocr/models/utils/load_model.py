@@ -5,7 +5,6 @@ from mindspore import load_checkpoint, load_param_into_net
 
 from ..backbones.mindcv_models.utils import auto_map, download_pretrained
 
-
 __all__ = ["load_model", "drop_inconsistent_shape_parameters"]
 
 
@@ -18,7 +17,8 @@ def drop_inconsistent_shape_parameters(model, param_dict):
                 updated_param_dict[name] = param_dict[name]
             else:
                 print(
-                    f"WARNING: Dropping checkpoint parameter `{name}` with shape `{param_dict[name].shape}`, which is inconsistent with cell shape `{param.shape}`"
+                    f"WARNING: Dropping checkpoint parameter `{name}` with shape `{param_dict[name].shape}`, "
+                    f"which is inconsistent with cell shape `{param.shape}`"
                 )
         else:
             print(f"WARNING: Cannot find checkpoint parameter `{name}`.")
@@ -38,9 +38,11 @@ def load_model(
     Args:
         network: network
         load_from: a string that can be url or local path to a checkpoint, that will be loaded to the network.
-        filter_fn: a function filtering the parameters that will be loading into the network. If it is None, all parameters will be loaded.
+        filter_fn: a function filtering the parameters that will be loading into the network. If it is None,
+            all parameters will be loaded.
         auto_mapping: when it is True, then load the paramters even if the names are slightly different
-        strict: If it is true, then the shape and the type of the parameters in the checkpoint and the network should be consistent
+        strict: If it is true, then the shape and the type of the parameters in the checkpoint and the network
+            should be consistent
             raise exception if they do not match.
     """
     if load_from is None:

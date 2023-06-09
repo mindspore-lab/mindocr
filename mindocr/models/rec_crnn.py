@@ -1,11 +1,9 @@
-import mindspore.nn as nn
-from mindspore.ops import operations as ops
-from .base_model import BaseModel
 from ._registry import register_model
 from .backbones.mindcv_models.utils import load_pretrained
-
+from .base_model import BaseModel
 
 __all__ = ['CRNN', 'crnn_resnet34', 'crnn_vgg7', 'crnn_resnet34_ch']
+
 
 def _cfg(url='', input_size=(3, 32, 100), **kwargs):
     return {
@@ -21,7 +19,8 @@ default_cfgs = {
     'crnn_vgg7': _cfg(
         url='https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt'),
     'crnn_resnet34_ch': _cfg(
-        url='https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-a8d0f5d3.ckpt'),
+        url='https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-7a342e3c.ckpt',
+        input_size=(3, 32, 320)),
     }
 
 
@@ -95,7 +94,7 @@ def crnn_resnet34_ch(pretrained=False, **kwargs):
         },
         "neck": {
             "name": 'RNNEncoder',
-            "hidden_size": 256,
+            "hidden_size": 64,
         },
         "head": {
             "name": 'CTCHead',

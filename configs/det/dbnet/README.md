@@ -4,7 +4,7 @@ English | [中文](README_CN.md)
 
 <!--- Guideline: use url linked to abstract in ArXiv instead of PDF for fast loading.  -->
 
-> DBNet: [Real-time Scene Text Detection with Differentiable Binarization](https://arxiv.org/abs/1911.08947)  
+> DBNet: [Real-time Scene Text Detection with Differentiable Binarization](https://arxiv.org/abs/1911.08947)
 > DBNet++: [Real-Time Scene Text Detection with Differentiable Binarization and Adaptive Scale Fusion](https://arxiv.org/abs/2202.10304)
 
 ## 1. Introduction
@@ -12,10 +12,10 @@ English | [中文](README_CN.md)
 ### DBNet
 
 DBNet is a segmentation-based scene text detection method. Segmentation-based methods are gaining popularity for scene
-text detection purposes as they can more accurately describe scene text of various shapes, such as curved text.  
+text detection purposes as they can more accurately describe scene text of various shapes, such as curved text.
 The drawback of current segmentation-based SOTA methods is the post-processing of binarization (conversion of
 probability maps into text bounding boxes) which often requires a manually set threshold (reduces prediction accuracy)
-and complex algorithms for grouping pixels (resulting in a considerable time cost during inference).  
+and complex algorithms for grouping pixels (resulting in a considerable time cost during inference).
 To eliminate the problem described above, DBNet integrates an adaptive threshold called Differentiable Binarization(DB)
 into the architecture. DB simplifies post-processing and enhances the performance of text detection.Moreover, it can be
 removed in the inference stage without sacrificing performance.[[1](#references)]
@@ -52,7 +52,7 @@ scales is distinctly strengthened.[[2](#references)]
 ASF consists of two attention modules – stage-wise attention and spatial attention, where the latter is integrated in
 the former as described in the Figure 3. The stage-wise attention module learns the weights of the feature maps of
 different scales. While the spatial attention module learns the attention across the spatial dimensions. The
-combination of these two modules leads to scale-robust feature fusion.  
+combination of these two modules leads to scale-robust feature fusion.
 DBNet++ performs better in detecting text instances of diverse scales, especially for large-scale text instances where
 DBNet may generate inaccurate or discrete bounding boxes.
 
@@ -73,6 +73,8 @@ DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total
 |                     |                |               |                |            |               |             |              |                |                                     |                                                                                                                                                                                                           |
 | DBNet++             | D910x1-MS2.0-G | ResNet-50     | [SynthText](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)  | 85.70%     | 87.81%        | 86.74%      | 17.7 s/epoch | 56 img/s  | [yaml](db++_r50_icdar15.yaml)       | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2-9934aff0.mindir)   |
 </div>
+
+> The input_shape for exported DBNet MindIR and DBNet++ MindIR in the link are `(1,3,736,1280)` and `(1,3,1152,2048)`, respectively.
 
 ### MSRA-TD500
 
@@ -129,7 +131,7 @@ DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total
 
 #### Notes
 - Context: Training context denoted as {device}x{pieces}-{MS version}{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
-- Note that the training time of DBNet is highly affected by data processing and varies on different machines. 
+- Note that the training time of DBNet is highly affected by data processing and varies on different machines.
 
 
 
@@ -145,7 +147,7 @@ Please refer to the [installation instruction](https://github.com/mindspore-lab/
 
 Please download [ICDAR2015](https://rrc.cvc.uab.es/?ch=4&com=downloads) dataset, and convert the labels to the desired format referring to [dataset_converters](../../../tools/dataset_converters/README.md).
 
-The prepared dataset file struture should be:  
+The prepared dataset file struture should be:
 
 ``` text
 .
@@ -167,19 +169,19 @@ The prepared dataset file struture should be:
 
 Please download [MSRA-TD500](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500)) dataset，and convert the labels to the desired format referring to [dataset_converters](../../../tools/dataset_converters/README.md).
 
-The prepared dataset file struture should be: 
+The prepared dataset file struture should be:
 
 ```txt
 MSRA-TD500
  ├── test
- │   ├── IMG_0059.gt 
+ │   ├── IMG_0059.gt
  │   ├── IMG_0059.JPG
  │   ├── IMG_0080.gt
  │   ├── IMG_0080.JPG
  │   ├── ...
  │   ├── train_det_gt.txt
  ├── train
- │   ├── IMG_0030.gt 
+ │   ├── IMG_0030.gt
  │   ├── IMG_0030.JPG
  │   ├── IMG_0063.gt
  │   ├── IMG_0063.JPG
@@ -191,7 +193,7 @@ MSRA-TD500
 
 Please download [SCUT-CTW1500](https://github.com/Yuliang-Liu/Curve-Text-Detector) dataset，and convert the labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
 
-The prepared dataset file struture should be: 
+The prepared dataset file struture should be:
 
 ```txt
 ctw1500
@@ -211,7 +213,7 @@ ctw1500
 
 Please download [Total-Text](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset) dataset，and convert the labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
 
-The prepared dataset file struture should be: 
+The prepared dataset file struture should be:
 
 
 ```txt
@@ -233,7 +235,7 @@ totaltext
 
 The MLT2017 dataset is a multilingual text detection and recognition dataset that includes nine languages: Chinese, Japanese, Korean, English, French, Arabic, Italian, German, and Hindi. Please download [MLT2017](https://rrc.cvc.uab.es/?ch=8&com=downloads) and extract the dataset. Then convert the .gif format images in the data to .jpg or .png format, and convert the labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
 
-The prepared dataset file struture should be: 
+The prepared dataset file struture should be:
 
 ```txt
 MLT_2017
@@ -354,7 +356,7 @@ Please set `distribute` in yaml config file to be True.
 # n is the number of GPUs/NPUs
 mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
- 
+
 The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir` in yaml config file. The default directory is `./tmp_det`.
 
 
@@ -364,6 +366,47 @@ To evaluate the accuracy of the trained model, you can use `eval.py`. Please set
 
 ```shell
 python tools/eval.py -c=configs/det/dbnet/db_r50_icdar15.yaml
+```
+
+### 3.6 MindSpore Lite Inference
+
+Please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial_en.md) for model inference based on MindSpot Lite on Ascend 310, including the following steps:
+
+- Model Export
+
+Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../README.md) tutorial and use the following command to export the trained ckpt model to  MindIR file:
+
+```shell
+python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+# or
+python tools/export.py --model_name configs/det/dbnet/db_r50_icdar15.yaml --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+```
+
+The `data_shape` is the model input shape of height and width for MindIR file. The shape value of MindIR in the download link can be found in [ICDAR2015 Notes](#ICDAR2015).
+
+- Environment Installation
+
+Please refer to [Environment Installation](../../../docs/en/inference/environment_en.md#2-mindspore-lite-inference) tutorial to configure the MindSpore Lite inference environment.
+
+- Model Conversion
+
+Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial_en.md#1-mindocr-models),
+and use the `converter_lite` tool for offline conversion of the MindIR file, where the `input_shape` in `configFile` needs to be filled in with the value from MindIR export,
+as mentioned above (1, 3, 736, 1280), and the format is NCHW.
+
+- Inference
+
+Assuming that you obtain output.mindir after model conversion, go to the `deploy/py_infer` directory, and use the following command for inference:
+
+```shell
+python infer.py \
+    --input_images_dir=/your_path_to/test_images \
+    --device=Ascend \
+    --device_id=0 \
+    --det_model_path=your_path_to/output.mindir \
+    --det_config_path=../../configs/det/dbnet/db_r50_icdar15.yaml \
+    --backend=lite \
+    --res_save_dir=results_dir
 ```
 
 ## References

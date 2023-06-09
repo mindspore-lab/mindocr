@@ -1,14 +1,14 @@
+import math
 import os
 from collections import defaultdict
-from typing import Union, List, Tuple, Dict
+from typing import Dict, List, Tuple, Union
 
-import math
 import numpy as np
 
-from .infer_base import InferBase
 from ..core import Model, ShapeType
-from ..data_process import gear_utils, cv_utils, build_preprocess, build_postprocess
+from ..data_process import build_postprocess, build_preprocess, cv_utils, gear_utils
 from ..utils import safe_div
+from .infer_base import InferBase
 
 
 class TextRecognizer(InferBase):
@@ -53,8 +53,9 @@ class TextRecognizer(InferBase):
 
     def __get_resized_hw(self, image_list):
         if self.shape_type != ShapeType.DYNAMIC_SHAPE:
-            resized_hw_list = [gear_utils.get_matched_gear_hw(cv_utils.get_hw_of_img(image), self._hw_list)
-                               for image in image_list]
+            resized_hw_list = [
+                gear_utils.get_matched_gear_hw(cv_utils.get_hw_of_img(image), self._hw_list) for image in image_list
+            ]
             max_h, max_w = max(resized_hw_list, key=lambda x: x[0] * x[1])
         else:
             model_h, model_w = self._hw_list[0]
@@ -77,14 +78,16 @@ class TextRecognizer(InferBase):
                 if self.shape_type in (ShapeType.STATIC_SHAPE, ShapeType.DYNAMIC_BATCHSIZE, ShapeType.DYNAMIC_SHAPE):
                     raise ValueError(
                         f"rec_model_dir must be a file when use static, dynamic shape or dynamic batch_size for "
-                        f"recognition model, but got rec_model_dir={model_path} is a dir.")
+                        f"recognition model, but got rec_model_dir={model_path} is a dir."
+                    )
                 chw_list.append(str((shape[2:])))
 
             if len(set(chw_list)) != 1 or len(set(self._bs_list)) != len(self._bs_list):
                 raise ValueError(
                     f"Input shape must have same image_size and different batch_size when use the combination of "
                     f"dynamic batch_size and image_size for recognition model. "
-                    f"Please check every model file in {model_path}.")
+                    f"Please check every model file in {model_path}."
+                )
 
         self._bs_list.sort()
 

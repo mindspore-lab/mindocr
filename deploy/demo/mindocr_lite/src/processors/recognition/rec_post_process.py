@@ -1,6 +1,4 @@
-import numpy as np
-
-from ...framework import ModuleBase, InferModelComb
+from ...framework import InferModelComb, ModuleBase
 from ...operators import build_postprocess
 
 

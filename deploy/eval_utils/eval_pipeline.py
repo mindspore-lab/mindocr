@@ -9,9 +9,9 @@ from tqdm import tqdm
 
 def read_content(filename):
     results = {}
-    with open(filename, encoding='utf-8') as f:
+    with open(filename, encoding="utf-8") as f:
         for line in f:
-            name, content = line.split('\t', 1)
+            name, content = line.split("\t", 1)
             results[name] = json.loads(content)
     return results
 
@@ -53,7 +53,7 @@ def process_words(label_itmes, pred_item, thresh=0.5):
             ratio = inter / gt_poly.area
 
         if ratio > thresh and gt_item["transcription"]:
-            ## only with valid word label proves the validity of item
+            # only with valid word label proves the validity of item
             gt_text = gt_item["transcription"].replace(" ", "").lower()
             pred_text = pred_item["transcription"].replace(" ", "").lower()
             if gt_text == pred_text:
@@ -75,26 +75,23 @@ def each_recognition_eval(label_itmes, pred_items):
 
 
 def eval_rec(labels, preds, parallel_num):
-    res = Parallel(n_jobs=parallel_num, backend="multiprocessing")(delayed(each_recognition_eval)(
-        labels[key], preds[key]) for key in tqdm(labels.keys()))
+    res = Parallel(n_jobs=parallel_num, backend="multiprocessing")(
+        delayed(each_recognition_eval)(labels[key], preds[key]) for key in tqdm(labels.keys())
+    )
 
     res = np.array(res)
     correct_num = sum(res[:, 0])
     total_num = sum(res[:, 1])
     acc = correct_num / total_num if total_num else 0
-    result = {
-        "acc:": acc,
-        "correct_num:": correct_num,
-        "total_num:": total_num
-    }
+    result = {"acc:": acc, "correct_num:": correct_num, "total_num:": total_num}
     return result
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--gt_path', required=True, type=str)
-    parser.add_argument('--pred_path', required=True, type=str)
-    parser.add_argument('--parallel_num', required=False, type=int, default=32)
+    parser.add_argument("--gt_path", required=True, type=str)
+    parser.add_argument("--pred_path", required=True, type=str)
+    parser.add_argument("--parallel_num", required=False, type=int, default=32)
     args = parser.parse_args()
 
     gt_path = args.gt_path
@@ -108,7 +105,7 @@ if __name__ == '__main__':
     preds_keys = preds.keys()
 
     if set(labels_keys) != set(preds_keys):
-        raise ValueError(f"The images in gt_path and pred_path must be the same.")
+        raise ValueError("The images in gt_path and pred_path must be the same.")
 
     result_rec = eval_rec(labels, preds, parallel_num)
     print(result_rec)

@@ -107,18 +107,18 @@ cd deploy/demo/mindocr_lite
     python infer.py --input_images_dir=dataset/ic15/det/test/ch4_test_images --device=Ascend --device_id=3 --parallel_num=1 --precision_mode=fp16 --det_model_path=mindir/dbnet_resnet50.mindir --engine=lite --res_save_dir=det_ic15
     ```
 
-    The results will be saved in det_ic15/det_results.txt, with the following format: 
+    The results will be saved in det_ic15/det_results.txt, with the following format:
     ```
     img_478.jpg	[[[1114, 35], [1200, 0], [1234, 52], [1148, 97]], [...]]
     ```
-   
+
 2. Text recognition
 
     ```shell
     python infer.py --input_images_dir=dataset/svt/rec/test/cropped_images --device=Ascend --device_id=3 --parallel_num=1  --precision_mode=fp16 --rec_model_path=mindir/crnn_resnet34.mindir --engine=lite --res_save_dir=rec_svt
     ```
 
-    The results will be saved in rec_svt/rec_results.txt, with the following format: 
+    The results will be saved in rec_svt/rec_results.txt, with the following format:
 
     ```
     word_421.png	"under"
@@ -132,8 +132,8 @@ cd deploy/demo/mindocr_lite
     python infer.py --input_images_dir=dataset/ic15/det/test/ch4_test_images --device=Ascend --device_id=3 --parallel_num=1  --precision_mode=fp16 --det_model_path=mindir/dbnet_resnet50.mindir --rec_model_path=mindir/crnn_resnet34.mindir --engine=lite --res_save_dir=det_rec_ic15
     ```
 
-    The results will be saved in det_rec_ic15/pipeline_results.txt, with the following format: 
-    
+    The results will be saved in det_rec_ic15/pipeline_results.txt, with the following format:
+
     ```
     img_478.jpg	[{"transcription": "spa", "points": [[1114, 35], [1200, 0], [1234, 52], [1148, 97]]}, {...}]
     ```

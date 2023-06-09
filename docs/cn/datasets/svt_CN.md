@@ -12,7 +12,7 @@
 ```txt
 svt1
  ├── img
- │   ├── 00_00.jpg 
+ │   ├── 00_00.jpg
  │   ├── 00_01.jpg
  │   ├── 00_02.jpg
  │   ├── 00_03.jpg
@@ -32,7 +32,7 @@ python tools/dataset_converters/convert.py \
     --dataset_name  svt --task rec \
     --image_dir path/to/svt1/ \
     --label_dir path/to/svt1/train.xml \
-    --output_path path/to/svt1/rec_train_gt.txt 
+    --output_path path/to/svt1/rec_train_gt.txt
 ```
 
 运行后，在文件夹 `svt1/` 下有一个文件夹 `cropped_images/` 和一个注释文件 `rec_train_gt.txt`。

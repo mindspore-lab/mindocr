@@ -1,9 +1,10 @@
 from typing import Any, Callable, List, Optional, Tuple, Union
 
+import numpy as np
+
 import mindspore as ms
 import mindspore.nn as nn
 import mindspore.ops as ops
-import numpy as np
 from mindspore import Parameter, Tensor
 
 from ._registry import register_backbone, register_backbone_class
@@ -43,14 +44,6 @@ class ConvBNLayer(nn.Cell):
         out = self.norm(out)
         out = self.act(out)
         return out
-
-
-class Identity(nn.Cell):
-    def __init__(self) -> None:
-        super(Identity, self).__init__()
-
-    def construct(self, input: Tensor) -> Tensor:
-        return input
 
 
 class Mlp(nn.Cell):
@@ -225,7 +218,7 @@ class Block(nn.Cell):
         else:
             raise TypeError("The mixer must be one of [Global, Local, Conv]")
 
-        self.drop_path = DropPath(drop_path) if drop_path > 0.0 else Identity()
+        self.drop_path = DropPath(drop_path) if drop_path > 0.0 else nn.Identity()
         if isinstance(norm_layer, str):
             self.norm2 = eval(norm_layer)([dim], epsilon=epsilon)
         else:
@@ -420,6 +413,7 @@ class SVTRNet(nn.Cell):
         block_unit: str = "Block",
         act: str = "nn.GELU",
         last_stage: bool = True,
+        extra_pool_at_last_stage: int = 1,
         sub_num: int = 2,
         prenorm: int = True,
         use_lenhead: bool = False,
@@ -553,6 +547,15 @@ class SVTRNet(nn.Cell):
             )
             self.hardswish = nn.HSwish()
             self.dropout = nn.Dropout(keep_prob=1 - last_drop)
+            if extra_pool_at_last_stage > 1:
+                self.pool = ops.AvgPool(
+                    kernel_size=(1, extra_pool_at_last_stage),
+                    strides=(1, extra_pool_at_last_stage),
+                    pad_mode="same",
+                )
+            else:
+                self.pool = nn.Identity()
+
         if not prenorm:
             self.norm = eval(norm_layer)([embed_dim[-1]], epsilon=epsilon)
         self.use_lenhead = use_lenhead
@@ -606,6 +609,7 @@ class SVTRNet(nn.Cell):
                 axis=2,
                 keep_dims=True,
             )
+            x = self.pool(x)
             x = self.last_conv(x)
             x = self.hardswish(x)
             x = self.dropout(x)

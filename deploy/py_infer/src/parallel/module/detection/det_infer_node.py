@@ -1,5 +1,5 @@
-from ...framework import ModuleBase
 from ....infer import TextDetector
+from ...framework import ModuleBase
 
 
 class DetInferNode(ModuleBase):

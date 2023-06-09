@@ -1,6 +1,6 @@
 '''model registry and list'''
-import sys
 import fnmatch
+import sys
 from collections import defaultdict
 
 __all__ = [
@@ -42,6 +42,7 @@ def register_model(fn):
     if has_pretrained:
         _model_has_pretrained.add(model_name)
     return fn
+
 
 def list_models(filter='', module='', pretrained=False, exclude_filters=''):
     if module:

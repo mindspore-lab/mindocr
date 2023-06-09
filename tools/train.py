@@ -1,9 +1,9 @@
 """
 Model training
 """
-import sys
 import os
 import shutil
+import sys
 
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "..")))
@@ -16,23 +16,23 @@ import yaml
 from addict import Dict
 
 import mindspore as ms
-from mindspore.communication import init, get_rank, get_group_size
-from mindocr.optim import create_optimizer, create_group_params
-from mindocr.scheduler import create_scheduler
+from mindspore.communication import get_group_size, get_rank, init
 
 from mindocr.data import build_dataset
-from mindocr.models import build_model
 from mindocr.losses import build_loss
-from mindocr.postprocess import build_postprocess
 from mindocr.metrics import build_metric
-from mindocr.utils.logger import get_logger
-from mindocr.utils.model_wrapper import NetWithLossWrapper
-from mindocr.utils.train_step_wrapper import TrainOneStepWrapper
+from mindocr.models import build_model
+from mindocr.optim import create_group_params, create_optimizer
+from mindocr.postprocess import build_postprocess
+from mindocr.scheduler import create_scheduler
 from mindocr.utils.callbacks import EvalSaveCallback
 from mindocr.utils.checkpoint import resume_train_network
-from mindocr.utils.seed import set_seed
-from mindocr.utils.loss_scaler import get_loss_scales
 from mindocr.utils.ema import EMA
+from mindocr.utils.logger import get_logger
+from mindocr.utils.loss_scaler import get_loss_scales
+from mindocr.utils.model_wrapper import NetWithLossWrapper
+from mindocr.utils.seed import set_seed
+from mindocr.utils.train_step_wrapper import TrainOneStepWrapper
 
 
 def main(cfg):
@@ -111,8 +111,11 @@ def main(cfg):
     # resume ckpt
     start_epoch = 0
     if cfg.model.resume:
-        resume_ckpt = os.path.join(cfg.train.ckpt_save_dir, "train_resume.ckpt") if isinstance(cfg.model.resume,
-                                                                                               bool) else cfg.model.resume
+        resume_ckpt = (
+            os.path.join(cfg.train.ckpt_save_dir, "train_resume.ckpt")
+            if isinstance(cfg.model.resume, bool)
+            else cfg.model.resume
+        )
         start_epoch, loss_scale, cur_iter, last_overflow_iter = resume_train_network(network, optimizer, resume_ckpt)
         loss_scale_manager.loss_scale_value = loss_scale
         if cfg.loss_scaler.type == "dynamic":
@@ -123,11 +126,7 @@ def main(cfg):
     gradient_accumulation_steps = cfg.train.get("gradient_accumulation_steps", 1)
     clip_grad = cfg.train.get("clip_grad", False)
     use_ema = cfg.train.get("ema", False)
-    ema = (
-        EMA(network, ema_decay=cfg.train.get("ema_decay", 0.9999), updates=0)
-        if use_ema
-        else None
-    )
+    ema = EMA(network, ema_decay=cfg.train.get("ema_decay", 0.9999), updates=0) if use_ema else None
 
     train_net = TrainOneStepWrapper(
         net_with_loss,
@@ -176,9 +175,7 @@ def main(cfg):
 
     # log
     num_devices = device_num if device_num is not None else 1
-    global_batch_size = (
-        cfg.train.loader.batch_size * num_devices * gradient_accumulation_steps
-    )
+    global_batch_size = cfg.train.loader.batch_size * num_devices * gradient_accumulation_steps
     model_name = (
         cfg.model.name
         if "name" in cfg.model
@@ -195,7 +192,8 @@ def main(cfg):
         f"Batch size: {cfg.train.loader.batch_size}\n"
         f"Num devices: {num_devices}\n"
         f"Gradient accumulation steps: {gradient_accumulation_steps}\n"
-        f"Global batch size: {cfg.train.loader.batch_size}x{num_devices}x{gradient_accumulation_steps}={global_batch_size}\n"
+        f"Global batch size: {cfg.train.loader.batch_size}x{num_devices}x{gradient_accumulation_steps}="
+        f"{global_batch_size}\n"
         f"LR: {cfg.scheduler.lr} \n"
         f"Scheduler: {cfg.scheduler.scheduler}\n"
         f"Steps per epoch: {num_batches}\n"
@@ -212,9 +210,7 @@ def main(cfg):
     # save args used for training
     if is_main_device:
         with open(os.path.join(cfg.train.ckpt_save_dir, "args.yaml"), "w") as f:
-            args_text = yaml.safe_dump(
-                cfg.to_dict(), default_flow_style=False, sort_keys=False
-            )
+            args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False, sort_keys=False)
             f.write(args_text)
 
     # training
@@ -238,13 +234,11 @@ if __name__ == "__main__":
 
     # data sync for modelarts
     if args.enable_modelarts:
-        import moxing as mox
         from ast import literal_eval
-        from tools.modelarts_adapter.modelarts import (
-            get_device_id,
-            sync_data,
-            update_config_value_by_key,
-        )
+
+        import moxing as mox
+
+        from tools.modelarts_adapter.modelarts import get_device_id, sync_data, update_config_value_by_key
 
         dataset_root = "/cache/data/"
         # download dataset from server to local on device 0, other devices will wait until data sync finished.
@@ -262,9 +256,10 @@ if __name__ == "__main__":
                 f"INFO: dataset_root is changed to {dataset_root}"
             )
         # update dataset root dir to cache
-        assert (
-            "dataset_root" in config["train"]["dataset"]
-        ), f"`dataset_root` must be provided in the yaml file for training on ModelArts or OpenI, but not found in {yaml_fp}. Please add `dataset_root` to `train:dataset` and `eval:dataset` in the yaml file"
+        assert "dataset_root" in config["train"]["dataset"], (
+            f"`dataset_root` must be provided in the yaml file for training on ModelArts or OpenI, but not found in "
+            f"{args.config}. Please add `dataset_root` to `train:dataset` and `eval:dataset` in the yaml file"
+        )
         config.train.dataset.dataset_root = dataset_root
         config.eval.dataset.dataset_root = dataset_root
 
@@ -283,6 +278,4 @@ if __name__ == "__main__":
     if args.enable_modelarts:
         # upload models from local to server
         if get_device_id() == 0:
-            mox.file.copy_parallel(
-                src_url=config.train.ckpt_save_dir, dst_url=args.train_url
-            )
+            mox.file.copy_parallel(src_url=config.train.ckpt_save_dir, dst_url=args.train_url)

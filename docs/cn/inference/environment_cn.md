@@ -34,8 +34,7 @@ chmod +x Ascend-mindxsdk-mxvision_{version}_linux-{arch}.run
 # 设置环境变量
 source mxVision/set_env.sh
 ```
-
-安装完毕之后测试一下mindx是否可以正常导入：`python -c "import mindx"`
+如果使用python接口， 安装完毕之后测试一下mindx是否可以正常导入：`python -c "import mindx"`
 
 如果提示找不到mindx，则转到mxVision/python目录下，安装对应的whl包：
 
@@ -43,6 +42,7 @@ source mxVision/set_env.sh
 cd mxVision/python
 pip install *.whl
 ```
+如果使用C++接口则无需执行上述步骤。
 
 ### 2. MindSpore Lite推理
 
@@ -56,12 +56,12 @@ pip install *.whl
 
 ```shell
 export LITE_HOME=/your_path_to/mindspore-lite
-export LD_LIBRARY_PATH=$LITE_HOME/runtime/lib:$LITE_HOME/tools/converter/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$LITE_HOME/runtime/lib:$LITE_HOME/runtime/third_party/dnnl:$LITE_HOME/tools/converter/lib:$LD_LIBRARY_PATH
 export PATH=$LITE_HOME/tools/converter/converter:$LITE_HOME/tools/benchmark:$PATH
 ```
-
-Python接口的Wheel包则使用pip安装：
-
+如果使用python接口，使用pip安装所需的whl包
 ```shell
 pip install mindspore_lite-{version}-{python_version}-linux_{arch}.whl
 ```
+
+如果使用C++接口，则无需安装。

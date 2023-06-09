@@ -44,7 +44,7 @@ DATASETS_DIR="../ocr_datasets" # the directory containing multiple ocr datasets 
 #   totaltext/
 #     totaltext.zip
 #     txt_format.zip
-# The information about how to download and place these datasets can be found in docs/datasets 
+# The information about how to download and place these datasets can be found in docs/datasets
 #########################icdar2015#########################
 DIR="$DATASETS_DIR/ic15"
 
@@ -196,7 +196,7 @@ else
    rm $DIR/ch8_validation_word_images_gt.zip
    unzip $DIR/ch8_validation_word_gt_v2.zip -d $DIR/ch8_validation_word_gt/
    rm $DIR/ch8_validation_word_gt_v2.zip
-   
+
   if test -f "$DIR/train_det_gt.txt"; then
      echo "$DIR/train_det_gt.txt exists."
   else
@@ -217,7 +217,7 @@ else
           --label_dir $DIR/ch8_validation_localization_transcription_gt/ \
           --output_path $DIR/val_det_gt.txt
   fi
- 
+
 
   if test -f "$DIR/train_rec_gt.txt"; then
      echo "$DIR/train_rec_gt.txt exists."
@@ -247,7 +247,7 @@ else
   rm $DIR/totaltext.zip
 
   unzip $DIR/txt_format.zip -d  $DIR/annotations
-  rm $DIR/txt_format.zip 
+  rm $DIR/txt_format.zip
 
 
   if test -f "$DIR/train_det_gt.txt"; then

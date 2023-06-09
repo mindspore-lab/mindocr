@@ -16,7 +16,7 @@ Please download the following LMDB files as introduced in [Downloads](https://gi
 - document: generated with [Text Render](https://github.com/oh-my-ocr/text_renderer)
 - handwriting dataset: [SCUT-HCCDoc](https://github.com/HCIILAB/SCUT-HCCDoc_Dataset_Release)
 
-## Data Structure 
+## Data Structure
 
 After downloading the files, please put all training files under the same folder `training`, all validation data under `validation` folder, and all evaluation data under `evaluation`.
 

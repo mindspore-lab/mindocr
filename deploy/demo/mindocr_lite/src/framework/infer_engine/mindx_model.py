@@ -1,7 +1,7 @@
 import numpy as np
 
-from .model_base import ModelBase
 from ...utils import check_valid_file, suppress_stdout
+from .model_base import ModelBase
 
 
 class MindXModel(ModelBase):
@@ -17,7 +17,7 @@ class MindXModel(ModelBase):
     def _init_model(self):
         global base, Tensor
         with suppress_stdout():
-            from mindx.sdk import base, Tensor, visionDataFormat
+            from mindx.sdk import Tensor, base, visionDataFormat
 
         base.mx_init()
 
@@ -26,8 +26,10 @@ class MindXModel(ModelBase):
             raise ValueError(f"The model file {self.model_path} load failed.")
 
         if self.model.input_format != visionDataFormat.NCHW:
-            raise ValueError(f"Model inference only support NCHW format, "
-                             f"but got {self.model.input_format.name} for {self.model_path}.")
+            raise ValueError(
+                f"Model inference only support NCHW format, "
+                f"but got {self.model.input_format.name} for {self.model_path}."
+            )
 
     def infer(self, input):
         input = Tensor(input)

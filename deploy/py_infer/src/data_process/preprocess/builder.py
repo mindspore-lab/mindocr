@@ -32,7 +32,7 @@ def parse_preprocess_from_yaml(config_path):
     with open(config_path) as fp:
         cfg = yaml.safe_load(fp)
 
-    src_ops_pipeline = cfg['eval']['dataset']['transform_pipeline']
+    src_ops_pipeline = cfg["eval"]["dataset"]["transform_pipeline"]
     tgt_ops_pipeline = OrderedDict()
 
     for src_ops in src_ops_pipeline:

@@ -1,12 +1,13 @@
-from typing import Tuple, Union, List
+from typing import List, Tuple, Union
 
 import cv2
 import numpy as np
-from mindspore import Tensor
 from shapely.geometry import Polygon
 
-from .det_base_postprocess import DetBasePostprocess
+from mindspore import Tensor
+
 from ..data.transforms.det_transforms import expand_poly
+from .det_base_postprocess import DetBasePostprocess
 
 __all__ = ["DBPostprocess"]
 
@@ -27,14 +28,14 @@ class DBPostprocess(DetBasePostprocess):
     """
 
     def __init__(
-            self,
-            binary_thresh: float = 0.3,
-            box_thresh: float = 0.7,
-            max_candidates: int = 1000,
-            expand_ratio: float = 1.5,
-            box_type="quad",
-            pred_name: str = "binary",
-            rescale_fields: List[str] = ["polys"]
+        self,
+        binary_thresh: float = 0.3,
+        box_thresh: float = 0.7,
+        max_candidates: int = 1000,
+        expand_ratio: float = 1.5,
+        box_type="quad",
+        pred_name: str = "binary",
+        rescale_fields: List[str] = ["polys"],
     ):
         super().__init__(box_type, rescale_fields)
 
@@ -68,7 +69,10 @@ class DBPostprocess(DetBasePostprocess):
             pred = pred[self._names[self._name]]
         if isinstance(pred, Tensor):
             pred = pred.asnumpy()
-        pred = pred.squeeze(1)
+        if len(pred.shape) == 4 and pred.shape[1] != 1:  # pred shape (N, 3, H, W)
+            pred = pred[:, :1, :, :]  # only need the first output
+        if len(pred.shape) == 4:  # handle pred shape: (N, H, W) skip
+            pred = pred.squeeze(1)
 
         segmentation = pred >= self._binary_thresh
 
@@ -88,7 +92,7 @@ class DBPostprocess(DetBasePostprocess):
             contours, _ = outs[0], outs[1]
 
         polys, scores = [], []
-        for contour in contours[:self._max_candidates]:
+        for contour in contours[: self._max_candidates]:
             contour = contour.squeeze(1)
             score = self._calc_score(pred, bitmap, contour)
             if score < self._box_thresh:
@@ -118,7 +122,8 @@ class DBPostprocess(DetBasePostprocess):
 
             # TODO: an alternative solution to avoid calling self._fit_box twice:
             # box = Polygon(points)
-            # box = np.array(expand_poly(points, distance=box.area * self._expand_ratio / box.length, joint_type=pyclipper.JT_MITER))
+            # box = np.array(
+            # expand_poly(points, distance=box.area * self._expand_ratio / box.length, joint_type=pyclipper.JT_MITER))
             # assert box.shape[0] == 4, print(f'box shape is {box.shape}')
 
             polys.append(poly)
@@ -167,5 +172,7 @@ class DBPostprocess(DetBasePostprocess):
         # calculates score (mean value) of a prediction inside a given contour.
         min_vals = np.clip(np.floor(np.min(contour, axis=0)), 0, np.array(pred.shape[::-1]) - 1).astype(np.int32)
         max_vals = np.clip(np.ceil(np.max(contour, axis=0)), 0, np.array(pred.shape[::-1]) - 1).astype(np.int32)
-        return cv2.mean(pred[min_vals[1]:max_vals[1] + 1, min_vals[0]:max_vals[0] + 1],
-                        mask[min_vals[1]:max_vals[1] + 1, min_vals[0]:max_vals[0] + 1].astype(np.uint8))[0]
+        return cv2.mean(
+            pred[min_vals[1] : max_vals[1] + 1, min_vals[0] : max_vals[0] + 1],
+            mask[min_vals[1] : max_vals[1] + 1, min_vals[0] : max_vals[0] + 1].astype(np.uint8),
+        )[0]

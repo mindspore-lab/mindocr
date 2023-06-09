@@ -23,26 +23,26 @@ python eval_script.py --gt_path=/xx/xx/icdar2019_lsvt/labels --pred_path=/xx/xx/
 
 
 def transform_pred_to_dir(file_path):
-    with open(file_path, encoding='utf-8') as file:
-        file_path = os.path.join(os.getcwd(), 'temp')
+    with open(file_path, encoding="utf-8") as file:
+        file_path = os.path.join(os.getcwd(), "temp")
         for line in tqdm(file.readlines()):
             line = line.strip()
-            line_list = line.split('\t')
+            line_list = line.split("\t")
             file_name = line_list[0]
-            res_list = json.loads(line_list[1]) if len(line_list) >= 2 else ''
-            file_name = file_name.replace('gt', 'infer_img')
-            file_name = file_name.replace('jpg', 'txt')
+            res_list = json.loads(line_list[1]) if len(line_list) >= 2 else ""
+            file_name = file_name.replace("gt", "infer_img")
+            file_name = file_name.replace("jpg", "txt")
 
             if not os.path.exists(file_path):
                 os.mkdir(file_path)
-            with open(os.path.join(file_path, file_name), 'w', encoding='utf-8') as new_file:
+            with open(os.path.join(file_path, file_name), "w", encoding="utf-8") as new_file:
                 for res in res_list:
-                    transcription = res.get('transcription', '')
-                    points = res.get('points', [])
+                    transcription = res.get("transcription", "")
+                    points = res.get("points", [])
                     if not transcription and not points:
                         continue
-                    points_str = ','.join(str(x) for x in points) if isinstance(points, list) else ''
-                    new_file.writelines(points_str + ',' + transcription + '\n')
+                    points_str = ",".join(str(x) for x in points) if isinstance(points, list) else ""
+                    new_file.writelines(points_str + "," + transcription + "\n")
         return file_path
 
 
@@ -56,8 +56,8 @@ def get_image_info_list(file_list, ratio_list=[1.0]):
         with open(file, "rb") as f:
             lines = f.readlines()
             if lines and lines[0][0:3] == codecs.BOM_UTF8:
-                lines[0] = lines[0].replace(codecs.BOM_UTF8, b'')
-            lines = lines[:int(len(lines) * ratio_list[idx])]
+                lines[0] = lines[0].replace(codecs.BOM_UTF8, b"")
+            lines = lines[: int(len(lines) * ratio_list[idx])]
             data_lines.extend(lines)
     return data_lines
 
@@ -142,8 +142,8 @@ def process_files(filepath):
     items = []
     data_lines = get_image_info_list(filepath)
     for data_line in data_lines:
-        data_line = data_line.decode('utf-8').strip("\n").strip("\r").split(",")
-        data_line = data_line[:8] + [','.join(data_line[8:])]
+        data_line = data_line.decode("utf-8").strip("\n").strip("\r").split(",")
+        data_line = data_line[:8] + [",".join(data_line[8:])]
         items.append(data_line)
     return items
 
@@ -197,22 +197,18 @@ def detection_eval(box_func, gt_pth, pred_pth):
         if not pred_poly.is_valid or not pred_poly.is_simple:
             continue
         matched += box_func(valid_items, pred_poly)
-    return {
-        "matched": matched,
-        "gt_num": len(valid_items),
-        "det_num": len(pred_items)
-    }
+    return {"matched": matched, "gt_num": len(valid_items), "det_num": len(pred_items)}
 
 
 def eval_each_det(gt_file, eval_func, gt, pred, box_func):
     gt_pth = os.path.join(gt, gt_file)
-    pred_pth = os.path.join(pred, "infer_{}".format(gt_file.split('_', 1)[1]))
+    pred_pth = os.path.join(pred, "infer_{}".format(gt_file.split("_", 1)[1]))
     return eval_func(box_func, gt_pth, pred_pth)
 
 
 def eval_each_rec(gt_file, gt, pred, eval_func):
     gt_pth = os.path.join(gt, gt_file)
-    pred_pth = os.path.join(pred, "infer_{}".format(gt_file.split('_', 1)[1]))
+    pred_pth = os.path.join(pred, "infer_{}".format(gt_file.split("_", 1)[1]))
     correct, total = eval_func(gt_pth, pred_pth)
     return correct, total
 
@@ -228,17 +224,14 @@ def eval_rec(eval_func, gt, pred, parallel_num):
     :return: 指标评估结果
     """
     gt_list = os.listdir(gt)
-    res = Parallel(n_jobs=parallel_num, backend="multiprocessing")(delayed(eval_each_rec)(
-        gt_file, gt, pred, eval_func) for gt_file in tqdm(gt_list))
+    res = Parallel(n_jobs=parallel_num, backend="multiprocessing")(
+        delayed(eval_each_rec)(gt_file, gt, pred, eval_func) for gt_file in tqdm(gt_list)
+    )
     res = np.array(res)
     correct_num = sum(res[:, 0])
     total_num = sum(res[:, 1])
     acc = correct_num / total_num if total_num else 0
-    return {
-        "acc:": acc,
-        "correct_num:": correct_num,
-        "total_num:": total_num
-    }
+    return {"acc:": acc, "correct_num:": correct_num, "total_num:": total_num}
 
 
 def eval_det(eval_func, box_func, gt, pred, parallel_num):
@@ -251,16 +244,17 @@ def eval_det(eval_func, box_func, gt, pred, parallel_num):
     :return: 指标评估结果
     """
     gt_list = os.listdir(gt)
-    res = Parallel(n_jobs=parallel_num, backend="multiprocessing")(delayed(eval_each_det)(
-        gt_file, eval_func, gt, pred, box_func) for gt_file in tqdm(gt_list))
+    res = Parallel(n_jobs=parallel_num, backend="multiprocessing")(
+        delayed(eval_each_det)(gt_file, eval_func, gt, pred, box_func) for gt_file in tqdm(gt_list)
+    )
 
     matched_num = 0
     gt_num = 0
     det_num = 0
     for result in res:
-        matched_num += result['matched']
-        gt_num += result['gt_num']
-        det_num += result['det_num']
+        matched_num += result["matched"]
+        gt_num += result["gt_num"]
+        det_num += result["det_num"]
 
     precision = 0 if not det_num else float(matched_num) / det_num
     recall = 0 if not gt_num else float(matched_num) / gt_num
@@ -271,15 +265,15 @@ def eval_det(eval_func, box_func, gt, pred, parallel_num):
         "Hmean:": h_mean,
         "matched:": matched_num,
         "det_num": det_num,
-        "gt_num": gt_num
+        "gt_num": gt_num,
     }
 
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--gt_path', required=True, type=str, help="label storage path")
-    parser.add_argument('--pred_path', required=True, type=str, help="predicted file or folder path")
-    parser.add_argument('--parallel_num', required=False, type=int, default=32, help="parallelism, default value is 32")
+    parser.add_argument("--gt_path", required=True, type=str, help="label storage path")
+    parser.add_argument("--pred_path", required=True, type=str, help="predicted file or folder path")
+    parser.add_argument("--parallel_num", required=False, type=int, default=32, help="parallelism, default value is 32")
     return parser.parse_args()
 
 
@@ -294,18 +288,18 @@ def custom_islink(path):
 def check_directory_ok(pathname: str):
     safe_name = os.path.relpath(pathname)
     if not os.path.exists(pathname):
-        raise ValueError(f'input path {safe_name} does not exist!')
+        raise ValueError(f"input path {safe_name} does not exist!")
     if custom_islink(pathname):
-        raise ValueError(f'Error! {safe_name} cannot be a soft link!')
+        raise ValueError(f"Error! {safe_name} cannot be a soft link!")
     if not os.path.isdir(pathname):
-        raise NotADirectoryError(f'Error! Please check if {safe_name} is a dir.')
+        raise NotADirectoryError(f"Error! Please check if {safe_name} is a dir.")
     if not os.access(pathname, mode=os.R_OK):
-        raise ValueError(f'Error! Please check if {safe_name} is readable.')
+        raise ValueError(f"Error! Please check if {safe_name} is readable.")
     if not os.listdir(pathname):
-        raise ValueError(f'input path {safe_name} should contain at least one file!')
+        raise ValueError(f"input path {safe_name} should contain at least one file!")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     logging.getLogger().setLevel(logging.INFO)
     args = parse_args()
     gt_path = args.gt_path
@@ -319,7 +313,7 @@ if __name__ == '__main__':
     check_directory_ok(pred_path)
 
     result = eval_det(detection_eval, process_box_2019, gt_path, pred_path, parallel_num)
-    logging.info(f'det: {result}')
+    logging.info(f"det: {result}")
 
     result = eval_rec(recognition_eval, gt_path, pred_path, parallel_num)
-    logging.info(f'rec: {result}')
+    logging.info(f"rec: {result}")

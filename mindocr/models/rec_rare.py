@@ -1,7 +1,6 @@
-from .base_model import BaseModel
 from ._registry import register_model
 from .backbones.mindcv_models.utils import load_pretrained
-
+from .base_model import BaseModel
 
 __all__ = ["RARE", "rare_resnet34", "rare_resnet34_ch"]
 
@@ -19,7 +18,7 @@ default_cfgs = {
         url="https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt",
     ),
     "rare_resnet34_ch": _cfg(
-        url="https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-780b6d20.ckpt",
+        url="https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-5f3023e2.ckpt",
         input_size=(3, 32, 320),
     ),
 }
@@ -66,7 +65,7 @@ def rare_resnet34_ch(pretrained=False, **kwargs):
         },
         "neck": {
             "name": 'RNNEncoder',
-            "hidden_size": 256,
+            "hidden_size": 64,
         },
         "head": {
             "name": 'AttentionHead',

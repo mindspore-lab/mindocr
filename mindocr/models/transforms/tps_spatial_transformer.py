@@ -1,10 +1,11 @@
 import itertools
 from typing import Optional, Tuple
 
+import numpy as np
+
 import mindspore as ms
 import mindspore.nn as nn
 import mindspore.ops as ops
-import numpy as np
 from mindspore import Tensor
 
 
@@ -20,7 +21,7 @@ def grid_sample(input: Tensor, grid: Tensor, canvas: Optional[Tensor] = None) ->
 
 
 def build_output_control_points(
-    num_control_points: int, margins: Tuple[int, int]
+    num_control_points: int, margins: Tuple[float, float]
 ) -> np.ndarray:
     margin_x, margin_y = margins
     num_ctrl_pts_per_side = num_control_points // 2
@@ -52,7 +53,7 @@ class TPSSpatialTransformer(nn.Cell):
         self,
         output_image_size: Tuple[int, int] = [32, 100],
         num_control_points: int = 20,
-        margins: Tuple[int, int] = [0.05, 0.05],
+        margins: Tuple[float, float] = [0.05, 0.05],
     ):
         super(TPSSpatialTransformer, self).__init__()
         self.output_image_size = output_image_size

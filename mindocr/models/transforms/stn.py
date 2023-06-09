@@ -1,12 +1,13 @@
 from typing import Tuple
 
+import numpy as np
+from packaging import version
+
 import mindspore as ms
 import mindspore.nn as nn
 import mindspore.ops as ops
-import numpy as np
 from mindspore import Tensor
 from mindspore.ops.primitive import constexpr
-from packaging import version
 
 from .tps_spatial_transformer import TPSSpatialTransformer
 

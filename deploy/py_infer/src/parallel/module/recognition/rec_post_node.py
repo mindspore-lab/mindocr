@@ -1,5 +1,5 @@
+from ....infer import TaskType, TextRecognizer
 from ...framework import ModuleBase
-from ....infer import TextRecognizer, TaskType
 
 
 class RecPostNode(ModuleBase):
