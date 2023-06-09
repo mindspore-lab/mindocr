@@ -95,10 +95,10 @@ for ((i = 0; i < ${DEVICE_NUM}; i++)); do
     export RANK_ID=$i
     echo "Launching rank: ${RANK_ID}, device: ${DEVICE_ID}"
     if [ $i -eq 0 ]; then
-  echo 'i am 0'
+      echo 'i am 0'
       python -u tools/train.py --config configs/rec/crnn/crnn_resnet34_zh.yaml &> ./train.log &
     else
-  echo 'not 0'
+      echo 'not 0'
       python -u tools/train.py --config configs/rec/crnn/crnn_resnet34_zh.yaml &> /dev/null &
     fi
 done
