@@ -4,7 +4,7 @@
 
 您也可以参考 [`convert_datasets.sh`](../convert_datasets.sh)。这是将给定目录下所有数据集的标注文件转换为通用格式的Shell 脚本。
 
-要下载OCR数据集，您可以参考 [ICDAR2015](../../docs/cn/datasets/icdar2015_CN.md), [MLT2017](../../docs/cn/datasets/mlt2017_CN.md), [Syntext 150k](../../docs/cn/datasets/syntext150k_CN.md), [Total Text](../../docs/cn/datasets/totaltext_CN.md)的说明。
+要下载OCR数据集并进行格式转换，您可以参考 [Chinese text recognition](../../docs/cn/datasets/chinese_text_recognition_CN.md), [CTW1500](../../docs/cn/datasets/ctw1500_CN.md), [ICDAR2015](../../docs/cn/datasets/icdar2015_CN.md), [MLT2017](../../docs/cn/datasets/mlt2017_CN.md), [SVT](../../docs/cn/datasets/svt_CN.md), [Syntext 150k](../../docs/cn/datasets/syntext150k_CN.md), [TD500](../../docs/cn/datasets/td500_CN.md), [Total Text](../../docs/cn/datasets/totaltext_CN.md) 的说明。
 
 ## 文本检测/端到端文本检测
 
