@@ -1,9 +1,10 @@
 from typing import Any, Callable, List, Optional, Tuple, Union
 
+import numpy as np
+
 import mindspore as ms
 import mindspore.nn as nn
 import mindspore.ops as ops
-import numpy as np
 from mindspore import Parameter, Tensor
 
 from ._registry import register_backbone, register_backbone_class

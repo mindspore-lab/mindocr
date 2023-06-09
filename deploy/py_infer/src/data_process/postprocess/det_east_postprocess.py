@@ -9,7 +9,7 @@ import numpy as np
 mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../.."))
 sys.path.insert(0, mindocr_path)
 
-from mindocr.postprocess import det_east_postprocess  # noqa
+from mindocr.postprocess import det_east_postprocess
 
 
 class EASTPostprocess(det_east_postprocess.EASTPostprocess):

@@ -51,7 +51,7 @@ If prompted that mindx cannot be found, go to the mxVision/Python directory and 
 cd mxVision/python
 pip install *.whl
 ```
-If use C++ interface, the above steps are not necessary. 
+If use C++ interface, the above steps are not necessary.
 
 ### 2. MindSpore Lite inference
 

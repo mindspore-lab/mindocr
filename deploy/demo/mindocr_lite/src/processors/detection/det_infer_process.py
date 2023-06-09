@@ -1,5 +1,4 @@
-from ...framework import Model
-from ...framework import ModuleBase
+from ...framework import Model, ModuleBase
 
 
 class DetInferProcess(ModuleBase):
@@ -8,8 +7,9 @@ class DetInferProcess(ModuleBase):
         self.model = None
 
     def init_self_args(self):
-        self.model = Model(engine_type=self.args.engine_type, model_path=self.args.det_model_path,
-                           device_id=self.args.device_id)
+        self.model = Model(
+            engine_type=self.args.engine_type, model_path=self.args.det_model_path, device_id=self.args.device_id
+        )
 
         super().init_self_args()
 

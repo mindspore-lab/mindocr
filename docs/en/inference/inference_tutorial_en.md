@@ -198,7 +198,7 @@ Notes：
 
 Currently, only the Chinese DBNet, CRNN, and SVTR models in the PP-OCR series are supported.
 
-Enter the inference directory：`cd deploy/cpp_infer`,then execute the compilation script 'bash build.sh'. 
+Enter the inference directory：`cd deploy/cpp_infer`,then execute the compilation script 'bash build.sh'.
 Once the build process is complete, an executable file named 'infer' will be generated in the 'dist' directory located in the current path.
 
 #### 4.1 Command example
@@ -215,7 +215,7 @@ Once the build process is complete, an executable file named 'infer' will be gen
       --character_dict_path /path/to/ppocr_keys_v1.txt \
       --res_save_dir det_cls_rec
   ```
-  
+
   The results will be saved in det_cls_rec/pipeline_results.txt, with the following format:
 
   ```
@@ -317,5 +317,4 @@ Once the build process is complete, an executable file named 'infer' will be gen
 |:--------------------|:-----|:--------|:----------------------------------------------------------------------------|
 | rec_model_path      | str  | None    | Model path for text recognition                                             |
 | rec_config_path     | str  | None    | Config file for text recognition                                            |
-| character_dict_path | str  | None    | Dict file for text recognition，default only supports numbers and lowercase |  
-
+| character_dict_path | str  | None    | Dict file for text recognition，default only supports numbers and lowercase |

@@ -4,7 +4,7 @@ English | [中文](README_CN.md)
 
 <!--- Guideline: use url linked to abstract in ArXiv instead of PDF for fast loading.  -->
 
-> PSENet: [Shape Robust Text Detection With Progressive Scale Expansion Network](https://openaccess.thecvf.com/content_CVPR_2019/html/Wang_Shape_Robust_Text_Detection_With_Progressive_Scale_Expansion_Network_CVPR_2019_paper.html)  
+> PSENet: [Shape Robust Text Detection With Progressive Scale Expansion Network](https://openaccess.thecvf.com/content_CVPR_2019/html/Wang_Shape_Robust_Text_Detection_With_Progressive_Scale_Expansion_Network_CVPR_2019_paper.html)
 
 ## 1. Introduction
 
@@ -29,7 +29,7 @@ The overall architecture of PSENet is presented in Figure 1. It consists of mult
 
 | **Model**              | **Context**       | **Backbone**      | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.**     | **Throughput**   | **Recipe**                            | **Download**                                                                                                                                                                                                |
 |---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-----------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 79.39%     | 84.91%        | 82.06%      | 138 s/epoch   | 7.57 img/s | [yaml](pse_r152_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir) 
+| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 79.39%     | 84.91%        | 82.06%      | 138 s/epoch   | 7.57 img/s | [yaml](pse_r152_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)
 </div>
 
 #### Notes：
@@ -49,7 +49,7 @@ Please refer to the [installation instruction](https://github.com/mindspore-lab/
 
 Please download [ICDAR2015](https://rrc.cvc.uab.es/?ch=4&com=downloads) dataset, and convert the labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
 
-The prepared dataset file struture should be: 
+The prepared dataset file struture should be:
 
 ``` text
 .
@@ -103,7 +103,7 @@ model:
   type: det
   transform: null
   backbone:
-    name: det_resnet152  
+    name: det_resnet152
     pretrained: True    # Whether to use weights pretrained on ImageNet
   neck:
     name: PSEFPN         # FPN part of the PSENet
@@ -119,7 +119,7 @@ model:
 
 Before training, please make sure to compile the postprocessing codes in the /mindocr/postprocess/pse directory as follows:
 
-``` shell 
+``` shell
 python3 setup.py build_ext --inplace
 ```
 
@@ -127,7 +127,7 @@ python3 setup.py build_ext --inplace
 
 Please set `distribute` in yaml config file to be False.
 
-``` shell 
+``` shell
 # train psenet on ic15 dataset
 python tools/train.py --config configs/det/psenet/pse_r152_icdar15.yaml
 ```
@@ -141,11 +141,11 @@ Please set `distribute` in yaml config file to be True.
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/det/psenet/pse_r152_icdar15.yaml
 ```
 
-The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir` in yaml config file. The default directory is `./tmp_det`. 
+The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir` in yaml config file. The default directory is `./tmp_det`.
 
 ### 3.5 Evaluation
 
-To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run: 
+To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 
 ``` shell
 python tools/eval.py --config configs/det/psenet/pse_r152_icdar15.yaml

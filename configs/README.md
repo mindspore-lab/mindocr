@@ -1,16 +1,16 @@
 
 ## About configs
 
-This folder contains the configurations including 
+This folder contains the configurations including
     - model definition
     - training recipes
-    - pretrained weights 
+    - pretrained weights
     - reported performance
-    for all models trained with MindOCR.  
+    for all models trained with MindOCR.
 
-## Model Export 
+## Model Export
 
-To convert a trained model from mindspore checkpoint format to [MindIR](https://www.mindspore.cn/docs/zh-CN/r2.0.0-alpha/design/mindir.html) format for inference and deployment, please use the `tools/export.py` script. 
+To convert a trained model from mindspore checkpoint format to [MindIR](https://www.mindspore.cn/docs/zh-CN/r2.0.0-alpha/design/mindir.html) format for inference and deployment, please use the `tools/export.py` script.
 
 ``` shell
 # Export mindir of model `dbnet_resnet50` by downloading online ckpt

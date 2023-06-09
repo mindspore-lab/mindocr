@@ -25,7 +25,7 @@ class ToCHWImage(object):
         return data
 ```
 
-2. The input for transformation is always a dict, which contain data info like img_path, raw label, etc. 
+2. The input for transformation is always a dict, which contain data info like img_path, raw label, etc.
 
 3. The transformation api should have clarify the required keys in input and the modified or/and added keys in output the data dict.
 
@@ -81,13 +81,13 @@ det_transforms.__all__
 
     The autoreload extension is already loaded. To reload it, use:
       %reload_ext autoreload
-    
+
 
 
 ```python
 import os
 
-# load the label file which has the info of image path and annotation. 
+# load the label file which has the info of image path and annotation.
 # This file is generated from the ic15 annotations using the converter script.
 label_fp = '/Users/Samit/Data/datasets/ic15/det/train/train_icdar2015_label.txt'
 root_dir = '/Users/Samit/Data/datasets/ic15/det/train'
@@ -110,7 +110,7 @@ print('raw annotation: ', annot)
 
     img_path /Users/Samit/Data/datasets/ic15/det/train/ch4_training_images/img_612.jpg
     raw annotation:  [{"transcription": "where", "points": [[483, 197], [529, 174], [530, 197], [485, 221]]}, {"transcription": "people", "points": [[531, 168], [607, 136], [608, 166], [532, 198]]}, {"transcription": "meet", "points": [[613, 128], [691, 100], [691, 131], [613, 160]]}, {"transcription": "###", "points": [[695, 299], [888, 315], [931, 635], [737, 618]]}, {"transcription": "###", "points": [[709, 19], [876, 8], [880, 286], [713, 296]]}, {"transcription": "###", "points": [[530, 270], [660, 246], [661, 300], [532, 324]]}, {"transcription": "###", "points": [[113, 356], [181, 359], [180, 387], [112, 385]]}, {"transcription": "###", "points": [[281, 328], [369, 338], [366, 361], [279, 351]]}, {"transcription": "###", "points": [[66, 314], [183, 313], [183, 328], [68, 330]]}]
-    
+
 
 #### Decode the image  -  DecodeImage
 
@@ -148,7 +148,7 @@ print('avg reading time: ', avg)
 ```
 
     avg reading time:  0.004545390605926514
-    
+
 
 #### DetLabelEncode
 
@@ -171,7 +171,7 @@ show_img(res)
 ```
 
     ['where', 'people', 'meet', '###', '###', '###', '###', '###', '###']
-    
+
 
 
 ![output_16_1](https://user-images.githubusercontent.com/20376974/228161131-c11209d1-f3f0-4a8c-a763-b72d729a4084.png)
@@ -225,5 +225,3 @@ show_img(data_adj['image'], is_bgr_img=True)
 
 
 ![output_21_0](https://user-images.githubusercontent.com/20376974/228161397-c64faae6-b4a2-41ff-9531-5bced781fd9d.png)
-
-

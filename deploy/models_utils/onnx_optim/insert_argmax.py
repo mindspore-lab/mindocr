@@ -46,12 +46,8 @@ if __name__ == "__main__":
     model = onnx.load(args.model_path)
     graph = model.graph
     node = graph.node
-    print(
-        f"Input Channel of Net: {graph.input[0].type.tensor_type.shape.dim[1].dim_value}"
-    )
-    print(
-        f"Input Height of Net: {graph.input[0].type.tensor_type.shape.dim[2].dim_value}"
-    )
+    print(f"Input Channel of Net: {graph.input[0].type.tensor_type.shape.dim[1].dim_value}")
+    print(f"Input Height of Net: {graph.input[0].type.tensor_type.shape.dim[2].dim_value}")
     result_path = os.path.dirname(args.model_path)
     basename, ext = os.path.splitext(os.path.basename(args.model_path))
     img_c = graph.input[0].type.tensor_type.shape.dim[1].dim_value
@@ -112,15 +108,9 @@ if __name__ == "__main__":
             session.get_modelmeta()
             output2 = session.run(["argmax_0.tmp_0"], {"x": image})
         except (RuntimeError, InvalidArgument) as error:
-            print(
-                "------------------------------------------------------------------------------------"
-            )
-            print(
-                "onnx check failed. Please check the error Message and contact the support engineer."
-            )
-            print(
-                "------------------------------------------------------------------------------------"
-            )
+            print("------------------------------------------------------------------------------------")
+            print("onnx check failed. Please check the error Message and contact the support engineer.")
+            print("------------------------------------------------------------------------------------")
             raise error
         else:
             print(f"onnx check pass. The new model saved in {save_path}")

@@ -1,8 +1,9 @@
-from typing import Tuple, List
+from typing import List, Tuple
+
 from mindspore import Tensor, nn, ops
+from mindspore.common.initializer import TruncatedNormal
 
 from .asf import AdaptiveScaleFusion
-from mindspore.common.initializer import TruncatedNormal
 
 
 def _resize_nn(x: Tensor, scale: int = 0, shape: Tuple[int] = None):
@@ -167,7 +168,8 @@ class EASTFPN(nn.Cell):
         self.bn2 = nn.BatchNorm2d(self.in_channels[0] // 4)
         self.relu2 = nn.ReLU()
 
-        self.conv3 = nn.Conv2d(self.in_channels[0] // 4 + self.in_channels[2], self.in_channels[1] // 4, 1, has_bias=True)
+        self.conv3 = nn.Conv2d(
+            self.in_channels[0] // 4 + self.in_channels[2], self.in_channels[1] // 4, 1, has_bias=True)
         self.bn3 = nn.BatchNorm2d(self.in_channels[1] // 4)
         self.relu3 = nn.ReLU()
         self.conv4 = nn.Conv2d(

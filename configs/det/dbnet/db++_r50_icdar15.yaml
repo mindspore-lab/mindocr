@@ -136,7 +136,7 @@ eval:
       - DetLabelEncode:
       #- ScalePadImage:
       #    target_size: [ 1152, 2048 ] # h, w
-      - DetResize: 
+      - DetResize:
           target_size: [ 1152, 2048]
           keep_ratio: True
           padding: True

@@ -59,8 +59,8 @@ path-to-data-dir/
     ch8_training_word_gt_v2.zip
     ch8_validation_word_images_gt.zip
     ch8_validation_word_gt_v2.zip
-    
-    
+
+
 ```
 
 [返回](../../../tools/dataset_converters/README_CN.md)

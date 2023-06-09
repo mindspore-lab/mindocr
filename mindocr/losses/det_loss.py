@@ -1,11 +1,11 @@
 from typing import Tuple, Union
-from mindspore import nn, ops
-import mindspore.common.dtype as mstype
-import mindspore as ms
-from mindspore import Tensor
-import mindspore.numpy as mnp
 
-__all__ = ['L1BalancedCELoss', 'PSEDiceLoss', 'EASTLoss']
+import mindspore as ms
+import mindspore.common.dtype as mstype
+import mindspore.numpy as mnp
+from mindspore import Tensor, nn, ops
+
+__all__ = ["L1BalancedCELoss", "PSEDiceLoss", "EASTLoss"]
 
 
 class L1BalancedCELoss(nn.LossBase):
@@ -32,8 +32,9 @@ class L1BalancedCELoss(nn.LossBase):
         self.l1_scale = l1_scale
         self.bce_scale = bce_scale
 
-    def construct(self, pred: Union[Tensor, Tuple[Tensor]], gt: Tensor, gt_mask: Tensor, thresh_map: Tensor,
-                  thresh_mask: Tensor):
+    def construct(
+        self, pred: Union[Tensor, Tuple[Tensor]], gt: Tensor, gt_mask: Tensor, thresh_map: Tensor, thresh_mask: Tensor
+    ):
         """
         Compute dbnet loss
         Args:
@@ -57,7 +58,7 @@ class L1BalancedCELoss(nn.LossBase):
             dice_loss = self.dice_loss(thresh_binary, gt, gt_mask)
             loss = dice_loss + self.l1_scale * l1_loss + self.bce_scale * bce_loss_output
 
-        '''
+        """
         if isinstance(pred, tuple):
             binary, thresh, thresh_binary = pred
         else:
@@ -71,7 +72,7 @@ class L1BalancedCELoss(nn.LossBase):
             loss = dice_loss + self.l1_scale * l1_loss + self.bce_scale * bce_loss_output
         else:
             loss = bce_loss_output
-        '''
+        """
         return loss
 
 
@@ -118,7 +119,7 @@ class BalancedBCELoss(nn.LossBase):
         super().__init__()
         self._negative_ratio = negative_ratio
         self._eps = eps
-        self._bce_loss = ops.BinaryCrossEntropy(reduction='none')
+        self._bce_loss = ops.BinaryCrossEntropy(reduction="none")
 
     def construct(self, pred, gt, mask):
         """
@@ -151,8 +152,9 @@ class BalancedBCELoss(nn.LossBase):
 
         neg_loss = neg_loss_mask * neg_loss
 
-        return (pos_loss.sum() + neg_loss.sum()) / \
-            (pos_count.astype(ms.float32).sum() + neg_count.astype(ms.float32).sum() + self._eps)
+        return (pos_loss.sum() + neg_loss.sum()) / (
+            pos_count.astype(ms.float32).sum() + neg_count.astype(ms.float32).sum() + self._eps
+        )
 
 
 class PSEDiceLoss(nn.Cell):
@@ -189,13 +191,13 @@ class PSEDiceLoss(nn.Cell):
         self.upsample = nn.ResizeBilinear()
 
     def ohem_batch(self, scores, gt_texts, training_masks):
-        '''
+        """
 
         :param scores: [N * H * W]
         :param gt_texts:  [N * H * W]
         :param training_masks: [N * H * W]
         :return: [N * H * W]
-        '''
+        """
         batch_size = scores.shape[0]
         h, w = scores.shape[1:]
         selected_masks = ()
@@ -218,8 +220,7 @@ class PSEDiceLoss(nn.Cell):
     def ohem_single(self, score, gt_text, training_mask):
         h, w = score.shape[0:2]
         k = int(h * w)
-        pos_num = self.logical_and(self.greater(gt_text, self.threshold0),
-                                   self.greater(training_mask, self.threshold0))
+        pos_num = self.logical_and(self.greater(gt_text, self.threshold0), self.greater(training_mask, self.threshold0))
         pos_num = self.reduce_sum(self.cast(pos_num, mstype.float32))
 
         neg_num = self.less_equal(gt_text, self.threshold0)
@@ -237,9 +238,9 @@ class PSEDiceLoss(nn.Cell):
         threshold = self.gather(topk_values, neg_num, 0)
 
         selected_mask = self.logical_and(
-            self.logical_or(self.greater(score, threshold),
-                            self.greater(gt_text, self.threshold0)),
-            self.greater(training_mask, self.threshold0))
+            self.logical_or(self.greater(score, threshold), self.greater(gt_text, self.threshold0)),
+            self.greater(training_mask, self.threshold0),
+        )
 
         selected_mask = self.cast(selected_mask, mstype.float32)
         selected_mask = self.expand_dims(selected_mask, 0)
@@ -247,13 +248,13 @@ class PSEDiceLoss(nn.Cell):
         return selected_mask
 
     def dice_loss(self, input_params, target, mask):
-        '''
+        """
 
         :param input: [N, H, W]
         :param target: [N, H, W]
         :param mask: [N, H, W]
         :return:
-        '''
+        """
         batch_size = input_params.shape[0]
         input_sigmoid = self.sigmoid(input_params)
 
@@ -279,14 +280,14 @@ class PSEDiceLoss(nn.Cell):
         return loss_kernel
 
     def construct(self, model_predict, gt_texts, gt_kernels, training_masks):
-        '''
+        """
 
         :param model_predict: [N * 7 * H * W]
         :param gt_texts: [N * H * W]
         :param gt_kernels:[N * 6 * H * W]
         :param training_masks:[N * H * W]
         :return:
-        '''
+        """
         batch_size = model_predict.shape[0]
         model_predict = self.upsample(model_predict, scale_factor=4)
         h, w = model_predict.shape[2:]
@@ -302,8 +303,9 @@ class PSEDiceLoss(nn.Cell):
             kernels.append(kernel)
 
         mask0 = self.sigmoid(texts)
-        selected_masks_kernels = self.logical_and(self.greater(mask0, self.threshold0),
-                                                  self.greater(training_masks, self.threshold0))
+        selected_masks_kernels = self.logical_and(
+            self.greater(mask0, self.threshold0), self.greater(training_masks, self.threshold0)
+        )
         selected_masks_kernels = self.cast(selected_masks_kernels, mstype.float32)
 
         for i in range(6):
@@ -326,7 +328,7 @@ class DiceCoefficient(nn.Cell):
     def construct(self, true_cls, pred_cls):
         intersection = self.sum(true_cls * pred_cls, ())
         union = self.sum(true_cls, ()) + self.sum(pred_cls, ()) + self.eps
-        loss = 1. - (2 * intersection / union)
+        loss = 1.0 - (2 * intersection / union)
 
         return loss
 
@@ -343,19 +345,13 @@ class EASTLoss(nn.LossBase):
         self.dice = DiceCoefficient()
         self.abs = ops.Abs()
 
-    def construct(
-            self,
-            pred,
-            score_map,
-            geo_map,
-            training_mask):
+    def construct(self, pred, score_map, geo_map, training_mask):
         ans = self.sum(score_map)
-        classification_loss = self.dice(
-            score_map, pred['score'] * (1 - training_mask))
+        classification_loss = self.dice(score_map, pred["score"] * (1 - training_mask))
 
         # n * 5 * h * w
         d1_gt, d2_gt, d3_gt, d4_gt, theta_gt = self.split(geo_map)
-        d1_pred, d2_pred, d3_pred, d4_pred, theta_pred = self.split(pred['geo'])
+        d1_pred, d2_pred, d3_pred, d4_pred, theta_pred = self.split(pred["geo"])
         area_gt = (d1_gt + d3_gt) * (d2_gt + d4_gt)
         area_pred = (d1_pred + d3_pred) * (d2_pred + d4_pred)
         w_union = self._min(d2_gt, d2_pred) + self._min(d4_gt, d4_pred)
@@ -363,8 +359,7 @@ class EASTLoss(nn.LossBase):
 
         area_intersect = w_union * h_union
         area_union = area_gt + area_pred - area_intersect
-        iou_loss_map = -self.log((area_intersect + 1.0) /
-                                 (area_union + 1.0))  # iou_loss_map
+        iou_loss_map = -self.log((area_intersect + 1.0) / (area_union + 1.0))  # iou_loss_map
         angle_loss_map = 1 - self.cos(theta_pred - theta_gt)  # angle_loss_map
 
         angle_loss = self.sum(angle_loss_map * score_map) / ans

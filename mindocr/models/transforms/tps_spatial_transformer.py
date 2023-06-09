@@ -1,10 +1,11 @@
 import itertools
 from typing import Optional, Tuple
 
+import numpy as np
+
 import mindspore as ms
 import mindspore.nn as nn
 import mindspore.ops as ops
-import numpy as np
 from mindspore import Tensor
 
 

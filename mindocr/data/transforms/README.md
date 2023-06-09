@@ -4,11 +4,11 @@
 
 1. Each transformation is a class with a callable function. An example is shown below.
 
-2. The input to the transformation function is always a dict, which contain data info like img_path, raw label, etc. 
+2. The input to the transformation function is always a dict, which contain data info like img_path, raw label, etc.
 
 3. Please write comments for the __call__ function to clarify the required/modified/added keys in the data dict.
 
-4. Add kwargs in the class init function for extension, which is used to parse global config, such as is_train. 
+4. Add kwargs in the class init function for extension, which is used to parse global config, such as is_train.
 
 ```python
 class ToCHWImage(object):

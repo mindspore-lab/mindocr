@@ -18,11 +18,11 @@ def safe_list_writer(save_dict, save_path):
     :return:
     """
     flags, modes = os.O_WRONLY | os.O_CREAT | os.O_APPEND, stat.S_IWUSR | stat.S_IRUSR | stat.S_IRGRP
-    with os.fdopen(os.open(save_path, flags, modes), 'a') as f:
+    with os.fdopen(os.open(save_path, flags, modes), "a") as f:
         if not save_dict:
-            f.write('')
+            f.write("")
         for name, res in save_dict.items():
-            content = name + '\t' + json.dumps(res, ensure_ascii=False) + "\n"
+            content = name + "\t" + json.dumps(res, ensure_ascii=False) + "\n"
             f.write(content)
 
 
@@ -43,7 +43,7 @@ def verify_file_size(file_path) -> bool:
 
 
 def valid_characters(pattern: str, characters: str) -> bool:
-    if re.match(r'.*[\s]+', characters):
+    if re.match(r".*[\s]+", characters):
         return False
     if not re.match(pattern, characters):
         return False
@@ -53,15 +53,15 @@ def valid_characters(pattern: str, characters: str) -> bool:
 def file_base_check(file_path: str) -> None:
     base_name = os.path.basename(file_path)
     if not file_path or not os.path.isfile(file_path):
-        raise FileNotFoundError(f'the file:{base_name} does not exist!')
-    if not valid_characters('^[A-Za-z0-9_+-/]+$', file_path):
-        raise Exception(f'file path:{os.path.relpath(file_path)} should only include characters \'A-Za-z0-9+-_/\'!')
+        raise FileNotFoundError(f"the file:{base_name} does not exist!")
+    if not valid_characters("^[A-Za-z0-9_+-/]+$", file_path):
+        raise Exception(f"file path:{os.path.relpath(file_path)} should only include characters 'A-Za-z0-9+-_/'!")
     if not verify_file_size(file_path):
-        raise Exception(f'{base_name}: the file size must between [1, 10M]!')
+        raise Exception(f"{base_name}: the file size must between [1, 10M]!")
     if os.path.islink(file_path):
-        raise Exception(f'the file:{base_name} is link. invalid file!')
+        raise Exception(f"the file:{base_name} is link. invalid file!")
     if not os.access(file_path, mode=os.R_OK):
-        raise FileNotFoundError(f'the file:{base_name} is unreadable!')
+        raise FileNotFoundError(f"the file:{base_name} is unreadable!")
 
 
 def get_safe_name(path):
@@ -84,24 +84,24 @@ def check_valid_dir(path):
     name = get_safe_name(path)
     check_valid_path(path, name)
     if not os.path.isdir(path):
-        log.error(f'Please check if {name} is a directory.')
+        log.error(f"Please check if {name} is a directory.")
         raise NotADirectoryError("Check dir failed.")
 
 
 def check_valid_path(path, name):
     if not path or not os.path.exists(path):
-        raise FileExistsError(f'Error! {name} must exists!')
+        raise FileExistsError(f"Error! {name} must exists!")
     if custom_islink(path):
-        raise ValueError(f'Error! {name} cannot be a soft link!')
+        raise ValueError(f"Error! {name} cannot be a soft link!")
     if not os.access(path, mode=os.R_OK):
-        raise RuntimeError(f'Error! Please check if {name} is readable.')
+        raise RuntimeError(f"Error! Please check if {name} is readable.")
 
 
 def check_valid_file(path, num_gb_limit=10):
     filename = get_safe_name(path)
     check_valid_path(path, filename)
     if not os.path.isfile(path):
-        log.error(f'Please check if {filename} is a file.')
+        log.error(f"Please check if {filename} is a file.")
         raise ValueError("Check file failed.")
     check_size(path, filename, num_gb_limit=num_gb_limit)
 
@@ -110,16 +110,16 @@ def check_size(path, name, num_gb_limit):
     limit = num_gb_limit * 1024 * 1024 * 1024
     size = os.path.getsize(path)
     if size == 0:
-        raise ValueError(f'{name} cannot be an empty file!')
+        raise ValueError(f"{name} cannot be an empty file!")
     if size >= limit:
-        raise ValueError(f'The size of {name} must be smaller than {num_gb_limit} GB!')
+        raise ValueError(f"The size of {name} must be smaller than {num_gb_limit} GB!")
 
 
 def safe_img_read(path: str):
     check_valid_file(path)
     img = cv2.imread(path, cv2.IMREAD_COLOR)
     if img is None:
-        raise ValueError(f'Error! Cannot load the image of {get_safe_name(path)}')
+        raise ValueError(f"Error! Cannot load the image of {get_safe_name(path)}")
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     return img
 

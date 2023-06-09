@@ -112,26 +112,18 @@ def auto_scaling_process(_args, config, sys_path):
     if not os.path.isfile(model_path):
         raise FileNotFoundError("model_path must be a file")
     if "-1" not in [input_bs, input_h, input_w]:
-        logging.info(
-            f"Static input shape: {_args.input_shape}, will skip auto-scaling process"
-        )
+        logging.info(f"Static input shape: {_args.input_shape}, will skip auto-scaling process")
         scaling_li = [""]
     else:
         if not _args.dataset_path:
             logging.info("Auto scaling will use default values.")
-            scaling_li = combine_scaling_data(
-                config.auto_scaling.default_scaling, _args.input_shape
-            )
+            scaling_li = combine_scaling_data(config.auto_scaling.default_scaling, _args.input_shape)
         else:
             data_analyzer = DatasetAnalyzer(_args, config)
-            scaling_li = combine_scaling_data(
-                data_analyzer.start_analyzer(), _args.input_shape
-            )
+            scaling_li = combine_scaling_data(data_analyzer.start_analyzer(), _args.input_shape)
             # save data
             save_data = save_scaling_data_deal(scaling_li, _args.input_shape)
-            scaling_li_save_path = os.path.abspath(
-                os.path.join(sys_path, "scaling_data.json")
-            )
+            scaling_li_save_path = os.path.abspath(os.path.join(sys_path, "scaling_data.json"))
             logging.info(f"Saving scaling data to {scaling_li_save_path}")
             with open(scaling_li_save_path, "w", encoding="utf-8") as json_fp:
                 json.dump(save_data, fp=json_fp)
@@ -154,17 +146,11 @@ def auto_scaling_process(_args, config, sys_path):
         else:
             # Lite
             os.makedirs(_args.output_path, exist_ok=True)
-            file_name, content = lite_config_deal(
-                scaling, _args.input_shape, _args.input_name
-            )
-            config_file = os.path.abspath(
-                os.path.join(sys_path, f"configs/{file_name}")
-            )
+            file_name, content = lite_config_deal(scaling, _args.input_shape, _args.input_name)
+            config_file = os.path.abspath(os.path.join(sys_path, f"configs/{file_name}"))
             with open(config_file, "w", encoding="utf-8") as fp_lite:
                 fp_lite.writelines(content)
             converter_lite = LiteConverter(_args)
-            subps.append(
-                converter_lite.convert_async(config_file, model_path, output_path)
-            )
+            subps.append(converter_lite.convert_async(config_file, model_path, output_path))
 
     return subps

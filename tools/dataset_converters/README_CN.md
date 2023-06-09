@@ -10,8 +10,8 @@
 
 转换后的标注文件格式应为：
 ``` text
-img_61.jpg\t[{"transcription": "MASA", "points": [[310, 104], [416, 141], [418, 216], [312, 179]]}, {...}]   
-``` 
+img_61.jpg\t[{"transcription": "MASA", "points": [[310, 104], [416, 141], [418, 216], [312, 179]]}, {...}]
+```
 
 以ICDAR2015（ic15）数据集为例，要将ic15数据集转换为所需的格式，请运行：
 
@@ -22,7 +22,7 @@ python tools/dataset_converters/convert.py \
         --task det \
         --image_dir /path/to/ic15/det/train/ch4_training_images \
         --label_dir /path/to/ic15/det/train/ch4_training_localization_transcription_gt \
-        --output_path /path/to/ic15/det/train/det_gt.txt 
+        --output_path /path/to/ic15/det/train/det_gt.txt
 ```
 
 ``` shell
@@ -32,13 +32,13 @@ python tools/dataset_converters/convert.py \
         --task det \
         --image_dir /path/to/ic15/det/test/ch4_test_images \
         --label_dir /path/to/ic15/det/test/ch4_test_localization_transcription_gt \
-        --output_path /path/to/ic15/det/test/det_gt.txt 
+        --output_path /path/to/ic15/det/test/det_gt.txt
 ```
 
 ## 文本识别
 文本识别数据集的标注格式如下：
 
-```text 
+```text
 word_7.png	fusionopolis
 word_8.png	fusionopolis
 word_9.png	Reserve
@@ -54,7 +54,7 @@ python tools/dataset_converters/convert.py \
         --dataset_name  ic15 \
         --task rec \
         --label_dir /path/to/ic15/rec/ch4_training_word_images_gt/gt.txt
-        --output_path /path/to/ic15/rec/train/ch4_training_word_images_gt/rec_gt.txt 
+        --output_path /path/to/ic15/rec/train/ch4_training_word_images_gt/rec_gt.txt
 ```
 
 ``` shell

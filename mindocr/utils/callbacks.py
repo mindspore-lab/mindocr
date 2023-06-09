@@ -1,19 +1,16 @@
 import os
 import time
-from tqdm import tqdm
-from typing import List
+
 from packaging import version
 
 import mindspore as ms
-from mindspore.ops import functional as F
-from mindspore.common import dtype as mstype
 from mindspore import save_checkpoint
 from mindspore.train.callback._callback import Callback, _handle_loss
+
 from .checkpoint import CheckpointManager
-from .visualize import draw_boxes, show_imgs, recover_image
-from .recorder import PerfRecorder
-from .misc import AverageMeter
 from .evaluator import Evaluator
+from .misc import AverageMeter
+from .recorder import PerfRecorder
 
 __all__ = ["EvalSaveCallback"]
 
@@ -118,9 +115,7 @@ class EvalSaveCallback(Callback):
 
     @jit
     def _reduce(self, x):
-        return (
-            self._reduce_sum(x) / self._device_num
-        )  # average value across all devices
+        return self._reduce_sum(x) / self._device_num  # average value across all devices
 
     def on_train_step_end(self, run_context):
         """
@@ -141,9 +136,7 @@ class EvalSaveCallback(Callback):
             opt = cb_params.train_network.optimizer
             learning_rate = opt.learning_rate
             cur_lr = learning_rate(opt.global_step - 1).asnumpy().squeeze()
-            per_step_time = (
-                (time.time() - self.step_start_time) * 1000 / self.log_interval
-            )
+            per_step_time = (time.time() - self.step_start_time) * 1000 / self.log_interval
             fps = self.batch_size * 1000 / per_step_time
             loss = self._loss_avg_meter.val.asnumpy()
             msg = (
@@ -192,10 +185,7 @@ class EvalSaveCallback(Callback):
 
         eval_done = False
         if self.loader_eval is not None:
-            if (
-                cur_epoch >= self.val_start_epoch
-                and (cur_epoch - self.val_start_epoch) % self.val_interval == 0
-            ):
+            if cur_epoch >= self.val_start_epoch and (cur_epoch - self.val_start_epoch) % self.val_interval == 0:
                 eval_start = time.time()
                 if self.ema is not None:
                     # swap ema weight and network weight
@@ -218,44 +208,33 @@ class EvalSaveCallback(Callback):
         if self.is_main_device:
             # save best models
             if (self.main_indicator == "train_loss" and perf < self.best_perf) or (
-                self.main_indicator != "train_loss"
-                and eval_done
-                and perf > self.best_perf
+                self.main_indicator != "train_loss" and eval_done and perf > self.best_perf
             ):  # when val_while_train enabled, only find best checkpoint after eval done.
                 self.best_perf = perf
                 # ema weight will be saved if enabled.
-                save_checkpoint(
-                    self.network, os.path.join(self.ckpt_save_dir, "best.ckpt")
-                )
+                save_checkpoint(self.network, os.path.join(self.ckpt_save_dir, "best.ckpt"))
 
-                self.logger(
-                    f"=> Best {self.main_indicator}: {self.best_perf}, checkpoint saved."
-                )
+                self.logger(f"=> Best {self.main_indicator}: {self.best_perf}, checkpoint saved.")
 
             # save history checkpoints
             self.ckpt_manager.save(self.network, perf, ckpt_name=f"e{cur_epoch}.ckpt")
-            ms.save_checkpoint(cb_params.train_network, os.path.join(self.ckpt_save_dir, 'train_resume.ckpt'),
-                               append_dict={"epoch_num": cur_epoch, "loss_scale": loss_scale_manager.get_loss_scale()})
+            ms.save_checkpoint(
+                cb_params.train_network,
+                os.path.join(self.ckpt_save_dir, "train_resume.ckpt"),
+                append_dict={"epoch_num": cur_epoch, "loss_scale": loss_scale_manager.get_loss_scale()},
+            )
             # record results
             if cur_epoch == 1:
                 if self.loader_eval is not None:
-                    perf_columns = (
-                        ["loss"] + list(measures.keys()) + ["train_time", "eval_time"]
-                    )
+                    perf_columns = ["loss"] + list(measures.keys()) + ["train_time", "eval_time"]
                 else:
                     perf_columns = ["loss", "train_time"]
-                self.rec = PerfRecorder(
-                    self.ckpt_save_dir, metric_names=perf_columns
-                )  # record column names
+                self.rec = PerfRecorder(self.ckpt_save_dir, metric_names=perf_columns)  # record column names
             elif cur_epoch == self.start_epoch + 1:
                 self.rec = PerfRecorder(self.ckpt_save_dir, resume=True)
 
             if self.loader_eval is not None:
-                epoch_perf_values = (
-                    [cur_epoch, train_loss]
-                    + list(measures.values())
-                    + [train_time, eval_time]
-                )
+                epoch_perf_values = [cur_epoch, train_loss] + list(measures.values()) + [train_time, eval_time]
             else:
                 epoch_perf_values = [cur_epoch, train_loss, train_time]
             self.rec.add(*epoch_perf_values)  # record column values
@@ -264,20 +243,16 @@ class EvalSaveCallback(Callback):
         if (self.ema is not None) and eval_done:
             self.ema.swap_after_eval()
 
-        tot_time = time.time() - self.last_epoch_end_time
+        # tot_time = time.time() - self.last_epoch_end_time
         self.last_epoch_end_time = time.time()
 
     def on_train_end(self, run_context):
         if self.is_main_device:
             self.rec.save_curves()  # save performance curve figure
-            self.logger(
-                f"=> Best {self.main_indicator}: {self.best_perf} \nTraining completed!"
-            )
+            self.logger(f"=> Best {self.main_indicator}: {self.best_perf} \nTraining completed!")
 
             if self.ckpt_save_policy == "top_k":
                 log_str = f"Top K checkpoints:\n{self.main_indicator}\tcheckpoint\n"
                 for p, ckpt_name in self.ckpt_manager.get_ckpt_queue():
-                    log_str += (
-                        f"{p:.4f}\t{os.path.join(self.ckpt_save_dir, ckpt_name)}\n"
-                    )
+                    log_str += f"{p:.4f}\t{os.path.join(self.ckpt_save_dir, ckpt_name)}\n"
                 self.logger(log_str)

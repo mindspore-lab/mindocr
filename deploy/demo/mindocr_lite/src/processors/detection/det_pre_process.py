@@ -1,7 +1,6 @@
-from ...framework import Model
-from ...framework import ModuleBase, ShapeType
+from ...framework import Model, ModuleBase, ShapeType
 from ...operators import build_preprocess
-from ...utils import get_matched_gear_hw, get_hw_of_img
+from ...utils import get_hw_of_img, get_matched_gear_hw
 
 
 class DetPreProcess(ModuleBase):
@@ -11,8 +10,9 @@ class DetPreProcess(ModuleBase):
         self.max_dot_gear = None
 
     def init_self_args(self):
-        model = Model(engine_type=self.args.engine_type, model_path=self.args.det_model_path,
-                           device_id=self.args.device_id)
+        model = Model(
+            engine_type=self.args.engine_type, model_path=self.args.det_model_path, device_id=self.args.device_id
+        )
 
         shape_type, shape_info = model.get_shape_info()
         del model
@@ -35,7 +35,6 @@ class DetPreProcess(ModuleBase):
         self.preprocess = build_preprocess(self.args.det_algorithm)
         super().init_self_args()
 
-
     def process(self, input_data):
         if input_data.skip:
             self.send_to_next_module(input_data)
@@ -43,9 +42,7 @@ class DetPreProcess(ModuleBase):
         image = input_data.frame
 
         resized_params = {
-            "Resize": {
-                "dst_hw": get_matched_gear_hw(get_hw_of_img(image), self.gear_list, self.max_dot_gear)
-            }
+            "Resize": {"dst_hw": get_matched_gear_hw(get_hw_of_img(image), self.gear_list, self.max_dot_gear)}
         }
 
         dst_image = self.preprocess(image, resized_params)

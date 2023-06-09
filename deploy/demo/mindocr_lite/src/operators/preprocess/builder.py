@@ -1,5 +1,5 @@
-from .transforms import NormalizeImage, ToNCHW, ResizeKeepAspectRatio, LimitMaxSide, Resize, RGB2BGR
 from ..utils import constant
+from .transforms import RGB2BGR, NormalizeImage, Resize, ToNCHW
 
 __all__ = ["build_preprocess"]
 
@@ -17,7 +17,8 @@ class Preprocessor:
         if diff:
             raise ValueError(
                 f"Build preprocessor failed for {self.algorithm}, preprocessor is {ops_names}, "
-                f"but parameter for preprocessor has {diff}.")
+                f"but parameter for preprocessor has {diff}."
+            )
 
     def __call__(self, image, extra_params: dict = None):
         extra_params = {} if not extra_params else extra_params
@@ -39,14 +40,9 @@ def build_preprocess(algorithm: str, init_params: dict = None):
     algorithm = algorithm.lower()
     if algorithm in ("dbnet",):
         ops_list.append(Resize)
-        params = {
-            "NormalizeImage": {
-                "std": constant.IMAGE_NET_IMAGE_STD,
-                "mean": constant.IMAGE_NET_IMAGE_MEAN
-            }
-        }
+        params = {"NormalizeImage": {"std": constant.IMAGE_NET_IMAGE_STD, "mean": constant.IMAGE_NET_IMAGE_MEAN}}
         init_params.update(params)
-    elif algorithm in ('cls',):
+    elif algorithm in ("cls",):
         ops_list.append(RGB2BGR)
         ops_list.append(Resize)
     elif algorithm in ("cls", "crnn", "svtr"):

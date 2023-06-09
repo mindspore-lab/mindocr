@@ -1,6 +1,6 @@
 import os
 import random
-from typing import Union, List
+from typing import List, Union
 
 import numpy as np
 from scipy.io import loadmat
@@ -8,14 +8,14 @@ from scipy.io import loadmat
 from .base_dataset import BaseDataset
 from .transforms.transforms_factory import create_transforms, run_transforms
 
-__all__ = ['DetDataset', 'SynthTextDataset']
+__all__ = ["DetDataset", "SynthTextDataset"]
 
 
 class DetDataset(BaseDataset):
     """
-    General dataset for text detection 
+    General dataset for text detection
     The annotation format should follow:
-    
+
     .. code-block: none
 
         # image file name\tannotation info containing text and polygon points encoded by json.dumps
@@ -41,22 +41,25 @@ class DetDataset(BaseDataset):
         You can specify the `output_columns` arg to order the output data for dataloader.
 
     Notes:
-        1. The data file structure should be like 
-            ├── data_dir  
+        1. The data file structure should be like
+            ├── data_dir
             │     ├── 000001.jpg
             │     ├── 000002.jpg
             │     ├── {image_file_name}
             ├── label_file.txt
     """
-    def __init__(self,
-                 is_train: bool = True,
-                 data_dir: Union[str, List[str]] = None,
-                 label_file: Union[List, str] = None,
-                 sample_ratio: Union[List, float] = 1.0,
-                 shuffle: bool = None,
-                 transform_pipeline: List[dict] = None,
-                 output_columns: List[str] = None,
-                 **kwargs):
+
+    def __init__(
+        self,
+        is_train: bool = True,
+        data_dir: Union[str, List[str]] = None,
+        label_file: Union[List, str] = None,
+        sample_ratio: Union[List, float] = 1.0,
+        shuffle: bool = None,
+        transform_pipeline: List[dict] = None,
+        output_columns: List[str] = None,
+        **kwargs,
+    ):
         super().__init__(data_dir=data_dir, label_file=label_file, output_columns=output_columns)
 
         # check args
@@ -73,10 +76,10 @@ class DetDataset(BaseDataset):
             global_config = dict(is_train=is_train)
             self.transforms = create_transforms(transform_pipeline, global_config)
         else:
-            raise ValueError('No transform pipeline is specified!')
+            raise ValueError("No transform pipeline is specified!")
 
         # prefetch the data keys, to fit GeneratorDataset
-        _data = self.data_list[0].copy()        # WARNING: shallow copy. Do deep copy if necessary.
+        _data = self.data_list[0].copy()  # WARNING: shallow copy. Do deep copy if necessary.
         _data = run_transforms(_data, transforms=self.transforms)
         _available_keys = list(_data.keys())
 
@@ -88,11 +91,13 @@ class DetDataset(BaseDataset):
                 if k in _data:
                     self.output_columns.append(k)
                 else:
-                    raise ValueError(f"Key '{k}' does not exist in data (available keys: {_data.keys()}). "
-                                     "Please check the name or the completeness transformation pipeline.")
+                    raise ValueError(
+                        f"Key '{k}' does not exist in data (available keys: {_data.keys()}). "
+                        "Please check the name or the completeness transformation pipeline."
+                    )
 
     def __getitem__(self, index):
-        data = self.data_list[index].copy()     # WARNING: shallow copy. Do deep copy if necessary.
+        data = self.data_list[index].copy()  # WARNING: shallow copy. Do deep copy if necessary.
 
         # perform transformation on data
         try:
@@ -104,9 +109,10 @@ class DetDataset(BaseDataset):
 
         return output_tuple
 
-    def load_data_list(self, label_file: List[str], sample_ratio: List[float], shuffle: bool = False,
-                       **kwargs) -> List[dict]:
-        """ Load data list from label_file which contains infomation of image paths and annotations
+    def load_data_list(
+        self, label_file: List[str], sample_ratio: List[float], shuffle: bool = False, **kwargs
+    ) -> List[dict]:
+        """Load data list from label_file which contains infomation of image paths and annotations
         Args:
             label_file: annotation file path(s)
             sample_ratio sample ratio for data items in each annotation file
@@ -119,22 +125,21 @@ class DetDataset(BaseDataset):
         data_list = []
         for idx, label_fp in enumerate(label_file):
             img_dir = self.data_dir[idx]
-            with open(label_fp, "r", encoding='utf-8') as f:
+            with open(label_fp, "r", encoding="utf-8") as f:
                 lines = f.readlines()
                 if shuffle:
-                    lines = random.sample(lines,
-                                          round(len(lines) * sample_ratio[idx]))
+                    lines = random.sample(lines, round(len(lines) * sample_ratio[idx]))
                 else:
-                    lines = lines[:round(len(lines) * sample_ratio[idx])]
+                    lines = lines[: round(len(lines) * sample_ratio[idx])]
 
                 for line in lines:
                     img_name, annot_str = self._parse_annotation(line)
-                    if annot_str =='[]':
+                    if annot_str == "[]":
                         continue
                     img_path = os.path.join(img_dir, img_name)
                     assert os.path.exists(img_path), "{} does not exist!".format(img_path)
 
-                    data = {'img_path': img_path, 'label': annot_str}
+                    data = {"img_path": img_path, "label": annot_str}
                     data_list.append(data)
 
         return data_list
@@ -142,29 +147,32 @@ class DetDataset(BaseDataset):
     def _parse_annotation(self, data_line: str):
         data_line_tmp = data_line.strip()
         if "\t" in data_line_tmp:
-            img_name, annot_str = data_line.strip().split('\t')
+            img_name, annot_str = data_line.strip().split("\t")
         elif " " in data_line_tmp:
-            img_name, annot_str = data_line.strip().split(' ')
+            img_name, annot_str = data_line.strip().split(" ")
         else:
-            raise ValueError("Incorrect label file format: the file name and the label should be separated by "
-                             "a space or tab")
+            raise ValueError(
+                "Incorrect label file format: the file name and the label should be separated by " "a space or tab"
+            )
 
         return img_name, annot_str
 
 
 class SynthTextDataset(DetDataset):
     def load_data_list(self, *args):
-        print('Loading SynthText dataset. It might take a while...')
-        mat = loadmat(os.path.join(self.data_dir[0], 'gt.mat'))
+        print("Loading SynthText dataset. It might take a while...")
+        mat = loadmat(os.path.join(self.data_dir[0], "gt.mat"))
 
         data_list = []
-        for image, boxes, texts in zip(mat['imnames'][0], mat['wordBB'][0], mat['txt'][0]):
-            texts = [t for text in texts.tolist() for t in text.split()]   # TODO: check the correctness of texts order
-            data_list.append({
-                'img_path': os.path.join(self.data_dir[0], image.item()),
-                'polys': boxes.transpose().reshape(-1, 4, 2),   # some labels have (4, 2) shape (no batch dimension)
-                'texts': texts,
-                'ignore_tags': np.array([False] * len(texts))
-            })
+        for image, boxes, texts in zip(mat["imnames"][0], mat["wordBB"][0], mat["txt"][0]):
+            texts = [t for text in texts.tolist() for t in text.split()]  # TODO: check the correctness of texts order
+            data_list.append(
+                {
+                    "img_path": os.path.join(self.data_dir[0], image.item()),
+                    "polys": boxes.transpose().reshape(-1, 4, 2),  # some labels have (4, 2) shape (no batch dimension)
+                    "texts": texts,
+                    "ignore_tags": np.array([False] * len(texts)),
+                }
+            )
 
         return data_list

@@ -1,13 +1,15 @@
 
-import numpy as np
 import cv2
-cimport numpy as np
+import numpy as np
+
 cimport cython
 cimport libcpp
 cimport libcpp.pair
 cimport libcpp.queue
+cimport numpy as np
 from libcpp.pair cimport *
-from libcpp.queue  cimport *
+from libcpp.queue cimport *
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)

@@ -1,12 +1,10 @@
 import numpy as np
+
 import mindspore as ms
-from mindspore import nn
-from mindspore import Tensor
-from mindspore.common import dtype as mstype
-from mindspore import ops
-from mindspore.common.initializer import initializer, Constant
+from mindspore import Tensor, nn, ops
 
 __all__ = ['RNNEncoder']
+
 
 # TODO: check mindspore nn LSTM diff in performance and precision from paddle/pytorch
 # TODO: what is the initialization method by default?
@@ -22,16 +20,17 @@ class RNNEncoder(nn.Cell):
         input_channels (int):  C, number of input channels, corresponding to feature length
         hidden_size(int): the hidden size in LSTM layers, default is 512
      """
+
     def __init__(self, in_channels, hidden_size=512, batch_size=None):
         super().__init__()
-        self.out_channels = 2 * hidden_size 
+        self.out_channels = 2 * hidden_size
 
         self.seq_encoder = nn.LSTM(input_size=in_channels,
-                                    hidden_size=hidden_size,
-                                    num_layers=2,
-                                    has_bias=True,
-                                    dropout=0.,
-                                    bidirectional=True)
+                                   hidden_size=hidden_size,
+                                   num_layers=2,
+                                   has_bias=True,
+                                   dropout=0.,
+                                   bidirectional=True)
 
         # TODO: do we need to add batch size to compute hx menioned in MindSpore LSTM doc
         self.hx = None
@@ -51,19 +50,20 @@ class RNNEncoder(nn.Cell):
             Tensor: Encoded features . Shape :math:`(W, N, 2*C)` where
         """
         x = features[0]
-        assert x.shape[2]==1, f'Feature height must be 1, but got {x.shape[2]} from x.shape {x.shape}'
-        x = ops.squeeze(x, axis=2) # [N, C, W]
-        x = ops.transpose(x, (2, 0, 1)) # [W, N, C]
+        assert x.shape[2] == 1, f'Feature height must be 1, but got {x.shape[2]} from x.shape {x.shape}'
+        x = ops.squeeze(x, axis=2)  # [N, C, W]
+        x = ops.transpose(x, (2, 0, 1))  # [W, N, C]
 
         if self.hx is None:
-            x, hx_n  = self.seq_encoder(x) #
+            x, hx_n = self.seq_encoder(x)
         else:
             print('using self.hx')
-            x, hx_n = self.seq_encoder(x, self.hx) # the results are the same
+            x, hx_n = self.seq_encoder(x, self.hx)  # the results are the same
 
         return x
 
-#TODO: check correctness, this structure is different from paddle
+
+# TODO: check correctness, this structure is different from paddle
 '''
 class BidirectionalLSTM(nn.Cell):
 
@@ -85,9 +85,9 @@ class BidirectionalLSTM(nn.Cell):
         return out
 '''
 
-
 if __name__ == '__main__':
     from mindocr.utils.debug import initialize_network_with_constant
+
     c, h, w = 128, 1, 16
     bs = 8
     x = ms.Tensor(np.random.rand(bs, c, h, w), dtype=ms.float32)

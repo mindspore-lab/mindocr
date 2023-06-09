@@ -1,9 +1,10 @@
 from typing import List
+
 from mindspore import Tensor
 
+from ._registry import register_backbone, register_backbone_class
 from .mindcv_models.mobilenet_v3 import MobileNetV3, default_cfgs
 from .mindcv_models.utils import load_pretrained
-from ._registry import register_backbone, register_backbone_class
 
 __all__ = ['DetMobileNetV3', 'det_mobilenet_v3']
 

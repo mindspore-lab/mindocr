@@ -58,7 +58,7 @@ Please refer to the [installation instruction](https://github.com/mindspore-lab/
 
 Please download [ICDAR2015](https://rrc.cvc.uab.es/?ch=4&com=downloads) dataset, and convert the labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
 
-The prepared dataset file struture should be: 
+The prepared dataset file struture should be:
 
 ``` text
 .
@@ -127,7 +127,7 @@ model:
 
 Please set `distribute` in yaml config file to be False.
 
-``` shell 
+``` shell
 # train east on ic15 dataset
 python tools/train.py --config configs/det/east/east_r50_icdar15.yaml
 ```
@@ -141,11 +141,11 @@ Please set `distribute` in yaml config file to be True.
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/det/east/east_r50_icdar15.yaml
 ```
 
-The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir` in yaml config file. The default directory is `./tmp_det`. 
+The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir` in yaml config file. The default directory is `./tmp_det`.
 
 ### 3.5 Evaluation
 
-To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run: 
+To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 
 ``` shell
 python tools/eval.py --config configs/det/east/east_r50_icdar15.yaml
