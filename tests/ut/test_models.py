@@ -20,6 +20,7 @@ all_yamls = [
     "configs/det/dbnet/db_r50_icdar15.yaml",
     "configs/rec/crnn/crnn_resnet34.yaml",
     "configs/rec/crnn/crnn_vgg7.yaml",
+    "configs/cls/mobilenetv3/cls_mv3.yaml",
 ]
 print("All config yamls: ", all_yamls)
 
@@ -30,6 +31,8 @@ def _infer_dummy(model, task="det", verbose=True):
     bs = 8
     if task == "rec":
         c, h, w = 3, 32, 100
+    elif task == "cls":
+        c, h, w = 3, 48, 192
     else:
         c, h, w = 3, 640, 640
     print("net input shape: ", bs, c, h, w)

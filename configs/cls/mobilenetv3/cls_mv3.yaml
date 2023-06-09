@@ -1,0 +1,144 @@
+system:
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: True
+  device_id: 7  # only valid when distribute=True, i.e., standalone training
+  amp_level: 'O0'
+  seed: 4
+  ckpt_save_policy: top_k # top_k or latest_k
+  ckpt_max_keep: 5
+  log_interval: 10
+  val_while_train: True
+  drop_overflow_update: False
+
+common:
+  label_list: &label_list ['0', '180']  # ['0', '90', '180', '270']
+  num_classes: &num_classes 2  # 4
+
+model:
+  type: cls
+  transform: null
+  backbone:
+    name: cls_mobilenet_v3_small_100
+    pretrained: True
+  head:
+    name: ClsHead
+    hidden_channels: 1024 # arch=small 1024, arch=large 1280
+    num_classes: *num_classes
+
+postprocess:
+  name: ClsPostProcess
+  label_list: *label_list
+
+metric:
+  name: ClsMetric
+  label_list: *label_list
+  main_indicator: acc
+
+loss:
+  name: CrossEntropySmooth
+
+scheduler:
+  scheduler: warmup_cosine_decay
+  min_lr: 0.0
+  lr: 0.001
+  num_epochs: &num_epochs 300
+  warmup_epochs: 1
+  decay_epochs: 299
+
+optimizer:
+  opt: adamw
+  filter_bias_and_bn: false
+  momentum: 0.9
+  weight_decay: 1.0e-4
+
+# only used for mixed precision training
+loss_scaler:
+  type: dynamic
+  loss_scale: 512
+  scale_factor: 2
+  scale_window: 1000
+
+train:
+  gradient_accumulation_steps: 1
+  clip_grad: True
+  clip_norm: 0.0001
+  ema: True
+  ema_decay: 0.9997
+  ckpt_save_dir: './tmp_cls'
+  dataset_sink_mode: False
+  dataset:
+    type: RecDataset
+    dataset_root: dir/to/dataset
+    data_dir: all_images
+    label_file: train_cls_gt.txt
+    sample_ratio: 1.0
+    shuffle: True
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          to_float32: False
+      - Rotate90IfVertical:
+          threshold: 2.0
+          direction: counterclockwise
+      - ClsLabelEncode:
+          label_list: *label_list
+      - RecResizeImg:
+          image_shape: [48, 192] # H, W
+          padding: False # aspect ratio will be preserved if true.
+      - NormalizeImage:
+          bgr_to_rgb: True
+          is_hwc: True
+          mean : [127.0, 127.0, 127.0]
+          std : [127.0, 127.0, 127.0]
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
+    output_columns: ['image', 'label']
+    net_input_column_index: [0] # input indices for network forward func in output_columns
+    label_column_index: [1] # input indices marked as label
+
+  loader:
+      shuffle: True
+      batch_size: 256
+      drop_remainder: True
+      max_rowsize: 16
+      num_workers: 8
+
+eval:
+  ckpt_load_path: ./tmp_cls/best.ckpt
+  dataset_sink_mode: False
+  dataset:
+    type: RecDataset
+    dataset_root: dir/to/dataset
+    data_dir: all_images
+    label_file: val_cls_gt.txt
+    sample_ratio: 1.0
+    shuffle: False
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          to_float32: False
+      - Rotate90IfVertical:
+          threshold: 2.0
+          direction: counterclockwise
+      - ClsLabelEncode:
+          label_list: *label_list
+      - RecResizeImg:
+          image_shape: [48, 192] # H, W
+          padding: False # aspect ratio will be preserved if true.
+      - NormalizeImage:
+          bgr_to_rgb: True
+          is_hwc: True
+          mean : [127.0, 127.0, 127.0]
+          std : [127.0, 127.0, 127.0]
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
+    output_columns: ['image', 'label']  # TODO return text string padding w/ fixed length, and a scaler to indicate the length
+    net_input_column_index: [0] # input indices for network forward func in output_columns
+    label_column_index: [1] # input indices marked as label
+
+  loader:
+      shuffle: False
+      batch_size: 256
+      drop_remainder: False
+      max_rowsize: 12
+      num_workers: 8

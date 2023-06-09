@@ -14,6 +14,7 @@ __all__ = [
     "RecResizeNormForInfer",
     "SVTRRecResizeImg",
     "Rotate90IfVertical",
+    "ClsLabelEncode",
 ]
 
 
@@ -464,6 +465,22 @@ class Rotate90IfVertical:
             img = cv2.rotate(img, self.flag)
 
         data["image"] = img
+        return data
+
+
+class ClsLabelEncode(object):
+    def __init__(self, label_list, **kwargs):
+        self.label_list = label_list
+
+    def __call__(self, data):
+        label = data["label"]
+        assert (
+            label in self.label_list
+        ), f"Invalid label `{label}`. Please make sure each label in input data is one of the values \
+            in label_list `{self.label_list}` in yaml config file."
+        label = self.label_list.index(label)
+        data["label"] = label
+
         return data
 
 

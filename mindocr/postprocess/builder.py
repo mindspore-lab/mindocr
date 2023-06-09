@@ -1,4 +1,5 @@
-from . import det_db_postprocess, det_east_postprocess, det_pse_postprocess, rec_postprocess
+from . import cls_postprocess, det_db_postprocess, det_east_postprocess, det_pse_postprocess, rec_postprocess
+from .cls_postprocess import *
 from .det_db_postprocess import *
 from .det_east_postprocess import *
 from .det_pse_postprocess import *
@@ -7,7 +8,11 @@ from .rec_postprocess import *
 __all__ = ["build_postprocess"]
 
 supported_postprocess = (
-    det_db_postprocess.__all__ + det_pse_postprocess.__all__ + det_east_postprocess.__all__ + rec_postprocess.__all__
+    det_db_postprocess.__all__
+    + det_pse_postprocess.__all__
+    + det_east_postprocess.__all__
+    + rec_postprocess.__all__
+    + cls_postprocess.__all__
 )
 
 
