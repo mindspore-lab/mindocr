@@ -137,7 +137,7 @@ class LMDBDataset(BaseDataset):
                 try:
                     env = lmdb.open(rootdir, max_readers=32, readonly=True, lock=False, readahead=False, meminit=False)
                 except lmdb.Error as e:  # handle the empty folder
-                    print(e)
+                    print("WARNING: ", str(e))
                     continue
                 txn = env.begin(write=False)
                 data_size = int(txn.get('num-samples'.encode()))
