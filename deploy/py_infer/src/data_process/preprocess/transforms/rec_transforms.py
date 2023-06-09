@@ -8,7 +8,7 @@ import numpy as np
 mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../../.."))
 sys.path.insert(0, mindocr_path)
 
-from mindocr.data.transforms import rec_transforms
+from mindocr.data.transforms import rec_transforms  # noqa
 
 __all__ = ["RecResizeImg", "SVTRRecResizeImg", "RecResizeNormForInfer", "RecResizeNormForViTSTR"]
 
@@ -28,6 +28,13 @@ class RecResizeImg(rec_transforms.RecResizeImg):
 
 class SVTRRecResizeImg(rec_transforms.SVTRRecResizeImg):
     def __init__(self, padding=True, **kwargs):
+        if not padding:
+            print(
+                "WARNING: output shape can be dynamic if no padding for SVTRRecResizeImg, "
+                "but inference doesn't support dynamic shape, so padding is reset to True."
+            )
+            padding = True
+
         skipped = ("image_shape",)
         [kwargs.pop(name, None) for name in skipped]
 

@@ -4,12 +4,13 @@ import sys
 
 import numpy as np
 
-__dir__ = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../..")))
 import mindspore as ms
 from mindspore import Tensor
 
-from mindocr.metrics import build_metric
+__dir__ = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../..")))
+
+from mindocr.metrics import build_metric  # noqa
 
 
 def _rec_adapt_train_pred(content):
