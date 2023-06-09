@@ -170,7 +170,7 @@ After downloading these datasets in the `DATASETS_DIR` folder, you can run `bash
     - [PSENet](configs/det/psenet) for text detection
     - [EAST](configs/det/east) for text detection
     - [SVTR](configs/rec/svtr) for text recognition
-2. Add more benchmark datasets and their results 
+2. Add more benchmark datasets and their results
     - [totaltext](docs/en/datasets/totaltext.md)
     - [mlt2017](docs/en/datasets/mlt2017.md)
     - [chinese_text_recognition](docs/en/datasets/chinese_text_recognition.md)
