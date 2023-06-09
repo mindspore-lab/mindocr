@@ -71,7 +71,7 @@ DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total
 | DBNet               | D910x1-MS2.0-G | ResNet-18     | ImageNet       | 80.12%     | 83.41%        | 81.73%      | 9.3 s/epoch  | 108 img/s      | [yaml](db_r18_icdar15.yaml)         | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18-0c0c4cfa.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18-0c0c4cfa-cf46eb8b.mindir)       |
 | DBNet               | D910x1-MS2.0-G | ResNet-50     | ImageNet       | 83.53%     | 86.62%        | 85.05%      | 13.3 s/epoch | 75.2 img/s       | [yaml](db_r50_icdar15.yaml)         | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24-fbf95c82.mindir)       |
 |                     |                |               |                |            |               |             |              |                |                                     |                                                                                                                                                                                                           |
-| DBNet++             | D910x1-MS2.0-G | ResNet-50     | [SynthText](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)  | 85.70%     | 87.81%        | 86.74%      | 17.7 s/epoch | 56 img/s  | [yaml](db++_r50_icdar15.yaml)       | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2-9934aff0.mindir)   |
+| DBNet++             | D910x1-MS2.0-G | ResNet-50     | SynthText  | 85.70%     | 87.81%        | 86.74%      | 17.7 s/epoch | 56 img/s  | [yaml](db++_r50_icdar15.yaml)       | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2-9934aff0.mindir)   |
 </div>
 
 > The input_shape for exported DBNet MindIR and DBNet++ MindIR in the link are `(1,3,736,1280)` and `(1,3,1152,2048)`, respectively.
@@ -82,8 +82,8 @@ DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total
 
 | **Model**         | **Context**    | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.** | **Throughput** | **Recipe**                  | **Download**                                                                                                                                                                                         |
 |-------------------|----------------|--------------|----------------|------------|---------------|-------------|--------------|----------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| DBNet            | D910x1-MS2.0-G | ResNet-18    | [SynthText](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_synthtext-251ef3dd.ckpt)       | 79.55%     | 87.86%        | 83.50%      | 5.6 s/epoch  | 121.7 img/s      | [yaml](db_r18_td500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_td500-b5abff68.ckpt)  |
-| DBNet           | D910x1-MS2.0-G | ResNet-50    | [SynthText](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)       | 83.68%     | 87.59%        | 85.59%      | 9.6 s/epoch  | 71.2 img/s      | [yaml](db_r50_td500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_td500-0d12b5e8.ckpt)  |
+| DBNet            | D910x1-MS2.0-G | ResNet-18    | SynthText       | 79.55%     | 87.86%        | 83.50%      | 5.6 s/epoch  | 121.7 img/s      | [yaml](db_r18_td500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_td500-b5abff68.ckpt)  |
+| DBNet           | D910x1-MS2.0-G | ResNet-50    | SynthText      | 83.68%     | 87.59%        | 85.59%      | 9.6 s/epoch  | 71.2 img/s      | [yaml](db_r50_td500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_td500-0d12b5e8.ckpt)  |
 </div>
 
 > MSRA-TD500 dataset has 300 training images and 200 testing images, reference paper [Real-time Scene Text Detection with Differentiable Binarization](https://arxiv.org/abs/1911.08947), we trained using an extra 400 traning images from HUST-TR400. You can down all [dataset](https://paddleocr.bj.bcebos.com/dataset/TD_TR.tar) for training.
@@ -94,8 +94,8 @@ DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total
 
 | **Model**         | **Context**    | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.** | **Throughput** | **Recipe**                  | **Download**                                                                                                                                                                                         |
 |-------------------|----------------|--------------|----------------|------------|---------------|-------------|--------------|----------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| DBNet            | D910x1-MS2.0-G | ResNet-18    | [SynthText](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_synthtext-251ef3dd.ckpt)       | 85.68%     | 85.33%        | 85.50%      | 8.2 s/epoch  | 122.1 img/s      | [yaml](db_r18_ctw1500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_ctw1500-0864b040.ckpt)  |
-| DBNet            | D910x1-MS2.0-G | ResNet-50    | [SynthText](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)       | 86.72%     | 85.29%        | 86.00%      | 14.0 s/epoch  | 71.4 img/s      | [yaml](db_r50_ctw1500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_ctw1500-f637e3d3.ckpt)  |
+| DBNet            | D910x1-MS2.0-G | ResNet-18    | SynthText      | 85.68%     | 85.33%        | 85.50%      | 8.2 s/epoch  | 122.1 img/s      | [yaml](db_r18_ctw1500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_ctw1500-0864b040.ckpt)  |
+| DBNet            | D910x1-MS2.0-G | ResNet-50    | SynthText      | 86.72%     | 85.29%        | 86.00%      | 14.0 s/epoch  | 71.4 img/s      | [yaml](db_r50_ctw1500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_ctw1500-f637e3d3.ckpt)  |
 </div>
 
 ### Total-Text
@@ -104,8 +104,8 @@ DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total
 
 | **Model**         | **Context**    | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.** | **Throughput** | **Recipe**                  | **Download**                                                                                                                                                                                         |
 |-----------------|----------------|--------------|----------------|------------|---------------|-------------|--------------|----------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| DBNet            | D910x1-MS2.0-G | ResNet-18    | [SynthText](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_synthtext-251ef3dd.ckpt)       | 83.66%     | 87.65%        | 85.61%      |    12.9 s/epoch   |  96.9 img/s        | [yaml](db_r18_totaltext.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_totaltext-fb456ff4.ckpt)  |
-| DBNet            | D910x1-MS2.0-G | ResNet-50    | [SynthText](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)       | 84.79%     | 87.07%        | 85.91%      |    18.0 s/epoch  |   69.1 img/s        | [yaml](db_r50_totaltext.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_totaltext-76d6f421.ckpt)  |
+| DBNet            | D910x1-MS2.0-G | ResNet-18    | SynthText       | 83.66%     | 87.65%        | 85.61%      |    12.9 s/epoch   |  96.9 img/s        | [yaml](db_r18_totaltext.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_totaltext-fb456ff4.ckpt)  |
+| DBNet            | D910x1-MS2.0-G | ResNet-50    | SynthText      | 84.79%     | 87.07%        | 85.91%      |    18.0 s/epoch  |   69.1 img/s        | [yaml](db_r50_totaltext.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_totaltext-76d6f421.ckpt)  |
 </div>
 
 ### MLT2017
@@ -114,8 +114,8 @@ DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total
 
 | **Model**         | **Context**    | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.** | **Throughput** | **Recipe**                  | **Download**                                                                                                                                                                                         |
 |-------------------|----------------|--------------|----------------|------------|---------------|-------------|--------------|----------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| DBNet            | D910x8-MS2.0-G | ResNet-18    | [SynthText](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_synthtext-251ef3dd.ckpt)       | 72.55%     | 83.23%        | 77.52%       |  20.9 s/epoch  |   43.1 img/s      | [yaml](db_r18_mlt2017.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_mlt2017-5af33809.ckpt)  |
-| DBNet           | D910x8-MS2.0-G | ResNet-50    | [SynthText](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)        | 74.88%     | 83.77%        | 79.08%       |  23.6 s/epoch  |   38.2 img/s      | [yaml](db_r50_mlt2017.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_mlt2017-3bd6e569.ckpt)  |
+| DBNet            | D910x8-MS2.0-G | ResNet-18    | SynthText       | 72.55%     | 83.23%        | 77.52%       |  20.9 s/epoch  |   43.1 img/s      | [yaml](db_r18_mlt2017.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_mlt2017-5af33809.ckpt)  |
+| DBNet           | D910x8-MS2.0-G | ResNet-50    | SynthText        | 74.88%     | 83.77%        | 79.08%       |  23.6 s/epoch  |   38.2 img/s      | [yaml](db_r50_mlt2017.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_mlt2017-3bd6e569.ckpt)  |
 </div>
 
 ### SynthText
@@ -282,7 +282,7 @@ Please download [SynthText](https://academictorrents.com/details/2dba9518166cbd1
 ### 3.3 Update yaml config file
 
 Update `configs/det/dbnet/db_r50_icdar15.yaml` configuration file with data paths,
-specifically the following parts. The `dataset_root` will be concatenated with `dataset_root` and `label_file` respectively to be the complete dataset directory and label file path.
+specifically the following parts. The `dataset_root` will be concatenated with `data_dir` and `label_file` respectively to be the complete dataset directory and label file path.
 
 ```yaml
 ...
