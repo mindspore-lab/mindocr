@@ -143,7 +143,6 @@ class Evaluator:
                 possible_keys_for_postprocess = ["shape_list", "raw_img_shape"]
                 # TODO: remove raw_img_shape (used in tools/infer/text/parallel).
                 #  shape_list = [h, w, ratio_h, ratio_w] already contain raw image shape.
-                data_info = {}
                 for k in possible_keys_for_postprocess:
                     if k in self.loader_output_columns:
                         data_info[k] = data[self.loader_output_columns.index(k)]
