@@ -160,7 +160,7 @@ class DetDataset(BaseDataset):
 
 class SynthTextDataset(DetDataset):
     def load_data_list(self, label_file: List[str], *args):
-        print('Loading SynthText dataset. It might take a while...')
+        print("Loading SynthText dataset. It might take a while...")
         mat = loadmat(label_file[0])
 
         data_list = []

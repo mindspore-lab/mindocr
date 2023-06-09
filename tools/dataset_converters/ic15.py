@@ -30,8 +30,9 @@ class IC15_Converter(object):
             for label_fp in label_paths:
                 label_file_name = os.path.basename(label_fp)
                 img_path = os.path.join(image_dir, label_file_name[3:-4] + ".jpg")
-                assert os.path.exists(img_path), \
-                    f"{img_path} not exist! Please check the input image_dir {image_dir} and names in {label_fp}"
+                assert os.path.exists(
+                    img_path
+                ), f"{img_path} not exist! Please check the input image_dir {image_dir} and names in {label_fp}"
 
                 label = []
                 if self.path_mode == "relative":
@@ -44,13 +45,10 @@ class IC15_Converter(object):
                         # sort points and validate
                         points = sort_clockwise(points).tolist()
                         if not Polygon(points).is_valid:
-                            print(f'Warning {img_path.name}: skipping invalid polygon {points}')
+                            print(f"Warning {img_path.name}: skipping invalid polygon {points}")
                             continue
 
-                        label.append({
-                            "transcription": line[8],
-                            "points": points
-                        })
+                        label.append({"transcription": line[8], "points": points})
 
                 out_file.write(img_path + "\t" + json.dumps(label, ensure_ascii=False) + "\n")
 

@@ -5,7 +5,8 @@ import cv2
 import numpy as np
 from PIL import Image
 
-from mindspore.dataset.vision import RandomColorAdjust as MSRandomColorAdjust, ToPIL
+from mindspore.dataset.vision import RandomColorAdjust as MSRandomColorAdjust
+from mindspore.dataset.vision import ToPIL
 
 from ...data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 
@@ -17,7 +18,8 @@ __all__ = [
     "RandomScale",
     "RandomColorAdjust",
     "RandomRotate",
-    "RandomHorizontalFlip"]
+    "RandomHorizontalFlip",
+]
 
 
 class DecodeImage:
@@ -207,6 +209,7 @@ class RandomRotate:
                        maintain the original size (the rotated image will be cropped back to the original size).
         p: probability of the augmentation being applied to an image.
     """
+
     def __init__(self, degrees=(-10, 10), expand_canvas=True, p: float = 1.0, **kwargs):
         self._degrees = degrees
         self._canvas = expand_canvas
@@ -215,9 +218,9 @@ class RandomRotate:
     def __call__(self, data: dict) -> dict:
         if random.random() < self._p:
             angle = random.randint(self._degrees[0], self._degrees[1])
-            h, w = data['image'].shape[:2]
+            h, w = data["image"].shape[:2]
 
-            center = w // 2, h // 2   # x, y
+            center = w // 2, h // 2  # x, y
             mat = cv2.getRotationMatrix2D(center, angle, 1)
 
             if self._canvas:
@@ -229,10 +232,10 @@ class RandomRotate:
                 mat[0, 2] += (w / 2) - center[0]
                 mat[1, 2] += (h / 2) - center[1]
 
-            data['image'] = cv2.warpAffine(data['image'], mat, (w, h))
+            data["image"] = cv2.warpAffine(data["image"], mat, (w, h))
 
-            if 'polys' in data:
-                data['polys'] = cv2.transform(data['polys'], mat)
+            if "polys" in data:
+                data["polys"] = cv2.transform(data["polys"], mat)
 
         return data
 
@@ -243,17 +246,18 @@ class RandomHorizontalFlip:
     Args:
         p: probability of the augmentation being applied to an image.
     """
+
     def __init__(self, p: float = 0.5, **kwargs):
         self._p = p
 
     def __call__(self, data: dict) -> dict:
         if random.random() < self._p:
-            data['image'] = cv2.flip(data['image'], 1)
+            data["image"] = cv2.flip(data["image"], 1)
 
-            if 'polys' in data:
-                mat = np.float32([[-1, 0, data['image'].shape[1] - 1], [0, 1, 0]])
-                data['polys'] = cv2.transform(data['polys'], mat)
+            if "polys" in data:
+                mat = np.float32([[-1, 0, data["image"].shape[1] - 1], [0, 1, 0]])
+                data["polys"] = cv2.transform(data["polys"], mat)
                 # TODO: assign a new starting point located in the top left
-                data['polys'] = data['polys'][:, ::-1, :]   # preserve the original order (e.g. clockwise)
+                data["polys"] = data["polys"][:, ::-1, :]  # preserve the original order (e.g. clockwise)
 
         return data

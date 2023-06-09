@@ -2,8 +2,8 @@ import json
 from pathlib import Path
 
 import cv2
-from tqdm import tqdm
 from shapely.geometry import Polygon
+from tqdm import tqdm
 
 from mindocr.data.utils.polygon_utils import sort_clockwise
 
@@ -49,26 +49,22 @@ class MLT2017_Converter:
                         # sort points and validate
                         points = sort_clockwise(points).tolist()
                         if not Polygon(points).is_valid:
-                            print(f'Warning {img_path.name}: skipping invalid polygon {points}')
+                            print(f"Warning {img_path.name}: skipping invalid polygon {points}")
                             continue
 
-                        label.append({
-                            'language': line[8],
-                            'transcription': line[9],
-                            'points': points
-                        })
+                        label.append({"language": line[8], "transcription": line[9], "points": points})
 
                 # gif is animation not an image, save it as an image
-                if img_path.suffix.lower() == '.gif':
-                    new_path = image_dir / (img_path.stem + '.png')
-                    if not new_path.exists():   # if was not converted previously
+                if img_path.suffix.lower() == ".gif":
+                    new_path = image_dir / (img_path.stem + ".png")
+                    if not new_path.exists():  # if was not converted previously
                         cap = cv2.VideoCapture(str(img_path))
                         _, image = cap.read()
                         cap.release()
 
                         cv2.imwrite(str(new_path), image)
                         img_path = new_path
-                    else:                       # skip .gif image since converted .png already exists in the folder
+                    else:  # skip .gif image since converted .png already exists in the folder
                         continue
 
                 img_path = img_path.name if self._relative else str(img_path)

@@ -212,6 +212,8 @@ class RandomCropWithMask:
 #  RuntimeWarning: invalid value encountered in sqrt result = np.sqrt(a_sq * b_sq * sin_sq / c_sq)
 #  RuntimeWarning: invalid value encountered in true_divide cos = (a_sq + b_sq - c_sq) / (2 * np.sqrt(a_sq * b_sq))
 warnings.filterwarnings("ignore")
+
+
 class BorderMap:
     def __init__(self, shrink_ratio=0.4, thresh_min=0.3, thresh_max=0.7, **kwargs):
         self._thresh_min = thresh_min
@@ -256,7 +258,7 @@ class BorderMap:
             1
             - distance_map[
                 min_valid[1] - min_vals[1] : max_valid[1] - max_vals[1] + height,
-                min_valid[0] - min_vals[0] : max_valid[0] - max_vals[0] + width
+                min_valid[0] - min_vals[0] : max_valid[0] - max_vals[0] + width,
             ],
             border[min_valid[1] : max_valid[1] + 1, min_valid[0] : max_valid[0] + 1],
         )
@@ -363,7 +365,7 @@ class DetResize:
         force_divisable=True,
         divisor=32,
         interpolation=cv2.INTER_LINEAR,
-        **kwargs
+        **kwargs,
     ):
         if target_size is not None:
             limit_type = None

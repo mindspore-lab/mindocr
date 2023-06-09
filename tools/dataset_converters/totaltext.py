@@ -41,8 +41,9 @@ class TOTALTEXT_Converter:
                 img_path = os.path.join(image_dir, label_file_name.split("_")[-1].split(".")[0] + ".jpg")
                 if not os.path.exists(img_path):
                     img_path = img_path.replace(".jpg", ".JPG")
-                assert os.path.exists(img_path), \
-                    f"{img_path} not exist! Please check the input image_dir {image_dir} and names in {label_fp}"
+                assert os.path.exists(
+                    img_path
+                ), f"{img_path} not exist! Please check the input image_dir {image_dir} and names in {label_fp}"
 
                 label = []
                 if self.path_mode == "relative":
@@ -74,8 +75,8 @@ class TOTALTEXT_Converter:
                             transcriptions = transcriptions[1:]
                         transcriptions = transcriptions.replace("'", "")
 
-                        if transcriptions == '#':
-                            transcriptions = '###'  # unify ignore labels with the rest of the project
+                        if transcriptions == "#":
+                            transcriptions = "###"  # unify ignore labels with the rest of the project
 
                         s = []
                         for x, y in zip(xs, ys):
@@ -84,11 +85,11 @@ class TOTALTEXT_Converter:
                                 s.append(b)
 
                         if len(s) < 3:
-                            print(f'Warning {img_path}: skipping invalid polygon {s}')
+                            print(f"Warning {img_path}: skipping invalid polygon {s}")
                             continue
 
                         poly = Polygon(s)
-                        if not poly.is_valid:           # fix broken polygons
+                        if not poly.is_valid:  # fix broken polygons
                             s = sort_clockwise(s).tolist()
                         elif not poly.exterior.is_ccw:  # sort vertices in polygons in clockwise order
                             s = s[::-1]
