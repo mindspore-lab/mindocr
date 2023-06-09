@@ -7,7 +7,7 @@ import cv2
 mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../../.."))
 sys.path.insert(0, mindocr_path)
 
-from mindocr.data.transforms import det_transforms
+from mindocr.data.transforms import det_transforms  # noqa
 
 __all__ = ["DetResize", "ScalePadImage"]
 
@@ -17,8 +17,8 @@ class DetResize(det_transforms.DetResize):
     def __init__(self, keep_ratio=True, padding=True, interpolation=cv2.INTER_LINEAR, **kwargs):
         if keep_ratio and (not padding):
             print(
-                "WARNING: output shape can be dynamic if keep_ratio but no padding, "
-                "but inference don't support dynamic shape, so padding is reset to True."
+                "WARNING: output shape can be dynamic if keep_ratio but no padding for DetResize, "
+                "but inference doesn't support dynamic shape, so padding is reset to True."
             )
             padding = True
 
