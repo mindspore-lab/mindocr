@@ -24,7 +24,7 @@ def get_args():
     parser.add_argument(
         "--backend",
         type=str.lower,
-        default="acl",
+        default="lite",
         required=False,
         choices=["acl", "lite"],
         help="Inference backend type.",
@@ -39,7 +39,7 @@ def get_args():
         help="Number of parallel in each stage of pipeline parallelism.",
     )
     parser.add_argument(
-        "--precision_mode", type=str, default="fp32", choices=["fp16", "fp32"], required=False, help="Precision mode."
+        "--precision_mode", type=str, default=None, choices=["fp16", "fp32"], required=False, help="Precision mode."
     )
 
     parser.add_argument("--det_model_path", type=str, required=False, help="Detection model file path.")

@@ -11,13 +11,17 @@ graph LR;
     ckpt --> |export| MindIR --> |"converter_lite(offline conversion)"| o[MindIR];
 ```
 
-Please prepare the model file first. You can [export](../../../configs/README.md) MindIR from the trained ckpt file, or directly download the pre-exported MindIR from the [model list](models_list_en.md).
-And then run the `converter_lite` command to convert the ckpt trained model to a MindIR offline model.
+#### 1.1 Model Export
 
-The tutorial for the `converter_lite` command can refer to [Offline Conversion of Inference Models](https://www.mindspore.cn/lite/docs/en/r2.0/use/cloud_infer/converter_tool.html).
-The corresponding conversion parameters in the model list can be found in [Model Conversion Parameters](./convert_parameter_list_en.md).
+Before inference, it is necessary to [export](../../../configs/README.md) the trained ckpt to a MindIR file, which stores the model structure and weight parameters.
 
-#### 1.1 Model Conversion
+Some models provide download links for MIndIR export files, as shown in [Model List](./models_list_en.md). You can jump to the corresponding model introduction page for download.
+
+#### 1.2 Model Conversion
+
+You need to use the `converter_lite` tool to convert the above exported MindIR file offline so that it can be used for MindSpore Lite inference.
+
+The tutorial for the `converter_lite` command can be referred to [Offline Conversion of Inference Models](https://www.mindspore.cn/lite/docs/en/r2.0/use/cloud_infer/converter_tool.html).
 
 Assuming the input model is input.mindir and the output model after `converter_lite` conversion is output.mindir, the conversion command is as follows:
 
@@ -32,42 +36,31 @@ converter_lite \
     --configFile=config.txt
 ```
 
-The content of config.txt is as follows:
+Among them, `config.txt` can be used to set the shape and inference precision of the conversion model.
+
+##### 1.2.1 Model Shape Setting
+
+- **Static Shape**
+
+If the input name of the exported model is `x`, and the input shape is `(1,3,736,1280)`, then the `config.txt` is as follows:
 
 ```
- [ascend_context]
- input_format=NCHW
- input_shape=x:[1,3,736,1280]
+[ascend_context]
+input_format=NCHW
+input_shape=x:[1,3,736,1280]
 ```
 
-The `input_shape` in config.txt needs to be replaced with the corresponding values during model export. During inference, the input image will be resized to `input_shape` to meet input requirements.
+The generated output.mindir is a static shape version, and the input image during inference needs to be resized to this input_shape to meet the input requirements.
 
-
-#### 1.2 Model Shape Scaling
-
-In some inference scenarios, such as detecting a target and then executing the target recognition network, the number and size of targets is not fixed resulting.
-If each inference is computed at the maximum Batch Size or maximum Image Size, it will result in wasted computational resources.
-
-Therefore, it needs to support dynamic batch size and dynamic image size scenarios during inference. Lite is implemented by configuring the `dynamic_dims` parameters in `[ascend_context]` through `--configFile`.
-
-Please refer to the [Dynamic Shape Configuration](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool_ascend.html#dynamic-shape-configuration) for details.
-Hereafter we will refer to it as Model Shape Scaling for short.
+In some inference scenarios, such as detecting a target and then executing the target recognition network, the number and size of targets is not fixed resulting. If each inference is computed at the maximum Batch Size or maximum Image Size, it will result in wasted computational resources.
 
 Assuming the exported model input shape is (-1, 3, -1, -1), and the NHW axes are dynamic. Therefore, some optional values can be set during model conversion to adapt to input images of various size during inference.
 
-So, there are three options for conversion, by setting different config.txt:
+`converter_lite` achieves this by setting the `dynamic_dims` parameter in `[ascend_context]` through `--configFile`. Please refer to the [Dynamic Shape Configuration](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool_ascend.html#dynamic-shape-configuration) for details. We will refer to it as **Model Shape Scaling** for short.
 
-(1) Static Shape
+So, there are two options for conversion, by setting different config.txt:
 
-NHW uses fixed values, the config.txt is as follows:
-
-```
- [ascend_context]
- input_format=NCHW
- input_shape=x:[1,3,736,1280]
-```
-
-(2) Dynamic Image Size
+- **Dynamic Image Size**
 
 N uses fixed values, HW uses multiple optional values, the config.txt is as follows:
 
@@ -78,7 +71,7 @@ N uses fixed values, HW uses multiple optional values, the config.txt is as foll
  dynamic_dims=[736,1280],[768,1280],[896,1280],[1024,1280]
 ```
 
-(3) Dynamic Batch Size
+- **Dynamic Batch Size**
 
 N uses multiple optional values, HW uses fixed values, the config.txt is as follows:
 
@@ -93,8 +86,26 @@ When converting the dynamic batch size/image size model, the option of NHW value
 
 If your model needs to support both dynamic batch size and dynamic image size togather, you can combine multiple models with different batch size, each using the same dynamic image size.
 
-In order to simplify the model conversion process, we have developed an automatic tool that can complete the dynamic value selection and model conversion.
-For detailed tutorials, please refer to [Model Shape Scaling](./convert_dynamic_en.md).
+In order to simplify the model conversion process, we have developed an automatic tool that can complete the dynamic value selection and model conversion. For detailed tutorials, please refer to [Model Shape Scaling](./convert_dynamic_en.md).
+
+**Notes:**
+
+If the exported model is a static shape version, it cannot support dynamic image size and batch size conversion. It is necessary to ensure that the exported model is a dynamic shape version.
+
+##### 1.2.2 Model Precision Mode Setting
+
+For the precision of model inference, it is necessary to set it in `converter_lite` when converting the model.
+Please refer to the [Ascend Conversion Tool Description](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool_ascend.html#configuration-file), the usage of `precision_mode` parameter is described in the table of the configuration file, you can choose `enforce_fp16`, `enforce_fp32`, `preferred_fp32` and `enforce_origin` etc.
+So, you can add the `precision_mode` parameter in the `[Ascend_context]` of the above config.txt file to set the precision mode:
+
+```
+[ascend_context]
+input_format=NCHW
+input_shape=x:[1,3,736,1280]
+precision_mode=enforce_fp32
+```
+
+If not set, defaults to `enforce_fp16`.
 
 ### 2. PaddleOCR models
 
@@ -108,8 +119,6 @@ graph LR;
     ONNX -- atc --> o1(OM);
     ONNX -- converter_lite --> o2(MindIR);
 ```
-
-The corresponding conversion parameters in the model list can be found in [Model Conversion Parameters](./convert_parameter_list_en.md).
 
 #### 2.1 Trained -> Inference model
 
@@ -153,18 +162,15 @@ or found in the code in [tools/export_model. py](https://github.com/PaddlePaddle
 
 The ONNX model can be converted into an OM model by ATC tools.
 
-Ascend Tensor Compiler (ATC) is a model conversion tool built upon the heterogeneous computing architecture CANN.
-It is designed to convert models of open-source frameworks into .om offline models supported by Ascend AI Processor.
-A detailed tutorial on the tool can be found in [ATC Instructions](https://www.hiascend.com/document/detail/en/CANNCommunityEdition/600alphaX/infacldevg/atctool/atctool_0001.html).
+Ascend Tensor Compiler (ATC) is a model conversion tool built upon the heterogeneous computing architecture CANN. It is designed to convert models of open-source frameworks into .om offline models supported by Ascend AI Processor. A detailed tutorial on the tool can be found in [ATC Instructions](https://www.hiascend.com/document/detail/en/CANNCommunityEdition/600alphaX/infacldevg/atctool/atctool_0001.html).
 
-The exported ONNX in the example has an input Shape of (-1, 3, -1, -1), and the NHW axes are dynamic.
-Therefore, some optional values can be set during model conversion to adapt to input images of various size during inference.
+##### 2.3.1 Model Shape Setting
 
-So, there are three options for conversion:
+The exported ONNX in the example has an input shape of (-1, 3, -1, -1).
 
-(1) Static Shape
+- **Static Shape**
 
-NHW uses fixed values, the command is as follows:
+It can be converted to a static shape version by fixed values for NHW, the command is as follows:
 
 ```shell
 atc --model=det_db.onnx \
@@ -176,7 +182,13 @@ atc --model=det_db.onnx \
 	--log=error
 ```
 
-(2) Dynamic Image Size
+The generated file is a static shape version, and the input image during inference needs to be resized to this input_shape to meet the input requirements.
+
+The ATC tool also supports **Model Shape Scaling** by parameter [dynamic_dims](https://www.hiascend.com/document/detail/en/CANNCommunityEdition/600alphaX/infacldevg/atctool/atctool_0056.html), and some optional values can be set during model conversion to adapt to input images of various shape during inference.
+
+So, there are two options for conversion, by setting different command line parameters:
+
+- **Dynamic Image Size**
 
 N uses fixed values, HW uses multiple optional values, the command is as follows:
 
@@ -191,7 +203,7 @@ atc --model=det_db.onnx \
 	--log=error
 ```
 
-(3) Dynamic Batch Size
+- **Dynamic Batch Size**
 
 N uses multiple optional values, HW uses fixed values, the command is as follows:
 
@@ -210,10 +222,32 @@ When converting the dynamic batch size/image size model, the option of NHW value
 
 If your model needs to support both dynamic batch size and dynamic image size togather, you can combine multiple models with different batch size, each using the same dynamic image size.
 
-In order to simplify the model conversion process, we have developed an automatic tool that can complete the dynamic value selection and model conversion.
-For detailed tutorials, please refer to [Model Shape Scaling](./convert_dynamic_en.md).
+In order to simplify the model conversion process, we have developed an automatic tool that can complete the dynamic value selection and model conversion. For detailed tutorials, please refer to [Model Shape Scaling](./convert_dynamic_en.md).
 
-#### 2.3 ONNX -> MindIR
+**Notes:**
+
+If the exported model is a static shape version, it cannot support dynamic image size and batch size conversion. It is necessary to ensure that the exported model is a dynamic shape version.
+
+##### 2.3.2 Model Precision Mode Setting
+
+For the precision of model inference, it is necessary to set it in `atc` when converting the model.
+Please refer to the [Command-Line Options](https://www.hiascend.com/document/detail/en/CANNCommunityEdition/600alphaX/infacldevg/atctool/atctool_0041.html). Optional values include `force_fp16`, `force_fp32`, `allow_fp32_to_fp16`, `must_keep_origin_dtype`, `allow_mix_precision`, etc.
+So, you can add the `precision_mode` parameter in the `atc` command line to set the precision:
+
+```
+atc --model=det_db.onnx \
+	--framework=5 \
+	--input_shape="x:1,3,736,1280" \
+	--input_format=ND \
+	--precision_mode=force_fp32 \
+	--soc_version=Ascend310P3 \
+	--output=det_db_static \
+	--log=error
+```
+
+If not set, defaults to `force_fp16`.
+
+#### 2.4 ONNX -> MindIR
 
 The `converter_lite` can be used to convert the ONNX into a MindIR. For detailed usage tutorials,
 please refer to [Offline Conversion of Inference Models](https://www.mindspore.cn/lite/docs/en/r2.0/use/cloud_infer/converter_tool.html)。
@@ -262,4 +296,4 @@ Please refer to [ONNX -> OM](#23-onnx---om) in the PaddleOCR section above.
 
 #### 3.3 ONNX -> MindIR
 
-Please refer to [ONNX -> MIndIR](#23-onnx---mindir) in the PaddleOCR section above.
+Please refer to [ONNX -> MIndIR](#24-onnx---mindir) in the PaddleOCR section above.

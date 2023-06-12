@@ -143,9 +143,9 @@ Enter the inference directory：`cd deploy/py_infer`.
 | input_images_dir | str  | None    | Directory containing multiple images or path of single image. |
 | device           | str  | Ascend  | Device type, support Ascend                                   |
 | device_id        | int  | 0       | Device id                                                     |
-| backend          | str  | acl     | Inference backend, support acl, lite                          |
+| backend          | str  | lite    | Inference backend, support acl, lite                          |
 | parallel_num     | int  | 1       | Number of parallel in each stage of pipeline parallelism      |
-| precision_mode   | str  | fp32    | Precision mode, support fp16, fp32                            |
+| precision_mode   | str  | None    | Precision mode, only supports setting by [Model Conversion](./convert_tutorial_en.md) currently, and it takes no effect here |
 
 - Saving Result
 
