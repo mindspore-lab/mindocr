@@ -22,13 +22,19 @@ __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../..")))
 
 
+from casia10k import CASIA10K_Converter
 from cocotext import COCOTEXT_Converter
 from ctw import CTW_Converter
 from ctw1500 import CTW1500_Converter
 from ic15 import IC15_Converter
 from ic19_art import IC19_ART_Converter
+from lsvt import LSVT_Converter
 from mlt2017 import MLT2017_Converter
+from mlt2019 import MLT2019_Converter
+from mtwi2018 import MTWI2018_Converter
+from rctw17 import RCTW17_Converter
 from rects import RECTS_Converter
+from sroie import SROIE_Converter
 from svt import SVT_Converter
 from syntext150k import SYNTEXT150K_Converter
 from synthadd import SYNTHADD_Converter
@@ -38,9 +44,14 @@ from textocr import TEXTOCR_Converter
 from totaltext import TOTALTEXT_Converter
 
 supported_datasets = [
+    "casia10k",
     "ic15",
     "totaltext",
+    "lsvt",
     "mlt2017",
+    "mlt2019",
+    "mtwi2018",
+    "sroie",
     "syntext150k",
     "svt",
     "td500",
@@ -49,6 +60,7 @@ supported_datasets = [
     "synthadd",
     "ctw",
     "textocr",
+    "rctw17",
     "rects",
     "ic19_art",
     "cocotext",
