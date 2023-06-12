@@ -17,6 +17,14 @@ Example:
 import argparse
 import os
 
+from ctw1500 import CTW1500_Converter
+from ic15 import IC15_Converter
+from mlt2017 import MLT2017_Converter
+from svt import SVT_Converter
+from syntext150k import SYNTEXT150K_Converter
+from td500 import TD500_Converter
+from totaltext import TOTALTEXT_Converter
+
 supported_datasets = ["ic15", "totaltext", "mlt2017", "syntext150k", "svt", "td500", "ctw1500"]
 
 
