@@ -1,6 +1,7 @@
 __all__ = ["build_loss"]
 
-supported_losses = ["L1BalancedCELoss", "CTCLoss", "AttentionLoss", "PSEDiceLoss", "EASTLoss"]
+supported_losses = ["L1BalancedCELoss", "CTCLoss", "AttentionLoss", "PSEDiceLoss", "EASTLoss", "CrossEntropySmooth"]
+from .cls_loss import CrossEntropySmooth
 from .det_loss import EASTLoss, L1BalancedCELoss, PSEDiceLoss
 from .rec_loss import AttentionLoss, CTCLoss
 

@@ -9,7 +9,7 @@ __all__ = ["EASTProcessTrain"]
 
 
 class EASTProcessTrain:
-    def __init__(self, scale=0.25, length=512):
+    def __init__(self, scale=0.25, length=512, **kwargs):
         super(EASTProcessTrain, self).__init__()
         self.scale = scale
         self.length = length

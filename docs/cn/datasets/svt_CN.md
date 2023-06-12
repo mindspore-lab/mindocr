@@ -36,3 +36,5 @@ python tools/dataset_converters/convert.py \
 ```
 
 运行后，在文件夹 `svt1/` 下有一个文件夹 `cropped_images/` 和一个注释文件 `rec_train_gt.txt`。
+
+[返回](../../../tools/dataset_converters/README_CN.md)

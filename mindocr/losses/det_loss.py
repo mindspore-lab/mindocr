@@ -346,12 +346,13 @@ class EASTLoss(nn.LossBase):
         self.abs = ops.Abs()
 
     def construct(self, pred, score_map, geo_map, training_mask):
+        pred_score, pred_geo = pred
         ans = self.sum(score_map)
-        classification_loss = self.dice(score_map, pred["score"] * (1 - training_mask))
+        classification_loss = self.dice(score_map, pred_score * (1 - training_mask))
 
         # n * 5 * h * w
         d1_gt, d2_gt, d3_gt, d4_gt, theta_gt = self.split(geo_map)
-        d1_pred, d2_pred, d3_pred, d4_pred, theta_pred = self.split(pred["geo"])
+        d1_pred, d2_pred, d3_pred, d4_pred, theta_pred = self.split(pred_geo)
         area_gt = (d1_gt + d3_gt) * (d2_gt + d4_gt)
         area_pred = (d1_pred + d3_pred) * (d2_pred + d4_pred)
         w_union = self._min(d2_gt, d2_pred) + self._min(d4_gt, d4_pred)

@@ -65,9 +65,8 @@ class EASTHead(nn.Cell):
         x3 = self.branch3_det_relu2(self.branch3_det_bn2(self.branch3_det_conv2(x3)))
 
         score = self.sigmoid1(self.conv1(x1))
-        pred = {'score': score}
         loc = self.sigmoid2(self.conv2(x2)) * self.scope
         angle = (self.sigmoid3(self.conv3(x3)) - 0.5) * self.PI
         geo = self.concat((loc, angle))
-        pred['geo'] = geo
+        pred = (score, geo)
         return pred

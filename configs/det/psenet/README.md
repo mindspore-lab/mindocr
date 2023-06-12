@@ -32,10 +32,19 @@ The overall architecture of PSENet is presented in Figure 1. It consists of mult
 | PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 79.39%     | 84.91%        | 82.06%      | 138 s/epoch   | 7.57 img/s | [yaml](pse_r152_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)
 </div>
 
+### SCUT-CTW1500
+<div align="center">
+
+| **Model**              | **Context**       | **Backbone**      | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.**     | **Throughput**   | **Recipe**                            | **Download**                                                                                                                                                                                                |
+|---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-----------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 73.69%     | 74.38%        | 74.04%      | 67 s/epoch   | 14.33 img/s | [yaml](pse_r152_ctw1500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ctw1500-58b1b1ff.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ctw1500-58b1b1ff-b95c7f85.mindir)
+</div>
+
 #### Notes：
 - Context：Training context denoted as {device}x{pieces}-{MS version}{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
 - The training time of PSENet is highly affected by data processing and varies on different machines.
-- The input_shape for exported MindIR in the link is `(1,3,1472,2624)`.
+- On the ICDAR2015 dataset, the input_shape for exported MindIR in the link is `(1,3,1472,2624)`.
+- On the SCUT-CTW1500 dataset, the input_shape for exported MindIR in the link is `(1,3,1024,1024)`.
 
 ## 3. Quick Start
 
@@ -65,6 +74,26 @@ The prepared dataset file struture should be:
     │   ├── img_2.jpg
     │   └── ....jpg
     └── train_det_gt.txt
+```
+
+#### 3.2.2 SCUT-CTW1500 dataset
+
+Please download [SCUT-CTW1500](https://github.com/Yuliang-Liu/Curve-Text-Detector) dataset and convert the labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
+
+The prepared dataset file struture should be:
+
+```txt
+ctw1500
+ ├── test_images
+ │   ├── 1001.jpg
+ │   ├── 1002.jpg
+ │   ├── ...
+ ├── train_images
+ │   ├── 0001.jpg
+ │   ├── 0002.jpg
+ │   ├── ...
+ ├── test_det_gt.txt
+ ├── train_det_gt.tx
 ```
 
 ### 3.3 Update yaml config file

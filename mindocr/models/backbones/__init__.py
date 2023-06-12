@@ -4,6 +4,7 @@ from ._registry import *
 
 # helpers
 from .builder import *
+from .cls_mobilenet_v3 import *
 from .det_mobilenet import *
 from .det_resnet import *
 from .rec_resnet import *

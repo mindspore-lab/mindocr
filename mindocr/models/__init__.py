@@ -1,6 +1,7 @@
 from . import _registry, builder
 from ._registry import *
 from .builder import *
+from .cls_mv3 import *
 from .det_dbnet import *
 from .det_east import *
 from .det_psenet import *
