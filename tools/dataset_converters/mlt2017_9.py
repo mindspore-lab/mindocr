@@ -25,6 +25,7 @@ class MLT2017_Converter:
     """
 
     def __init__(self, path_mode="relative", **kwargs):
+        self._suffix = 'gt_'
         self._relative = path_mode == "relative"
 
     def convert(self, task="det", image_dir=None, label_path=None, output_path=None):
@@ -41,7 +42,7 @@ class MLT2017_Converter:
             images = sorted(image_dir.iterdir(), key=lambda path: int(path.stem.split("_")[-1]))  # sort by image id
             for img_path in tqdm(images, total=len(images)):
                 label = []
-                with open(label_path / ("gt_" + img_path.stem + ".txt"), "r", encoding="utf-8") as f:
+                with open(label_path / (self._suffix + img_path.stem + ".txt"), "r", encoding="utf-8") as f:
                     for line in f.read().splitlines():
                         line = line.split(",", 9)  # split the line by first 9 commas: 8 points + language
 
@@ -83,3 +84,9 @@ class MLT2017_Converter:
                     label = label[sep_index + 1 :].strip().replace('"', "")
 
                     outf.write(img_path + "\t" + language + "\t" + label + "\n")
+
+
+class MLT2019_Converter(MLT2017_Converter):
+    def __init__(self, path_mode="relative", **kwargs):
+        super().__init__(path_mode, **kwargs)
+        self._suffix = ''
