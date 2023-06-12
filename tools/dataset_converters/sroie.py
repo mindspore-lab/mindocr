@@ -30,31 +30,29 @@ class SROIE_Converter(object):
             for label_fp in label_paths:
                 label_file_name = os.path.basename(label_fp)
                 img_path = os.path.join(image_dir, label_file_name.split(".")[0] + ".jpg")
+
                 if not os.path.exists(img_path):
-                    print(f"warning {img_path} not exist! Please check the input image_dir {image_dir} and names in {label_fp}")
+                    print(f"Warning: {os.path.basename(img_path)} not found")
                     continue
-                label = []
+
                 if self.path_mode == "relative":
                     img_path = os.path.basename(img_path)
+
+                label = []
                 with open(label_fp, "r", encoding="gbk") as f:
                     for line in f.readlines():
-                        tmp = line.strip("\n\r").split(",")
-                        if len(tmp) == 1:
+                        tmp = line.strip("\n\r").split(",", 8)
+                        if len(tmp) == 1:   # skip empty lines
                             continue
-                        points = [[int(tmp[i]), int(tmp[i + 1])] for i in range(0, 8, 2)]
 
-                        if not Polygon(points).exterior.is_ccw:  # sort vertices in polygons in clockwise order
-                            points = points[::-1]
-                        transcription = tmp[8:]
-                        if len(transcription) != 1:
-                            transcription = ",".join(transcription)
-                        else:
-                            transcription = transcription[0]
-                        if transcription == "***":
-                            transcription = "###"
-                        result = {"transcription": transcription, "points": points}
-                        label.append(result)
+                        points = [[int(tmp[i]), int(tmp[i + 1])] for i in range(0, 8, 2)]
+                        if not Polygon(points).is_valid:
+                            print(f"Warning {os.path.basename(img_path)}: skipping invalid polygon {points}")
+                            continue
+
+                        label.append({"transcription": tmp[8] if tmp[8] != "***" else "###", "points": points})
 
                 out_file.write(img_path + "\t" + json.dumps(label, ensure_ascii=False) + "\n")
                 processed += 1
-            print(f"processed {processed} images.")
+
+        print(f"Processed {processed} images.")

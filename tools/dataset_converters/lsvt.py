@@ -31,10 +31,6 @@ class LSVT_Converter:
 
                 label = []
                 for item in image_info:
-                    if len(item["points"]) < 3:
-                        print(f"Warning {img_path.name}: skipping invalid polygon {item['points']}")
-                        continue
-
                     if not Polygon(item["points"]).is_valid:
                         # TODO: a better way to fix invalid polygons?
                         print(f"Warning {img_path.name}: invalid polygon. Fixing it with convex hull.")

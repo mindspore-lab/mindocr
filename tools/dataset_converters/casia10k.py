@@ -2,7 +2,9 @@ import glob
 import json
 import os
 
-from shapely.geometry import Polygon
+from tqdm import tqdm
+
+from mindocr.data.utils.polygon_utils import sort_clockwise
 
 
 class CASIA10K_Converter(object):
@@ -25,9 +27,8 @@ class CASIA10K_Converter(object):
     def _format_det_label(self, image_dir, label_dir, output_path):
         label_paths = sorted(glob.glob(os.path.join(label_dir, "*.txt")))
 
-        processed = 0
         with open(output_path, "w") as out_file:
-            for label_fp in label_paths:
+            for label_fp in tqdm(label_paths):
                 label_file_name = os.path.basename(label_fp)
                 img_path = os.path.join(image_dir, label_file_name.split(".")[0] + ".jpg")
                 assert os.path.exists(
@@ -38,19 +39,11 @@ class CASIA10K_Converter(object):
                     img_path = os.path.basename(img_path)
                 with open(label_fp, "r", encoding="gbk", errors="ignore") as f:
                     for line in f.readlines():
-                        tmp = line.strip("\n\r").split(",")
-                        points = [[int(tmp[i]), int(tmp[i + 1])] for i in range(0, 8, 2)]
+                        tmp = line.strip("\n\r").split(",", 8)
 
-                        if not Polygon(points).exterior.is_ccw:  # sort vertices in polygons in clockwise order
-                            points = points[::-1]
-                        transcription = tmp[8:]
-                        if len(transcription) != 1:
-                            transcription = ",".join(transcription)
-                        else:
-                            transcription = transcription[0]
-                        result = {"transcription": transcription, "points": points}
-                        label.append(result)
+                        points = [[int(tmp[i]), int(tmp[i + 1])] for i in range(0, 8, 2)]
+                        points = sort_clockwise(points).tolist()
+
+                        label.append({"transcription": tmp[8], "points": points})
 
                 out_file.write(img_path + "\t" + json.dumps(label, ensure_ascii=False) + "\n")
-                processed += 1
-            print(f"processed {processed} images.")
