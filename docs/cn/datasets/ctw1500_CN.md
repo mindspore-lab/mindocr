@@ -51,3 +51,5 @@ python tools/dataset_converters/convert.py \
 ```
 
 运行后，在文件夹 `ctw1500/` 下有两个注释文件 `train_det_gt.txt` 和 `test_det_gt.txt`。
+
+[返回](../../../tools/dataset_converters/README_CN.md)
