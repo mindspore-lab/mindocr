@@ -32,11 +32,11 @@ MindOCR除了支持自身训练端导出模型的推理外，还支持第三方�
   	--input_images_dir=/path/to/images \
   	--backend=lite \
   	--det_model_path=/path/to/mindir/dbnet_resnet50.mindir \
-  	--det_model_name=en_ms_det_dbnet_resnet50 \
+  	--det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
   	--cls_model_path=/path/to/mindir/cls_mv3.mindir \
-  	--cls_model_name=ch_pp_mobile_cls_v2.0 \
+  	--cls_model_name_or_config=ch_pp_mobile_cls_v2.0 \
   	--rec_model_path=/path/to/mindir/crnn_resnet34.mindir \
-  	--rec_model_name=en_ms_rec_crnn_resnet34 \
+  	--rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
   	--res_save_dir=det_cls_rec
   ```
 
@@ -55,9 +55,9 @@ MindOCR除了支持自身训练端导出模型的推理外，还支持第三方�
   	--input_images_dir=/path/to/images \
   	--backend=lite \
   	--det_model_path=/path/to/mindir/dbnet_resnet50.mindir \
-  	--det_model_name=en_ms_det_dbnet_resnet50 \
+  	--det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
   	--rec_model_path=/path/to/mindir/crnn_resnet34.mindir \
-  	--rec_model_name=en_ms_rec_crnn_resnet34 \
+  	--rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
   	--res_save_dir=det_rec
   ```
 
@@ -76,7 +76,7 @@ MindOCR除了支持自身训练端导出模型的推理外，还支持第三方�
   	--input_images_dir=/path/to/images \
   	--backend=lite \
   	--det_model_path=/path/to/mindir/dbnet_resnet50.mindir \
-  	--det_model_name=en_ms_det_dbnet_resnet50 \
+  	--det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
   	--res_save_dir=det
   ```
 
@@ -91,11 +91,12 @@ MindOCR除了支持自身训练端导出模型的推理外，还支持第三方�
   可以单独运行文本方向分类
 
   ```shell
+  # cls_mv3.mindir is converted from ppocr
   python infer.py \
   	--input_images_dir=/path/to/images \
   	--backend=lite \
   	--cls_model_path=/path/to/mindir/cls_mv3.mindir \
-  	--cls_model_name=ch_pp_mobile_cls_v2.0 \
+  	--cls_model_name_or_config=ch_pp_mobile_cls_v2.0 \
   	--res_save_dir=cls
   ```
 
@@ -116,7 +117,7 @@ MindOCR除了支持自身训练端导出模型的推理外，还支持第三方�
   	--input_images_dir=/path/to/images \
   	--backend=lite \
   	--rec_model_path=/path/to/mindir/crnn_resnet34.mindir \
-  	--rec_model_name=en_ms_rec_crnn_resnet34 \
+  	--rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
   	--res_save_dir=rec
   ```
 
@@ -131,7 +132,6 @@ MindOCR除了支持自身训练端导出模型的推理外，还支持第三方�
 #### 4.2 详细推理参数解释
 
 - 基本设置
-
 
 | 参数名称          | 类型 | 默认值   | 含义                         |
 |:-----------------|:----|:-------|:-----------------------------|
@@ -156,35 +156,29 @@ MindOCR除了支持自身训练端导出模型的推理外，还支持第三方�
 
 - 文本检测
 
-| 参数名称         | 类型 | 默认值 | 含义                   |
-|:----------------|:----|:------|:----------------------|
-| det_model_path  | str | 无    | 文本检测模型的文件路径     |
-| det_model_name  | str | 无    | 文本检测模型的名称        |
-| det_config_path | str | 无    | 文本检测模型的配置文件路径 |
+| 参数名称                  | 类型 | 默认值 | 含义                        |
+|:-------------------------|:----|:------|:---------------------------|
+| det_model_path           | str | 无    | 文本检测模型的文件路径          |
+| det_model_name_or_config | str | 无    | 文本检测模型的名称或配置文件路径 |
 
 - 文本方向分类
 
-| 参数名称         | 类型 | 默认值 | 含义                       |
-|:----------------|:----|:------|:-------------------------|
-| cls_model_path  | str | 无    | 文本方向分类模型的文件路径     |
-| cls_model_name  | str | 无    | 文本方向分类模型的名称        |
-| cls_config_path | str | 无    | 文本方向分类模型的配置文件路径 |
+| 参数名称                  | 类型 | 默认值 | 含义                           |
+|:-------------------------|:----|:------|:------------------------------|
+| cls_model_path           | str | 无    | 文本方向分类模型的文件路径          |
+| cls_model_name_or_config | str | 无    | 文本方向分类模型的名称或配置文件路径 |
 
 - 文本识别
 
-| 参数名称             | 类型 | 默认值 | 含义                                             |
-|:--------------------|:----|:------|:------------------------------------------------|
-| rec_model_path      | str | 无    | 文本检测模型的文件路径                               |
-| rec_model_name      | str | 无    | 文本检测模型的名称                                  |
-| rec_config_path     | str | 无    | 文本检测模型的配置文件路径                           |
-| character_dict_path | str | 无    | 文本识别模型对应的词典文件路径，默认值只支持数字和英文小写 |
+| 参数名称                  | 类型 | 默认值 | 含义                                             |
+|:-------------------------|:----|:------|:------------------------------------------------|
+| rec_model_path           | str | 无    | 文本识别模型的文件路径                               |
+| rec_model_name_or_config | str | 无    | 文本识别模型的名称或配置文件路径                       |
+| character_dict_path      | str | 无    | 文本识别模型对应的词典文件路径，默认值只支持数字和英文小写 |
 
 说明：
 
-1. 对于已适配的模型，`*_model_path`、`*_model_name`和`*_config_path`是对应绑定起来的，可参考[MindOCR模型支持列表](./models_list_cn.md)和[第三方模型支持列表](./models_list_thirdparty_cn.md)，
-   其中`*_model_name`和`*_config_path`都是用来确定预/后处理参数的，在使用时选择其一即可；
-
-2. 如果需要适配自己的模型，则*_config_path传入自定义的yaml文件即可，格式请参考MindOCR模型的[configs](../../../configs)或第三方模型的[configs](../../../deploy/py_infer/src/configs)。
+  `*_model_name_or_config`可以填模型名或YAML配置文件路径，可参考[MindOCR模型支持列表](./models_list_cn.md)和[第三方模型支持列表](./models_list_thirdparty_cn.md)。
 
 ### 5. 推理 (C++)
 
@@ -302,5 +296,5 @@ MindOCR除了支持自身训练端导出模型的推理外，还支持第三方�
 
 | 参数名称             | 类型 | 默认值 | 含义                                             |
 |:--------------------|:----|:------|:------------------------------------------------|
-| rec_model_path      | str | 无    | 文本检测模型的文件路径                               |
+| rec_model_path      | str | 无    | 文本识别模型的文件路径                               |
 | character_dict_path | str | 无    | 文本识别模型对应的词典文件路径，默认值只支持数字和英文小写 |
