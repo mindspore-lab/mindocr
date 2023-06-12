@@ -1,0 +1,23 @@
+postprocess:
+  name: SASTPostprocess
+  score_thresh: 0.5
+  sample_pts_num: 2
+  nms_thresh: 0.2
+  expand_scale: 1.0
+  shrink_ratio_of_width: 0.3
+
+eval:
+  dataset:
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          to_float32: False
+      - DetResize:
+          keep_ratio: False # target_size=(640,1280) for ic15, f-score: False -> 0.8177, True -> 0.7919, ppocr -> 0.8164
+          padding: False
+      - NormalizeImage:
+          bgr_to_rgb: False
+          is_hwc: True
+          mean: [ 123.675, 116.28 , 103.53 ]
+          std: [ 58.395, 57.12 , 57.375 ]
+      - ToCHWImage:
