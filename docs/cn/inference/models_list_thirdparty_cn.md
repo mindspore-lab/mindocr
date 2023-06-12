@@ -8,10 +8,11 @@ MindOCR可以支持第三方模型的推理，本文档展示了已适配的模�
 
 其中，涉及的原始模型文件如下表：
 
-| 模型类型  | 模型格式                                 | 简介                                                                                    |
-|:---------|:---------------------------------------|:---------------------------------------------------------------------------------------|
-| pp-train | .pdparams、.pdopt、.states             | PaddlePaddle训练模型，训练过程中保存的模型的参数、优化器状态和训练中间信息，多用于模型指标评估和恢复训练 |
-| pp-infer | inference.pdmodel、inference.pdiparams | PaddlePaddle推理模型，可由其训练模型导出得到，保存了模型的结构和参数                              |
+| 模型类型  | 模型格式                                 | 简介                                                       |
+|:---------|:---------------------------------------|:----------------------------------------------------------|
+| pp-train | .pdparams、.pdopt、.states             | PaddlePaddle训练模型，可保存的模型的权重、优化器状态等信息         |
+| pp-infer | inference.pdmodel、inference.pdiparams | PaddlePaddle推理模型，可由其训练模型导出得到，保存了模型的结构和参数 |
+| pth      | .pth                                   | Pytorch模型文件，可保存的模型的结构、权重、优化器状态等信息         |
 
 ### 1. 文本检测
 
@@ -28,6 +29,8 @@ MindOCR可以支持第三方模型的推理，本文档展示了已适配的模�
 | en_pp_det_psenet_resnet50vd | PSE  | ResNet50_vd | [yaml](../../../deploy/py_infer/src/configs/det/ppocr/det_r50_vd_pse.yaml) | [pp-train](https://paddleocr.bj.bcebos.com/dygraph_v2.1/en_det/det_r50_vd_pse_v2.0_train.tar) | [PSE](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_ch/algorithm_overview.md) | PaddleOCR |
 | en_pp_det_east_resnet50vd | EAST  | ResNet50_vd | [yaml](../../../deploy/py_infer/src/configs/det/ppocr/det_r50_vd_east.yaml) | [pp-train](https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/det_r50_vd_east_v2.0_train.tar) | [EAST](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_ch/algorithm_det_east.md) | PaddleOCR |
 | en_pp_det_sast_resnet50vd | SAST  | ResNet50_vd | [yaml](../../../deploy/py_infer/src/configs/det/ppocr/det_r50_vd_sast_icdar15.yaml) | [pp-train](https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/det_r50_vd_sast_icdar15_v2.0_train.tar) | [SAST](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_ch/algorithm_det_sast.md) | PaddleOCR |
+| en_mm_det_denetpp_resnet50 | DB++  | ResNet50 | [yaml](../../../deploy/py_infer/src/configs/det/mmocr/dbnetpp_resnet50_fpnc_1200e_icdar2015.yaml) | [pth](https://download.openmmlab.com/mmocr/textdet/dbnetpp/dbnetpp_resnet50_fpnc_1200e_icdar2015/dbnetpp_resnet50_fpnc_1200e_icdar2015_20221025_185550-013730aa.pth) | [DBNetpp](https://github.com/open-mmlab/mmocr/blob/main/configs/textdet/dbnetpp/README.md) | MMOCR |
+| en_mm_det_fcenet_resnet50 | FCENet  | ResNet50 | [yaml](../../../deploy/py_infer/src/configs/det/mmocr/fcenet_resnet50_fpn_1500e_icdar2015.yaml) | [pth](https://download.openmmlab.com/mmocr/textdet/fcenet/fcenet_resnet50_fpn_1500e_icdar2015/fcenet_resnet50_fpn_1500e_icdar2015_20220826_140941-167d9042.pth) | [FCENet](https://github.com/open-mmlab/mmocr/blob/main/configs/textdet/fcenet/README.md) | MMOCR |
 
 ### 2. 文本识别
 

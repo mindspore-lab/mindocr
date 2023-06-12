@@ -1,0 +1,22 @@
+postprocess:
+  name: FCEPostprocess
+  fourier_degree: 5
+  scales: [8, 16, 32]
+  num_reconstr_points: 50
+  alpha: 1.2
+  beta: 1.0
+  score_thr: 0.3
+
+
+eval:
+  dataset:
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: RGB
+          channel_first: False
+      - DetResizeNormForInfer:
+          keep_ratio: True
+          norm_before_pad: True
+          mean: [ 123.675, 116.28 , 103.53 ]
+          std: [ 58.395, 57.12 , 57.375 ]
+      - ToCHWImage:
