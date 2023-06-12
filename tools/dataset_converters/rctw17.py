@@ -4,6 +4,8 @@ import os
 
 from shapely.geometry import Polygon
 
+from mindocr.data.utils.polygon_utils import sort_clockwise
+
 
 class RCTW17_Converter(object):
     """
@@ -38,21 +40,19 @@ class RCTW17_Converter(object):
                     img_path = os.path.basename(img_path)
                 with open(label_fp, "r", encoding="utf-8-sig") as f:
                     for line in f.readlines():
-                        tmp = line.strip("\n\r").split(",")
-                        points = [[int(tmp[i]), int(tmp[i + 1])] for i in range(0, 8, 2)]
+                        tmp = line.strip("\n\r").split(",", 9)
 
-                        if not Polygon(points).exterior.is_ccw:  # sort vertices in polygons in clockwise order
-                            points = points[::-1]
-                        transcription = tmp[9:]
-                        if len(transcription) != 1:
-                            transcription = ",".join(transcription).strip('"')
-                        else:
-                            transcription = transcription[0].strip('"')
-                        if tmp[8] == "1":
-                            transcription = "###"
-                        result = {"transcription": transcription, "points": points}
-                        label.append(result)
+                        points = [[int(tmp[i]), int(tmp[i + 1])] for i in range(0, 8, 2)]
+                        # sort points and validate
+                        points = sort_clockwise(points).tolist()
+                        if not Polygon(points).is_valid:
+                            print(f"Warning {os.path.basename(img_path)}: skipping invalid polygon {points}")
+                            continue
+
+                        transcription = tmp[9].strip('"')
+                        label.append({"transcription": transcription if tmp[8] == "0" else "###", "points": points})
 
                 out_file.write(img_path + "\t" + json.dumps(label, ensure_ascii=False) + "\n")
                 processed += 1
-            print(f"processed {processed} images.")
+
+        print(f"Processed {processed} images.")
