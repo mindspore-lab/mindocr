@@ -1,5 +1,6 @@
 __all__ = ['build_neck']
-supported_necks = ['FPN', 'DBFPN', 'RNNEncoder', 'Select', 'Img2Seq', 'PSEFPN', 'EASTFPN']
+supported_necks = ['FPN', 'DBFPN', 'RNNEncoder', 'Select', 'Img2Seq', 'PSEFPN', 'EASTFPN', 'ABINetEncoder']
+from .abinet_neck import ABINetEncoder
 from .fpn import DBFPN, EASTFPN, FPN, PSEFPN
 from .img2seq import Img2Seq
 from .rnn import RNNEncoder
