@@ -25,7 +25,7 @@ class MLT2017_Converter:
     """
 
     def __init__(self, path_mode="relative", **kwargs):
-        self._suffix = 'gt_'
+        self._suffix = "gt_"
         self._relative = path_mode == "relative"
 
     def convert(self, task="det", image_dir=None, label_path=None, output_path=None):
@@ -89,4 +89,4 @@ class MLT2017_Converter:
 class MLT2019_Converter(MLT2017_Converter):
     def __init__(self, path_mode="relative", **kwargs):
         super().__init__(path_mode, **kwargs)
-        self._suffix = ''
+        self._suffix = ""

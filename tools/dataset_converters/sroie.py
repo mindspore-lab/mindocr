@@ -35,6 +35,10 @@ class SROIE_Converter(object):
                     print(f"Warning: {os.path.basename(img_path)} not found")
                     continue
 
+                if len(os.path.basename(img_path)) == 19:
+                    print(f"Warning: {os.path.basename(img_path)} is duplicated and will be skipped")
+                    continue
+
                 if self.path_mode == "relative":
                     img_path = os.path.basename(img_path)
 
@@ -42,7 +46,7 @@ class SROIE_Converter(object):
                 with open(label_fp, "r", encoding="gbk") as f:
                     for line in f.readlines():
                         tmp = line.strip("\n\r").split(",", 8)
-                        if len(tmp) == 1:   # skip empty lines
+                        if len(tmp) == 1:  # skip empty lines
                             continue
 
                         points = [[int(tmp[i]), int(tmp[i + 1])] for i in range(0, 8, 2)]

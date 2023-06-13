@@ -37,7 +37,7 @@ class MTWI2018_Converter(object):
                 ), f"{img_path} not exist! Please check the input image_dir {image_dir} and names in {label_fp}"
 
                 if cv2.imread(img_path) is None:
-                    print(f'Failed to open {os.path.basename(img_path)} - skipping.')
+                    print(f"Failed to open {os.path.basename(img_path)} - skipping.")
                     continue
 
                 label = []
