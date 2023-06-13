@@ -2,6 +2,7 @@ import glob
 import json
 import os
 
+import cv2
 from tqdm import tqdm
 
 from mindocr.data.utils.polygon_utils import sort_clockwise
@@ -34,6 +35,11 @@ class MTWI2018_Converter(object):
                 assert os.path.exists(
                     img_path
                 ), f"{img_path} not exist! Please check the input image_dir {image_dir} and names in {label_fp}"
+
+                if cv2.imread(img_path) is None:
+                    print(f'Failed to open {os.path.basename(img_path)} - skipping.')
+                    continue
+
                 label = []
                 if self.path_mode == "relative":
                     img_path = os.path.basename(img_path)
