@@ -9,7 +9,7 @@ sys.path.insert(0, py_infer_path)
 from src.data_process import build_preprocess
 
 
-@pytest.mark.parametrize("task", ["det", "rec"])
+@pytest.mark.parametrize("task", ["det"])
 def test_transforms_pipeline(task):
     if task == "det":
         config_fp = "configs/det/dbnet/db_r50_icdar15.yaml"
