@@ -11,10 +11,10 @@ eval:
           img_mode: BGR
           channel_first: False
           to_float32: True
-      - RecResizeImg:
-          padding: False
-      - NormalizeImage:
+      - RecResizeNormForInfer:
+          keep_ratio: True
+          padding: True
+          norm_before_pad: True
           mean: [ 127.5, 127.5, 127.5 ]
           std: [ 127.5, 127.5, 127.5 ]
-          is_hwc: True
       - ToCHWImage:
