@@ -1,5 +1,6 @@
 import os
 import time
+from typing import List, Tuple
 
 from packaging import version
 
@@ -10,7 +11,7 @@ from mindspore.train.callback._callback import Callback, _handle_loss
 from .checkpoint import CheckpointManager
 from .evaluator import Evaluator
 from .logger import Logger
-from .misc import AverageMeter
+from .misc import AverageMeter, fetch_optimizer_lr
 from .recorder import PerfRecorder
 
 __all__ = ["EvalSaveCallback"]
@@ -135,15 +136,28 @@ class EvalSaveCallback(Callback):
 
         if not data_sink_mode and cur_step_in_epoch % self.log_interval == 0:
             opt = cb_params.train_network.optimizer
-            learning_rate = opt.learning_rate
-            cur_lr = learning_rate(opt.global_step - 1).asnumpy().squeeze()
+            cur_lr = fetch_optimizer_lr(opt)  # get lr or group lr without updating global step
+            cur_lr = (
+                cur_lr.asnumpy().squeeze()
+                if not isinstance(cur_lr, (Tuple, List))
+                else [lr.asnumpy().squeeze() for lr in cur_lr]
+            )
+            cur_lr = float(cur_lr) if not isinstance(cur_lr, (Tuple, List)) else [float(lr) for lr in cur_lr]
             per_step_time = (time.time() - self.step_start_time) * 1000 / self.log_interval
             fps = self.batch_size * 1000 / per_step_time
             loss = self._loss_avg_meter.val.asnumpy()
+            if isinstance(cur_lr, List):
+                cur_lr = set(cur_lr)
+                cur_lr = cur_lr.pop()  # if group lr, get the first lr
+                lr_str = f"lr_0: {cur_lr:.6f}, "
+            else:
+                lr_str = f"lr: {cur_lr:.6f}, "
             msg = (
-                f"epoch: [{cur_epoch}/{cb_params.epoch_num}] step: [{cur_step_in_epoch}/{cb_params.batch_num}], "
-                f"loss: {loss:.6f}, lr: {cur_lr:.6f}, per step time: {per_step_time:.3f} ms, fps: {fps:.2f} img/s"
+                f"epoch: [{cur_epoch}/{cb_params.epoch_num+self.start_epoch}] "
+                f"step: [{cur_step_in_epoch}/{cb_params.batch_num}], "
+                f"loss: {loss:.6f}, " + lr_str + f"per step time: {per_step_time:.3f} ms, fps: {fps:.2f} img/s"
             )
+
             self.logger.info(msg)
             self.step_start_time = time.time()
 
@@ -179,7 +193,7 @@ class EvalSaveCallback(Callback):
         per_step_time = epoch_time * 1000 / cb_params.batch_num
         fps = 1000 * self.batch_size / per_step_time
         msg = (
-            f"epoch: [{cur_epoch}/{cb_params.epoch_num}], loss: {train_loss:.6f}, "
+            f"epoch: [{cur_epoch}/{cb_params.epoch_num+self.start_epoch}], loss: {train_loss:.6f}, "
             f"epoch time: {epoch_time:.3f} s, per step time: {per_step_time:.3f} ms, fps: {fps:.2f} img/s"
         )
         self.logger.info(msg)
