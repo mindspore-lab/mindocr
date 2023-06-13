@@ -65,7 +65,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 - To reproduce the result on other contexts, please ensure the global batch size is the same.
 - The characters supported by model are lowercase English characters from a to z and numbers from 0 to 9. More explanation on dictionary, please refer to [4. Character Dictionary](#4-character-dictionary).
 - The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#312-dataset-download) section.
-- The input shape for exported MindIR file in the download link is (32, 100).
+- The input shape for exported MindIR file in the download link is (1, 3, 32, 100).
 
 
 ## 3. Quick Start
@@ -372,7 +372,7 @@ After training, evaluation results on the benchmark test set are as follows, whe
 </div>
 
 **Notes:**
-- The input shape for exported MindIR file in the download link is (32, 320).
+- The input shape for exported MindIR file in the download link is (1, 3, 32, 320).
 
 ### Training with Custom Datasets
 You can train models for different languages with your own custom datasets. Loading the pretrained Chinese model to finetune on your own dataset usually yields better results than training from scratch. Please refer to the tutorial [Training Recognition Network with Custom Datasets](../../../docs/en/tutorials/training_recognition_custom_dataset.md).
@@ -403,7 +403,7 @@ Please refer to [Environment Installation](../../../docs/en/inference/environmen
 
 Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial_en.md#1-mindocr-models),
 and use the `converter_lite` tool for offline conversion of the MindIR file, where the `input_shape` in `configFile` needs to be filled in with the value from MindIR export,
-as mentioned above (32, 100), and the format is NCHW.
+as mentioned above (1, 3, 32, 100), and the format is NCHW.
 
 **4. Inference**
 
