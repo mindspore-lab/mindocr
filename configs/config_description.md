@@ -75,7 +75,7 @@ Please see the code in [mindocr/metrics](../mindocr/metrics)
 | :---- | :---- | :---- | :---- |
 | name | Metric class name | - | Currently supports RecMetric, DetMetric |
 | main_indicator | Main indicator, used for comparison of optimal models | 'hmean' | 'acc' for recognition tasks, 'f-score' for detection tasks |
-| character_dict_path | Recognition dictionary path | None | If None, then use the default dictionary [0-9a-z] |
+| character_dict_path | Recognition dictionary path | None | If None, then use the default dictionary "0123456789abcdefghijklmnopqrstuvwxyz" |
 | ignore_space | Whether to filter spaces | True | True/False |
 | print_flag | Whether to print log | False | If set True, then output information such as prediction results and standard answers |
 
