@@ -26,6 +26,7 @@ class PSEPostprocess(det_pse_postprocess.PSEPostprocess):
         min_area=16,
         box_type="quad",
         scale=4,
+        output_score_kernels=False,
         rescale_fields=["polys"],
     ):
         # ascend310/310P doesn't support these actions, need CPU to do the following actions
@@ -36,5 +37,6 @@ class PSEPostprocess(det_pse_postprocess.PSEPostprocess):
             min_area=min_area,
             box_type=box_type,
             scale=scale,
+            output_score_kernels=output_score_kernels,
             rescale_fields=rescale_fields,
         )

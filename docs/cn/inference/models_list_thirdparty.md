@@ -32,6 +32,14 @@ MindOCR可以支持第三方模型的推理，本文档展示了已适配的模�
 | en_mm_det_denetpp_resnet50 | DB++  | ResNet50 | [yaml](../../../deploy/py_infer/src/configs/det/mmocr/dbnetpp_resnet50_fpnc_1200e_icdar2015.yaml) | [pth](https://download.openmmlab.com/mmocr/textdet/dbnetpp/dbnetpp_resnet50_fpnc_1200e_icdar2015/dbnetpp_resnet50_fpnc_1200e_icdar2015_20221025_185550-013730aa.pth) | [DBNetpp](https://github.com/open-mmlab/mmocr/blob/main/configs/textdet/dbnetpp/README.md) | MMOCR |
 | en_mm_det_fcenet_resnet50 | FCENet  | ResNet50 | [yaml](../../../deploy/py_infer/src/configs/det/mmocr/fcenet_resnet50_fpn_1500e_icdar2015.yaml) | [pth](https://download.openmmlab.com/mmocr/textdet/fcenet/fcenet_resnet50_fpn_1500e_icdar2015/fcenet_resnet50_fpn_1500e_icdar2015_20220826_140941-167d9042.pth) | [FCENet](https://github.com/open-mmlab/mmocr/blob/main/configs/textdet/fcenet/README.md) | MMOCR |
 
+**注意：在使用en_pp_det_psenet_resnet50vd模型进行推理时，需要使用以下命令修改onnx文件**
+```shell
+python deploy/models_utils/onnx_optim/insert_pse_postprocess.py \
+      --model_path=./pse_r50vd.onnx \
+      --binary_thresh=0.0 \
+      --scale=1.0
+```
+
 ### 2. 文本识别
 
 | 名称                   | 模型 | 骨干网络             | 字典文件                                                                                                       | 配置文件                                                                                      | 下载                                                                                            | 参考链接                                                                                                          | 来源       |

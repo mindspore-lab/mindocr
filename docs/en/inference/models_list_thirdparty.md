@@ -34,6 +34,14 @@ The original model files involved are as follows:
 | en_mm_det_denetpp_resnet50 | DB++  | ResNet50 | [yaml](../../../deploy/py_infer/src/configs/det/mmocr/dbnetpp_resnet50_fpnc_1200e_icdar2015.yaml) | [pth](https://download.openmmlab.com/mmocr/textdet/dbnetpp/dbnetpp_resnet50_fpnc_1200e_icdar2015/dbnetpp_resnet50_fpnc_1200e_icdar2015_20221025_185550-013730aa.pth) | [DBNetpp](https://github.com/open-mmlab/mmocr/blob/main/configs/textdet/dbnetpp/README.md) | MMOCR |
 | en_mm_det_fcenet_resnet50 | FCENet  | ResNet50 | [yaml](../../../deploy/py_infer/src/configs/det/mmocr/fcenet_resnet50_fpn_1500e_icdar2015.yaml) | [pth](https://download.openmmlab.com/mmocr/textdet/fcenet/fcenet_resnet50_fpn_1500e_icdar2015/fcenet_resnet50_fpn_1500e_icdar2015_20220826_140941-167d9042.pth) | [FCENet](https://github.com/open-mmlab/mmocr/blob/main/configs/textdet/fcenet/README.md) | MMOCR |
 
+**Notice: When using the en_pp_det_psenet_resnet50vd model for inference, you need to modify the onnx file with the following command**
+```shell
+python deploy/models_utils/onnx_optim/insert_pse_postprocess.py \
+      --model_path=./pse_r50vd.onnx \
+      --binary_thresh=0.0 \
+      --scale=1.0
+```
+
 ### 2. Text recognition
 
 | name                  | model | backbone           | dict file                                                                                                     | config                                                                                    | download                                                                                       | reference                                                                                                                 | source    |

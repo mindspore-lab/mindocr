@@ -5,6 +5,7 @@ postprocess:
   min_area: 16
   box_type: 'quad'
   scale: 1
+  output_score_kernels: True
 
 
 eval:
