@@ -229,15 +229,17 @@ class RecAttnLabelDecode:
         for batch_idx in range(batch_size):
             char_list = [self.character[i] for i in char_indices[batch_idx]]
 
+            try:
+                pred_EOS = char_list.index("<STOP>")
+            except ValueError:
+                pred_EOS = -1
+
             if self.lower:
                 char_list = [x.lower() for x in char_list]
 
-            text = "".join(char_list)
-
-            pred_EOS = text.find("<STOP>")
-
             if pred_EOS != -1:
-                text = text[:pred_EOS]
+                char_list = char_list[:pred_EOS]
+                text = "".join(char_list)
             else:
                 text = ""
 
