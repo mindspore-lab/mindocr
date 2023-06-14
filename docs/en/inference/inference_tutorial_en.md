@@ -36,11 +36,11 @@ Enter the inference directory：`cd deploy/py_infer`.
   	--input_images_dir=/path/to/images \
   	--backend=lite \
   	--det_model_path=/path/to/mindir/dbnet_resnet50.mindir \
-  	--det_model_name=en_ms_det_dbnet_resnet50 \
+  	--det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
   	--cls_model_path=/path/to/mindir/cls_mv3.mindir \
-  	--cls_model_name=ch_pp_mobile_cls_v2.0 \
+  	--cls_model_name_or_config=ch_pp_mobile_cls_v2.0 \
   	--rec_model_path=/path/to/mindir/crnn_resnet34.mindir \
-  	--rec_model_name=en_ms_rec_crnn_resnet34 \
+  	--rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
   	--res_save_dir=det_cls_rec
   ```
 
@@ -60,9 +60,9 @@ Enter the inference directory：`cd deploy/py_infer`.
   	--input_images_dir=/path/to/images \
   	--backend=lite \
   	--det_model_path=/path/to/mindir/dbnet_resnet50.mindir \
-  	--det_model_name=en_ms_det_dbnet_resnet50 \
+  	--det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
   	--rec_model_path=/path/to/mindir/crnn_resnet34.mindir \
-  	--rec_model_name=en_ms_rec_crnn_resnet34 \
+  	--rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
   	--res_save_dir=det_rec
   ```
 
@@ -81,7 +81,7 @@ Enter the inference directory：`cd deploy/py_infer`.
   	--input_images_dir=/path/to/images \
   	--backend=lite \
   	--det_model_path=/path/to/mindir/dbnet_resnet50.mindir \
-  	--det_model_name=en_ms_det_dbnet_resnet50 \
+  	--det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
   	--res_save_dir=det
   ```
 
@@ -96,11 +96,12 @@ Enter the inference directory：`cd deploy/py_infer`.
   Run text angle classification alone.
 
   ```shell
+  # cls_mv3.mindir is converted from ppocr
   python infer.py \
   	--input_images_dir=/path/to/images \
   	--backend=lite \
   	--cls_model_path=/path/to/mindir/cls_mv3.mindir \
-  	--cls_model_name=ch_pp_mobile_cls_v2.0 \
+  	--cls_model_name_or_config=ch_pp_mobile_cls_v2.0 \
   	--res_save_dir=cls
   ```
 
@@ -121,7 +122,7 @@ Enter the inference directory：`cd deploy/py_infer`.
   	--input_images_dir=/path/to/images \
   	--backend=lite \
   	--rec_model_path=/path/to/mindir/crnn_resnet34.mindir \
-  	--rec_model_name=en_ms_rec_crnn_resnet34 \
+  	--rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
   	--res_save_dir=rec
   ```
 
@@ -161,38 +162,30 @@ Enter the inference directory：`cd deploy/py_infer`.
 
 - Text detection
 
-| name            | type | default | description                    |
-|:----------------|:-----|:--------|:-------------------------------|
-| det_model_path  | str  | None    | Model path for text detection  |
-| det_model_name  | str  | None    | Model name for text detection  |
-| det_config_path | str  | None    | Config file for text detection |
+| name                     | type | default | description                                            |
+|:-------------------------|:-----|:--------|:-------------------------------------------------------|
+| det_model_path           | str  | None    | Model path for text detection                          |
+| det_model_name_or_config | str  | None    | Model name or YAML config file path for text detection |
 
 - Text angle classification
 
-| name            | type | default | description                               |
-|:----------------|:-----|:--------|:------------------------------------------|
-| cls_model_path  | str  | None    | Model path for text angle classification  |
-| cls_model_name  | str  | None    | Model name for text angle classification  |
-| cls_config_path | str  | None    | Config file for text angle classification |
+| name                     | type | default | description                                                       |
+|:-------------------------|:-----|:--------|:------------------------------------------------------------------|
+| cls_model_path           | str  | None    | Model path for text angle classification                          |
+| cls_model_name_or_config | str  | None    | Model name or YAML config file path for text angle classification |
 
 - Text recognition
 
-| name                | type | default | description                                                                 |
-|:--------------------|:-----|:--------|:----------------------------------------------------------------------------|
-| rec_model_path      | str  | None    | Model path for text recognition                                             |
-| rec_model_name      | str  | None    | Model name for text recognition                                             |
-| rec_config_path     | str  | None    | Config file for text recognition                                            |
-| character_dict_path | str  | None    | Dict file for text recognition，default only supports numbers and lowercase |
+| name                     | type | default | description                                                                 |
+|:-------------------------|:-----|:--------|:----------------------------------------------------------------------------|
+| rec_model_path           | str  | None    | Model path for text recognition                                             |
+| rec_model_name_or_config | str  | None    | Model name or YAML config file path for text recognition                    |
+| character_dict_path      | str  | None    | Dict file for text recognition，default only supports numbers and lowercase |
 
 Notes：
 
-1. For the adapted model, `*_model_path`,`*_model_name` and `*_config_path` are bounded together, please refer to
-   [MindOCR Models Support List](./models_list_en.md) and
-   [Third-Party Models Support List](./models_list_thirdparty_en.md). Both `*_model_name` and `*_config_path` are used
-   to determine pre/post processing parameters, and you can choose which one to use;
-2. If you need to adapt to your own model, `*_config_path` can simply pass in your own yaml file. Please refer to the
-   [configs](../../../configs) of the MindOCR model or the [configs](../../../deploy/py_infer/src/configs) of
-   third-party models for file format.
+`*_model_name_or_config` can be the model name or YAML config file path, please refer to [MindOCR Models Support List](./models_list_en.md) and
+[Third-Party Models Support List](./models_list_thirdparty_en.md).
 
 ### 5. Inference (C++)
 
