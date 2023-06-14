@@ -56,7 +56,7 @@ According to our experiments, the training (following the steps in [Model Traini
 
 ### Inference Perf.
 
-The inference end performance test is mainly based on Mindspore Lite, please take a look at [Mindpore Lite Inference](#6-mindspore-lite-inference) for more details.
+The inference performance is tested on Mindspore Lite, please take a look at [Mindpore Lite Inference](#6-mindspore-lite-inference) for more details.
 
 <div align="center">
 
