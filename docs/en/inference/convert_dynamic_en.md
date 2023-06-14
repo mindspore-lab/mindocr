@@ -2,181 +2,168 @@ English | [中文](../../cn/inference/convert_dynamic_cn.md)
 
 ## Inference - Model Shape Scaling
 
-#### 1 Introduction
+### 1. Introduction
 
-According to the provided dataset, the distribution range of `height` and `width` is statistically counted, and the `batch size`, `height`, and `width` combination is selected discretely to achieve auto-scaling, and then [ATC](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/atctool/atctool_000001.html) or [MindSpore Lite](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html) is used for model conversion.
+In some inference scenarios, such as object recognition after detection, the input batch size and image size of the
+recognition network are not fixed because the number of object and the size of the object are not fixed. If each
+inference is calculated according to the maximum batch size or maximum image size, it will cause a waste of computing
+resources.
 
-#### 2 Environment
+Therefore, you can set some candidate values during model conversion, and resize to the best matching candidate value
+during inference, thereby improving performance. Users can manually select these candidate values empirically, or they
+can be statistically derived from the dataset.
 
-| Environment | Version        |
-|-------------|----------------|
-| Device      | Ascend310/310P |
-| Python      | \>= 3.7        |
+This tool integrates the function of dataset statistics, can count the appropriate combination of `batch size`, `height`
+and `width` as candidate values, and encapsulates the model conversion tool, thus realizing the automatic model shape
+scaling.
 
-#### 3 Example Model
+### 2. Environment
 
-E.g. You need to download the inference model first(
-[detection](https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_det_infer.tar) ,
-[recognition](https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_det_infer.tar) ,
-[classification](https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_cls_infer.tar)
-), then use [paddle2onnx](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/deploy/paddle2onnx/readme.md) to get following ONNX models.
+Please refer to [Environment Installation](./environment_en.md) to install ACL or MindSpore Lite environment.
 
-| Model Type     | Model Name                          | Input Shape |
-|----------------|-------------------------------------|-------------|
-| detection      | ch_PP-OCRv3_det_infer.onnx          | -1,3,-1,-1  |
-| recognition    | ch_PP-OCRv3_rec_infer.onnx          | -1,3,48,-1  |
-| classification | ch_ppocr_mobile_v2.0_cls_infer.onnx | -1,3,48,192 |
+### 3. Model
 
-#### 4 Example Dataset
+Currently, ONNX model files are supported, and by selecting different backends, they are automatically shape scaling and
+converted to OM or MIndIR model files.
 
-E.g. Dataset of [ICDAR 2015: `Text Localization`](https://rrc.cvc.uab.es/?ch=4&com=downloads) , you need to register an account first.
+Please make sure that the input model is the dynamic shape version. For example, if the text detection model needs to
+shape scaling for H and W, make sure that at least the H and W axes are dynamic, and the shape can be `(1,3,-1,-1)` and
+`(-1,3,- 1,-1) `etc.
 
-Dataset preparation refer to format conversion script [tools/dataset_converters/converter.py](../../../tools/dataset_converters/convert.py), and execute the script according to the [README`Text Detection/Spotting Annotation`](../../../tools/dataset_converters/README.md) section.
-Finally, you get the images and corresponding annotation file.
+### 4. Dataset
 
-#### 5 Auto-Scaling Tool
+Two types of data are supported:
 
-(1) Example of auto-scaling
+1. Image folder
 
-Refer to `deploy/models_utils/auto_scaling/converter.py` to convert the model to OM model.
-  ```
-  # git clone https://github.com/mindspore-lab/mindocr
-  # cd mindocr/deploy/models_utils/auto_scaling
+   - This tool will read all the images in the folder, record `height` and `width`, and count suitable candidate values
 
-  # e.g 1: auto-scaling of batch size
-  python converter.py --model_path=/path/to/ch_PP-OCRv3_rec_infer.onnx \
-                      --dataset_path=/path/to/det_gt.txt
-                      --input_shape=-1,3,48,192 \
-                      --output_path=output
+   - Suitable for text detection and text recognition models
 
-  The output result is an OM model: ch_PP-OCRv3_rec_infer_dynamic_bs.om.
-  ```
-  ```
-  # e.g 2: auto-scaling of height and width
-  python converter.py --model_path=/path/to/ch_PP-OCRv3_det_infer.onnx \
-                      --dataset_path=/path/to/images \
-                      --input_shape=1,3,-1,-1 \
-                      --output_path=output
+2. Annotation file for text detection
 
-  The output result is an OM model: ch_PP-OCRv3_det_infer_dynamic_hw.om.
-  ```
-  ```
-  # e.g 3: auto-scaling of batch size、height and width
-  python converter.py --model_path=/path/to/ch_PP-OCRv3_det_infer.onnx \
-                      --dataset_path=/path/to/images \
-                      --input_shape=-1,3,-1,-1 \
-                      --output_path=output
+   - Refer to [dataset_converters](../../../tools/dataset_converters), which is the annotation file output when the
+     parameter `task` is `det`
 
-  The output results are multiple OM models: ch_PP-OCRv3_det_infer_dynamic_bs1_hw.om, ch_PP-OCRv3_det_infer_dynamic_bs4_hw.om, ..., ch_PP-OCRv3_det_infer_dynamic_bs64_hw.om.
-  ```
-  ```
-  # e.g 4: no auto-scaling
-  python converter.py --model_path=/path/to/ch_ppocr_mobile_v2.0_cls_infer.onnx \
-                      --input_shape=4,3,48,192 \
-                      --output_path=output
+   - This tool will read the coordinates of the text box marked under each image, record `height` and `width`, and the
+     number of boxes as `batch size`, and count suitable candidate values
 
-  The output result is an OM model: ch_ppocr_mobile_v2.0_cls_infer_static.om.
-  ```
+   - Suitable for text recognition models
 
-You need to adapt the corresponding data and model parameters to the script:
+#### 5. Usages
 
-| Parameter   | description                                                                                                                                                                                |
-|-------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| model_path  | Required, the path of the model file that needs to be converted.                                                                                                                           |
-| data_path   | Not required, the detection model is the image path of the images, the recognition model is the path of the annotation file, and the default data will be used if not pass this parameter. |
-| input_name  | Not required, model input variable name, default: x.                                                                                                                                       |
-| input_shape | Required, model input shape: NCHW, N、H、W support auto-scaling.                                                                                                                             |
-| backend     | Not required, converter backend: atc or lite, default: atc.                                                                                                                                |
-| output_path | Not required, output model save path, default: ./output.                                                                                                                                   |
-| soc_version | Not required, Ascend310P3 or Ascend310P, default: Ascend310P3.                                                                                                                             |
+`cd deploy/models_utils/auto_scaling`
 
+##### 5.1 Command example
 
-(2) `ATC` or `MindSpore Lite` use examples
+- auto shape scaling for batch size
 
-Several examples of individual calls to `ATC` or `MindSpore Lite` conversion are given under `deploy/models_utils/auto_scaling/example`.
-
-  ```
-  # ATC
-  atc --model=/path/to/ch_ppocr_mobile_v2.0_cls_infer.onnx \
-      --framework=5 \
-      --input_shape="x:-1,3,48,192" \
-      --input_format=ND \
-      --dynamic_dims="1;4;8;16;32" \
-      --soc_version=Ascend310P3 \
-      --output=output \
-      --log=error
-  ```
-  The output result is an OM model: output.om. More examples refer to: [ATC examples](../../../deploy/models_utils/auto_scaling/example/atc)
-
-  ```
-  # MindSpore Lite
-  converter_lite  --modelFile=/path/to/ch_PP-OCRv3_det_infer.onnx \
-      --fmk=ONNX \
-      --configFile=lite_config.txt \
-      --saveType=MINDIR \
-      --NoFusion=false \
-      --device=Ascend \
-      --outputFile=output
-  ```
-  The output result is an OM model: output.om. More examples refer to: [MindSpore Lite examples](../../../deploy/models_utils/auto_scaling/example/mindspore_lite)
-
-  Note: `MindSpore Lite` conversion need a `lite_config.txt` file, as follows:
-  ```
-  [ascend_context]
-  input_format = NCHW
-  input_shape = x:[1,3,-1,-1]
-  dynamic_dims = [1248,640],[1248,672],...,[1280,768],[1280,800]
-  ```
-
-(3) Introduction to config file
-
-`limit_side_len`: The width and height size limits of the original input data, which are compressed proportionally if out of range, can adjust the degree of discreteness of the data.
-
-`strategy`: Data statistics algorithm strategy, support mean_std and max_min, default: mean_std.
-
-    suppose that data mean: mean, standard deviation: sigma, data max: max, data min: min.
-
-    mean_std: calculation formula: [mean - n_std * sigma, mean + n_std * sigma], n_std: 3.
-
-    max_min: calculation formula: [min - (max - min)*expand_ratio/2, max + (max - min)*expand_ratio/2], expand_ratio: 0.2.
-
-`width_range/height_range`: The width/height size limit after discrete statistics will be filtered if exceeded.
-
-`interval`: Auto-scaling interval size.
-
-`max_scaling_num`: Auto-scaling combination num limit.
-
-`batch_choices`: The default batch size range.
-
-`default_scaling`: Dataset parameter not exists, will provide default auto-scaling data.
-
-(4) Auto-scaling code structure
+```shell
+python converter.py \
+    --backend=atc \
+    --model_path=/path/to/model.onnx \
+    --dataset_path=/path/to/det_gt.txt
+    --input_shape=-1,3,48,192 \
+    --output_path=output
 ```
-auto_scaling
-├── configs
-│   └── auto_scaling.yaml
-├── converter.py
-├── example
-│   ├── atc
-│   │   ├── atc_dynamic_bs.sh
-│   │   ├── atc_dynamic_hw.sh
-│   │   └── atc_static.sh
-│   └── mindspore_lite
-│       ├── lite_dynamic_bs.sh
-│       ├── lite_dynamic_bs.txt
-│       ├── lite_dynamic_hw.sh
-│       ├── lite_dynamic_hw.txt
-│       ├── lite_static.sh
-│       └── lite_static.txt
-├── __init__.py
-└── src
-    ├── auto_scaling.py
-    ├── backend
-    │   ├── atc_converter.py
-    │   ├── __init__.py
-    │   └── lite_converter.py
-    ├── __init__.py
-    └── scale_analyzer
-        ├── dataset_analyzer.py
-        └── __init__.py
+
+The output is a single OM model: `model_dynamic_bs.om`
+
+- auto shape scaling for height and width
+
+```shell
+python converter.py \
+    --backend=atc \
+    --model_path=/path/to/model.onnx \
+    --dataset_path=/path/to/images \
+    --input_shape=1,3,-1,-1 \
+    --output_path=output
 ```
+
+The output is a single OM model: `model_dynamic_hw.om`
+
+- auto shape scaling for batch szie, height and width
+
+```shell
+python converter.py \
+    --backend=atc \
+    --model_path=/path/to/model.onnx \
+    --dataset_path=/path/to/images \
+    --input_shape=-1,3,-1,-1 \
+    --output_path=output
+```
+
+The output result is multiple OM models, combining multiple different batch sizes, and each model uses the same dynamic
+image size：`model_dynamic_bs1_hw.om`, `model_dynamic_bs4_hw.om`, ......
+
+- no shape scaling
+
+```shell
+python converter.py \
+    --backend=atc \
+    --model_path=/path/to/model.onnx \
+    --input_shape=4,3,48,192 \
+    --output_path=output
+```
+
+The output is a single OM model: `model_static.om`
+
+##### 5.2 Parameter Details
+
+| Name        | Default     | Required | Description                                      |
+|:------------|:------------|:---------|:-------------------------------------------------|
+| model_path  | None        | Y        | Path to model file                               |
+| input_shape | None        | Y        | model input shape, NCHW format                   |
+| data_path   | None        | N        | Path to image folder or annotation file          |
+| input_name  | x           | N        | model input name                                 |
+| backend     | atc         | N        | converter backend，atc or lite                   |
+| output_path | ./output    | N        | Path to output model                             |
+| soc_version | Ascend310P3 | N        | soc_version for Ascend，Ascend310P3 or Ascend310 |
+
+##### 5.3 Configuration file
+
+In addition to the above command line parameters, there are some parameters in
+[auto_scaling.yaml](../../../deploy/models_utils/auto_scaling/configs/auto_scaling.yaml) to describe the statistics of
+the dataset, You can modify it yourself if necessary:
+
+- limit_side_len
+
+  The size limit of `height` and `width` of the original input data, if it exceeds the range, it will be compressed
+  according to the ratio, and the degree of discreteness of the data can be adjusted.
+
+- strategy
+
+  Data statistics algorithm strategy, supports `mean_std` and `max_min` two algorithms, default: `mean_std`.
+
+  - mean_std
+
+  ```
+  mean_std = [mean - n_std * sigma，mean + n_std * sigma]
+  ```
+
+  - max_min
+
+  ```
+  max_min = [min - (max - min) * expand_ratio / 2，max + (max - min) * expand_ratio / 2]
+  ```
+
+- width_range/height_range
+
+  For the width/height size limit after discrete statistics, exceeding will be filtered.
+
+- interval
+
+  Interval size, such as some networks may require that the input size must be a multiple of 32.
+
+- max_scaling_num
+
+  The maximum number of discrete values for shape scaling .
+
+- batch_choices
+
+  The default batch size value, if the data_path uses an image folder, the batch size information cannot be counted, and
+  the default value will be used.
+
+- default_scaling
+
+  If user does not use data_path, provide default `height` and `width` discrete values for shape scaling .
