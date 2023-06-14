@@ -10,8 +10,7 @@
 
 请下载[Download](https://github.com/FudanVI/benchmarking-chinese-text-recognition/blob/main/README.md#download)中介绍的以下LMDB文件：
 
-- 场景数据集：联合数据集包含 [RCTW](rctw.vlrlab.net/dataset
-), [ReCTS](https://rrc.cvc.uab.es/?ch=12&com=downloads), [LSVT](https://rrc.cvc.uab.es/?ch=16&com=introduction), [ArT](https://rrc.cvc.uab.es/?ch=14&com=downloads), [CTW](https://link.springer.com/article/10.1007/s11390-019-1923-y)
+- 场景数据集：联合数据集包含 [RCTW](https://rctw.vlrlab.net/dataset), [ReCTS](https://rrc.cvc.uab.es/?ch=12&com=downloads), [LSVT](https://rrc.cvc.uab.es/?ch=16&com=introduction), [ArT](https://rrc.cvc.uab.es/?ch=14&com=downloads), [CTW](https://link.springer.com/article/10.1007/s11390-019-1923-y)
 - 网页：[MTWI](https://tianchi.aliyun.com/competition/entrance/231684/introduction)
 - 文档：使用 [Text Render](https://github.com/oh-my-ocr/text_renderer) 生成
 - 手写数据集：[SCUT-HCCDoc](https://github.com/HCIILAB/SCUT-HCCDoc_Dataset_Release)
