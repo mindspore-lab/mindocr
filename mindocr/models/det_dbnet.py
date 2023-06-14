@@ -1,9 +1,9 @@
-from mindspore import nn
+from ._registry import register_model
 from .backbones.mindcv_models.utils import load_pretrained
 from .base_model import BaseModel
-from ._registry import register_model
 
-__all__ = ['DBNet', 'dbnet_resnet50']
+__all__ = ['DBNet', 'dbnet_resnet50', 'dbnet_resnet18']
+
 
 def _cfg(url='', **kwargs):
     return {
@@ -14,9 +14,15 @@ def _cfg(url='', **kwargs):
 
 
 default_cfgs = {
+    'dbnet_mobilenetv3': _cfg(
+        url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_mobilenetv3-62c44539.ckpt'),
+    'dbnet_resnet18': _cfg(
+        url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18-0c0c4cfa.ckpt'),
     'dbnet_resnet50': _cfg(
-        url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-db1df47a.ckpt')
-    }
+        url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24.ckpt'),
+    'dbnetpp_resnet50': _cfg(
+        url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2.ckpt')
+}
 
 
 class DBNet(BaseModel):
@@ -25,25 +31,90 @@ class DBNet(BaseModel):
 
 
 @register_model
-def dbnet_resnet50(pretrained=False, **kwargs):
+def dbnet_mobilenetv3(pretrained=False, **kwargs):
+    pretrained_backbone = 'https://download.mindspore.cn/toolkits/mindcv/mobilenet/mobilenetv3' \
+                          '/mobilenet_v3_large_050_no_scale_se_v2_expand-3c4047ac.ckpt'
     model_config = {
-            "backbone": {
-                'name': 'det_resnet50',
-                'pretrained': False
-                },
-            "neck": {
-                "name": 'DBFPN',
-                "out_channels": 256,
-                "bias": False,
-                "use_asf": False        # enable it for DB++
-                },
-            "head": {
-                "name": 'DBHead',
-                "k": 50,
-                "bias": False,
-                "adaptive": True
-                }
-            }
+        "backbone": {
+            'name': 'det_mobilenet_v3',
+            'architecture': 'large',
+            'alpha': 0.5,
+            'out_stages': [5, 8, 14, 20],
+            'bottleneck_params': {'se_version': 'SqueezeExciteV2', 'always_expand': True},
+            'pretrained': pretrained_backbone if not pretrained else False
+        },
+        "neck": {
+            "name": 'DBFPN',
+            "out_channels": 256,
+            "bias": False,
+        },
+        "head": {
+            "name": 'DBHead',
+            "k": 50,
+            "bias": False,
+            "adaptive": True
+        }
+    }
+    model = DBNet(model_config)
+
+    # load pretrained weights
+    if pretrained:
+        default_cfg = default_cfgs['dbnet_mobilenetv3']
+        load_pretrained(model, default_cfg)
+
+    return model
+
+
+@register_model
+def dbnet_resnet18(pretrained=False, **kwargs):
+    pretrained_backbone = not pretrained
+    model_config = {
+        "backbone": {
+            'name': 'det_resnet18',
+            'pretrained': pretrained_backbone
+        },
+        "neck": {
+            "name": 'DBFPN',
+            "out_channels": 256,
+            "bias": False,
+        },
+        "head": {
+            "name": 'DBHead',
+            "k": 50,
+            "bias": False,
+            "adaptive": True
+        }
+    }
+    model = DBNet(model_config)
+
+    # load pretrained weights
+    if pretrained:
+        default_cfg = default_cfgs['dbnet_resnet18']
+        load_pretrained(model, default_cfg)
+
+    return model
+
+
+@register_model
+def dbnet_resnet50(pretrained=False, **kwargs):
+    pretrained_backbone = not pretrained
+    model_config = {
+        "backbone": {
+            'name': 'det_resnet50',
+            'pretrained': pretrained_backbone
+        },
+        "neck": {
+            "name": 'DBFPN',
+            "out_channels": 256,
+            "bias": False,
+        },
+        "head": {
+            "name": 'DBHead',
+            "k": 50,
+            "bias": False,
+            "adaptive": True
+        }
+    }
     model = DBNet(model_config)
 
     # load pretrained weights
@@ -53,30 +124,34 @@ def dbnet_resnet50(pretrained=False, **kwargs):
 
     return model
 
-'''
+
 @register_model
-def dbnet_mv3(pretrained=False, **kwargs):
+def dbnetpp_resnet50(pretrained=False, **kwargs):
+    pretrained_backbone = not pretrained
     model_config = {
-            "backbone": {
-                'name': 'det_mv3',
-                'pretrained': False
-                },
-            "neck": {
-                "name": 'FPN',
-                "out_channels": 128,
-                },
-            "head": {
-                "name": 'ConvHead',
-                "out_channels": 2,
-                "k": 50
-                }
-            }
+        "backbone": {
+            'name': 'det_resnet50',
+            'pretrained': pretrained_backbone
+        },
+        "neck": {
+            "name": 'DBFPN',
+            "out_channels": 256,
+            "bias": False,
+            "use_asf": True,
+            "channel_attention": True
+        },
+        "head": {
+            "name": 'DBHead',
+            "k": 50,
+            "bias": False,
+            "adaptive": True
+        }
+    }
     model = DBNet(model_config)
 
     # load pretrained weights
     if pretrained:
-        default_cfg = default_cfgs['dbnet_mv3']
+        default_cfg = default_cfgs['dbnetpp_resnet50']
         load_pretrained(model, default_cfg)
 
     return model
-'''

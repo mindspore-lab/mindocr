@@ -1,7 +1,6 @@
 """ optim init
 """
-from . import optim_factory
-from . import param_grouping
+from . import optim_factory, param_grouping
 from .optim_factory import create_optimizer
 from .param_grouping import create_group_params
 

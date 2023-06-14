@@ -1,22 +1,15 @@
 """Train step wrapper supporting setting drop overflow update, ema etc"""
 import mindspore as ms
+import mindspore.context as context
 from mindspore import Parameter, Tensor, nn, ops
 from mindspore.common import RowTensor
 from mindspore.ops import composite as C
 from mindspore.ops import functional as F
 from mindspore.ops import operations as P
-import mindspore.context as context
 
-
-_ema_op = C.MultitypeFuncGraph("grad_ema_op")
 _grad_scale = C.MultitypeFuncGraph("grad_scale")
 reciprocal = P.Reciprocal()
 _grad_overflow = C.MultitypeFuncGraph("_grad_overflow")
-
-
-@_ema_op.register("Tensor", "Tensor", "Tensor")
-def _ema_weights(factor, ema_weight, weight):
-    return F.assign(ema_weight, ema_weight * factor + weight * (1 - factor))
 
 
 @_grad_scale.register("Tensor", "Tensor")
@@ -31,6 +24,7 @@ def tensor_grad_scale_row_tensor(scale, grad):
         grad.values * F.cast(reciprocal(scale), F.dtype(grad.values)),
         grad.dense_shape,
     )
+
 
 class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
     """TrainStep with ema and clip grad.
@@ -54,8 +48,7 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
         network,
         optimizer,
         scale_sense=1.0,
-        ema=False,
-        ema_decay=0.9999,
+        ema=None,
         updates=0,
         drop_overflow_update=True,
         gradient_accumulation_steps=1,
@@ -65,12 +58,10 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
     ):
         super().__init__(network, optimizer, scale_sense)
         self.ema = ema
-        self.ema_decay = ema_decay
-        self.updates = Parameter(Tensor(updates, ms.float32), requires_grad=False)
         self.drop_overflow_update = drop_overflow_update
 
-        assert isinstance(clip_grad, bool), f'Invalid type of clip_grad, got {type(clip_grad)}, expected bool'
-        assert clip_norm > 0. and isinstance(clip_norm, float), f'clip_norm must be float > 1.0, but got {clip_norm}'
+        assert isinstance(clip_grad, bool), f"Invalid type of clip_grad, got {type(clip_grad)}, expected bool"
+        assert clip_norm > 0.0 and isinstance(clip_norm, float), f"clip_norm must be float > 1.0, but got {clip_norm}"
         self.clip_grad = clip_grad
         self.clip_norm = clip_norm
 
@@ -79,9 +70,9 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
         if gradient_accumulation_steps > 1:
             # additionally caches network trainable parameters. overhead caused.
             # TODO: try to store it in CPU memory instead of GPU/NPU memory.
-            self.accumulated_grads = optimizer.parameters.clone(prefix='grad_accumulated_', init='zeros')
-            self.zeros = optimizer.parameters.clone(prefix='zeros_', init='zeros')
-            self.cur_accu_step = Parameter(Tensor(0, ms.int32), 'grad_accumulate_step_', requires_grad=False)
+            self.accumulated_grads = optimizer.parameters.clone(prefix="grad_accumulated_", init="zeros")
+            self.zeros = optimizer.parameters.clone(prefix="zeros_", init="zeros")
+            self.cur_accu_step = Parameter(Tensor(0, ms.int32), "grad_accumulate_step_", requires_grad=False)
             self.zero = Tensor(0, ms.int32)
             for p in self.accumulated_grads:
                 p.requires_grad = False
@@ -89,28 +80,15 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
                 z.requires_grad = False
 
         self.verbose = verbose
-        if self.ema:
-            self.weights_all = ms.ParameterTuple(list(network.get_parameters()))
-            self.ema_weight = self.weights_all.clone("ema", init="same")
-
-        self.is_cpu_device = context.get_context("device_target") == 'CPU' # to support CPU in CI
+        self.is_cpu_device = context.get_context("device_target") == "CPU"  # to support CPU in CI
 
         self.map = ops.Map()
-        self.partial= ops.Partial()
-
-    def ema_update(self):
-        """Update EMA parameters."""
-        self.updates += 1
-        d = self.ema_decay * (1 - F.exp(-self.updates / 2000))
-        # update trainable parameters
-        success = self.hyper_map(F.partial(_ema_op, d), self.ema_weight, self.weights_all)
-        self.updates = F.depend(self.updates, success)
-        return self.updates
+        self.partial = ops.Partial()
 
     def construct(self, *inputs):
         # compute loss
         weights = self.weights
-        loss = self.network(*inputs) # mini-batch loss
+        loss = self.network(*inputs)  # mini-batch loss
         scaling_sens = self.scale_sense
 
         # check loss overflow
@@ -119,7 +97,7 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
         else:
             status = None
 
-        scaling_sens_filled = C.ones_like(loss) * F.cast(scaling_sens, F.dtype(loss)) # loss scale value
+        scaling_sens_filled = C.ones_like(loss) * F.cast(scaling_sens, F.dtype(loss))  # loss scale value
 
         # 1. compute gradients (of the up-scaled loss w.r.t. the model weights)
         grads = self.grad(self.network, weights)(*inputs, scaling_sens_filled)
@@ -151,16 +129,19 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
 
                     # 6. clip grad
                     if self.clip_grad:
-                        grads = ops.clip_by_global_norm(self.grads, self.clip_norm)
+                        grads = ops.clip_by_global_norm(grads, self.clip_norm)
                     # 7. optimize
                     loss = F.depend(loss, self.optimizer(grads))
 
                     # clear gradient accumulation states
-                    loss = F.depend(loss, self.map(self.partial(ops.assign), self.accumulated_grads, self.zeros)) # self.accumulated_grads = 0
-                    loss = F.depend(loss, ops.assign(self.cur_accu_step, self.zero))      # self.cur_accu_step = 0
+                    loss = F.depend(
+                        loss, self.map(self.partial(ops.assign), self.accumulated_grads, self.zeros)
+                    )  # self.accumulated_grads = 0
+                    loss = F.depend(loss, ops.assign(self.cur_accu_step, self.zero))  # self.cur_accu_step = 0
                 else:
-                    # update LR in each gradient step but not optimize net parameter to ensure the LR curve is consistent
-                    loss = F.depend(loss, self.optimizer.get_lr()) # .get_lr() will make lr step increased by 1
+                    # update LR in each gradient step but not optimize net parameter to ensure the LR curve is
+                    # consistent
+                    loss = F.depend(loss, self.optimizer.get_lr())  # .get_lr() will make lr step increased by 1
             else:
                 # 5. gradient reduction on distributed GPUs/NPUs
                 grads = self.grad_reducer(grads)
@@ -169,8 +150,12 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
                     grads = ops.clip_by_global_norm(grads, self.clip_norm)
                 # 7. optimize
                 loss = F.depend(loss, self.optimizer(grads))
+
+            # 8.ema
+            if self.ema is not None:
+                self.ema.ema_update()
         else:
-            #print("WARNING: Gradient overflow! update skipped.")
+            # print("WARNING: Gradient overflow! update skipped.")
             pass
 
         return loss, cond, scaling_sens

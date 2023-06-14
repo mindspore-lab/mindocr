@@ -1,10 +1,12 @@
-from typing import Tuple, List
-from mindspore import Tensor
-from .mindcv_models.resnet import ResNet, Bottleneck, default_cfgs
-from .mindcv_models.utils import load_pretrained
-from ._registry import register_backbone, register_backbone_class
+from typing import List
 
-__all__ = ['DetResNet', 'det_resnet50']
+from mindspore import Tensor
+
+from ._registry import register_backbone, register_backbone_class
+from .mindcv_models.resnet import BasicBlock, Bottleneck, ResNet, default_cfgs
+from .mindcv_models.utils import load_pretrained
+
+__all__ = ['DetResNet', 'det_resnet50', 'det_resnet18', 'det_resnet152']
 
 
 @register_backbone_class
@@ -35,11 +37,21 @@ class DetResNet(ResNet):
 
         return [x1, x2, x3, x4]
 
-    # def construct(self, x: Tensor) -> List[Tensor]:
-    #    return self.forward_features(x)
-
 
 # TODO: load pretrained weight in build_backbone or use a unify wrapper to load
+
+
+@register_backbone
+def det_resnet18(pretrained: bool = True, **kwargs):
+    model = DetResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
+
+    # load pretrained weights
+    if pretrained:
+        default_cfg = default_cfgs['resnet18']
+        load_pretrained(model, default_cfg)
+
+    return model
+
 
 @register_backbone
 def det_resnet50(pretrained: bool = True, **kwargs):
@@ -48,6 +60,17 @@ def det_resnet50(pretrained: bool = True, **kwargs):
     # load pretrained weights
     if pretrained:
         default_cfg = default_cfgs['resnet50']
+        load_pretrained(model, default_cfg)
+
+    return model
+
+
+@register_backbone
+def det_resnet152(pretrained: bool = True, **kwargs):
+    model = DetResNet(Bottleneck, [3, 8, 36, 3], **kwargs)
+    # load pretrained weights
+    if pretrained:
+        default_cfg = default_cfgs['resnet152']
         load_pretrained(model, default_cfg)
 
     return model

@@ -1,6 +1,6 @@
 system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
-  distribute: True
+  distribute: False
   amp_level: 'O0'
   seed: 42
   log_interval: 100
@@ -31,9 +31,10 @@ loss:
   bce_replace: bceloss
 
 scheduler:
-  scheduler: constant
-  lr: 1.0e-4
+  scheduler: polynomial_decay
+  lr: 0.007
   num_epochs: 2
+  decay_rate: 0.9
   warmup_epochs: 0
 
 optimizer:
@@ -56,6 +57,7 @@ train:
     type: SynthTextDataset
     dataset_root: /data/ocr_datasets
     data_dir: SynthText
+    label_file: SynthText/gt_processed.mat
     sample_ratio: 1.0
     transform_pipeline:
       - DecodeImage:
@@ -64,15 +66,21 @@ train:
       - RandomColorAdjust:
           brightness: 0.1255  # 32.0 / 255
           saturation: 0.5
-      - IaaAugment:
-          Fliplr: { p: 0.5 }
-          Affine: { rotate: [ -10, 10 ] }
+      - RandomHorizontalFlip:
+          p: 0.5
+      - RandomRotate:
+          degrees: [ -10, 10 ]
+          expand_canvas: False
+          p: 1.0
       - RandomScale:
           scale_range: [ 0.5, 3.0 ]
+          p: 1.0
       - RandomCropWithBBox:
           max_tries: 10
           min_crop_ratio: 0.1
-          crop_size: [ 512, 512 ]  # following 'Synthetic Data for Text Localisation in Natural Images'
+          crop_size: [ 640, 640 ]
+          p: 1.0
+      - ValidatePolygons:
       - ShrinkBinaryMap:
           min_text_size: 8
           shrink_ratio: 0.4
@@ -89,10 +97,11 @@ train:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visualize
     output_columns: [ 'image', 'binary_map', 'mask', 'thresh_map', 'thresh_mask' ] #'img_path']
 #    output_columns: ['image'] # for debug op performance
-    num_columns_to_net: 1 # num inputs for network forward func in output_columns
+    net_input_column_index: [0] # input indices for network forward func in output_columns
+    label_column_index: [1, 2, 3, 4] # input indices marked as label
 
   loader:
     shuffle: True
-    batch_size: 20
+    batch_size: 16
     drop_remainder: True
     num_workers: 8

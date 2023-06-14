@@ -1,7 +1,5 @@
 '''backbone registry and list'''
-import sys
 import fnmatch
-from collections import defaultdict
 
 __all__ = [
     'list_backbones',
@@ -14,6 +12,7 @@ __all__ = [
 
 _backbone_entrypoints = {}
 _backbone_class_entrypoints = {}
+
 
 def register_backbone(fn):
 
@@ -52,7 +51,6 @@ def list_backbones(filter='', exclude_filters=''):
             if exclude_backbones:
                 backbones = set(backbones).difference(exclude_backbones)
 
-
     backbones = sorted(list(backbones))
 
     return backbones
@@ -71,7 +69,6 @@ def backbone_entrypoint(backbone_name):
     """
     return _backbone_entrypoints[backbone_name]
 
-## 
 
 def register_backbone_class(cls):
 
@@ -81,6 +78,7 @@ def register_backbone_class(cls):
     _backbone_class_entrypoints[backbone_class_name] = cls
 
     return cls
+
 
 def list_backbone_classes(filter='', exclude_filters=''):
     all_backbone_classes = _backbone_class_entrypoints.keys()
@@ -100,4 +98,3 @@ def backbone_class_entrypoint(backbone_class_name):
     Fetch a backbone entrypoint for specified backbone name
     """
     return _backbone_class_entrypoints[backbone_class_name]
-

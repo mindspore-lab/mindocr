@@ -1,0 +1,135 @@
+system:
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: True
+  amp_level: 'O0'
+  seed: 42
+  val_while_train: True
+  drop_overflow_update: False
+
+model:
+  type: det
+  transform: null
+  backbone:
+    name: det_resnet152
+    pretrained: True
+  neck:
+    name: PSEFPN
+    out_channels: 128
+  head:
+    name: PSEHead
+    hidden_size: 256
+    out_channels: 7
+
+
+postprocess:
+  name: PSEPostprocess
+  binary_thresh: 0.3
+  box_thresh: 0.6
+  min_area: 16
+  box_type: 'poly'
+  scale: 1
+
+metric:
+  name: DetMetric
+  main_indicator: f-score
+
+loss:
+  name: PSEDiceLoss
+
+scheduler:
+  scheduler: step_decay
+  lr: 0.0001
+  decay_rate: 0.9
+  num_epochs: 1000
+
+
+optimizer:
+  opt: adam
+  filter_bias_and_bn: False
+  weight_decay: 0.0005
+
+# only used for mixed precision training
+loss_scaler:
+  type: dynamic
+  loss_scale: 512
+  scale_factor: 2
+  scale_window: 1000
+
+train:
+  ckpt_save_dir: './tmp_det'
+  dataset_sink_mode: True
+  dataset:
+    type: DetDataset
+    dataset_root: /data/ocr_datasets
+    data_dir: ctw1500/train_images
+    label_file: ctw1500/train_det_gt.txt
+    sample_ratio: 1.0
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: RGB
+          to_float32: False
+      - DetLabelEncode:
+      - RandomColorAdjust:
+          brightness: 0.1255  # 32.0 / 255
+          saturation: 0.5
+      - IaaAugment:
+          Fliplr: { p: 0.5 }
+          Affine: { rotate: [ -10, 10 ] }
+      - PSEGtDecode:
+          kernel_num: 7
+          min_shrink_ratio: 0.4
+          min_shortest_edge: 736
+      - RandomCropWithMask:
+          size: [ 640, 640 ] # target crop size
+          main_key: gt_text
+          crop_keys: [ 'image', 'gt_text', 'gt_kernels', 'mask' ]
+      - NormalizeImage:
+          bgr_to_rgb: False
+          is_hwc: True
+          mean: imagenet
+          std: imagenet
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visualize
+    output_columns: [ 'image', 'gt_text','gt_kernels','mask' ] #'img_path']
+    net_input_column_index: [ 0 ] # input indices for network forward func in output_columns
+
+  loader:
+    shuffle: True
+    batch_size: 8
+    drop_remainder: True
+    num_workers: 2
+
+eval:
+  ckpt_load_path: 'tmp_det/best.ckpt'
+  dataset_sink_mode: False
+  dataset:
+    type: DetDataset
+    dataset_root: /data/ocr_datasets
+    data_dir: ctw1500/test_images
+    label_file: ctw1500/test_det_gt.txt
+    sample_ratio: 1.0
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: RGB
+          to_float32: False
+      - DetLabelEncode:
+      - DetResize:
+          target_size: [1024, 1024] # 1280
+          keep_ratio: True
+          padding: True
+      - NormalizeImage:
+          bgr_to_rgb: False
+          is_hwc: True
+          mean: imagenet
+          std: imagenet
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the labels for evaluation
+    output_columns: [ 'image', 'polys', 'ignore_tags', 'shape_list']
+    net_input_column_index: [ 0 ]
+    label_column_index: [ 1, 2]  # input indices marked as label
+
+  loader:
+    shuffle: False
+    batch_size: 1
+    drop_remainder: False
+    num_workers: 2

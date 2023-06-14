@@ -44,7 +44,7 @@ DATASETS_DIR="../ocr_datasets" # the directory containing multiple ocr datasets 
 #   totaltext/
 #     totaltext.zip
 #     txt_format.zip
-# The information about how to download and place these datasets can be found in docs/datasets 
+# The information about how to download and place these datasets can be found in docs/datasets
 #########################icdar2015#########################
 DIR="$DATASETS_DIR/ic15"
 
@@ -196,7 +196,7 @@ else
    rm $DIR/ch8_validation_word_images_gt.zip
    unzip $DIR/ch8_validation_word_gt_v2.zip -d $DIR/ch8_validation_word_gt/
    rm $DIR/ch8_validation_word_gt_v2.zip
-   
+
   if test -f "$DIR/train_det_gt.txt"; then
      echo "$DIR/train_det_gt.txt exists."
   else
@@ -217,7 +217,7 @@ else
           --label_dir $DIR/ch8_validation_localization_transcription_gt/ \
           --output_path $DIR/val_det_gt.txt
   fi
- 
+
 
   if test -f "$DIR/train_rec_gt.txt"; then
      echo "$DIR/train_rec_gt.txt exists."
@@ -247,7 +247,7 @@ else
   rm $DIR/totaltext.zip
 
   unzip $DIR/txt_format.zip -d  $DIR/annotations
-  rm $DIR/txt_format.zip 
+  rm $DIR/txt_format.zip
 
 
   if test -f "$DIR/train_det_gt.txt"; then
@@ -268,6 +268,75 @@ else
           --task det \
           --image_dir $DIR/Images/Test/ \
           --label_dir $DIR/annotations/Test/ \
+          --output_path $DIR/test_det_gt.txt
+  fi
+fi
+##########################td500#########################
+DIR="$DATASETS_DIR/td500"
+if  [ ! -d $DIR ] || [  ! "$(ls -A $DIR)"  ]; then
+  echo "td500 is Empty! Skipped."
+else
+  unzip $DIR/MSRA-TD500.zip -d  $DIR/
+  rm $DIR/MSRA-TD500.zip
+
+
+  if test -f "$DIR/MSRA-TD500/train_det_gt.txt"; then
+     echo "$DIR/MSRA-TD500/train_det_gt.txt exists."
+  else
+     python tools/dataset_converters/convert.py \
+          --dataset_name  td500 \
+          --task det \
+          --image_dir $DIR/MSRA-TD500/train/ \
+          --label_dir $DIR/MSRA-TD500/train/ \
+          --output_path $DIR/MSRA-TD500/train_det_gt.txt
+  fi
+  if test -f "$DIR/MSRA-TD500/test_det_gt.txt"; then
+     echo "$DIR/MSRA-TD500/test_det_gt.txt exists."
+  else
+     python tools/dataset_converters/convert.py \
+          --dataset_name  td500 \
+          --task det \
+          --image_dir $DIR/MSRA-TD500/test/ \
+          --label_dir $DIR/MSRA-TD500/test/ \
+          --output_path $DIR/MSRA-TD500/test_det_gt.txt
+  fi
+fi
+
+##########################ctw1500#########################
+DIR="$DATASETS_DIR/ctw1500"
+if  [ ! -d $DIR ] || [  ! "$(ls -A $DIR)"  ]; then
+  echo "ctw1500 is Empty! Skipped."
+else
+  unzip $DIR/train_images.zip -d  $DIR/
+  rm $DIR/train_images.zip
+
+  unzip $DIR/test_images.zip -d  $DIR/
+  rm $DIR/test_images.zip
+
+  unzip $DIR/ctw1500_train_labels.zip -d  $DIR/
+  rm $DIR/ctw1500_train_labels.zip
+
+  unzip $DIR/gt_ctw1500.zip -d  $DIR/gt_ctw1500/
+  rm $DIR/gt_ctw1500.zip
+
+  if test -f "$DIR/train_det_gt.txt"; then
+     echo "$DIR/train_det_gt.txt exists."
+  else
+     python tools/dataset_converters/convert.py \
+          --dataset_name  ctw1500 \
+          --task det \
+          --image_dir $DIR/train_images/ \
+          --label_dir $DIR/ctw1500_train_labels/ \
+          --output_path $DIR/train_det_gt.txt
+  fi
+  if test -f "$DIR/test_det_gt.txt"; then
+     echo "$DIR/test_det_gt.txt exists."
+  else
+     python tools/dataset_converters/convert.py \
+          --dataset_name  ctw1500 \
+          --task det \
+          --image_dir $DIR/test_images/ \
+          --label_dir $DIR/gt_ctw1500/ \
           --output_path $DIR/test_det_gt.txt
   fi
 fi

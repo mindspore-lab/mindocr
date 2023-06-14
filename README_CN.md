@@ -50,7 +50,7 @@ pip install -r requirements.txt
 
 
 > 注意：
-> - 如果[使用MX Engine推理](#21-使用mx-engine推理)，Python版本需为3.9。
+> - 如果[使用ACL推理](#21-使用mindspore-lite和acl推理)，Python版本需为3.9。
 > - 如果遇到scikit_image导入错误，参考[此处](https://github.com/opencv/opencv/issues/14884)，你需要设置环境变量`$LD_PRELOAD`，命令如下。替换`path/to`为你的目录。
 >   ```shell
 >   export LD_PRELOAD=path/to/scikit_image.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
@@ -85,43 +85,45 @@ MindOCR支持多种文本识别模型及数据集，在此我们使用**CRNN**�
 
 ### 2. 推理与部署
 
-#### 2.1 使用MX Engine推理
+#### 2.1 使用MindSpore Lite和ACL推理(Ascend 310)
 
-MX ([MindX](https://www.hiascend.com/zh/software/mindx-sdk)的缩写) 是一个支持昇腾设备高效推理与部署的工具。
+MindOCR集成了[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)推理后端，
+集成了文本检测、分类和识别串联推理。
 
-MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_infer](docs/cn/inference_tutorial_cn.md)。
+具体说明请参考[MindOCR 310推理](docs/cn/inference/inference_tutorial_cn.md)。
 
+#### 2.2 使用原生MindSpore在线推理(CPU/GPU/Ascend 910)
 
-#### 2.2 使用Lite推理 
+MindOCR提供易用的文本检测识别推理工具，支持CPU/GPU/Ascend 910硬件平台。在线推理基于使用MindOCR训练完成的模型进行推理。
 
-敬请期待
-
-#### 2.3 使用原生MindSpore推理
-
-敬请期待
+具体用法和效果请参考 [MindOCR在线推理](tools/infer/text/README.md)。
 
 ## 模型列表
 
 <details open>
 <summary>文本检测</summary>
 
-- [x] [DBNet](https://arxiv.org/abs/1911.08947) (AAAI'2020) 
-- [x] [DBNet++](https://arxiv.org/abs/2202.10304) (TPAMI'2022)
-- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [开发中]
+- [x] [DBNet](configs/det/dbnet/README.md) (AAAI'2020)
+- [x] [DBNet++](configs/det/dbnet/README.md) (TPAMI'2022)
+- [x] [PSENet](configs/det/psenet/README.md) (CVPR'2019)
+- [x] [EAST](configs/det/east/README.md)(CVPR'2017)
+- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [coming soon]
 
 </details>
 
 <details open>
 <summary>文本识别</summary>
 
-- [x] [CRNN](https://arxiv.org/abs/1507.05717) (TPAMI'2016)
-- [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [开发中]
-- [ ] [SVTR](https://arxiv.org/abs/2205.00159) (IJCAI'2022) [仅推理]
+
+- [x] [CRNN](configs/rec/crnn/README.md) (TPAMI'2016)
+- [x] [CRNN-Seq2Seq/RARE](configs/rec/rare/README.md) (CVPR'2016)
+- [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022)
+- [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 
 
 模型训练的配置及性能结果请见[configs](./configs).
 
-基于MX引擎的推理性能结果及支持模型列表，请见[mx inference performance](docs/cn/inference_models_cn.md) 
+MindSpore Lite和ACL模型推理的支持列表，请见[MindOCR模型推理支持列表](docs/cn/inference/models_list_cn.md)和[第三方模型推理支持列表](docs/cn/inference/models_list_thirdparty_cn.md).
 
 ## 数据集
 ### 下载
@@ -139,6 +141,10 @@ MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_i
 
 - [x] MLT2017 [论文](https://ieeexplore.ieee.org/abstract/document/8270168) [主页](https://rrc.cvc.uab.es/?ch=8&com=introduction) [下载说明](docs/cn/datasets/mlt2017_CN.md)
 
+- [x] MSRA-TD500 [论文](https://ieeexplore.ieee.org/abstract/document/6247787) [主页](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500)) [下载说明](docs/cn/datasets/td500_CN.md)
+
+- [x] SCUT-CTW1500 [论文](https://www.sciencedirect.com/science/article/pii/S0031320319300664) [主页](https://github.com/Yuliang-Liu/Curve-Text-Detector) [下载说明](docs/cn/datasets/ctw1500_CN.md)
+
 </details>
 
 ### 转换
@@ -149,9 +155,45 @@ MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_i
 ## 重要信息
 
 ### 变更日志
+
+- 2023/06/07
+1. 增加新模型
+    - 文本检测[PSENet](configs/det/psenet)
+    - 文本检测[EAST](configs/det/east)
+    - 文本识别[SVTR](configs/rec/svtr)
+2. 添加更多基准数据集及其结果
+    - [totaltext](docs/cn/datasets/totaltext_CN.md)
+    - [mlt2017](docs/cn/datasets/mlt2017_CN.md)
+    - [chinese_text_recognition](docs/cn/datasets/chinese_text_recognition_CN.md)
+3. 增加断点重训(resume training)功能，可在训练意外中断时使用。如需使用，请在配置文件中`model`字段下增加`resume`参数，允许传入具体路径`resume: /path/to/train_resume.ckpt`或者通过设置`resume: True`来加载在ckpt_save_dir下保存的trian_resume.ckpt
+
+
+- 2023/05/15
+1. 增加新模型
+    - 文本检测[DBNet++](configs/det/dbnet)
+    - 文本识别[CRNN-Seq2Seq](configs/rec/rare)
+    - 在SynthText数据集上预训练的[DBNet](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)
+2. 添加更多基准数据集及其结果
+    - [SynthText](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c), [MSRA-TD500](docs/cn/datasets/td500_CN.md), [CTW1500](docs/cn/datasets/ctw1500_CN.md)
+    - DBNet的更多基准结果可以[在此找到](configs/det/dbnet/README_CN.md).
+3. 添加用于保存前k个checkpoint的checkpoint manager并改进日志。
+4. Python推理代码重构。
+5. Bug修复：对大型数据集使用平均损失meter，在AMP训练中对ctcloss禁用`pred_cast_fp32`，修复存在无效多边形的错误。
+
+- 2023/05/04
+1. 支持加载自定义的预训练checkpoint， 通过在yaml配置中将`model-pretrained`设置为checkpoint url或本地路径来使用。
+2. 支持设置执行包括旋转和翻转在内的数据增强操作的概率。
+3. 为模型训练添加EMA功能，可以通过在yaml配置中设置`train-ema`（默认值：False）和`train-ema_decay`来启用。
+4. 参数修改：`num_columns_to_net` -> `net_input_column_index`: 输入网络的columns数量改为输入网络的columns索引
+5. 参数修改：`num_columns_of_labels` -> `label_column_index`: 用索引替换数量，以表示lebel的位置。
+
+- 2023/04/21
+1. 添加参数分组以支持训练中的正则化。用法：在yaml config中添加`grouping_strategy`参数以选择预定义的分组策略，或使用`no_weight_decay_params`参数选择要从权重衰减中排除的层（例如，bias、norm）。示例可参考`configs/rec/crn/crnn_icdar15.yaml`
+2. 添加梯度积累，支持大批量训练。用法：在yaml配置中添加`gradient_accumulation_steps`，全局批量大小=batch_size * devices * gradient_aaccumulation_steps。示例可参考`configs/rec/crn/crnn_icdar15.yaml`
+3. 添加梯度裁剪，支持训练稳定。通过在yaml配置中将`grad_clip`设置为True来启用。
+
 - 2023/03/23
 1. 增加dynamic loss scaler支持, 且与drop overflow update兼容。如需使用, 请在配置文件中增加`loss_scale`字段并将`type`参数设为`dynamic`，参考例子请见`configs/rec/crnn/crnn_icdar15.yaml`
-
 
 - 2023/03/20
 1. 参数名修改：`output_keys` -> `output_columns`；`num_keys_to_net` -> `num_columns_to_net`；
@@ -181,7 +223,7 @@ MindOCR集成了MX推理引擎，支持文本检测识别任务，请参考[mx_i
 
 ### 许可
 
-本项目遵从[Apache License 2.0](LICENSE.md)开源许可。
+本项目遵从[Apache License 2.0](LICENSE)开源许可。
 
 ### 引用
 

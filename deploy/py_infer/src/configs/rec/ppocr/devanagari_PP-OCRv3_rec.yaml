@@ -1,0 +1,20 @@
+postprocess:
+  name: CTCLabelDecode
+  use_space_char: True
+  use_redundant_space_char: True
+  blank_at_last: False
+
+eval:
+  dataset:
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          channel_first: False
+          to_float32: True
+      - RecResizeNormForInfer:
+          keep_ratio: True
+          padding: True
+          norm_before_pad: True
+          mean: [ 127.5, 127.5, 127.5 ]
+          std: [ 127.5, 127.5, 127.5 ]
+      - ToCHWImage:

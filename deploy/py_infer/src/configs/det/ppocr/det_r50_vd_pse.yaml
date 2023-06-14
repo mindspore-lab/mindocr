@@ -1,0 +1,25 @@
+postprocess:
+  name: PSEPostprocess
+  binary_thresh: 0
+  box_thresh: 0.85
+  min_area: 16
+  box_type: 'quad'
+  scale: 1
+
+
+eval:
+  dataset:
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          to_float32: False
+      - DetLabelEncode:
+      - DetResize:
+          limit_side_len: 736
+          limit_type: min
+      - NormalizeImage:
+          bgr_to_rgb: False
+          is_hwc: True
+          mean: [ 123.675, 116.28 , 103.53 ]
+          std: [ 58.395, 57.12 , 57.375 ]
+      - ToCHWImage:
