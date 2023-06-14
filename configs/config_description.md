@@ -24,6 +24,8 @@ This document takes `configs/rec/crnn/crnn_resnet34.yaml` as an example to descr
 | distribute | Set whether to enable parallel training | True | True / False | \ |
 | amp_level | Set mixed precision mode | O0 | O0/O1/O2/O3 | 'O0' - no change. <br> 'O1' - convert the cells and operations in the whitelist to float16 precision, and keep the rest in float32 precision. <br> 'O2' - Keep the cells and operations in the blacklist with float32 precision, and convert the rest to float16 precision. <br> 'O3' - Convert all networks to float16 precision. |
 | seed | Random seed | 42 | Integer | \ |
+| ckpt_save_policy | The policy for checkpoint saving | top_k | "top_k" or "latest_k" | "top_k" means to keep the top k checkpoints according to the validation score; "latest_k" means to keep the last k checkpoints. The value of `k` is set via `ckpt_max_keep` |
+| ckpt_max_keep | The maximum number of checkpoints to keep during training | 5 | Integer | \ |
 | log_interval | The interval of printing logs | 100 | Integer | \ |
 | val_while_train | Whether to enable the evaluation mode while training | True | True/False | If the value is True, please configure the eval data set synchronously |
 | drop_overflow_update | Whether to execute the optimizer when overflow occurs | True | True/False | If the value is True, the optimizer will not be executed when overflow occurs |
@@ -39,11 +41,12 @@ In MindOCR, the network architecture of the model is divided into four parts: Tr
 | Parameter | Usage | Default | Remarks |
 | :---- | :---- | :---- | :---- |
 | type | Network type | - | Currently supports rec/det; 'rec' means recognition task, 'det' means detection task |
-| **transform**| Configure transformation method | | \<This part is still under development\> |
-| name | Transformation method name | - | - |
+| pretrained | Initialize the model with pretrained model weights | null | Supports local checkpoint path or url |
+| **transform**| Configure transformation method | null | |
+| name | Transformation method name | - | Currently supports STN_ON |
 | **backbone** | Configure backbone network ||
 | name | Backbone network class name | - | Currently defined classes include rec_resnet34, rec_vgg7 and det_resnet50. You can also customize new classes, please refer to the documentation for definition. |
-| pretrained | Whether to use the pre-trained model | False | Support local checkpoint path or url |
+| pretrained | Whether to use the pre-trained backbone | False | Support local checkpoint path or url |
 | **neck** | Configure Network Neck | |
 | name | Neck class name | - | Currently defined classes include RNNEncoder and DBFPN. New classes can also be customized, please refer to the documentation for definition. |
 | hidden_size | RNN hidden layer unit number | - | \ |
@@ -52,7 +55,6 @@ In MindOCR, the network architecture of the model is divided into four parts: Tr
 | weight_init | Set weight initialization | 'normal' | \ |
 | bias_init | Set bias initialization | 'zeros' | \ |
 | out_channels | Set the number of classes | - | \ |
-
 
 ## 4. Postprocessing (postprocess)
 
@@ -84,7 +86,7 @@ Please see the code in [mindocr/losses](../mindocr/losses)
 
 | Parameter | Usage | Default | Remarks |
 | :---- | :---- | :---- | :---- |
-| name | loss function name | - | Currently supports CTCLoss, L1BalancedCELoss |
+| name | loss function name | - | Currently supports "L1BalancedCELoss", "CTCLoss", "AttentionLoss", "PSEDiceLoss", "EASTLoss", "CrossEntropySmooth" |
 | pred_seq_len | length of predicted text | 26 | Determined by network architecture |
 | max_label_len | The longest label length | 25 | The value is less than the length of the text predicted by the network |
 | batch_size | single card batch size | 32 | \ |
@@ -99,11 +101,11 @@ Please see the code in [mindocr/scheduler](../mindocr/scheduler)
 | Parameter | Usage | Default | Remarks |
 | :---- | :---- | :---- | :---- |
 | scheduler | Learning rate adjustment function name | 'constant' | Currently supports 'constant', 'cosine_decay', 'step_decay', 'exponential_decay', 'polynomial_decay', 'multi_step_decay' |
-| min_lr | Minimum learning rate | 1e-6 | Take 'cosine_decay' as an example, the learning rate increases first and then decays according to the cosine function, `min_lr` indicates the initial value of the learning rate increase and the end value of the decay |
-| lr | Peak learning rate | 0.01 | Take 'cosine_decay' as an example, `lr` represents the maximum value of the learning rate increment, and then the learning rate begins to decay |
-| num_epochs | Maximum number of training epochs | 200 | The number of times a complete training needs to traverse the entire dataset |
-| warmup_epochs | learning rate increment epoch number | 3 | Take 'cosine_decay' as an example, 'warmup_epochs' indicates the total step size of the learning rate increase, and the assumed value is N, which means that the first N epochs, the learning rate increases, and then begins to decay |
-| decay_epochs | Learning rate decrement epoch number | 10 | Take 'cosine_decay' as an example, `decay_epochs` indicates the total step size of the learning rate decay, and the assumed value is M, which means that the learning rate decays from the last M epoch |
+| min_lr | Minimum learning rate | 1e-6 | Lower lr bound for 'cosine_decay' schedulers. |
+| lr | Learning rate value | 0.01 | Take 'cosine_decay' as an example, `lr` represents the maximum value of the learning rate increment, and then the learning rate begins to decay. |
+| num_epochs | Number of total epochs | 200 | The number of total epochs for the entire training. |
+| warmup_epochs | Epochs to warmup LR, if scheduler supports | 3 | For 'cosine_decay', 'warmup_epochs' indicates the epochs to warmup learning rate from `min_lr` to `lr`. |
+| decay_epochs | Learning rate decrement epoch number | 10 | For 'cosine_decay' schedulers, decay LR to min_lr in `decay_epochs`. For 'step_decay' scheduler, decay LR by a factor of `decay_rate` every `decay_epochs`. |
 
 
 ### optimizer
@@ -112,11 +114,11 @@ Please see the code location: [mindocr/optim](../mindocr/optim)
 
 | Parameter | Usage | Default | Remarks |
 | :---- | :---- | :---- | :---- |
-| opt | Optimizer name | 'adam' | Currently supports 'sgd', 'nesterov', 'momentum', 'adam', 'adamw', 'lion', 'rmsprop', 'adagrad', 'lamb'. 'adam' |
-| filter_bias_and_bn | Set whether to exclude the weight decrement of bias and batch norm | True | True/False |
+| opt | Optimizer name | 'adam' | Currently supports 'sgd', 'nesterov', 'momentum', 'adam', 'adamw', 'lion', 'nadam', 'adan', 'rmsprop', 'adagrad', 'lamb'. |
+| filter_bias_and_bn | Set whether to exclude the weight decrement of bias and batch norm | True | If True, weight decay will not apply on BN parameters and bias in Conv or Dense layers. |
 | momentum | momentum | 0.9 | \ |
-| weight_decay | weight decay rate | 0 | In the loss function, `weight_decay` is a coefficient of regularization. Reducing the weight can reduce the complexity of the model and avoid over-fitting of the network |
-| nesterov | Whether to enable Nesterov momentum | False | True/False |
+| weight_decay | weight decay rate | 0 | It should be noted that weight decay can be a constant value or a Cell. It is a Cell only when dynamic weight decay is applied. Dynamic weight decay is similar to dynamic learning rate, users need to customize a weight decay schedule only with global step as input, and during training, the optimizer calls the instance of WeightDecaySchedule to get the weight decay value of current step. |
+| nesterov | Whether to use Nesterov Accelerated Gradient (NAG) algorithm to update the gradients. | False | True/False |
 
 
 ### Loss scaling (loss_scaler)
@@ -124,7 +126,9 @@ Please see the code location: [mindocr/optim](../mindocr/optim)
 | Parameter | Usage | Default | Remarks |
 | :---- | :---- | :---- | :---- |
 | type | Loss scaling management type | static | Currently supports static, dynamic |
-| loss_scale | loss scaling factor | 1.0 | \ |
+| loss_scale | Initial loss scaling value | 1.0 | \ |
+| scale_factor | Coefficient for updating the loss_scale if using dynamic scaler | 2.0 | At each training step, the loss scaling value is updated to `loss_scale`/`scale_factor` when overflow occurs. |
+| scale_window | Maximum continuous training steps that do not have overflow to update the loss scale if using dynamic scaler | 1000 | If the continuous `scale_window` steps does not overflow, the loss will be increased by `loss_scale` * `scale_factor` to reduce the scaling number |
 
 
 ## 8. Training, evaluation and predict process (train, eval, predict)
@@ -137,6 +141,12 @@ The configuration of the training process is placed under `train`, and the confi
 | :---- | :---- | :---- | :---- |
 | ckpt_save_dir | Set model save path | ./tmp_rec | \ |
 | dataset_sink_mode | Whether the data is directly sinked to the processor for processing | - | If set to True, the data sinks to the processor, and the data can be returned at least after the end of each epoch |
+| gradient_accumulation_steps | Number of steps to accumulate the gradients | 1 | \ |
+| clip_grad | Whether to clip the gradient | False | \ |
+| clip_norm | The norm of clipping gradient if set clip_grad as True | 1 | \ |
+| ema | Whether to use EMA weights | False | \ |
+| ema_decay | EMA decay rate | 0.9999 | \ |
+| pred_cast_fp32 | Whether to cast the data type of logits to fp32 | False | \ |
 | **dataset** | Dataset configuration | For details, please refer to [Data document](../mindocr/data/README.md) ||
 | type | Dataset class name | - | Currently supports LMDBDataset, RecDataset and DetDataset |
 | dataset_root | The root directory of the dataset | None | Optional |
