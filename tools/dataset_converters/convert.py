@@ -22,6 +22,7 @@ __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../..")))
 
 
+from borndigital import BORNDIGITAL_Converter
 from casia10k import CASIA10K_Converter
 from cocotext import COCOTEXT_Converter
 from ctw import CTW_Converter
@@ -45,6 +46,7 @@ from totaltext import TOTALTEXT_Converter
 
 supported_datasets = [
     "casia10k",
+    "borndigital",
     "ic15",
     "totaltext",
     "lsvt",
