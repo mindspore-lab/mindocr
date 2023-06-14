@@ -14,17 +14,17 @@
   - [train](#training-process-train)
   - [eval](#evaluation-process-eval)
 
-This document takes `configs/rec/crnn/crnn_resnet34.yaml` as an example to describe the usage of parameters in detail.
+This document takes `configs/rec/crnn/crnn_icdar15.yaml` as an example to describe the usage of parameters in detail.
 
 ## 1. Training environment context parameters (system)
 
 | Parameter | Usage | Default | Optional Values ​​| Remarks |
 | ---- | ---- | ---- | ---- | ---- |
-| mode | Set the running and compiling mode | 0 | 0/1 | 0: means running in GRAPH_MODE mode; 1: PYNATIVE_MODE mode |
+| mode | Set the running and compiling mode | 0 | 0 / 1 | 0: means running in GRAPH_MODE mode; 1: PYNATIVE_MODE mode |
 | distribute | Set whether to enable parallel training | True | True / False | \ |
 | amp_level | Set mixed precision mode | O0 | O0/O1/O2/O3 | 'O0' - no change. <br> 'O1' - convert the cells and operations in the whitelist to float16 precision, and keep the rest in float32 precision. <br> 'O2' - Keep the cells and operations in the blacklist with float32 precision, and convert the rest to float16 precision. <br> 'O3' - Convert all networks to float16 precision. |
 | seed | Random seed | 42 | Integer | \ |
-| ckpt_save_policy | The policy for checkpoint saving | top_k | "top_k" or "latest_k" | "top_k" means to keep the top k checkpoints according to the validation score; "latest_k" means to keep the last k checkpoints. The value of `k` is set via `ckpt_max_keep` |
+| ckpt_save_policy | The policy for checkpoint saving | top_k | "top_k" or "latest_k" | "top_k" means to keep the top k checkpoints according to the metric score; "latest_k" means to keep the last k checkpoints. The value of `k` is set via `ckpt_max_keep` |
 | ckpt_max_keep | The maximum number of checkpoints to keep during training | 5 | Integer | \ |
 | log_interval | The interval of printing logs | 100 | Integer | \ |
 | val_while_train | Whether to enable the evaluation mode while training | True | True/False | If the value is True, please configure the eval data set synchronously |
@@ -45,13 +45,13 @@ In MindOCR, the network architecture of the model is divided into four parts: Tr
 | **transform**| Configure transformation method | null | |
 | name | Transformation method name | - | Currently supports STN_ON |
 | **backbone** | Configure backbone network ||
-| name | Backbone network class name | - | Currently defined classes include rec_resnet34, rec_vgg7 and det_resnet50. You can also customize new classes, please refer to the documentation for definition. |
+| name | Backbone network class name | - | Currently defined classes include rec_resnet34, rec_vgg7, SVTRNet and det_resnet18, det_resnet50, det_resnet152, det_mobilenet_v3. You can also customize new classes, please refer to the documentation for definition. |
 | pretrained | Whether to use the pre-trained backbone | False | Support local checkpoint path or url |
 | **neck** | Configure Network Neck | |
-| name | Neck class name | - | Currently defined classes include RNNEncoder and DBFPN. New classes can also be customized, please refer to the documentation for definition. |
+| name | Neck class name | - | Currently defined classes include RNNEncoder, DBFPN, EASTFPN and PSEFPN. New classes can also be customized, please refer to the documentation for definition. |
 | hidden_size | RNN hidden layer unit number | - | \ |
 | **head** | Set network prediction header ||
-| name | Head class name | - | Currently supports CTCHead, DBHead |
+| name | Head class name | - | Currently supports CTCHead, AttentionHead, DBHead, EASTHead and PSEHead |
 | weight_init | Set weight initialization | 'normal' | \ |
 | bias_init | Set bias initialization | 'zeros' | \ |
 | out_channels | Set the number of classes | - | \ |
@@ -62,7 +62,7 @@ Please see the code in [mindocr/postprocess](../mindocr/postprocess/)
 
 | Parameter | Usage | Example | Remarks |
 | :---- | :---- | :---- | :---- |
-| name | Post-processing class name | - | Currently supports DBPostprocess, RecCTCLabelDecode |
+| name | Post-processing class name | - | Currently supports DBPostprocess, EASTPostprocess, PSEPostprocess, RecCTCLabelDecode and RecAttnLabelDecode |
 | character_dict_path | Recognition dictionary path | None | If None, then use the default dictionary [0-9a-z] |
 | use_space_char | Set whether to add spaces to the dictionary | False | True/False |
 
@@ -86,7 +86,7 @@ Please see the code in [mindocr/losses](../mindocr/losses)
 
 | Parameter | Usage | Default | Remarks |
 | :---- | :---- | :---- | :---- |
-| name | loss function name | - | Currently supports "L1BalancedCELoss", "CTCLoss", "AttentionLoss", "PSEDiceLoss", "EASTLoss", "CrossEntropySmooth" |
+| name | loss function name | - | Currently supports L1BalancedCELoss, CTCLoss, AttentionLoss, PSEDiceLoss, EASTLoss and CrossEntropySmooth |
 | pred_seq_len | length of predicted text | 26 | Determined by network architecture |
 | max_label_len | The longest label length | 25 | The value is less than the length of the text predicted by the network |
 | batch_size | single card batch size | 32 | \ |
@@ -102,7 +102,7 @@ Please see the code in [mindocr/scheduler](../mindocr/scheduler)
 | :---- | :---- | :---- | :---- |
 | scheduler | Learning rate adjustment function name | 'constant' | Currently supports 'constant', 'cosine_decay', 'step_decay', 'exponential_decay', 'polynomial_decay', 'multi_step_decay' |
 | min_lr | Minimum learning rate | 1e-6 | Lower lr bound for 'cosine_decay' schedulers. |
-| lr | Learning rate value | 0.01 | Take 'cosine_decay' as an example, `lr` represents the maximum value of the learning rate increment, and then the learning rate begins to decay. |
+| lr | Learning rate value | 0.01 | Upper lr bound for scheduler |
 | num_epochs | Number of total epochs | 200 | The number of total epochs for the entire training. |
 | warmup_epochs | Epochs to warmup LR, if scheduler supports | 3 | For 'cosine_decay', 'warmup_epochs' indicates the epochs to warmup learning rate from `min_lr` to `lr`. |
 | decay_epochs | Learning rate decrement epoch number | 10 | For 'cosine_decay' schedulers, decay LR to min_lr in `decay_epochs`. For 'step_decay' scheduler, decay LR by a factor of `decay_rate` every `decay_epochs`. |
@@ -141,8 +141,8 @@ The configuration of the training process is placed under `train`, and the confi
 | :---- | :---- | :---- | :---- |
 | ckpt_save_dir | Set model save path | ./tmp_rec | \ |
 | dataset_sink_mode | Whether the data is directly sinked to the processor for processing | - | If set to True, the data sinks to the processor, and the data can be returned at least after the end of each epoch |
-| gradient_accumulation_steps | Number of steps to accumulate the gradients | 1 | \ |
-| clip_grad | Whether to clip the gradient | False | \ |
+| gradient_accumulation_steps | Number of steps to accumulate the gradients | 1 | Each step represents a forward calculation, and a reverse correction is performed after the gradient accumulation is completed. |
+| clip_grad | Whether to clip the gradient | False | If set to True, gradients are clipped to `clip_norm` |
 | clip_norm | The norm of clipping gradient if set clip_grad as True | 1 | \ |
 | ema | Whether to use EMA weights | False | \ |
 | ema_decay | EMA decay rate | 0.9999 | \ |
