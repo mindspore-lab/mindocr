@@ -1,5 +1,3 @@
-English | [中文](../../cn/tutorials/training_recognition_custom_dataset.md)
-
 # Training Recognition Network with Custom Datasets
 
 This document provides tutorials on how to train recognition networks using custom datasets, including the training of recognition networks in Chinese and English languages.

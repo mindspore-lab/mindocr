@@ -1,4 +1,4 @@
-<div align="center">
+<div align="center" markdown>
 
 # MindOCR
 
@@ -9,15 +9,15 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 
-English | [中文](README_CN.md)
+English | [中文](https://github.com/mindspore-lab/mindocr/blob/main/README_CN.md)
 
-[📝Introduction](#introduction) |
-[🔨Installation](#installation) |
-[🚀Quick Start](#quick-start) |
-[📚Tutorials](#tutorials) |
-[🎁Model List](#model-list) |
-[📰Dataset List](#dataset-list) |
-[🎉Notes](#notes)
+[📝Introduction](README.md#introduction) |
+[🔨Installation](README.md#installation) |
+[🚀Quick Start](README.md#quick-start) |
+[📚Tutorials](README.md#tutorials) |
+[🎁Model List](README.md#model-list) |
+[📰Dataset List](README.md#dataset-list) |
+[🎉Notes](README.md#notes)
 
 </div>
 
@@ -25,7 +25,7 @@ English | [中文](README_CN.md)
 MindOCR is an open-source toolbox for OCR development and application based on [MindSpore](https://www.mindspore.cn/en), which integrates series of mainstream text detection and recognition algorihtms and models and provides easy-to-use training and inference tools. It can accelerate the process of developing and deploying SoTA text detection and recognition models in real-world applications, such as DBNet/DBNet++ and CRNN/SVTR, and help fulfill the need of image-text understanding .
 
 
-<details open>
+<details open markdown>
 <summary> Major Features </summary>
 
 - **Modular design**: We decoupled the OCR task into several configurable modules. Users can setup the training and evaluation pipelines, customize the data processing pipeline and model architectures easily by modifying just few lines of code.
@@ -95,7 +95,7 @@ After running, the results will be saved in `./inference_results` by default. He
   <em> Visualization of text detection and recognition result </em>
 </p>
 
-We can see that all texts on the image are detected and recognized accurately. For more usage, please refer to the inference section in [tutorials](#tutorials).
+We can see that all texts on the image are detected and recognized accurately. For more usage, please refer to the inference section in [tutorials](README.md#tutorials).
 
 ### Model Training and Evaluation - Quick Guideline
 
@@ -126,7 +126,7 @@ python tools/eval.py \
     --opt eval.dataset_root={path/to/your_dataset} eval.ckpt_load_path={path/to/ckpt_file}
 ```
 
-For more illustration and usage, please refer to the model training section in [Tutorials](#tutorials).
+For more illustration and usage, please refer to the model training section in [Tutorials](README.md#tutorials).
 
 ## Tutorials
 
@@ -135,7 +135,7 @@ For more illustration and usage, please refer to the model training section in [
     - [Data Transformation Mechanism](docs/en/tutorials/transform_tutorial.md)
 - Model Training
     - [Yaml Configuration](docs/en/tutorials/yaml_configuration.md)
-    - [Text Detection](docs/en/tutorials/training_detection_custom_dataset.md)
+    - [Text Detection]()  (coming soon)
     - [Text Recognition](docs/en/tutorials/training_recognition_custom_dataset.md)
     - [Distributed Training](docs/en/tutorials/distribute_train.md)
     - [Advance: Gradient Accumulation, EMA, Resume Training, etc](docs/en/tutorials/advanced_train.md)
@@ -150,7 +150,7 @@ For more illustration and usage, please refer to the model training section in [
 
 ## Model List
 
-<details open>
+<details open markdown>
 <summary>Text Detection</summary>
 
 - [x] [DBNet](configs/det/dbnet/README.md) (AAAI'2020)
@@ -161,7 +161,7 @@ For more illustration and usage, please refer to the model training section in [
 
 </details>
 
-<details open>
+<details open markdown>
 <summary>Text Recognition</summary>
 
 - [x] [CRNN](configs/rec/crnn/README.md) (TPAMI'2016)
@@ -179,23 +179,16 @@ For detailed support for MindSpore Lite and ACL inference models, please refer t
 
 MindOCR provides a [dataset conversion tool](tools/dataset_converters) to OCR datasets with different formats and support customized dataset by users. We have validated the following public OCR datasets in model training/evaluation.
 
-<details open>
+<details open markdown>
 <summary>General OCR Datasets</summary>
 
 - [x] [ICDAR2015](https://rrc.cvc.uab.es/?ch=4) [[paper](https://rrc.cvc.uab.es/files/short_rrc_2015.pdf)] [[download](docs/en/datasets/icdar2015.md)]
-
 - [x] [Total-Text](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset)  [[paper](https://arxiv.org/abs/1710.10400)]  [[download](docs/en/datasets/totaltext.md)]
-
 - [x] [Syntext150k](https://github.com/aim-uofa/AdelaiDet) [[paper](https://arxiv.org/abs/2002.10200)] [[download](docs/en/datasets/syntext150k.md)]
-
 - [x] [MLT2017](https://rrc.cvc.uab.es/?ch=8&com=introduction) [[paper](https://ieeexplore.ieee.org/abstract/document/8270168)]  [[download](docs/en/datasets/mlt2017.md)] (multi-language)
-
 - [x] [MSRA-TD500](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500)) [[paper](https://ieeexplore.ieee.org/abstract/document/6247787)]  [[download](docs/en/datasets/td500.md)]
-
 - [x] [SCUT-CTW1500](https://github.com/Yuliang-Liu/Curve-Text-Detector) [[paper](https://www.sciencedirect.com/science/article/pii/S0031320319300664)]   [[download](docs/en/datasets/ctw1500.md)]
-
 - [x] [Chinese-Text-Recognition-Benchmark](https://github.com/FudanVI/benchmarking-chinese-text-recognition)  [[paper](https://arxiv.org/abs/2112.15093)]   [[download](https://github.com/FudanVI/benchmarking-chinese-text-recognition#download)]
-
 </details>
 
 We will include more datasets for training and evaluation. This list will be continuously updated.

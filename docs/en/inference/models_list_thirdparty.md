@@ -1,5 +1,3 @@
-English | [中文](../../cn/inference/models_list_thirdparty.md)
-
 ## Inference - Third-Party Models Support List
 
 MindOCR can support the inference of third-party models, and this document displays a list of adapted models.

@@ -1,5 +1,3 @@
-English | [中文](../../cn/inference/model_evaluation.md)
-
 ## Model Inference Evaluation
 
 #### 1. Text detection

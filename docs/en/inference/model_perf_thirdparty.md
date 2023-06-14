@@ -1,5 +1,3 @@
-English | [中文](../../cn/inference/model_perf_thirdparty.md)
-
 ## Third-party Model Inference Performance Table
 
 This document will give the performance of the third-party inference model using the MindIR format after performing

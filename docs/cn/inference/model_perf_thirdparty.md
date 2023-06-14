@@ -1,5 +1,3 @@
-[English](../../en/inference/model_perf_thirdparty.md) | 中文
-
 ## 第三方模型推理性能列表
 
 本文档将给出第三方推理模型在进行[模型转换](convert_tutorial.md)后，使用MindIR格式推理时的性能。

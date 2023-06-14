@@ -1,5 +1,3 @@
-[English](../../en/inference/model_evaluation.md) | 中文
-
 ## 模型推理精度评估
 
 ### 1. 文本检测

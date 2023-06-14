@@ -1,5 +1,3 @@
-[English](../../en/tutorials/training_recognition_custom_dataset.md) | 中文
-
 # 使用自定义数据集训练识别网络
 
 本文档提供如何使用自定义数据集进行识别网络训练的教学，包括训练中、英文等不同语种的识别网络。

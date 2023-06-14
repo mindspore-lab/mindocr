@@ -1,5 +1,3 @@
-[English](../../en/datasets/chinese_text_recognition.md) | 中文
-
 # 中文文字识别数据集
 
 本文档介绍中文文本识别的数据集准备。
@@ -103,4 +101,4 @@ eval:
   ...
 ```
 
-[返回](../../../tools/dataset_converters/README_CN.md)
+[返回dataset_converters](../mkdocs/dataset_converters.md)

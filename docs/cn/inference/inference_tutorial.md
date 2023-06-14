@@ -1,5 +1,3 @@
-[English](../../en/inference/inference_tutorial.md) | 中文
-
 ## 推理 - 使用教程
 
 ### 1. 简介

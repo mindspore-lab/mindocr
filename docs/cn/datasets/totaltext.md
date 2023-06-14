@@ -1,5 +1,3 @@
-[English](../../en/datasets/totaltext.md) | 中文
-
 # 数据集下载
 
 Total-Text [文章](https://arxiv.org/abs/1710.10400)
@@ -31,4 +29,4 @@ path-to-data-dir/
 
 ```
 
-[返回](../../../tools/dataset_converters/README_CN.md)
+[返回dataset_converters](../mkdocs/dataset_converters.md)

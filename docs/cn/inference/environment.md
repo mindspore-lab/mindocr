@@ -1,5 +1,3 @@
-[English](../../en/inference/environment.md) | 中文
-
 ## 推理 - 运行环境安装
 
 MindOCR支持Ascend310/Ascend310P设备的推理。

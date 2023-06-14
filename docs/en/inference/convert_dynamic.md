@@ -1,5 +1,3 @@
-English | [中文](../../cn/inference/convert_dynamic.md)
-
 ## Inference - Model Shape Scaling
 
 ### 1. Introduction
