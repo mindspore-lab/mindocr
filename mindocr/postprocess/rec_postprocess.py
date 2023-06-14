@@ -230,7 +230,7 @@ class RecAttnLabelDecode:
             char_list = [self.character[i] for i in char_indices[batch_idx]]
 
             try:
-                pred_EOS = char_list.index('<STOP>')
+                pred_EOS = char_list.index("<STOP>")
             except ValueError:
                 pred_EOS = -1
 
