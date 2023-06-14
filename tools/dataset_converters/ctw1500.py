@@ -3,6 +3,8 @@ import json
 import os
 import xml.etree.ElementTree as ET
 
+from shapely.geometry import Polygon
+
 
 class CTW1500_Converter(object):
     """
@@ -42,10 +44,11 @@ class CTW1500_Converter(object):
                             assert (
                                 len(points) % 2 == 0
                             ), f"The length of the points should be an even number, but get {len(points)}"
-                            s = []
-                            for i in range(0, len(points), 2):
-                                b = [int(points[i]), int(points[i + 1])]
-                                s.append(b)
+                            s = [[int(points[i]), int(points[i + 1])] for i in range(0, len(points), 2)]
+
+                            if not Polygon(s).exterior.is_ccw:  # sort vertices in polygons in clockwise order
+                                s = s[::-1]
+
                             result = {"transcription": tmp[-1], "points": s}
                             label.append(result)
 
@@ -70,10 +73,11 @@ class CTW1500_Converter(object):
                             points = tmp.find("segs").text.split(",")
 
                             assert len(points) == 28, f"The length of the points should be 28, but get {len(points)}"
-                            s = []
-                            for i in range(0, len(points), 2):
-                                b = [int(points[i]), int(points[i + 1])]
-                                s.append(b)
+                            s = [[int(points[i]), int(points[i + 1])] for i in range(0, len(points), 2)]
+
+                            if not Polygon(s).exterior.is_ccw:  # sort vertices in polygons in clockwise order
+                                s = s[::-1]
+
                             result = {"transcription": annotation, "points": s}
                             label.append(result)
 

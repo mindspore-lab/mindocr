@@ -12,7 +12,6 @@
 └── transforms
     ├── det_transforms.py			# processing and augmentation ops (callabel classes) especially for detection tasks
     ├── general_transforms.py			# general processing and augmentation ops (callabel classes)
-    ├── iaa_augment.py				# augmentation ops from ImgAug library
     ├── modelzoo_transforms.py			# transformations adopted from modelzoo
     ├── rec_transforms.py			# processing and augmentation ops (callabel classes) especially for recognition tasks
     └── transforms_factory.py			# API for create and run transforms

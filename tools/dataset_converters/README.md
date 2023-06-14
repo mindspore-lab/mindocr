@@ -4,7 +4,7 @@ This document shows how to convert ocr annotation to the general format (not inc
 
 You may also refer to [`convert_datasets.sh`](../convert_datasets.sh) which is a quick solution for converting annotation files of all datasets under a given directory.
 
-To download and convert OCR datasets to the required data format, please refer to the following instructions: [Chinese text recognition](../../docs/en/datasets/chinese_text_recognition.md), [CTW1500](../../docs/en/datasets/ctw1500.md), [ICDAR2015](../../docs/en/datasets/icdar2015.md), [MLT2017](../../docs/en/datasets/mlt2017.md), [SVT](../../docs/en/datasets/svt.md), [Syntext 150k](../../docs/en/datasets/syntext150k.md), [TD500](../../docs/en/datasets/td500.md), [Total Text](../../docs/en/datasets/totaltext.md).
+To download and convert OCR datasets to the required data format, please refer to the following instructions: [Chinese text recognition](../../docs/en/datasets/chinese_text_recognition.md), [CTW1500](../../docs/en/datasets/ctw1500.md), [ICDAR2015](../../docs/en/datasets/icdar2015.md), [MLT2017](../../docs/en/datasets/mlt2017.md), [SVT](../../docs/en/datasets/svt.md), [Syntext 150k](../../docs/en/datasets/syntext150k.md), [TD500](../../docs/en/datasets/td500.md), [Total Text](../../docs/en/datasets/totaltext.md), [SynthText](../../docs/en/datasets/synthtext.md).
 
 ## Text Detection/Spotting Annotation
 
