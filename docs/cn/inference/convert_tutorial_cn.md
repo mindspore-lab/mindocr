@@ -227,3 +227,30 @@ converter_lite \
 ```
 
 转换流程和[MindOCR模型](#1-mindocr模型)完全相同，仅有区别是`--fmk`需指定输入是ONNX模型，这里不再赘述。
+
+### 3. MMOCR模型
+
+MMOCR使用Pytorch，其模型文件一般是pth格式。
+
+需要先把它导出为ONNX格式，再转换为[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)/[MindSpore Lite](https://www.mindspore.cn/lite)支持的OM/MindIR格式。
+
+```mermaid
+graph LR;
+    pth -- export -->  ONNX;
+    ONNX -- atc --> o1(OM);
+    ONNX -- converter_lite --> o2(MindIR);
+```
+
+#### 3.1 MMOCR模型 -> ONNX
+
+[MMDeploy](https://github.com/open-mmlab/mmdeploy)提供了MMOCR模型导出ONNX的命令，详细教程见[如何转换模型](https://github.com/open-mmlab/mmdeploy/blob/main/docs/zh_cn/02-how-to-run/convert_model.md)。
+
+对于参数`deploy_cfg`需选择目录[mmdeploy/configs/mmocr](https://github.com/open-mmlab/mmdeploy/tree/main/configs/mmocr)下的`*_onnxruntime_dynamic.py`文件，从而导出为动态Shape版ONNX模型。
+
+#### 3.2 ONNX -> OM
+
+请参考上文PaddleOCR小节的[ONNX -> OM](#23-onnx---om)。
+
+#### 3.3 ONNX -> MindIR
+
+请参考上文PaddleOCR小节的[ONNX -> MIndIR](#23-onnx---mindir)。

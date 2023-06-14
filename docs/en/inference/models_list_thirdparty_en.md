@@ -9,10 +9,11 @@ or MindIR). Please refer to the [model conversion tutorial](convert_tutorial_en.
 
 The original model files involved are as follows:
 
-| type     | format                                 | description                                                                                                                                                       |
-|:---------|:---------------------------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| pp-train | .pdparams、.pdopt、.states             | PaddlePaddle trained model, it saved in the training process, which stores the parameters of the model, mostly used for model evaluation and continuous training. |
-| pp-infer | inference.pdmodel、inference.pdiparams | PaddlePaddle inference model, it can be derived from its trained model, saving the network structure and weights.                                                 |
+| type     | format                                 | description                                                                                                          |
+|:---------|:---------------------------------------|:---------------------------------------------------------------------------------------------------------------------|
+| pp-train | .pdparams、.pdopt、.states             | PaddlePaddle trained model, which can store information such as model structure, weights, optimizer status, etc      |
+| pp-infer | inference.pdmodel、inference.pdiparams | PaddlePaddle inference model, which can be derived from its trained model, saving the network structure and weights. |
+| pth      | .pth                                   | Pytorch model, which can store information such as model structure, weights, optimizer status, etc                   |
 
 
 ### 1. Text detection
@@ -30,6 +31,8 @@ The original model files involved are as follows:
 | en_pp_det_psenet_resnet50vd | PSE  | ResNet50_vd | [yaml](../../../deploy/py_infer/src/configs/det/ppocr/det_r50_vd_pse.yaml) | [pp-train](https://paddleocr.bj.bcebos.com/dygraph_v2.1/en_det/det_r50_vd_pse_v2.0_train.tar) | [PSE](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/algorithm_overview_en.md)                    | PaddleOCR |
 | en_pp_det_east_resnet50vd | EAST  | ResNet50_vd | [yaml](../../../deploy/py_infer/src/configs/det/ppocr/det_r50_vd_east.yaml) | [pp-train](https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/det_r50_vd_east_v2.0_train.tar) | [EAST](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/algorithm_det_east_en.md) | PaddleOCR |
 | en_pp_det_sast_resnet50vd | SAST  | ResNet50_vd | [yaml](../../../deploy/py_infer/src/configs/det/ppocr/det_r50_vd_sast_icdar15.yaml) | [pp-train](https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/det_r50_vd_sast_icdar15_v2.0_train.tar) | [SAST](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/algorithm_det_sast_en.md) | PaddleOCR |
+| en_mm_det_denetpp_resnet50 | DB++  | ResNet50 | [yaml](../../../deploy/py_infer/src/configs/det/mmocr/dbnetpp_resnet50_fpnc_1200e_icdar2015.yaml) | [pth](https://download.openmmlab.com/mmocr/textdet/dbnetpp/dbnetpp_resnet50_fpnc_1200e_icdar2015/dbnetpp_resnet50_fpnc_1200e_icdar2015_20221025_185550-013730aa.pth) | [DBNetpp](https://github.com/open-mmlab/mmocr/blob/main/configs/textdet/dbnetpp/README.md) | MMOCR |
+| en_mm_det_fcenet_resnet50 | FCENet  | ResNet50 | [yaml](../../../deploy/py_infer/src/configs/det/mmocr/fcenet_resnet50_fpn_1500e_icdar2015.yaml) | [pth](https://download.openmmlab.com/mmocr/textdet/fcenet/fcenet_resnet50_fpn_1500e_icdar2015/fcenet_resnet50_fpn_1500e_icdar2015_20220826_140941-167d9042.pth) | [FCENet](https://github.com/open-mmlab/mmocr/blob/main/configs/textdet/fcenet/README.md) | MMOCR |
 
 ### 2. Text recognition
 
