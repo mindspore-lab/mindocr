@@ -12,18 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
-import numpy as np
 import cv2
-import pyclipper
-
-from numpy.fft import ifft
+import numpy as np
 import Polygon as plg
+import pyclipper
+from numpy.fft import ifft
 
-__all__ = ['FCEPostProcess']
+__all__ = ["FCEPostProcess"]
 
 
 def points2polygon(points):
@@ -150,49 +147,51 @@ def poly_nms(polygons, threshold):
 def fill_hole(input_mask):
     h, w = input_mask.shape
     canvas = np.zeros((h + 2, w + 2), np.uint8)
-    canvas[1:h + 1, 1:w + 1] = input_mask.copy()
+    canvas[1 : h + 1, 1 : w + 1] = input_mask.copy()
 
     mask = np.zeros((h + 4, w + 4), np.uint8)
 
     cv2.floodFill(canvas, mask, (0, 0), 1)
-    canvas = canvas[1:h + 1, 1:w + 1].astype(np.bool)
+    canvas = canvas[1 : h + 1, 1 : w + 1].astype(np.bool)
 
     return ~canvas | input_mask
 
 
 def fourier2poly(fourier_coeff, num_reconstr_points=50):
-    """ Inverse Fourier transform
-        Args:
-            fourier_coeff (ndarray): Fourier coefficients shaped (n, 2k+1),
-                with n and k being candidates number and Fourier degree
-                respectively.
-            num_reconstr_points (int): Number of reconstructed polygon points.
-        Returns:
-            Polygons (ndarray): The reconstructed polygons shaped (n, n')
-        """
+    """Inverse Fourier transform
+    Args:
+        fourier_coeff (ndarray): Fourier coefficients shaped (n, 2k+1),
+            with n and k being candidates number and Fourier degree
+            respectively.
+        num_reconstr_points (int): Number of reconstructed polygon points.
+    Returns:
+        Polygons (ndarray): The reconstructed polygons shaped (n, n')
+    """
 
-    a = np.zeros((len(fourier_coeff), num_reconstr_points), dtype='complex')
+    a = np.zeros((len(fourier_coeff), num_reconstr_points), dtype="complex")
     k = (len(fourier_coeff[0]) - 1) // 2
 
-    a[:, 0:k + 1] = fourier_coeff[:, k:]
+    a[:, 0 : k + 1] = fourier_coeff[:, k:]
     a[:, -k:] = fourier_coeff[:, :k]
 
     poly_complex = ifft(a) * num_reconstr_points
     polygon = np.zeros((len(fourier_coeff), num_reconstr_points, 2))
     polygon[:, :, 0] = poly_complex.real
     polygon[:, :, 1] = poly_complex.imag
-    return polygon.astype('int32').reshape((len(fourier_coeff), -1))
+    return polygon.astype("int32").reshape((len(fourier_coeff), -1))
 
 
-def fcenet_decode(preds,
-                  fourier_degree,
-                  num_reconstr_points,
-                  scale,
-                  alpha=1.0,
-                  beta=2.0,
-                  text_repr_type='poly',
-                  score_thr=0.3,
-                  nms_thr=0.1):
+def fcenet_decode(
+    preds,
+    fourier_degree,
+    num_reconstr_points,
+    scale,
+    alpha=1.0,
+    beta=2.0,
+    text_repr_type="poly",
+    score_thr=0.3,
+    nms_thr=0.1,
+):
     """Decoding predictions of FCENet to instances.
     Args:
         preds (list(Tensor)): The head output tensors.
@@ -214,7 +213,7 @@ def fcenet_decode(preds,
     """
     assert isinstance(preds, list)
     assert len(preds) == 2
-    assert text_repr_type in ['poly', 'quad']
+    assert text_repr_type in ["poly", "quad"]
 
     # import pdb;pdb.set_trace()
     cls_pred = preds[0][0]
@@ -225,16 +224,14 @@ def fcenet_decode(preds,
     tcl_pred = cls_pred[2:]
 
     reg_pred = preds[1][0].transpose([1, 2, 0])  # .cpu().numpy()
-    x_pred = reg_pred[:, :, :2 * fourier_degree + 1]
-    y_pred = reg_pred[:, :, 2 * fourier_degree + 1:]
+    x_pred = reg_pred[:, :, : 2 * fourier_degree + 1]
+    y_pred = reg_pred[:, :, 2 * fourier_degree + 1 :]
 
     score_pred = (tr_pred[1] ** alpha) * (tcl_pred[1] ** beta)
     tr_pred_mask = (score_pred) > score_thr
     tr_mask = fill_hole(tr_pred_mask)
 
-    tr_contours, _ = cv2.findContours(
-        tr_mask.astype(np.uint8), cv2.RETR_TREE,
-        cv2.CHAIN_APPROX_SIMPLE)  # opencv4
+    tr_contours, _ = cv2.findContours(tr_mask.astype(np.uint8), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)  # opencv4
 
     mask = np.zeros_like(tr_mask)
     boundaries = []
@@ -260,7 +257,7 @@ def fcenet_decode(preds,
 
     boundaries = poly_nms(boundaries, nms_thr)
 
-    if text_repr_type == 'quad':
+    if text_repr_type == "quad":
         new_boundaries = []
         for boundary in boundaries:
             poly = np.array(boundary[:-1]).reshape(-1, 2).astype(np.float32)
@@ -274,16 +271,17 @@ def fcenet_decode(preds,
 
 class FCEPostProcess(object):
     def __init__(
-            self,
-            scales,
-            fourier_degree=5,
-            num_reconstr_points=50,
-            decoding_type='fcenet',
-            score_thr=0.3,
-            nms_thr=0.1,
-            alpha=1.0,
-            beta=1.0,
-            text_repr_type='poly'):
+        self,
+        scales,
+        fourier_degree=5,
+        num_reconstr_points=50,
+        decoding_type="fcenet",
+        score_thr=0.3,
+        nms_thr=0.1,
+        alpha=1.0,
+        beta=1.0,
+        text_repr_type="poly",
+    ):
         self.scales = scales
         self.fourier_degree = fourier_degree
         self.num_reconstr_points = num_reconstr_points
@@ -330,8 +328,11 @@ class FCEPostProcess(object):
             sz = len(b)
             valid_boundary(b, True)
             scores.append(b[-1])
-            b = (np.array(b[:sz - 1]) *
-                 (np.tile(scale_factor[:2], int((sz - 1) / 2)).reshape(1, sz - 1))).flatten().tolist()
+            b = (
+                (np.array(b[: sz - 1]) * (np.tile(scale_factor[:2], int((sz - 1) / 2)).reshape(1, sz - 1)))
+                .flatten()
+                .tolist()
+            )
             boxes.append(np.array(b).reshape([-1, 2]))
 
         return np.array(boxes, dtype=np.float32), scores
@@ -342,16 +343,14 @@ class FCEPostProcess(object):
         boundaries = []
         for idx, score_map in enumerate(score_maps):
             scale = self.scales[idx]
-            boundaries = boundaries + self._get_boundary_single(
-                score_map, scale)
+            boundaries = boundaries + self._get_boundary_single(score_map, scale)
 
         # nms
         boundaries = poly_nms(boundaries, self.nms_thr)
 
         # if rescale:
         # import pdb;pdb.set_trace()
-        boundaries, scores = self.resize_boundary(
-            boundaries, (1 / shape_list[0, 2:]).tolist()[::-1])
+        boundaries, scores = self.resize_boundary(boundaries, (1 / shape_list[0, 2:]).tolist()[::-1])
 
         # boxes_batch = [dict(points=boundaries, scores=scores)]
         boxes_batch = [[boundaries, scores]]
@@ -370,4 +369,5 @@ class FCEPostProcess(object):
             beta=self.beta,
             text_repr_type=self.text_repr_type,
             score_thr=self.score_thr,
-            nms_thr=self.nms_thr)
+            nms_thr=self.nms_thr,
+        )

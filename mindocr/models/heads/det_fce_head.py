@@ -1,7 +1,8 @@
-import mindspore.ops as ops
-from mindspore.nn import Cell
 import mindspore.nn as nn
+import mindspore.ops as ops
 from mindspore.common.initializer import Normal
+from mindspore.nn import Cell
+
 
 def _conv(in_channels, out_channels, kernel_size=3, stride=1, padding=0, pad_mode='same', has_bias=False):
     init_value = Normal()

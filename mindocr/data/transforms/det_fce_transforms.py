@@ -1,39 +1,41 @@
-import numpy as np
-from PIL import Image, ImageDraw
+import json
+import math
+import sys
+
 import cv2
+import imgaug
+import imgaug.augmenters as iaa
+import numpy as np
+import Polygon as plg
 from numpy.fft import fft
 from numpy.linalg import norm
-import Polygon as plg
-import math
-import imgaug.augmenters as iaa
-import imgaug
+from PIL import Image, ImageDraw
+
 import mindspore.dataset.vision as vision
-import json
-import sys
 
 
 class DetResizeForTest(object):
     def __init__(self, **kwargs):
         super(DetResizeForTest, self).__init__()
         self.resize_type = 0
-        if 'image_shape' in kwargs:
-            self.image_shape = kwargs['image_shape']
+        if "image_shape" in kwargs:
+            self.image_shape = kwargs["image_shape"]
             self.resize_type = 1
-        elif 'limit_side_len' in kwargs:
-            self.limit_side_len = kwargs['limit_side_len']
-            self.limit_type = kwargs.get('limit_type', 'min')
-        elif 'resize_long' in kwargs:
+        elif "limit_side_len" in kwargs:
+            self.limit_side_len = kwargs["limit_side_len"]
+            self.limit_type = kwargs.get("limit_type", "min")
+        elif "resize_long" in kwargs:
             self.resize_type = 2
-            self.resize_long = kwargs.get('resize_long', 960)
-        elif 'rescale_img' in kwargs:
+            self.resize_long = kwargs.get("resize_long", 960)
+        elif "rescale_img" in kwargs:
             self.resize_type = 3
-            self.image_shape = kwargs['rescale_img']
+            self.image_shape = kwargs["rescale_img"]
         else:
             self.limit_side_len = 736
-            self.limit_type = 'min'
+            self.limit_type = "min"
 
     def __call__(self, data):
-        img = data['image']
+        img = data["image"]
         src_h, src_w, _ = img.shape
         if self.resize_type == 0:
             # img, shape = self.resize_image_type0(img)
@@ -46,8 +48,8 @@ class DetResizeForTest(object):
             # img, shape = self.resize_image_type1(img)
             img, [ratio_h, ratio_w] = self.resize_image_type1(img)
 
-        data['image'] = img
-        data['shape'] = np.array([src_h, src_w, ratio_h, ratio_w])
+        data["image"] = img
+        data["shape"] = np.array([src_h, src_w, ratio_h, ratio_w])
         return data
 
     def resize_image_type3(self, img):
@@ -82,26 +84,26 @@ class DetResizeForTest(object):
         h, w, c = img.shape
 
         # limit the max side
-        if self.limit_type == 'max':
+        if self.limit_type == "max":
             if max(h, w) > limit_side_len:
                 if h > w:
                     ratio = float(limit_side_len) / h
                 else:
                     ratio = float(limit_side_len) / w
             else:
-                ratio = 1.
-        elif self.limit_type == 'min':
+                ratio = 1.0
+        elif self.limit_type == "min":
             if min(h, w) < limit_side_len:
                 if h < w:
                     ratio = float(limit_side_len) / h
                 else:
                     ratio = float(limit_side_len) / w
             else:
-                ratio = 1.
-        elif self.limit_type == 'resize_long':
+                ratio = 1.0
+        elif self.limit_type == "resize_long":
             ratio = float(limit_side_len) / max(h, w)
         else:
-            raise Exception('not support limit type, image ')
+            raise Exception("not support limit type, image ")
         resize_h = int(h * ratio)
         resize_w = int(w * ratio)
 
@@ -149,20 +151,20 @@ class FDetLabelEncode(object):
         # pass
 
     def __call__(self, data):
-        data['image'] = cv2.imread(data['img_path'], cv2.IMREAD_COLOR)[:, :, ::-1]
-        label = data['label']
+        data["image"] = cv2.imread(data["img_path"], cv2.IMREAD_COLOR)[:, :, ::-1]
+        label = data["label"]
         label = json.loads(label)
         nBox = len(label)
         boxes, txts, txt_tags = [], [], []
         for bno in range(0, nBox):
-            box = label[bno]['points']
+            box = label[bno]["points"]
 
             if np.sum(np.array(box, dtype=np.float32), axis=0).min() < 1:
                 continue
-            txt = label[bno]['transcription']
+            txt = label[bno]["transcription"]
             boxes.append(box)
             txts.append(txt)
-            if txt in ['*', '###']:
+            if txt in ["*", "###"]:
                 txt_tags.append(True)
             else:
                 txt_tags.append(False)
@@ -171,11 +173,11 @@ class FDetLabelEncode(object):
         boxes = self.expand_points_num(boxes)
         # boxes = np.array(boxes, dtype=np.float32)
         # txt_tags = np.array(txt_tags, dtype=np.bool)
-        data['polys'] = np.array(boxes, dtype=np.float32)
-        data['texts'] = txts
-        data['ignore_tags'] = txt_tags
-        data['polygons'] = np.array([boxes[i] for i in range(len(txt_tags)) if not txt_tags[i]], dtype=np.float32)
-        data['ignore_polygons'] = np.array([boxes[i] for i in range(len(txt_tags)) if txt_tags[i]], dtype=np.float32)
+        data["polys"] = np.array(boxes, dtype=np.float32)
+        data["texts"] = txts
+        data["ignore_tags"] = txt_tags
+        data["polygons"] = np.array([boxes[i] for i in range(len(txt_tags)) if not txt_tags[i]], dtype=np.float32)
+        data["ignore_polygons"] = np.array([boxes[i] for i in range(len(txt_tags)) if txt_tags[i]], dtype=np.float32)
 
         return data
 
@@ -201,12 +203,7 @@ class FDetLabelEncode(object):
         return ex_boxes
 
 
-def imresize(img,
-             size,
-             return_scale=False,
-             interpolation='bilinear',
-             out=None,
-             backend=None):
+def imresize(img, size, return_scale=False, interpolation="bilinear", out=None, backend=None):
     """Resize image to a given size.
 
     Args:
@@ -226,27 +223,25 @@ def imresize(img,
             `resized_img`.
     """
     cv2_interp_codes = {
-        'nearest': cv2.INTER_NEAREST,
-        'bilinear': cv2.INTER_LINEAR,
-        'bicubic': cv2.INTER_CUBIC,
-        'area': cv2.INTER_AREA,
-        'lanczos': cv2.INTER_LANCZOS4
+        "nearest": cv2.INTER_NEAREST,
+        "bilinear": cv2.INTER_LINEAR,
+        "bicubic": cv2.INTER_CUBIC,
+        "area": cv2.INTER_AREA,
+        "lanczos": cv2.INTER_LANCZOS4,
     }
     h, w = img.shape[:2]
     if backend is None:
-        backend = 'cv2'
-    if backend not in ['cv2', 'pillow']:
-        raise ValueError(f'backend: {backend} is not supported for resize.'
-                         f"Supported backends are 'cv2', 'pillow'")
+        backend = "cv2"
+    if backend not in ["cv2", "pillow"]:
+        raise ValueError(f"backend: {backend} is not supported for resize." f"Supported backends are 'cv2', 'pillow'")
 
-    if backend == 'pillow':
-        assert img.dtype == np.uint8, 'Pillow backend only support uint8 type'
+    if backend == "pillow":
+        assert img.dtype == np.uint8, "Pillow backend only support uint8 type"
         pil_image = Image.fromarray(img)
         pil_image = pil_image.resize(size, pillow_interp_codes[interpolation])
         resized_img = np.array(pil_image)
     else:
-        resized_img = cv2.resize(
-            img, size, dst=out, interpolation=cv2_interp_codes[interpolation])
+        resized_img = cv2.resize(img, size, dst=out, interpolation=cv2_interp_codes[interpolation])
     if not return_scale:
         return resized_img
     else:
@@ -256,8 +251,7 @@ def imresize(img,
 
 
 class RandomScaling:
-
-    def __init__(self, size=800, scale=(3. / 4, 5. / 2), **kwargs):
+    def __init__(self, size=800, scale=(3.0 / 4, 5.0 / 2), **kwargs):
         """Random scale the image while keeping aspect.
 
         Args:
@@ -267,11 +261,10 @@ class RandomScaling:
         assert isinstance(size, int)
         assert isinstance(scale, float) or isinstance(scale, tuple) or isinstance(scale, list)
         self.size = size
-        self.scale = scale if (isinstance(scale, tuple) or isinstance(scale, list)) \
-            else (1 - scale, 1 + scale)
+        self.scale = scale if (isinstance(scale, tuple) or isinstance(scale, list)) else (1 - scale, 1 + scale)
 
     def __call__(self, data):
-        image = data['image']
+        image = data["image"]
         h, w, _ = image.shape
 
         aspect_ratio = np.random.uniform(min(self.scale), max(self.scale))
@@ -280,9 +273,9 @@ class RandomScaling:
         out_size = (int(h * scales[1]), int(w * scales[0]))
         image = imresize(image, out_size[::-1])
 
-        data['image'] = image
+        data["image"] = image
 
-        for key in ['polygons', 'ignore_polygons']:
+        for key in ["polygons", "ignore_polygons"]:
             # for key in ['polys']:
 
             if len(data[key]) == 0:
@@ -315,14 +308,7 @@ def poly_intersection(poly_det, poly_gt):
 
 
 class RandomCropFlip:
-
-    def __init__(self,
-                 pad_ratio=0.1,
-                 crop_ratio=0.5,
-                 iter_num=1,
-                 min_area_ratio=0.2,
-                 **kwargs
-                 ):
+    def __init__(self, pad_ratio=0.1, crop_ratio=0.5, iter_num=1, min_area_ratio=0.2, **kwargs):
         """Random crop and flip a patch of the image.
 
         Args:
@@ -348,9 +334,9 @@ class RandomCropFlip:
         return results
 
     def random_crop_flip(self, results):
-        image = results['image']
-        polygons = results['polygons']
-        ignore_polygons = results['ignore_polygons']
+        image = results["image"]
+        polygons = results["polygons"]
+        ignore_polygons = results["ignore_polygons"]
 
         all_polygons = list(polygons) + list(ignore_polygons)
 
@@ -364,8 +350,7 @@ class RandomCropFlip:
         area = h * w
         pad_h = int(h * self.pad_ratio)
         pad_w = int(w * self.pad_ratio)
-        h_axis, w_axis = self.generate_crop_target(image, all_polygons, pad_h,
-                                                   pad_w)
+        h_axis, w_axis = self.generate_crop_target(image, all_polygons, pad_h, pad_w)
         if len(h_axis) == 0 or len(w_axis) == 0:
             return results
 
@@ -390,15 +375,13 @@ class RandomCropFlip:
                 # area too small
                 continue
 
-            pts = np.stack([[xmin, xmax, xmax, xmin],
-                            [ymin, ymin, ymax, ymax]]).T.astype(np.int32)
+            pts = np.stack([[xmin, xmax, xmax, xmin], [ymin, ymin, ymax, ymax]]).T.astype(np.int32)
             pp = plg.Polygon(pts)
             fail_flag = False
             for polygon in polygons:
                 ppi = plg.Polygon(polygon.reshape(-1, 2))
                 ppiou, _ = poly_intersection(ppi, pp)
-                if np.abs(ppiou - float(ppi.area())) > self.epsilon and \
-                        np.abs(ppiou) > self.epsilon:
+                if np.abs(ppiou - float(ppi.area())) > self.epsilon and np.abs(ppiou) > self.epsilon:
                     fail_flag = True
                     break
                 elif np.abs(ppiou - float(ppi.area())) < self.epsilon:
@@ -409,8 +392,7 @@ class RandomCropFlip:
             for polygon in ignore_polygons:
                 ppi = plg.Polygon(polygon.reshape(-1, 2))
                 ppiou, _ = poly_intersection(ppi, pp)
-                if np.abs(ppiou - float(ppi.area())) > self.epsilon and \
-                        np.abs(ppiou) > self.epsilon:
+                if np.abs(ppiou - float(ppi.area())) > self.epsilon and np.abs(ppiou) > self.epsilon:
                     fail_flag = True
                     break
                 elif np.abs(ppiou - float(ppi.area())) < self.epsilon:
@@ -432,7 +414,7 @@ class RandomCropFlip:
         else:
             img = np.ascontiguousarray(cropped[::-1, ::-1])
         image[ymin:ymax, xmin:xmax, :] = img
-        results['image'] = image
+        results["image"] = image
 
         if len(polys_new) + len(ign_polys_new) != 0:
             height, width, _ = cropped.shape
@@ -467,8 +449,8 @@ class RandomCropFlip:
                     ign_polys_new[idx] = poly
             polygons = polys_keep + polys_new
             ignore_polygons = ign_polys_keep + ign_polys_new
-            results['polygons'] = polygons
-            results['ignore_polygons'] = ignore_polygons
+            results["polygons"] = polygons
+            results["ignore_polygons"] = ignore_polygons
 
         return results
 
@@ -502,10 +484,10 @@ class RandomCropFlip:
             poly = np.round(poly, decimals=0).astype(np.int32)
             minx = np.min(poly[:, 0])
             maxx = np.max(poly[:, 0])
-            w_array[minx + pad_w:maxx + pad_w] = 1
+            w_array[minx + pad_w : maxx + pad_w] = 1
             miny = np.min(poly[:, 1])
             maxy = np.max(poly[:, 1])
-            h_array[miny + pad_h:maxy + pad_h] = 1
+            h_array[miny + pad_h : maxy + pad_h] = 1
 
         h_axis = np.where(h_array == 0)[0]
         w_axis = np.where(w_array == 0)[0]
@@ -516,15 +498,12 @@ class RandomCropPolyInstances:  # 会变
     """Randomly crop images and make sure to contain at least one intact
     instance."""
 
-    def __init__(self,
-                 crop_ratio=5.0 / 8.0,
-                 min_side_ratio=0.4, **kwargs):
+    def __init__(self, crop_ratio=5.0 / 8.0, min_side_ratio=0.4, **kwargs):
         super().__init__()
         self.crop_ratio = crop_ratio
         self.min_side_ratio = min_side_ratio
 
     def sample_valid_start_end(self, valid_array, min_len, max_start, min_end):
-
         assert isinstance(min_len, int)
         assert len(valid_array) > min_len
 
@@ -536,8 +515,7 @@ class RandomCropPolyInstances:  # 会变
         region_starts = np.where(diff_array < 0)[0]
         region_ends = np.where(diff_array > 0)[0]
         region_ind = np.random.randint(0, len(region_starts))
-        start = np.random.randint(region_starts[region_ind],
-                                  region_ends[region_ind])
+        start = np.random.randint(region_starts[region_ind], region_ends[region_ind])
 
         end_array = valid_array.copy()
         min_end = max(start + min_len, min_end)
@@ -547,8 +525,7 @@ class RandomCropPolyInstances:  # 会变
         region_starts = np.where(diff_array < 0)[0]
         region_ends = np.where(diff_array > 0)[0]
         region_ind = np.random.randint(0, len(region_starts))
-        end = np.random.randint(region_starts[region_ind],
-                                region_ends[region_ind])
+        end = np.random.randint(region_starts[region_ind], region_ends[region_ind])
         return start, end
 
     def sample_crop_box(self, img_size, results):
@@ -562,7 +539,7 @@ class RandomCropPolyInstances:  # 会变
         assert isinstance(img_size, tuple)
         h, w = img_size[:2]
 
-        key_masks = results['polygons']
+        key_masks = results["polygons"]
 
         x_valid_array = np.ones(w, dtype=np.int32)
         y_valid_array = np.ones(h, dtype=np.int32)
@@ -578,8 +555,7 @@ class RandomCropPolyInstances:  # 会变
         #     if len(results[key].masks) == 0:
         #         continue
         #     masks = results[key].masks
-        for key in ['polygons', 'ignore_polygons']:
-
+        for key in ["polygons", "ignore_polygons"]:
             if len(results[key]) == 0:
                 continue
 
@@ -592,16 +568,14 @@ class RandomCropPolyInstances:  # 会变
                 min_x, max_x = np.min(clip_x), np.max(clip_x)
                 min_y, max_y = np.min(clip_y), np.max(clip_y)
 
-                x_valid_array[min_x - 2:max_x + 3] = 0
-                y_valid_array[min_y - 2:max_y + 3] = 0
+                x_valid_array[min_x - 2 : max_x + 3] = 0
+                y_valid_array[min_y - 2 : max_y + 3] = 0
 
         min_w = int(w * self.min_side_ratio)
         min_h = int(h * self.min_side_ratio)
 
-        x1, x2 = self.sample_valid_start_end(x_valid_array, min_w, max_x_start,
-                                             min_x_end)
-        y1, y2 = self.sample_valid_start_end(y_valid_array, min_h, max_y_start,
-                                             min_y_end)
+        x1, x2 = self.sample_valid_start_end(x_valid_array, min_w, max_x_start, min_x_end)
+        y1, y2 = self.sample_valid_start_end(y_valid_array, min_h, max_y_start, min_y_end)
 
         return np.array([x1, y1, x2, y2])
 
@@ -610,24 +584,23 @@ class RandomCropPolyInstances:  # 会变
         h, w, _ = img.shape
         assert 0 <= bbox[1] < bbox[3] <= h
         assert 0 <= bbox[0] < bbox[2] <= w
-        return img[bbox[1]:bbox[3], bbox[0]:bbox[2]]
+        return img[bbox[1] : bbox[3], bbox[0] : bbox[2]]
 
     def __call__(self, results):
-        image = results['image']
-        if len(results['polygons']) < 1:
+        image = results["image"]
+        if len(results["polygons"]) < 1:
             return results
 
         if np.random.random_sample() < self.crop_ratio:
-
             crop_box = self.sample_crop_box(image.shape, results)
             img = self.crop_img(image, crop_box)
-            results['image'] = img
+            results["image"] = img
             # crop and filter masks
             x1, y1, x2, y2 = crop_box
             w = max(x2 - x1, 1)
             h = max(y2 - y1, 1)
 
-            for key in ['polygons', 'ignore_polygons']:
+            for key in ["polygons", "ignore_polygons"]:
                 if len(results[key]) == 0:
                     continue
                 polygons = np.array(results[key], dtype=np.float32)
@@ -637,10 +610,12 @@ class RandomCropPolyInstances:  # 会变
 
                 valid_masks_list = []
                 for ind, polygon in enumerate(polygons):
-                    if (polygon[:, ::2] >
-                        -4).all() and (polygon[:, ::2] < w + 4).all() and (
-                            polygon[:, 1::2] > -4).all() and (polygon[:, 1::2] <
-                                                              h + 4).all():
+                    if (
+                        (polygon[:, ::2] > -4).all()
+                        and (polygon[:, ::2] < w + 4).all()
+                        and (polygon[:, 1::2] > -4).all()
+                        and (polygon[:, 1::2] < h + 4).all()
+                    ):
                         polygon[:, ::2] = np.clip(polygon[:, ::2], 0, w)
                         polygon[:, 1::2] = np.clip(polygon[:, 1::2], 0, h)
                         valid_masks_list.append(polygon)
@@ -655,13 +630,7 @@ class RandomCropPolyInstances:  # 会变
 
 
 class RandomRotatePolyInstances:
-
-    def __init__(self,
-                 rotate_ratio=0.5,
-                 max_angle=10,
-                 pad_with_fixed_color=False,
-                 pad_value=(0, 0, 0),
-                 **kwargs):
+    def __init__(self, rotate_ratio=0.5, max_angle=10, pad_with_fixed_color=False, pad_value=(0, 0, 0), **kwargs):
         """Randomly rotate images and polygon masks.
 
         Args:
@@ -688,8 +657,8 @@ class RandomRotatePolyInstances:
         cos = math.cos(theta)
         sin = math.sin(theta)
 
-        x = (x - center_x)
-        y = (y - center_y)
+        x = x - center_x
+        y = y - center_y
 
         _x = center_x + x * cos - y * sin + center_shift[0]
         _y = -(center_y + x * sin + y * cos) + center_shift[1]
@@ -723,51 +692,44 @@ class RandomRotatePolyInstances:
         if self.pad_with_fixed_color:
             target_img = cv2.warpAffine(
                 img,
-                rotation_matrix, (canvas_size[1], canvas_size[0]),
+                rotation_matrix,
+                (canvas_size[1], canvas_size[0]),
                 flags=cv2.INTER_NEAREST,
-                borderValue=self.pad_value)
+                borderValue=self.pad_value,
+            )
         else:
             mask = np.zeros_like(img)
-            (h_ind, w_ind) = (np.random.randint(0, h * 7 // 8),
-                              np.random.randint(0, w * 7 // 8))
-            img_cut = img[h_ind:(h_ind + h // 9), w_ind:(w_ind + w // 9)]
+            (h_ind, w_ind) = (np.random.randint(0, h * 7 // 8), np.random.randint(0, w * 7 // 8))
+            img_cut = img[h_ind : (h_ind + h // 9), w_ind : (w_ind + w // 9)]
             img_cut = imresize(img_cut, (canvas_size[1], canvas_size[0]))
-            mask = cv2.warpAffine(
-                mask,
-                rotation_matrix, (canvas_size[1], canvas_size[0]),
-                borderValue=[1, 1, 1])
-            target_img = cv2.warpAffine(
-                img,
-                rotation_matrix, (canvas_size[1], canvas_size[0]),
-                borderValue=[0, 0, 0])
+            mask = cv2.warpAffine(mask, rotation_matrix, (canvas_size[1], canvas_size[0]), borderValue=[1, 1, 1])
+            target_img = cv2.warpAffine(img, rotation_matrix, (canvas_size[1], canvas_size[0]), borderValue=[0, 0, 0])
             target_img = target_img + img_cut * mask
 
         return target_img
 
     def __call__(self, results):
         if np.random.random_sample() < self.rotate_ratio:
-            image = results['image']
+            image = results["image"]
             h, w = image.shape[:2]
 
             angle = self.sample_angle(self.max_angle)
             canvas_size = self.cal_canvas_size((h, w), angle)
-            center_shift = (int(
-                (canvas_size[1] - w) / 2), int((canvas_size[0] - h) / 2))
+            center_shift = (int((canvas_size[1] - w) / 2), int((canvas_size[0] - h) / 2))
 
             # rotate image
             image = self.rotate_img(image, angle, canvas_size)
-            results['image'] = image
+            results["image"] = image
 
             # rotate polygons
-            for key in ['polygons', 'ignore_polygons']:
+            for key in ["polygons", "ignore_polygons"]:
                 if len(results[key]) == 0:
                     continue
                 polygons = results[key]
 
                 rotated_masks = []
                 for mask in polygons:
-                    rotated_mask = self.rotate((w / 2, h / 2), mask, angle,
-                                               center_shift)
+                    rotated_mask = self.rotate((w / 2, h / 2), mask, angle, center_shift)
                     rotated_masks.append(rotated_mask)
                 results[key] = np.array(rotated_masks)
 
@@ -779,13 +741,7 @@ class RandomRotatePolyInstances:
 
 
 class SquareResizePad:
-
-    def __init__(self,
-                 target_size,
-                 pad_ratio=0.6,
-                 pad_with_fixed_color=False,
-                 pad_value=(0, 0, 0),
-                 **kwargs):
+    def __init__(self, target_size, pad_ratio=0.6, pad_with_fixed_color=False, pad_value=(0, 0, 0), **kwargs):
         """Resize or pad images to be square shape.
 
         Args:
@@ -824,15 +780,14 @@ class SquareResizePad:
             expand_img = np.ones((pad_size, pad_size, 3), dtype=np.uint8)
             expand_img[:] = self.pad_value
         else:
-            (h_ind, w_ind) = (np.random.randint(0, h * 7 // 8),
-                              np.random.randint(0, w * 7 // 8))
-            img_cut = img[h_ind:(h_ind + h // 9), w_ind:(w_ind + w // 9)]
+            (h_ind, w_ind) = (np.random.randint(0, h * 7 // 8), np.random.randint(0, w * 7 // 8))
+            img_cut = img[h_ind : (h_ind + h // 9), w_ind : (w_ind + w // 9)]
             expand_img = imresize(img_cut, (pad_size, pad_size))
         if h > w:
             y0, x0 = 0, (h - w) // 2
         else:
             y0, x0 = (w - h) // 2, 0
-        expand_img[y0:y0 + h, x0:x0 + w] = img
+        expand_img[y0 : y0 + h, x0 : x0 + w] = img
         offset = (x0, y0)
 
         return expand_img, offset
@@ -845,7 +800,7 @@ class SquareResizePad:
         return pad_points
 
     def __call__(self, results):
-        image = results['image']
+        image = results["image"]
 
         h, w = image.shape[:2]
 
@@ -857,8 +812,8 @@ class SquareResizePad:
             offset = (0, 0)
         # image, out_size = self.resize_img(image, keep_ratio=True)
         # image, offset = self.square_pad(image)
-        results['image'] = image
-        for key in ['polygons', 'ignore_polygons']:
+        results["image"] = image
+        for key in ["polygons", "ignore_polygons"]:
             if len(results[key]) == 0:
                 continue
             polys = np.array(results[key])
@@ -885,16 +840,12 @@ class AugmenterBuilder(object):
                 sequence = [self.build(value, root=False) for value in args]
                 return iaa.Sequential(sequence)
             else:
-                return getattr(iaa, args[0])(
-                    *[self.to_tuple_if_list(a) for a in args[1:]])
+                return getattr(iaa, args[0])(*[self.to_tuple_if_list(a) for a in args[1:]])
         elif isinstance(args, dict):
-            cls = getattr(iaa, args['type'])
-            return cls(**{
-                k: self.to_tuple_if_list(v)
-                for k, v in args['args'].items()
-            })
+            cls = getattr(iaa, args["type"])
+            return cls(**{k: self.to_tuple_if_list(v) for k, v in args["args"].items()})
         else:
-            raise RuntimeError('unknown augmenter arg: ' + str(args))
+            raise RuntimeError("unknown augmenter arg: " + str(args))
 
     def to_tuple_if_list(self, obj):
         if isinstance(obj, list):
@@ -907,12 +858,13 @@ class Pad(object):
         self.size_div = size_div
 
     def __call__(self, data):
-        img = data['image']
+        img = data["image"]
         resize_h2 = max(int(math.ceil(img.shape[0] / 32) * 32), 32)
         resize_w2 = max(int(math.ceil(img.shape[1] / 32) * 32), 32)
-        img = cv2.copyMakeBorder(img, 0, resize_h2 - img.shape[0], 0, resize_w2 - img.shape[1], cv2.BORDER_CONSTANT,
-                                 value=0)
-        data['image'] = img
+        img = cv2.copyMakeBorder(
+            img, 0, resize_h2 - img.shape[0], 0, resize_w2 - img.shape[1], cv2.BORDER_CONSTANT, value=0
+        )
+        data["image"] = img
         return data
 
 
@@ -933,15 +885,16 @@ class FCENetTargets:
             assigned to each level.
     """
 
-    def __init__(self,
-                 fourier_degree=5,
-                 resample_step=4.0,
-                 center_region_shrink_ratio=0.3,
-                 level_size_divisors=(8, 16, 32),
-                 level_proportion_range=((0, 0.25), (0.2, 0.65), (0.55, 1.0)),
-                 orientation_thr=2.0,
-                 **kwargs):
-
+    def __init__(
+        self,
+        fourier_degree=5,
+        resample_step=4.0,
+        center_region_shrink_ratio=0.3,
+        level_size_divisors=(8, 16, 32),
+        level_proportion_range=((0, 0.25), (0.2, 0.65), (0.55, 1.0)),
+        orientation_thr=2.0,
+        **kwargs,
+    ):
         super().__init__()
 
         assert isinstance(level_size_divisors, (tuple, list))
@@ -964,8 +917,7 @@ class FCENetTargets:
             unit_vec2 = vec2 / (norm(vec2, axis=-1) + 1e-8).reshape((-1, 1))
         else:
             unit_vec2 = vec2 / (norm(vec2, axis=-1) + 1e-8)
-        return np.arccos(
-            np.clip(np.sum(unit_vec1 * unit_vec2, axis=-1), -1.0, 1.0))
+        return np.arccos(np.clip(np.sum(unit_vec1 * unit_vec2, axis=-1), -1.0, 1.0))
 
     def vector_slope(self, vec):
         assert len(vec) == 2
@@ -996,9 +948,7 @@ class FCENetTargets:
         assert isinstance(n, int)
         assert n > 0
 
-        length_list = [
-            norm(line[i + 1] - line[i]) for i in range(len(line) - 1)
-        ]
+        length_list = [norm(line[i + 1] - line[i]) for i in range(len(line) - 1)]
         total_length = sum(length_list)
         length_cumsum = np.cumsum([0.0] + length_list)
         delta_length = total_length / (float(n) + 1e-8)
@@ -1011,13 +961,11 @@ class FCENetTargets:
 
             while current_line_len >= length_cumsum[current_edge_ind + 1]:
                 current_edge_ind += 1
-            current_edge_end_shift = current_line_len - length_cumsum[
-                current_edge_ind]
-            end_shift_ratio = current_edge_end_shift / length_list[
-                current_edge_ind]
-            current_point = line[current_edge_ind] + (
-                    line[current_edge_ind + 1] -
-                    line[current_edge_ind]) * end_shift_ratio
+            current_edge_end_shift = current_line_len - length_cumsum[current_edge_ind]
+            end_shift_ratio = current_edge_end_shift / length_list[current_edge_ind]
+            current_point = (
+                line[current_edge_ind] + (line[current_edge_ind + 1] - line[current_edge_ind]) * end_shift_ratio
+            )
             resampled_line.append(current_point)
 
         resampled_line.append(line[-1])
@@ -1047,18 +995,15 @@ class FCENetTargets:
         assert points.shape[0] >= 4
         assert points.shape[1] == 2
 
-        head_inds, tail_inds = self.find_head_tail(points,
-                                                   self.orientation_thr)
+        head_inds, tail_inds = self.find_head_tail(points, self.orientation_thr)
         head_edge, tail_edge = points[head_inds], points[tail_inds]
 
         pad_points = np.vstack([points, points])
         if tail_inds[1] < 1:
             tail_inds[1] = len(points)
-        sideline1 = pad_points[head_inds[1]:tail_inds[1]]
-        sideline2 = pad_points[tail_inds[1]:(head_inds[1] + len(points))]
-        sideline_mean_shift = np.mean(
-            sideline1, axis=0) - np.mean(
-            sideline2, axis=0)
+        sideline1 = pad_points[head_inds[1] : tail_inds[1]]
+        sideline2 = pad_points[tail_inds[1] : (head_inds[1] + len(points))]
+        sideline_mean_shift = np.mean(sideline1, axis=0) - np.mean(sideline2, axis=0)
 
         if sideline_mean_shift[1] > 0:
             top_sideline, bot_sideline = sideline2, sideline1
@@ -1095,18 +1040,16 @@ class FCENetTargets:
             for i, edge_vec1 in enumerate(edge_vec):
                 adjacent_ind = [x % len(edge_vec) for x in [i - 1, i + 1]]
                 adjacent_edge_vec = edge_vec[adjacent_ind]
-                temp_theta_sum = np.sum(
-                    self.vector_angle(edge_vec1, adjacent_edge_vec))
-                temp_adjacent_theta = self.vector_angle(
-                    adjacent_edge_vec[0], adjacent_edge_vec[1])
+                temp_theta_sum = np.sum(self.vector_angle(edge_vec1, adjacent_edge_vec))
+                temp_adjacent_theta = self.vector_angle(adjacent_edge_vec[0], adjacent_edge_vec[1])
                 theta_sum.append(temp_theta_sum)
                 adjacent_vec_theta.append(temp_adjacent_theta)
             theta_sum_score = np.array(theta_sum) / np.pi
             adjacent_theta_score = np.array(adjacent_vec_theta) / np.pi
             poly_center = np.mean(points, axis=0)
             edge_dist = np.maximum(
-                norm(pad_points[1:] - poly_center, axis=-1),
-                norm(pad_points[:-1] - poly_center, axis=-1))
+                norm(pad_points[1:] - poly_center, axis=-1), norm(pad_points[:-1] - poly_center, axis=-1)
+            )
             dist_score = edge_dist / np.max(edge_dist)
             position_score = np.zeros(len(edge_vec))
             score = 0.5 * theta_sum_score + 0.15 * adjacent_theta_score
@@ -1118,15 +1061,12 @@ class FCENetTargets:
             pad_score = np.concatenate([score, score])
             score_matrix = np.zeros((len(score), len(score) - 3))
             x = np.arange(len(score) - 3) / float(len(score) - 4)
-            gaussian = 1. / (np.sqrt(2. * np.pi) * 0.5) * np.exp(-np.power(
-                (x - 0.5) / 0.5, 2.) / 2)
+            gaussian = 1.0 / (np.sqrt(2.0 * np.pi) * 0.5) * np.exp(-np.power((x - 0.5) / 0.5, 2.0) / 2)
             gaussian = gaussian / np.max(gaussian)
             for i in range(len(score)):
-                score_matrix[i, :] = score[i] + pad_score[
-                                                (i + 2):(i + len(score) - 1)] * gaussian * 0.3
+                score_matrix[i, :] = score[i] + pad_score[(i + 2) : (i + len(score) - 1)] * gaussian * 0.3
 
-            head_start, tail_increment = np.unravel_index(
-                score_matrix.argmax(), score_matrix.shape)
+            head_start, tail_increment = np.unravel_index(score_matrix.argmax(), score_matrix.shape)
             tail_start = (head_start + tail_increment + 2) % len(points)
             head_end = (head_start + 1) % len(points)
             tail_end = (tail_start + 1) % len(points)
@@ -1137,25 +1077,21 @@ class FCENetTargets:
             head_inds = [head_start, head_end]
             tail_inds = [tail_start, tail_end]
         else:
-            if self.vector_slope(points[1] - points[0]) + self.vector_slope(
-                    points[3] - points[2]) < self.vector_slope(
-                points[2] - points[1]) + self.vector_slope(points[0] -
-                                                           points[3]):
+            if self.vector_slope(points[1] - points[0]) + self.vector_slope(points[3] - points[2]) < self.vector_slope(
+                points[2] - points[1]
+            ) + self.vector_slope(points[0] - points[3]):
                 horizontal_edge_inds = [[0, 1], [2, 3]]
                 vertical_edge_inds = [[3, 0], [1, 2]]
             else:
                 horizontal_edge_inds = [[3, 0], [1, 2]]
                 vertical_edge_inds = [[0, 1], [2, 3]]
 
-            vertical_len_sum = norm(points[vertical_edge_inds[0][0]] -
-                                    points[vertical_edge_inds[0][1]]) + norm(
-                points[vertical_edge_inds[1][0]] -
-                points[vertical_edge_inds[1][1]])
-            horizontal_len_sum = norm(
-                points[horizontal_edge_inds[0][0]] -
-                points[horizontal_edge_inds[0][1]]) + norm(
-                points[horizontal_edge_inds[1][0]] -
-                points[horizontal_edge_inds[1][1]])
+            vertical_len_sum = norm(points[vertical_edge_inds[0][0]] - points[vertical_edge_inds[0][1]]) + norm(
+                points[vertical_edge_inds[1][0]] - points[vertical_edge_inds[1][1]]
+            )
+            horizontal_len_sum = norm(points[horizontal_edge_inds[0][0]] - points[horizontal_edge_inds[0][1]]) + norm(
+                points[horizontal_edge_inds[1][0]] - points[horizontal_edge_inds[1][1]]
+            )
 
             if vertical_len_sum > horizontal_len_sum * orientation_thr:
                 head_inds = horizontal_edge_inds[0]
@@ -1188,14 +1124,8 @@ class FCENetTargets:
         assert sideline2.shape[0] >= 2
         assert isinstance(resample_step, float)
 
-        length1 = sum([
-            norm(sideline1[i + 1] - sideline1[i])
-            for i in range(len(sideline1) - 1)
-        ])
-        length2 = sum([
-            norm(sideline2[i + 1] - sideline2[i])
-            for i in range(len(sideline2) - 1)
-        ])
+        length1 = sum([norm(sideline1[i + 1] - sideline1[i]) for i in range(len(sideline1) - 1)])
+        length2 = sum([norm(sideline2[i + 1] - sideline2[i]) for i in range(len(sideline2) - 1)])
 
         total_length = (length1 + length2) / 2
         resample_point_num = max(int(float(total_length) / resample_step), 1)
@@ -1228,38 +1158,31 @@ class FCENetTargets:
             # assert len(poly) == 1
             polygon_points = poly.reshape(-1, 2)
             _, _, top_line, bot_line = self.reorder_poly_edge(polygon_points)
-            resampled_top_line, resampled_bot_line = self.resample_sidelines(
-                top_line, bot_line, self.resample_step)
+            resampled_top_line, resampled_bot_line = self.resample_sidelines(top_line, bot_line, self.resample_step)
             resampled_bot_line = resampled_bot_line[::-1]
             center_line = (resampled_top_line + resampled_bot_line) / 2
 
-            line_head_shrink_len = norm(resampled_top_line[0] -
-                                        resampled_bot_line[0]) / 4.0
-            line_tail_shrink_len = norm(resampled_top_line[-1] -
-                                        resampled_bot_line[-1]) / 4.0
+            line_head_shrink_len = norm(resampled_top_line[0] - resampled_bot_line[0]) / 4.0
+            line_tail_shrink_len = norm(resampled_top_line[-1] - resampled_bot_line[-1]) / 4.0
             head_shrink_num = int(line_head_shrink_len // self.resample_step)
             tail_shrink_num = int(line_tail_shrink_len // self.resample_step)
             if len(center_line) > head_shrink_num + tail_shrink_num + 2:
-                center_line = center_line[head_shrink_num:len(center_line) -
-                                                          tail_shrink_num]
-                resampled_top_line = resampled_top_line[
-                                     head_shrink_num:len(resampled_top_line) - tail_shrink_num]
-                resampled_bot_line = resampled_bot_line[
-                                     head_shrink_num:len(resampled_bot_line) - tail_shrink_num]
+                center_line = center_line[head_shrink_num : len(center_line) - tail_shrink_num]
+                resampled_top_line = resampled_top_line[head_shrink_num : len(resampled_top_line) - tail_shrink_num]
+                resampled_bot_line = resampled_bot_line[head_shrink_num : len(resampled_bot_line) - tail_shrink_num]
 
             for i in range(0, len(center_line) - 1):
-                tl = center_line[i] + (resampled_top_line[i] - center_line[i]
-                                       ) * self.center_region_shrink_ratio
-                tr = center_line[i + 1] + (
-                        resampled_top_line[i + 1] -
-                        center_line[i + 1]) * self.center_region_shrink_ratio
-                br = center_line[i + 1] + (
-                        resampled_bot_line[i + 1] -
-                        center_line[i + 1]) * self.center_region_shrink_ratio
-                bl = center_line[i] + (resampled_bot_line[i] - center_line[i]
-                                       ) * self.center_region_shrink_ratio
-                current_center_box = np.vstack([tl, tr, br,
-                                                bl]).astype(np.int32)
+                tl = center_line[i] + (resampled_top_line[i] - center_line[i]) * self.center_region_shrink_ratio
+                tr = (
+                    center_line[i + 1]
+                    + (resampled_top_line[i + 1] - center_line[i + 1]) * self.center_region_shrink_ratio
+                )
+                br = (
+                    center_line[i + 1]
+                    + (resampled_bot_line[i + 1] - center_line[i + 1]) * self.center_region_shrink_ratio
+                )
+                bl = center_line[i] + (resampled_bot_line[i] - center_line[i]) * self.center_region_shrink_ratio
+                current_center_box = np.vstack([tl, tr, br, bl]).astype(np.int32)
                 center_region_boxes.append(current_center_box)
 
         cv2.fillPoly(center_region_mask, center_region_boxes, 1)
@@ -1336,7 +1259,7 @@ class FCENetTargets:
         """
         points = polygon[:, 0] + polygon[:, 1] * 1j
         c_fft = fft(points) / len(points)
-        c = np.hstack((c_fft[-fourier_degree:], c_fft[:fourier_degree + 1]))
+        c = np.hstack((c_fft[-fourier_degree:], c_fft[: fourier_degree + 1]))
         return c
 
     def clockwise(self, c, fourier_degree):
@@ -1411,10 +1334,8 @@ class FCENetTargets:
             fourier_coeff = self.cal_fourier_signature(polygon[0], k)
             for i in range(-k, k + 1):
                 if i != 0:
-                    real_map[i + k, :, :] = mask * fourier_coeff[i + k, 0] + (
-                            1 - mask) * real_map[i + k, :, :]
-                    imag_map[i + k, :, :] = mask * fourier_coeff[i + k, 1] + (
-                            1 - mask) * imag_map[i + k, :, :]
+                    real_map[i + k, :, :] = mask * fourier_coeff[i + k, 0] + (1 - mask) * real_map[i + k, :, :]
+                    imag_map[i + k, :, :] = mask * fourier_coeff[i + k, 1] + (1 - mask) * imag_map[i + k, :, :]
                 else:
                     yx = np.argwhere(mask > 0.5)
                     k_ind = np.ones((len(yx)), dtype=np.int32) * k
@@ -1445,8 +1366,7 @@ class FCENetTargets:
             # assert len(poly) == 1
             # text_instance = [[poly[i], poly[i + 1]]
             #                  for i in range(0, len(poly), 2)]
-            polygon = np.array(
-                poly, dtype=np.int32).reshape((1, -1, 2))
+            polygon = np.array(poly, dtype=np.int32).reshape((1, -1, 2))
             cv2.fillPoly(text_region_mask, polygon, 1)
 
         return text_region_mask
@@ -1469,8 +1389,7 @@ class FCENetTargets:
         mask = np.ones(mask_size, dtype=np.uint8)
 
         for poly in polygons_ignore:
-            instance = poly.reshape(-1,
-                                    2).astype(np.int32).reshape(1, -1, 2)
+            instance = poly.reshape(-1, 2).astype(np.int32).reshape(1, -1, 2)
             cv2.fillPoly(mask, instance, 0)
 
         return mask
@@ -1513,27 +1432,22 @@ class FCENetTargets:
 
             for ind, proportion_range in enumerate(lv_proportion_range):
                 if proportion_range[0] < proportion < proportion_range[1]:
-                    lv_ignore_polys[ind].append(
-                        ignore_poly / lv_size_divs[ind])
+                    lv_ignore_polys[ind].append(ignore_poly / lv_size_divs[ind])
 
         for ind, size_divisor in enumerate(lv_size_divs):
             current_level_maps = []
             level_img_size = (h // size_divisor, w // size_divisor)
 
-            text_region = self.generate_text_region_mask(
-                level_img_size, lv_text_polys[ind])[None]
+            text_region = self.generate_text_region_mask(level_img_size, lv_text_polys[ind])[None]
             current_level_maps.append(text_region)
 
-            center_region = self.generate_center_region_mask(
-                level_img_size, lv_text_polys[ind])[None]
+            center_region = self.generate_center_region_mask(level_img_size, lv_text_polys[ind])[None]
             current_level_maps.append(center_region)
 
-            effective_mask = self.generate_effective_mask(
-                level_img_size, lv_ignore_polys[ind])[None]
+            effective_mask = self.generate_effective_mask(level_img_size, lv_ignore_polys[ind])[None]
             current_level_maps.append(effective_mask)
 
-            fourier_real_map, fourier_image_maps = self.generate_fourier_maps(
-                level_img_size, lv_text_polys[ind])
+            fourier_real_map, fourier_image_maps = self.generate_fourier_maps(level_img_size, lv_text_polys[ind])
             current_level_maps.append(fourier_real_map)
             current_level_maps.append(fourier_image_maps)
 
@@ -1552,28 +1466,25 @@ class FCENetTargets:
         """
 
         assert isinstance(results, dict)
-        image = results['image']
+        image = results["image"]
         h, w, _ = image.shape
 
-        if 'polygons1' not in results:
-            results['polygons1'] = [results['polys'][i] for i in range(len(results['ignore_tags'])) if
-                                   not results['ignore_tags'][i]]
-            results['ignore_polygons1'] = [results['polys'][i] for i in range(len(results['ignore_tags'])) if
-                                          results['ignore_tags'][i]]
+        if "polygons1" not in results:
+            results["polygons1"] = [
+                results["polys"][i] for i in range(len(results["ignore_tags"])) if not results["ignore_tags"][i]
+            ]
+            results["ignore_polygons1"] = [
+                results["polys"][i] for i in range(len(results["ignore_tags"])) if results["ignore_tags"][i]
+            ]
 
-        polygon_masks = results['polygons']
-        polygon_masks_ignore = results['ignore_polygons']
+        polygon_masks = results["polygons"]
+        polygon_masks_ignore = results["ignore_polygons"]
 
-        level_maps = self.generate_level_targets((h, w), polygon_masks,
-                                                 polygon_masks_ignore)
+        level_maps = self.generate_level_targets((h, w), polygon_masks, polygon_masks_ignore)
 
         # results['mask_fields'].clear()  # rm gt_masks encoded by polygons
         # import remote_pdb as pdb;pdb.set_trace()
-        mapping = {
-            'p3_maps': level_maps[0],
-            'p4_maps': level_maps[1],
-            'p5_maps': level_maps[2]
-        }
+        mapping = {"p3_maps": level_maps[0], "p4_maps": level_maps[1], "p5_maps": level_maps[2]}
         for key, value in mapping.items():
             results[key] = value
 
