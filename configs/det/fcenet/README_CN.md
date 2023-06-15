@@ -53,7 +53,7 @@ MindOCR中的FCENet网络在ICDAR 2015数据集上训练。训练结果如下：
 
 | **模型**              | **环境配置**       | **骨干网络**      | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间**     | **吞吐量**   | **配置文件**                            | **模型权重下载**                                                                                                                                                                                                |
 |---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-----------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| FCENet               | D910x4-MS2.0-F | ResNet50   | ImageNet       | 81.5%     | 86.9%        | 84.1%      | 33 s/epoch   | 7 img/s      | [yaml](fce_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/fcenet/) \| [mindir](https://download.mindspore.cn/toolkits/mindocr.mindir) |
+| FCENet               | D910x4-MS2.0-F | ResNet50   | ImageNet       | 81.5%     | 86.9%        | 84.1%      | 33 s/epoch   | 7 img/s      | [yaml](fce_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/fcenet/fcenet_resnet50-43857f7f.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/fcenet/fcenet_resnet50-43857f7f-5e765611.mindir) |
 
 </div>
 
