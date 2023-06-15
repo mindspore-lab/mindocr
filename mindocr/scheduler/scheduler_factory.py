@@ -2,6 +2,7 @@
 from .dynamic_lr import (
     cosine_decay_lr,
     cosine_decay_refined_lr,
+    dynamic_lr,
     exponential_lr,
     exponential_refined_lr,
     linear_lr,
@@ -100,6 +101,8 @@ def create_scheduler(
         main_lr_scheduler = polynomial_func(
             total_iters=main_epochs, power=decay_rate, lr=lr, steps_per_epoch=steps_per_epoch, epochs=main_epochs
         )
+    elif scheduler == "dynamic_lr":
+        main_lr_scheduler = dynamic_lr(lr, min_lr, num_epochs, steps_per_epoch)
     elif scheduler == "step_decay":
         main_lr_scheduler = step_lr(
             step_size=decay_epochs, gamma=decay_rate, lr=lr, steps_per_epoch=steps_per_epoch, epochs=main_epochs

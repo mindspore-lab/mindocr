@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
 from mindspore import Tensor, nn, ops
-from mindspore.common.initializer import TruncatedNormal
+from mindspore.common.initializer import TruncatedNormal, XavierUniform
 
 from .asf import AdaptiveScaleFusion
 
@@ -74,6 +74,56 @@ def _conv(in_channels, out_channels, kernel_size=3, stride=1, padding=0, pad_mod
 
 def _bn(channels, momentum=0.1):
     return nn.BatchNorm2d(channels, momentum=momentum)
+
+
+def Xavier_conv(in_channels, out_channels, kernel_size=3, stride=1, padding=0, pad_mode='same', has_bias=False):
+    init_value = XavierUniform()
+    return nn.Conv2d(in_channels, out_channels,
+                     kernel_size=kernel_size, stride=stride, padding=padding,
+                     pad_mode=pad_mode, weight_init=init_value, has_bias=has_bias)
+
+
+class FCEFPN(nn.Cell):
+    def __init__(self, in_channels, out_channel):
+        in_channels = in_channels[1:]
+        super(FCEFPN, self).__init__()
+
+        self.reduce_conv_c3 = Xavier_conv(in_channels[0], out_channel, kernel_size=1, has_bias=True)
+
+        self.reduce_conv_c4 = Xavier_conv(in_channels[1], out_channel, kernel_size=1, has_bias=True)
+
+        self.reduce_conv_c5 = Xavier_conv(in_channels[2], out_channel, kernel_size=1, has_bias=True)
+
+        self.smooth_conv_p5 = Xavier_conv(out_channel, out_channel, kernel_size=3, padding=1, pad_mode='pad',
+                                          has_bias=True)
+
+        self.smooth_conv_p4 = Xavier_conv(out_channel, out_channel, kernel_size=3, padding=1, pad_mode='pad',
+                                          has_bias=True)
+
+        self.smooth_conv_p3 = Xavier_conv(out_channel, out_channel, kernel_size=3, padding=1, pad_mode='pad',
+                                          has_bias=True)
+
+        self.out_channels = out_channel
+
+    def construct(self, features):
+        c3 = features[1]
+        c4 = features[2]
+        c5 = features[3]
+
+        p5 = self.reduce_conv_c5(c5)
+
+        c4 = self.reduce_conv_c4(c4)
+        p4 = ops.interpolate(p5, scale_factor=(2.0, 2.0), mode="area") + c4
+        c3 = self.reduce_conv_c3(c3)
+        p3 = ops.interpolate(p4, scale_factor=(2.0, 2.0), mode="area") + c3
+
+        p5 = self.smooth_conv_p5(p5)
+        p4 = self.smooth_conv_p4(p4)
+        p3 = self.smooth_conv_p3(p3)
+
+        out = [p3, p4, p5]  # self.concat((p3, p4, p5))
+
+        return out
 
 
 class PSEFPN(nn.Cell):
