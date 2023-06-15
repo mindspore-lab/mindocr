@@ -28,15 +28,15 @@ MindOCR is an open-source toolbox for OCR development and application based on [
 <details open>
 <summary> Major Features </summary>
 
-- **Modulation design**: We decouple the OCR task into several configurable modules. Users can setup the training and evaluation pipeline and customize the data processing pipeline and model architecture easily with a few lines of modification.
-- **High-performance**: MindOCR provides a series of pretrained weights trained from the optimized recipes that reach competitive performance on OCR tasks.
+- **Modular design**: We decoupled the OCR task into several configurable modules. Users can setup the training and evaluation pipelines, customize the data processing pipeline and model architectures easily by modifying just few lines of code.
+- **High-performance**: MindOCR provides a series of pretrained weights trained with optimized configurations that reach competitive performance on OCR tasks.
 - **Low-cost-to-apply**: Easy-to-use inference tools are provided in MindOCR to perform text detection and recognition tasks.
 </details>
 
 
 ## Installation
 
-#### Prerequisite Frameworks
+#### Prerequisites
 
 MindOCR is built on MindSpore AI framework, which supports CPU/GPU/NPU devices.
 MindOCR is compatible with the following framework versions. For details, please refer to the installation links.
@@ -99,7 +99,7 @@ For more usage, please refer to [tutorials](#tutorials).
 
 #### Training and Evaluation Quick Guideline
 
-It is easy to train your ocr model with the `tools/train.py` script, which supports both text detection and recognition training.
+It is easy to train your OCR model with the `tools/train.py` script, which supports both text detection and recognition training.
 
 ```shell
 python tools/train.py --config {path/to/model_config.yaml}
@@ -107,7 +107,7 @@ python tools/train.py --config {path/to/model_config.yaml}
 
 The `--config` arg specifies the path to a yaml file that defines the model to be trained and the training strategy including data process pipeline, optimizer, lr scheduler, etc.
 
-MindOCR provides SoTA ocr models with their training strategies in `configs` folder.
+MindOCR provides SoTA OCR models with their training strategies in `configs` folder.
 You may adapt it to your task/dataset, for example, by running
 
 ```shell
