@@ -270,6 +270,7 @@ def resize_norm_img(img, image_shape, padding=True, interpolation=cv2.INTER_LINE
         else:
             resized_w = int(math.ceil(imgH * ratio))
         resized_image = cv2.resize(img, (resized_w, imgH))
+
     """
     resized_image = resized_image.astype('float32')
     if image_shape[0] == 1:
@@ -295,13 +296,14 @@ def resize_norm_img_chinese(img, image_shape):
     h, w = img.shape[0], img.shape[1]
     c = img.shape[2]
     ratio = w * 1.0 / h
-    max_wh_ratio = min(max(max_wh_ratio, ratio), max_wh_ratio)
+    #max_wh_ratio = min(max(max_wh_ratio, ratio), max_wh_ratio)
     imgW = int(imgH * max_wh_ratio)
     if math.ceil(imgH * ratio) > imgW:
         resized_w = imgW
     else:
         resized_w = int(math.ceil(imgH * ratio))
     resized_image = cv2.resize(img, (resized_w, imgH))
+
     """
     resized_image = resized_image.astype('float32')
     if image_shape[0] == 1:
@@ -417,9 +419,8 @@ class RecResizeNormForInfer(object):
             resize_w = self.tar_w  # if self.tar_w is not None else resized_h * self.max_wh_ratio
         else:
             src_wh_ratio = w / float(h)
-            resize_w = int(min(src_wh_ratio, max_wh_ratio) * resize_h)
+            resize_w = int(math.ceil(min(src_wh_ratio, max_wh_ratio) * resize_h))
         # print('Rec resize: ', h, w, "->", resize_h, resize_w)
-
         resized_img = cv2.resize(img, (resize_w, resize_h), interpolation=self.interpolation)
 
         # TODO: norm before padding
