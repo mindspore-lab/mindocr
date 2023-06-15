@@ -1,4 +1,3 @@
-
 <div align="center">
 
 # MindOCR
@@ -15,11 +14,12 @@ English | [中文](README_CN.md)
 [Introduction](#introduction) |
 [Installation](#installation) |
 [Quick Start](#quick-start) |
+[Tutorials](#tutorials) |
 [Model List](#model-list) |
+[OCR Datasets](#ocr-datasets) |
 [Notes](#notes)
 
 </div>
-
 
 ## Introduction
 MindOCR is an open-source toolbox for OCR development and application based on [MindSpore](https://www.mindspore.cn/en). It helps users to train and apply the best text detection and recognition models, such as DBNet/DBNet++ and CRNN/SVTR, to fulfill image-text understanding needs.
@@ -28,85 +28,125 @@ MindOCR is an open-source toolbox for OCR development and application based on [
 <details open>
 <summary> Major Features </summary>
 
-- **Modulation design**: We decouple the OCR task into several configurable modules. Users can set up the training and evaluation pipeline easily for customized data and models with a few lines of modification.
-- **High-performance**: MindOCR provides pretrained weights and the used training recipes that reach competitive performance on OCR tasks.
-- **Low-cost-to-apply**: We provide easy-to-use inference tools to perform text detection and recognition tasks.
+- **Modulation design**: We decouple the OCR task into several configurable modules. Users can setup the training and evaluation pipeline and customize the data processing pipeline and model architecture easily with a few lines of modification.
+- **High-performance**: MindOCR provides a series of pretrained weights trained from the optimized recipes that reach competitive performance on OCR tasks.
+- **Low-cost-to-apply**: Easy-to-use inference tools are provided in MindOCR to perform text detection and recognition tasks.
 </details>
 
 
 ## Installation
 
-### Dependency
+#### Prerequisite Frameworks
 
-To install the dependency, please run
+MindOCR is built on MindSpore AI framework, which supports CPU/GPU/NPU devices.
+MindOCR is compatible with the following framework versions. For details, please refer to the installation links.
+
+- mindspore >= 1.9  [[install](https://www.mindspore.cn/install)]
+- python >= 3.7
+- openmpi 4.0.3 (for distributed training/evaluation)  [[install](https://www.open-mpi.org/software/ompi/v4.0/)]
+- mindspore lite (for inference)  [[install](docs/en/inference/environment_en.md)]
+
+
+#### Dependency
 ```shell
 pip install -r requirements.txt
 ```
+**Tips:**
 
-Additionally, please install MindSpore(>=1.9) following the official [installation instructions](https://www.mindspore.cn/install) for the best fit of your machine.
+- If scikit_image cannot be imported, please set environment variable `$LD_PRELOAD`
+as follows, (related [opencv issue](https://github.com/opencv/opencv/issues/14884))
 
-For distributed training, please install [openmpi 4.0.3](https://www.open-mpi.org/software/ompi/v4.0/).
+    ```shell
+    export LD_PRELOAD=path/to/scikit_image.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
+    ```
 
-| Environment | Version |
-|-------------|---------|
-| MindSpore   | >=1.9   |
-| Python      | >=3.7   |
-
-> Notes:
-> - If you [use ACL for Inference](#21-inference-with-mindspore-lite-and-acl), the version of Python should be 3.9.
-> - If scikit_image cannot be imported, you can use the following command line to set environment variable `$LD_PRELOAD` referring to [here](https://github.com/opencv/opencv/issues/14884). Change `path/to` to your directory.
->   ```shell
->   export LD_PRELOAD=path/to/scikit_image.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
->   ```
-
-
-### Install with PyPI
-
-Coming soon
-
-### Install from Source
-
-The latest version of MindOCR can be installed as follows:
+#### Install from Source (recommend)
 ```shell
-pip install git+https://github.com/mindspore-lab/mindocr.git
+git clone https://github.com/mindspore-lab/mindocr.git
+cd mindocr
+pip install -e .
 ```
+> Using `-e` for "editable" mode can help resolve potential module import issues.
 
-> Notes: MindOCR is only tested on MindSpore>=1.9, Linux on GPU/Ascend devices currently.
+#### Install from PyPI
+```shell
+pip install mindocr
+```
+> As this project is under active development, the version installed from PyPI is out-of-date currently. (will update soon).
 
 ## Quick Start
 
-### 1. Model Training and Evaluation
+#### Text Detection and Recognition Demo
 
-#### 1.1 Text Detection
+With MindOCR, it is pretty easy to detect and recognize texts on an image.
 
-We will take **DBNet** model and **ICDAR2015** dataset as an example to illustrate how to configure the training process with a few lines of modification on the yaml file.
+```shell
+python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_imgs} \
+                                          --det_algorithm DB++  \
+                                          --rec_algorithm CRNN
+```
 
-Please refer to [DBNet Readme](configs/det/dbnet/README.md#3-quick-start) for detailed instructions.
+After running, the results will be saved in `./inference_results` by default. Here is an example result.
 
+<p align="center">
+  <img src="https://github.com/SamitHuang/mindocr-1/assets/8156835/c1f53970-8618-4039-994f-9f6dc1eee1dd" width=600 />
+</p>
+<p align="center">
+  <em> Visualization of text detection and recognition result </em>
+</p>
 
-#### 1.2 Text Recognition
+For more usage, please refer to [tutorials](#tutorials).
 
-We will take **CRNN** model and **LMDB** dataset as an illustration on how to configure and launch the training process easily.
+#### Training and Evaluation Quick Guideline
 
-Detailed instructions can be viewed in [CRNN Readme](configs/rec/crnn/README.md#3-quick-start).
+It is easy to train your ocr model with the `tools/train.py` script, which supports both text detection and recognition training.
 
-**Note:**
-The training pipeline is fully extendable. To train other text detection/recognition models on a new dataset, please configure the model architecture (backbone, neck, head) and data pipeline in the yaml file and launch the training script with `python tools/train.py -c /path/to/yaml_config`.
+```shell
+python tools/train.py --config {path/to/model_config.yaml}
+```
 
-### 2. Inference and Deployment
+The `--config` arg specifies the path to a yaml file that defines the model to be trained and the training strategy including data process pipeline, optimizer, lr scheduler, etc.
 
-#### 2.1 Inference with MindSpore Lite and ACL on Ascend 310
+MindOCR provides SoTA ocr models with their training strategies in `configs` folder.
+You may adapt it to your task/dataset, for example, by running
 
-MindOCR supports OCR model inference with [MindSpore Lite](https://www.mindspore.cn/lite/en) and [ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html) (Ascend Computation Language)  backends. It integrates efficient text detection, classification and recognition inference pipeline for deployment.
+```shell
+# train text detection model DBNet++ on icdar15 dataset
+python tools/train.py --config configs/det/dbnet/db++_r50_icdar15.yaml
+```
+```shell
+# train text recognition model CRNN on icdar15 dataset
+python tools/train.py --config configs/rec/crnn/crnn_icdar15.yaml
+```
 
-Please refer to [MindOCR Inference on Ascend 310](docs/en/inference/inference_tutorial_en.md) for detailed illustrations.
+Similarly, it is simple to evaluate the trained model with the `tools/eval.py` script.
+```shell
+python tools/eval.py \
+    --config {path/to/model_config.yaml} \
+    --opt eval.dataset_root={path/to/your_dataset} eval.ckpt_load_path={path/to/ckpt_file}
+```
 
-#### 2.2 Inference with native MindSpore on Ascend910/GPU/CPU
+For more illustration and usage, please refer to the model training section in [Tutorials](#tutorials).
 
-MindOCR provides easy-to-use text detection and recognition inference tools supporting CPU/GPU/Ascend910 devices, based on the MindOCR-trained models.
+## Tutorials
 
-Please refer to [MindOCR Online Inference](tools/infer/text/README.md) for details.
-
+- Datasets
+    - [Dataset Preparation](tools/dataset_converters/README.md)
+    - [Data Transformation Mechanism](docs/en/tutorials/transform_tutorial.md)
+- Model Training
+    - [Yaml Configuration]() // coming soon
+    - [Text Detection]()  // coming soon
+    - [Text Recognition](docs/en/tutorials/training_recognition_custom_dataset.md)
+    - [Distributed Training on Ascend with OpenMPI/HCCL](docs/cn/tutorials/distribute_train_CN.md)
+    - [Advance: Gradient Accumulation, EMA, Resume Training, etc](docs/en/tutorials/advanced_train.md)
+- Inference and Deployment
+    - [Python/C++ Inference on Ascend 310](docs/en/inference/inference_tutorial_en.md)
+    - [Python Online Inference](tools/infer/text/README.md)
+- Developer Guides
+    - [Customize Dataset](mindocr/data/README.md)
+    - [Customize Data Transformation](mindocr/data/transforms/README.md)
+    - [Customize a New Model](mindocr/models/README.md)
+    - [Customize Postprocessing Method](mindocr/postprocess/README.md)
 
 ## Model List
 
@@ -129,19 +169,16 @@ Please refer to [MindOCR Online Inference](tools/infer/text/README.md) for detai
 - [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022)
 - [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 
+</details>
 
 For the detailed performance of the trained models, please refer to [configs](./configs).
 
 For detailed support for MindSpore Lite and ACL inference models, please refer to [MindOCR Models Support List](docs/en/inference/models_list_en.md) and [Third-Party Models Support List](docs/en/inference/models_list_thirdparty_en.md).
 
-## Datasets
-
-### Download
-
-We give instructions on how to download the following datasets.
+## OCR Datasets
 
 <details open>
-<summary>Text Detection</summary>
+<summary>General OCR Datasets</summary>
 
 - [x] ICDAR2015 [paper](https://rrc.cvc.uab.es/files/short_rrc_2015.pdf) [homepage](https://rrc.cvc.uab.es/?ch=4) [download instruction](docs/en/datasets/icdar2015.md)
 
@@ -157,13 +194,11 @@ We give instructions on how to download the following datasets.
 
 </details>
 
-### Conversion
-
-After downloading these datasets in the `DATASETS_DIR` folder, you can run `bash tools/convert_datasets.sh` to convert all downloaded datasets into the target format. [Here](tools/dataset_converters/README.md) is an example of icdar2015 dataset converting.
+Under continuous update.
 
 ## Notes
 
-### Change Log
+### What is New
 
 - 2023/06/07
 1. Add new trained models
@@ -175,6 +210,9 @@ After downloading these datasets in the `DATASETS_DIR` folder, you can run `bash
     - [mlt2017](docs/en/datasets/mlt2017.md)
     - [chinese_text_recognition](docs/en/datasets/chinese_text_recognition.md)
 3. Add resume training function, which can be used in case of unexpected interruption in training. Usage: add the `resume` parameter under the `model` field in the yaml config, e.g.,`resume: True`, load and resume training from {ckpt_save_dir}/train_resume.ckpt or `resume: /path/to/train_resume.ckpt`, load and resume training from the given path.
+4. Improve postprocessing for detection: re-scale detected text polygons to original image space by default,
+which can be enabled by add "shape_list" to the `eval.dataset.output_columns` list.
+5. Refactor online inference to support more models, see [README.md](tools/infer/text/README.md) for details.
 
 - 2023/05/15
 1. Add new trained models
@@ -185,8 +223,8 @@ After downloading these datasets in the `DATASETS_DIR` folder, you can run `bash
     - [SynthText](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c), [MSRA-TD500](docs/en/datasets/td500.md), [CTW1500](docs/en/datasets/ctw1500.md)
     - More benchmark results for DBNet are reported [here](configs/det/dbnet/README.md).
 3. Add checkpoint manager for saving top-k checkpoints and improve log.
-4. Python inference code refractored.
-5. Bug fix: use meter to average loss for large datasets, disable `pred_cast_fp32` for ctcloss in AMP training, fix error when invalid polygons exist.
+4. Python inference code refactored.
+5. Bug fix: use Meter to average loss for large datasets, disable `pred_cast_fp32` for ctcloss in AMP training, fix error when invalid polygons exist.
 
 - 2023/05/04
 1. Support loading self-defined pretrained checkpoints via setting `model-pretrained` with checkpoint url or local path in yaml.
@@ -218,10 +256,6 @@ After downloading these datasets in the `DATASETS_DIR` folder, you can run `bash
     v)   Fill in other blanks and launch.
   ```
 
-- 2023/03/08
-1. Add evaluation script with  arg `ckpt_load_path`
-2. Arg `ckpt_save_dir` is moved from `system` to `train` in yaml.
-3. Add drop_overflow_update control
 
 ### How to Contribute
 
