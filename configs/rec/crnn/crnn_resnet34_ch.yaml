@@ -141,7 +141,7 @@ eval:
       - RecResizeNormForInfer:
           target_height: 32
           target_width: 320
-          keep_ratio: True 
+          keep_ratio: True
           padding: True
           norm_before_pad: False
       - ToCHWImage:
