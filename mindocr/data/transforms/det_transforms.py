@@ -5,7 +5,7 @@ import json
 import math
 import random
 import warnings
-from typing import List
+from typing import List, Tuple
 
 import cv2
 import numpy as np
@@ -101,13 +101,15 @@ class RandomCropWithBBox:
         p: probability of the augmentation being applied to an image.
     """
 
-    def __init__(self, max_tries=10, min_crop_ratio=0.1, crop_size=(640, 640), p: float = 0.5, **kwargs):
+    def __init__(
+        self, max_tries: int = 10, min_crop_ratio: float = 0.1, crop_size: Tuple = (640, 640), p: float = 0.5, **kwargs
+    ):
         self._crop_size = crop_size
         self._ratio = min_crop_ratio
         self._max_tries = max_tries
         self._p = p
 
-    def __call__(self, data):
+    def __call__(self, data: dict) -> dict:
         if random.random() < self._p:  # cut a crop
             start, end = self._find_crop(data)
         else:  # scale and pad the whole image
@@ -125,7 +127,16 @@ class RandomCropWithBBox:
 
         return data
 
-    def _find_crop(self, data):
+    def _find_crop(self, data: dict) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Find a suitable crop that doesn't intersect any polygon by randomly sampling possible coordinates.
+
+        Args:
+            data: dict containing image, polys and ignore_tags keys.
+
+        Returns:
+            Tuple: start and end coordinates of the crop.
+        """
         size = np.array(data["image"].shape[:2])
         polys = [poly for poly, ignore in zip(data["polys"], data["ignore_tags"]) if not ignore]
 
@@ -215,12 +226,20 @@ warnings.filterwarnings("ignore")
 
 
 class BorderMap:
-    def __init__(self, shrink_ratio=0.4, thresh_min=0.3, thresh_max=0.7, **kwargs):
+    """
+    Generate a border (or threshold) map along text polygon edges.
+
+    Args:
+        shrink_ratio: polygon shrink ratio (same as in ShrinkBinaryMap) which is used to calculate width of the border.
+        thresh_min: minimum value for the border map (normalized map).
+        thresh_max: maximum value for the border map (normalized map).
+    """
+    def __init__(self, shrink_ratio: float = 0.4, thresh_min: float = 0.3, thresh_max: float = 0.7, **kwargs):
         self._thresh_min = thresh_min
         self._thresh_max = thresh_max
         self._dist_coef = 1 - shrink_ratio**2
 
-    def __call__(self, data):
+    def __call__(self, data: dict) -> dict:
         border = np.zeros(data["image"].shape[:2], dtype=np.float32)
         mask = np.zeros(data["image"].shape[:2], dtype=np.float32)
 
@@ -233,7 +252,7 @@ class BorderMap:
         data["thresh_mask"] = mask
         return data
 
-    def _draw_border(self, np_poly, border, mask):
+    def _draw_border(self, np_poly: np.ndarray, border: np.ndarray, mask: np.ndarray):
         # draw mask
         poly = Polygon(np_poly)
         distance = self._dist_coef * poly.area / poly.length
@@ -264,12 +283,18 @@ class BorderMap:
         )
 
     @staticmethod
-    def _distance(xs, ys, point_1, point_2):
+    def _distance(xs: np.ndarray, ys: np.ndarray, point_1: np.ndarray, point_2: np.ndarray) -> np.ndarray:
         """
-        compute the distance from each point to a line
-        ys: coordinates in the first axis
-        xs: coordinates in the second axis
-        point_1, point_2: (x, y), the end of the line
+        Compute distance from each point in an image to a specified edge.
+
+        Args:
+            xs: x-axis values
+            ys: y-axis values
+            point_1 (x, y): start coordinate of the edge.
+            point_2 (x, y): end coordinate of the edge.
+
+        Returns:
+            border map for a single edge.
         """
         a_sq = np.square(xs - point_1[0]) + np.square(ys - point_1[1])
         b_sq = np.square(xs - point_2[0]) + np.square(ys - point_2[1])
@@ -285,15 +310,18 @@ class BorderMap:
 
 class ShrinkBinaryMap:
     """
-    Making binary mask from detection data with ICDAR format.
-    Typically following the process of class `MakeICDARData`.
+    Generate a shrunk binary mask from detection labels. Typically, follows the process of class `MakeICDARData`.
+
+    Args:
+        min_text_size: minimum text size (in pixel) below which the label is marked as 'ignore'.
+        shrink_ratio: text mask shrinkage ratio.
     """
 
-    def __init__(self, min_text_size=8, shrink_ratio=0.4, **kwargs):
+    def __init__(self, min_text_size: int = 8, shrink_ratio: int = 0.4, **kwargs):
         self._min_text_size = min_text_size
         self._dist_coef = 1 - shrink_ratio**2
 
-    def __call__(self, data):
+    def __call__(self, data: dict) -> dict:
         gt = np.zeros(data["image"].shape[:2], dtype=np.float32)
         mask = np.ones(data["image"].shape[:2], dtype=np.float32)
 
@@ -321,50 +349,50 @@ class ShrinkBinaryMap:
 
 class DetResize:
     """
-    Resize the image and text polygons (if have) for text detection
+    Resize the image and text polygons (if any) for text detection
 
     Args:
         target_size: target size [H, W] of the output image. If it is not None, `limit_type` will be forced to None and
-            side limit-based resizng will not make effect. Default: None.
+            side limit-based resizing will not make effect. Default: None.
         keep_ratio: whether to keep aspect ratio. Default: True
         padding: whether to pad the image to the `target_size` after "keep-ratio" resizing. Only used when keep_ratio is
             True. Default False.
         limit_type: it decides the resize method type. Option: 'min', 'max', None. Default: "min"
-            - 'min': images will be resized by limiting the mininum side length to `limit_side_len`, i.e.,
+            - 'min': images will be resized by limiting the minimum side length to `limit_side_len`, i.e.,
               any side of the image must be larger than or equal to `limit_side_len`. If the input image alreay fulfill
-            this limitation, no scaling will performed. If not, input image will be up-scaled with the ratio of
+            this limitation, no scaling will be performed. If not, input image will be up-scaled with the ratio of
             (limit_side_len / shorter side length)
             - 'max': images will be resized by limiting the maximum side length to `limit_side_len`, i.e.,
               any side of the image must be smaller than or equal to `limit_side_len`. If the input image alreay fulfill
-              this limitation, no scaling will performed. If not, input image will be down-scaled with the ratio of
+              this limitation, no scaling will be performed. If not, input image will be down-scaled with the ratio of
               (limit_side_len / longer side length)
             -  None: No limitation. Images will be resized to `target_size` with or without `keep_ratio` and `padding`
         limit_side_len: side len limitation.
-        force_divisable: whether to force the image being resize to a size multiple of `divisor` (e.g. 32) in the end,
+        force_divisable: whether to force the image being resized to a size multiple of `divisor` (e.g. 32) in the end,
             which is suitable for some networks (e.g. dbnet-resnet50). Default: True.
         divisor: divisor used when `force_divisable` enabled. The value is decided by the down-scaling path of
             the network backbone (e.g. resnet, feature map size is 2^5 smaller than input image size). Default is 32.
-        interpoloation: interpolation method
+        interpolation: interpolation method
 
     Note:
         1. The default choices limit_type=min, with large `limit_side_len` are recommended for inference in detection
         for better accuracy,
         2. If target_size set, keep_ratio=True, limit_type=null, padding=True, this transform works the same as
         ScalePadImage,
-        3. If inference speed is the first priority to guarante, you can set limit_type=max with a small
+        3. If inference speed is the first priority to guarantee, you can set limit_type=max with a small
         `limit_side_len` like 960.
     """
 
     def __init__(
         self,
         target_size: list = None,
-        keep_ratio=True,
-        padding=False,
-        limit_type="min",
-        limit_side_len=736,
-        force_divisable=True,
-        divisor=32,
-        interpolation=cv2.INTER_LINEAR,
+        keep_ratio: bool = True,
+        padding: bool = False,
+        limit_type: str = "min",
+        limit_side_len: int = 736,
+        force_divisable: bool = True,
+        divisor: int = 32,
+        interpolation: int = cv2.INTER_LINEAR,
         **kwargs,
     ):
         if target_size is not None:
@@ -405,7 +433,7 @@ class DetResize:
         else:
             raise ValueError(f"Unknown limit_type: {limit_type}")
 
-    def __call__(self, data: dict):
+    def __call__(self, data: dict) -> dict:
         """
         required keys:
             image: shape HWC
@@ -501,6 +529,9 @@ class GridResize(DetResize):
     """
     Resize image to make it divisible by a specified factor exactly.
     Resize polygons correspondingly, if provided.
+
+    Args:
+        factor: by which an image should be divisible.
     """
 
     def __init__(self, factor: int = 32, **kwargs):
@@ -630,7 +661,7 @@ class ValidatePolygons:
         self._min_vert = min_vertices
         self._clip = clip_to_visible_area
 
-    def __call__(self, data: dict):
+    def __call__(self, data: dict) -> dict:
         size = data.get("actual_size", np.array(data["image"].shape[:2]))[::-1]  # convert to x, y coord
         border = box(0, 0, *size)
 

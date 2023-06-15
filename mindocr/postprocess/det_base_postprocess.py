@@ -13,11 +13,11 @@ class DetBasePostprocess:
     Base class for all text detection postprocessings.
 
     Args:
-        box_type (str): text region representation type after postprocessing, options: ['quad', 'poly']
-        rescale_fields (list): names of fields to rescale back to the shape of the original image.
+        rescale_fields: names of fields to rescale back to the shape of the original image.
+        box_type: text region representation type after postprocessing. Options: ['quad', 'poly']
     """
 
-    def __init__(self, box_type="quad", rescale_fields: List[str] = ["polys"]):
+    def __init__(self, rescale_fields: list, box_type: str = "quad"):
         assert box_type in ["quad", "poly"], f"box_type must be `quad` or `poly`, but found {box_type}"
 
         self._rescale_fields = rescale_fields
@@ -27,8 +27,8 @@ class DetBasePostprocess:
 
     def _postprocess(self, pred: Union[ms.Tensor, Tuple[ms.Tensor], np.ndarray], **kwargs) -> dict:
         """
-        Postprocess network prediction to get text boxes on the transformed image space (which will be rescaled back to
-        original image space in __call__ function)
+        Postprocess network predictions to extract text boxes on the transformed (input to the network) image space
+        (which will be rescaled back to original image space in __call__ function)
 
         Args:
             pred: network prediction for input batch data, shape [batch_size, ...]
@@ -41,10 +41,10 @@ class DetBasePostprocess:
                 - scores (np.ndarray): confidence scores for the predicted polygons, shape (batch_size, num_polygons)
 
         Notes:
-            - Please cast `pred` to the type you need in your implementation. Some postprocesssing steps use ops from
+            - Please cast `pred` to the type you need in your implementation. Some postprocessing steps use ops from
               mindspore.nn and prefer Tensor type, while some steps prefer np.ndarray type required in other libraries.
             - `_postprocess()` should **NOT round** the text box `polys` to integer in return, because they will be
-              recaled and then rounded in the end. Rounding early will cause larger error in polygon rescaling and
+              rescaled and then rounded in the end. Rounding early will cause larger error in polygon rescaling and
               results in **evaluation performance degradation**, especially on small datasets.
         """
         raise NotImplementedError
