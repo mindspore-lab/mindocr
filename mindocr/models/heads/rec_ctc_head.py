@@ -21,9 +21,18 @@ class CTCHead(nn.Cell):
     For chinese words, num_classes can be over 60,000, so weight regulaization may matter.
 
     Args:
-
+        in_channels (int): the number of input channels.
+        out_channels (int): the number of output channels.
+        mid_channels (int): the number of middle channels. Default: None.
+        return_feats (bool): whether to return the meta features. Default: False.
+        weight_init (str): the init function name for weights. Default: 'normal'.
+        bia_init (str): the init function name for bias. Default: 'zeros'
+        dropout (float): the dropout value for the layer. Default: 0.
+    
     Example:
-
+        >>> w, bs, c = 16, 8, 256
+        >>> x = ms.Tensor(np.random.rand(w, bs, c), dtype=ms.float32)
+        >>> ctchead = CTCHead(in_channels=256, out_channels=26 + 3, mid_channels=128)
     """
 
     # TODO: add dropout regularization.

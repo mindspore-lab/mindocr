@@ -90,6 +90,22 @@ class BasicBlock(nn.Cell):
 
 @register_backbone_class
 class RecResNet(nn.Cell):
+    r'''The RecResNet model is the customized ResNet backbone for Recognition.
+        ResNet Network is based on [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385) paper.
+        
+        Args:
+            in_channels (int): the number of input channels of images. Default: 3.
+            layers (int): the number of layers of ResNet, which defines the structure of ResNet according to [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385) paper. Default: 34.
+            kwargs (dict): input args for the ResNet Network.
+            
+        Return:
+            nn.Cell for backbone module
+            
+        Example:
+            >>> # init a ResNet-34 network
+            >>> model = RecResNet(in_channels=3, layers=34, **kwargs)
+        '''
+
     def __init__(self, in_channels=3, layers=34, **kwargs):
         super(RecResNet, self).__init__()
 
@@ -159,6 +175,19 @@ class RecResNet(nn.Cell):
 
 @register_backbone
 def rec_resnet34(pretrained: bool = False, **kwargs):
+    
+    r'''A predefined ResNet-34 customized for Recognition.
+    
+    Args:
+        pretrained (bool): whether to use the pretrained backbone. Default: False.
+        
+    Return:
+        nn.Cell for ResNet backbone module
+        
+    .. note::
+        The default pretrained checkpoint for `rec_resnet34` backbone is still under development.
+    '''
+    
     model = RecResNet(in_channels=3, layers=34, **kwargs)
 
     if pretrained is True:
