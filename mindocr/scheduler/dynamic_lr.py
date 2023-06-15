@@ -22,6 +22,16 @@ The implemented fine-grained variation are list as follows: `linear_refined_lr`,
 import math
 from bisect import bisect_right
 
+from mindspore import nn
+
+
+def dynamic_lr(lr, end_lr, epochs, step_per_epoch, by_epoch=True):
+    if by_epoch:
+        lrs = nn.polynomial_decay_lr(
+            lr, end_lr, total_step=step_per_epoch * epochs, step_per_epoch=step_per_epoch, decay_epoch=epochs, power=0.9
+        )
+        return lrs
+
 
 def constant_lr(factor, total_iters, *, lr, steps_per_epoch, epochs):
     steps = steps_per_epoch * epochs
