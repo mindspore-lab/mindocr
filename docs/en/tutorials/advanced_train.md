@@ -49,7 +49,7 @@ To resume training, set `model.resume` to `True` in the yaml config as follows:
 model:
   resume: True
 ```
-> By default, it will resume from the "train_resume.ckpt" checkpoint file located in the directory 
+> By default, it will resume from the "train_resume.ckpt" checkpoint file located in the directory
 > specified in `train.ckpt_save_dir`.
 
 
