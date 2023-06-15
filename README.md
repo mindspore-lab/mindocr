@@ -76,7 +76,7 @@ pip install mindocr
 
 ## Quick Start
 
-#### Text Detection and Recognition Demo
+### Text Detection and Recognition Demo
 
 After installing MindOCR, we can run text detection and recognition on an arbitrary image easily as follows.
 
@@ -89,7 +89,7 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 After running, the results will be saved in `./inference_results` by default. Here is an example result.
 
 <p align="center">
-  <img src="https://github.com/SamitHuang/mindocr-1/assets/8156835/c1f53970-8618-4039-994f-9f6dc1eee1dd" width=600 />
+  <img src="https://github.com/SamitHuang/mindocr-1/assets/8156835/c1f53970-8618-4039-994f-9f6dc1eee1dd" width=500 />
 </p>
 <p align="center">
   <em> Visualization of text detection and recognition result </em>
@@ -97,7 +97,7 @@ After running, the results will be saved in `./inference_results` by default. He
 
 We can see that all texts on the image are detected and recognized accurately. For more usage, please refer to the inference section in [tutorials](#tutorials).
 
-#### Model Training and Evaluation - Quick Guideline
+### Model Training and Evaluation - Quick Guideline
 
 It is easy to train your OCR model with the `tools/train.py` script, which supports both text detection and recognition model training.
 
@@ -164,9 +164,9 @@ For more illustration and usage, please refer to the model training section in [
 <details open>
 <summary>Text Recognition</summary>
 
-- [x] [CRNN](configs/rec/crnn/README.md) (TPAMI'2016) 
-- [x] [CRNN-Seq2Seq/RARE](configs/rec/rare/README.md) (CVPR'2016) 
-- [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022) 
+- [x] [CRNN](configs/rec/crnn/README.md) (TPAMI'2016)
+- [x] [CRNN-Seq2Seq/RARE](configs/rec/rare/README.md) (CVPR'2016)
+- [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022)
 - [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 
 </details>
