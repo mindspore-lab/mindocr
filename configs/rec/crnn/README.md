@@ -394,7 +394,7 @@ To inference with MindSpot Lite on Ascend 310, please refer to the tutorial [Min
 Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../README.md) tutorial and use the following command to export the trained ckpt model to  MindIR file:
 
 ```shell
-python tools/export.py --model_name crnn --data_shape 32 100 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name crnn_resnet34 --data_shape 32 100 --local_ckpt_path /path/to/local_ckpt.ckpt
 # or
 python tools/export.py --model_name configs/rec/crnn/crnn_resnet34.yaml --data_shape 32 100 --local_ckpt_path /path/to/local_ckpt.ckpt
 ```
@@ -421,8 +421,8 @@ python infer.py \
     --input_images_dir=/your_path_to/test_images \
     --device=Ascend \
     --device_id=0 \
-    --det_model_path=your_path_to/output.mindir \
-    --det_config_path=../../configs/rec/crnn/crnn_resnet34.yaml \
+    --rec_model_path=your_path_to/output.mindir \
+    --rec_config_path=../../configs/rec/crnn/crnn_resnet34.yaml \
     --backend=lite \
     --res_save_dir=results_dir
 ```
