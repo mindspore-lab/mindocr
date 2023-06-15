@@ -15,6 +15,7 @@ This document will give the performance of the third-party inference model using
 | en_pp_det_OCRv3 | DB  | MobileNetV3 | IC15 | 0.3866 | 0.4630 | 0.4214 | PaddleOCR |
 | ml_pp_det_OCRv3 | DB  | MobileNetV3 | MLT17 | 0.5992 | 0.7348 | 0.6601 | PaddleOCR |
 | en_pp_det_sast_resnet50vd | SAST  | ResNet50_vd | IC15 | 0.7463 | 0.9043 | 0.8177 | PaddleOCR |
+| en_pp_det_psenet_resnet50vd | PSENet  | ResNet50_vd | IC15 | 0.7664 | 0.8463 | 0.8044 | PaddleOCR |
 | en_mm_det_dbnetpp_resnet50 | DBNet++  | ResNet50 | IC15 | 0.8387 | 0.7900 | 0.8136 | MMOCR |
 | en_mm_det_fcenet_resnet50 | FCENet  | ResNet50 | IC15 | 0.8681 | 0.8074 | 0.8367 | MMOCR |
 
