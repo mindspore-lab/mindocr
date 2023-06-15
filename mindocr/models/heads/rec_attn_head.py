@@ -18,10 +18,15 @@ class AttentionHead(nn.Cell):
         hidden_size: int = 256,
         batch_max_length: int = 25,
     ) -> None:
-        """
-        Inputs:
-            inputs: shape [W, BS, 2*C]
-            label: shape [BS, W]
+        """Attention head, based on
+        `"Robust text recognizer with Automatic REctification"
+        <https://arxiv.org/abs/1603.03915/>`_.
+
+        Args:
+            in_channels: Number of input channels.
+            out_channels: Number of the output channels.
+            hidden_size: Hidden size in the attention cell. Default: 256.
+            batch_max_length: The maximum length of the output. Default: 25.
         """
         super().__init__()
         self.in_channels = in_channels
