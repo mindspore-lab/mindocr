@@ -28,7 +28,7 @@ class CTCHead(nn.Cell):
         dropout: Dropout value in the head. Default: 0.
 
     Inputs:
-        x (Tensor): feature in shape [W, BS, 2*C]
+        x (Tensor): feature in shape [W, BS, C]
 
     Outputs:
         h (Tensor): if training, h is logits in shape [W, BS, num_classes], where W - sequence len is fixed.
