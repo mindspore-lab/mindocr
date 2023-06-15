@@ -14,9 +14,7 @@
 [概述](#概述) |
 [安装](#安装) |
 [快速上手](#快速上手) |
-[教程](#教程) |
 [模型列表](#模型列表) |
-[OCR数据集](#数据集) |
 [重要信息](#重要信息)
 
 </div>
@@ -30,7 +28,7 @@ MindOCR是一个基于[MindSpore](https://www.mindspore.cn/en)框架的OCR开发
 
 - **模块化设计**: MindOCR将OCR任务解耦成多个可配置模块，用户只需修改几行代码，就可以轻松地在定制化的数据和模型上配置训练、评估的全流程；
 - **高性能**: MindOCR提供的预训练权重和训练方法可以使其达到OCR任务上具有竞争力的表现；
-- **易用性**: MindOCR提供易用工具帮助在真实世界数据中进行文本的检测和识别。
+- **易用性**: MindOCR提供易用工具帮助在真实世界数据中进行文本的检测和识别（敬请期待）。
 </details>
 
 
@@ -45,114 +43,60 @@ pip install -r requirements.txt
 
 此外，请按[官方指引](https://www.mindspore.cn/install)安装MindSpore(>=1.9) 来适配您的机器。如果需要在分布式模式下进行训练，还请安装[openmpi](https://www.open-mpi.org/software/ompi/v4.0/)。
 
-#### 预备环境
-
 | 环境         | 版本   |
 |-------------|-------|
 | MindSpore   | >=1.9 |
 | Python      | >=3.7 |
 
-MindOCR基于MindSpore框架构建，支持包含CPU/GPU/NPU的多种硬件设备。MindOCR可适配以下框架版本，更多信息请参见安装链接。
 
-- mindspore >= 1.9  [[安装](https://www.mindspore.cn/install)]
-- python >= 3.7
-- openmpi 4.0.3 (for distributed training/evaluation)  [[安装](https://www.open-mpi.org/software/ompi/v4.0/)]
-- mindspore lite (for inference)  [[安装](docs/en/inference/environment_en.md)]
+> 注意：
+> - 如果[使用ACL推理](#21-使用mindspore-lite和acl推理)，Python版本需为3.9。
+> - 如果遇到scikit_image导入错误，参考[此处](https://github.com/opencv/opencv/issues/14884)，你需要设置环境变量`$LD_PRELOAD`，命令如下。替换`path/to`为你的目录。
+>   ```shell
+>   export LD_PRELOAD=path/to/scikit_image.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
+>   ```
 
-#### 依赖
+### 通过PyPI安装
 
+敬请期待
+
+### 通过源文件安装
+
+最新版的MindOCR可以通过如下命令安装：
 ```shell
-pip install -r requirements.txt
+pip install git+https://github.com/mindspore-lab/mindocr.git
 ```
-**小建议:**
 
-如果无法导入sckit_image，请设置环境变量`$LD_PRELOAD`，如下所示([相关opencv issue](https://github.com/opencv/opencv/issues/14884))：
-
-    ```shell
-    export LD_PRELOAD=path/to/scikit_image.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
-    ```
-
-#### 通过源文件安装（推荐）
-
-```shell
-git clone https://github.com/mindspore-lab/mindocr.git
-cd mindocr
-pip install -e .
-```
-> 使用 `-e` 代表可编辑模式，可以帮助解决潜在的模块导入问题。
-
-#### 通过PyPI安装
-
-```shell
-pip install mindocr
-```
->由于此项目正在积极开发中，从PyPI安装的版本目前已过期，我们将很快更新，敬请期待。
+> 注意：MindOCR目前暂时只在MindSpore>=1.9版本，Linux系统，GPU/Ascend设备上进行过测试。
 
 ## 快速上手
 
-有MindOCR的帮助，在图片上检测文本框位置、识别文字内容变得很简单。
-```shell
-python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_imgs} \
-                                          --det_algorithm DB++  \
-                                          --rec_algorithm CRNN
-```
+### 1. 模型训练评估
 
-训练之后，结果将被默认保存在`./inference_results`路径，下面是一个结果样例：
-<p align="center">
-  <img src="https://github.com/SamitHuang/mindocr-1/assets/8156835/c1f53970-8618-4039-994f-9f6dc1eee1dd" width=600 />
-</p>
-<p align="center">
-  <em> 文本检测、识别结果可视化 </em>
-</p>
+#### 1.1 文本检测
 
-更多使用方法，请参考[教程](#教程)
+MindOCR支持多种文本检测模型及数据集，在此我们使用**DBNet**模型和**ICDAR2015**数据集进行演示。请参考[DBNet模型文档](configs/det/dbnet/README_CN.md)。
 
-### 训练与评估快速指南
 
-使用`tools/t.py`脚本可以很容易地训练OCR模型，该脚本支持文本检测和识别训练。
-```shell
-python tools/train.py --config {path/to/model_config.yaml}
-```
-`--config` 参数用于指定yaml文件的路径，该文件定义要训练的模型和训练策略，包括数据处理流程、优化器、学习率调度器等。
+### 1.2 文本识别
 
-MindOCR在`configs`文件夹中提供最新最优的OCR模型及训练策略，用户可以将其适配到自己的任务或数据集上。例如，运行如下代码加载预置的DBNet++和CRNN模型及训练策略。
-```shell
-# train text detection model DBNet++ on icdar15 dataset
-python tools/train.py --config configs/det/dbnet/db++_r50_icdar15.yaml
-```
-```shell
-# train text recognition model CRNN on icdar15 dataset
-python tools/train.py --config configs/rec/crnn/crnn_icdar15.yaml
-```
+MindOCR支持多种文本识别模型及数据集，在此我们使用**CRNN**模型和**LMDB**数据集进行演示。请参考[CRNN模型文档](configs/rec/crnn/README_CN.md)。
 
-类似的，使用`tools/eval.py` 脚本可以很容易的评估已经训练好的模型，如下所示：
-```shell
-python tools/eval.py \
-    --config {path/to/model_config.yaml} \
-    --opt eval.dataset_root={path/to/your_dataset} eval.ckpt_load_path={path/to/ckpt_file}
-```
 
-更多使用方法，请参考[教程](#教程)中的模型训练章节。
+### 2. 推理与部署
 
-## 教程
+#### 2.1 使用MindSpore Lite和ACL推理(Ascend 310)
 
-- 数据集
-    - [数据集准备](tools/dataset_converters/README.md)
-    - [数据增强策略](docs/en/tutorials/transform_tutorial.md)
-- 模型训练
-    - [Yaml配置文件]() // 敬请期待
-    - [文本检测]()  // 敬请期待
-    - [文本识别](docs/en/tutorials/training_recognition_custom_dataset.md)
-    - [使用 OpenMPI/HCCL在昇腾服务器上分布式训练](docs/cn/tutorials/distribute_train_CN.md)
-    - [高级：梯度累积，EMA，断点续训等](docs/en/tutorials/advanced_train.md)
-- 推理与部署
-    - [在昇腾310服务器上使用Python/C++推理](docs/en/inference/inference_tutorial_en.md)
-    - [Python在线推理](tools/infer/text/README.md)
-- 开发者指南
-    - [定制数据集](mindocr/data/README.md)
-    - [定制数据增强方法](mindocr/data/transforms/README.md)
-    - [定制新模型](mindocr/models/README.md)
-    - [定制后处理方法](mindocr/postprocess/README.md)
+MindOCR集成了[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)推理后端，
+集成了文本检测、分类和识别串联推理。
+
+具体说明请参考[MindOCR 310推理](docs/cn/inference/inference_tutorial_cn.md)。
+
+#### 2.2 使用原生MindSpore在线推理(CPU/GPU/Ascend 910)
+
+MindOCR提供易用的文本检测识别推理工具，支持CPU/GPU/Ascend 910硬件平台。在线推理基于使用MindOCR训练完成的模型进行推理。
+
+具体用法和效果请参考 [MindOCR在线推理](tools/infer/text/README.md)。
 
 ## 模型列表
 
@@ -163,41 +107,54 @@ python tools/eval.py \
 - [x] [DBNet++](configs/det/dbnet/README.md) (TPAMI'2022)
 - [x] [PSENet](configs/det/psenet/README.md) (CVPR'2019)
 - [x] [EAST](configs/det/east/README.md)(CVPR'2017)
-- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [敬请期待]
+- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [coming soon]
+
 </details>
 
 <details open>
-
 <summary>文本识别</summary>
+
 
 - [x] [CRNN](configs/rec/crnn/README.md) (TPAMI'2016)
 - [x] [CRNN-Seq2Seq/RARE](configs/rec/rare/README.md) (CVPR'2016)
 - [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022)
 - [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
-</details>
 
-请参见[configs](./configs).查看以上模型的详细精度性能结果。
 
-[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)模型推理的支持列表，请参见[MindOCR支持模型列表](docs/en/inference/models_list_en.md) and [第三方模型推理支持列表](docs/en/inference/models_list_thirdparty_en.md)。
+模型训练的配置及性能结果请见[configs](./configs).
+
+MindSpore Lite和ACL模型推理的支持列表，请见[MindOCR模型推理支持列表](docs/cn/inference/models_list_cn.md)和[第三方模型推理支持列表](docs/cn/inference/models_list_thirdparty_cn.md).
 
 ## 数据集
+### 下载
+
+我们提供以下数据集的下载说明。
 
 <details open>
-<summary>通用OCR数据集</summary>
+<summary>文本检测</summary>
 
-- [x] ICDAR2015 [论文](https://rrc.cvc.uab.es/files/short_rrc_2015.pdf) [主页](https://rrc.cvc.uab.es/?ch=4) [下载说明](docs/en/datasets/icdar2015.md)
-- [x] Total-Text [论文](https://arxiv.org/abs/1710.10400) [主页](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset) [下载说明](docs/en/datasets/totaltext.md)
-- [x] Syntext150k [论文](https://arxiv.org/abs/2002.10200) [主页](https://github.com/aim-uofa/AdelaiDet) [下载说明](docs/en/datasets/syntext150k.md)
-- [x] MLT2017 [paper](https://ieeexplore.ieee.org/abstract/document/8270168) [主页](https://rrc.cvc.uab.es/?ch=8&com=introduction) [下载说明](docs/en/datasets/mlt2017.md)
-- [x] MSRA-TD500 [论文](https://ieeexplore.ieee.org/abstract/document/6247787) [主页](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500)) [下载说明](docs/en/datasets/td500.md)
-- [x] SCUT-CTW1500 [论文](https://www.sciencedirect.com/science/article/pii/S0031320319300664) [主页](https://github.com/Yuliang-Liu/Curve-Text-Detector) [下载说明](docs/en/datasets/ctw1500.md)
+- [x] ICDAR2015 [论文]((https://rrc.cvc.uab.es/files/short_rrc_2015.pdf)) [主页]((https://rrc.cvc.uab.es/?ch=4)) [下载说明](docs/cn/datasets/icdar2015_CN.md)
+
+- [x] Total-Text [论文](https://arxiv.org/abs/1710.10400) [主页](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset) [下载说明](docs/cn/datasets/totaltext_CN.md)
+
+- [x] Syntext150k [论文](https://arxiv.org/abs/2002.10200) [主页](https://github.com/aim-uofa/AdelaiDet) [下载说明](docs/cn/datasets/syntext150k_CN.md)
+
+- [x] MLT2017 [论文](https://ieeexplore.ieee.org/abstract/document/8270168) [主页](https://rrc.cvc.uab.es/?ch=8&com=introduction) [下载说明](docs/cn/datasets/mlt2017_CN.md)
+
+- [x] MSRA-TD500 [论文](https://ieeexplore.ieee.org/abstract/document/6247787) [主页](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500)) [下载说明](docs/cn/datasets/td500_CN.md)
+
+- [x] SCUT-CTW1500 [论文](https://www.sciencedirect.com/science/article/pii/S0031320319300664) [主页](https://github.com/Yuliang-Liu/Curve-Text-Detector) [下载说明](docs/cn/datasets/ctw1500_CN.md)
+
 </details>
 
-正在持续更新中。
+### 转换
+
+在 `DATASETS_DIR` 文件夹中下载这些数据集后，您可以运行 `bash tools/convert_datasets.sh` 将所有下载的数据集转换为目标格式。[这里](tools/dataset_converters/README_CN.md)有一个 icdar2015 数据集转换的例子。
+
 
 ## 重要信息
 
-### 更新
+### 变更日志
 
 - 2023/06/07
 1. 增加新模型
@@ -209,8 +166,7 @@ python tools/eval.py \
     - [mlt2017](docs/cn/datasets/mlt2017_CN.md)
     - [chinese_text_recognition](docs/cn/datasets/chinese_text_recognition_CN.md)
 3. 增加断点重训(resume training)功能，可在训练意外中断时使用。如需使用，请在配置文件中`model`字段下增加`resume`参数，允许传入具体路径`resume: /path/to/train_resume.ckpt`或者通过设置`resume: True`来加载在ckpt_save_dir下保存的trian_resume.ckpt
-4. 改进检测模块的后处理部分：默认情况下，将检测到的文本多边形重新缩放到原始图像空间，可以通过在`eval.dataset.output_columns`列表中增加"shape_list"实现。
-5. 重构在线推理以支持更多模型，详情请参见[README.md](tools/infer/text/README.md) 。
+
 
 - 2023/05/15
 1. 增加新模型
@@ -253,6 +209,11 @@ python tools/eval.py \
     iv)  在网页的UI界面增加运行参数`enable_modelarts`并将其设置为True；
     v)   填写其他项并启动训练任务。
   ```
+
+- 2023/03/08
+1. 增加评估脚本 with  arg `ckpt_load_path`；
+2. Yaml文件中的`ckpt_save_dir`参数从`system` 移动到 `train`；
+3. 增加rop_overflow_update控制。
 
 ### 如何贡献
 
