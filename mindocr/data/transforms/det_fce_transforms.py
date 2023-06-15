@@ -1,17 +1,13 @@
 import json
 import math
-import sys
 
 import cv2
-import imgaug
 import imgaug.augmenters as iaa
 import numpy as np
 import Polygon as plg
 from numpy.fft import fft
 from numpy.linalg import norm
-from PIL import Image, ImageDraw
-
-import mindspore.dataset.vision as vision
+from PIL import Image
 
 
 class DetResizeForTest(object):
@@ -110,13 +106,9 @@ class DetResizeForTest(object):
         resize_h = max(int(round(resize_h / 32) * 32), 32)
         resize_w = max(int(round(resize_w / 32) * 32), 32)
 
-        try:
-            if int(resize_w) <= 0 or int(resize_h) <= 0:
-                return None, (None, None)
-            img = cv2.resize(img, (int(resize_w), int(resize_h)))
-        except:
-            print(img.shape, resize_w, resize_h)
-            sys.exit(0)
+        if int(resize_w) <= 0 or int(resize_h) <= 0:
+            return None, (None, None)
+        img = cv2.resize(img, (int(resize_w), int(resize_h)))
         ratio_h = resize_h / float(h)
         ratio_w = resize_w / float(w)
         return img, [ratio_h, ratio_w]
@@ -238,7 +230,7 @@ def imresize(img, size, return_scale=False, interpolation="bilinear", out=None, 
     if backend == "pillow":
         assert img.dtype == np.uint8, "Pillow backend only support uint8 type"
         pil_image = Image.fromarray(img)
-        pil_image = pil_image.resize(size, pillow_interp_codes[interpolation])
+        # pil_image = pil_image.resize(size, pillow_interp_codes[interpolation])
         resized_img = np.array(pil_image)
     else:
         resized_img = cv2.resize(img, size, dst=out, interpolation=cv2_interp_codes[interpolation])

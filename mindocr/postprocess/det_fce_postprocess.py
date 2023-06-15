@@ -17,7 +17,6 @@ from __future__ import absolute_import, division, print_function
 import cv2
 import numpy as np
 import Polygon as plg
-import pyclipper
 from numpy.fft import ifft
 
 __all__ = ["FCEPostProcess"]
