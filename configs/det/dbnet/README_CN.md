@@ -127,7 +127,7 @@ DBNet和DBNet++在ICDAR2015，MSRA-TD500，SCUT-CTW1500，Total-Text和MLT2017�
 
 #### 3.2.1 ICDAR2015 数据集
 
-请从[该网址](https://rrc.cvc.uab.es/?ch=4&com=downloads)下载ICDAR2015数据集，然后参考[数据转换](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README_CN.md)对数据集标注进行格式转换。
+请从[该网址](https://rrc.cvc.uab.es/?ch=4&com=downloads)下载ICDAR2015数据集，然后参考[数据转换](../../../tools/dataset_converters/README_CN.md)对数据集标注进行格式转换。
 
 完成数据准备工作后，数据的目录结构应该如下所示：
 
@@ -149,7 +149,7 @@ DBNet和DBNet++在ICDAR2015，MSRA-TD500，SCUT-CTW1500，Total-Text和MLT2017�
 
 #### 3.2.2 MSRA-TD500 数据集
 
-请从[该网址](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500))下载MSRA-TD500数据集，然后参考[数据转换](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README_CN.md)对数据集标注进行格式转换。
+请从[该网址](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500))下载MSRA-TD500数据集，然后参考[数据转换](../../../tools/dataset_converters/README_CN.md)对数据集标注进行格式转换。
 
 完成数据准备工作后，数据的目录结构应该如下所示：
 
@@ -257,6 +257,12 @@ MLT_2017
 │   └── gt.mat
 
 ```
+
+> :warning: 另外, 我们强烈建议在使用 `SynthText` 数据集之前先进行预处理，因为它包含一些错误的数据。可以使用下列的方式进行校正:
+> ```shell
+> python tools/dataset_converters/convert.py --dataset_name=synthtext --task=det --label_dir=/path-to-data-dir/SynthText/gt.mat --output_path=/path-to-data-dir/SynthText/gt_processed.mat
+> ```
+> 以上的操作会产生与`SynthText`原始标注格式相同但是是经过过滤后的标注数据.
 
 ### 3.3 配置说明
 
@@ -376,7 +382,7 @@ python infer.py \
     --device=Ascend \
     --device_id=0 \
     --det_model_path=your_path_to/output.mindir \
-    --det_config_path=../../configs/det/dbnet/db_r50_icdar15.yaml \
+    --det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
     --backend=lite \
     --res_save_dir=results_dir
 ```

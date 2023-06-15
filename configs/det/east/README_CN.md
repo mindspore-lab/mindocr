@@ -182,7 +182,7 @@ python infer.py \
     --device=Ascend \
     --device_id=0 \
     --det_model_path=your_path_to/output.mindir \
-    --det_config_path=../../configs/det/east/east_r50_icdar15.yaml \
+    --det_model_name_or_config=../../configs/det/east/east_r50_icdar15.yaml \
     --backend=lite \
     --res_save_dir=results_dir
 ```

@@ -1,10 +1,14 @@
 import json
 from pathlib import Path
 
-import tqdm
+import cv2
+from shapely.geometry import Polygon
+from tqdm import tqdm
+
+from mindocr.data.utils.polygon_utils import sort_clockwise
 
 
-class MLT2017_Converter(object):
+class MLT2017_Converter:
     """
     Format annotation to standard form for MLT2017 dataset.
     The ground truth is provided in terms of word bounding boxes. Bounding boxes are specified by the coordinates of
@@ -35,14 +39,33 @@ class MLT2017_Converter(object):
     def _format_det_label(self, image_dir: Path, label_path: Path, output_path: str):
         with open(output_path, "w", encoding="utf-8") as out_file:
             images = sorted(image_dir.iterdir(), key=lambda path: int(path.stem.split("_")[-1]))  # sort by image id
-            for img_path in tqdm.tqdm(images, total=len(images)):
+            for img_path in tqdm(images, total=len(images)):
                 label = []
                 with open(label_path / ("gt_" + img_path.stem + ".txt"), "r", encoding="utf-8") as f:
                     for line in f.read().splitlines():
                         line = line.split(",", 9)  # split the line by first 9 commas: 8 points + language
 
                         points = [[int(line[i]), int(line[i + 1])] for i in range(0, 8, 2)]  # reshape points (4, 2)
+                        # sort points and validate
+                        points = sort_clockwise(points).tolist()
+                        if not Polygon(points).is_valid:
+                            print(f"Warning {img_path.name}: skipping invalid polygon {points}")
+                            continue
+
                         label.append({"language": line[8], "transcription": line[9], "points": points})
+
+                # gif is animation not an image, save it as an image
+                if img_path.suffix.lower() == ".gif":
+                    new_path = image_dir / (img_path.stem + ".png")
+                    if not new_path.exists():  # if was not converted previously
+                        cap = cv2.VideoCapture(str(img_path))
+                        _, image = cap.read()
+                        cap.release()
+
+                        cv2.imwrite(str(new_path), image)
+                        img_path = new_path
+                    else:  # skip .gif image since converted .png already exists in the folder
+                        continue
 
                 img_path = img_path.name if self._relative else str(img_path)
                 out_file.write(img_path + "\t" + json.dumps(label, ensure_ascii=False) + "\n")

@@ -10,20 +10,7 @@ sys.path.insert(0, mindocr_path)
 
 from mindocr.data.transforms import rec_transforms  # noqa
 
-__all__ = ["RecResizeImg", "SVTRRecResizeImg", "RecResizeNormForInfer", "RecResizeNormForViTSTR"]
-
-
-class RecResizeImg(rec_transforms.RecResizeImg):
-    def __init__(self, padding=True, **kwargs):
-        skipped = ("image_shape",)
-        [kwargs.pop(name, None) for name in skipped]
-
-        super().__init__(image_shape=None, padding=padding, **kwargs)
-
-    # move 'image_shape' to __call__ from __init__
-    def __call__(self, data: dict):
-        self.image_shape = data["target_size"]
-        return super().__call__(data)
+__all__ = ["SVTRRecResizeImg", "RecResizeNormForInfer", "RecResizeNormForViTSTR"]
 
 
 class SVTRRecResizeImg(rec_transforms.SVTRRecResizeImg):

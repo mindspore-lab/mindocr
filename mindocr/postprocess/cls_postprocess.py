@@ -1,9 +1,9 @@
 from mindspore import Tensor
 
-__all__ = ["ClsPostProcess"]
+__all__ = ["ClsPostprocess"]
 
 
-class ClsPostProcess(object):
+class ClsPostprocess(object):
     """Map the predicted index back to orignal format (angle)."""
 
     def __init__(self, label_list=None, **kwargs):

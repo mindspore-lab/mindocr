@@ -333,7 +333,7 @@ Currently, this model supports multilingual recognition and provides pre-trained
 
 We use a public Chinese text benchmark dataset [Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition) for RARE training and evaluation.
 
-For detailed instruction of data preparation and yaml configuration, please refer to [ch_dataeset](../../../docs/en/datasets/chinese_text_recognition.md).
+For detailed instruction of data preparation and yaml configuration, please refer to [ch_dataset](../../../docs/en/datasets/chinese_text_recognition.md).
 
 ### Training
 

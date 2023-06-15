@@ -4,6 +4,7 @@ import sys
 import mindspore as ms
 
 from .det_east_postprocess import EASTPostprocess
+from .det_fce_postprocess import FCEPostprocess
 from .det_sast_postprocess import SASTPostprocess
 
 # add mindocr root path, and import postprocess from mindocr
@@ -12,7 +13,7 @@ sys.path.insert(0, mindocr_path)
 
 from mindocr.postprocess import det_db_postprocess, det_pse_postprocess  # noqa
 
-__all__ = ["DBPostprocess", "EASTPostprocess", "PSEPostprocess", "SASTPostprocess"]
+__all__ = ["DBPostprocess", "EASTPostprocess", "PSEPostprocess", "SASTPostprocess", "FCEPostprocess"]
 
 DBPostprocess = det_db_postprocess.DBPostprocess
 

@@ -33,52 +33,48 @@ Table Format:
 - Download: url of the pretrained model weights. Use absolute url path.
 -->
 
-### 精度结果
+### 训练端
 
-根据我们的实验，在公开基准数据集（IC03，IC13，IC15，IIIT，SVT，SVTP，CUTE）上的评估结果如下：
+根据我们的实验，训练（[模型训练](#32-模型训练)）性能和精度评估（[模型评估](#33-模型评估)）结果如下：
 
 <div align="center">
 
-| **模型** | **环境配置** | **骨干网络** |**平均准确率** | **训练时间** | **配置文件** | **模型权重下载** |
-| :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
-| CRNN      | D910x8-MS1.8-G | VGG7  | 82.03%    | 2445 s/epoch | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-3a19e349.mindir)   |
-| CRNN      | D910x8-MS1.8-G | ResNet34_vd | 84.45%    | 2118 s/epoch         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-2f016384.mindir) |
+| **模型** | **环境配置** | **骨干网络** | **训练集** | **参数量** | **单卡批量** | **图模式8卡训练 (s/epoch)** | **图模式8卡训练 (ms/step)** | **图模式8卡训练 (FPS)** | **平均评估精度** | **配置文件** | **模型权重下载** |
+| :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
+| CRNN      | D910x8-MS1.8-G | VGG7 | MJ+ST | 8.72 M | 16 |  2488.82 | 22.06 | 5802.71 | 82.03%  | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-573dbd61.mindir) |
+| CRNN      | D910x8-MS1.8-G | ResNet34_vd | MJ+ST | 24.48 M | 64 |  2157.18 | 76.48 | 6694.84 | 84.45% | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-eb10a0c9.mindir) |
 </div>
 
-<details open>
+- 在各个基准数据集（IC03，IC13，IC15，IIIT，SVT，SVTP，CUTE）上的准确率：
+
   <div align="center">
-  <summary>在各个基准数据集上的准确率</summary>
 
   | **模型** | **骨干网络** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **平均准确率** |
   | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
   | CRNN | VGG7 | 94.53% | 94.00% | 92.18% | 90.74% | 71.95% | 66.06% | 84.10% | 83.93% | 73.33% | 69.44% | 82.03% |
   | CRNN | ResNet34_vd | 94.42% | 94.23% | 93.35% | 92.02% | 75.92% | 70.15% | 87.73% | 86.40% | 76.28% | 73.96% | 84.45% |
   </div>
-</details>
 
 
-### 性能
+### 推理端
 
-#### 训练性能
+推理端的性能测试主要是基于Mindspore Lite，详细的操作介绍可参考 [Mindspore Lite推理](#6-mindspore-lite-推理)。
 
-| 设备 | 模型 | 骨干网络 | 数据集 | 参数量 | 单卡批量 | 图模式8卡训练 (s/epoch) | 图模式8卡训练 (ms/step) | 图模式8卡训练 (FPS) |
-| :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
-| Ascend910| CRNN | VGG7 | MJ+ST | 8.72 M | 16 | 2488.82 | 22.06 | 5802.71 |
-| Ascend910| CRNN | ResNet34_vd | MJ+ST | 24.48 M | 64 | 2157.18 | 76.48 | 6694.84 |
-
-#### 推理性能
+<div align="center">
 
 | 设备 | 编译环境 | 模型 | 骨干网络 | 参数量 | 测试集 | 批量大小 | 图模式单卡推理 (FPS) |
 | :----: | :----: | :----: | :----: | :----: | :----: | :----: | :----: |
 | Ascend310P | Lite2.0 | CRNN | ResNet34_vd | 24.48 M | IC15 | 1 | 361.09 |
 | Ascend310P | Lite2.0 | CRNN | ResNet34_vd | 24.48 M | SVT | 1 | 274.67 |
 
+</div>
 
 **注意:**
 - 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。例如，D910x8-MS1.8-G 用于使用图形模式在8张昇腾910 NPU上依赖Mindspore1.8版本进行训练。
 - 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
 - 模型所能识别的字符都是默认的设置，即所有英文小写字母a至z及数字0至9，详细请看[4. 字符词典](#4-字符词典)
 - 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[数据集下载及使用](#312-数据集下载)章节。
+- CRNN_VGG7和CRNN_ResNet34_vd的MindIR导出时的输入Shape均为(1, 3, 32, 100)。
 
 
 ## 3. 快速开始
@@ -379,11 +375,57 @@ mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/crnn/
 
 | **模型** | **语种** | **环境配置** | **骨干网络** | **街景类** | **网页类** | **文档类** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** |
 | :-----: | :-----:  | :-------:  |:--------: | :--------: | :--------: | :--------: | :---------: |:--------: | :---------: | :-----------: |
-| CRNN    | 中文 | D910x4-MS1.10-G | ResNet34_vd | 60.45% | 65.95% | 97.68% | 647 s/epoch | 1180 | [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-7a342e3c.ckpt) \| [mindir]() |
+| CRNN    | 中文 | D910x4-MS1.10-G | ResNet34_vd | 60.45% | 65.95% | 97.68% | 647 s/epoch | 1180 | [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) |[ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-7a342e3c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-7a342e3c-105bccb2.mindir) |
 </div>
+
+**注释：**
+
+- MindIR导出时的输入Shape为(1, 3, 32, 320).
+
 
 ### 使用自定义数据集进行训练
 您可以在自定义的数据集基于提供的预训练权重进行微调训练, 以在特定场景获得更高的识别准确率，具体步骤请参考文档 [使用自定义数据集训练识别网络](../../../docs/cn/tutorials/training_recognition_custom_dataset_CN.md)。
+
+
+## 6. MindSpore Lite 推理
+
+请参考[MindOCR 推理](../../../docs/cn/inference/inference_tutorial_cn.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
+
+**1. 模型导出**
+
+请先[下载](#2-评估结果)已导出的MindIR文件，或者参考[模型导出](../../README.md)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
+
+```shell
+python tools/export.py --model_name crnn --data_shape 32 100 --local_ckpt_path /path/to/local_ckpt.ckpt
+# or
+python tools/export.py --model_name configs/rec/crnn/crnn_resnet34.yaml --data_shape 32 100 --local_ckpt_path /path/to/local_ckpt.ckpt
+```
+
+其中，`data_shape`是导出MindIR时的模型输入Shape的height和width，下载链接中MindIR对应的shape值见[注释](#2-评估结果)。
+
+**2. 环境搭建**
+
+请参考[环境安装](../../../docs/cn/inference/environment_cn.md#2-mindspore-lite推理)教程，配置MindSpore Lite推理运行环境。
+
+**3. 模型转换**
+
+请参考[模型转换](../../../docs/cn/inference/convert_tutorial_cn.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换，
+其中`configFile`文件中的`input_shape`需要填写模型导出时shape，如上述的(1, 3, 32, 100)，格式为NCHW。
+
+**4. 执行推理**
+
+假设在模型转换后得到output.mindir文件，在`deploy/py_infer`目录下使用以下命令进行推理：
+
+```shell
+python infer.py \
+    --input_images_dir=/your_path_to/test_images \
+    --device=Ascend \
+    --device_id=0 \
+    --det_model_path=your_path_to/output.mindir \
+    --det_config_path=../../configs/rec/crnn/crnn_resnet34.yaml \
+    --backend=lite \
+    --res_save_dir=results_dir
+```
 
 
 ## 参考文献

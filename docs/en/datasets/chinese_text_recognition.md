@@ -10,8 +10,7 @@ Following the setup in [Benchmarking-Chinese-Text-Recognition](https://github.co
 
 Please download the following LMDB files as introduced in [Downloads](https://github.com/FudanVI/benchmarking-chinese-text-recognition/blob/main/README.md#download):
 
-- scene datasets: The union dataset contains [RCTW](rctw.vlrlab.net/dataset
-), [ReCTS](https://rrc.cvc.uab.es/?ch=12&com=downloads), [LSVT](https://rrc.cvc.uab.es/?ch=16&com=introduction), [ArT](https://rrc.cvc.uab.es/?ch=14&com=downloads), [CTW](https://link.springer.com/article/10.1007/s11390-019-1923-y)
+- scene datasets: The union dataset contains [RCTW](https://rctw.vlrlab.net/dataset), [ReCTS](https://rrc.cvc.uab.es/?ch=12&com=downloads), [LSVT](https://rrc.cvc.uab.es/?ch=16&com=introduction), [ArT](https://rrc.cvc.uab.es/?ch=14&com=downloads), [CTW](https://link.springer.com/article/10.1007/s11390-019-1923-y)
 - web: [MTWI](https://tianchi.aliyun.com/competition/entrance/231684/introduction)
 - document: generated with [Text Render](https://github.com/oh-my-ocr/text_renderer)
 - handwriting dataset: [SCUT-HCCDoc](https://github.com/HCIILAB/SCUT-HCCDoc_Dataset_Release)

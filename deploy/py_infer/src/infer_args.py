@@ -24,7 +24,7 @@ def get_args():
     parser.add_argument(
         "--backend",
         type=str.lower,
-        default="acl",
+        default="lite",
         required=False,
         choices=["acl", "lite"],
         help="Inference backend type.",
@@ -39,20 +39,23 @@ def get_args():
         help="Number of parallel in each stage of pipeline parallelism.",
     )
     parser.add_argument(
-        "--precision_mode", type=str, default="fp32", choices=["fp16", "fp32"], required=False, help="Precision mode."
+        "--precision_mode", type=str, default=None, choices=["fp16", "fp32"], required=False, help="Precision mode."
     )
 
     parser.add_argument("--det_model_path", type=str, required=False, help="Detection model file path.")
-    parser.add_argument("--det_model_name", type=str, required=False, help="Detection model name.")
-    parser.add_argument("--det_config_path", type=str, required=False, help="Detection config file path.")
+    parser.add_argument(
+        "--det_model_name_or_config", type=str, required=False, help="Detection model name or config file path."
+    )
 
     parser.add_argument("--cls_model_path", type=str, required=False, help="Classification model file path.")
-    parser.add_argument("--cls_model_name", type=str, required=False, help="Classification model name.")
-    parser.add_argument("--cls_config_path", type=str, required=False, help="Classification config file path.")
+    parser.add_argument(
+        "--cls_model_name_or_config", type=str, required=False, help="Classification model name or config file path."
+    )
 
     parser.add_argument("--rec_model_path", type=str, required=False, help="Recognition model file path or directory.")
-    parser.add_argument("--rec_model_name", type=str, required=False, help="Recognition model name.")
-    parser.add_argument("--rec_config_path", type=str, required=False, help="Recognition config file path.")
+    parser.add_argument(
+        "--rec_model_name_or_config", type=str, required=False, help="Recognition model name or config file path."
+    )
     parser.add_argument(
         "--character_dict_path", type=str, required=False, help="Character dict file path for recognition models."
     )
@@ -134,6 +137,13 @@ def update_task_info(args):
             f"Please check model_path!"
         )
 
+    if args.det_model_name_or_config:
+        setattr(args, "det_config_path", get_config_by_name_for_model(args.det_model_name_or_config))
+    if args.cls_model_name_or_config:
+        setattr(args, "cls_config_path", get_config_by_name_for_model(args.cls_model_name_or_config))
+    if args.rec_model_name_or_config:
+        setattr(args, "rec_config_path", get_config_by_name_for_model(args.rec_model_name_or_config))
+
     return args
 
 
@@ -144,26 +154,14 @@ def check_and_update_args(args):
     if not args.input_images_dir or not os.path.exists(args.input_images_dir):
         raise ValueError("input_images_dir must be dir containing multiple images or path of single image.")
 
-    if args.det_model_path and not os.path.isfile(args.det_model_path):
-        raise ValueError("det_model_path must be a model file path for detection.")
+    if args.det_model_path and not args.det_model_name_or_config:
+        raise ValueError("det_model_name_or_config can't be emtpy when set det_model_path for detection.")
 
-    if args.det_model_path and (not args.det_model_name and not args.det_config_path):
-        raise ValueError("det_model_name or det_config_path can't be emtpy when set det_model_path for detection.")
+    if args.cls_model_path and not args.cls_model_name_or_config:
+        raise ValueError("cls_model_name_or_config can't be emtpy when set cls_model_path for classification.")
 
-    if args.cls_model_path and not os.path.isfile(args.cls_model_path):
-        raise ValueError("cls_model_path must be a model file path for classification.")
-
-    if args.cls_model_path and (not args.cls_model_name and not args.cls_config_path):
-        raise ValueError("cls_model_name or cls_config_path can't be emtpy when set cls_model_path for classification.")
-
-    if args.rec_model_path and (
-        not os.path.exists(args.rec_model_path)
-        or (os.path.isdir(args.rec_model_path) and not os.listdir(args.rec_model_path))
-    ):
-        raise ValueError("rec_model_path must be a model file or dir containing model file for recognition model.")
-
-    if args.rec_model_path and (not args.rec_model_name and not args.rec_config_path):
-        raise ValueError("rec_model_name or rec_config_path can't be emtpy when set rec_model_path for recognition.")
+    if args.rec_model_path and not args.rec_model_name_or_config:
+        raise ValueError("rec_model_name_or_config can't be emtpy when set rec_model_path for recognition.")
 
     if args.parallel_num < 1 or args.parallel_num > 4:
         raise ValueError(f"parallel_num must between [1,4], current: {args.parallel_num}.")
@@ -183,15 +181,27 @@ def check_and_update_args(args):
     if not args.res_save_dir:
         raise ValueError("res_save_dir can't be empty.")
 
-    need_check_file_exist = {
-        "det_config_path": args.det_config_path,
-        "cls_config_path": args.cls_config_path,
-        "rec_config_path": args.rec_config_path,
+    need_check_file = {
+        "det_model_path": args.det_model_path,
+        "cls_model_path": args.cls_model_path,
         "character_dict_path": args.character_dict_path,
     }
-    for name, path in need_check_file_exist.items():
-        if path and not os.path.isfile(path):
-            raise ValueError(f"{name} must be a file, but got {path}.")
+    for name, path in need_check_file.items():
+        if path:
+            if not os.path.exists(path):
+                raise ValueError(f"{name} must be a file, but {path} doesn't exist.")
+            if not os.path.isfile(path):
+                raise ValueError(f"{name} must be a file, but got a dir of {path}.")
+
+    need_check_file_or_dir = {
+        "rec_model_path": args.rec_model_path,
+    }
+    for name, path in need_check_file_or_dir.items():
+        if path:
+            if not os.path.exists(path):
+                raise ValueError(f"{name} must be a file or dir, but {path} doesn't exist.")
+            if os.path.isdir(path) and not os.listdir(path):
+                raise ValueError(f"{name} got a dir of {path}, but it is empty.")
 
     need_check_dir_not_same = {
         "input_images_dir": args.input_images_dir,
@@ -202,13 +212,6 @@ def check_and_update_args(args):
     for (name1, dir1), (name2, dir2) in itertools.combinations(need_check_dir_not_same.items(), 2):
         if (dir1 and dir2) and os.path.realpath(os.path.normcase(dir1)) == os.path.realpath(os.path.normcase(dir2)):
             raise ValueError(f"{name1} and {name2} can't be same path.")
-
-    if args.det_model_name:
-        args.det_config_path = get_config_by_name_for_model(args.det_model_name)
-    if args.cls_model_name:
-        args.cls_config_path = get_config_by_name_for_model(args.cls_model_name)
-    if args.rec_model_name:
-        args.rec_config_path = get_config_by_name_for_model(args.rec_model_name)
 
     return args
 

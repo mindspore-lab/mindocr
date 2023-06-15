@@ -17,6 +17,15 @@ Example:
 import argparse
 import os
 
+from ctw1500 import CTW1500_Converter
+from ic15 import IC15_Converter
+from mlt2017 import MLT2017_Converter
+from svt import SVT_Converter
+from syntext150k import SYNTEXT150K_Converter
+from synthtext import SYNTHTEXT_Converter
+from td500 import TD500_Converter
+from totaltext import TOTALTEXT_Converter
+
 supported_datasets = ["ic15", "totaltext", "mlt2017", "syntext150k", "svt", "td500", "ctw1500"]
 
 
@@ -36,7 +45,7 @@ def convert(dataset_name, task, image_dir, label_path, output_path=None, path_mo
         assert path_mode in ["relative", "abs"], f"Invalid mode: {path_mode}"
 
         class_name = dataset_name.upper() + "_Converter"
-        cvt = eval(class_name)()
+        cvt = eval(class_name)(path_mode)
         cvt.convert(task, image_dir, label_path, output_path)
         print(f"Conversion complete.\nResult saved in {output_path}")
 
