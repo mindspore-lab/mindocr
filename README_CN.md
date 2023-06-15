@@ -158,7 +158,7 @@ python tools/eval.py \
 
 <details open>
 <summary>文本检测</summary>
-    
+
 - [x] [DBNet](configs/det/dbnet/README.md) (AAAI'2020)
 - [x] [DBNet++](configs/det/dbnet/README.md) (TPAMI'2022)
 - [x] [PSENet](configs/det/psenet/README.md) (CVPR'2019)
@@ -167,9 +167,9 @@ python tools/eval.py \
 </details>
 
 <details open>
-    
+
 <summary>文本识别</summary>
-    
+
 - [x] [CRNN](configs/rec/crnn/README.md) (TPAMI'2016)
 - [x] [CRNN-Seq2Seq/RARE](configs/rec/rare/README.md) (CVPR'2016)
 - [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022)
@@ -184,7 +184,7 @@ python tools/eval.py \
 
 <details open>
 <summary>通用OCR数据集</summary>
-    
+
 - [x] ICDAR2015 [论文](https://rrc.cvc.uab.es/files/short_rrc_2015.pdf) [主页](https://rrc.cvc.uab.es/?ch=4) [下载说明](docs/en/datasets/icdar2015.md)
 - [x] Total-Text [论文](https://arxiv.org/abs/1710.10400) [主页](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset) [下载说明](docs/en/datasets/totaltext.md)
 - [x] Syntext150k [论文](https://arxiv.org/abs/2002.10200) [主页](https://github.com/aim-uofa/AdelaiDet) [下载说明](docs/en/datasets/syntext150k.md)
