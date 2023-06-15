@@ -422,7 +422,7 @@ python infer.py \
     --device=Ascend \
     --device_id=0 \
     --rec_model_path=your_path_to/output.mindir \
-    --rec_config_path=../../configs/rec/crnn/crnn_resnet34.yaml \
+    --rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
     --backend=lite \
     --res_save_dir=results_dir
 ```
