@@ -1,4 +1,4 @@
-English | [中文](../../cn/tutorials/training_recognition_custom_dataset_CN.md)
+English | [中文](../../cn/tutorials/training_recognition_custom_dataset.md)
 
 # Training Recognition Network with Custom Datasets
 
