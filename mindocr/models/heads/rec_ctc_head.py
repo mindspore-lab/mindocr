@@ -28,7 +28,7 @@ class CTCHead(nn.Cell):
         weight_init (str): the init function name for weights. Default: 'normal'.
         bia_init (str): the init function name for bias. Default: 'zeros'
         dropout (float): the dropout value for the layer. Default: 0.
-    
+
     Example:
         >>> w, bs, c = 16, 8, 256
         >>> x = ms.Tensor(np.random.rand(w, bs, c), dtype=ms.float32)
