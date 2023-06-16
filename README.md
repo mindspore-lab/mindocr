@@ -89,7 +89,7 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 After running, the results will be saved in `./inference_results` by default. Here is an example result.
 
 <p align="center">
-  <img src="https://github.com/SamitHuang/mindocr-1/assets/8156835/c1f53970-8618-4039-994f-9f6dc1eee1dd" width=500 />
+  <img src="https://github.com/SamitHuang/mindocr-1/assets/8156835/c1f53970-8618-4039-994f-9f6dc1eee1dd" width=600 />
 </p>
 <p align="center">
   <em> Visualization of text detection and recognition result </em>
