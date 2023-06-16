@@ -234,6 +234,7 @@ class BorderMap:
         thresh_min: minimum value for the border map (normalized map).
         thresh_max: maximum value for the border map (normalized map).
     """
+
     def __init__(self, shrink_ratio: float = 0.4, thresh_min: float = 0.3, thresh_max: float = 0.7, **kwargs):
         self._thresh_min = thresh_min
         self._thresh_max = thresh_max
