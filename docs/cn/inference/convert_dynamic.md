@@ -1,4 +1,4 @@
-[English](../../en/inference/convert_dynamic_en.md) | 中文
+[English](../../en/inference/convert_dynamic.md) | 中文
 
 ## 推理 - 模型Shape分档
 
@@ -12,7 +12,7 @@
 
 ### 2. 运行环境
 
-请参考[环境安装](./environment_cn.md)，安装ACL或MindSpore Lite环境。
+请参考[环境安装](environment.md)，安装ACL或MindSpore Lite环境。
 
 ### 3. 模型准备
 

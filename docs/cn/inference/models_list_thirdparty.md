@@ -1,10 +1,10 @@
-[English](../../en/inference/models_list_thirdparty_en.md) | 中文
+[English](../../en/inference/models_list_thirdparty.md) | 中文
 
 ## 推理 - 第三方模型推理支持列表
 
 MindOCR可以支持第三方模型的推理，本文档展示了已适配的模型列表。
 
-在下载模型文件后，需要把它转换为ACL/MindSpore Lite推理支持的模型文件（MindIR或OM），请参考[模型转换教程](./convert_tutorial_cn.md)。
+在下载模型文件后，需要把它转换为ACL/MindSpore Lite推理支持的模型文件（MindIR或OM），请参考[模型转换教程](convert_tutorial.md)。
 
 其中，涉及的原始模型文件如下表：
 
@@ -66,4 +66,4 @@ MindOCR可以支持第三方模型的推理，本文档展示了已适配的模�
 | ch_pp_mobile_cls_v2.0 | MobileNetV3 | [yaml](../../../deploy/py_infer/src/configs/cls/ppocr/cls_mv3.yaml) | [pp-infer](https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_cls_infer.tar) | [ch_ppocr_mobile_v2.0_cls](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_ch/models_list.md) | PaddleOCR |
 
 ### 4. 第三方模型推理性能
-请参考[第三方模型推理测试性能表格](./model_perf_thirdparty_cn.md)。
+请参考[第三方模型推理测试性能表格](model_perf_thirdparty.md)。

@@ -1,11 +1,11 @@
-English | [中文](../../cn/inference/models_list_cn.md)
+English | [中文](../../cn/inference/models_list.md)
 
 ## Inference - MindOCR Models Support List
 
 MindOCR inference supports exported models from trained ckpt file, and this document displays a list of adapted models.
 
 Please [export](../../../tools/export.py) or download the pre-exported MindIR file, and refer to the
-[model conversion tutorial](./convert_tutorial_en.md) before inference.
+[model conversion tutorial](convert_tutorial.md) before inference.
 
 ### 1. Text detection
 

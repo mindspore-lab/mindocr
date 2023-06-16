@@ -1,4 +1,4 @@
-English | [中文](../../cn/datasets/totaltext_CN.md)
+English | [中文](../../cn/datasets/totaltext.md)
 
 # Data Downloading
 

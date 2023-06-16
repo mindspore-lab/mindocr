@@ -1,11 +1,11 @@
-[English](../../en/inference/model_perf_thirdparty_en.md) | 中文
-## 第三方模型推理性能列表
+English | [中文](../../cn/inference/model_perf_thirdparty.md)
+## Third-party Model Inference Performance Table
 
-本文档将给出第三方推理模型在进行[模型转换](./convert_tutorial_cn.md)后，使用MindIR格式推理时的性能。
+This document will give the performance of the third-party inference model using the MindIR format after performing [model conversion](convert_tutorial.md).
 
-### 1. 文本检测
+### 1. Text detection
 
-| 名称 |  模型  | 骨干网络 | 测试数据 | recall | precision | f-score | 来源 |
+| name |  model  | backbone | test data | recall | precision | f-score | source |
 |:----:|:------:|:--------:|:--------:|:------:|:---------:|:-------:|:----:|
 |  ch_pp_server_det_v2.0  | DB |  ResNet18_vd       | MLT17      | 0.3637       |  0.6340         |  0.4622    | PaddleOCR |
 | ch_pp_det_OCRv3       | DB  | MobileNetV3 | MLT17  | 0.2557         | 0.5021          | 0.3389 | PaddleOCR |
@@ -19,8 +19,8 @@
 | en_mm_det_dbnetpp_resnet50 | DBNet++  | ResNet50 | IC15 | 0.8387 | 0.7900 | 0.8136 | MMOCR |
 | en_mm_det_fcenet_resnet50 | FCENet  | ResNet50 | IC15 | 0.8681 | 0.8074 | 0.8367 | MMOCR |
 
-### 2. 文本识别
-| 名称 |  模型  | 骨干网络 | 测试数据 | accuracy | norm edit distance | 来源 |
+### 2. Text recognition
+| name |  model  | backbone | test data | accuracy | norm edit distance | source |
 |:----:|:------:|:--------:|:--------:|:------:|:---------:|:----:|
 | ch_pp_server_rec_v2.0 | CRNN | ResNet34           | MLT17 (only Chinese) | 0.4991 | 0.7411 | PaddleOCR |
 | ch_pp_rec_OCRv3       | SVTR | MobileNetV1Enhance | MLT17 (only Chinese) | 0.4991  | 0.7535 | PaddleOCR |
@@ -34,7 +34,7 @@
 | en_mm_rec_nrtr_resnet31       | NRTR | ResNet31 | IC15 | 0.6726  | 0.8574         | MMOCR |
 | en_mm_rec_satrn_shallowcnn       | SATRN | shallowcnn  | IC15 | 0.7352  | 0.8887         | MMOCR |
 
-请注意，上述模型采用了shape分档，因此该性能仅表示在某些shape下的性能。
+Please note that the above models use model shape scaling, so the performance here only represents the performance under certain input shapes.
 
-### 3. 评估方法
-请参考[模型推理精度评估](./model_evaluation_cn.md)文档。
+### 3. Evaluation method
+Please refer to [Model Inference Evaluation](model_evaluation.md) document.

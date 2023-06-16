@@ -1,4 +1,4 @@
-[English](../../en/inference/inference_tutorial_en.md) | 中文
+[English](../../en/inference/inference_tutorial.md) | 中文
 
 ## 推理 - 使用教程
 
@@ -9,13 +9,13 @@ MindOCR的推理支持Ascend310/Ascend310P设备，采用[MindSpore Lite](https:
 
 ### 2. 运行环境
 
-请参考[运行环境准备](./environment_cn.md)，配置MindOCR的推理运行环境，注意结合模型的支持情况来选择ACL/Lite环境。
+请参考[运行环境准备](environment.md)，配置MindOCR的推理运行环境，注意结合模型的支持情况来选择ACL/Lite环境。
 
 ### 3. 模型转换
 
-MindOCR除了支持自身训练端导出模型的推理外，还支持第三方模型的推理，列表见[MindOCR模型支持列表](./models_list_cn.md)和[第三方模型支持列表](./models_list_thirdparty_cn.md)。
+MindOCR除了支持自身训练端导出模型的推理外，还支持第三方模型的推理，列表见[MindOCR模型支持列表](models_list.md)和[第三方模型支持列表](models_list_thirdparty.md)。
 
-请参考[模型转换教程](./convert_tutorial_cn.md)，将其转换为MindOCR推理支持的模型格式。
+请参考[模型转换教程](convert_tutorial.md)，将其转换为MindOCR推理支持的模型格式。
 
 ### 4. 推理 (Python)
 
@@ -138,7 +138,7 @@ word_1814.png  "cathay"
 | device_id        | int | 0      | 推理设备id               |
 | backend          | str | lite   | 推理后端，支持：acl, lite |
 | parallel_num     | int | 1      | 推理流水线中每个节点并行数  |
-| precision_mode   | str | 无      | 推理的精度模式，暂只支持在[模型转换](./convert_tutorial_cn.md)时设置，此处不生效 |
+| precision_mode   | str | 无      | 推理的精度模式，暂只支持在[模型转换](convert_tutorial.md)时设置，此处不生效 |
 
 - 结果保存
 
@@ -176,7 +176,7 @@ word_1814.png  "cathay"
 
 说明：
 
-`*_model_name_or_config`可以填模型名或YAML配置文件路径，可参考[MindOCR模型支持列表](./models_list_cn.md)和[第三方模型支持列表](./models_list_thirdparty_cn.md)。
+`*_model_name_or_config`可以填模型名或YAML配置文件路径，可参考[MindOCR模型支持列表](models_list.md)和[第三方模型支持列表](models_list_thirdparty.md)。
 
 ### 5. 推理 (C++)
 
