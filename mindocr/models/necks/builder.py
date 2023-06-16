@@ -1,6 +1,6 @@
 __all__ = ['build_neck']
-supported_necks = ['FPN', 'DBFPN', 'RNNEncoder', 'Select', 'Img2Seq', 'PSEFPN', 'EASTFPN']
-from .fpn import DBFPN, EASTFPN, FPN, PSEFPN
+supported_necks = ['FPN', 'DBFPN', 'RNNEncoder', 'Select', 'Img2Seq', 'PSEFPN', 'EASTFPN', 'FCEFPN']
+from .fpn import DBFPN, EASTFPN, FCEFPN, FPN, PSEFPN
 from .img2seq import Img2Seq
 from .rnn import RNNEncoder
 from .select import Select
