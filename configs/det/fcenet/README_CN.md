@@ -27,7 +27,7 @@ FCENet的一大亮点就是在任意不规则形状的文本场景上表现优�
 
 傅里叶轮廓线是基于傅里叶变换的一种曲线拟合方法，随着傅里叶级数的项数k越大，就引入更多的高频信号，对轮廓刻画就越准确。下图展示了不同傅里叶级数情况下对不规则曲线的刻画能力：
 
-<p align="center"><img width="445" alt="Image" src="https://github.com/colawyee/mindocr/assets/15730439/ae507f2f-ea4d-4787-90ea-4c59c634567a"></p>
+<p align="center"><img width="445" alt="Image" src="https://github.com/colawyee/mindocr-1/assets/15730439/5dfdbabd-a025-4789-89fb-4f2263e9deff"></p>
 <p align="center"><em>图 2. 傅里叶轮廓线渐进估计效果</em></p>
 
 可以看出，随着傅里叶级数的项数k越大，其可以刻画的曲线是可以变得非常精细的。
