@@ -177,7 +177,7 @@ For detailed support for MindSpore Lite and ACL inference models, please refer t
 
 ## Dataset List
 
-MindOCR provides a [dataset conversion tool](tools/dataset_converts) to OCR datasets with different formats and support customized dataset by users. We have validated the following public OCR datasets in model training/evaluation.
+MindOCR provides a [dataset conversion tool](tools/dataset_converters) to OCR datasets with different formats and support customized dataset by users. We have validated the following public OCR datasets in model training/evaluation.
 
 <details open>
 <summary>General OCR Datasets</summary>

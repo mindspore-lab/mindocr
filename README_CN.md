@@ -98,7 +98,7 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 
 ### 模型训练与评估-快速指南
 
-使用`tools/t.py`脚本可以很容易地训练OCR模型，该脚本可支持文本检测和识别模型训练。
+使用`tools/train.py`脚本可以很容易地训练OCR模型，该脚本可支持文本检测和识别模型训练。
 ```shell
 python tools/train.py --config {path/to/model_config.yaml}
 ```
@@ -172,13 +172,13 @@ python tools/eval.py \
 
 ## 数据集列表
 
-MindOCR提供了[数据格式转换工具](tools/dataset_converts) ，以支持不同格式的OCR数据集，支持用户自定义的数据集。
+MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支持不同格式的OCR数据集，支持用户自定义的数据集。
 当前已在模型训练评估中验证过的公开OCR数据集如下。
 
 <details open>
 <summary>通用OCR数据集</summary>
 
-- [x] [ICDAR2015](https://rrc.cvc.uab.es/?ch=4) [[paper](https://rrc.cvc.uab.es/files/short_rrc_2015.pdf)] [[download](docs/en/datasets/icdar2015.md)]
+- [x] [ICDAR2015](https://rrc.cvc.uab.es/?ch=4) [[paper](https://rrc.cvc.uab.es/files/short_rrc_2015.pdf)] [[download](docs/cn/datasets/icdar2015.md)]
 
 - [x] [Total-Text](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset)  [[paper](https://arxiv.org/abs/1710.10400)]  [[download](docs/en/datasets/totaltext.md)]
 
