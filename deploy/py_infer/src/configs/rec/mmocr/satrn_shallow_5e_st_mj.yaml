@@ -1,0 +1,18 @@
+postprocess:
+  name: AttentionLabelDecode
+  use_space_char: False
+  blank_at_last: False
+
+eval:
+  dataset:
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          channel_first: False
+      - RecResizeNormForInfer:
+          keep_ratio: False
+          padding: False
+          norm_before_pad: False
+          mean: [ 123.675, 116.28, 103.53 ]
+          std: [ 58.395, 57.12, 57.375 ]
+      - ToCHWImage:

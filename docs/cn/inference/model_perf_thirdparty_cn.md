@@ -29,6 +29,10 @@
 | en_pp_rec_OCRv3       | SVTR | MobileNetV1Enhance | MLT17 (only English) | 0.7964  | 0.8854        | PaddleOCR |
 | en_pp_mobile_rec_number_v2.0_slim       | CRNN | MobileNetV3 | MLT17 (only English) | 0.0164  | 0.0657         | PaddleOCR |
 | en_pp_mobile_rec_number_v2.0       | CRNN | MobileNetV3 | MLT17 (only English) | 0.4304  | 0.5944         | PaddleOCR |
+| en_pp_rec_rosetta_resnet34vd       | Rosetta | resnet34vd | IC15 | 0.6428  | 0.8321         | PaddleOCR |
+| en_pp_rec_vitstr_vitstr       | VITSTR | vitstr  | IC15 | 0.6842  | 0.8578         | PaddleOCR |
+| en_mm_rec_nrtr_resnet31       | NRTR | ResNet31 | IC15 | 0.6726  | 0.8574         | MMOCR |
+| en_mm_rec_satrn_shallowcnn       | SATRN | shallowcnn  | IC15 | 0.7352  | 0.8887         | MMOCR |
 
 请注意，上述模型采用了shape分档，因此该性能仅表示在某些shape下的性能。
 
