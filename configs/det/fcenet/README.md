@@ -16,7 +16,7 @@ FCENet is a segmentation-based text detection algorithm. In the text detection s
 
 The idea of deformable convolution is very simple, which is to change the fixed shape of the convolution kernel into a variable one. Based on the position of the original convolution, deformable convolution will generate a random position shift, as shown in the following figure:
 
-<p align="center"><img alt="Figure 1" src="https://github.com/colawyee/mindocr-1/blob/fcenet/configs/det/fcenet/Image1.png" width="600"/></p>
+<p align="center"><img alt="Figure 1" src="https://github.com/colawyee/mindocr-1/assets/15730439/5dfdbabd-a025-4789-89fb-4f2263e9deff" width="600"/></p>
 <p align="center"><em>Figure 1. Deformable Convolution</em></p>
 
 Figure (a) is the original convolutional kernel, Figure (b) is a deformable convolutional kernel that generates random directional position shifts, and Figure (c) and (d) are two special cases of Figure (b). It can be seen that the advantage of this is that it can improve the Geometric transformation ability of the convolution kernel, so that it is not limited to the shape of the original convolution kernel rectangle, but can support more abundant irregular shapes. Deformable convolution performs better in extracting irregular shape features [1] (# References)] and is more suitable for text recognition scenarios in natural scenes.
@@ -25,7 +25,7 @@ Figure (a) is the original convolutional kernel, Figure (b) is a deformable conv
 
 Fourier contour is a curve fitting method based on Fourier transform. As the number of Fourier degree k increases, more high-frequency signals will be introduced, and the contour description will be more accurate. The following figure shows the ability to describe irregular curves under different Fourier degree:
 
-<p align="center"><img width="445" alt="Image" src="https://github.com/colawyee/mindocr-1/blob/fcenet/configs/det/fcenet/Image2.png"></p>
+<p align="center"><img width="445" alt="Image" src="https://github.com/colawyee/mindocr-1/assets/15730439/23583dd8-0c67-4774-a4f3-9f5971e9ed93"></p>
 <p align="center"><em>Figure 2. Fourier contour fitting with progressive approximation</em></p>
 
 It can be seen that as the Fourier degree k increases, the curves it can depict can become very complicated.
@@ -36,7 +36,7 @@ Fourier Contour Encoding is a method proposed in the paper "Fourier Contour Embe
 
 #### The FCENet Framework
 
-<p align="center"><img width="800" alt="Image" src="https://github.com/colawyee/mindocr-1/blob/fcenet/configs/det/fcenet/Image3.png"></p>
+<p align="center"><img width="800" alt="Image" src="https://github.com/colawyee/mindocr-1/assets/15730439/cfe9f5b1-d22f-4d01-8f27-0856a930f78b"></p>
 <p align="center"><em>Figure 3. FCENet framework</em></p>
 
 Like most OCR algorithms, the structure of FCENet can be roughly divided into three parts: backbone, neck, and head. The backbone uses a deformable convolutional version of Resnet50 for feature extraction; The neck section adopts a feature pyramid [2] (# References), which is a set of convolutional kernels of different sizes, suitable for extracting features of different sizes from the original image, thereby improving the accuracy of object detection. It suits scenes that there are a few text boxes of different sizes in one image; The head part has two branches, one is the classification branch. The classification branch predicts the heat maps of both text regions and text center regions, which are pixel-wise multiplied, resulting in the the classification score map. The loss of classification branch is calculated by the cross entropy between prediction heat maps and ground truth. The regression branch predicts the Fourier signature vectors, which are used to reconstruct text contours via the Inverse Fourier transformation (IFT). Calculate the smooth-l1 loss of the reconstructed text contour and the ground truth contour in the image space as the loss value of the regression branch.
