@@ -333,7 +333,7 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 
 我们采用公开的中文基准数据集[Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition)进行SVTR模型的训练和验证。
 
-详细的数据准备和config文件配置方式, 请参考 [中文识别数据集准备](../../../docs/cn/datasets/chinese_text_recognition_CN.md)
+详细的数据准备和config文件配置方式, 请参考 [中文识别数据集准备](../../../docs/cn/datasets/chinese_text_recognition.md)
 
 ### 模型训练验证
 

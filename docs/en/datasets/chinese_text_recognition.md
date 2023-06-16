@@ -1,4 +1,4 @@
-English | [中文](../../cn/datasets/chinese_text_recognition_CN.md)
+English | [中文](../../cn/datasets/chinese_text_recognition.md)
 
 # Chinese-Text-Recognition
 
