@@ -44,7 +44,7 @@ MindOCR is compatible with the following framework versions. For details and ins
 - mindspore >= 1.9  [[install](https://www.mindspore.cn/install)]
 - python >= 3.7
 - openmpi 4.0.3 (for distributed training/evaluation)  [[install](https://www.open-mpi.org/software/ompi/v4.0/)]
-- mindspore lite (for inference)  [[install](docs/en/inference/environment_en.md)]
+- mindspore lite (for inference)  [[install](docs/en/inference/environment.md)]
 
 
 #### Dependency
@@ -140,7 +140,7 @@ For more illustration and usage, please refer to the model training section in [
     - [Distributed Training](docs/cn/tutorials/distribute_train.md)
     - [Advance: Gradient Accumulation, EMA, Resume Training, etc](docs/en/tutorials/advanced_train.md)
 - Inference and Deployment
-    - [Python/C++ Inference on Ascend 310](docs/en/inference/inference_tutorial_en.md)
+    - [Python/C++ Inference on Ascend 310](docs/en/inference/inference_tutorial.md)
     - [Python Online Inference](tools/infer/text/README.md)
 - Developer Guides
     - [Customize Dataset](mindocr/data/README.md)
@@ -173,7 +173,7 @@ For more illustration and usage, please refer to the model training section in [
 
 For the detailed performance of the trained models, please refer to [configs](./configs).
 
-For detailed support for MindSpore Lite and ACL inference models, please refer to [MindOCR Models Support List](docs/en/inference/models_list_en.md) and [Third-Party Models Support List](docs/en/inference/models_list_thirdparty_en.md).
+For detailed support for MindSpore Lite and ACL inference models, please refer to [MindOCR Models Support List](docs/en/inference/models_list.md) and [Third-Party Models Support List](docs/en/inference/models_list_thirdparty.md).
 
 ## Dataset List
 

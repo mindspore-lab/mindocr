@@ -1,4 +1,4 @@
-English | [中文](../../cn/inference/convert_dynamic_cn.md)
+English | [中文](../../cn/inference/convert_dynamic.md)
 
 ## Inference - Model Shape Scaling
 
@@ -19,7 +19,7 @@ scaling.
 
 ### 2. Environment
 
-Please refer to [Environment Installation](./environment_en.md) to install ACL or MindSpore Lite environment.
+Please refer to [Environment Installation](environment.md) to install ACL or MindSpore Lite environment.
 
 ### 3. Model
 

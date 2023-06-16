@@ -1,11 +1,11 @@
-English | [中文](../../cn/inference/models_list_thirdparty_cn.md)
+English | [中文](../../cn/inference/models_list_thirdparty.md)
 
 ## Inference - Third-Party Models Support List
 
 MindOCR can support the inference of third-party models, and this document displays a list of adapted models.
 
 After downloading the model file, it needs to be converted to a model file supported by ACL/MindSpore Lite inference (OM
-or MindIR). Please refer to the [model conversion tutorial](convert_tutorial_en.md).
+or MindIR). Please refer to the [model conversion tutorial](convert_tutorial.md).
 
 The original model files involved are as follows:
 
@@ -68,4 +68,4 @@ The original model files involved are as follows:
 | ch_pp_mobile_cls_v2.0 | MobileNetV3 | [yaml](../../../deploy/py_infer/src/configs/cls/ppocr/cls_mv3.yaml) | [pp-infer](https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_cls_infer.tar) | [ch_ppocr_mobile_v2.0_cls](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/models_list_en.md) | PaddleOCR |
 
 ### 4. Third-party model inference performance
-Please refer to the [third-party model inference test performance table](./model_perf_thirdparty_en.md).
+Please refer to the [third-party model inference test performance table](model_perf_thirdparty.md).
