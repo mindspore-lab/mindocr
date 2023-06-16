@@ -127,7 +127,7 @@ eval:
     shuffle: False
     transform_pipeline:
       - DecodeImage:
-          img_mode: BGR
+          img_mode: RGB
           to_float32: False
       - RecAttnLabelEncode:
           max_text_len: *max_text_len
@@ -137,16 +137,12 @@ eval:
       - Rotate90IfVertical:
           threshold: 2.0
           direction: counterclockwise
-      - RecResizeImg:
-          image_shape: [32, 320]
-          infer_mode: *infer_mode
-          character_dict_path: *character_dict_path
+      - RecResizeNormForInfer:
+          target_height: 32
+          target_width: 320
+          keep_ratio: True
           padding: True
-      - NormalizeImage:
-          bgr_to_rgb: True
-          is_hwc: True
-          mean: [127.0, 127.0, 127.0]
-          std: [127.0, 127.0, 127.0]
+          norm_before_pad: False
       - ToCHWImage:
     output_columns: ["image", "text_padded", "text_length"]
     net_input_column_index: [0]
