@@ -2,9 +2,9 @@
 
 ### 策略：梯度累积，梯度裁剪，EMA
 
-所有的训练策略都可以在模型配置文件中进行配置。请在设置后运行`tools/train.py`脚本进行训练
+训练策略可在模型YAML配置文件中进行配置。请在设置后运行`tools/train.py`脚本进行训练
 
-[Yaml配置文件用例](../../../configs/rec/crnn/crnn_icdar15.yaml)
+[Yaml配置文件参考样例](../../../configs/rec/crnn/crnn_icdar15.yaml)
 
 ```yaml
 train:
@@ -17,20 +17,19 @@ train:
 
 #### 梯度累积
 
-梯度累积可以有效解决内存限制问题，允许**使用大的全局批量进行训练**。可以通过在yaml配置中将`train.gradient_accumulation_steps` 设置为大于1的值来使用梯度累积功能。
-以下为计算公式：
+梯度累积可以有效解决显存不足的问题，使得在同等显存，允许**使用更大的全局batch size进行训练**。可以通过在yaml配置中将`train.gradient_accumulation_steps` 设置为大于1的值来启用梯度累积功能。
+等价的全局batch size为：
 
 `global_batch_size = batch_size * num_devices * gradient_accumulation_steps`
 
 #### 梯度裁剪
 
-梯度裁剪通常用来解决梯度爆炸/溢出问题和稳定模型收敛。可以通过在yaml配置中设置`train.clip_grad`为`True`来使用该功能，并且可以调整`train.clip_norm`的值来控制梯度大小。
-
+梯度裁剪通常用来缓解梯度爆炸/溢出问题，以使模型收敛更稳定。可以通过在yaml配置中设置`train.clip_grad`为`True`来启用该功能，调整`train.clip_norm`的值可以控制梯度裁剪范数的大小。
 
 
 #### EMA
 
-指数滑动平均（EMA）是一种平滑模型权重的模型集成方法。它能帮助模型在训练中稳定收敛，并且通常会带来更好的模型性能。
+Exponential Moving Average（EMA）是一种平滑模型权重的模型集成方法。它能帮助模型在训练中稳定收敛，并且通常会带来更好的模型性能。
 可以通过在yaml配置中设置`train.ema`为`True`来使用该功能，并且可以调整`train.ema_decay`来控制权重衰减率，通常设置为接近1的值.
 
 
