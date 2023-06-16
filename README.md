@@ -11,13 +11,13 @@
 
 English | [中文](README_CN.md)
 
-[Introduction](#introduction) |
-[Installation](#installation) |
-[Quick Start](#quick-start) |
-[Tutorials](#tutorials) |
-[Model List](#model-list) |
-[Dataset List](#dataset-list) |
-[Notes](#notes)
+[📝Introduction](#introduction) |
+[🔨Installation](#installation) |
+[🚀Quick Start](#quick-start) |
+[📚Tutorials](#tutorials) |
+[🎁Model List](#model-list) |
+[📰Dataset List](#dataset-list) |
+[🎉Notes](#notes)
 
 </div>
 
