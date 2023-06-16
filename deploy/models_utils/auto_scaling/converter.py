@@ -10,7 +10,7 @@ from addict import Dict
 sys_path = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(sys_path)
 
-from src import auto_scaling_process
+from src import auto_scaling_process  # noqa
 
 with open(os.path.abspath(os.path.join(sys_path, "configs/auto_scaling.yaml")), "r") as fp:
     config = yaml.safe_load(fp)

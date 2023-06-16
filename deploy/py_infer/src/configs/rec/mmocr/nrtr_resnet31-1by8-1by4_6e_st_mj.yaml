@@ -1,0 +1,16 @@
+postprocess:
+  name: AttentionLabelDecode
+eval:
+  dataset:
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          channel_first: False
+      - RecResizeNormForMMOCR:
+          height: 32
+          min_width: 32
+          max_width: 160
+          mean: [123.675, 116.28, 103.53]
+          std: [58.395, 57.12, 57.375]
+          pad_width: 160
+      - ToCHWImage:

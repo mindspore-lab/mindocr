@@ -124,23 +124,19 @@ eval:
     shuffle: False
     transform_pipeline:
       - DecodeImage:
-          img_mode: BGR
+          img_mode: RGB
           to_float32: False
       - RecCTCLabelEncode:
           max_text_len: *max_text_len
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
           lower: True
-      - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize.
-          image_shape: [32, 100] # H, W
-          infer_mode: *infer_mode
-          character_dict_path: *character_dict_path
-          padding: False # aspect ratio will be preserved if true.
-      - NormalizeImage:  # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec.
-          bgr_to_rgb: True
-          is_hwc: True
-          mean : [127.0, 127.0, 127.0]
-          std : [127.0, 127.0, 127.0]
+      - RecResizeNormForInfer:
+          target_height: 32
+          target_width: 100
+          keep_ratio: False
+          padding: False
+          norm_before_pad: False
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
     output_columns: ['image', 'text_padded', 'text_length']  # TODO return text string padding w/ fixed length, and a scaler to indicate the length
