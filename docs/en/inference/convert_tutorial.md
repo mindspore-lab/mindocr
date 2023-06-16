@@ -1,4 +1,4 @@
-English | [中文](../../cn/inference/convert_tutorial_cn.md)
+English | [中文](../../cn/inference/convert_tutorial.md)
 
 ## Inference - Model Conversion Tutorial
 
@@ -15,7 +15,7 @@ graph LR;
 
 Before inference, it is necessary to [export](../../../configs/README.md) the trained ckpt to a MindIR file, which stores the model structure and weight parameters.
 
-Some models provide download links for MIndIR export files, as shown in [Model List](./models_list_en.md). You can jump to the corresponding model introduction page for download.
+Some models provide download links for MIndIR export files, as shown in [Model List](models_list.md). You can jump to the corresponding model introduction page for download.
 
 #### 1.2 Model Conversion
 
@@ -86,7 +86,7 @@ When converting the dynamic batch size/image size model, the option of NHW value
 
 If your model needs to support both dynamic batch size and dynamic image size togather, you can combine multiple models with different batch size, each using the same dynamic image size.
 
-In order to simplify the model conversion process, we have developed an automatic tool that can complete the dynamic value selection and model conversion. For detailed tutorials, please refer to [Model Shape Scaling](./convert_dynamic_en.md).
+In order to simplify the model conversion process, we have developed an automatic tool that can complete the dynamic value selection and model conversion. For detailed tutorials, please refer to [Model Shape Scaling](convert_dynamic.md).
 
 **Notes:**
 
@@ -222,7 +222,7 @@ When converting the dynamic batch size/image size model, the option of NHW value
 
 If your model needs to support both dynamic batch size and dynamic image size togather, you can combine multiple models with different batch size, each using the same dynamic image size.
 
-In order to simplify the model conversion process, we have developed an automatic tool that can complete the dynamic value selection and model conversion. For detailed tutorials, please refer to [Model Shape Scaling](./convert_dynamic_en.md).
+In order to simplify the model conversion process, we have developed an automatic tool that can complete the dynamic value selection and model conversion. For detailed tutorials, please refer to [Model Shape Scaling](convert_dynamic.md).
 
 **Notes:**
 

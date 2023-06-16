@@ -1,4 +1,4 @@
-English | [中文](../../cn/inference/inference_tutorial_cn.md)
+English | [中文](../../cn/inference/inference_tutorial.md)
 
 ## Inference - Tutorial
 
@@ -11,16 +11,16 @@ inference process, and optimizes inference performance using pipeline parallelis
 
 ### 2. Environment
 
-Please refer to the [environment installation](./environment_en.md) to configure the inference runtime environment for
+Please refer to the [environment installation](environment.md) to configure the inference runtime environment for
 MindOCR, and pay attention to selecting the ACL/Lite environment based on the model.
 
 ### 3. Model conversion
 
 MindOCR inference not only supports exported models from trained ckpt file, but also supports the third-party models, as
-listed in the [MindOCR Models Support List](./models_list_en.md) and
-[Third-Party Models Support List](./models_list_thirdparty_en.md).
+listed in the [MindOCR Models Support List](models_list.md) and
+[Third-Party Models Support List](models_list_thirdparty.md).
 
-Please refer to the [Conversion Tutorial](./convert_tutorial_en.md), to convert it into a model format supported by
+Please refer to the [Conversion Tutorial](convert_tutorial.md), to convert it into a model format supported by
 MindOCR inference.
 
 ### 4. Inference (Python)
@@ -146,7 +146,7 @@ word_1814.png  "cathay"
 | device_id        | int  | 0       | Device id                                                |
 | backend          | str  | lite    | Inference backend, support acl, lite                     |
 | parallel_num     | int  | 1       | Number of parallel in each stage of pipeline parallelism |
-| precision_mode   | str  | None    | Precision mode, only supports setting by [Model Conversion](./convert_tutorial_en.md) currently, and it takes no effect here |
+| precision_mode   | str  | None    | Precision mode, only supports setting by [Model Conversion](convert_tutorial.md) currently, and it takes no effect here |
 
 - Saving Result
 
@@ -185,8 +185,8 @@ word_1814.png  "cathay"
 Notes：
 
 `*_model_name_or_config` can be the model name or YAML config file path, please refer to
-[MindOCR Models Support List](./models_list_en.md) and
-[Third-Party Models Support List](./models_list_thirdparty_en.md).
+[MindOCR Models Support List](models_list.md) and
+[Third-Party Models Support List](models_list_thirdparty.md).
 
 ### 5. Inference (C++)
 

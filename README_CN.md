@@ -43,7 +43,7 @@ MindOCR基于MindSpore AI框架（支持CPU/GPU/NPU）开发，并适配以下�
 - mindspore >= 1.9  [[安装](https://www.mindspore.cn/install)]
 - python >= 3.7
 - openmpi 4.0.3 (for distributed training/evaluation)  [[安装](https://www.open-mpi.org/software/ompi/v4.0/)]
-- mindspore lite (for inference)  [[安装](docs/en/inference/environment_en.md)]
+- mindspore lite (for inference)  [[安装](docs/en/inference/environment.md)]
 
 #### 包依赖
 
@@ -136,7 +136,7 @@ python tools/eval.py \
     - [分布式训练](docs/cn/tutorials/distribute_train.md)
     - [进阶技巧：梯度累积，EMA，断点续训等](docs/en/tutorials/advanced_train.md)
 - 推理与部署
-    - [基于Python/C++t和昇腾310的OCR推理](docs/cn/inference/inference_tutorial_cn.md)
+    - [基于Python/C++t和昇腾310的OCR推理](docs/cn/inference/inference_tutorial.md)
     - [基于Python的OCR在线推理](tools/infer/text/README.md)
 - 开发者指南
     - [如何自定义数据集](mindocr/data/README.md)
@@ -168,7 +168,7 @@ python tools/eval.py \
 
 关于以上模型的具体训练方法和结果，请参见[configs](./configs)下各模型子目录的readme文档。
 
-关于[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)模型推理的支持列表，请参见[MindOCR支持模型列表](docs/en/inference/models_list_en.md) and [第三方模型推理支持列表](docs/en/inference/models_list_thirdparty_en.md)。
+关于[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)模型推理的支持列表，请参见[MindOCR支持模型列表](docs/en/inference/models_list.md) and [第三方模型推理支持列表](docs/en/inference/models_list_thirdparty.md)。
 
 ## 数据集列表
 

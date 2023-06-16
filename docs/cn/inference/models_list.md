@@ -1,10 +1,10 @@
-[English](../../en/inference/models_list_en.md) | 中文
+[English](../../en/inference/models_list.md) | 中文
 
 ## 推理 - MindOCR模型推理支持列表
 
 MindOCR推理支持训练端ckpt导出的模型，本文档展示了已适配的模型列表。
 
-请[自行导出](../../../tools/export.py)或下载已预先导出的MindIR文件，并参考[模型转换教程](./convert_tutorial_cn.md)，再进行推理。
+请[自行导出](../../../tools/export.py)或下载已预先导出的MindIR文件，并参考[模型转换教程](convert_tutorial.md)，再进行推理。
 
 ### 1. 文本检测
 

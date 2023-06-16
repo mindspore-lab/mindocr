@@ -1,4 +1,4 @@
-English | [中文](../../cn/inference/environment_cn.md)
+English | [中文](../../cn/inference/environment.md)
 
 ## Inference - Environment Installation
 

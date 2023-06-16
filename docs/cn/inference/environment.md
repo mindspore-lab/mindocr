@@ -1,4 +1,4 @@
-[English](../../en/inference/environment_en.md) | 中文
+[English](../../en/inference/environment.md) | 中文
 
 ## 推理 - 运行环境安装
 

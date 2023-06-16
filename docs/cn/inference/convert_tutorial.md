@@ -1,4 +1,4 @@
-[English](../../en/inference/convert_tutorial_en.md) | 中文
+[English](../../en/inference/convert_tutorial.md) | 中文
 
 ## 推理 - 模型转换教程
 
@@ -15,7 +15,7 @@ graph LR;
 
 在推理之前，需要先把训练端的ckpt文件[导出](../../../configs/README.md)为MindIR文件，它保存了模型的结构和权重参数。
 
-部分模型提供了MIndIR导出文件的下载链接，见[模型列表](./models_list_cn.md)，可跳转到对应模型的介绍页面进行下载。
+部分模型提供了MIndIR导出文件的下载链接，见[模型列表](models_list.md)，可跳转到对应模型的介绍页面进行下载。
 
 #### 1.2 模型转换
 
@@ -86,7 +86,7 @@ dynamic_dims=[1],[4],[8],[16],[32]
 
 如果模型转换时需要同时支持动态Batch Size和动态Image Size，可以组合多个不同Batch Size的模型，每个模型使用相同的动态Image Size。
 
-为了简化模型转换流程，我们开发了**自动分档工具**，可以从数据集中统计选择动态值和模型转换，详细教程请参考[模型Shape分档](./convert_dynamic_cn.md)。
+为了简化模型转换流程，我们开发了**自动分档工具**，可以从数据集中统计选择动态值和模型转换，详细教程请参考[模型Shape分档](convert_dynamic.md)。
 
 **注意：**
 
@@ -218,7 +218,7 @@ atc --model=det_db.onnx \
 
 如果模型转换时需要同时支持动态Batch Size和动态Image Size，可以组合多个不同Batch Size的模型，每个模型使用相同的动态Image Size。
 
-为了简化模型转换流程，我们开发了**自动分档工具**，可以一键式完成动态值选择和模型转换过程，详细教程请参考[模型Shape分档](./convert_dynamic_cn.md)。
+为了简化模型转换流程，我们开发了**自动分档工具**，可以一键式完成动态值选择和模型转换过程，详细教程请参考[模型Shape分档](convert_dynamic.md)。
 
 **注意：**
 
