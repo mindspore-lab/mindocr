@@ -38,7 +38,7 @@ Because the same parameter may need to be reused in different configuration sect
 
 ## 3. Model architecture (model)
 
-In MindOCR, the network architecture of the model is divided into four modules: Transform, Backbone, Neck and Head. For details, please refer to [documentation](../mindocr/models/README.md), the following are the configuration instructions and examples of each part:
+In MindOCR, the network architecture of the model is divided into four modules: Transform, Backbone, Neck and Head. For details, please refer to [documentation](../mindocr/models/README.md), the following are the configuration instructions and examples of each module.
 
 | Parameter | Description | Default | Remarks |
 | :---- | :---- | :---- | :---- |
@@ -60,7 +60,7 @@ In MindOCR, the network architecture of the model is divided into four modules: 
 
 > Note: For different networks, the configurable parameters of the backbone/neck/head module will be different. The specific configurable parameters are determined by the __init__ input parameter of the class specified by the `name` parameter of the module in the above table (For example, assume you specify the neck module is DBFPN. Since the DBFPN class initialization includes adaptive input parameters, parameters such as adaptive can be configured under the model.head in yaml.)
 
-Reference example: [DBNet](../det/dbnet/db_r50_mlt2017.yaml), [CRNN](../rec/crnn/crnn_icdar15.yaml)
+Reference example: [DBNet](./det/dbnet/db_r50_mlt2017.yaml), [CRNN](./rec/crnn/crnn_icdar15.yaml)
 
 ## 4. Postprocessing (postprocess)
 
@@ -74,7 +74,7 @@ Please see the code in [mindocr/postprocess](../mindocr/postprocess/)
 
 > Note: For different post-processing methods (specified by name), the configurable parameters are different, and are determined by the input parameters of the initialization method `__init__` of the post-processing class.
 
-Reference example: [DBNet](../det/dbnet/db_r50_mlt2017.yaml), [PSENet](../det/psenet/pse_r152_icdar15.yaml)
+Reference example: [DBNet](./det/dbnet/db_r50_mlt2017.yaml), [PSENet](./det/psenet/pse_r152_icdar15.yaml)
 
 
 ## 5. Evaluation metrics (metric)
@@ -177,7 +177,7 @@ The configuration of the training process is placed under `train`, and the confi
 | max_rowsize | Specifies the maximum space allocated by shared memory when copying data between multiple processes | 64 | Default value: 64 |
 | num_workers | Specifies the number of concurrent processes/threads for batch operations | n_cpus / n_devices - 2 | This value should be greater than or equal to 2 |
 
-Reference example: [DBNet](../det/dbnet/db_r50_mlt2017.yaml), [CRNN](../rec/crnn/crnn_icdar15.yaml)
+Reference example: [DBNet](./det/dbnet/db_r50_mlt2017.yaml), [CRNN](./rec/crnn/crnn_icdar15.yaml)
 
 ### Evaluation process (eval)
 
