@@ -2,9 +2,8 @@ import json
 import math
 
 import cv2
-import imgaug.augmenters as iaa
 import numpy as np
-import Polygon as plg
+import shapely.geometry.Polygon as plg
 from numpy.fft import fft
 from numpy.linalg import norm
 from PIL import Image
@@ -818,31 +817,6 @@ class SquareResizePad:
     def __repr__(self):
         repr_str = self.__class__.__name__
         return repr_str
-
-
-class AugmenterBuilder(object):
-    def __init__(self, **kwargs):
-        pass
-
-    def build(self, args, root=True):
-        if args is None or len(args) == 0:
-            return None
-        elif isinstance(args, list):
-            if root:
-                sequence = [self.build(value, root=False) for value in args]
-                return iaa.Sequential(sequence)
-            else:
-                return getattr(iaa, args[0])(*[self.to_tuple_if_list(a) for a in args[1:]])
-        elif isinstance(args, dict):
-            cls = getattr(iaa, args["type"])
-            return cls(**{k: self.to_tuple_if_list(v) for k, v in args["args"].items()})
-        else:
-            raise RuntimeError("unknown augmenter arg: " + str(args))
-
-    def to_tuple_if_list(self, obj):
-        if isinstance(obj, list):
-            return tuple(obj)
-        return obj
 
 
 class Pad(object):

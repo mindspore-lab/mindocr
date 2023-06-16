@@ -26,7 +26,7 @@ model:
     num_sample: 50
 
 postprocess:
-  name: FCEPostProcess
+  name: FCEPostprocess
   text_repr_type: 'quad'
   alpha: 1.2
   beta: 1.0
