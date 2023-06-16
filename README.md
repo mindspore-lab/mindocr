@@ -89,7 +89,7 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 After running, the results will be saved in `./inference_results` by default. Here is an example result.
 
 <p align="center">
-  <img src="https://github.com/SamitHuang/mindocr-1/assets/8156835/c1f53970-8618-4039-994f-9f6dc1eee1dd" width=500 />
+  <img src="https://github.com/SamitHuang/mindocr-1/assets/8156835/c1f53970-8618-4039-994f-9f6dc1eee1dd" width=600 />
 </p>
 <p align="center">
   <em> Visualization of text detection and recognition result </em>
@@ -134,10 +134,10 @@ For more illustration and usage, please refer to the model training section in [
     - [Dataset Preparation](tools/dataset_converters/README.md)
     - [Data Transformation Mechanism](docs/en/tutorials/transform_tutorial.md)
 - Model Training
-    - [Yaml Configuration]() (coming soon)
+    - [Yaml Configuration](docs/en/tutorials/yaml_configuration.md)
     - [Text Detection]()  (coming soon)
     - [Text Recognition](docs/en/tutorials/training_recognition_custom_dataset.md)
-    - [Distributed Training](docs/cn/tutorials/distribute_train_CN.md)
+    - [Distributed Training](docs/cn/tutorials/distribute_train.md)
     - [Advance: Gradient Accumulation, EMA, Resume Training, etc](docs/en/tutorials/advanced_train.md)
 - Inference and Deployment
     - [Python/C++ Inference on Ascend 310](docs/en/inference/inference_tutorial_en.md)
@@ -177,7 +177,7 @@ For detailed support for MindSpore Lite and ACL inference models, please refer t
 
 ## Dataset List
 
-MindOCR provides a [dataset conversion tool](tools/dataset_converts) to OCR datasets with different formats and support customized dataset by users. We have validated the following public OCR datasets in model training/evaluation.
+MindOCR provides a [dataset conversion tool](tools/dataset_converters) to OCR datasets with different formats and support customized dataset by users. We have validated the following public OCR datasets in model training/evaluation.
 
 <details open>
 <summary>General OCR Datasets</summary>
