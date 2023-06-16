@@ -1,26 +1,34 @@
-# 分布式并行训练
+# Distributed parallel training
 
-本文档提供分布式并行训练的教程，在Ascend处理器上有两种方式可以进行单机多卡训练，通过OpenMPI运行脚本或通过配置RANK_TABLE_FILE进行单机多卡训练。在GPU处理器上可通过OpenMPI运行脚本进行单机多卡训练。
+This document provides a tutorial on distributed parallel training.
+There are two ways to train on the Ascend processor, running scripts through OpenMPI or configuring `RANK_TABLE_FILE` for training.
+On GPU processors, scripts can be run through OpenMPI for training.
 
-## 通过OpenMPI运行脚本进行训练
-当前MindSpore在Ascend上已经支持了通过OpenMPI的mpirun命令运行脚本，用户可参考[dbnet readme](../../../configs/det/dbnet/README_CN.md#34-训练)进行训练，以下为命令用例。
-运行命令前请确保yaml文件中的`distribute`参数为True。
+## OpenMPI running scripts
+
+Currently, MindSpore also supports running scripts through OpenMPI's `mpirun` on Ascend hardware platform. Users can refer to [dbnet readme](../../../configs/det/dbnet/README_CN.md#34-训练) for training. The following are command use cases:
+
+Please ensure that the `distribute` parameter in the yaml file is `True` before running the command.
 
 ```shell
 # n is the number of GPUs/NPUs
 mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
-## 配置RANK_TABLE_FILE进行训练
+## Configure RANK_TABLE_FILE for training
 
-使用此种方法在进行分布式训练前需要创建json格式的HCCL配置文件，即生成RANK_TABLE_FILE文件，以下为生成8卡相应配置文件命令，更具体信息及相应脚本参见[hccl_tools](https://gitee.com/mindspore/models/tree/master/utils/hccl_tools)中的说明，
+Before using this method for distributed training, it is necessary to create a HCCL configuration file in json format,
+that is, generate RANK_TABLE_FILE, the following is the command to generate the corresponding configuration file for 8 devices.
+For more specific information and corresponding scripts, please refer to [hccl_tools](https://gitee.com/mindspore/models/tree/master/utils/hccl_tools).
+
 ``` shell
 python hccl_tools.py --device_num "[0,8)"
 ```
-输出为：
+output：
 ```
 hccl_8p_10234567_127.0.0.1.json
 ```
-其中`hccl_8p_10234567_127.0.0.1.json`中内容示例为：
+An example of the content in `hccl_8p_10234567_127.0.0.1.json` is:
+
 ```
 {
     "version": "1.0",
@@ -77,12 +85,14 @@ hccl_8p_10234567_127.0.0.1.json
 }
 ```
 
-之后运行以下命令即可，运行命令前请确保yaml文件中的`distribute`参数为True。
+Then run the following command. 
+Before running the command, please ensure that the `distribute` in the yaml file is `True`.
+
 ``` shell
 bash ascend8p.sh
 ```
+Taking CRNN training as an example, the `ascend8p.sh` script is:
 
-以CRNN训练为例，其`ascend8p.sh`脚本为：
 ``` shell
 #!/bin/bash
 export DEVICE_NUM=8
@@ -102,7 +112,6 @@ for ((i = 0; i < ${DEVICE_NUM}; i++)); do
     fi
 done
 ```
+When training other models, simply replace the yaml config file path in the script, i.e. `python -u tools/train.py --config path/to/model_config.yaml`.
 
-当需要训练其他模型时，只要将脚本中的yaml config文件路径替换即可，即`python -u tools/train.py --config path/to/model_config.yaml`
-
-此时训练已经开始，可在`train.log`中查看训练日志。
+Now the training has started, and you can view the training log in `train.log`.

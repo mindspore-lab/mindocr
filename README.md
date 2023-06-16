@@ -137,7 +137,7 @@ For more illustration and usage, please refer to the model training section in [
     - [Yaml Configuration](docs/en/tutorials/yaml_configuration.md)
     - [Text Detection]()  (coming soon)
     - [Text Recognition](docs/en/tutorials/training_recognition_custom_dataset.md)
-    - [Distributed Training](docs/cn/tutorials/distribute_train.md)
+    - [Distributed Training](docs/en/tutorials/distribute_train.md)
     - [Advance: Gradient Accumulation, EMA, Resume Training, etc](docs/en/tutorials/advanced_train.md)
 - Inference and Deployment
     - [Python/C++ Inference on Ascend 310](docs/en/inference/inference_tutorial.md)
