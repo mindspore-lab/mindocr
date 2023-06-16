@@ -1,4 +1,4 @@
-English | [中文](../../cn/datasets/svt_CN.md)
+English | [中文](../../cn/datasets/svt.md)
 
 # The Street View Text Dataset (SVT)
 

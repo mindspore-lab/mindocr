@@ -94,7 +94,7 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
   <em> 文本检测、识别结果可视化 </em>
 </p>
 
-可以看到图像中的文字块均被检测出来并正确识别。更详细的用法介绍，请参考推理[教程](#教程)。
+可以看到图像中的文字块均被检测出来并正确识别。更详细的用法介绍，请参考推理[教程](#使用教程)。
 
 ### 模型训练与评估-快速指南
 
@@ -204,9 +204,9 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
     - 文本检测[EAST](configs/det/east)
     - 文本识别[SVTR](configs/rec/svtr)
 2. 添加更多基准数据集及其结果
-    - [totaltext](docs/cn/datasets/totaltext_CN.md)
-    - [mlt2017](docs/cn/datasets/mlt2017_CN.md)
-    - [chinese_text_recognition](docs/cn/datasets/chinese_text_recognition_CN.md)
+    - [totaltext](docs/cn/datasets/totaltext.md)
+    - [mlt2017](docs/cn/datasets/mlt2017.md)
+    - [chinese_text_recognition](docs/cn/datasets/chinese_text_recognition.md)
 3. 增加断点重训(resume training)功能，可在训练意外中断时使用。如需使用，请在配置文件中`model`字段下增加`resume`参数，允许传入具体路径`resume: /path/to/train_resume.ckpt`或者通过设置`resume: True`来加载在ckpt_save_dir下保存的trian_resume.ckpt
 4. 改进检测模块的后处理部分：默认情况下，将检测到的文本多边形重新缩放到原始图像空间，可以通过在`eval.dataset.output_columns`列表中增加"shape_list"实现。
 5. 重构在线推理以支持更多模型，详情请参见[README.md](tools/infer/text/README.md) 。
@@ -217,7 +217,7 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
     - 文本识别[CRNN-Seq2Seq](configs/rec/rare)
     - 在SynthText数据集上预训练的[DBNet](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)
 2. 添加更多基准数据集及其结果
-    - [SynthText](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c), [MSRA-TD500](docs/cn/datasets/td500_CN.md), [CTW1500](docs/cn/datasets/ctw1500_CN.md)
+    - [SynthText](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c), [MSRA-TD500](docs/cn/datasets/td500.md), [CTW1500](docs/cn/datasets/ctw1500.md)
     - DBNet的更多基准结果可以[在此找到](configs/det/dbnet/README_CN.md).
 3. 添加用于保存前k个checkpoint的checkpoint manager并改进日志。
 4. Python推理代码重构。

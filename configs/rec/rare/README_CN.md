@@ -332,7 +332,7 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 
 我们采用公开的中文基准数据集[Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition)进行RARE模型的训练和验证。
 
-详细的数据准备和config文件配置方式, 请参考 [中文识别数据集准备](../../../docs/cn/datasets/chinese_text_recognition_CN.md)
+详细的数据准备和config文件配置方式, 请参考 [中文识别数据集准备](../../../docs/cn/datasets/chinese_text_recognition.md)
 
 ### 模型训练验证
 
@@ -346,7 +346,7 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/rare/
 
 | **语种** | **数据说明** |
 | :------: | :------: |
-| 中文 | [中文识别数据集](../../../docs/cn/datasets/chinese_text_recognition_CN.md) |
+| 中文 | [中文识别数据集](../../../docs/cn/datasets/chinese_text_recognition.md) |
 
 ### 评估结果和预训练权重
 模型训练完成后，在测试集不同场景上的准确率评估结果如下。相应的模型配置和预训练权重可通过表中链接下载。
