@@ -18,7 +18,7 @@ train:
 #### 梯度累积
 
 梯度累积可以有效解决内存限制问题，允许**使用大的全局批量进行训练**。可以通过在yaml配置中将`train.gradient_accumulation_steps` 设置为大于1的值来使用梯度累积功能。
-以下为计算公式：
+启用后等效的全局batch为：
 
 `global_batch_size = batch_size * num_devices * gradient_accumulation_steps`
 

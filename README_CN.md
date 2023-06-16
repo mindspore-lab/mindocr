@@ -128,7 +128,7 @@ python tools/eval.py \
 
 - 数据集
     - [数据集准备](tools/dataset_converters/README_CN.md)
-    - [数据增强策略](docs/en/tutorials/transform_tutorial.md)
+    - [数据增强策略](docs/cn/tutorials/transform_tutorial.md)
 - 模型训练
     - [Yaml配置文件](docs/cn/tutorials/yaml_configuration.md)
     - [文本检测]()  (即将更新)
