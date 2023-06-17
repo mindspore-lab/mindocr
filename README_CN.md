@@ -131,7 +131,7 @@ python tools/eval.py \
     - [数据增强策略](docs/en/tutorials/transform_tutorial.md)
 - 模型训练
     - [Yaml配置文件](docs/cn/tutorials/yaml_configuration.md)
-    - [文本检测]()  (即将更新)
+    - [文本检测](docs/cn/tutorials/training_detection_custom_dataset.md)
     - [文本识别](docs/cn/tutorials/training_recognition_custom_dataset.md)
     - [分布式训练](docs/cn/tutorials/distribute_train.md)
     - [进阶技巧：梯度累积，EMA，断点续训等](docs/en/tutorials/advanced_train.md)

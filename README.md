@@ -135,7 +135,7 @@ For more illustration and usage, please refer to the model training section in [
     - [Data Transformation Mechanism](docs/en/tutorials/transform_tutorial.md)
 - Model Training
     - [Yaml Configuration](docs/en/tutorials/yaml_configuration.md)
-    - [Text Detection]()  (coming soon)
+    - [Text Detection](docs/en/tutorials/training_detection_custom_dataset.md)
     - [Text Recognition](docs/en/tutorials/training_recognition_custom_dataset.md)
     - [Distributed Training](docs/cn/tutorials/distribute_train.md)
     - [Advance: Gradient Accumulation, EMA, Resume Training, etc](docs/en/tutorials/advanced_train.md)
