@@ -14,6 +14,7 @@
 | ch_pp_mobile_det_v2.0 | DB  | MobileNetV3 | MLT17 | 0.2403 | 0.4597 | 0.3156 | PaddleOCR |
 | en_pp_det_OCRv3 | DB  | MobileNetV3 | IC15 | 0.3866 | 0.4630 | 0.4214 | PaddleOCR |
 | ml_pp_det_OCRv3 | DB  | MobileNetV3 | MLT17 | 0.5992 | 0.7348 | 0.6601 | PaddleOCR |
+| en_pp_det_dbnet_resnet50vd | DBNet  | ResNet50_vd | IC15 | 0.8281 | 0.7716 | 0.7989 | PaddleOCR |
 | en_pp_det_sast_resnet50vd | SAST  | ResNet50_vd | IC15 | 0.7463 | 0.9043 | 0.8177 | PaddleOCR |
 | en_pp_det_psenet_resnet50vd | PSENet  | ResNet50_vd | IC15 | 0.7664 | 0.8463 | 0.8044 | PaddleOCR |
 | en_mm_det_dbnetpp_resnet50 | DBNet++  | ResNet50 | IC15 | 0.8387 | 0.7900 | 0.8136 | MMOCR |
@@ -29,7 +30,8 @@
 | en_pp_rec_OCRv3       | SVTR | MobileNetV1Enhance | MLT17 (only English) | 0.7964  | 0.8854        | PaddleOCR |
 | en_pp_mobile_rec_number_v2.0_slim       | CRNN | MobileNetV3 | MLT17 (only English) | 0.0164  | 0.0657         | PaddleOCR |
 | en_pp_mobile_rec_number_v2.0       | CRNN | MobileNetV3 | MLT17 (only English) | 0.4304  | 0.5944         | PaddleOCR |
-| en_pp_rec_rosetta_resnet34vd       | Rosetta | resnet34vd | IC15 | 0.6428  | 0.8321         | PaddleOCR |
+| en_pp_rec_crnn_resnet34vd       | CRNN | Resnet34_vd | IC15 | 0.6635  | 0.8392         | PaddleOCR |
+| en_pp_rec_rosetta_resnet34vd       | Rosetta | Resnet34_vd | IC15 | 0.6428  | 0.8321         | PaddleOCR |
 | en_pp_rec_vitstr_vitstr       | VITSTR | vitstr  | IC15 | 0.6842  | 0.8578         | PaddleOCR |
 | en_mm_rec_nrtr_resnet31       | NRTR | ResNet31 | IC15 | 0.6726  | 0.8574         | MMOCR |
 | en_mm_rec_satrn_shallowcnn       | SATRN | shallowcnn  | IC15 | 0.7352  | 0.8887         | MMOCR |
