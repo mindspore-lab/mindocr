@@ -58,6 +58,7 @@ The FCENet in MindOCR is trained on ICDAR 2015 dataset. The training results are
 #### Notes
 - Context: Training context denoted as {device}x{pieces}-{MS version}{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
 - Note that the training time of FCENet is highly affected by data processing and varies on different machines.
+- The input_shape for exported FCENet MindIR in the link are `(1,3,736,1280)`
 
 ## 3. Quick Start
 
