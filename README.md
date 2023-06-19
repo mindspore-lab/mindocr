@@ -9,15 +9,15 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 
-English | [中文](https://github.com/mindspore-lab/mindocr/blob/main/README_CN.md)
+English | [中文](README_CN.md)
 
-[📝Introduction](README.md#introduction) |
-[🔨Installation](README.md#installation) |
-[🚀Quick Start](README.md#quick-start) |
-[📚Tutorials](README.md#tutorials) |
-[🎁Model List](README.md#model-list) |
-[📰Dataset List](README.md#dataset-list) |
-[🎉Notes](README.md#notes)
+[📝Introduction](#introduction) |
+[🔨Installation](#installation) |
+[🚀Quick Start](#quick-start) |
+[📚Tutorials](#tutorials) |
+[🎁Model List](#model-list) |
+[📰Dataset List](#dataset-list) |
+[🎉Notes](#notes)
 
 </div>
 
@@ -95,7 +95,7 @@ After running, the results will be saved in `./inference_results` by default. He
   <em> Visualization of text detection and recognition result </em>
 </p>
 
-We can see that all texts on the image are detected and recognized accurately. For more usage, please refer to the inference section in [tutorials](README.md#tutorials).
+We can see that all texts on the image are detected and recognized accurately. For more usage, please refer to the inference section in [tutorials](#tutorials).
 
 ### Model Training and Evaluation - Quick Guideline
 
@@ -126,7 +126,7 @@ python tools/eval.py \
     --opt eval.dataset_root={path/to/your_dataset} eval.ckpt_load_path={path/to/ckpt_file}
 ```
 
-For more illustration and usage, please refer to the model training section in [Tutorials](README.md#tutorials).
+For more illustration and usage, please refer to the model training section in [Tutorials](#tutorials).
 
 ## Tutorials
 
@@ -135,7 +135,7 @@ For more illustration and usage, please refer to the model training section in [
     - [Data Transformation Mechanism](docs/en/tutorials/transform_tutorial.md)
 - Model Training
     - [Yaml Configuration](docs/en/tutorials/yaml_configuration.md)
-    - [Text Detection]()  (coming soon)
+    - [Text Detection](docs/en/tutorials/training_detection_custom_dataset.md)
     - [Text Recognition](docs/en/tutorials/training_recognition_custom_dataset.md)
     - [Distributed Training](docs/en/tutorials/distribute_train.md)
     - [Advance: Gradient Accumulation, EMA, Resume Training, etc](docs/en/tutorials/advanced_train.md)

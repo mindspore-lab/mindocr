@@ -9,15 +9,15 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 
-[English](https://github.com/mindspore-lab/mindocr/blob/main/README.md) | 中文
+[English](README.md) | 中文
 
-[📝简介](README_CN.md#简介) |
-[🔨安装教程](README_CN.md#安装教程) |
-[🚀快速开始](README_CN.md#快速开始) |
-[📚使用教程](README_CN.md#使用教程) |
-[🎁模型列表](README_CN.md#模型列表) |
-[📰数据集列表](README_CN.md#数据集列表) |
-[🎉更新日志](README_CN.md#更新日志)
+[📝简介](#简介) |
+[🔨安装教程](#安装教程) |
+[🚀快速开始](#快速开始) |
+[📚使用教程](#使用教程) |
+[🎁模型列表](#模型列表) |
+[📰数据集列表](#数据集列表) |
+[🎉更新日志](#更新日志)
 
 </div>
 
@@ -94,7 +94,7 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
   <em> 文本检测、识别结果可视化 </em>
 </p>
 
-可以看到图像中的文字块均被检测出来并正确识别。更详细的用法介绍，请参考推理[教程](README_CN.md#使用教程)。
+可以看到图像中的文字块均被检测出来并正确识别。更详细的用法介绍，请参考推理[教程](#使用教程)。
 
 ### 模型训练与评估-快速指南
 
@@ -122,7 +122,7 @@ python tools/eval.py \
     --opt eval.dataset_root={path/to/your_dataset} eval.ckpt_load_path={path/to/ckpt_file}
 ```
 
-更多使用方法，请参考[使用教程](README_CN.md#使用教程)中的模型训练章节。
+更多使用方法，请参考[使用教程](#使用教程)中的模型训练章节。
 
 ## 使用教程
 
@@ -131,7 +131,7 @@ python tools/eval.py \
     - [数据增强策略](docs/cn/tutorials/transform_tutorial.md)
 - 模型训练
     - [Yaml配置文件](docs/cn/tutorials/yaml_configuration.md)
-    - [文本检测]()  (即将更新)
+    - [文本检测](docs/cn/tutorials/training_detection_custom_dataset.md)
     - [文本识别](docs/cn/tutorials/training_recognition_custom_dataset.md)
     - [分布式训练](docs/cn/tutorials/distribute_train.md)
     - [进阶技巧：梯度累积，EMA，断点续训等](docs/cn/tutorials/advanced_train.md)
