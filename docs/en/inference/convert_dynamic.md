@@ -42,7 +42,7 @@ Two types of data are supported:
 
 2. Annotation file for text detection
 
-   - Refer to [converter](../datasets/converter.md), which is the annotation file output when the
+   - Refer to [converter](../datasets/converters.md), which is the annotation file output when the
      parameter `task` is `det`
 
    - This tool will read the coordinates of the text box marked under each image, record `height` and `width`, and the
