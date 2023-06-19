@@ -65,4 +65,4 @@ path-to-data-dir/
     Challenge4_Test_Task3_GT.zip
 ```
 
-[Back to dataset_converters](../mkdocs/dataset_converters.md)
+[Back to dataset converters](converters.md)

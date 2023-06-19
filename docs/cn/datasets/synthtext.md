@@ -25,4 +25,4 @@ path-to-data-dir/
 > 以上的操作会产生与`SynthText`原始标注格式相同但是是经过过滤后的标注数据.
 
 
-[返回dataset_converters](../mkdocs/dataset_converters.md)
+[返回dataset converters](converters.md)

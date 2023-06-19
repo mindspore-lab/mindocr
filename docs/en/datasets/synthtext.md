@@ -24,4 +24,4 @@ path-to-data-dir/
 > ```
 > This operation will generate a filtered output in the same format as the original `SynthText`.
 
-[Back to dataset_converters](../mkdocs/dataset_converters.md)
+[Back to dataset converters](converters.md)

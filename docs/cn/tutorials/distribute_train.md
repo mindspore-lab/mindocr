@@ -3,7 +3,7 @@
 本文档提供分布式并行训练的教程，在Ascend处理器上有两种方式可以进行单机多卡训练，通过OpenMPI运行脚本或通过配置RANK_TABLE_FILE进行单机多卡训练。在GPU处理器上可通过OpenMPI运行脚本进行单机多卡训练。
 
 ## 通过OpenMPI运行脚本进行训练
-当前MindSpore在Ascend上已经支持了通过OpenMPI的mpirun命令运行脚本，用户可参考[dbnet readme](../../../configs/det/dbnet/README_CN.md#34-训练)进行训练，以下为命令用例。
+当前MindSpore在Ascend上已经支持了通过OpenMPI的mpirun命令运行脚本，用户可参考[dbnet readme](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/dbnet/README_CN.md#34-训练)进行训练，以下为命令用例。
 运行命令前请确保yaml文件中的`distribute`参数为True。
 
 ```shell

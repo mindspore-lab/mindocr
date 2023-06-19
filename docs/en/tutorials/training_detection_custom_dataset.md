@@ -1,5 +1,3 @@
-English | [中文](../../cn/tutorials/training_detection_custom_dataset.md)
-
 # Training Detection Network with Custom Datasets
 
 This document provides tutorials on how to train text detection networks using custom datasets.
@@ -30,11 +28,11 @@ Currently, MindOCR detection network supports two input formats, namely
 img_1.jpg\t[{"transcription": "MASA", "points": [[310, 104], [416, 141], [418, 216], [312, 179]]}, {...}]
 ```
 
-It is read by [DetDataset](../../../mindocr/data/det_dataset.py). If your dataset is not in the same format as the example format, see [instructions](../../../tools/dataset_converters/README.md) on how convert different datasets' annotations into the supported format.
+It is read by [DetDataset](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/det_dataset.py). If your dataset is not in the same format as the example format, see [instructions](../datasets/converters.md) on how convert different datasets' annotations into the supported format.
 
-- `SynthTextDataset`: A file format provided by [SynthText800k](https://github.com/ankush-me/SynthText). More details about this dataset can be found [here](../datasets/synthtext.md). The annotation file is a `.mat` file consisting of `imnames`(image names), `wordBB`(word-level bounding-boxes), `charBB`(character-level bounding boxes), and `txt` (text strings). It is read by [SynthTextDataset](../../../mindocr/data/det_dataset.py). Users can take `SynthTextDataset` as a reference to write their custom dataset class.
+- `SynthTextDataset`: A file format provided by [SynthText800k](https://github.com/ankush-me/SynthText). More details about this dataset can be found [here](../datasets/synthtext.md). The annotation file is a `.mat` file consisting of `imnames`(image names), `wordBB`(word-level bounding-boxes), `charBB`(character-level bounding boxes), and `txt` (text strings). It is read by [SynthTextDataset](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/det_dataset.py). Users can take `SynthTextDataset` as a reference to write their custom dataset class.
 
-We recommend users to prepare text detection datasets in the `Common Dataset` format, and then use [DetDataset](../../../mindocr/data/det_dataset.py) to load the data. The following tutorials further explain on the detailed steps.
+We recommend users to prepare text detection datasets in the `Common Dataset` format, and then use [DetDataset](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/det_dataset.py) to load the data. The following tutorials further explain on the detailed steps.
 
 
 ### 1.1 Preparing Training Data
@@ -181,7 +179,7 @@ eval:
           std: imagenet
       - ToCHWImage:
 ```
-More tutorials on transform functions can be found in the [transform tutorial](./transform_tutorial.md).
+More tutorials on transform functions can be found in the [transform tutorial](transform_tutorial.md).
 
 ### 2.3 Configure the model architecture
 
@@ -316,11 +314,11 @@ python tools/eval.py -c=configs/det/dbnet/db_r50_icdar15.yaml \
 
 MindOCR inference supports Ascend310/Ascend310P devices, supports [MindSpore Lite](https://www.mindspore.cn/lite) and
 [ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)
-inference backend. [Inference Tutorial](../inference/inference_tutorial_en.md) gives detailed steps on how to run inference with MindOCR, which include mainly three steps: environment preparation, model conversion, and inference.
+inference backend. [Inference Tutorial](../inference/inference_tutorial.md) gives detailed steps on how to run inference with MindOCR, which include mainly three steps: environment preparation, model conversion, and inference.
 
 #### 3.3.1 Environment Preparation
 
-Please refer to the [environment installation](../inference/environment_en.md) for more information, and pay attention to selecting the ACL/Lite environment based on the model.
+Please refer to the [environment installation](../inference/environment.md) for more information, and pay attention to selecting the ACL/Lite environment based on the model.
 
 #### 3.3.2 Model Conversion
 
@@ -336,7 +334,7 @@ python tools/export.py --model_name configs/det/dbnet/db_r50_icdar15.yaml --data
 
 The `data_shape` is the model input shape of height and width for MindIR file. It may change when the model is changed.
 
-Please refer to the [Conversion Tutorial](../inference/convert_tutorial_en.md) for more details about model conversion.
+Please refer to the [Conversion Tutorial](../inference/convert_tutorial.md) for more details about model conversion.
 
 #### 3.3.3 Inference (Python)
 
@@ -354,4 +352,4 @@ python infer.py \
     --res_save_dir=results_dir
 ```
 
-Please refer to the [Inference Tutorials](../inference/inference_tutorial_en.md#41-command-example) on more examples of inference commands.
+Please refer to the [Inference Tutorials](../inference/inference_tutorial.md) chapter `4.1 Command example` on more examples of inference commands.

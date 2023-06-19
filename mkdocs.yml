@@ -10,7 +10,7 @@ nav:
   - Model Zoo: mkdocs/modelzoo.md
   - Tutorials:
     - Datasets:
-        - Dataset Preparation: mkdocs/dataset_converters.md
+        - Dataset Preparation: datasets/converters.md
         - Data Transformation Mechanism: tutorials/transform_tutorial.md
     - Model Training:
         - Yaml Configuration: tutorials/yaml_configuration.md
@@ -28,11 +28,10 @@ nav:
         - Customize a New Model: mkdocs/customize_model.md
         - Customize Postprocessing Method: mkdocs/customize_postprocess.md
   - Reference:
-      - api: reference/api_doc.md
+      - API doc: reference/api_doc.md
   - Notes:
 #      - Change Log: notes/changelog.md
       - Contributing: mkdocs/contributing.md
-      - Contributing: CONTRIBUTING.md
 #      - Code of Conduct: notes/code_of_conduct.md
 #      - FAQ: notes/faq.md
 
@@ -120,7 +119,7 @@ plugins:
             show_root_toc_entry: true
             show_object_full_path: true
             # Members
-            show_submodules: True
+            show_submodules: false
             # Docstrings
             docstring_section_style: spacy
   - i18n:

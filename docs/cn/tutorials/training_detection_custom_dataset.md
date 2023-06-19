@@ -1,5 +1,3 @@
-[English]((../../en/tutorials/training_detection_custom_dataset.md)) | 中文
-
 # 使用自定义数据集训练检测网络
 
 本文档提供了如何使用自定义数据集训练文本检测网络的教程。
@@ -28,9 +26,9 @@
 ``` text
 img_1.jpg\t[{"transcription": "MASA", "points": [[310, 104], [416, 141], [418, 216], [312, 179]]}, {...}]
 ```
-它由 [DetDataset](../../../mindocr/data/det_dataset.py) 读取。如果您的数据集不是与示例格式相同的格式，请参阅 [说明](../../../tools/dataset_converters/README.md) ，了解如何将不同数据集的注释转换为支持的格式。
+它由 [DetDataset](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/det_dataset.py) 读取。如果您的数据集不是与示例格式相同的格式，请参阅 [说明](../datasets/converters.md) ，了解如何将不同数据集的注释转换为支持的格式。
 
-- `SynthTextDataset`：由 [SynthText800k](https://github.com/ankush-me/SynthText) 提供的一种文件格式。 更多关于这个数据集的细节可以参考[这里](../datasets/synthtext_CN.md)。它的标注文件是一个`.mat`文件，其中包括 `imnames`（图像名称）、`wordBB`（单词级边界框）、`charBB`（字符级边界框）和 `txt`（文本字符串）。它由 [SynthTextDataset](../../../mindocr/data/det_dataset.py) 读取。用户可以参考 `SynthTextDataset `来编写自定义数据集类。
+- `SynthTextDataset`：由 [SynthText800k](https://github.com/ankush-me/SynthText) 提供的一种文件格式。 更多关于这个数据集的细节可以参考[这里](../datasets/synthtext.md)。它的标注文件是一个`.mat`文件，其中包括 `imnames`（图像名称）、`wordBB`（单词级边界框）、`charBB`（字符级边界框）和 `txt`（文本字符串）。它由 [SynthTextDataset](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/det_dataset.py) 读取。用户可以参考 `SynthTextDataset `来编写自定义数据集类。
 
 我们建议用户将文本检测数据集准备成 `Common Dataset `格式，然后使用 `DetDataset` 来加载数据。以下教程进一步解释了详细步骤。
 
@@ -181,7 +179,7 @@ eval:
       - ToCHWImage:
 ```
 
-更多关于转换函数的教程可以在 [转换教程](../../en/tutorials/transform_tutorial.md) 中找到。
+更多关于转换函数的教程可以在 [转换教程](transform_tutorial.md) 中找到。
 
 ### 2.3 配置模型架构
 
@@ -286,7 +284,7 @@ Copy{
 
 ```
 
-目标设备的`device_ip`可以通过运行`cat /etc/hccn.conf`获取。输出结果中的`address_x`就是`ip`地址。更多细节可以在[分布式训练教程]((../../cn/tutorials/distribute_train_CN.md))中找到。
+目标设备的`device_ip`可以通过运行`cat /etc/hccn.conf`获取。输出结果中的`address_x`就是`ip`地址。更多细节可以在[分布式训练教程](distribute_train.md)中找到。
 
 ### 3.2 评估
 
@@ -312,7 +310,7 @@ MindOCR推理支持Ascend310/Ascend310P设备，支持[MindSpore Lite](https://w
 
 #### 3.3.1 环境准备
 
-请参考[环境安装](../inference/environment_cn.md)获取更多信息，并根据模型注意选择ACL/Lite环境。
+请参考[环境安装](../inference/environment.md)获取更多信息，并根据模型注意选择ACL/Lite环境。
 
 #### 3.3.2 模型转换
 
@@ -327,7 +325,7 @@ python tools/export.py --model_name configs/det/dbnet/db_r50_icdar15.yaml --data
 
 `data_shape`是MindIR文件的模型输入图片的高度和宽度。当用户使用其他的模型时，`data_shape`可能会改变。
 
-请参考[转换教程](../inference/convert_tutorial_cn.md)获取更多关于模型转换的细节。
+请参考[转换教程](../inference/convert_tutorial.md)获取更多关于模型转换的细节。
 
 #### 3.3.3 推理 (Python)
 
@@ -344,4 +342,4 @@ python infer.py \
     --res_save_dir=results_dir
 ```
 
-请参考[推理教程](../inference/inference_tutorial_cn.md#41-命令示例)获取更多例子。
+请参考[推理教程](../inference/inference_tutorial.md)的`4.1 命令示例`章节获取更多例子。
