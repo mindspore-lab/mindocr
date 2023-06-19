@@ -51,7 +51,7 @@ Set the training entry point (Start File) and add run parameters.
 <img width="600" src="https://github.com/mindspore-lab/mindocr/assets/52945530/eb3aa8cf-81f7-4ab5-a0f8-31aa04fce1e8">
 </div>
 
-* To load pre-trained weights, you can select the uploaded model file in the selection model and add ckpt_dir to the run parameters, parameter has a value of/cache/*. ckpt, where * is the actual file name.
+* To load pre-trained weights, choose the uploaded previously model file in the Select Model field and add `ckpt_dir` to the run parameters. The `ckpt_dir` parameter must have the following path: `/cache/*.ckpt`, where `*` is the model's file name.
 * In the AI engine, it is necessary to select MindSpore version 1.9 or higher, and set the start file to `tools/train.py`
 * :warning: It is necessary to set `enable_modelarts` to `True` in the run parameters.
 * The model's architecture is specified in the `config` file set in the run parameters. The prefix of the file is always `/home/work/user-job-dir/run-version-number`, where `run-version-number` for the newly created training task is usually `V0001`.
