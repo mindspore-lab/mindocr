@@ -136,7 +136,7 @@ python tools/eval.py \
     - [分布式训练](docs/cn/tutorials/distribute_train.md)
     - [进阶技巧：梯度累积，EMA，断点续训等](docs/en/tutorials/advanced_train.md)
 - 推理与部署
-    - [基于Python/C++t和昇腾310的OCR推理](docs/cn/inference/inference_tutorial.md)
+    - [基于Python/C++和昇腾310的OCR推理](docs/cn/inference/inference_tutorial.md)
     - [基于Python的OCR在线推理](tools/infer/text/README.md)
 - 开发者指南
     - [如何自定义数据集](mindocr/data/README.md)
