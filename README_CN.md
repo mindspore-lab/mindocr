@@ -128,13 +128,13 @@ python tools/eval.py \
 
 - 数据集
     - [数据集准备](tools/dataset_converters/README_CN.md)
-    - [数据增强策略](docs/en/tutorials/transform_tutorial.md)
+    - [数据增强策略](docs/cn/tutorials/transform_tutorial.md)
 - 模型训练
     - [Yaml配置文件](docs/cn/tutorials/yaml_configuration.md)
     - [文本检测](docs/cn/tutorials/training_detection_custom_dataset.md)
     - [文本识别](docs/cn/tutorials/training_recognition_custom_dataset.md)
     - [分布式训练](docs/cn/tutorials/distribute_train.md)
-    - [进阶技巧：梯度累积，EMA，断点续训等](docs/en/tutorials/advanced_train.md)
+    - [进阶技巧：梯度累积，EMA，断点续训等](docs/cn/tutorials/advanced_train.md)
 - 推理与部署
     - [基于Python/C++和昇腾310的OCR推理](docs/cn/inference/inference_tutorial.md)
     - [基于Python的OCR在线推理](tools/infer/text/README.md)
@@ -207,7 +207,7 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
     - [totaltext](docs/cn/datasets/totaltext.md)
     - [mlt2017](docs/cn/datasets/mlt2017.md)
     - [chinese_text_recognition](docs/cn/datasets/chinese_text_recognition.md)
-3. 增加断点重训(resume training)功能，可在训练意外中断时使用。如需使用，请在配置文件中`model`字段下增加`resume`参数，允许传入具体路径`resume: /path/to/train_resume.ckpt`或者通过设置`resume: True`来加载在ckpt_save_dir下保存的trian_resume.ckpt
+3. 增加断点续训(resume training)功能，可在训练意外中断时使用。如需使用，请在配置文件中`model`字段下增加`resume`参数，允许传入具体路径`resume: /path/to/train_resume.ckpt`或者通过设置`resume: True`来加载在ckpt_save_dir下保存的trian_resume.ckpt
 4. 改进检测模块的后处理部分：默认情况下，将检测到的文本多边形重新缩放到原始图像空间，可以通过在`eval.dataset.output_columns`列表中增加"shape_list"实现。
 5. 重构在线推理以支持更多模型，详情请参见[README.md](tools/infer/text/README.md) 。
 
@@ -232,7 +232,7 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 
 - 2023/04/21
 1. 添加参数分组以支持训练中的正则化。用法：在yaml config中添加`grouping_strategy`参数以选择预定义的分组策略，或使用`no_weight_decay_params`参数选择要从权重衰减中排除的层（例如，bias、norm）。示例可参考`configs/rec/crn/crnn_icdar15.yaml`
-2. 添加梯度积累，支持大批量训练。用法：在yaml配置中添加`gradient_accumulation_steps`，全局批量大小=batch_size * devices * gradient_aaccumulation_steps。示例可参考`configs/rec/crn/crnn_icdar15.yaml`
+2. 添加梯度累积，支持大批量训练。用法：在yaml配置中添加`gradient_accumulation_steps`，全局批量大小=batch_size * devices * gradient_aaccumulation_steps。示例可参考`configs/rec/crn/crnn_icdar15.yaml`
 3. 添加梯度裁剪，支持训练稳定。通过在yaml配置中将`grad_clip`设置为True来启用。
 
 - 2023/03/23
