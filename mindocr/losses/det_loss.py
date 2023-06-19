@@ -229,8 +229,8 @@ class FCELoss(nn.Cell):
         #     loss_reg_y=loss_reg_y,
         # )
         print(
-            f"all_loss = {all_loss},loss_text={loss_tr},loss_center={loss_tcl},loss_reg_x={loss_reg_x},\
-            loss_reg_y={loss_reg_y}"
+            f"all_loss = {all_loss},loss_text={loss_tr},loss_center={loss_tcl},loss_reg_x={loss_reg_x},"
+            f"loss_reg_y={loss_reg_y}"
         )
         return all_loss
 

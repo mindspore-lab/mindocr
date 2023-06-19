@@ -6,7 +6,7 @@ import numpy as np
 from numpy.fft import fft
 from numpy.linalg import norm
 from PIL import Image
-from shapely.geometry import Polygon as plg
+from shapely.geometry import Polygon
 
 
 class DetResizeForTest(object):
@@ -289,13 +289,13 @@ def poly_intersection(poly_det, poly_gt):
     Returns:
         intersection_area (float): The intersection area between two polygons.
     """
-    assert isinstance(poly_det, plg.Polygon)
-    assert isinstance(poly_gt, plg.Polygon)
+    assert isinstance(poly_det, Polygon)
+    assert isinstance(poly_gt, Polygon)
 
-    poly_inter = poly_det & poly_gt
-    if len(poly_inter) == 0:
+    poly_inter = poly_det.intersection(poly_gt)
+    if poly_inter.is_empty:
         return 0, poly_inter
-    return poly_inter.area(), poly_inter
+    return poly_inter.area, poly_inter
 
 
 class RandomCropFlip:
@@ -367,26 +367,26 @@ class RandomCropFlip:
                 continue
 
             pts = np.stack([[xmin, xmax, xmax, xmin], [ymin, ymin, ymax, ymax]]).T.astype(np.int32)
-            pp = plg.Polygon(pts)
+            pp = Polygon(pts)
             fail_flag = False
             for polygon in polygons:
-                ppi = plg.Polygon(polygon.reshape(-1, 2))
+                ppi = Polygon(polygon.reshape(-1, 2))
                 ppiou, _ = poly_intersection(ppi, pp)
-                if np.abs(ppiou - float(ppi.area())) > self.epsilon and np.abs(ppiou) > self.epsilon:
+                if np.abs(ppiou - float(ppi.area)) > self.epsilon and np.abs(ppiou) > self.epsilon:
                     fail_flag = True
                     break
-                elif np.abs(ppiou - float(ppi.area())) < self.epsilon:
+                elif np.abs(ppiou - float(ppi.area)) < self.epsilon:
                     polys_new.append(polygon)
                 else:
                     polys_keep.append(polygon)
 
             for polygon in ignore_polygons:
-                ppi = plg.Polygon(polygon.reshape(-1, 2))
+                ppi = Polygon(polygon.reshape(-1, 2))
                 ppiou, _ = poly_intersection(ppi, pp)
-                if np.abs(ppiou - float(ppi.area())) > self.epsilon and np.abs(ppiou) > self.epsilon:
+                if np.abs(ppiou - float(ppi.area)) > self.epsilon and np.abs(ppiou) > self.epsilon:
                     fail_flag = True
                     break
-                elif np.abs(ppiou - float(ppi.area())) < self.epsilon:
+                elif np.abs(ppiou - float(ppi.area)) < self.epsilon:
                     ign_polys_new.append(polygon)
                 else:
                     ign_polys_keep.append(polygon)

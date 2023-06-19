@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from numpy.fft import ifft
-from shapely.geometry import Polygon as plg
+from shapely.geometry import Polygon
 
 from .det_base_postprocess import DetBasePostprocess
 
@@ -23,7 +23,7 @@ def points2polygon(points):
     assert (points.size % 2 == 0) and (points.size >= 8)
 
     point_mat = points.reshape([-1, 2])
-    return plg.Polygon(point_mat)
+    return Polygon(point_mat)
 
 
 def poly_intersection(poly_det, poly_gt):
@@ -34,13 +34,15 @@ def poly_intersection(poly_det, poly_gt):
     Returns:
         intersection_area (float): The intersection area between two polygons.
     """
-    assert isinstance(poly_det, plg.Polygon)
-    assert isinstance(poly_gt, plg.Polygon)
-
-    poly_inter = poly_det & poly_gt
-    if len(poly_inter) == 0:
-        return 0, poly_inter
-    return poly_inter.area(), poly_inter
+    assert isinstance(poly_det, Polygon)
+    assert isinstance(poly_gt, Polygon)
+    if poly_det.is_valid and poly_gt.is_valid:
+        poly_inter = poly_det.intersection(poly_gt)
+        if poly_inter.is_empty:
+            return 0, poly_inter
+        return poly_inter.area, poly_inter
+    else:
+        return 0, None
 
 
 def poly_union(poly_det, poly_gt):
@@ -51,11 +53,11 @@ def poly_union(poly_det, poly_gt):
     Returns:
         union_area (float): The union area between two polygons.
     """
-    assert isinstance(poly_det, plg.Polygon)
-    assert isinstance(poly_gt, plg.Polygon)
+    assert isinstance(poly_det, Polygon)
+    assert isinstance(poly_gt, Polygon)
 
-    area_det = poly_det.area()
-    area_gt = poly_gt.area()
+    area_det = poly_det.area
+    area_gt = poly_gt.area
     area_inters, _ = poly_intersection(poly_det, poly_gt)
     return area_det + area_gt - area_inters
 
@@ -96,8 +98,8 @@ def poly_iou(poly_det, poly_gt):
     Returns:
         iou (float): The IOU between two polygons.
     """
-    assert isinstance(poly_det, plg.Polygon)
-    assert isinstance(poly_gt, plg.Polygon)
+    assert isinstance(poly_det, Polygon)
+    assert isinstance(poly_gt, Polygon)
     area_inters, _ = poly_intersection(poly_det, poly_gt)
     area_union = poly_union(poly_det, poly_gt)
     if area_union == 0:
