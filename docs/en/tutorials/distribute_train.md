@@ -1,35 +1,37 @@
 # Distributed parallel training
 
 This document provides a tutorial on distributed parallel training.
-There are two ways to train on the Ascend processor, running scripts through OpenMPI or configuring `RANK_TABLE_FILE` for training.
-On GPU processors, scripts can be run through OpenMPI for training.
+There are two ways to train on the Ascend AI processor: by running scripts with OpenMPI or configuring `RANK_TABLE_FILE` for training.
+On GPU processors, scripts can be run with OpenMPI for training.
 
-## OpenMPI running scripts
+## Run scripts with OpenMPI
 
-Currently, MindSpore also supports running scripts through OpenMPI's `mpirun` on Ascend hardware platform. Users can refer to [dbnet readme](../../../configs/det/dbnet/README.md#34-训练) for training. The following are command use cases:
-
-Please ensure that the `distribute` parameter in the yaml file is `True` before running the command.
+MindSpore supports scripts execution with OpenMPI's `mpirun` on Ascend hardware platform. Users can refer to [DBNet Readme](../../../configs/det/dbnet/README.md#34-training) for more information on training. The following is the command use case:
 
 ```shell
-# n is the number of GPUs/NPUs
+# n is the number of GPUs/NPUs used in training
 mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
+
+> Please ensure that the `distribute` parameter in the yaml file is set to `True` before running the command.
+
 ## Configure RANK_TABLE_FILE for training
 
-Before using this method for distributed training, it is necessary to create a HCCL configuration file in json format,
-that is, generate RANK_TABLE_FILE, the following is the command to generate the corresponding configuration file for 8 devices.
-For more specific information and corresponding scripts, please refer to [hccl_tools](https://gitee.com/mindspore/models/tree/master/utils/hccl_tools).
+Before using this method for distributed training, it is necessary to create an HCCL configuration file in json format,
+i.e. generate RANK_TABLE_FILE. The following is the command to generate the corresponding configuration file for 8 devices
+(for more information please refer to [HCCL tools](https://gitee.com/mindspore/models/tree/master/utils/hccl_tools)):
 
-``` shell
+```shell
 python hccl_tools.py --device_num "[0,8)"
 ```
-output：
+This command produces the following output file:
 ```
 hccl_8p_10234567_127.0.0.1.json
 ```
-An example of the content in `hccl_8p_10234567_127.0.0.1.json` is:
 
-```
+An example of the content in `hccl_8p_10234567_127.0.0.1.json`:
+
+```json
 {
     "version": "1.0",
     "server_count": "1",
@@ -85,15 +87,17 @@ An example of the content in `hccl_8p_10234567_127.0.0.1.json` is:
 }
 ```
 
-Then run the following command.
-Before running the command, please ensure that the `distribute` in the yaml file is `True`.
+Then start the training by running the following command:
 
-``` shell
+```shell
 bash ascend8p.sh
 ```
-Taking CRNN training as an example, the `ascend8p.sh` script is:
 
-``` shell
+> Please ensure that the `distribute` parameter in the yaml file is set to `True` before running the command.
+
+Here is an example of the `ascend8p.sh` script for CRNN training:
+
+```shell
 #!/bin/bash
 export DEVICE_NUM=8
 export RANK_SIZE=8
@@ -112,6 +116,6 @@ for ((i = 0; i < ${DEVICE_NUM}; i++)); do
     fi
 done
 ```
-When training other models, simply replace the yaml config file path in the script, i.e. `python -u tools/train.py --config path/to/model_config.yaml`.
+When training other models, simply replace the yaml config file path in the script, i.e. `path/to/model_config.yaml`.
 
-Now the training has started, and you can view the training log in `train.log`.
+After the training has started, and you can find the training log in `train.log` under `ckpt_save_dir` specified in the config file.
