@@ -3,10 +3,10 @@ import math
 
 import cv2
 import numpy as np
-import shapely.geometry.Polygon as plg
 from numpy.fft import fft
 from numpy.linalg import norm
 from PIL import Image
+from shapely.geometry import Polygon as plg
 
 
 class DetResizeForTest(object):

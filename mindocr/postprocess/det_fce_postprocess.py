@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
-import shapely.geometry.Polygon as plg
 from numpy.fft import ifft
+from shapely.geometry import Polygon as plg
 
 from .det_base_postprocess import DetBasePostprocess
 
@@ -255,6 +255,22 @@ def fcenet_decode(
 
 
 class FCEPostprocess(DetBasePostprocess):
+    """
+    FCEPostprocess class for post-processing the predictions of FCENet.
+
+    Args:
+        scales (list): List of scale factors for different scales of FCENet predictions.
+        fourier_degree (int): Order of Fourier coefficients. Default is 5.
+        num_reconstr_points (int): Number of reconstructed points for boundaries. Default is 50.
+        decoding_type (str): Decoding type. Default is "fcenet".
+        score_thr (float): Confidence threshold for filtering boundaries. Default is 0.3.
+        nms_thr (float): IOU threshold for non-maximum suppression. Default is 0.1.
+        alpha (float): Weight parameter for reconstruction loss. Default is 1.0.
+        beta (float): Weight parameter for stability loss. Default is 1.0.
+        text_repr_type (str): Text representation type. Default is "poly".
+
+    """
+
     def __init__(
         self,
         scales,
