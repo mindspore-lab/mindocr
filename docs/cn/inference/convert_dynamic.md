@@ -32,7 +32,7 @@
 
 2. 文本检测的标注文件
 
-   - 可参考[converter](../datasets/converter.md)，它是参数`task`为`det`时输出的标注文件
+   - 可参考[converter](../datasets/converters.md)，它是参数`task`为`det`时输出的标注文件
 
    - 该工具会读取每张图像下标注的文本框坐标，记录`height`和`width`，以及框的数量作为`batch size`，统计出合适的候选值
 
