@@ -20,7 +20,7 @@ class PSEPostprocess(DetBasePostprocess):
         output_score_kernels=False,
         rescale_fields=["polys"],
     ):
-        super().__init__(box_type, rescale_fields)
+        super().__init__(rescale_fields, box_type)
 
         from .pse import pse
 
