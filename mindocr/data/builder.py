@@ -130,7 +130,7 @@ def build_dataset(
             f"to fit {cores} CPU cores shared for {num_devices} devices"
         )
 
-    if dataset_config["mindrecord"]:
+    if dataset_config.get("mindrecord", False):
         # read the MR file's schema to load the stored list of columns
         reader = ms.mindrecord.FileReader(dataset_config["data_dir"])
         dataset_column_names = list(reader.schema().keys())
