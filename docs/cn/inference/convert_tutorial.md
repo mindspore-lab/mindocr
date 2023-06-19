@@ -13,7 +13,7 @@ graph LR;
 
 #### 1.1 模型导出
 
-在推理之前，需要先把训练端的ckpt文件[导出](../../../configs/README.md)为MindIR文件，它保存了模型的结构和权重参数。
+在推理之前，需要先把训练端的ckpt文件[导出](https://github.com/mindspore-lab/mindocr/blob/main/configs/README.md)为MindIR文件，它保存了模型的结构和权重参数。
 
 部分模型提供了MIndIR导出文件的下载链接，见[模型列表](models_list.md)，可跳转到对应模型的介绍页面进行下载。
 

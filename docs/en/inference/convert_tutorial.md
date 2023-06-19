@@ -13,7 +13,7 @@ graph LR;
 
 #### 1.1 Model Export
 
-Before inference, it is necessary to [export](../../../configs/README.md) the trained ckpt to a MindIR file, which stores the model structure and weight parameters.
+Before inference, it is necessary to [export](https://github.com/mindspore-lab/mindocr/blob/main/configs/README.md) the trained ckpt to a MindIR file, which stores the model structure and weight parameters.
 
 Some models provide download links for MIndIR export files, as shown in [Model List](models_list.md). You can jump to the corresponding model introduction page for download.
 

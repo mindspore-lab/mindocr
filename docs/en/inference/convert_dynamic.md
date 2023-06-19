@@ -42,7 +42,7 @@ Two types of data are supported:
 
 2. Annotation file for text detection
 
-   - Refer to [dataset_converters](../../../tools/dataset_converters), which is the annotation file output when the
+   - Refer to [converter](../datasets/converters.md), which is the annotation file output when the
      parameter `task` is `det`
 
    - This tool will read the coordinates of the text box marked under each image, record `height` and `width`, and the
@@ -123,7 +123,7 @@ The output is a single OM model: `model_static.om`
 ##### 5.3 Configuration file
 
 In addition to the above command line parameters, there are some parameters in
-[auto_scaling.yaml](../../../deploy/models_utils/auto_scaling/configs/auto_scaling.yaml) to describe the statistics of
+[auto_scaling.yaml](https://github.com/mindspore-lab/mindocr/tree/main/deploy/models_utils/auto_scaling/configs/auto_scaling.yaml) to describe the statistics of
 the dataset, You can modify it yourself if necessary:
 
 - limit_side_len

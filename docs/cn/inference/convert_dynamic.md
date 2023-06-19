@@ -32,7 +32,7 @@
 
 2. 文本检测的标注文件
 
-   - 可参考[dataset_converters](../../../tools/dataset_converters)，它是参数`task`为`det`时输出的标注文件
+   - 可参考[converter](../datasets/converters.md)，它是参数`task`为`det`时输出的标注文件
 
    - 该工具会读取每张图像下标注的文本框坐标，记录`height`和`width`，以及框的数量作为`batch size`，统计出合适的候选值
 
@@ -108,7 +108,7 @@ python converter.py \
 
 ##### 5.3 配置文件
 
-除了上述命令行参数外，在[auto_scaling.yaml](../../../deploy/models_utils/auto_scaling/configs/auto_scaling.yaml)中还有一些参数，用以描述数据集的统计方式，如有需要可自行修改：
+除了上述命令行参数外，在[auto_scaling.yaml](https://github.com/mindspore-lab/mindocr/tree/main/deploy/models_utils/auto_scaling/configs/auto_scaling.yaml)中还有一些参数，用以描述数据集的统计方式，如有需要可自行修改：
 
 - limit_side_len
 
