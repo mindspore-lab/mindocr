@@ -118,4 +118,4 @@ done
 ```
 When training other models, simply replace the yaml config file path in the script, i.e. `path/to/model_config.yaml`.
 
-After the training has started, and you can find the training log in `train.log` under `ckpt_save_dir` specified in the config file.
+After the training has started, and you can find the training log `train.log` in the project root directory.
