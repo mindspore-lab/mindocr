@@ -36,7 +36,7 @@ def get_ckpt_file(ckpt_dir):
     else:
         # ckpt_load_path = os.path.join(ckpt_dir, 'best.ckpt')
         ckpt_paths = sorted(glob.glob(os.path.join(ckpt_dir, "*.ckpt")))
-        assert len(ckpt_paths) == 0, f"No .ckpt files found in {ckpt_dir}"
+        assert len(ckpt_paths) != 0, f"No .ckpt files found in {ckpt_dir}"
         ckpt_load_path = ckpt_paths[0]
         if len(ckpt_paths) > 1:
             _logger.warning(f"More than one .ckpt files found in {ckpt_dir}. Pick {ckpt_load_path}")
