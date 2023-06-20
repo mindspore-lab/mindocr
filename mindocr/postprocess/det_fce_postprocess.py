@@ -303,8 +303,6 @@ class FCEPostprocess(DetBasePostprocess):
         shape_list = meta_info[0].numpy()
         score_maps = []
         for value in preds:
-            # if isinstance(value, paddle.Tensor):
-            #     value = value.numpy()
             value = value.asnumpy()
             cls_res = value[:, :4, :, :]
             reg_res = value[:, 4:, :, :]
