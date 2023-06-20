@@ -1,0 +1,49 @@
+English | [中文](../../cn/datasets/rects_CN.md)
+
+# ReCTS Dataset - [Official Website](https://rrc.cvc.uab.es/?ch=12&com=introduction)
+
+## Data Downloading
+
+[Download Source](https://rrc.cvc.uab.es/?ch=12&com=downloads). Need to register an account to download this dataset.
+
+<details>
+    <summary>How to Download ReCTS Images and Annotations</summary>
+
+The ReCTS images and annotations dataset can be downloaded from [here](https://rrc.cvc.uab.es/?ch=12&com=downloads)
+
+</details>
+
+After downloading the images and annotations, unzip the file, after which the data structure should be like as follows (ignoring the archive files):
+```txt
+ReCTS
+  |--- img
+  |    |--- <image_name>.jpg
+  |    |--- <image_name>.jpg
+  |    |--- ...
+  |--- gt
+  |    |--- <image_name>.json
+  |    |--- <image_name>.json
+  |    |--- ...
+  |--- gt_unicode
+  |    |--- <image_name>.json
+  |    |--- <image_name>.json
+  |    |--- ...
+```
+
+## Data Preparation
+
+### For Detection Task
+
+To prepare the data for text detection, you can run the following commands:
+
+```bash
+python tools/dataset_converters/convert.py \
+    --dataset_name rects --task det \
+    --image_dir path/to/ReCTS/img/ \
+    --label_dir path/to/ReCTS/gt_unicode.json \
+    --output_path path/to/ReCTS/det_gt.txt
+```
+
+Then you can have an annotation file in the standard form `det_gt.txt` under the folder `ReCTS/`.
+
+[Back to README](../../../tools/dataset_converters/README.md)
