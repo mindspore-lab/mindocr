@@ -17,7 +17,7 @@ common:
 
 model:
   type: rec
-  pretrained : "/home/gaohan/code/abinet/tmp_rec/abinet_8card4epoch7909step_28a9ec62.ckpt"
+  pretrained : "./tmp_rec/best.ckpt"
   transform: null
   backbone:
     name: abinet_backbone

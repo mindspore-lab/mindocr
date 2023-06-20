@@ -42,10 +42,10 @@ According to our experiments, the evaluation results on public benchmark dataset
   <div align="center">
   <summary>Detailed accuracy results for each benchmark dataset</summary>
 
-  | **Model** | **Backbone** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
-  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-  | CRNN | VGG7 | 94.53% | 94.00% | 92.18% | 90.74% | 71.95% | 66.06% | 84.10% | 83.93% | 73.33% | 69.44% | 82.03% |
-  | CRNN | ResNet34_vd | 94.42% | 94.23% | 93.35% | 92.02% | 75.92% | 70.15% | 87.73% | 86.40% | 76.28% | 73.96% | 84.45% |
+  | **Model**  |  **IC13_857** |  **IC15_1811** |  **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** |
+  | :------:  |   :------: |  :------: | :------: | :------: | :------: | :------: |
+  | ABINet  |  96.62% | 85.09% |   96.33% | 93.35% | 88.06% | 90.28% |
+
   </div>
 </details>
 
@@ -205,6 +205,7 @@ eval:
 
 **Notes:**
 - As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of GPUs/NPUs, or adjust the learning rate linearly to a new global batch size.
+- Dataset: The MJSynth and SynthText datasets come from [ABINet_repo](https://github.com/FangShancheng/ABINet).
 
 
 ### 3.2 Model Training
@@ -236,69 +237,8 @@ The training result (including checkpoints, per-epoch performance and curves) wi
 To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 
 ```
-python tools/eval.py --config configs/rec/crnn/crnn_resnet34.yaml
+python tools/eval.py --config configs/rec/abinet/abinet.yaml
 ```
-
-## 4. Character Dictionary
-
-### Default Setting
-
-To transform the groud-truth text into label ids, we have to provide the character dictionary where keys are characters and values ​​are IDs. By default, the dictionary is **"0123456789abcdefghijklmnopqrstuvwxyz"**, which means id=0 will correspond to the charater "0". In this case, the dictionary only considers numbers and lowercase English characters, excluding spaces.
-
-### Built-in Dictionaries
-
-There are some built-in dictionaries, which are placed in `mindocr/utils/dict/`, and you can choose the appropriate dictionary to use.
-
-- `en_dict.txt` is an English dictionary containing 94 characters, including numbers, common symbols, and uppercase and lowercase English letters.
-- `ch_dict.txt` is a Chinese dictionary containing 6623 characters, including commonly used simplified and traditional Chinese, numbers, common symbols, uppercase and lowercase English letters.
-
-
-### Customized Dictionary
-
-You can also customize a dictionary file (***.txt) and place it under `mindocr/utils/dict/`, the format of the dictionary file should be a .txt file with one character per line.
-
-
-To use a specific dictionary, set the parameter `character_dict_path` to the path of the dictionary, and change the parameter `num_classes` to the corresponding number, which is the number of characters in the dictionary + 1.
-
-
-**Notes:**
-- You can include the space character by setting the parameter `use_space_char` in configuration yaml to True.
-- Remember to check the value of `dataset->transform_pipeline->RecCTCLabelEncode->lower` in the configuration yaml. Set it to False if you prefer case-sensitive encoding.
-
-
-## 5. Chinese Text Recognition Model Training
-
-Currently, this model supports multilingual recognition and provides pre-trained models for different languages. Details are as follows:
-
-### Chinese Dataset Preparation and Configuration
-
-We use a public Chinese text benchmark dataset [Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition) for CRNN training and evaluation.
-
-For detailed instruction of data preparation and yaml configuration, please refer to [ch_dataeset](../../../docs/en/datasets/chinese_text_recognition.md).
-
-### Training
-
-To train with the prepared datsets and config file, please run:
-
-```shell
-mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/crnn/crnn_resnet34_ch.yaml
-```
-
-### Results and Pretrained Weights
-
-After training, evaluation results on the benchmark test set are as follows, where we also provide the model config and pretrained weights.
-
-<div align="center">
-
-| **Model** | **Language** | **Context**  |**Backbone** | **Scene** | **Web** | **Document** | **Train T.** | **FPS** | **Recipe** | **Download** |
-| :-----: | :-----:  | :--------: | :--------: | :--------: | :--------: | :--------: | :---------: | :--------: | :---------: | :-----------: |
-| CRNN    | Chinese | D910x4-MS1.10-G | ResNet34_vd | 60.45% | 65.95% | 97.68% | 647 s/epoch | 1180 | [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-7a342e3c.ckpt) \| [mindir]() |
-</div>
-
-### Training with Custom Datasets
-You can train models for different languages with your own custom datasets. Loading the pretrained Chinese model to finetune on your own dataset usually yields better results than training from scratch. Please refer to the tutorial [Training Recognition Network with Custom Datasets](../../../docs/en/tutorials/training_recognition_custom_dataset.md).
-
-
 ## References
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 
