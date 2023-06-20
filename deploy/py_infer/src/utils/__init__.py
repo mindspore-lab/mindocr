@@ -9,4 +9,3 @@ from .safe_utils import (
     save_path_init,
     suppress_stdout,
 )
-from .visualize import VisMode, Visualization
