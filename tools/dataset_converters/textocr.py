@@ -12,6 +12,31 @@ from mindocr.data.utils.polygon_utils import sort_clockwise
 
 
 class TEXTOCR_Converter:
+    """
+    Format annotations into standard format for TextOCR dataset.
+    The ground truths are provided as JSON files separately for training and validation,
+        TextOCR_0.1_train.json, TextOCR_0.1_val.json.
+    The first-level keys are "imgs", "imgToAnns", and "anns". Each image and each annotation is assigned an ID.
+    The "imgs" key holds information about each image, in the form of a dictionary with the format:
+        {
+            "<image_id>": {"<attribute_1>": "<value_1>", ... , "<attribute_n>": "<value_n>"}, ...
+        }
+    The "imgToAnns" key holds the IDs of all annotations for each image in the form of a dictionary with the format:
+        {
+            "<image_id>": [<annotation_id_1>, ... , <annotation_id_n>], ...
+        }
+    The "anns" key holds information about the annotation polygon in the form of a dictionary with the format:
+        {
+            "<annotation_id>": {"<attribute_1>": "<value_1>", ... , "<attribute_n>": "<value_n>"}, ...
+        }
+    The "points" attribute of each annotation is a list of the coordinates of the annotation polygon in the format:
+        `x1, y1, x2, y2, ... , xn, yn`
+    The "bbox" attribute of each annotation is a list of the format:
+        `x-ccord, y-coord, width, height`
+    If the "points" attribute does not define a quadrilateral, the bbox attributes are used for the label.
+    If the transcription is provided as ".", it is not taken into account and marked as "###".
+    """
+
     def __init__(self, path_mode="relative", **kwargs):
         self._relative = path_mode == "relative"
 

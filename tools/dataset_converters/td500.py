@@ -24,6 +24,14 @@ def det_rotate(x, y, width, height, theta):
 class TD500_Converter(object):
     """
     Format annotation to standard form for MSRA-TD500 dataset.
+    The ground truth is provided as a text file <img_name>.gt with lines in the format:
+        `<index> <difficulty label> <x-coord> <y-coord> <width> <height> <angle of rotation>`
+    Each image is associated to one ground truth file where each line corresponds to one text in the file.
+    The <difficulty label> is "1" if it is difficult to read, and it is "0" otherwise.
+    <x-coord> and <y-coord> are coordinates of the top right corner of the rectangle around the text. Exact rectangle is
+    drawn by rotating the provided rectangle around the center of rectangle using the angle of rotation.
+    Languages included are Chinese and English.
+    Note that the transcriptions are not provided - only if it is difficult to read or not is given.
     """
 
     def __init__(self, path_mode="relative", **kwargs):
