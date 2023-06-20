@@ -15,7 +15,7 @@ def add_pse_nodes(node, binary_thresh, scale):
             inputs=[],
             outputs=["p2o.helper.constant.14"],
             value=numpy_helper.from_array(
-                np.array([1.0, 1.0, 4 / scale, 4 / scale], dtype="float32"), name="p2o.helper.constant.14"
+                np.array([1.0, 1.0, 4.0 / scale, 4.0 / scale], dtype="float32"), name="p2o.helper.constant.14"
             ),
         ),
         make_node(
@@ -126,176 +126,7 @@ def add_pse_nodes(node, binary_thresh, scale):
         make_node(
             "Unsqueeze", inputs=["tmp_5_slice_0"], outputs=["unsqueeze2_0.tmp_0"], name="p2o.Unsqueeze.0", axes=[1]
         ),
-        make_node(
-            "Constant",
-            inputs=[],
-            outputs=["p2o.helper.constant.24"],
-            value=numpy_helper.from_array(np.array([0], dtype="int64"), name="p2o.helper.constant.24"),
-        ),
-        make_node(
-            "Constant",
-            inputs=[],
-            outputs=["p2o.helper.constant.25"],
-            value=numpy_helper.from_array(np.array([7], dtype="int64"), name="p2o.helper.constant.25"),
-        ),
-        make_node(
-            "Constant",
-            inputs=[],
-            outputs=["p2o.helper.constant.26"],
-            value=numpy_helper.from_array(np.array([1], dtype="int64"), name="p2o.helper.constant.26"),
-        ),
-        make_node(
-            "Constant",
-            inputs=[],
-            outputs=["p2o.helper.constant.27"],
-            value=numpy_helper.from_array(np.array([1], dtype="int64"), name="p2o.helper.constant.27"),
-        ),
-        make_node(
-            "Slice",
-            inputs=[
-                "tmp_5",
-                "p2o.helper.constant.24",
-                "p2o.helper.constant.25",
-                "p2o.helper.constant.27",
-                "p2o.helper.constant.26",
-            ],
-            outputs=["tmp_5_slice_1"],
-            name="p2o.Slice.4",
-        ),
-        make_node("Mul", inputs=["tmp_5_slice_1", "unsqueeze2_0.tmp_0"], outputs=["p2o.Mul.1"], name="p2o.Mul.0"),
-        make_node(
-            "Constant",
-            inputs=[],
-            outputs=["p2o.helper.constant.28"],
-            value=numpy_helper.from_array(np.array([0], dtype="int64"), name="p2o.helper.constant.28"),
-        ),
-        make_node(
-            "Constant",
-            inputs=[],
-            outputs=["p2o.helper.constant.29"],
-            value=numpy_helper.from_array(np.array([2147483647], dtype="int64"), name="p2o.helper.constant.29"),
-        ),
-        make_node(
-            "Constant",
-            inputs=[],
-            outputs=["p2o.helper.constant.30"],
-            value=numpy_helper.from_array(np.array([1], dtype="int64"), name="p2o.helper.constant.30"),
-        ),
-        make_node("Shape", inputs=["tmp_5"], outputs=["p2o.Shape.1"], name="p2o.Shape.0"),
-        make_node(
-            "Gather",
-            inputs=["p2o.Shape.1", "p2o.helper.constant.30"],
-            outputs=["p2o.Gather.1"],
-            name="p2o.Gather.0",
-            axis=0,
-        ),
-        make_node("Min", inputs=["p2o.Gather.1", "p2o.helper.constant.29"], outputs=["p2o.Min.1"], name="p2o.Min.0"),
-        make_node(
-            "Constant",
-            inputs=[],
-            outputs=["p2o.helper.constant.31"],
-            value=numpy_helper.from_array(np.array([1], dtype="int64"), name="p2o.helper.constant.31"),
-        ),
-        make_node(
-            "Slice",
-            inputs=["tmp_5", "p2o.helper.constant.28", "p2o.Min.1", "p2o.helper.constant.30", "p2o.helper.constant.31"],
-            outputs=["p2o.Slice.6"],
-            name="p2o.Slice.5",
-        ),
-        make_node("Shape", inputs=["p2o.Slice.6"], outputs=["p2o.Shape.3"], name="p2o.Shape.2"),
-        make_node("Expand", inputs=["p2o.Mul.1", "p2o.Shape.3"], outputs=["p2o.Expand.1"], name="p2o.Expand.0"),
-        make_node("Squeeze", inputs=["p2o.helper.constant.28"], outputs=["p2o.helper.squeeze.0"], name="p2o.Squeeze.2"),
-        make_node("Squeeze", inputs=["p2o.Min.1"], outputs=["p2o.helper.squeeze.1"], name="p2o.Squeeze.3"),
-        make_node("Squeeze", inputs=["p2o.helper.constant.31"], outputs=["p2o.helper.squeeze.2"], name="p2o.Squeeze.4"),
-        make_node(
-            "Range",
-            inputs=["p2o.helper.squeeze.0", "p2o.helper.squeeze.1", "p2o.helper.squeeze.2"],
-            outputs=["p2o.Range.1"],
-            name="p2o.Range.0",
-        ),
-        make_node(
-            "Constant",
-            inputs=[],
-            outputs=["p2o.helper.constant.32"],
-            value=numpy_helper.from_array(np.array([1, -1, 1, 1], dtype="int64"), name="p2o.helper.constant.32"),
-        ),
-        make_node(
-            "Reshape",
-            inputs=["p2o.Range.1", "p2o.helper.constant.32"],
-            outputs=["p2o.helper.reshape.0"],
-            name="p2o.Reshape.4",
-        ),
-        make_node(
-            "Constant",
-            inputs=[],
-            outputs=["p2o.helper.constant.33"],
-            value=numpy_helper.from_array(np.array([1], dtype="int64"), name="p2o.helper.constant.33"),
-        ),
-        make_node(
-            "Constant",
-            inputs=[],
-            outputs=["p2o.helper.constant.34"],
-            value=numpy_helper.from_array(np.array([0], dtype="int64"), name="p2o.helper.constant.34"),
-        ),
-        make_node(
-            "Constant",
-            inputs=[],
-            outputs=["p2o.helper.constant.35"],
-            value=numpy_helper.from_array(np.array([0], dtype="int64"), name="p2o.helper.constant.35"),
-        ),
-        make_node(
-            "Constant",
-            inputs=[],
-            outputs=["p2o.helper.constant.36"],
-            value=numpy_helper.from_array(np.array([1], dtype="int64"), name="p2o.helper.constant.36"),
-        ),
-        make_node(
-            "Slice",
-            inputs=["p2o.Shape.3", "p2o.helper.constant.35", "p2o.helper.constant.36", "p2o.helper.constant.34"],
-            outputs=["p2o.helper.slice.0"],
-            name="p2o.Slice.7",
-        ),
-        make_node(
-            "Constant",
-            inputs=[],
-            outputs=["p2o.helper.constant.37"],
-            value=numpy_helper.from_array(np.array([0], dtype="int64"), name="p2o.helper.constant.37"),
-        ),
-        make_node(
-            "Constant",
-            inputs=[],
-            outputs=["p2o.helper.constant.38"],
-            value=numpy_helper.from_array(np.array([2], dtype="int64"), name="p2o.helper.constant.38"),
-        ),
-        make_node(
-            "Constant",
-            inputs=[],
-            outputs=["p2o.helper.constant.39"],
-            value=numpy_helper.from_array(np.array([4], dtype="int64"), name="p2o.helper.constant.39"),
-        ),
-        make_node(
-            "Slice",
-            inputs=["p2o.Shape.3", "p2o.helper.constant.38", "p2o.helper.constant.39", "p2o.helper.constant.37"],
-            outputs=["p2o.helper.slice.1"],
-            name="p2o.Slice.8",
-        ),
-        make_node(
-            "Concat",
-            inputs=["p2o.helper.slice.0", "p2o.helper.constant.33", "p2o.helper.slice.1"],
-            outputs=["p2o.helper.concat.0"],
-            name="p2o.Concat.2",
-            axis=0,
-        ),
-        make_node(
-            "Tile", inputs=["p2o.helper.reshape.0", "p2o.helper.concat.0"], outputs=["p2o.Tile.1"], name="p2o.Tile.0"
-        ),
-        make_node(
-            "ScatterElements",
-            inputs=["tmp_5", "p2o.Tile.1", "p2o.Expand.1"],
-            outputs=["p2o.tmp_5.0"],
-            name="p2o.ScatterElements.0",
-            axis=1,
-        ),
+        make_node("Mul", inputs=["tmp_5", "unsqueeze2_0.tmp_0"], outputs=["tmp_6"], name="p2o.Mul.0"),
     ]
     node.extend(extended_op_nodes)
 
@@ -326,7 +157,7 @@ if __name__ == "__main__":
                 shape=["p2o.DynamicDimension.6", "p2o.DynamicDimension.7", "p2o.DynamicDimension.8"],
             ),
             onnx.helper.make_tensor_value_info(
-                "p2o.tmp_5.0",
+                "tmp_6",
                 TensorProto.FLOAT,
                 shape=["p2o.DynamicDimension.3", 7, "p2o.DynamicDimension.4", "p2o.DynamicDimension.5"],
             ),
