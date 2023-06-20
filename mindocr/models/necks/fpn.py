@@ -62,7 +62,7 @@ class DBFPN(nn.Cell):
         for i, out in enumerate(self.out):
             features[i] = _resize_nn(out(features[i]), shape=features[0].shape[2:])
 
-        return self.fuse(features[::-1])   # matching the reverse order of the original work
+        return self.fuse(features[::-1])  # matching the reverse order of the original work
 
 
 def _conv(in_channels, out_channels, kernel_size=3, stride=1, padding=0, pad_mode='same', has_bias=False):
@@ -76,39 +76,37 @@ def _bn(channels, momentum=0.1):
     return nn.BatchNorm2d(channels, momentum=momentum)
 
 
-def Xavier_conv(in_channels, out_channels, kernel_size=3, stride=1, padding=0, pad_mode='same', has_bias=False):
-    init_value = XavierUniform()
-    return nn.Conv2d(in_channels, out_channels,
-                     kernel_size=kernel_size, stride=stride, padding=padding,
-                     pad_mode=pad_mode, weight_init=init_value, has_bias=has_bias)
-
-
 class FCEFPN(nn.Cell):
+    def Xavier_conv(self, in_channels, out_channels, kernel_size=3, stride=1, padding=0, pad_mode='same',
+                    has_bias=False):
+        init_value = XavierUniform()
+        return nn.Conv2d(in_channels, out_channels,
+                         kernel_size=kernel_size, stride=stride, padding=padding,
+                         pad_mode=pad_mode, weight_init=init_value, has_bias=has_bias)
+
     def __init__(self, in_channels, out_channel):
         in_channels = in_channels[1:]
         super(FCEFPN, self).__init__()
 
-        self.reduce_conv_c3 = Xavier_conv(in_channels[0], out_channel, kernel_size=1, has_bias=True)
+        self.reduce_conv_c3 = self.Xavier_conv(in_channels[0], out_channel, kernel_size=1, has_bias=True)
 
-        self.reduce_conv_c4 = Xavier_conv(in_channels[1], out_channel, kernel_size=1, has_bias=True)
+        self.reduce_conv_c4 = self.Xavier_conv(in_channels[1], out_channel, kernel_size=1, has_bias=True)
 
-        self.reduce_conv_c5 = Xavier_conv(in_channels[2], out_channel, kernel_size=1, has_bias=True)
+        self.reduce_conv_c5 = self.Xavier_conv(in_channels[2], out_channel, kernel_size=1, has_bias=True)
 
-        self.smooth_conv_p5 = Xavier_conv(out_channel, out_channel, kernel_size=3, padding=1, pad_mode='pad',
-                                          has_bias=True)
+        self.smooth_conv_p5 = self.Xavier_conv(out_channel, out_channel, kernel_size=3, padding=1, pad_mode='pad',
+                                               has_bias=True)
 
-        self.smooth_conv_p4 = Xavier_conv(out_channel, out_channel, kernel_size=3, padding=1, pad_mode='pad',
-                                          has_bias=True)
+        self.smooth_conv_p4 = self.Xavier_conv(out_channel, out_channel, kernel_size=3, padding=1, pad_mode='pad',
+                                               has_bias=True)
 
-        self.smooth_conv_p3 = Xavier_conv(out_channel, out_channel, kernel_size=3, padding=1, pad_mode='pad',
-                                          has_bias=True)
+        self.smooth_conv_p3 = self.Xavier_conv(out_channel, out_channel, kernel_size=3, padding=1, pad_mode='pad',
+                                               has_bias=True)
 
         self.out_channels = out_channel
 
     def construct(self, features):
-        c3 = features[1]
-        c4 = features[2]
-        c5 = features[3]
+        _, c3, c4, c5 = features
 
         p5 = self.reduce_conv_c5(c5)
 

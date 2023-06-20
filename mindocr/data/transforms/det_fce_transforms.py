@@ -1435,11 +1435,11 @@ class FCENetTargets:
         image = results["image"]
         h, w, _ = image.shape
 
-        if "polygons1" not in results:
-            results["polygons1"] = [
+        if "polygons" not in results:
+            results["polygons"] = [
                 results["polys"][i] for i in range(len(results["ignore_tags"])) if not results["ignore_tags"][i]
             ]
-            results["ignore_polygons1"] = [
+            results["ignore_polygons"] = [
                 results["polys"][i] for i in range(len(results["ignore_tags"])) if results["ignore_tags"][i]
             ]
 

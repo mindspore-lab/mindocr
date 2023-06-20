@@ -33,39 +33,13 @@ class FCEHead(Cell):
         beta (float) :The parameter to calculate final scores.
     """
 
-    def __init__(
-            self,
-            in_channels,
-            scales,
-            fourier_degree=5,
-            num_sample=50,
-            num_reconstr_points=50,
-            decoding_type='fcenet',
-            score_thr=0.3,
-            nms_thr=0.1,
-            alpha=1.0,
-            beta=1.0,
-            text_repr_type='poly',
-            train_cfg=None,
-            test_cfg=None,
-            mode=False):
+    def __init__(self, in_channels, fourier_degree=5, mode=False):
         super(FCEHead, self).__init__()
         assert isinstance(in_channels, int)
 
         self.downsample_ratio = 1.0
         self.in_channels = in_channels
-        self.scales = scales
         self.fourier_degree = fourier_degree
-        self.sample_num = num_sample
-        self.num_reconstr_points = num_reconstr_points
-        self.decoding_type = decoding_type
-        self.score_thr = score_thr
-        self.nms_thr = nms_thr
-        self.alpha = alpha
-        self.beta = beta
-        self.text_repr_type = text_repr_type
-        self.train_cfg = train_cfg
-        self.test_cfg = test_cfg
         self.out_channels_cls = 4
         self.out_channels_reg = (2 * self.fourier_degree + 1) * 2
         self.softmax = nn.Softmax(axis=1)
