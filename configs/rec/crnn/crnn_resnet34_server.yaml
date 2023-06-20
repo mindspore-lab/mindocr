@@ -84,7 +84,7 @@ train:
     shuffle: True
     transform_pipeline:
       - DecodeImage:
-          img_mode: RGB # changed
+          img_mode: RGB
           to_float32: False
       - RecCTCLabelEncode:
           max_text_len: *max_text_len
@@ -95,8 +95,8 @@ train:
           image_shape: [32, 100] # H, W
           infer_mode: *infer_mode
           character_dict_path: *character_dict_path
-          padding: True # aspect ratio will be preserved if true. changed
-          norm_before_pad: True # changed
+          padding: True # aspect ratio will be preserved if true.
+          norm_before_pad: True
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
     output_columns: ['image', 'text_seq'] #, 'length'] #'img_path']
@@ -123,7 +123,7 @@ eval:
     shuffle: False
     transform_pipeline:
       - DecodeImage:
-          img_mode: RGB # changed
+          img_mode: RGB
           to_float32: False
       - RecCTCLabelEncode:
           max_text_len: *max_text_len
@@ -134,8 +134,8 @@ eval:
           image_shape: [32, 100] # H, W
           infer_mode: *infer_mode
           character_dict_path: *character_dict_path
-          padding: True # aspect ratio will be preserved if true. changed
-          norm_before_pad: True # changed
+          padding: True # aspect ratio will be preserved if true.
+          norm_before_pad: True
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
     output_columns: ['image', 'text_padded', 'text_length']  # TODO return text string padding w/ fixed length, and a scaler to indicate the length

@@ -409,8 +409,6 @@ class RecResizeNormImg(object):
 class RecResizeImg(RecResizeNormImg):
     """
     This is to make compatible with older version code that uses RecResizeImg, which is to be updated.
-
-    TODO: replace RecResizeImg followed by NormlaizeImage in yaml files with RecResizeNormImg op.
     """
 
     def __init__(self, image_shape, infer_mode=False, character_dict_path=None, padding=True, **kwargs):
