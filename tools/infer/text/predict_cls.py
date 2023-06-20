@@ -20,12 +20,14 @@ import mindspore as ms
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../../../")))
 
-from mindocr import build_model  # noqa
-from mindocr.utils.visualize import show_imgs  # noqa
+from mindocr import build_model
+from mindocr.utils.logger import Logger
+from mindocr.utils.visualize import show_imgs
 
 # map algorithm name to model name (which can be checked by `mindocr.list_models()`)
 # NOTE: Modify it to add new model for inference.
 algo_to_model_name = {"MV3": "cls_mobilenet_v3_small_100_model"}
+_logger = Logger("mindocr")
 
 
 class DirectionClassifier(object):
@@ -35,8 +37,8 @@ class DirectionClassifier(object):
         self.rotate_thre = args.cls_rotate_thre
         self.visualize_output = args.visualize_output
         # self.batch_mode = args.cls_batch_mode and (self.batch_num > 1)
-        print(
-            "INFO: recognize in {} mode {}".format(
+        _logger.info(
+            "recognize in {} mode {}".format(
                 "batch" if self.batch_mode else "serial",
                 "batch_size: " + str(self.batch_num) if self.batch_mode else "",
             )
@@ -56,8 +58,8 @@ class DirectionClassifier(object):
         model_name = algo_to_model_name[args.cls_algorithm]
         self.model = build_model(model_name, pretrained=pretrained, ckpt_load_path=ckpt_load_path)
         self.model.set_train(False)
-        print(
-            "INFO: Init text direction classification model: {} --> {}. Model weights loaded from {}".format(
+        _logger.info(
+            "Init text direction classification model: {} --> {}. Model weights loaded from {}".format(
                 args.cls_algorithm, model_name, "pretrained url" if pretrained else ckpt_load_path
             )
         )
@@ -97,18 +99,28 @@ class DirectionClassifier(object):
         assert isinstance(
             img_or_path_list, list
         ), "Input for text direction classification must be list of images or image paths."
-        print("INFO: num images for cls: ", len(img_or_path_list))
+        _logger.info("num images for cls: ", len(img_or_path_list))
         if self.batch_mode:
-            cls_res_all_crops, all_rotated_imgs = self.run_batchwise(img_or_path_list)
+            cls_res_all, all_rotated_imgs = self.run_batchwise(img_or_path_list)
         else:
-            cls_res_all_crops = []
+            cls_res_all, all_rotated_imgs = [], []
             for i, img_or_path in enumerate(img_or_path_list):
-                cls_res = self.run_single(img_or_path, i)
-                cls_res_all_crops.append(cls_res)
+                cls_res, rotated_imgs = self.run_single(img_or_path, i)
+                cls_res_all.append(cls_res)
+                all_rotated_imgs.extend(rotated_imgs)
 
-        # TODO: 加vis和save功能
+        # TODO: add vis and save function
+        return cls_res_all, all_rotated_imgs
 
-        return cls_res_all_crops, all_rotated_imgs
+    def rotate(self, img_batch, batch_res):
+        rotated_img_batch = []
+        for i, score in enumerate(batch_res["scores"]):
+            tmp_img = img_batch[i]
+            if int(batch_res["angles"][i]) != 0 and score > self.rotate_thre:
+                tmp_img = np.rot90(tmp_img, k=int(int(batch_res["angles"][i]) / 90))
+                _logger.info(f"After text direction classification, image is rotated {batch_res['angles'][i]} degree.")
+            rotated_img_batch.append(tmp_img.transpose(1, 2, 0))  # c, h, w --> h, w, c for saving and visualization
+        return rotated_img_batch
 
     def run_batchwise(self, img_or_path_list: list):
         """
@@ -165,15 +177,6 @@ class DirectionClassifier(object):
 
         return cls_res, all_rotated_imgs
 
-    def rotate(self, img_batch, batch_res):
-        rotated_img_batch = []
-        for i, score in enumerate(batch_res["scores"]):
-            tmp_img = img_batch[i]
-            if score > self.rotate_thre:
-                tmp_img = np.rot90(tmp_img, k=int(int(batch_res["angles"][i]) / 90))
-            rotated_img_batch.append(tmp_img.transpose(1, 2, 0))  # c, h, w --> h, w, c for saving and visualization
-        return rotated_img_batch
-
     def run_single(self, img_or_path, crop_idx=0):
         """
         Text direction classification inference on a single image
@@ -213,12 +216,12 @@ class DirectionClassifier(object):
 
         # postprocess
         cls_res = self.postprocess(net_output)
-
+        net_input_rot = self.rotate(net_input, cls_res)
         cls_res = (cls_res["angles"][0], cls_res["scores"][0])
 
         print(f"Crop {crop_idx} cls result:", cls_res)
 
-        return cls_res
+        return cls_res, net_input_rot
 
 
 def save_cls_res(cls_res_all, img_paths, include_score=False, save_path="./cls_results.txt"):
@@ -245,7 +248,7 @@ if __name__ == "__main__":
     # img_paths = img_paths[:250]
 
     ms.set_context(mode=args.mode)
-    ms.set_context(device_id=5)
+    ms.set_context(device_id=7)
 
     # init classifier
     classifier = DirectionClassifier(args)
@@ -254,7 +257,7 @@ if __name__ == "__main__":
 
     # run for each image
     start = time()
-    cls_res_all = classifier(img_paths)
+    cls_res_all, _ = classifier(img_paths)
     t = time() - start
     # save all results in a txt file
     save_fp = os.path.join(save_dir, "cls_results.txt" if args.cls_batch_mode else "cls_results_serial.txt")

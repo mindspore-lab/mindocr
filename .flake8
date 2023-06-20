@@ -18,6 +18,7 @@ per-file-ignores =
     tools/infer/text/parallel/base_predict.py:E402
     tools/infer/text/parallel/predict_system.py:E402
     tools/infer/text/predict_system.py:E402
+    tools/infer/text/predict_cls.py:E402
     tools/infer/text/predict_rec.py:E402
     tools/dataset_converters/convert.py:F401,F403
     mindocr/data/transforms/transforms_factory.py:F401,F403

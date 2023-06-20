@@ -20,6 +20,7 @@ if version.parse(ms.__version__) >= version.parse("2.0.0rc"):
     from mindspore import jit
 else:
     from mindspore import ms_function
+
     jit = ms_function
 
 

@@ -130,7 +130,7 @@ class Preprocessor(object):
                             norm_before_pad=norm_before_pad,
                         ).items()
                     ]
-                )
+                ),
             )
 
             pipeline = [

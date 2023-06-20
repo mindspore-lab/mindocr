@@ -55,7 +55,7 @@ class TextSystem(object):
 
     def __call__(self, img_or_path: Union[str, np.ndarray], do_visualize=True):
         """
-        Detect and recognize texts in an image
+        Detect, (classify direction) and recognize texts in an image
 
         Args:
             img_or_path (str or np.ndarray): path to image or image rgb values as a numpy array
@@ -93,10 +93,10 @@ class TextSystem(object):
         # show_imgs(crops, is_bgr_img=False)
 
         # classify the text direction of cropped images
-        # TODO: support cls run_single, and then put cls into crop process
         if self.cls_algorithm:
+            cls_start = time()
             _, crops = self.direction_classify(crops)
-        # import pdb; pdb.set_trace()
+            time_profile["cls"] = time() - cls_start
 
         # recognize cropped images
         rs = time()
@@ -185,7 +185,7 @@ def main():
             text_spot(img_paths[0], do_visualize=False)
 
     # run
-    tot_time = {}  # {'det': 0, 'rec': 0, 'all': 0}
+    tot_time = {}  # {'det': 0, 'rec': 0, 'cls': 0, 'all': 0}
     boxes_all, text_scores_all = [], []
     for i, img_path in enumerate(img_paths):
         print(f"\nINFO: Infering [{i+1}/{len(img_paths)}]: ", img_path)
