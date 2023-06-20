@@ -7,7 +7,7 @@ Example:
     $ python tools/infer/text/predict_system.py --image_dir {img_dir_or_img_path} --det_algorithm DB++ \
       --rec_algorithm CRNN_CH
     $ python tools/infer/text/predict_system.py --image_dir {img_dir_or_img_path} --det_algorithm DB++ \
-      --cls_algorithm MV3 --rec_algorithm CRNN_CH
+      --cls_algorithm MV3 --rec_algorithm CRNN_CH --visualize_output True
 """
 
 import json
