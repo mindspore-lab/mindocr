@@ -1,6 +1,6 @@
 English | [中文](../../cn/datasets/ic19_art_CN.md)
 
-# ICDAR2019 Dataset - [Official Website](https://vision.cornell.edu/se3/coco-text-2/)
+# ICDAR2019 Dataset - [Official Website](https://rrc.cvc.uab.es/?ch=14&com=introduction)
 
 ## Data Downloading
 
