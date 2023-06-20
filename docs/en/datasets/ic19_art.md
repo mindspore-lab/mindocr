@@ -10,8 +10,8 @@ English | [中文](../../cn/datasets/ic19_art_CN.md)
     <summary>How to Download ICDAR2019 ArT Dataset</summary>
 
 The ICDAR2019 images and annotations dataset can be downloaded from [here](https://rrc.cvc.uab.es/?ch=14&com=downloads)
-For the images, the archived file `train_images.tar.gz` from the section "Task 1 and Task 3" needs to be downloaded.
-For the annotations, the .JSON file `train_labels.json` from the same section needs to be downloaded.
+
+For the images, the archived file `train_images.tar.gz` from the section "Task 1 and Task 3" needs to be downloaded. For the annotations, the .JSON file `train_labels.json` from the same section needs to be downloaded.
 
 </details>
 

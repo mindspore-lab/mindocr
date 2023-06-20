@@ -10,6 +10,7 @@ English | [中文](../../cn/datasets/lsvt_CN.md)
     <summary>How to Download LSVT Images</summary>
 
 The LSVT images dataset can be downloaded from [here](https://rrc.cvc.uab.es/?ch=16&com=downloads) 
+
 The images are split into two zipped files `train_full_images_0.tar.gz` and `train_full_images_1.tar.gz`. Both are to be downloaded.
 
 </details>

@@ -10,6 +10,7 @@ English | [中文](../../cn/datasets/ctw_CN.md)
     <summary>How to Download CTW Images</summary>
 
 The CTW images dataset can be downloaded from [here](https://ctwdataset.github.io/downloads.html).
+
 The images are in 26 batches, i.e. 26 different .tar archived files of the format `images-trainval/ctw-trainval*.tar`. All 26 batches need to be downloaded.
 
 </details>

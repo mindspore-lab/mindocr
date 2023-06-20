@@ -10,6 +10,7 @@ English | [中文](../../cn/datasets/rctw17_CN.md)
     <summary>How to Download RCTW-17 Dataset</summary>
 
 The RCTW dataset can be downloaded from [here](https://rctw.vlrlab.net/dataset) 
+
 The training set is split into two zip files `train_images.zip.001` and `train_images.zip.002`. The annotations are `*_gts.zip` files.
 
 </details>

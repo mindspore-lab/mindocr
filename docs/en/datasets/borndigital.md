@@ -10,6 +10,7 @@ English | [中文](../../cn/datasets/borndigital_CN.md)
     <summary>How to Download Born-Digital Dataset</summary>
 
 The Born-Digital dataset can be downloaded from [here](https://rrc.cvc.uab.es/?ch=1&com=downloads)
+
 This dataset is divided into 4 tasks: (1.1) Text Localization, (1.2) Text Segmentation, (1.3) Word Recognition, and  (1.4) End To End.  For now, we consider and download only the dataset for Task 1.1.
 
 </details>
