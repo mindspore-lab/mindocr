@@ -248,19 +248,25 @@ def str2idx(text: str, label_dict: Dict[str, int], max_text_len: int = 23, lower
 
 
 # TODO: reorganize the code for different resize transformation in rec task
-def resize_norm_img(img,
-                    image_shape,
-                    padding=True,
-                    norm_before_pad=False,
-                    mean=[127.0, 127.0, 127.0],
-                    std=[127.0, 127.0, 127.0],
-                    interpolation=cv2.INTER_LINEAR):
+def resize_norm_img(
+    img,
+    image_shape,
+    padding=True,
+    norm_before_pad=False,
+    mean=[127.0, 127.0, 127.0],
+    std=[127.0, 127.0, 127.0],
+    interpolation=cv2.INTER_LINEAR,
+):
     """
     resize image
     Args:
         img: shape (H, W, C)
         image_shape: image shape after resize, in (C, H, W)
-        padding: if Ture, resize while preserving the H/W ratio, then pad the blank.
+        padding (bool): if Ture, resize while preserving the H/W ratio, then pad the blank.
+        norm_before_pad (bool): if True, normalize the image array before padding.
+        mean: shape (3), mean value for normalization.
+        std: shape (3), std value for normalization.
+        interpolation: image interpolation mode.
 
     """
     imgH, imgW = image_shape
@@ -268,8 +274,7 @@ def resize_norm_img(img,
     w = img.shape[1]
     c = img.shape[2]
     if not padding:
-        resized_image = cv2.resize(
-            img, (imgW, imgH), interpolation=interpolation)
+        resized_image = cv2.resize(img, (imgW, imgH), interpolation=interpolation)
         resized_w = imgW
     else:
         ratio = w / float(h)
@@ -298,19 +303,25 @@ def resize_norm_img(img,
 
 
 # TODO: check diff from resize_norm_img
-def resize_norm_img_chinese(img,
-                            image_shape,
-                            norm_before_pad=False,
-                            mean=[127.0, 127.0, 127.0],
-                            std=[127.0, 127.0, 127.0],
-                            interpolation=cv2.INTER_LINEAR):
-    '''
+def resize_norm_img_chinese(
+    img,
+    image_shape,
+    norm_before_pad=False,
+    mean=[127.0, 127.0, 127.0],
+    std=[127.0, 127.0, 127.0],
+    interpolation=cv2.INTER_LINEAR,
+):
+    """
     resize image with aspect-ratio keeping and padding
     Args:
         img: shape (H, W, C)
         image_shape: image shape after resize, in (C, H, W)
+        norm_before_pad (bool): if True, normalize the image array before padding.
+        mean: shape (3), mean value for normalization.
+        std: shape (3), std value for normalization.
+        interpolation: image interpolation mode.
 
-    '''
+    """
     imgH, imgW = image_shape
     # todo: change to 0 and modified image shape
     max_wh_ratio = imgW * 1.0 / imgH
@@ -340,21 +351,32 @@ def resize_norm_img_chinese(img,
 
 
 class RecResizeNormImg(object):
-    ''' adopted from paddle
+    """adopted from paddle
     Resize and normalize image, and pad image if needed.
 
     Args:
-        norm_before_pad: If True, perform normalization before padding (by doing so, the padding values will beall zero. Good practice.). Otherwise, per  Default: False
-    '''
-    def __init__(self,
-                 image_shape,
-                 infer_mode=False,
-                 character_dict_path=None,
-                 padding=True,
-                 norm_before_pad=False,
-                 mean=[127.0, 127.0, 127.0],
-                 std=[127.0, 127.0, 127.0],
-                 **kwargs):
+        image_shape: image shape after resize, in (C, H, W)
+        padding (bool): if Ture, resize while preserving the H/W ratio, then pad the blank.
+        norm_before_pad (bool): if True, normalize the image array before padding.
+        mean: shape (3), mean value for normalization.
+        std: shape (3), std value for normalization.
+        interpolation: image interpolation mode.
+        norm_before_pad: If True, perform normalization before padding \
+            (by doing so, the padding values will beall zero. Good practice.). \
+                Otherwise, per  Default: False
+    """
+
+    def __init__(
+        self,
+        image_shape,
+        infer_mode=False,
+        character_dict_path=None,
+        padding=True,
+        norm_before_pad=False,
+        mean=[127.0, 127.0, 127.0],
+        std=[127.0, 127.0, 127.0],
+        **kwargs,
+    ):
         self.image_shape = image_shape
         self.infer_mode = infer_mode
         self.character_dict_path = character_dict_path
@@ -364,39 +386,43 @@ class RecResizeNormImg(object):
         self.std = np.array(std, dtype="float32")
 
     def __call__(self, data):
-        img = data['image']
+        img = data["image"]
         if self.infer_mode and self.character_dict_path is not None:
-            norm_img, valid_ratio = resize_norm_img_chinese(img,
-                                                            self.image_shape,
-                                                            self.norm_before_pad,
-                                                            self.mean,
-                                                            self.std
-                                                            )
+            norm_img, valid_ratio = resize_norm_img_chinese(
+                img, self.image_shape, self.norm_before_pad, self.mean, self.std
+            )
         else:
-            norm_img, valid_ratio = resize_norm_img(img,
-                                                    self.image_shape,
-                                                    self.padding,
-                                                    self.norm_before_pad,
-                                                    self.mean,
-                                                    self.std,
-                                                    )
-        data['image'] = norm_img
-        data['valid_ratio'] = valid_ratio
+            norm_img, valid_ratio = resize_norm_img(
+                img,
+                self.image_shape,
+                self.padding,
+                self.norm_before_pad,
+                self.mean,
+                self.std,
+            )
+        data["image"] = norm_img
+        data["valid_ratio"] = valid_ratio
         return data
 
 
 # TODO: remove infer_mode and character_dict_path if they are not necesary
 class RecResizeImg(RecResizeNormImg):
-    '''
+    """
     This is to make compatible with older version code that uses RecResizeImg, which is to be updated.
 
     TODO: replace RecResizeImg followed by NormlaizeImage in yaml files with RecResizeNormImg op.
-    '''
+    """
+
     def __init__(self, image_shape, infer_mode=False, character_dict_path=None, padding=True, **kwargs):
         super.__init__(
-                image_shape, infer_mode, character_dict_path, padding, norm_befoer_pad=False,
-                mean=[0., 0., 0.], std=[1., 1., 1.],
-                )
+            image_shape,
+            infer_mode,
+            character_dict_path,
+            padding,
+            norm_befoer_pad=False,
+            mean=[0.0, 0.0, 0.0],
+            std=[1.0, 1.0, 1.0],
+        )
 
 
 class SVTRRecResizeImg(object):
@@ -478,7 +504,7 @@ class RecResizeNormForInfer(object):
 
         # TODO: norm before padding
 
-        data['shape_list'] = [h, w, resize_h / h, resize_w / w] # TODO: reformat, currently align to det
+        data["shape_list"] = [h, w, resize_h / h, resize_w / w]  # TODO: reformat, currently align to det
         if self.norm_before_pad:
             resized_img = self.norm(resized_img)
 
