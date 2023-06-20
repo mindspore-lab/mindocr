@@ -3,7 +3,7 @@ system:
   distribute: True
   amp_level: 'O3'
   seed: 42
-  log_interval: 1000
+  log_interval: 100
   val_while_train: True
   drop_overflow_update: False
 
@@ -14,7 +14,7 @@ common:
   infer_mode: &infer_mode False
   use_space_char: &use_space_char True
   lower: &lower False
-  batch_size: &batch_size 32
+  batch_size: &batch_size 64
 
 model:
   type: rec
@@ -77,7 +77,7 @@ train:
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
-    dataset_root: /home/konghuanqi/datasets/data_lmdb_release/
+    dataset_root: /path/to/data_lmdb_release/
     data_dir: training/
     # label_file: # not required when using LMDBDataset
     sample_ratio: 1.0
@@ -116,7 +116,7 @@ eval:
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
-    dataset_root: /home/konghuanqi/datasets/data_lmdb_release/
+    dataset_root: /path/to/data_lmdb_release/
     data_dir: validation/
     # label_file: # not required when using LMDBDataset
     sample_ratio: 1.0

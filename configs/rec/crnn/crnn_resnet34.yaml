@@ -73,14 +73,14 @@ train:
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
-    dataset_root: /home/konghuanqi/datasets/data_lmdb_release/ # Optional, if set, dataset_root will be used as a prefix for data_dir
+    dataset_root: path/to/data_lmdb_release/ # Optional, if set, dataset_root will be used as a prefix for data_dir
     data_dir: training/
     # label_file: # not required when using LMDBDataset
     sample_ratio: 1.0
     shuffle: True
     transform_pipeline:
       - DecodeImage:
-          img_mode: RGB
+          img_mode: BGR
           to_float32: False
       - RecCTCLabelEncode:
           max_text_len: *max_text_len
@@ -92,7 +92,11 @@ train:
           infer_mode: *infer_mode
           character_dict_path: *character_dict_path
           padding: False # aspect ratio will be preserved if true.
-          norm_before_pad: False
+      - NormalizeImage:  # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec.
+          bgr_to_rgb: True
+          is_hwc: True
+          mean : [127.0, 127.0, 127.0]
+          std : [127.0, 127.0, 127.0]
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
     output_columns: ['image', 'text_seq'] #, 'length'] #'img_path']
@@ -112,7 +116,7 @@ eval:
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
-    dataset_root: /home/konghuanqi/datasets/data_lmdb_release/
+    dataset_root: path/to/data_lmdb_release/
     data_dir: validation/
     # label_file: # not required when using LMDBDataset
     sample_ratio: 1.0
