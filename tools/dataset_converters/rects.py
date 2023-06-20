@@ -9,6 +9,24 @@ from shapely.geometry import Polygon
 
 
 class RECTS_Converter:
+    """
+    Format annotations into the standard form for the RECTS dataset.
+    The ground truth is provided as JSON files corresponding to each image with naming format:
+        `<image name>.json`
+    Each JSON file has the following structure:
+        ``` {
+            chars: List[dict{<anno_attrib, value>}]
+            lines: List[dict{<anno_attrib, value>}]
+        } ```
+    Note that both the character-level and line-level annotations are provided in the dataset. This converter
+    uses the line-level annotations.
+    Each dict{} in the lines list corresponds to a single line text instance in the image.
+    The 'points' attribute of each dict{} gives the bounding box coordinates for each text instance in a clockwise
+    manner with the following format:
+        `[x1, y1, x2, y2, x3, y3, x4, y4]`
+    If the 'ignore' attribute is provided as 1, the text instance is considered as "###".
+    """
+
     def __init__(self, path_mode="relative", **kwargs):
         self._relative = path_mode == "relative"
 

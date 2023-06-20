@@ -7,6 +7,22 @@ from shapely.geometry import Polygon
 
 
 class LSVT_Converter:
+    """
+    Format annotations into standard form for LSVT dataset.
+    The ground truths are given in a JSON file train_full_labels.json with the following format:
+        ```{
+        <stem of image name>:
+            {
+            transcription: str
+            points: List[List[int]]
+            illegibility: bool
+            }
+        }```
+    The points list is a list of coordinates of the polygon for the label of the format:
+        `[ [x1, y1], [x2, y2], [x3, y3], [x4, y4] ]`
+    If the illegibility is provided as True, the transcription is marked as "###" which means it is to be ignored
+    """
+
     def __init__(self, path_mode="relative", **kwargs):
         self._relative = path_mode == "relative"
 

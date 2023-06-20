@@ -11,6 +11,35 @@ from tqdm import tqdm
 
 
 class CTW_Converter:
+    """
+    Format annotation to standard form for CTW dataset.
+    The ground truths are provided in a UTF-encoded JSON files, where each line corresponds to the annotations of one
+    image.
+    The data struct for each of the annotations is as below:
+
+    annotation (corresponding to one line in .jsonl):
+    {
+        image_id: str,
+        file_name: str,
+        width: int,
+        height: int,
+        annotations: [sentence_0, sentence_1, ...],
+        ignore: [ignore_0, ignore_1, ...],
+    }
+    sentence:
+    [instance_0, instance_1, instance_2, ...]                 # MUST NOT be empty
+    instance:
+    {
+        polygon: [[x0, y0], [x1, y1], [x2, y2], [x3, y3]],    # x, y are floating-point numbers
+        text: str,                                            # the length of the text MUST be exactly 1
+        is_chinese: bool,
+        attributes: [attr_0, attr_1, attr_2, ...],            # MAY be an empty list
+        adjusted_bbox: [xmin, ymin, w, h],                    # x, y, w, h are floating-point numbers
+    }
+    Note that the annotations defined in the 'ignore' list of each 'annotation' are considered as don't care and
+    marked as "###".
+    """
+
     def __init__(self, path_mode="relative", **kwargs):
         self._relative = path_mode == "relative"
 

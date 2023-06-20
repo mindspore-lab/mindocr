@@ -11,6 +11,30 @@ from mindocr.data.utils.polygon_utils import sort_clockwise
 
 
 class COCOTEXT_Converter:
+    """
+    Format annotation to standard form for COCO-Text dataset
+    The ground truths are provided as a single JSON file, COCO_Text.json.
+    The first-level keys are "imgs", "imgToAnns", and "anns". Each image and each annotation is assigned an ID.
+    The "imgs" key holds information about each image, in the form of a dictionary with the format:
+        {
+            "<image_id>": {"<attribute_1>": "<value_1>", ... , "<attribute_n>": "<value_n>"}, ...
+        }
+    The "imgToAnns" key holds the IDs of all annotations for each image in the form of a dictionary with the format:
+        {
+            "<image_id>": [<annotation_id_1>, ... , <annotation_id_n>], ...
+        }
+    The "anns" key holds information about the annotation polygon in the form of a dictionary with the format:
+        {
+            "<annotation_id>": {"<attribute_1>": "<value_1>", ... , "<attribute_n>": "<value_n>"}, ...
+        }
+    The "polygon" attribute of each annotation is a list of the coordinates of the annotation polygon in the format:
+        [x1, y1, x2, y2, ... , xn, yn]
+    Valid languages are "english" and "not english".
+    If a transcription for an annotation is not provided or if the "legibility" attribute is "illegible", then the
+    transcription is recorded as "###" and it is considered as "don't care".
+    Note that an image is taken into consideration only if it has at least one "legible" annotation.
+    """
+
     def __init__(self, path_mode="relative", **kwargs):
         self._relative = path_mode == "relative"
 

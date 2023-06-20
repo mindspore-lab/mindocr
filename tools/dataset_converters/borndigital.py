@@ -19,6 +19,11 @@ class BORNDIGITAL_Converter:
     their two opposite corners. For each image a corresponding UTF-8 encoded text file is provided,
     following the naming convention:
         `gt_[image name].txt`
+    The text files are comma separated files, where each line corresponds to one text block in the image and gives
+    its bounding box coordinates (top-right corner and bottom-left corner) and its transcription in the format:
+        `x1,y1,x2,y2,transcription`
+    Language is English only.
+    Note that the dataset also contains .gif files which are also handled by the converter.
     """
 
     def __init__(self, path_mode="relative", **kwargs):

@@ -8,6 +8,16 @@ from shapely.geometry import Polygon
 class SROIE_Converter(object):
     """
     Format annotation to standard form for SROIE dataset.
+        The ground truth is provided in terms of word bounding boxes. Bounding boxes are specified by the coordinates of
+    their four corners in a clock-wise manner. For each image a corresponding UTF-8 encoded text file is provided,
+    following the naming convention:
+        `[image name].txt`
+    The text files are comma separated files, where each line corresponds to one text block in the image and gives
+    its bounding box coordinates (four corners, clockwise) and its transcription in the format:
+        `x1,y1,x2,y2,x3,y3,x4,y4,transcription`
+    Note that the transcription is anything that follows the 8th comma until the end of line. No escape characters are
+    to be used.
+    If the transcription is provided as "***", then text block is considered as "don't care" and recorded as "###".
     """
 
     def __init__(self, path_mode="relative", **kwargs):
