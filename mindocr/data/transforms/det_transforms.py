@@ -575,12 +575,35 @@ def expand_poly(poly, distance: float, joint_type=pyclipper.JT_ROUND) -> List[li
 
 
 class PSEGtDecode:
+    """
+    PSENet transformation which shrinks text polygons.
+
+    Args:
+       kernel_num (int): The number of kernels.
+       min_shrink_ratio (float): The minimum shrink ratio.
+       min_shortest_edge (int): The minimum shortest edge.
+
+    Returns:
+       dict: A dictionary containing shrinked image data, polygons, ground truth kernels, ground truth text and masks.
+    """
+
     def __init__(self, kernel_num=7, min_shrink_ratio=0.4, min_shortest_edge=640, **kwargs):
         self.kernel_num = kernel_num
         self.min_shrink_ratio = min_shrink_ratio
         self.min_shortest_edge = min_shortest_edge
 
     def _shrink(self, text_polys, rate, max_shr=20):
+        """
+        Shrink text polygons.
+
+        Args:
+            text_polys (list): A list of text polygons.
+            rate (float): The shrink rate.
+            max_shr (int): The maximum shrink.
+
+        Returns:
+            list: A list of shrinked text polygons.
+        """
         rate = rate * rate
         shrinked_text_polys = []
         for bbox in text_polys:
@@ -604,6 +627,14 @@ class PSEGtDecode:
         return shrinked_text_polys
 
     def __call__(self, data):
+        """
+        Args:
+            data (dict): A dictionary containing image data.
+
+        Returns:
+            dict: dict: A dictionary containing shrinked image data, polygons,
+            ground truth kernels, ground truth text and masks.
+        """
         image = data["image"]
         text_polys = data["polys"]
         ignore_tags = data["ignore_tags"]

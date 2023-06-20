@@ -82,6 +82,21 @@ def _bn(channels, momentum=0.1):
 
 
 class PSEFPN(nn.Cell):
+    """
+    PSE Feature Pyramid Network (FPN) module for text detection.
+
+    This module takes multiple input feature maps and performs feature fusion
+    and upsampling to generate a single output feature map.
+
+    Args:
+        in_channels (List[int]): The input channel dimensions for each feature map
+                                 in the following order: [c2, c3, c4, c5].
+        out_channels (int): The output channel size.
+
+    Returns:
+        Tensor: The output feature map of shape [batch_size, out_channels * 4, H, W].
+
+    """
     def __init__(self, in_channels: List[int], out_channels):
         super().__init__()
         super(PSEFPN, self).__init__()
