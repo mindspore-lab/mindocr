@@ -103,16 +103,19 @@ train:
   dataset:
     type: LMDBDataset
     dataset_root: path/to/data_lmdb_release/
-    data_dir: training/
+    data_dir: ["ST", "MJ"]
     label_file: null
     sample_ratio: 1.0
     shuffle: True
     transform_pipeline:
-      - DecodeImage:
-          img_mode: BGR
-          to_float32: False
-      - SVTRRecAug:
+      - Decode:
+      - SVTRGeometry:
           aug_type: 0
+          p: 0.5
+      - SVTRDeterioration:
+          p: 0.25
+      - CVColorJitter:
+          p: 0.25
       - RecCTCLabelEncode:
           max_text_len: *max_text_len
           character_dict_path: *character_dict_path
@@ -121,12 +124,10 @@ train:
       - SVTRRecResizeImg:
           image_shape: [64, 256]
           padding: False
-      - NormalizeImage:
-          bgr_to_rgb: True
-          is_hwc: True
+      - Normalize:
           mean: [127.0, 127.0, 127.0]
           std: [127.0, 127.0, 127.0]
-      - ToCHWImage:
+      - HWC2CHW:
     output_columns: ["image", "text_seq"]
     net_input_column_index: [0]
     label_column_index: [1]
@@ -136,7 +137,8 @@ train:
     batch_size: *batch_size
     drop_remainder: True
     max_rowsize: 12
-    num_workers: 8
+    num_workers: 4
+    num_workers_dataset: 1
 
 eval:
   ckpt_load_path: ./tmp_rec/best.ckpt
@@ -149,9 +151,7 @@ eval:
     sample_ratio: 1.0
     shuffle: False
     transform_pipeline:
-      - DecodeImage:
-          img_mode: BGR
-          to_float32: False
+      - Decode:
       - RecCTCLabelEncode:
           max_text_len: *max_text_len
           character_dict_path: *character_dict_path
@@ -160,19 +160,18 @@ eval:
       - SVTRRecResizeImg:
           image_shape: [64, 256]
           padding: False
-      - NormalizeImage:
-          bgr_to_rgb: True
-          is_hwc: True
+      - Normalize:
           mean: [127.0, 127.0, 127.0]
           std: [127.0, 127.0, 127.0]
-      - ToCHWImage:
+      - HWC2CHW:
     output_columns: ["image", "text_padded", "text_length"]
     net_input_column_index: [0]
     label_column_index: [1, 2]
 
   loader:
     shuffle: False
-    batch_size: 512
+    batch_size: 64
     drop_remainder: False
     max_rowsize: 12
-    num_workers: 8
+    num_workers: 4
+    num_workers_dataset: 1

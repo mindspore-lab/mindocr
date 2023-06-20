@@ -1,6 +1,7 @@
 import math
 import numbers
 import random
+from typing import Any, Dict
 
 import cv2
 import numpy as np
@@ -8,7 +9,7 @@ import numpy as np
 from mindspore.dataset.transforms import Compose
 from mindspore.dataset.vision import RandomColorAdjust
 
-__all__ = ["SVTRRecAug"]
+__all__ = ["SVTRGeometry", "SVTRDeterioration", "CVColorJitter"]
 
 
 def sample_asym(magnitude, size=None):
@@ -305,11 +306,15 @@ class CVColorJitter(object):
         self.p = p
         self.transforms = RandomColorAdjust(brightness=brightness, contrast=contrast, saturation=saturation, hue=hue)
 
-    def __call__(self, img):
+        self.output_columns = ["image"]
+
+    def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
         if random.random() < self.p:
-            return self.transforms(img)
+            img = data["image"]
+            img = self.transforms(img)
+            data["image"] = img
         else:
-            return img
+            return data
 
 
 class SVTRDeterioration(object):
@@ -324,13 +329,17 @@ class SVTRDeterioration(object):
             transforms.append(CVRescale(factor=factor))
         self.transforms = transforms
 
-    def __call__(self, img):
+        self.output_columns = ["image"]
+
+    def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
         if random.random() < self.p:
+            img = data["image"]
             random.shuffle(self.transforms)
             transforms = Compose(self.transforms)
-            return transforms(img)
+            img = transforms(img)
+            data["image"] = img
         else:
-            return img
+            return data
 
 
 class SVTRGeometry(object):
@@ -351,45 +360,17 @@ class SVTRGeometry(object):
         self.transforms.append(CVRandomAffine(degrees=degrees, translate=translate, scale=scale, shear=shear))
         self.transforms.append(CVRandomPerspective(distortion=distortion))
 
-    def __call__(self, img):
+        self.output_columns = ["image"]
+
+    def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
         if random.random() < self.p:
+            img = data["image"]
             if self.aug_type:
                 random.shuffle(self.transforms)
                 transforms = Compose(self.transforms[: random.randint(1, 3)])
                 img = transforms(img)
             else:
                 img = self.transforms[random.randint(0, 2)](img)
-            return img
+            data["image"] = img
         else:
-            return img
-
-
-class SVTRRecAug(object):
-    def __init__(self, aug_type=0, geometry_p=0.5, deterioration_p=0.25, colorjitter_p=0.25):
-        self.transforms = Compose(
-            [
-                SVTRGeometry(
-                    aug_type=aug_type,
-                    degrees=45,
-                    translate=(0.0, 0.0),
-                    scale=(0.5, 2.0),
-                    shear=(45, 15),
-                    distortion=0.5,
-                    p=geometry_p,
-                ),
-                SVTRDeterioration(var=20, degrees=6, factor=4, p=deterioration_p),
-                CVColorJitter(
-                    brightness=0.5,
-                    contrast=0.5,
-                    saturation=0.5,
-                    hue=0.1,
-                    p=colorjitter_p,
-                ),
-            ]
-        )
-
-    def __call__(self, data):
-        img = data["image"]
-        img = self.transforms(img)
-        data["image"] = img
-        return data
+            return data

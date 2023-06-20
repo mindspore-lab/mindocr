@@ -51,9 +51,6 @@ class RecCTCLabelEncode:
         blank_at_last=True,
         lower=False,
         **kwargs,
-        # start_token='<BOS>',
-        # end_token='<EOS>',
-        # unkown_token='',
     ):
         self.max_text_len = max_text_len
         self.space_idx = None
@@ -66,7 +63,6 @@ class RecCTCLabelEncode:
             self.lower = True
             # print("INFO: The character_dict_path is None, model can only recognize number and lower letters")
         else:
-            # TODO: this is commonly used in other modules, wrap into a func or class.
             # parse char dictionary
             char_list = []
             with open(character_dict_path, "r") as f:
@@ -116,19 +112,18 @@ class RecCTCLabelEncode:
             text_length -> int, the length of original text string label
 
         """
-        char_indices = str2idx(data["label"], self.dict, max_text_len=self.max_text_len, lower=self.lower)
+        label = str(data["label"])
+        char_indices = str2idx(label, self.dict, max_text_len=self.max_text_len, lower=self.lower)
 
         if char_indices is None:
             char_indices = []
-            # return None
+
         data["length"] = np.array(len(char_indices), dtype=np.int32)
         # padding with blank index
         char_indices = char_indices + [self.blank_idx] * (self.max_text_len - len(char_indices))
-        # TODO: raname to char_indices
         data["text_seq"] = np.array(char_indices, dtype=np.int32)
-        #
-        data["text_length"] = len(data["label"])
-        data["text_padded"] = data["label"] + " " * (self.max_text_len - len(data["label"]))
+        data["text_length"] = len(label)
+        data["text_padded"] = label + " " * (self.max_text_len - len(label))
 
         return data
 
@@ -202,9 +197,11 @@ class RecAttnLabelEncode:
         self.dict = {c: idx for idx, c in enumerate(char_list)}
 
         self.num_classes = len(self.dict)
+        self.output_columns = ["length", "text_seq", "text_length", "text_padded"]
 
     def __call__(self, data: Dict[str, Any]) -> str:
-        char_indices = str2idx(data["label"], self.dict, max_text_len=self.max_text_len, lower=self.lower)
+        label = str(data["label"])
+        char_indices = str2idx(label, self.dict, max_text_len=self.max_text_len, lower=self.lower)
 
         if char_indices is None:
             char_indices = []
@@ -215,8 +212,8 @@ class RecAttnLabelEncode:
         )
         data["text_seq"] = np.array(char_indices, dtype=np.int32)
 
-        data["text_length"] = len(data["label"])
-        data["text_padded"] = data["label"] + " " * (self.max_text_len - len(data["label"]))
+        data["text_length"] = len(label)
+        data["text_padded"] = label + " " * (self.max_text_len - len(label))
         return data
 
 
@@ -344,7 +341,6 @@ class RecResizeImg:
             norm_img, valid_ratio = resize_norm_img(img, self.image_shape, self.padding)
         data["image"] = norm_img
         data["valid_ratio"] = valid_ratio
-        # TODO: data['shape_list'] = ?
         return data
 
 
@@ -352,6 +348,7 @@ class SVTRRecResizeImg(object):
     def __init__(self, image_shape, padding=True, **kwargs):
         self.image_shape = image_shape
         self.padding = padding
+        self.output_columns = ["image", "valid_ratio"]
 
     def __call__(self, data):
         img = data["image"]
@@ -394,13 +391,14 @@ class RecResizeNormForInfer(object):
     ):
         self.keep_ratio = keep_ratio
         self.padding = padding
-        # self.targt_shape = target_shape
         self.tar_h = target_height
         self.tar_w = target_width
         self.interpolation = interpolation
         self.norm_before_pad = norm_before_pad
         self.mean = np.array(mean, dtype="float32")
         self.std = np.array(std, dtype="float32")
+
+        self.output_columns = ["image", "shape_list"]
 
     def norm(self, img):
         return (img - self.mean) / self.std
@@ -411,7 +409,6 @@ class RecResizeNormForInfer(object):
         """
         img = data["image"]
         h, w = img.shape[:2]
-        # tar_h, tar_w = self.targt_shape
         resize_h = self.tar_h
 
         max_wh_ratio = self.tar_w / float(self.tar_h)
@@ -422,14 +419,10 @@ class RecResizeNormForInfer(object):
         else:
             src_wh_ratio = w / float(h)
             resize_w = math.ceil(min(src_wh_ratio, max_wh_ratio) * resize_h)
-        # print('Rec resize: ', h, w, "->", resize_h, resize_w)
+
         resized_img = cv2.resize(img, (resize_w, resize_h), interpolation=self.interpolation)
 
-        # TODO: norm before padding
-
-        data["shape_list"] = np.array(
-            [h, w, resize_h / h, resize_w / w], dtype=np.float32
-        )  # TODO: reformat, currently align to det
+        data["shape_list"] = np.array([h, w, resize_h / h, resize_w / w], dtype=np.float32)
         if self.norm_before_pad:
             resized_img = self.norm(resized_img)
 
@@ -459,6 +452,8 @@ class Rotate90IfVertical:
             self.flag = cv2.ROTATE_90_CLOCKWISE
         else:
             raise ValueError("Unsupported direction")
+
+        self.output_columns = ["image"]
 
     def __call__(self, data):
         img = data["image"]

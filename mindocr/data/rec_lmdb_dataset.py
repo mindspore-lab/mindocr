@@ -1,11 +1,10 @@
 import os
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 import lmdb
 import numpy as np
 
 from .base_dataset import BaseDataset
-from .transforms.transforms_factory import create_transforms
 
 __all__ = ["LMDBDataset"]
 
@@ -15,22 +14,16 @@ class LMDBDataset(BaseDataset):
     The annotaiton format is required to aligned to paddle, which can be done using the `converter.py` script.
 
     Args:
-        is_train: whether the dataset is for training
-        data_dir: data root directory for lmdb dataset(s)
-        shuffle: Optional, if not given, shuffle = is_train
-        transform_pipeline: list of dict, key - transform class name, value - a dict of param config.
-                    e.g., [{'DecodeImage': {'img_mode': 'BGR', 'channel_first': False}}]
-            -       if None, default transform pipeline for text detection will be taken.
-        output_columns (list): optional, indicates the keys in data dict that are expected to output for dataloader.
-            if None, all data keys will be used for return.
-        filter_max_len (bool): Filter the records where the label is longer than the `max_text_len`.
-        max_text_len (int): The maximum text length the dataloader expected.
-        kwargs: additional info, used in data transformation, possible keys:
-            - character_dict_path
+        is_train: Whether the dataset is for training. Default: True.
+        data_dir: data root directory for lmdb dataset(s). Default: ".".
+        sample_ratio: Sampling ratio from current dataset. Default: 1.0.
+        shuffle: Optional, if not given, shuffle = is_train. Default: None.
+        filter_max_len (bool): Filter the records where the label is longer than the `max_text_len`. Default: False.
+        max_text_len (int): The maximum text length the dataloader expected. Default: None.
+        **kwargs: Dummmy arguments for compatibilities only.
 
     Returns:
-        data (tuple): Depending on the transform pipeline, __get_item__ returns a tuple for the specified data item.
-        You can specify the `output_columns` arg to order the output data for dataloader.
+        data (tuple): Return the tuple of the encoded image array and the corresponding label
 
     Notes:
         1. Dataset file structure should follow:
@@ -47,11 +40,9 @@ class LMDBDataset(BaseDataset):
     def __init__(
         self,
         is_train: bool = True,
-        data_dir: str = "",
+        data_dir: str = ".",
         sample_ratio: float = 1.0,
         shuffle: Optional[bool] = None,
-        transform_pipeline: Optional[List[dict]] = None,
-        output_columns: Optional[List[str]] = None,
         filter_max_len: bool = False,
         max_text_len: Optional[int] = None,
         **kwargs: Any,
@@ -75,38 +66,7 @@ class LMDBDataset(BaseDataset):
                 raise ValueError("`max_text_len` must be provided when `filter_max_len` is True.")
             self.data_idx_order_list = self.filter_idx_list(self.data_idx_order_list)
 
-        # create transform
-        if transform_pipeline is not None:
-            self.transforms = create_transforms(transform_pipeline)
-        else:
-            raise ValueError("No transform pipeline is specified!")
-
-        self.prefetch(output_columns)
-        self.output_columns = ["img_lmdb", "label"]
-
-    def prefetch(self, output_columns):
-        # prefetch the data keys, to fit GeneratorDataset
-        _data = self.data_idx_order_list[0]
-        lmdb_idx, file_idx = self.data_idx_order_list[0]
-        lmdb_idx = int(lmdb_idx)
-        file_idx = int(file_idx)
-        sample_info = self.get_lmdb_sample_info(self.lmdb_sets[lmdb_idx]["txn"], file_idx)
-        _data = {"img_lmdb": sample_info[0], "label": sample_info[1]}
-        _data = run_transforms(_data, transforms=self.transforms)
-        _available_keys = list(_data.keys())
-
-        if output_columns is None:
-            self.output_columns = _available_keys
-        else:
-            self.output_columns = []
-            for k in output_columns:
-                if k in _data:
-                    self.output_columns.append(k)
-                else:
-                    raise ValueError(
-                        f"Key {k} does not exist in data (available keys: {_data.keys()}). "
-                        "Please check the name or the completeness transformation pipeline."
-                    )
+        self.output_columns = ["image", "label"]
 
     def filter_idx_list(self, idx_list: np.ndarray) -> np.ndarray:
         print("Start filtering the idx list...")
@@ -142,7 +102,13 @@ class LMDBDataset(BaseDataset):
         dataset_idx = start_idx
         for rootdir, dirs, _ in os.walk(data_dir + "/"):
             if not dirs:
-                env = lmdb.open(rootdir, max_readers=32, readonly=True, lock=False, readahead=False, meminit=False)
+                try:
+                    env = lmdb.Environment(
+                        rootdir, max_readers=32, readonly=True, lock=False, readahead=False, meminit=False
+                    )
+                except lmdb.Error as e:  # handle the empty folder
+                    print("WARNING: ", str(e))
+                    continue
                 txn = env.begin(write=False)
                 data_size = int(txn.get("num-samples".encode()))
                 lmdb_sets[dataset_idx] = {"rootdir": rootdir, "env": env, "txn": txn, "data_size": data_size}
@@ -183,17 +149,13 @@ class LMDBDataset(BaseDataset):
 
         img_key = "image-%09d".encode() % idx
         imgbuf = txn.get(img_key)
-        return imgbuf, label
+        image = np.frombuffer(imgbuf, np.uint8)
+        return image, label
 
     def __getitem__(self, idx):
         lmdb_idx, file_idx = self.data_idx_order_list[idx]
         sample_info = self.get_lmdb_sample_info(self.lmdb_sets[int(lmdb_idx)]["txn"], int(file_idx))
-
-        data = {"img_lmdb": sample_info[0], "label": sample_info[1]}
-
-        # output the tuples only
-        output = data.values()
-        return output
+        return sample_info
 
     def __len__(self):
         return self.data_idx_order_list.shape[0]
