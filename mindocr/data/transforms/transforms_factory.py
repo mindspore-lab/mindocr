@@ -7,10 +7,10 @@ import numpy as np
 
 from mindocr.utils.logger import Logger
 
-from .abinet_transforms import *
 from .det_east_transforms import *
 from .det_transforms import *
 from .general_transforms import *
+from .rec_abinet_transforms import *
 from .rec_transforms import *
 from .svtr_transform import *
 
