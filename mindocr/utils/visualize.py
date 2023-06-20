@@ -7,8 +7,10 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 from ..data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
+from .logger import Logger
 
 __all__ = ["show_img", "show_imgs", "draw_boxes", "draw_texts_with_boxes", "recover_image", "visualize"]
+_logger = Logger("mindocr")
 
 
 def show_img(img: np.array, is_bgr_img=True, title="img", show=True, save_path=None):
@@ -87,7 +89,7 @@ def draw_boxes(
 
     for i, box in enumerate(bboxes):
         box = box.astype(int)
-        # print(box_color)
+
         if isinstance(color, tuple):
             color_bgr = color[::-1]
         else:
@@ -140,7 +142,6 @@ def draw_texts_with_boxes(
         box_h = int(math.sqrt((box[0][0] - box[3][0]) ** 2 + (box[0][1] - box[3][1]) ** 2))
         box_w = int(math.sqrt((box[0][0] - box[1][0]) ** 2 + (box[0][1] - box[1][1]) ** 2))
 
-        # print(font_size)
         # TODO: consider the height and witdh of the text
         if text_inside_box:
             draw_point_w = corner[0] + box_w * 0.1
@@ -150,7 +151,7 @@ def draw_texts_with_boxes(
             if isinstance(font_size, int) or isinstance(font_size, float):
                 font_size = font_size
             else:
-                print("WARNING: font size needs to be fixed if text placed under box")
+                _logger.warning("font size needs to be fixed if text placed under box")
                 font_size = 20  # round(img_h * 0.05)
             draw_point_w = corner[0]
             draw_point_h = corner[1] - font_size
@@ -195,7 +196,7 @@ def visualize(
             text_inside_box = False
             font_size = max(int(18 * rgb_img.shape[0] / 700), 22)
             text_color = (0, 255, 0)
-        # print("DEBUG: font size = ", font_size)
+
         text_vis = draw_texts_with_boxes(
             bg,
             boxes,
@@ -234,5 +235,4 @@ def recover_image(img, mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD, is_
         img = img[..., [2, 1, 0]]
     img = img.astype(np.uint8)
 
-    # print(img.max(), img.min())
     return img

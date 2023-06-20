@@ -5,10 +5,12 @@ from typing import List, Union
 import numpy as np
 from scipy.io import loadmat
 
+from ..utils.logger import Logger
 from .base_dataset import BaseDataset
 from .transforms.transforms_factory import create_transforms, run_transforms
 
 __all__ = ["DetDataset", "SynthTextDataset"]
+_logger = Logger("mindocr")
 
 
 class DetDataset(BaseDataset):
@@ -104,7 +106,7 @@ class DetDataset(BaseDataset):
             data = run_transforms(data, transforms=self.transforms)
             output_tuple = tuple(data[k] for k in self.output_columns)
         except Exception as e:
-            print(f"Error occurred while processing the image: {self.data_list[index]['img_path']}\n", e, flush=True)
+            _logger.warning(f"Error occurred while processing the image: {self.data_list[index]['img_path']}\n {e}")
             return self[random.randrange(len(self.data_list))]  # return another random sample instead
 
         return output_tuple
@@ -160,7 +162,7 @@ class DetDataset(BaseDataset):
 
 class SynthTextDataset(DetDataset):
     def load_data_list(self, label_file: List[str], *args):
-        print("Loading SynthText dataset. It might take a while...")
+        _logger.info("Loading SynthText dataset. It might take a while...")
         mat = loadmat(label_file[0])
 
         data_list = []

@@ -6,7 +6,10 @@ import mindspore as ms
 from mindspore.common import dtype as mstype
 from mindspore.ops import functional as F
 
+from .logger import Logger
+
 __all__ = ["Evaluator"]
+_logger = Logger("mindocr")
 
 
 class Evaluator:
@@ -154,7 +157,7 @@ class Evaluator:
                 m.update(preds, gt)
 
             if self.verbose:
-                print("Data meta info: ", data_info)
+                _logger.info(f"Data meta info: {data_info}")
 
         for m in self.metrics:
             res_dict = m.eval()

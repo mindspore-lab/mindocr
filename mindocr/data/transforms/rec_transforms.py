@@ -7,6 +7,8 @@ from typing import Any, Dict, List, Optional
 import cv2
 import numpy as np
 
+from mindocr.utils.logger import Logger
+
 __all__ = [
     "RecCTCLabelEncode",
     "RecAttnLabelEncode",
@@ -16,6 +18,7 @@ __all__ = [
     "Rotate90IfVertical",
     "ClsLabelEncode",
 ]
+_logger = Logger("mindocr")
 
 
 class RecCTCLabelEncode(object):
@@ -64,7 +67,6 @@ class RecCTCLabelEncode(object):
             char_list = [c for c in "0123456789abcdefghijklmnopqrstuvwxyz"]
 
             self.lower = True
-            # print("INFO: The character_dict_path is None, model can only recognize number and lower letters")
         else:
             # TODO: this is commonly used in other modules, wrap into a func or class.
             # parse char dictionary
@@ -80,10 +82,9 @@ class RecCTCLabelEncode(object):
             self.space_idx = len(char_list) - 1
         else:
             if " " in char_list:
-                print(
-                    "WARNING: The dict still contains space char in dict although use_space_char is set to be False, "
-                    "because the space char is coded in the dictionary file ",
-                    character_dict_path,
+                _logger.warning(
+                    "The dict still contains space char in dict although use_space_char is set to be False, "
+                    f"because the space char is coded in the dictionary file {character_dict_path}"
                 )
 
         self.num_valid_chars = len(char_list)  # the number of valid chars (including space char if used)
@@ -168,7 +169,7 @@ class RecAttnLabelEncode:
             char_list = list("0123456789abcdefghijklmnopqrstuvwxyz")
 
             self.lower = True
-            print("INFO: The character_dict_path is None, model can only recognize number and lower letters")
+            _logger.info("The character_dict_path is None, model can only recognize number and lower letters")
         else:
             # parse char dictionary
             char_list = []
@@ -184,10 +185,9 @@ class RecAttnLabelEncode:
             self.space_idx = len(char_list) + 1
         else:
             if " " in char_list:
-                print(
-                    "WARNING: The dict still contains space char in dict although use_space_char is set to be False, "
-                    "because the space char is coded in the dictionary file ",
-                    character_dict_path,
+                _logger.warning(
+                    "The dict still contains space char in dict although use_space_char is set to be False, "
+                    f"because the space char is coded in the dictionary file {character_dict_path}"
                 )
 
         self.num_valid_chars = len(char_list)  # the number of valid chars (including space char if used)
@@ -236,11 +236,10 @@ def str2idx(text: str, label_dict: Dict[str, int], max_text_len: int = 23, lower
     # TODO: for char not in the dictionary, skipping may lead to None data. Use a char replacement? refer to mmocr
     for char in text:
         if char not in label_dict:
-            # print('WARNING: {} is not in dict'.format(char))
             continue
         char_indices.append(label_dict[char])
     if len(char_indices) == 0:
-        print("WARNING: {} doesnot contain any valid char in the dict".format(text))
+        _logger.warning("{} doesnot contain any valid char in the dict".format(text))
         return None
 
     return char_indices
@@ -420,7 +419,6 @@ class RecResizeNormForInfer(object):
         else:
             src_wh_ratio = w / float(h)
             resize_w = math.ceil(min(src_wh_ratio, max_wh_ratio) * resize_h)
-        # print('Rec resize: ', h, w, "->", resize_h, resize_w)
         resized_img = cv2.resize(img, (resize_w, resize_h), interpolation=self.interpolation)
 
         # TODO: norm before padding
