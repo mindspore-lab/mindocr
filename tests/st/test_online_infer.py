@@ -42,6 +42,7 @@ def _gen_text_image(texts=TEXTS_2, boxes=BOXES_2, save_fp="gen_img.jpg"):
 
 det_img_fp = _gen_text_image(save_fp="gen_det_input.jpg")
 rec_img_fp = _gen_text_image([TEXTS_2[0]], [BOXES_2[0]], "gen_rec_input.jpg")
+cls_img_fp = rec_img_fp
 
 
 def test_det_infer():
@@ -53,6 +54,17 @@ def test_det_infer():
     print(f"Running command: \n{cmd}")
     ret = subprocess.call(cmd.split(), stdout=sys.stdout, stderr=sys.stderr)
     assert ret == 0, "Det inference fails"
+
+
+def test_cls_infer():
+    algo = "MV3"
+    cmd = (
+        f"python tools/infer/text/predict_cls.py --image_dir {cls_img_fp} --cls_algorithm {algo} "
+        f"--draw_img_save_dir  ./infer_test"
+    )
+    print(f"Running command: \n{cmd}")
+    ret = subprocess.call(cmd.split(), stdout=sys.stdout, stderr=sys.stderr)
+    assert ret == 0, "Cls inference fails"
 
 
 def test_rec_infer():
@@ -68,10 +80,12 @@ def test_rec_infer():
 
 def test_system_infer():
     det_algo = "DB"
+    cls_algo = "MV3"
     rec_algo = "CRNN_CH"
     cmd = (
         f"python tools/infer/text/predict_system.py --image_dir {det_img_fp} --det_algorithm {det_algo} "
-        f"--rec_algorithm {rec_algo} --draw_img_save_dir ./infer_test --visualize_output True"
+        f"--cls_algorithm {cls_algo} --rec_algorithm {rec_algo} "
+        f"--draw_img_save_dir ./infer_test --visualize_output True"
     )
     print(f"Running command: \n{cmd}")
     ret = subprocess.call(cmd.split(), stdout=sys.stdout, stderr=sys.stderr)
