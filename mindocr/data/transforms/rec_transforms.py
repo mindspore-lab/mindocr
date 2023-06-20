@@ -411,14 +411,16 @@ class RecResizeNormForInfer(object):
         # tar_h, tar_w = self.targt_shape
         resize_h = self.tar_h
 
-        max_wh_ratio = self.tar_w / float(self.tar_h)
-
         if not self.keep_ratio:
             assert self.tar_w is not None, "Must specify target_width if keep_ratio is False"
             resize_w = self.tar_w  # if self.tar_w is not None else resized_h * self.max_wh_ratio
         else:
             src_wh_ratio = w / float(h)
-            resize_w = math.ceil(min(src_wh_ratio, max_wh_ratio) * resize_h)
+            if self.tar_w is not None:
+                max_wh_ratio = self.tar_w / float(self.tar_h)
+                resize_w = math.ceil(min(src_wh_ratio, max_wh_ratio) * resize_h)
+            else:
+                resize_w = math.ceil(src_wh_ratio * resize_h)
         resized_img = cv2.resize(img, (resize_w, resize_h), interpolation=self.interpolation)
 
         # TODO: norm before padding
