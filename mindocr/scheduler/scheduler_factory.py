@@ -1,4 +1,5 @@
 """Scheduler Factory"""
+from ..utils.logger import Logger
 from .dynamic_lr import (
     cosine_decay_lr,
     cosine_decay_refined_lr,
@@ -13,6 +14,7 @@ from .dynamic_lr import (
 )
 
 __all__ = ["create_scheduler"]
+_logger = Logger("mindocr")
 
 
 def create_scheduler(
@@ -58,14 +60,14 @@ def create_scheduler(
         milestones = []
 
     if warmup_epochs + decay_epochs > num_epochs:
-        print("[WARNING]: warmup_epochs + decay_epochs > num_epochs. Please check and reduce decay_epochs!")
+        _logger.warning("warmup_epochs + decay_epochs > num_epochs. Please check and reduce decay_epochs!")
 
     # lr warmup phase
     warmup_lr_scheduler = []
     if warmup_epochs > 0:
         if warmup_factor == 0 and lr_epoch_stair:
-            print(
-                "[WARNING]: The warmup factor is set to 0, lr of 0-th epoch is always zero! " "Recommend value is 0.01."
+            _logger.warning(
+                "The warmup factor is set to 0, lr of 0-th epoch is always zero! " "Recommend value is 0.01."
             )
         warmup_func = linear_lr if lr_epoch_stair else linear_refined_lr
         warmup_lr_scheduler = warmup_func(

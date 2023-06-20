@@ -4,6 +4,10 @@ import os
 import cv2
 import numpy as np
 
+from mindocr.utils.logger import Logger
+
+_logger = Logger("mindocr")
+
 
 def get_image_paths(img_dir):
     """
@@ -32,10 +36,10 @@ def get_ckpt_file(ckpt_dir):
     else:
         # ckpt_load_path = os.path.join(ckpt_dir, 'best.ckpt')
         ckpt_paths = sorted(glob.glob(os.path.join(ckpt_dir, "*.ckpt")))
-        assert len(ckpt_paths) == 0, f"No .ckpt files found in {ckpt_dir}"
+        assert len(ckpt_paths) != 0, f"No .ckpt files found in {ckpt_dir}"
         ckpt_load_path = ckpt_paths[0]
         if len(ckpt_paths) > 1:
-            print(f"WARNING: More than one .ckpt files found in {ckpt_dir}. Pick {ckpt_load_path}")
+            _logger.warning(f"More than one .ckpt files found in {ckpt_dir}. Pick {ckpt_load_path}")
 
     return ckpt_load_path
 
@@ -47,7 +51,7 @@ def crop_text_region(img, points, box_type="quad", rotate_if_vertical=True):  # 
         img_crop_width = int(max(np.linalg.norm(points[0] - points[1]), np.linalg.norm(points[2] - points[3])))
         img_crop_height = int(max(np.linalg.norm(points[0] - points[3]), np.linalg.norm(points[1] - points[2])))
         dst_pts = np.float32([[0, 0], [img_crop_width, 0], [img_crop_width, img_crop_height], [0, img_crop_height]])
-        # print(points, pts_std)
+
         trans_matrix = cv2.getPerspectiveTransform(points, dst_pts)
         dst_img = cv2.warpPerspective(
             img, trans_matrix, (img_crop_width, img_crop_height), borderMode=cv2.BORDER_REPLICATE, flags=cv2.INTER_CUBIC
@@ -145,7 +149,7 @@ def eval_rec_res(rec_res_fp, gt_fp, lower=True, ignore_space=True, filter_ood=Tr
 
             tot += 1
         else:
-            print("ERROR: Mismatched file name in pred result and gt: {fn}, {gt[i][0]}. skip this sample")
+            _logger.warning("Mismatched file name in pred result and gt: {fn}, {gt[i][0]}. skip this sample")
 
     acc = correct / tot
 

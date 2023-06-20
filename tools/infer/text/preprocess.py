@@ -7,6 +7,9 @@ sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../../../")))
 
 from mindocr.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from mindocr.data.transforms import create_transforms, run_transforms
+from mindocr.utils.logger import Logger
+
+_logger = Logger("mindocr")
 
 
 class Preprocessor(object):
@@ -47,7 +50,7 @@ class Preprocessor(object):
                 },
                 {"ToCHWImage": None},
             ]
-            print(f"INFO: Pick optimal preprocess hyper-params for det algo {algo}:\n", pipeline[1])
+            _logger.info(f"Pick optimal preprocess hyper-params for det algo {algo}:\n {pipeline[1]}")
             # TODO: modify the base pipeline for non-DBNet network if needed
             # if algo == 'DB++':
             #    pipeline[1]['DetResize']['limit_side_len'] = 1152
@@ -102,16 +105,16 @@ class Preprocessor(object):
                     target_width = parsed_width
 
             if (target_height != parsed_height) or (target_width != parsed_width):
-                print(
-                    f"WARNING: `rec_image_shape` {parsed_img_shape[1:]} dose not meet the network input requirement or "
+                _logger.warning(
+                    f"`rec_image_shape` {parsed_img_shape[1:]} dose not meet the network input requirement or "
                     f"is not optimal, which should be [{target_height}, {target_width}] under batch mode = {batch_mode}"
                 )
 
-            print(
-                f"INFO: Pick optimal preprocess hyper-params for rec algo {algo}:\n",
-                "\n".join(
+            _logger.info(
+                f"Pick optimal preprocess hyper-params for rec algo {algo}:\n"
+                + "\n".join(
                     [
-                        k + ":\t" + str(v)
+                        f"{k}:\t{str(v)}"
                         for k, v in dict(
                             target_height=target_height,
                             target_width=target_width,
@@ -120,7 +123,7 @@ class Preprocessor(object):
                             norm_before_pad=norm_before_pad,
                         ).items()
                     ]
-                ),
+                )
             )
 
             pipeline = [

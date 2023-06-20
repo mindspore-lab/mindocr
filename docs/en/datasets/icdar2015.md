@@ -1,4 +1,4 @@
-English | [中文](../../cn/datasets/icdar2015_CN.md)
+English | [中文](../../cn/datasets/icdar2015.md)
 
 # Data Downloading
 ICDAR 2015 [paper](https://rrc.cvc.uab.es/?ch=4)

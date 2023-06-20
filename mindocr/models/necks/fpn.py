@@ -26,17 +26,22 @@ class FPN(nn.Cell):
 
 
 class DBFPN(nn.Cell):
-    def __init__(self, in_channels, out_channels=256, weight_init='HeUniform',
-                 bias=False, use_asf=False, channel_attention=True):
-        """
-        in_channels: resnet18=[64, 128, 256, 512]
-                    resnet50=[2048,1024,512,256]
-        out_channels: Inner channels in Conv2d
+    """
+    DBNet & DBNet++'s Feature Pyramid Network that combines features extracted from a backbone at different scales
+    into a single feature map.
 
-        bias: Whether conv layers have bias or not.
-        use_asf: use ASF module for multi-scale feature aggregation (DBNet++ only)
-        channel_attention: use channel attention in ASF module
-        """
+    Args:
+        in_channels: list of channel numbers of each input feature (e.g. resnet18 is [64, 128, 256, 512] and
+                     resnet50 is [2048,1024,512,256]).
+        out_channels: number of channels in the combined output feature map. Default: 256.
+        weight_init: weights initialization method. Default: 'HeUniform'.
+        bias: use bias in Conv2d operations. Default: False.
+        use_asf: use Adaptive Scale Fusion module for multiscaled feature aggregation (DBNet++ only).
+        channel_attention: use channel attention in addition to spatial and scale attentions in ASF module.
+                           Default: True.
+    """
+    def __init__(self, in_channels: list, out_channels: int = 256, weight_init: str = 'HeUniform',
+                 bias: bool = False, use_asf: bool = False, channel_attention: bool = True):
         super().__init__()
         self.out_channels = out_channels
 
@@ -52,7 +57,7 @@ class DBFPN(nn.Cell):
 
         self.fuse = AdaptiveScaleFusion(out_channels, channel_attention, weight_init) if use_asf else ops.Concat(axis=1)
 
-    def construct(self, features):
+    def construct(self, features: List[Tensor]) -> Tensor:
         for i, uc_op in enumerate(self.unify_channels):
             features[i] = uc_op(features[i])
 

@@ -1,4 +1,4 @@
-English | [中文](../../cn/datasets/syntext150k_CN.md)
+English | [中文](../../cn/datasets/syntext150k.md)
 
 # Data Downloading
 

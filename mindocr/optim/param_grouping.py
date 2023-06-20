@@ -1,9 +1,12 @@
 """
 group parameters for setting different weight decay or learning rate for different layers in the network.
 """
+from ..utils.logger import Logger
+
 __all__ = ["create_group_params"]
 
 supported_grouping_strategies = ["svtr", "filter_norm_and_bias"]
+_logger = Logger("mindocr")
 
 
 def grouping_default(params, weight_decay):
@@ -75,13 +78,12 @@ def create_group_params(params, weight_decay=0, grouping_strategy=None, no_weigh
     # TODO: assert valid arg names
     gp = grouping_strategy
 
-    # print(f'INFO: param grouping startegy: {grouping_strategy}, no_weight_decay_params: ', no_weight_decay_params)
     if gp is not None:
         if weight_decay == 0:
-            print("WARNING: weight decay is 0 in param grouping, which is meaningless. Please check config setting.")
+            _logger.warning("weight decay is 0 in param grouping, which is meaningless. Please check config setting.")
         if len(no_weight_decay_params) > 0:
-            print(
-                "WARNING: Both grouping_strategy and no_weight_decay_params are set, but grouping_strategy is of prior."
+            _logger.warning(
+                "Both grouping_strategy and no_weight_decay_params are set, but grouping_strategy is of prior."
                 " no_weight_decay_params={no_weight_decay_params} will not make effect."
             )
 
@@ -116,5 +118,5 @@ def create_group_params(params, weight_decay=0, grouping_strategy=None, no_weigh
             {"order_params": params},
         ]
     else:
-        print("INFO: no parameter grouping is applied.")
+        _logger.info("no parameter grouping is applied.")
         return params

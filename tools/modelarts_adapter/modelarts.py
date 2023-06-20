@@ -7,9 +7,12 @@ import time
 import zipfile
 from typing import Any, Callable, Dict, List, Union
 
+from mindocr.utils.logger import Logger
+
 LOCAL_RANK = int(os.getenv("RANK_ID", 0))
 INTSTALL_SUCESS_SINGAL = "/tmp/INSTALL_SUCCESS"
 DATA_SUCESS_SINGAL = "/tmp/DOWNLOAD_DATA_SUCCESS"
+_logger = Logger("mindocr")
 
 
 def model_art_preprocess():
@@ -55,7 +58,7 @@ def sync_data(s3_paths: List[str], dest: str) -> None:
     dest = os.path.abspath(dest)
     for s3_path in s3_paths:
         dest_path = os.path.join(dest, os.path.basename(s3_path))
-        print(f"Dowloading data from `{s3_path}` to `{dest_path}`.")
+        _logger.info(f"Dowloading data from `{s3_path}` to `{dest_path}`.")
         mox.file.copy_parallel(src_url=s3_path, dst_url=dest_path)
 
         if os.path.isfile(dest_path) and dest_path.endswith(".zip"):
@@ -66,7 +69,7 @@ def sync_data(s3_paths: List[str], dest: str) -> None:
 
 @run_with_single_rank(local_rank=LOCAL_RANK, signal=INTSTALL_SUCESS_SINGAL)
 def install_packages(req_path: str = "requirements.txt") -> None:
-    print("INFO: Packages to be installed: ", req_path)
+    _logger.info("Packages to be installed: ", req_path)
     subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "pip", "--retries", "20"])
     subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", req_path, "--retries", "20"])
 

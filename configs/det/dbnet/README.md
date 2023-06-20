@@ -370,7 +370,7 @@ python tools/eval.py -c=configs/det/dbnet/db_r50_icdar15.yaml
 
 ### 3.6 MindSpore Lite Inference
 
-Please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial_en.md) for model inference based on MindSpot Lite on Ascend 310, including the following steps:
+Please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial.md) for model inference based on MindSpot Lite on Ascend 310, including the following steps:
 
 - Model Export
 
@@ -386,11 +386,11 @@ The `data_shape` is the model input shape of height and width for MindIR file. T
 
 - Environment Installation
 
-Please refer to [Environment Installation](../../../docs/en/inference/environment_en.md#2-mindspore-lite-inference) tutorial to configure the MindSpore Lite inference environment.
+Please refer to [Environment Installation](../../../docs/en/inference/environment.md#2-mindspore-lite-inference) tutorial to configure the MindSpore Lite inference environment.
 
 - Model Conversion
 
-Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial_en.md#1-mindocr-models),
+Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#1-mindocr-models),
 and use the `converter_lite` tool for offline conversion of the MindIR file, where the `input_shape` in `configFile` needs to be filled in with the value from MindIR export,
 as mentioned above (1, 3, 736, 1280), and the format is NCHW.
 
@@ -404,7 +404,7 @@ python infer.py \
     --device=Ascend \
     --device_id=0 \
     --det_model_path=your_path_to/output.mindir \
-    --det_config_path=../../configs/det/dbnet/db_r50_icdar15.yaml \
+    --det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
     --backend=lite \
     --res_save_dir=results_dir
 ```

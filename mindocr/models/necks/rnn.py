@@ -3,7 +3,10 @@ import numpy as np
 import mindspore as ms
 from mindspore import Tensor, nn, ops
 
+from mindocr.utils.logger import Logger
+
 __all__ = ['RNNEncoder']
+_logger = Logger("mindocr")
 
 
 # TODO: check mindspore nn LSTM diff in performance and precision from paddle/pytorch
@@ -57,7 +60,7 @@ class RNNEncoder(nn.Cell):
         if self.hx is None:
             x, hx_n = self.seq_encoder(x)
         else:
-            print('using self.hx')
+            _logger.info('using self.hx')
             x, hx_n = self.seq_encoder(x, self.hx)  # the results are the same
 
         return x

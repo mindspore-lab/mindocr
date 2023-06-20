@@ -51,7 +51,18 @@ def main(cfg):
     else:
         device_num = None
         rank_id = None
-        ms.set_context(device_id=cfg.system.get("device_id", 0))
+        if "DEVICE_ID" in os.environ:
+            print(
+                f"INFO: Standalone training. Device id: {os.environ.get('DEVICE_ID')}, "
+                f"specified by environment variable 'DEVICE_ID'."
+            )
+        else:
+            device_id = cfg.system.get("device_id", 0)
+            ms.set_context(device_id=device_id)
+            print(
+                f"INFO: Standalone training. Device id: {device_id}, "
+                f"specified by system.device_id in yaml config file or is default value 0."
+            )
 
     set_seed(cfg.system.seed)
 

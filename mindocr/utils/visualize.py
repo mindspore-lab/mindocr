@@ -1,3 +1,4 @@
+import math
 from typing import List, Union
 
 import cv2
@@ -6,8 +7,10 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 from ..data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
+from .logger import Logger
 
 __all__ = ["show_img", "show_imgs", "draw_boxes", "draw_texts_with_boxes", "recover_image", "visualize"]
+_logger = Logger("mindocr")
 
 
 def show_img(img: np.array, is_bgr_img=True, title="img", show=True, save_path=None):
@@ -66,8 +69,9 @@ def draw_boxes(
     image: Union[str, np.array],
     bboxes: Union[list, np.array],
     color: Union[tuple, str] = (255, 0, 0),
-    thickness=2,
+    thickness=1,
     is_bgr_img=False,
+    color_random=False,
 ):  # , to_rgb=False):
     """image can be str or np.array for image in 'BGR' colorm mode.
     color: list for color of each box, or tuple for color of all boxes with the same color. in RGB order
@@ -85,7 +89,7 @@ def draw_boxes(
 
     for i, box in enumerate(bboxes):
         box = box.astype(int)
-        # print(box_color)
+
         if isinstance(color, tuple):
             color_bgr = color[::-1]
         else:
@@ -132,20 +136,22 @@ def draw_texts_with_boxes(
         pt_sums = np.array(box).sum(axis=1)
         corner = box[np.argmin(pt_sums)]
 
-        box_h = box[:, 1].max() - box[:, 1].min()
-        box_w = box[:, 0].max() - box[:, 0].min()
+        # box_h = box[:, 1].max() - box[:, 1].min()
+        # box_w = box[:, 0].max() - box[:, 0].min()
 
-        # print(font_size)
+        box_h = int(math.sqrt((box[0][0] - box[3][0]) ** 2 + (box[0][1] - box[3][1]) ** 2))
+        box_w = int(math.sqrt((box[0][0] - box[1][0]) ** 2 + (box[0][1] - box[1][1]) ** 2))
+
         # TODO: consider the height and witdh of the text
         if text_inside_box:
             draw_point_w = corner[0] + box_w * 0.1
             draw_point_h = corner[1] - box_h * 0.05
-            font_size = round(box_h * 0.8) if not isinstance(font_size, int) else font_size
+            font_size = round(box_h * 0.9) if not isinstance(font_size, int) else font_size
         else:
             if isinstance(font_size, int) or isinstance(font_size, float):
                 font_size = font_size
             else:
-                print("WARNING: font size needs to be fixed if text placed under box")
+                _logger.warning("font size needs to be fixed if text placed under box")
                 font_size = 20  # round(img_h * 0.05)
             draw_point_w = corner[0]
             draw_point_h = corner[1] - font_size
@@ -154,14 +160,20 @@ def draw_texts_with_boxes(
 
     for i, text in enumerate(texts):
         # draw text on the most left-top point
-        draw_point, fs = _get_draw_point_and_font_size(
-            bboxes[i], font_size, text_inside_box=text_inside_box, img_h=img_h
-        )
+        box = bboxes[i]
+        draw_point, fs = _get_draw_point_and_font_size(box, font_size, text_inside_box=text_inside_box, img_h=img_h)
 
         # TODO: use other lib which can set font size dynamically after font loading
-        ttf = ImageFont.load_default() if not font_path else ImageFont.truetype(font_path, fs)
+        font = ImageFont.load_default() if not font_path else ImageFont.truetype(font_path, fs, encoding="utf-8")
+
+        font_width = font.getsize(text)[0]
+        box_width = int(math.sqrt((box[0][0] - box[1][0]) ** 2 + (box[0][1] - box[1][1]) ** 2))
+        if font_width > box_width:
+            font_size = int(fs * box_width / font_width)
+            font = ImageFont.truetype(font_path, font_size, encoding="utf-8")
+
         # refine the draw starting
-        img_draw.text(draw_point, text, font=ttf, fill=text_color)
+        img_draw.text(draw_point, text, font=font, fill=text_color)
 
     return np.array(pimg)
 
@@ -184,7 +196,7 @@ def visualize(
             text_inside_box = False
             font_size = max(int(18 * rgb_img.shape[0] / 700), 22)
             text_color = (0, 255, 0)
-        # print("DEBUG: font size = ", font_size)
+
         text_vis = draw_texts_with_boxes(
             bg,
             boxes,
@@ -223,5 +235,4 @@ def recover_image(img, mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD, is_
         img = img[..., [2, 1, 0]]
     img = img.astype(np.uint8)
 
-    # print(img.max(), img.min())
     return img

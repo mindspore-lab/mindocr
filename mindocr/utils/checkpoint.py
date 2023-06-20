@@ -3,7 +3,10 @@ import os
 import stat
 
 import mindspore as ms
-from mindspore import log as logger
+
+from .logger import Logger
+
+_logger = Logger("mindocr")
 
 
 class CheckpointManager:
@@ -46,9 +49,9 @@ class CheckpointManager:
                 os.chmod(file_name, stat.S_IWRITE)
                 os.remove(file_name)
         except OSError:
-            logger.warning("OSError, failed to remove the older ckpt file %s.", file_name)
+            _logger.warning(f"OSError, failed to remove the older ckpt file {file_name}.")
         except ValueError:
-            logger.warning("ValueError, failed to remove the older ckpt file %s.", file_name)
+            _logger.warning(f"ValueError, failed to remove the older ckpt file {file_name}.")
 
     def save_top_k(self, network, perf, ckpt_name, verbose=True):
         """Save and return Top K checkpoint address and accuracy."""
@@ -106,8 +109,8 @@ def resume_train_network(network, optimizer, resume_ckpt):
     last_overflow_iter = resume_param.get("last_overflow_iterator_step", ms.Tensor(0, ms.int32))
     ms.load_param_into_net(network, resume_param)
     ms.load_param_into_net(optimizer, resume_param)
-    print(
-        f"INFO: Finish loading network and optimizer resume checkoint from {resume_ckpt}. "
+    _logger.info(
+        f"Finish loading network and optimizer resume checkoint from {resume_ckpt}. "
         f"If no parameter fail-load warning displayed, all checkpoint params have been successfully loaded. \n"
         f"Resume train from epoch: {start_epoch + 1}"
     )
