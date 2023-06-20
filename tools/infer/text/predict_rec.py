@@ -266,7 +266,6 @@ if __name__ == "__main__":
     # img_paths = img_paths[:250]
 
     ms.set_context(mode=args.mode)
-    ms.set_context(device_id=6)
 
     # init detector
     text_recognize = TextRecognizer(args)

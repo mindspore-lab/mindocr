@@ -174,7 +174,6 @@ def main():
     # img_paths = img_paths[:10]
 
     ms.set_context(mode=args.mode)
-    ms.set_context(device_id=5)
 
     # init text system with detector and recognizer
     text_spot = TextSystem(args)
