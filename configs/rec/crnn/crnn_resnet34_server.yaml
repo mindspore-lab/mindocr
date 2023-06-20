@@ -71,7 +71,7 @@ loss_scaler:
   scale_window: 1000
 
 train:
-  ckpt_save_dir: './crnn_resnet34_server_adj'
+  ckpt_save_dir: './crnn_resnet34_server'
   pred_cast_fp32: False # let CTCLoss cast internally
   ema: True # added
   dataset_sink_mode: False
@@ -112,7 +112,7 @@ train:
       num_workers: 8
 
 eval:
-  ckpt_load_path: ./crnn_resnet34_server_adj/best.ckpt
+  ckpt_load_path: ./crnn_resnet34_server/best.ckpt
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
