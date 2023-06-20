@@ -12,6 +12,8 @@ import numpy as np
 import pyclipper
 from shapely.geometry import Polygon, box
 
+from mindocr.utils.logger import Logger
+
 __all__ = [
     "DetLabelEncode",
     "BorderMap",
@@ -25,6 +27,7 @@ __all__ = [
     "GridResize",
     "ScalePadImage",
 ]
+_logger = Logger("mindocr")
 
 
 class DetLabelEncode:
@@ -384,8 +387,8 @@ class DetResize:
         if limit_type in ["min", "max"]:
             keep_ratio = True
             padding = False
-            print(
-                f"INFO: `limit_type` is {limit_type}. Image will be resized by limiting the {limit_type} "
+            _logger.info(
+                f"`limit_type` is {limit_type}. Image will be resized by limiting the {limit_type} "
                 f"side length to {limit_side_len}."
             )
         elif not limit_type:
@@ -396,12 +399,12 @@ class DetResize:
             if target_size and force_divisable:
                 if (target_size[0] % divisor != 0) or (target_size[1] % divisor != 0):
                     self.target_size = [max(round(x / self.divisor) * self.divisor, self.divisor) for x in target_size]
-                    print(
-                        f"WARNING: `force_divisable` is enabled but the set target size {target_size} "
+                    _logger.warning(
+                        f"`force_divisable` is enabled but the set target size {target_size} "
                         f"is not divisable by {divisor}. Target size is ajusted to {self.target_size}"
                     )
             if (target_size is not None) and keep_ratio and (not padding):
-                print("WARNING: output shape can be dynamic if keep_ratio but no padding.")
+                _logger.warning("output shape can be dynamic if keep_ratio but no padding.")
         else:
             raise ValueError(f"Unknown limit_type: {limit_type}")
 
@@ -468,8 +471,8 @@ class DetResize:
                 padded_img[:resize_h, :resize_w, :] = resized_img
                 data["image"] = padded_img
             else:
-                print(
-                    f"WARNING: Image shape after resize is ({resize_h}, {resize_w}), "
+                _logger.warning(
+                    f"Image shape after resize is ({resize_h}, {resize_w}), "
                     f"which is larger than target_size {self.target_size}. Skip padding for the current image. "
                     f"You may disable `force_divisable` to avoid this warning."
                 )

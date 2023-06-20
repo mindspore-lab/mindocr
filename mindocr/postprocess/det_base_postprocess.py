@@ -5,7 +5,10 @@ import numpy as np
 import mindspore as ms
 from mindspore import Tensor
 
+from ..utils.logger import Logger
+
 __all__ = ["DetBasePostprocess"]
+_logger = Logger("mindocr")
 
 
 class DetBasePostprocess:
@@ -23,7 +26,7 @@ class DetBasePostprocess:
         self._rescale_fields = rescale_fields
         self.warned = False
         if self._rescale_fields is None:
-            print("WARNING: `rescale_filed` is None. Cannot rescale the predicted polygons to original image space")
+            _logger.warning("`rescale_filed` is None. Cannot rescale the predicted polygons to original image space")
 
     def _postprocess(self, pred: Union[ms.Tensor, Tuple[ms.Tensor], np.ndarray], **kwargs) -> dict:
         """
@@ -88,8 +91,8 @@ class DetBasePostprocess:
             # shape_list = [[pred.shape[2], pred.shape[3], 1.0, 1.0] for i in range(pred.shape[0])] # H, W
             # shape_list = np.array(shape_list, dtype='float32')
 
-            print(
-                "WARNING: `shape_list` is None in postprocessing. Cannot rescale the prediction result to original "
+            _logger.warning(
+                "`shape_list` is None in postprocessing. Cannot rescale the prediction result to original "
                 "image space, which can lead to inaccurate evaluation. You may add `shape_list` to `output_columns` "
                 "list under eval section in yaml config file, or directly parse `shape_list` to postprocess callable "
                 "function."

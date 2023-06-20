@@ -6,11 +6,15 @@ import numpy as np
 import yaml
 from addict import Dict
 
+from mindocr.utils.logger import Logger
+
+_logger = Logger("mindocr")
+
 
 def check_args(args):
     if not args.raw_data_dir:
-        print(
-            "WARNING: The 'raw_data_dir' is empty. The detection predictor will load the data from "
+        _logger.warning(
+            "The 'raw_data_dir' is empty. The detection predictor will load the data from "
             "'dataset_root/data_dir' in det yaml file. "
         )
     else:
@@ -18,8 +22,8 @@ def check_args(args):
             raise ValueError("Invalid value of arg 'raw_data_dir'.")
 
     if not args.det_ckpt_path:
-        print(
-            "WARNING: The 'det_ckpt_path' is empty. The detection predictor will load the ckpt from 'ckpt_load_path' "
+        _logger.warning(
+            "The 'det_ckpt_path' is empty. The detection predictor will load the ckpt from 'ckpt_load_path' "
             "in det yaml file. "
         )
     else:
@@ -27,8 +31,8 @@ def check_args(args):
             raise ValueError("The ckpt file of detection model does not exist. Please check the arg 'det_ckpt_path'.")
 
     if not args.rec_ckpt_path:
-        print(
-            "WARNING: The 'rec_ckpt_path' is empty. The recognition predictor will load the ckpt from 'ckpt_load_path' "
+        _logger.warning(
+            "The 'rec_ckpt_path' is empty. The recognition predictor will load the ckpt from 'ckpt_load_path' "
             "in rec yaml file. "
         )
     else:
@@ -48,8 +52,8 @@ def check_args(args):
             shutil.rmtree(args.crop_save_dir)
         os.makedirs(args.crop_save_dir)
     else:
-        print(
-            "WARNING: The 'crop_save_dir' is empty. The recognition predictor will load the data from "
+        _logger.warning(
+            "The 'crop_save_dir' is empty. The recognition predictor will load the data from "
             "'dataset_root/data_dir' in rec yaml file."
         )
 
@@ -57,7 +61,7 @@ def check_args(args):
         args.result_save_dir = os.path.realpath(args.result_save_dir)
         os.makedirs(os.path.dirname(args.result_save_dir), exist_ok=True)
     else:
-        print("WARNING: The 'result_save_dir' is empty. The pipeline prediction result will not be saved.")
+        _logger.warning("The 'result_save_dir' is empty. The pipeline prediction result will not be saved.")
 
     # if args.vis_result_save_dir:
     #     if os.path.exists(args.vis_result_save_dir):
@@ -102,7 +106,7 @@ def save_pipeline_results(box_dict, rec_text_dict, save_path):
                     }
                 )
             f.write(f"{ori_img_name}\t{json.dumps(line)}\n")
-    print(f"Detection and recognition prediction pipeline results are saved in '{os.path.realpath(save_path)}'.")
+    _logger.info(f"Detection and recognition prediction pipeline results are saved in '{os.path.realpath(save_path)}'.")
 
 
 def rescale(det_pred_outputs):

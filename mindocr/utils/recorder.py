@@ -6,6 +6,10 @@ import numpy as np
 
 import mindspore as ms
 
+from .logger import Logger
+
+_logger = Logger("mindocr")
+
 
 def plot_result(result_path, save_fig=False, sep="\t", na_padding="last", replace_val=-1):
     metrics = {}
@@ -61,7 +65,7 @@ class PerfRecorder(object):
         self.sep = separator
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
-            print(f"{save_dir} not exist. Created.")
+            _logger.info(f"{save_dir} not exist. Created.")
 
         self.log_txt_fp = os.path.join(save_dir, file_name)
         if not resume:

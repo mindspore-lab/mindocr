@@ -23,6 +23,7 @@ __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../../../")))
 
 from mindocr import build_model
+from mindocr.utils.logger import Logger
 from mindocr.utils.visualize import show_imgs
 
 # map algorithm name to model name (which can be checked by `mindocr.list_models()`)
@@ -34,6 +35,7 @@ algo_to_model_name = {
     "RARE_CH": "rare_resnet34_ch",
     "SVTR": "svtr_tiny",
 }
+_logger = Logger("mindocr")
 
 
 class TextRecognizer(object):
@@ -41,8 +43,8 @@ class TextRecognizer(object):
         self.batch_num = args.rec_batch_num
         self.batch_mode = args.rec_batch_mode
         # self.batch_mode = args.rec_batch_mode and (self.batch_num > 1)
-        print(
-            "INFO: recognize in {} mode {}".format(
+        _logger.info(
+            "recognize in {} mode {}".format(
                 "batch" if self.batch_mode else "serial",
                 "batch_size: " + str(self.batch_num) if self.batch_mode else "",
             )
@@ -65,9 +67,8 @@ class TextRecognizer(object):
         # amp_level = 'O2' if args.rec_algorithm.startswith('SVTR') else args.rec_amp_level
         amp_level = args.rec_amp_level
         if args.rec_algorithm.startswith("SVTR") and amp_level != "O2":
-            print(
-                "WARNING: SVTR recognition model is optimized for amp_level O2. "
-                "ampl_level for rec model is changed to O2"
+            _logger.warning(
+                "SVTR recognition model is optimized for amp_level O2. ampl_level for rec model is changed to O2"
             )
             amp_level = "O2"
 
@@ -77,8 +78,8 @@ class TextRecognizer(object):
         self.cast_pred_fp32 = amp_level != "O0"
         if self.cast_pred_fp32:
             self.cast = ops.Cast()
-        print(
-            "INFO: Init recognition model: {} --> {}. Model weights loaded from {}".format(
+        _logger.info(
+            "Init recognition model: {} --> {}. Model weights loaded from {}".format(
                 args.rec_algorithm, model_name, "pretrained url" if pretrained else ckpt_load_path
             )
         )
@@ -116,7 +117,7 @@ class TextRecognizer(object):
         """
 
         assert isinstance(img_or_path_list, list), "Input for text recognition must be list of images or image paths."
-        print("INFO: num images for rec: ", len(img_or_path_list))
+        _logger.info(f"num images for rec: {len(img_or_path_list)}")
         if self.batch_mode:
             rec_res_all_crops = self.run_batchwise(img_or_path_list, do_visualize)
         else:
@@ -147,7 +148,7 @@ class TextRecognizer(object):
         for idx in range(0, num_imgs, self.batch_num):  # batch begin index i
             batch_begin = idx
             batch_end = min(idx + self.batch_num, num_imgs)
-            print(f"Rec img idx range: [{batch_begin}, {batch_end})")
+            _logger.info(f"Rec img idx range: [{batch_begin}, {batch_end})")
             # TODO: set max_wh_ratio to the maximum wh ratio of images in the batch. and update it for resize,
             #  which may improve recognition accuracy in batch-mode
             # especially for long text image. max_wh_ratio=max(max_wh_ratio, img_w / img_h).
@@ -214,8 +215,8 @@ class TextRecognizer(object):
                 show=False,
                 save_path=os.path.join(self.vis_dir, fn + "_rec_preproc.png"),
             )
-        print("Origin image shape: ", data["image_ori"].shape)
-        print("Preprocessed image shape: ", data["image"].shape)
+        _logger.info(f"Origin image shape: {data['image_ori'].shape}")
+        _logger.info(f"Preprocessed image shape: {data['image'].shape}")
 
         # infer
         input_np = data["image"]
@@ -236,7 +237,7 @@ class TextRecognizer(object):
 
         rec_res = (rec_res["texts"][0], rec_res["confs"][0])
 
-        print(f"Crop {crop_idx} rec result:", rec_res)
+        _logger.info(f"Crop {crop_idx} rec result: {rec_res}")
 
         return rec_res
 

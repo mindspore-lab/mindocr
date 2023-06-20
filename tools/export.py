@@ -37,6 +37,9 @@ __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "..")))
 
 from mindocr import build_model, list_models
+from mindocr.utils.logger import Logger
+
+_logger = Logger("mindocr")
 
 
 def export(name_or_config, data_shape, local_ckpt_path, save_dir):
@@ -62,7 +65,7 @@ def export(name_or_config, data_shape, local_ckpt_path, save_dir):
     else:
         net = build_model(model_cfg, pretrained=True, amp_level=amp_level)
 
-    print(f"INFO: Set the AMP level of the model to be `{amp_level}`.")
+    _logger.info(f"Set the AMP level of the model to be `{amp_level}`.")
 
     net.set_train(False)
 
@@ -73,7 +76,9 @@ def export(name_or_config, data_shape, local_ckpt_path, save_dir):
     output_path = os.path.join(save_dir, name) + ".mindir"
     ms.export(net, x, file_name=output_path, file_format="MINDIR")
 
-    print(f"=> Finish exporting {name} to {os.path.realpath(output_path)}. The data shape [H, W] is {data_shape}")
+    _logger.info(
+        f"=> Finish exporting {name} to {os.path.realpath(output_path)}. The data shape [H, W] is {data_shape}"
+    )
 
 
 def check_args(args):

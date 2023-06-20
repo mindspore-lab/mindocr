@@ -4,10 +4,12 @@ from typing import Any, List, Optional
 import lmdb
 import numpy as np
 
+from ..utils.logger import Logger
 from .base_dataset import BaseDataset
 from .transforms.transforms_factory import create_transforms, run_transforms
 
 __all__ = ["LMDBDataset"]
+_logger = Logger("mindocr")
 
 
 class LMDBDataset(BaseDataset):
@@ -104,13 +106,13 @@ class LMDBDataset(BaseDataset):
                     )
 
     def filter_idx_list(self, idx_list: np.ndarray) -> np.ndarray:
-        print("Start filtering the idx list...")
+        _logger.info("Start filtering the idx list...")
         new_idx_list = list()
         for lmdb_idx, file_idx in idx_list:
             label = self.get_lmdb_sample_info(self.lmdb_sets[int(lmdb_idx)]["txn"], int(file_idx), label_only=True)
             if len(label) > self.max_text_len:
-                print(
-                    f"WARNING: skip the label with length ({len(label)}), "
+                _logger.warning(
+                    f"skip the label with length ({len(label)}), "
                     f"which is longer than than max length ({self.max_text_len})."
                 )
                 continue
