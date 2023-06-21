@@ -113,6 +113,9 @@ train:
           aug_type: 0
           p: 0.5
       - SVTRDeterioration:
+          var: 20
+          degrees: 6
+          factor: 4
           p: 0.25
       - CVColorJitter:
           p: 0.25
