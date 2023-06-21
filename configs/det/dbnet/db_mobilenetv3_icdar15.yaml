@@ -15,10 +15,10 @@ model:
     name: det_mobilenet_v3
     architecture: large
     alpha: 0.5
-    out_stages: [5, 8, 14, 20]
+    out_stages: [ 5, 8, 14, 20 ]
     bottleneck_params:
       se_version: SqueezeExciteV2
-      always_expand:  True
+      always_expand: True
     pretrained: https://download.mindspore.cn/toolkits/mindcv/mobilenet/mobilenetv3/mobilenet_v3_large_050_no_scale_se_v2_expand-3c4047ac.ckpt
   neck:
     name: DBFPN
@@ -112,8 +112,8 @@ train:
       - HWC2CHW:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visualize
     output_columns: [ 'image', 'binary_map', 'mask', 'thresh_map', 'thresh_mask' ]
-    net_input_column_index: [0] # input indices for network forward func in output_columns
-    label_column_index: [1, 2, 3, 4] # input indices marked as label
+    net_input_column_index: [ 0 ] # input indices for network forward func in output_columns
+    label_column_index: [ 1, 2, 3, 4 ] # input indices marked as label
 
   loader:
     shuffle: True
@@ -144,8 +144,8 @@ eval:
       - HWC2CHW:
     #  the order of the dataloader list, matching the network input and the labels for evaluation
     output_columns: [ 'image', 'polys', 'ignore_tags', 'shape_list' ]
-    net_input_column_index: [0] # input indices for network forward func in output_columns
-    label_column_index: [1, 2] # input indices marked as label
+    net_input_column_index: [ 0 ] # input indices for network forward func in output_columns
+    label_column_index: [ 1, 2 ] # input indices marked as label
 
   loader:
     shuffle: False
