@@ -161,7 +161,7 @@ python tools/eval.py \
 
 关于以上模型的具体训练方法和结果，请参见[configs](https://github.com/mindspore-lab/mindocr/blob/main/configs)下各模型子目录的readme文档。
 
-关于[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)模型推理的支持列表，请参见[MindOCR支持模型列表](inference/models_list.md) and [第三方模型推理支持列表](inference/models_list_thirdparty.md)。
+关于[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)模型推理的支持列表，请参见[MindOCR支持模型列表](inference/models_list.md) and [第三方模型推理支持列表](inference/models_list_thirdparty.md)（如PaddleOCR、MMOCR等）。
 
 ## 数据集列表
 

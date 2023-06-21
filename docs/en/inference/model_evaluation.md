@@ -23,4 +23,4 @@ python deploy/eval_utils/eval_rec.py \
 
 Please note that **character_dict_path** is an optional parameter, and the default dictionary only supports numbers and English lowercase.
 
-When evaluating the PaddleOCR or MMOCR series models, please refer to [Third-Party Model Support List](models_list_thirdparty.md) to use the corresponding dictionary.
+When evaluating the PaddleOCR or MMOCR series models, please refer to [Third-party Model Support List](models_list_thirdparty.md) to use the corresponding dictionary.

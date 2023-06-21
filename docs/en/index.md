@@ -167,7 +167,7 @@ For more illustration and usage, please refer to the model training section in [
 
 For the detailed performance of the trained models, please refer to [configs](https://github.com/mindspore-lab/mindocr/blob/main/configs).
 
-For detailed support for MindSpore Lite and ACL inference models, please refer to [MindOCR Models Support List](inference/models_list.md) and [Third-Party Models Support List](inference/models_list_thirdparty.md).
+For detailed support for MindSpore Lite and ACL inference models, please refer to [MindOCR Models Support List](inference/models_list.md) and [Third-party Models Support List](inference/models_list_thirdparty.md) (PaddleOCR, MMOCR, etc.).
 
 ## Dataset List
 
