@@ -40,7 +40,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 | RARE     | D910x4-MS1.10-G | ResNet34_vd | None | 85.19%    | 3166 s/epoch         | 4561 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e-b65dd225.mindir) |
 </div>
 
-<details open>
+<details open markdown>
   <div align="center">
   <summary>Detailed accuracy results for each benchmark dataset</summary>
 
@@ -359,7 +359,7 @@ You can train models for different languages with your own custom datasets. Load
 
 ## 6. MindSpore Lite Inference
 
-To inference with MindSpot Lite on Ascend 310, please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial_en.md). In short, the whole process consists of the following steps:
+To inference with MindSpot Lite on Ascend 310, please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial.md). In short, the whole process consists of the following steps:
 
 **1. Model Export**
 
@@ -376,11 +376,11 @@ The `data_shape` is the model input shape of height and width for MindIR file. T
 
 **2. Environment Installation**
 
-Please refer to [Environment Installation](../../../docs/en/inference/environment_en.md#2-mindspore-lite-inference) tutorial to configure the MindSpore Lite inference environment.
+Please refer to [Environment Installation](../../../docs/en/inference/environment.md#2-mindspore-lite-inference) tutorial to configure the MindSpore Lite inference environment.
 
 **3. Model Conversion**
 
-Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial_en.md#1-mindocr-models),
+Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#1-mindocr-models),
 and use the `converter_lite` tool for offline conversion of the MindIR file, where the `input_shape` in `configFile` needs to be filled in with the value from MindIR export,
 as mentioned above (1, 3, 32, 100), and the format is NCHW.
 

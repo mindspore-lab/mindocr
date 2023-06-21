@@ -1,5 +1,3 @@
-English | [中文](../../cn/datasets/totaltext_CN.md)
-
 # Data Downloading
 
 Total-Text [paper](https://arxiv.org/abs/1710.10400)
@@ -32,4 +30,4 @@ path-to-data-dir/
 
 ```
 
-[Back to README](../../../tools/dataset_converters/README.md)
+[Back to dataset converters](converters.md)

@@ -83,4 +83,4 @@
 
 ## Reference
 
-[1] Modified from https://github.com/mindspore-lab/mindyolo/blob/master/tutorials/modelarts_CN.md
+[1] Modified from https://github.com/mindspore-lab/mindyolo/blob/master/tutorials/cloud/openi_CN.md

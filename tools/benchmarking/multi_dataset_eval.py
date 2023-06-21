@@ -59,6 +59,9 @@ from mindocr.metrics import build_metric
 from mindocr.models import build_model
 from mindocr.postprocess import build_postprocess
 from mindocr.utils.callbacks import Evaluator
+from mindocr.utils.logger import Logger
+
+_logger = Logger("mindocr")
 
 
 def main(cfg):
@@ -76,6 +79,18 @@ def main(cfg):
     else:
         device_num = None
         rank_id = None
+        if "DEVICE_ID" in os.environ:
+            print(
+                f"INFO: Standalone evaluation. Device id: {os.environ.get('DEVICE_ID')}, "
+                f"specified by environment variable 'DEVICE_ID'."
+            )
+        else:
+            device_id = cfg.system.get("device_id", 0)
+            ms.set_context(device_id=device_id)
+            print(
+                f"INFO: Standalone evaluation. Device id: {device_id}, "
+                f"specified by system.device_id in yaml config file or is default value 0."
+            )
 
     is_main_device = rank_id in [None, 0]
 
@@ -86,7 +101,7 @@ def main(cfg):
     network.set_train(False)
 
     if not cfg.system.amp_level_infer and cfg.system.amp_level != "O0":
-        print("INFO: Evaluation will run in full-precision(fp32)")
+        _logger.info("Evaluation will run in full-precision(fp32)")
 
     # postprocess, metric
     postprocessor = build_postprocess(cfg.postprocess)
@@ -102,7 +117,6 @@ def main(cfg):
     acc_summary = {}
     reload_data = False
     for dirpath, dirnames, _ in os.walk(data_dir_root + "/"):
-        print(dirpath)
         if not dirnames:
             dataset_config = copy.deepcopy(cfg.eval.dataset)
             dataset_config["data_dir"] = dirpath
@@ -143,17 +157,17 @@ def main(cfg):
                 )
 
             # log
-            print("=" * 40)
-            print(f"Num batches: {num_batches}")
+            _logger.info("=" * 40)
+            _logger.info(f"Num batches: {num_batches}")
             if "name" in cfg.model:
-                print(f"Model: {cfg.model.name}")
+                _logger.info(f"Model: {cfg.model.name}")
             else:
-                print(f"Model: {cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}")
-            print("=" * 40)
+                _logger.info(f"Model: {cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}")
+            _logger.info("=" * 40)
 
             measures = net_evaluator.eval()
             if is_main_device:
-                print("Performance: ", measures)
+                _logger.info(f"Performance: {measures}")
 
             results.append(measures)
             acc_summary[dirpath] = measures
@@ -171,11 +185,9 @@ def main(cfg):
 
     acc_summary["Average"] = avg_dict
 
-    print("Average score:")
-    print(avg_dict)
+    _logger.info(f"Average score: {avg_dict}")
 
-    print("Summary:")
-    print(acc_summary)
+    _logger.info(f"Summary: {acc_summary}")
 
 
 def parse_args():

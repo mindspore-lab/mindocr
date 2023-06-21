@@ -3,12 +3,14 @@ import os
 
 import mindspore as ms
 
+from ..utils.logger import Logger
 from .det_dataset import DetDataset, SynthTextDataset
 from .predict_dataset import PredictDataset
 from .rec_dataset import RecDataset
 from .rec_lmdb_dataset import LMDBDataset
 
 __all__ = ["build_dataset"]
+_logger = Logger("mindocr")
 
 supported_dataset_types = [
     "BaseDataset",
@@ -111,8 +113,8 @@ def build_dataset(
     )  # optimal num workers assuming all cpu cores are used in this job
     num_workers = loader_config.get("num_workers", NUM_WORKERS_MAP)
     if num_workers > int(cores / num_devices):
-        print(
-            f"WARNING: `num_workers` is adjusted to {int(cores / num_devices)} since {num_workers}x{num_devices} "
+        _logger.warning(
+            f"`num_workers` is adjusted to {int(cores / num_devices)} since {num_workers}x{num_devices} "
             f"exceeds the number of CPU cores {cores}"
         )
         num_workers = int(cores / num_devices)
@@ -135,7 +137,6 @@ def build_dataset(
     dataset = dataset_class(**dataset_args)
 
     dataset_column_names = dataset.get_output_columns()
-    # print('=> Dataset output columns: \n\t', dataset_column_names)
 
     # Generate source dataset (source w.r.t. the dataset.map pipeline)
     # based on python callable numpy dataset in parallel
@@ -161,8 +162,8 @@ def build_dataset(
 
     device_id = 0 if shard_id is None else shard_id
     is_main_device = device_id == 0
-    print(
-        f"INFO: Creating dataloader (training={is_train}) for device {device_id}. Number of data samples: {num_samples}"
+    _logger.info(
+        f"Creating dataloader (training={is_train}) for device {device_id}. Number of data samples: {num_samples}"
     )
 
     if "refine_batch_size" in kwargs:
@@ -170,16 +171,16 @@ def build_dataset(
 
     drop_remainder = loader_config.get("drop_remainder", is_train)
     if is_train and drop_remainder is False and is_main_device:
-        print(
-            "WARNING: `drop_remainder` should be True for training, otherwise the last batch may lead to training fail "
-            "in Graph mode"
+        _logger.warning(
+            "`drop_remainder` should be True for training, "
+            "otherwise the last batch may lead to training fail in Graph mode"
         )
 
     if not is_train:
         if drop_remainder and is_main_device:
-            print(
-                "WARNING: `drop_remainder` is forced to be False for evaluation to include the last batch for "
-                "accurate evaluation."
+            _logger.warning(
+                "`drop_remainder` is forced to be False for evaluation "
+                "to include the last batch for accurate evaluation."
             )
             drop_remainder = False
 
@@ -228,8 +229,8 @@ def _check_batch_size(num_samples, ori_batch_size=32, refine=True):
         # search a batch size that is divisible by num samples.
         for bs in range(ori_batch_size - 1, 0, -1):
             if num_samples % bs == 0:
-                print(
-                    f"INFO: Batch size for evaluation is refined to {bs} to ensure the last batch will not be "
+                _logger.info(
+                    f"Batch size for evaluation is refined to {bs} to ensure the last batch will not be "
                     f"dropped/padded in graph mode."
                 )
                 return bs

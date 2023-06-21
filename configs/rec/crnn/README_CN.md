@@ -358,7 +358,7 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 
 我们采用公开的中文基准数据集[Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition)进行CRNN模型的训练和验证。
 
-详细的数据准备和config文件配置方式, 请参考 [中文识别数据集准备](../../../docs/cn/datasets/chinese_text_recognition_CN.md)
+详细的数据准备和config文件配置方式, 请参考 [中文识别数据集准备](../../../docs/cn/datasets/chinese_text_recognition.md)
 
 ### 模型训练验证
 
@@ -389,7 +389,7 @@ mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/crnn/
 
 ## 6. MindSpore Lite 推理
 
-请参考[MindOCR 推理](../../../docs/cn/inference/inference_tutorial_cn.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
+请参考[MindOCR 推理](../../../docs/cn/inference/inference_tutorial.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
 
 **1. 模型导出**
 
@@ -405,11 +405,11 @@ python tools/export.py --model_name configs/rec/crnn/crnn_resnet34.yaml --data_s
 
 **2. 环境搭建**
 
-请参考[环境安装](../../../docs/cn/inference/environment_cn.md#2-mindspore-lite推理)教程，配置MindSpore Lite推理运行环境。
+请参考[环境安装](../../../docs/cn/inference/environment.md#2-mindspore-lite推理)教程，配置MindSpore Lite推理运行环境。
 
 **3. 模型转换**
 
-请参考[模型转换](../../../docs/cn/inference/convert_tutorial_cn.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换，
+请参考[模型转换](../../../docs/cn/inference/convert_tutorial.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换，
 其中`configFile`文件中的`input_shape`需要填写模型导出时shape，如上述的(1, 3, 32, 100)，格式为NCHW。
 
 **4. 执行推理**

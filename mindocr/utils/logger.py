@@ -45,6 +45,14 @@ class Logger(logging.Logger):
         if self.isEnabledFor(logging.INFO):
             self._log(logging.INFO, msg, args, **kwargs)
 
+    def warning(self, msg, *args, **kwargs):
+        if self.isEnabledFor(logging.WARNING):
+            self._log(logging.WARNING, msg, args, **kwargs)
+
+    def error(self, msg, *args, **kwargs):
+        if self.isEnabledFor(logging.ERROR):
+            self._log(logging.ERROR, msg, args, **kwargs)
+
     def save_args(self, args):
         self.info("Args:")
         args_dict = vars(args)

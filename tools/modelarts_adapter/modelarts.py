@@ -5,7 +5,10 @@ import sys
 import time
 from typing import Any, Callable, Dict, List, Union
 
+from mindocr.utils.logger import Logger
+
 LOCAL_RANK = int(os.getenv("RANK_ID", 0))
+_logger = Logger("mindocr")
 
 _global_sync_count = 0
 
@@ -41,22 +44,22 @@ def sync_data(from_path, to_path):
 
     # Each server contains 8 devices as most.
     if get_device_id() % min(get_device_num(), 8) == 0 and not os.path.exists(sync_lock):
-        print("from path: ", from_path)
-        print("to path: ", to_path)
+        _logger.info(f"from path: {from_path}")
+        _logger.info(f"to path: {to_path}")
         mox.file.copy_parallel(from_path, to_path)
-        print("===finish data synchronization===")
+        _logger.info("===finish data synchronization===")
         try:
             os.mknod(sync_lock)
         except IOError:
             pass
-        print("===save flag===")
+        _logger.info("===save flag===")
 
     while True:
         if os.path.exists(sync_lock):
             break
         time.sleep(1)
 
-    print("Finish sync data from {} to {}.".format(from_path, to_path))
+    _logger.info("Finish sync data from {} to {}.".format(from_path, to_path))
 
 
 def run_with_single_rank(local_rank: int = 0, signal: str = "/tmp/SUCCESS") -> Callable[..., Any]:
@@ -83,7 +86,7 @@ def run_with_single_rank(local_rank: int = 0, signal: str = "/tmp/SUCCESS") -> C
 def install_packages(req_path: str = "requirements.txt") -> None:
     url = "https://pypi.tuna.tsinghua.edu.cn/simple"
     # requirement_txt = os.path.join(project_dir, "requirements.txt")
-    print("INFO: Packages to be installed: ", req_path)
+    _logger.info(f"Packages to be installed: {req_path}")
     subprocess.check_call([sys.executable, "-m", "pip", "install", "-i", url, "--upgrade", "pip"])
     subprocess.check_call([sys.executable, "-m", "pip", "install", "-i", url, "-r", req_path])
 
@@ -111,7 +114,7 @@ def download_ckpt(s3_path: str, dest: str) -> str:
 
 def upload_data(src: str, s3_path: str) -> None:
     abs_src = os.path.abspath(src)
-    print(f"Uploading data from {abs_src} to s3")
+    _logger.info(f"Uploading data from {abs_src} to s3")
     import moxing as mox
 
     mox.file.copy_parallel(src_url=abs_src, dst_url=s3_path)

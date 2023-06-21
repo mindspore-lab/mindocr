@@ -26,7 +26,10 @@ import mindspore as ms
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../../../")))
 
+from mindocr.utils.logger import Logger
 from mindocr.utils.visualize import visualize  # noqa
+
+_logger = Logger("mindocr")
 
 
 class TextSystem(object):
@@ -69,9 +72,8 @@ class TextSystem(object):
         # detect text regions on an image
         det_res, data = self.text_detect(img_or_path, do_visualize=False)
         time_profile["det"] = time() - start
-        # print(det_res)
         polys = det_res["polys"].copy()
-        print(f"INFO: Num detected text boxes: {len(polys)}\nDet time: ", time_profile["det"])
+        _logger.info(f"Num detected text boxes: {len(polys)}\nDet time: {time_profile['det']}")
 
         # crop text regions
         crops = []
@@ -79,7 +81,6 @@ class TextSystem(object):
             poly = polys[i].astype(np.float32)
             cropped_img = crop_text_region(data["image_ori"], poly, box_type=self.box_type)
             crops.append(cropped_img)
-            # print('Crop ', i, cropped_img.shape)
 
             if self.save_crop_res:
                 cv2.imwrite(os.path.join(self.crop_res_save_dir, f"{fn}_crop_{i}.jpg"), cropped_img)
@@ -90,11 +91,10 @@ class TextSystem(object):
         rec_res_all_crops = self.text_recognize(crops, do_visualize=False)
         time_profile["rec"] = time() - rs
 
-        print(
-            "INFO: Recognized texts: \n"
+        _logger.info(
+            "Recognized texts: \n"
             + "\n".join([f"{text}\t{score}" for text, score in rec_res_all_crops])
-            + "\nRec time: ",
-            time_profile["rec"],
+            + f"\nRec time: {time_profile['rec']}"
         )
 
         # filter out low-score texts and merge detection and recognition results
