@@ -550,6 +550,7 @@ class PSEGtDecode:
         self.kernel_num = kernel_num
         self.min_shrink_ratio = min_shrink_ratio
         self.min_shortest_edge = min_shortest_edge
+        self.output_columns = ["image", "polys", "gt_kernels", "gt_text", "mask"]
 
     def _shrink(self, text_polys, rate, max_shr=20):
         rate = rate * rate

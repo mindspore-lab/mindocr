@@ -65,21 +65,16 @@ train:
     label_file: ic15/train_det_gt.txt
     sample_ratio: 1.0
     transform_pipeline:
-      - DecodeImage:
-          img_mode: RGB
-          to_float32: False
+      - Decode:
       - DetLabelEncode:
-      - RandomColorAdjust:
-          brightness: 0.1255  # 32.0 / 255
-          saturation: 0.5
+      - RandomScale:
+          scale_range: [ 0.5, 3.0 ]
+          p: 1.0
       - RandomHorizontalFlip:
           p: 0.5
       - RandomRotate:
           degrees: [ -10, 10 ]
           expand_canvas: False
-          p: 1.0
-      - RandomScale:
-          scale_range: [ 0.5, 3.0 ]
           p: 1.0
       - PSEGtDecode:
           kernel_num: 7
@@ -89,12 +84,13 @@ train:
           size: [ 640,640 ] # target crop size
           main_key: gt_text
           crop_keys: [ 'image', 'gt_text', 'gt_kernels', 'mask' ]
-      - NormalizeImage:
-          bgr_to_rgb: False
-          is_hwc: True
-          mean: imagenet
-          std: imagenet
-      - ToCHWImage:
+      - RandomColorAdjust:
+          brightness: 0.1255  # 32.0 / 255
+          saturation: 0.5
+      - Normalize:
+          mean: &mean [ 123.675, 116.28, 103.53 ]
+          std: &std [ 58.395, 57.12, 57.375 ]
+      - HWC2CHW:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visualize
     output_columns: [ 'image', 'gt_text','gt_kernels','mask' ] #'img_path']
     net_input_column_index: [ 0 ] # input indices for network forward func in output_columns
@@ -103,7 +99,7 @@ train:
     shuffle: True
     batch_size: 8
     drop_remainder: True
-    num_workers: 2
+    num_workers: 8
 
 eval:
   ckpt_load_path: 'tmp_det/best.ckpt'
@@ -115,19 +111,15 @@ eval:
     label_file: ic15/det/test/det_gt.txt
     sample_ratio: 1.0
     transform_pipeline:
-      - DecodeImage:
-          img_mode: RGB
-          to_float32: False
+      - Decode:
       - DetLabelEncode:
       - DetResize:
-          limit_side_len: 1472 # 736
+          limit_side_len: 736 # 736 1472
           limit_type: min
-      - NormalizeImage:
-          bgr_to_rgb: False
-          is_hwc: True
-          mean: imagenet
-          std: imagenet
-      - ToCHWImage:
+      - Normalize:
+          mean: *mean
+          std: *std
+      - HWC2CHW:
     #  the order of the dataloader list, matching the network input and the labels for evaluation
     output_columns: [ 'image', 'polys', 'ignore_tags', 'shape_list']
     net_input_column_index: [ 0 ]
@@ -137,4 +129,4 @@ eval:
     shuffle: False
     batch_size: 1
     drop_remainder: False
-    num_workers: 2
+    num_workers: 8
