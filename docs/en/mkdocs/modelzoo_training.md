@@ -1,10 +1,4 @@
----
-hide:
-  - navigation
-  - toc
----
-
-# 模型列表
+## Training - MindOCR Models List
 
 | model | type |dataset | fscore(detection)/accuracy(recognition) | mindocr recipe | vanilla mindspore
 :-:     |  :-: |  :-:       | :-:        | :-:   | :-:

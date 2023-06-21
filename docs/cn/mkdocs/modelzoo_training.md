@@ -1,10 +1,4 @@
----
-hide:
-  - navigation
-  - toc
----
-
-# Model Zoo
+## 训练 - MindOCR模型支持列表
 
 | model | type |dataset | fscore(detection)/accuracy(recognition) | mindocr recipe | vanilla mindspore
 :-:     |  :-: |  :-:       | :-:        | :-:   | :-:

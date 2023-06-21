@@ -1,6 +1,6 @@
 ## Third-party Model Inference Performance Table
 
-This document will give the inference performance of the third-party model (PaddleOCR, MMOCR, etc.) using the MindIR
+This page shows the inference performance of the third-party model (PaddleOCR, MMOCR, etc.) using the MindIR
 format after performing [model conversion](convert_tutorial.md).
 
 ### 1. Text detection
