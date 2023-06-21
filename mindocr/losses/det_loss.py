@@ -173,6 +173,19 @@ class BalancedBCELoss(nn.LossBase):
 
 
 class PSEDiceLoss(nn.Cell):
+    """
+    PSE Dice Loss module for text detection.
+
+    This module calculates the Dice loss between the predicted binary segmentation map and the ground truth map.
+
+    Args:
+        alpha (float): The weight for text loss. Default is 0.7.
+        ohem_ratio (int): The ratio for hard negative example mining. Default is 3.
+
+    Returns:
+        Tensor: The computed loss value.
+    """
+
     def __init__(self, alpha=0.7, ohem_ratio=3):
         super().__init__()
         self.threshold0 = Tensor(0.5, mstype.float32)
@@ -207,11 +220,15 @@ class PSEDiceLoss(nn.Cell):
 
     def ohem_batch(self, scores, gt_texts, training_masks):
         """
+        Perform online hard example mining (OHEM) for a batch of scores, ground truth texts, and training masks.
 
-        :param scores: [N * H * W]
-        :param gt_texts:  [N * H * W]
-        :param training_masks: [N * H * W]
-        :return: [N * H * W]
+        Args:
+            scores (Tensor): The predicted scores of shape [N * H * W].
+            gt_texts (Tensor): The ground truth texts of shape [N * H * W].
+            training_masks (Tensor): The training masks of shape [N * H * W].
+
+        Returns:
+            Tensor: The selected masks of shape [N * H * W].
         """
         batch_size = scores.shape[0]
         h, w = scores.shape[1:]
@@ -264,11 +281,15 @@ class PSEDiceLoss(nn.Cell):
 
     def dice_loss(self, input_params, target, mask):
         """
+        Compute the dice loss between input parameters, target, and mask.
 
-        :param input: [N, H, W]
-        :param target: [N, H, W]
-        :param mask: [N, H, W]
-        :return:
+        Args:
+            input_params (Tensor): The input parameters of shape [N, H, W].
+            target (Tensor): The target of shape [N, H, W].
+            mask (Tensor): The mask of shape [N, H, W].
+
+        Returns:
+            Tensor: The dice loss value.
         """
         batch_size = input_params.shape[0]
         input_sigmoid = self.sigmoid(input_params)
@@ -296,12 +317,16 @@ class PSEDiceLoss(nn.Cell):
 
     def construct(self, model_predict, gt_texts, gt_kernels, training_masks):
         """
+        Construct the PSE Dice Loss calculation.
 
-        :param model_predict: [N * 7 * H * W]
-        :param gt_texts: [N * H * W]
-        :param gt_kernels:[N * 6 * H * W]
-        :param training_masks:[N * H * W]
-        :return:
+        Args:
+            model_predict (Tensor): The predicted model outputs of shape [N * 7 * H * W].
+            gt_texts (Tensor): The ground truth texts of shape [N * H * W].
+            gt_kernels (Tensor): The ground truth kernels of shape [N * 6 * H * W].
+            training_masks (Tensor): The training masks of shape [N * H * W].
+
+        Returns:
+            Tensor: The computed loss value.
         """
         batch_size = model_predict.shape[0]
         model_predict = self.upsample(model_predict, scale_factor=4)
