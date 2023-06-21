@@ -1,5 +1,6 @@
 from ._registry import register_model
-from .backbones.mindcv_models.utils import load_pretrained
+
+# from .backbones.mindcv_models.utils import load_pretrained
 from .base_model import BaseModel
 
 __all__ = ["ABINetModel", "abinet"]
@@ -36,8 +37,9 @@ def abinet(pretrained=False, **kwargs):
     model = ABINetModel(model_config)
 
     # load pretrained weights
-    if pretrained:
-        default_cfg = default_cfgs['abinet']
-        load_pretrained(model, default_cfg)
+    # if pretrained:
+    #     default_cfg = default_cfgs['abinet']
+    #     load_pretrained(model, default_cfg)
+    # 上传的出现问题
 
     return model

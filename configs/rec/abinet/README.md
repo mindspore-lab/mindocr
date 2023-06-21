@@ -44,7 +44,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 
   | **Model**  |  **IC13_857** |  **IC15_1811** |  **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** |
   | :------:  |   :------: |  :------: | :------: | :------: | :------: | :------: |
-  | ABINet  |  96.62% | 85.09% |   96.33% | 93.35% | 88.06% | 90.28% |
+  | ABINet  |  97.08% | 85.86% |   96.33% | 93.51% | 89.30% | 91.32% |
 
   </div>
 </details>
@@ -239,6 +239,17 @@ To evaluate the accuracy of the trained model, you can use `eval.py`. Please set
 ```
 python tools/eval.py --config configs/rec/abinet/abinet.yaml
 ```
+
+**Notes:**
+- Context for val_while_train: Since mindspore.nn.transformer requires a fixed batchsize when defined, when choosing to train and validate at the same time, line 92 in tools/train.py
+```
+refine_batch_size=True
+```
+should be changed to
+```
+refine_batch_size=False
+```
+
 ## References
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 
