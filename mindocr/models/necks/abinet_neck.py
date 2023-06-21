@@ -11,7 +11,7 @@ __all__ = ["ABINetEncoder"]
 
 
 class ABINetEncoder(nn.Cell):
-    def __init__(self, in_channels, batchsize):
+    def __init__(self, in_channels, batchsize=96):
         super().__init__()
         self.batchsize = batchsize
         self.iter_size = 3

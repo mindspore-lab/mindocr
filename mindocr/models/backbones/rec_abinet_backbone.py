@@ -13,7 +13,7 @@ __all__ = [
 
 @register_backbone_class
 class ABINetIterBackbone(nn.Cell):
-    def __init__(self, batchsize):
+    def __init__(self, batchsize=96):
         super().__init__()
         self.out_channels = 512
         self.batchsize = batchsize
