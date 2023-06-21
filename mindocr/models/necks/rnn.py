@@ -60,7 +60,6 @@ class RNNEncoder(nn.Cell):
         if self.hx is None:
             x, hx_n = self.seq_encoder(x)
         else:
-            _logger.info('using self.hx')
             x, hx_n = self.seq_encoder(x, self.hx)  # the results are the same
 
         return x
