@@ -43,7 +43,7 @@ def show_imgs(
     subplot_h = 4.8 * (figure_width / 6.4)
     figure_height = len(imgs) * subplot_h
     plt.figure(figsize=(figure_width, figure_height))
-    plt.axis('off')
+    plt.axis("off")
     num_images = len(imgs)  # imgs.shape[0]
     for i, _img in enumerate(imgs):
         img = _img.copy()
