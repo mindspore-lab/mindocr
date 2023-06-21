@@ -55,7 +55,7 @@ def main(cfg):
 
     set_seed(cfg.system.seed)
 
-    is_main_device = rank_id in [None, 0]
+    is_main_rank = rank_id in [None, 0]
 
     # create logger, only rank0 log will be output to the screen
     logger = get_logger(log_dir=cfg.train.ckpt_save_dir, rank=rank_id)
@@ -207,7 +207,7 @@ def main(cfg):
     )
 
     # save args used for training
-    if is_main_device:
+    if is_main_rank:
         with open(os.path.join(cfg.train.ckpt_save_dir, "args.yaml"), "w") as f:
             args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False, sort_keys=False)
             f.write(args_text)
