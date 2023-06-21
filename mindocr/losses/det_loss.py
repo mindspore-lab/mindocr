@@ -7,7 +7,10 @@ import mindspore.common.dtype as mstype
 import mindspore.numpy as mnp
 from mindspore import Tensor, nn, ops
 
+from mindocr.utils.logger import Logger
+
 __all__ = ["L1BalancedCELoss", "PSEDiceLoss", "EASTLoss", "FCELoss"]
+_logger = Logger("mindocr")
 
 
 class L1BalancedCELoss(nn.LossBase):
@@ -224,7 +227,6 @@ class FCELoss(nn.Cell):
         loss_tcl = ms.Tensor(0.0, ms.float32)  # torch.tensor(0., device=device).float()
         loss_reg_x = ms.Tensor(0.0, ms.float32)  # torch.tensor(0., device=device).float()
         loss_reg_y = ms.Tensor(0.0, ms.float32)  # torch.tensor(0., device=device).float()
-        all_loss = ms.Tensor(0.0, ms.float32)
 
         for i in range(len(losses)):
             loss_tr += losses[i][0]
@@ -233,17 +235,7 @@ class FCELoss(nn.Cell):
             loss_reg_y += losses[i][3]
 
         all_loss = loss_tr + loss_tcl + loss_reg_x + loss_reg_y
-        if ops.isnan(all_loss):
-            pass
-            # print(path)
-        # results = dict(
-        #     all_loss = all_loss,
-        #     loss_text=loss_tr,
-        #     loss_center=loss_tcl,
-        #     loss_reg_x=loss_reg_x,
-        #     loss_reg_y=loss_reg_y,
-        # )
-        print(
+        _logger.info(
             f"all_loss = {all_loss},loss_text={loss_tr},loss_center={loss_tcl},loss_reg_x={loss_reg_x},"
             f"loss_reg_y={loss_reg_y}"
         )

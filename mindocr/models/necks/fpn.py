@@ -40,6 +40,7 @@ class DBFPN(nn.Cell):
         channel_attention: use channel attention in addition to spatial and scale attentions in ASF module.
                            Default: True.
     """
+
     def __init__(self, in_channels: list, out_channels: int = 256, weight_init: str = 'HeUniform',
                  bias: bool = False, use_asf: bool = False, channel_attention: bool = True):
         super().__init__()
@@ -82,12 +83,6 @@ def _bn(channels, momentum=0.1):
 
 
 class FCEFPN(nn.Cell):
-    def Xavier_conv(self, in_channels, out_channels, kernel_size=3, stride=1, padding=0, pad_mode='same',
-                    has_bias=False):
-        init_value = XavierUniform()
-        return nn.Conv2d(in_channels, out_channels,
-                         kernel_size=kernel_size, stride=stride, padding=padding,
-                         pad_mode=pad_mode, weight_init=init_value, has_bias=has_bias)
 
     def __init__(self, in_channels, out_channel):
         in_channels = in_channels[1:]
@@ -128,6 +123,13 @@ class FCEFPN(nn.Cell):
 
         return out
 
+    def Xavier_conv(self, in_channels, out_channels, kernel_size=3, stride=1, padding=0, pad_mode='same',
+                    has_bias=False):
+        init_value = XavierUniform()
+        return nn.Conv2d(in_channels, out_channels,
+                         kernel_size=kernel_size, stride=stride, padding=padding,
+                         pad_mode=pad_mode, weight_init=init_value, has_bias=has_bias)
+
 
 class PSEFPN(nn.Cell):
     """
@@ -145,6 +147,7 @@ class PSEFPN(nn.Cell):
         Tensor: The output feature map of shape [batch_size, out_channels * 4, H, W].
 
     """
+
     def __init__(self, in_channels: List[int], out_channels):
         super().__init__()
         super(PSEFPN, self).__init__()
