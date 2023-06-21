@@ -1,6 +1,6 @@
-## Inference - Third-party Models Support List
+## Inference - Third-party Models List
 
-MindOCR can support the inference of third-party models (PaddleOCR, MMOCR, etc.), and this document displays a list of
+MindOCR supports the inference of third-party models (PaddleOCR, MMOCR, etc.), and this document displays a list of
 adapted models.
 
 After downloading the model file, it needs to be converted to a model file supported by ACL/MindSpore Lite inference (OM
