@@ -183,24 +183,23 @@ def build_dataset(
     num_samples = ds.get_dataset_size()
     batch_size = loader_config["batch_size"]
 
-    device_id = shard_id or 0
-    is_main_device = device_id == 0
+    rank_id = shard_id or 0
+    is_main_rank = rank_id == 0
     print(
-        f"INFO: Creating dataloader (training={is_train}) for device {device_id}. "
-        f"Number of data samples: {num_samples}"
+        f"INFO: Creating dataloader (training={is_train}) for rank {rank_id}. " f"Number of data samples: {num_samples}"
     )
 
     if "refine_batch_size" in kwargs:
         batch_size = _check_batch_size(num_samples, batch_size, refine=kwargs["refine_batch_size"])
 
     drop_remainder = loader_config.get("drop_remainder", is_train)
-    if is_train and not drop_remainder and is_main_device:
+    if is_train and not drop_remainder and is_main_rank:
         print(
             "WARNING: `drop_remainder` should be True for training, "
             "otherwise the last batch may lead to training fail in Graph mode."
         )
     elif not is_train and drop_remainder:
-        if is_main_device:
+        if is_main_rank:
             print(
                 "WARNING: `drop_remainder` is forced to be False for evaluation "
                 "to include the last batch for accurate evaluation."
