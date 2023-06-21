@@ -50,14 +50,12 @@ class RNNEncoder(nn.Cell):
             Tensor: Encoded features . Shape :math:`(W, N, 2*C)` where
         """
         x = features[0]
-        assert x.shape[2] == 1, f'Feature height must be 1, but got {x.shape[2]} from x.shape {x.shape}'
         x = ops.squeeze(x, axis=2)  # [N, C, W]
         x = ops.transpose(x, (2, 0, 1))  # [W, N, C]
 
         if self.hx is None:
             x, hx_n = self.seq_encoder(x)
         else:
-            print('using self.hx')
             x, hx_n = self.seq_encoder(x, self.hx)  # the results are the same
 
         return x

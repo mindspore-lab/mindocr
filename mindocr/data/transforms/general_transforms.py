@@ -17,6 +17,8 @@ __all__ = [
     "PackLoaderInputs",
     "RandomScale",
     "RandomColorAdjust",
+    "RandomRotate",
+    "RandomHorizontalFlip",
 ]
 
 
@@ -64,7 +66,7 @@ class DecodeImage:
 
 class NormalizeImage:
     """
-    normalize image, substract mean, divide std
+    normalize image, subtract mean, divide std
     input image: by default, np.uint8, [0, 255], HWC format.
     return image: float32 numpy array
     """
@@ -163,7 +165,7 @@ class RandomScale:
         self._p = p
         assert kwargs.get("is_train", True), ValueError("RandomScale augmentation must be used for training only")
 
-    def __call__(self, data: dict):
+    def __call__(self, data: dict) -> dict:
         """
         required keys:
             image, HWC
@@ -195,4 +197,67 @@ class RandomColorAdjust:
         """
         # there's a bug in MindSpore that requires images to be converted to the PIL format first
         data["image"] = np.array(self._jitter(self._pil(data["image"])))
+        return data
+
+
+class RandomRotate:
+    """
+    Randomly rotate an image with polygons in it (if any).
+    Args:
+        degrees: range of angles [min, max]
+        expand_canvas: whether to expand canvas during rotation (the image size will be increased) or
+                       maintain the original size (the rotated image will be cropped back to the original size).
+        p: probability of the augmentation being applied to an image.
+    """
+
+    def __init__(self, degrees=(-10, 10), expand_canvas=True, p: float = 1.0, **kwargs):
+        self._degrees = degrees
+        self._canvas = expand_canvas
+        self._p = p
+
+    def __call__(self, data: dict) -> dict:
+        if random.random() < self._p:
+            angle = random.randint(self._degrees[0], self._degrees[1])
+            h, w = data["image"].shape[:2]
+
+            center = w // 2, h // 2  # x, y
+            mat = cv2.getRotationMatrix2D(center, angle, 1)
+
+            if self._canvas:
+                # compute the new bounding dimensions of the image
+                cos, sin = np.abs(mat[0, 0]), np.abs(mat[0, 1])
+                w, h = int((h * sin) + (w * cos)), int((h * cos) + (w * sin))
+
+                # adjust the rotation matrix to take into account translation
+                mat[0, 2] += (w / 2) - center[0]
+                mat[1, 2] += (h / 2) - center[1]
+
+            data["image"] = cv2.warpAffine(data["image"], mat, (w, h))
+
+            if "polys" in data:
+                data["polys"] = cv2.transform(data["polys"], mat)
+
+        return data
+
+
+class RandomHorizontalFlip:
+    """
+    Random horizontal flip of an image with polygons in it (if any).
+    Args:
+        p: probability of the augmentation being applied to an image.
+    """
+
+    def __init__(self, p: float = 0.5, **kwargs):
+        self._p = p
+
+    def __call__(self, data: dict) -> dict:
+        if random.random() < self._p:
+            data["image"] = cv2.flip(data["image"], 1)
+
+            if "polys" in data:
+                mat = np.float32([[-1, 0, data["image"].shape[1] - 1], [0, 1, 0]])
+                data["polys"] = cv2.transform(data["polys"], mat)
+                # TODO: assign a new starting point located in the top left
+                data["polys"] = data["polys"][:, ::-1, :]  # preserve the original order (e.g. clockwise)
+
         return data

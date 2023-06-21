@@ -12,7 +12,7 @@ __all__ = ["EASTPostprocess"]
 
 class EASTPostprocess(DetBasePostprocess):
     def __init__(self, score_thresh=0.8, nms_thresh=0.2, box_type="quad", rescale_fields=["polys"]):
-        super().__init__(box_type, rescale_fields)
+        super().__init__(rescale_fields, box_type)
         self._score_thresh = score_thresh
         self._nms_thresh = nms_thresh
         if rescale_fields is None:
@@ -43,8 +43,8 @@ class EASTPostprocess(DetBasePostprocess):
             score = score[0, :, :]
             xy_text = np.argwhere(score > self._score_thresh)
             if xy_text.size == 0:
-                polys = np.array([[[1, 2], [3, 4], [5, 6], [7, 8]]], "float32")
-                scores = np.array([[0.0]])
+                polys = np.array([])
+                scores = np.array([])
                 polys_list.append(polys)
                 scores_list.append(scores)
                 continue
@@ -55,8 +55,8 @@ class EASTPostprocess(DetBasePostprocess):
             polys_restored, index = self._restore_polys(valid_pos, valid_geo, score.shape)
 
             if polys_restored.size == 0:
-                polys = np.array([[[1, 2], [3, 4], [5, 6], [7, 8]]], "float32")
-                scores = np.array([[0.0]])
+                polys = np.array([])
+                scores = np.array([])
                 polys_list.append(polys)
                 scores_list.append(scores)
                 continue

@@ -16,14 +16,15 @@ class DBPostprocess(DetBasePostprocess):
     """
     DBNet & DBNet++ postprocessing pipeline: extracts polygons / rectangles from a binary map (heatmap) and returns
         their coordinates.
+
     Args:
         binary_thresh: binarization threshold applied to the heatmap output of DBNet.
-        box_thresh: polygon confidence threshold. Polygons with scores lower than this threshold are filtered out.
+        box_thresh: polygon confidence threshold. Polygons with scores lower than the threshold are filtered out.
         max_candidates: maximum number of proposed polygons.
         expand_ratio: controls by how much polygons need to be expanded to recover the original text shape
             (DBNet predicts shrunken text masks).
-        box_type: output polygons ('polys') or rectangles ('quad') as the network's predictions.
-        pred_name: heatmap's name used for polygons extraction.
+        box_type: output polygons ('polys') or rectangles ('quad') as the network's predictions. Default: "quad"
+        pred_name: heatmap's name used for polygons extraction. Default: "binary".
         rescale_fields: name of fields to scale back to the shape of the original image.
     """
 
@@ -33,11 +34,11 @@ class DBPostprocess(DetBasePostprocess):
         box_thresh: float = 0.7,
         max_candidates: int = 1000,
         expand_ratio: float = 1.5,
-        box_type="quad",
+        box_type: str = "quad",
         pred_name: str = "binary",
         rescale_fields: List[str] = ["polys"],
     ):
-        super().__init__(box_type, rescale_fields)
+        super().__init__(rescale_fields, box_type)
 
         self._min_size = 3
         self._binary_thresh = binary_thresh

@@ -127,7 +127,7 @@ DBNet和DBNet++在ICDAR2015，MSRA-TD500，SCUT-CTW1500，Total-Text和MLT2017�
 
 #### 3.2.1 ICDAR2015 数据集
 
-请从[该网址](https://rrc.cvc.uab.es/?ch=4&com=downloads)下载ICDAR2015数据集，然后参考[数据转换](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README_CN.md)对数据集标注进行格式转换。
+请从[该网址](https://rrc.cvc.uab.es/?ch=4&com=downloads)下载ICDAR2015数据集，然后参考[数据转换](../../../tools/dataset_converters/README_CN.md)对数据集标注进行格式转换。
 
 完成数据准备工作后，数据的目录结构应该如下所示：
 
@@ -149,7 +149,7 @@ DBNet和DBNet++在ICDAR2015，MSRA-TD500，SCUT-CTW1500，Total-Text和MLT2017�
 
 #### 3.2.2 MSRA-TD500 数据集
 
-请从[该网址](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500))下载MSRA-TD500数据集，然后参考[数据转换](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README_CN.md)对数据集标注进行格式转换。
+请从[该网址](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500))下载MSRA-TD500数据集，然后参考[数据转换](../../../tools/dataset_converters/README_CN.md)对数据集标注进行格式转换。
 
 完成数据准备工作后，数据的目录结构应该如下所示：
 
@@ -258,6 +258,12 @@ MLT_2017
 
 ```
 
+> :warning: 另外, 我们强烈建议在使用 `SynthText` 数据集之前先进行预处理，因为它包含一些错误的数据。可以使用下列的方式进行校正:
+> ```shell
+> python tools/dataset_converters/convert.py --dataset_name=synthtext --task=det --label_dir=/path-to-data-dir/SynthText/gt.mat --output_path=/path-to-data-dir/SynthText/gt_processed.mat
+> ```
+> 以上的操作会产生与`SynthText`原始标注格式相同但是是经过过滤后的标注数据.
+
 ### 3.3 配置说明
 
 在配置文件`configs/det/dbnet/db_r50_icdar15.yaml`中更新如下文件路径。其中`dataset_root`会分别和`data_dir`以及`label_file`拼接构成完整的数据集目录和标签文件路径。
@@ -342,7 +348,7 @@ python tools/eval.py --config configs/det/dbnet/db_r50_icdar15.yaml
 
 ### 3.6 MindSpore Lite 推理
 
-请参考[MindOCR 推理](../../../docs/cn/inference/inference_tutorial_cn.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
+请参考[MindOCR 推理](../../../docs/cn/inference/inference_tutorial.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
 
 - 模型导出
 
@@ -358,11 +364,11 @@ python tools/export.py --model_name configs/det/dbnet/db_r50_icdar15.yaml --data
 
 - 环境搭建
 
-请参考[环境安装](../../../docs/cn/inference/environment_cn.md#2-mindspore-lite推理)教程，配置MindSpore Lite推理运行环境。
+请参考[环境安装](../../../docs/cn/inference/environment.md#2-mindspore-lite推理)教程，配置MindSpore Lite推理运行环境。
 
 - 模型转换
 
-请参考[模型转换](../../../docs/cn/inference/convert_tutorial_cn.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换，
+请参考[模型转换](../../../docs/cn/inference/convert_tutorial.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换，
 其中`configFile`文件中的`input_shape`需要填写模型导出时shape，如上述的(1,3,736,1280)，格式为NCHW。
 
 - 执行推理
@@ -376,7 +382,7 @@ python infer.py \
     --device=Ascend \
     --device_id=0 \
     --det_model_path=your_path_to/output.mindir \
-    --det_config_path=../../configs/det/dbnet/db_r50_icdar15.yaml \
+    --det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
     --backend=lite \
     --res_save_dir=results_dir
 ```

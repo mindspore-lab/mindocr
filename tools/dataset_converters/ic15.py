@@ -2,6 +2,10 @@ import glob
 import json
 import os
 
+from shapely.geometry import Polygon
+
+from mindocr.data.utils.polygon_utils import sort_clockwise
+
 
 class IC15_Converter(object):
     """
@@ -29,20 +33,22 @@ class IC15_Converter(object):
                 assert os.path.exists(
                     img_path
                 ), f"{img_path} not exist! Please check the input image_dir {image_dir} and names in {label_fp}"
+
                 label = []
                 if self.path_mode == "relative":
                     img_path = os.path.basename(img_path)
                 with open(label_fp, "r", encoding="utf-8-sig") as f:
                     for line in f.readlines():
-                        tmp = line.strip("\n\r").replace("\xef\xbb\xbf", "").split(",")
-                        points = tmp[:8]
-                        s = []
-                        for i in range(0, len(points), 2):
-                            b = points[i : i + 2]
-                            b = [int(t) for t in b]
-                            s.append(b)
-                        result = {"transcription": tmp[8], "points": s}
-                        label.append(result)
+                        line = line.strip("\n\r").replace("\xef\xbb\xbf", "").split(",", 8)
+
+                        points = [[int(line[i]), int(line[i + 1])] for i in range(0, 8, 2)]  # reshape points (4, 2)
+                        # sort points and validate
+                        points = sort_clockwise(points).tolist()
+                        if not Polygon(points).is_valid:
+                            print(f"Warning {img_path.name}: skipping invalid polygon {points}")
+                            continue
+
+                        label.append({"transcription": line[8], "points": points})
 
                 out_file.write(img_path + "\t" + json.dumps(label, ensure_ascii=False) + "\n")
 

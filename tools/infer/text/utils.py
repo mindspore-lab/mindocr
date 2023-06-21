@@ -1,24 +1,32 @@
 import glob
 import os
+from pathlib import Path
+from typing import List
 
 import cv2
 import numpy as np
 
+from mindocr.utils.logger import Logger
 
-def get_image_paths(img_dir):
-    """
-    img_dir (str): path to an image or path to a directory containing multiple images
-    """
+_logger = Logger("mindocr")
 
-    fmts = ["jpg", "png", "jpeg"]
-    img_paths = []
-    if os.path.isfile(img_dir):
-        assert os.path.exists(img_dir), f"{img_dir} does NOT exist. Please check the file path."
-        img_paths.append(img_dir)
+
+def get_image_paths(img_dir: str) -> List[str]:
+    """
+    Args:
+        img_dir: path to an image or a directory containing multiple images.
+
+    Returns:
+        List: list of image paths in the directory and its subdirectories.
+    """
+    img_dir = Path(img_dir)
+    assert img_dir.exists(), f"{img_dir} does NOT exist. Please check the directory / file path."
+
+    extensions = [".jpg", ".png", ".jpeg"]
+    if img_dir.is_file():
+        img_paths = [str(img_dir)]
     else:
-        for fmt in fmts:
-            img_paths.extend(glob.glob(os.path.join(img_dir, f"*.{fmt}")))
-            img_paths.extend(glob.glob(os.path.join(img_dir, f"*.{fmt.upper()}")))
+        img_paths = [str(file) for file in img_dir.rglob("*.*") if file.suffix.lower() in extensions]
 
     assert (
         len(img_paths) > 0
@@ -32,10 +40,10 @@ def get_ckpt_file(ckpt_dir):
     else:
         # ckpt_load_path = os.path.join(ckpt_dir, 'best.ckpt')
         ckpt_paths = sorted(glob.glob(os.path.join(ckpt_dir, "*.ckpt")))
-        assert len(ckpt_paths) == 0, f"No .ckpt files found in {ckpt_dir}"
+        assert len(ckpt_paths) != 0, f"No .ckpt files found in {ckpt_dir}"
         ckpt_load_path = ckpt_paths[0]
         if len(ckpt_paths) > 1:
-            print(f"WARNING: More than one .ckpt files found in {ckpt_dir}. Pick {ckpt_load_path}")
+            _logger.warning(f"More than one .ckpt files found in {ckpt_dir}. Pick {ckpt_load_path}")
 
     return ckpt_load_path
 
@@ -47,7 +55,7 @@ def crop_text_region(img, points, box_type="quad", rotate_if_vertical=True):  # 
         img_crop_width = int(max(np.linalg.norm(points[0] - points[1]), np.linalg.norm(points[2] - points[3])))
         img_crop_height = int(max(np.linalg.norm(points[0] - points[3]), np.linalg.norm(points[1] - points[2])))
         dst_pts = np.float32([[0, 0], [img_crop_width, 0], [img_crop_width, img_crop_height], [0, img_crop_height]])
-        # print(points, pts_std)
+
         trans_matrix = cv2.getPerspectiveTransform(points, dst_pts)
         dst_img = cv2.warpPerspective(
             img, trans_matrix, (img_crop_width, img_crop_height), borderMode=cv2.BORDER_REPLICATE, flags=cv2.INTER_CUBIC
@@ -145,7 +153,7 @@ def eval_rec_res(rec_res_fp, gt_fp, lower=True, ignore_space=True, filter_ood=Tr
 
             tot += 1
         else:
-            print("ERROR: Mismatched file name in pred result and gt: {fn}, {gt[i][0]}. skip this sample")
+            _logger.warning("Mismatched file name in pred result and gt: {fn}, {gt[i][0]}. skip this sample")
 
     acc = correct / tot
 

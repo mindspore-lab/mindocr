@@ -3,7 +3,6 @@ Some utils while building models
 """
 import collections.abc
 import difflib
-import logging
 import os
 from copy import deepcopy
 from itertools import repeat
@@ -11,7 +10,11 @@ from typing import List, Optional
 
 from mindspore import load_checkpoint, load_param_into_net
 
+from mindocr.utils.logger import Logger
+
 from .download import DownLoad, get_default_download_root
+
+_logger = Logger("mindocr")
 
 
 def get_checkpoint_download_root():
@@ -29,7 +32,7 @@ class ConfigDict(dict):
 def download_pretrained(default_cfg):
     """Download the pretrained ckpt from url to local path"""
     if "url" not in default_cfg or not default_cfg["url"]:
-        logging.warning("Pretrained model URL is invalid")
+        _logger.warning("Pretrained model URL is invalid")
         return
 
     # download files
@@ -47,20 +50,20 @@ def auto_map(model, param_dict):
     remap = {}
     for param in net_param:
         if param.name not in ckpt_param:
-            print('Cannot find a param to load: ', param.name)
+            _logger.info(f'Cannot find a param to load: {param.name}')
             poss = difflib.get_close_matches(param.name, ckpt_param, n=3, cutoff=0.6)
             if len(poss) > 0:
-                print('=> Find most matched param: ', poss[0], ', loaded')
+                _logger.info(f'=> Find most matched param: {poss[0]},  loaded')
                 updated_param_dict[param.name] = updated_param_dict.pop(poss[0])  # replace
                 remap[param.name] = poss[0]
             else:
                 raise ValueError('Cannot find any matching param from: ', ckpt_param)
 
     if remap != {}:
-        print('WARNING: Auto mapping succeed. Please check the found mapping names to ensure correctness')
-        print('\tNet Param\t<---\tCkpt Param')
+        _logger.warning('Auto mapping succeed. Please check the found mapping names to ensure correctness')
+        _logger.info('\tNet Param\t<---\tCkpt Param')
         for k in remap:
-            print(f'\t{k}\t<---\t{remap[k]}')
+            _logger.info(f'\t{k}\t<---\t{remap[k]}')
     return updated_param_dict
 
 
@@ -71,9 +74,11 @@ def load_pretrained(model, default_cfg, num_classes=1000, in_channels=3, filter_
     try:
         param_dict = load_checkpoint(file_path)
     except Exception:
-        print(f'ERROR: Fails to load the checkpoint. Please check whether the checkpoint is downloaded successfully as '
-              f'`{file_path}` and is not zero-byte. You may try to manually download the checkpoint from ',
-              default_cfg["url"])
+        _logger.error(
+            f"Fails to load the checkpoint. Please check whether the checkpoint is downloaded successfully"
+            f"as `{file_path}` and is not zero-byte. You may try to manually download the checkpoint "
+            f"from {default_cfg['url']}"
+        )
         param_dict = dict()
 
     if auto_mapping:
@@ -81,7 +86,7 @@ def load_pretrained(model, default_cfg, num_classes=1000, in_channels=3, filter_
 
     if in_channels == 1:
         conv1_name = default_cfg["first_conv"]
-        logging.info("Converting first conv (%s) from 3 to 1 channel", conv1_name)
+        _logger.info(f"Converting first conv {conv1_name} from 3 to 1 channel")
         con1_weight = param_dict[conv1_name + ".weight"]
         con1_weight.set_data(con1_weight.sum(axis=1, keepdims=True), slice_shape=True)
     elif in_channels != 3:
@@ -110,7 +115,7 @@ def load_pretrained(model, default_cfg, num_classes=1000, in_channels=3, filter_
 
     load_param_into_net(model, param_dict)
 
-    print('INFO: Finish loading model checkpoint from: ', file_path)
+    _logger.info(f'Finish loading model checkpoint from: {file_path}')
 
 
 def make_divisible(

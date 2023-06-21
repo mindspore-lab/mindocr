@@ -3,8 +3,12 @@ import json
 import os
 import re
 
+from shapely.geometry import Polygon
 
-class TOTALTEXT_Converter(object):
+from mindocr.data.utils.polygon_utils import sort_clockwise
+
+
+class TOTALTEXT_Converter:
     """
     Format annotation to standard form for total text dataset. The original annotation files are txt files named after
         the image names. An example of txt file:
@@ -40,6 +44,7 @@ class TOTALTEXT_Converter(object):
                 assert os.path.exists(
                     img_path
                 ), f"{img_path} not exist! Please check the input image_dir {image_dir} and names in {label_fp}"
+
                 label = []
                 if self.path_mode == "relative":
                     img_path = os.path.basename(img_path)
@@ -69,11 +74,26 @@ class TOTALTEXT_Converter(object):
                         if transcriptions.startswith("u"):
                             transcriptions = transcriptions[1:]
                         transcriptions = transcriptions.replace("'", "")
+
+                        if transcriptions == "#":
+                            transcriptions = "###"  # unify ignore labels with the rest of the project
+
                         s = []
                         for x, y in zip(xs, ys):
                             if len(x) > 0 and len(y) > 0:
                                 b = [int(x), int(y)]
                                 s.append(b)
+
+                        if len(s) < 3:
+                            print(f"Warning {img_path}: skipping invalid polygon {s}")
+                            continue
+
+                        poly = Polygon(s)
+                        if not poly.is_valid:  # fix broken polygons
+                            s = sort_clockwise(s).tolist()
+                        elif not poly.exterior.is_ccw:  # sort vertices in polygons in clockwise order
+                            s = s[::-1]
+
                         result = {"transcription": transcriptions, "points": s}
                         label.append(result)
 

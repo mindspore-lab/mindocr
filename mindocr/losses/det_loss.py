@@ -10,22 +10,27 @@ __all__ = ["L1BalancedCELoss", "PSEDiceLoss", "EASTLoss"]
 
 class L1BalancedCELoss(nn.LossBase):
     """
-    Balanced CrossEntropy Loss on `binary`,
-    MaskL1Loss on `thresh`,
-    DiceLoss on `thresh_binary`.
-    Note: The meaning of inputs can be figured out in `SegDetectorLossBuilder`.
+    Apply Balanced CrossEntropy Loss on `binary`, MaskL1Loss on `thresh`, DiceLoss on `thresh_binary` and return
+    overall weighted loss.
+
+    Args:
+        eps: epsilon value to add to the denominator to avoid division by zero. Default: 1e-6.
+        bce_scale: scale coefficient for Balanced CrossEntropy Loss. Default: 5
+        l1_scale: scale coefficient for MaskL1Loss. Default: 10.
+        bce_replace: loss to be used instead of Balanced CrossEntropy. Choices: ['bceloss', 'diceloss'].
+                     Default: 'bceloss'.
     """
 
-    def __init__(self, eps=1e-6, bce_scale=5, l1_scale=10, bce_replace="bceloss"):
+    def __init__(self, eps: float = 1e-6, bce_scale: int = 5, l1_scale: int = 10, bce_replace: str = "bceloss"):
         super().__init__()
 
         self.dice_loss = DiceLoss(eps=eps)
-        self.l1_loss = MaskL1Loss()
+        self.l1_loss = MaskL1Loss(eps=eps)
 
         if bce_replace == "bceloss":
-            self.bce_loss = BalancedBCELoss()
+            self.bce_loss = BalancedBCELoss(eps=eps)
         elif bce_replace == "diceloss":
-            self.bce_loss = DiceLoss()
+            self.bce_loss = DiceLoss(eps=eps)
         else:
             raise ValueError(f"bce_replace should be in ['bceloss', 'diceloss'], but get {bce_replace}")
 
@@ -34,20 +39,21 @@ class L1BalancedCELoss(nn.LossBase):
 
     def construct(
         self, pred: Union[Tensor, Tuple[Tensor]], gt: Tensor, gt_mask: Tensor, thresh_map: Tensor, thresh_mask: Tensor
-    ):
+    ) -> Tensor:
         """
-        Compute dbnet loss
+        Compute overall weighted loss.
+
         Args:
-            pred (Tuple[Tensor]): network prediction consists of
+            pred: Network prediction that consists of
                 binary: The text segmentation prediction.
                 thresh: The threshold prediction (optional)
                 thresh_binary: Value produced by `step_function(binary - thresh)`. (optional)
-            gt (Tensor): Text regions bitmap gt.
-            mask (Tensor): Ignore mask, pexels where value is 1 indicates no contribution to loss.
-            thresh_mask (Tensor): Mask indicates regions cared by thresh supervision.
-            thresh_map (Tensor): Threshold gt.
+            gt: Texts binary map.
+            gt_mask: Ignore mask. Pixels with values 1 indicate no contribution to loss.
+            thresh_map: Threshold map.
+            thresh_mask: Mask that indicates regions used in the threshold map loss calculation.
         Return:
-            loss value (Tensor)
+            Tensor: weighted loss value.
         """
         if isinstance(pred, ms.Tensor):
             loss = self.bce_loss(pred, gt, gt_mask)
@@ -58,30 +64,24 @@ class L1BalancedCELoss(nn.LossBase):
             dice_loss = self.dice_loss(thresh_binary, gt, gt_mask)
             loss = dice_loss + self.l1_scale * l1_loss + self.bce_scale * bce_loss_output
 
-        """
-        if isinstance(pred, tuple):
-            binary, thresh, thresh_binary = pred
-        else:
-            binary = pred
-
-        bce_loss_output = self.bce_loss(binary, gt, gt_mask)
-
-        if isinstance(pred, tuple):
-            l1_loss = self.l1_loss(thresh, thresh_map, thresh_mask)
-            dice_loss = self.dice_loss(thresh_binary, gt, gt_mask)
-            loss = dice_loss + self.l1_scale * l1_loss + self.bce_scale * bce_loss_output
-        else:
-            loss = bce_loss_output
-        """
         return loss
 
 
 class DiceLoss(nn.LossBase):
-    def __init__(self, eps=1e-6):
+    """
+    Introduced in `"Generalised Dice overlap as a deep learning loss function for highly unbalanced segmentations"
+    <https://arxiv.org/abs/1905.02244>`_. Dice loss handles well the class imbalance in terms of pixel count for
+    foreground and background.
+
+    Args:
+        eps: epsilon value to add to the denominator to avoid division by zero. Default: 1e-6.
+    """
+
+    def __init__(self, eps: float = 1e-6):
         super().__init__()
         self._eps = eps
 
-    def construct(self, pred, gt, mask):
+    def construct(self, pred: Tensor, gt: Tensor, mask: Tensor) -> Tensor:
         """
         pred: one or two heatmaps of shape (N, 1, H, W),
               the losses of two heatmaps are added together.
@@ -97,11 +97,18 @@ class DiceLoss(nn.LossBase):
 
 
 class MaskL1Loss(nn.LossBase):
-    def __init__(self, eps=1e-6):
+    """
+    L1 loss for the masked region.
+
+    Args:
+        eps: epsilon value to add to the denominator to avoid division by zero. Default: 1e-6.
+    """
+
+    def __init__(self, eps: float = 1e-6):
         super().__init__()
         self._eps = eps
 
-    def construct(self, pred, gt, mask):
+    def construct(self, pred: Tensor, gt: Tensor, mask: Tensor) -> Tensor:
         """
         Args:
             pred: shape :math:`(N, 1, H, W)`, the prediction of network
@@ -113,15 +120,23 @@ class MaskL1Loss(nn.LossBase):
 
 
 class BalancedBCELoss(nn.LossBase):
-    """Balanced cross entropy loss."""
+    """
+    Balanced cross entropy loss - number of false positive pixels that affect the loss value is limited by
+    the `negative_ratio` to preserve balance between true and false positives.
 
-    def __init__(self, negative_ratio=3, eps=1e-6):
+    Args:
+        negative_ratio: number of negative pixels (false positive) selected in ratio with the number of
+                        positive pixels (true positive).
+        eps: epsilon value to add to the denominator to avoid division by zero. Default: 1e-6.
+    """
+
+    def __init__(self, negative_ratio: int = 3, eps: float = 1e-6):
         super().__init__()
         self._negative_ratio = negative_ratio
         self._eps = eps
         self._bce_loss = ops.BinaryCrossEntropy(reduction="none")
 
-    def construct(self, pred, gt, mask):
+    def construct(self, pred: Tensor, gt: Tensor, mask: Tensor) -> Tensor:
         """
         Args:
             pred: shape :math:`(N, 1, H, W)`, the prediction of network
@@ -158,6 +173,19 @@ class BalancedBCELoss(nn.LossBase):
 
 
 class PSEDiceLoss(nn.Cell):
+    """
+    PSE Dice Loss module for text detection.
+
+    This module calculates the Dice loss between the predicted binary segmentation map and the ground truth map.
+
+    Args:
+        alpha (float): The weight for text loss. Default is 0.7.
+        ohem_ratio (int): The ratio for hard negative example mining. Default is 3.
+
+    Returns:
+        Tensor: The computed loss value.
+    """
+
     def __init__(self, alpha=0.7, ohem_ratio=3):
         super().__init__()
         self.threshold0 = Tensor(0.5, mstype.float32)
@@ -192,11 +220,15 @@ class PSEDiceLoss(nn.Cell):
 
     def ohem_batch(self, scores, gt_texts, training_masks):
         """
+        Perform online hard example mining (OHEM) for a batch of scores, ground truth texts, and training masks.
 
-        :param scores: [N * H * W]
-        :param gt_texts:  [N * H * W]
-        :param training_masks: [N * H * W]
-        :return: [N * H * W]
+        Args:
+            scores (Tensor): The predicted scores of shape [N * H * W].
+            gt_texts (Tensor): The ground truth texts of shape [N * H * W].
+            training_masks (Tensor): The training masks of shape [N * H * W].
+
+        Returns:
+            Tensor: The selected masks of shape [N * H * W].
         """
         batch_size = scores.shape[0]
         h, w = scores.shape[1:]
@@ -249,11 +281,15 @@ class PSEDiceLoss(nn.Cell):
 
     def dice_loss(self, input_params, target, mask):
         """
+        Compute the dice loss between input parameters, target, and mask.
 
-        :param input: [N, H, W]
-        :param target: [N, H, W]
-        :param mask: [N, H, W]
-        :return:
+        Args:
+            input_params (Tensor): The input parameters of shape [N, H, W].
+            target (Tensor): The target of shape [N, H, W].
+            mask (Tensor): The mask of shape [N, H, W].
+
+        Returns:
+            Tensor: The dice loss value.
         """
         batch_size = input_params.shape[0]
         input_sigmoid = self.sigmoid(input_params)
@@ -281,12 +317,16 @@ class PSEDiceLoss(nn.Cell):
 
     def construct(self, model_predict, gt_texts, gt_kernels, training_masks):
         """
+        Construct the PSE Dice Loss calculation.
 
-        :param model_predict: [N * 7 * H * W]
-        :param gt_texts: [N * H * W]
-        :param gt_kernels:[N * 6 * H * W]
-        :param training_masks:[N * H * W]
-        :return:
+        Args:
+            model_predict (Tensor): The predicted model outputs of shape [N * 7 * H * W].
+            gt_texts (Tensor): The ground truth texts of shape [N * H * W].
+            gt_kernels (Tensor): The ground truth kernels of shape [N * 6 * H * W].
+            training_masks (Tensor): The training masks of shape [N * H * W].
+
+        Returns:
+            Tensor: The computed loss value.
         """
         batch_size = model_predict.shape[0]
         model_predict = self.upsample(model_predict, scale_factor=4)

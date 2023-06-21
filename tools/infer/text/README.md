@@ -14,6 +14,7 @@ Thus, online inference is more suitable for demonstration and to visually evalua
 | Python      | >=3.7   |
 
 Supported platforms: Linux, MacOS, Windows (Not tested)
+
 Supported devices: CPU, GPU, and Ascend.
 
 Please clone MindOCR at first
@@ -173,6 +174,7 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
                                           --det_algorithm DB++  \
                                           --rec_algorithm CRNN
 ```
+> Note: set `--visualize_output True` if you want to visualize the detection and recognition results on the input image.
 
 After running, the inference results will be saved in `{args.draw_img_save_dir}/system_results.txt`,  where `--draw_img_save_dir` is the directory for saving  results and is set to `./inference_results` by default. Here are some results for examples.
 
@@ -251,7 +253,7 @@ Evaluation of the text spotting inference results on Ascend 910 with MindSpore 2
 </div>
 
 **Notes:**
-1. Currently, online inference pipeline is not optimized for efficiency, thus FPS is only for comparison between models. If FPS is your highest priority, please refer to [Inference on Ascend 310](docs/en/inference/inference_tutorial_en.md), which is much faster.
+1. Currently, online inference pipeline is not optimized for efficiency, thus FPS is only for comparison between models. If FPS is your highest priority, please refer to [Inference on Ascend 310](https://github.com/mindspore-lab/mindocr/blob/main/docs/en/inference/inference_tutorial.md), which is much faster.
 2. Unless extra inidication, all experiments are run with `--det_limit_type`="min" and `--det_limit_side`=720.
 3. SVTR is run in mixed precision mode (amp_level=O2) since it is optimized for O2.
 

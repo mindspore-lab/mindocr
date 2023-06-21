@@ -41,7 +41,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 | SVTR-Tiny      | D910x4-MS1.10-G | 89.02%    | 4866 s/epoch       | 2968 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb-5cf5a130.mindir) |
 </div>
 
-<details open>
+<details open markdown>
   <div align="center">
   <summary>Detailed accuracy results for each benchmark dataset</summary>
 
@@ -56,6 +56,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 - To reproduce the result on other contexts, please ensure the global batch size is the same.
 - The characters supported by model are lowercase English characters from a to z and numbers from 0 to 9. More explanation on dictionary, please refer to [4. Character Dictionary](#4-character-dictionary).
 - The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#312-dataset-download) section.
+- The input Shapes of MindIR of RARE is (1, 3, 64, 256).
 
 
 ## 3. Quick Start
@@ -358,6 +359,49 @@ After training, evaluation results on the benchmark test set are as follows, whe
 
 ### Training with Custom Datasets
 You can train models for different languages with your own custom datasets. Loading the pretrained Chinese model to finetune on your own dataset usually yields better results than training from scratch. Please refer to the tutorial [Training Recognition Network with Custom Datasets](../../../docs/en/tutorials/training_recognition_custom_dataset.md).
+
+
+## 6. MindSpore Lite Inference
+
+To inference with MindSpot Lite on Ascend 310, please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial.md). In short, the whole process consists of the following steps:
+
+**1. Model Export**
+
+Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../README.md) tutorial and use the following command to export the trained ckpt model to  MindIR file:
+
+```shell
+python tools/export.py --model_name svtr_tiny --data_shape 64 256 --local_ckpt_path /path/to/local_ckpt.ckpt
+# or
+python tools/export.py --model_name configs/rec/svtr/svtr_tiny.yaml --data_shape 64 256 --local_ckpt_path /path/to/local_ckpt.ckpt
+```
+
+The `data_shape` is the model input shape of height and width for MindIR file. The shape value of MindIR in the download link can be found in [Notes](#2-results) under results table.
+
+
+**2. Environment Installation**
+
+Please refer to [Environment Installation](../../../docs/en/inference/environment.md#2-mindspore-lite-inference) tutorial to configure the MindSpore Lite inference environment.
+
+**3. Model Conversion**
+
+Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#1-mindocr-models),
+and use the `converter_lite` tool for offline conversion of the MindIR file, where the `input_shape` in `configFile` needs to be filled in with the value from MindIR export,
+as mentioned above (1, 3, 64, 256), and the format is NCHW.
+
+**4. Inference**
+
+Assuming that you obtain output.mindir after model conversion, go to the `deploy/py_infer` directory, and use the following command for inference:
+
+```shell
+python infer.py \
+    --input_images_dir=/your_path_to/test_images \
+    --device=Ascend \
+    --device_id=0 \
+    --rec_model_path=your_path_to/output.mindir \
+    --rec_model_name_or_config=../../configs/rec/svtr/svtr_tiny.yaml \
+    --backend=lite \
+    --res_save_dir=results_dir
+```
 
 
 ## References
