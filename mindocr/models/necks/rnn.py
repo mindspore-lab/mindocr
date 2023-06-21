@@ -3,10 +3,7 @@ import numpy as np
 import mindspore as ms
 from mindspore import Tensor, nn, ops
 
-from mindocr.utils.logger import Logger
-
 __all__ = ['RNNEncoder']
-_logger = Logger("mindocr")
 
 
 # TODO: check mindspore nn LSTM diff in performance and precision from paddle/pytorch
