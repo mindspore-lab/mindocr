@@ -97,6 +97,7 @@ class TextSystem(object):
             cls_start = time()
             _, crops = self.direction_classify(crops)
             time_profile["cls"] = time() - cls_start
+            _logger.info(f"\nCls time: {time_profile['cls']}")
 
         # recognize cropped images
         rs = time()

@@ -38,7 +38,7 @@ class DirectionClassifier(object):
         self.visualize_output = args.visualize_output
         # self.batch_mode = args.cls_batch_mode and (self.batch_num > 1)
         _logger.info(
-            "recognize in {} mode {}".format(
+            "classify text direction in {} mode {}".format(
                 "batch" if self.batch_mode else "serial",
                 "batch_size: " + str(self.batch_num) if self.batch_mode else "",
             )
@@ -99,7 +99,7 @@ class DirectionClassifier(object):
         assert isinstance(
             img_or_path_list, list
         ), "Input for text direction classification must be list of images or image paths."
-        _logger.info("num images for cls: ", len(img_or_path_list))
+        _logger.info(f"num images for cls: {len(img_or_path_list)}")
         if self.batch_mode:
             cls_res_all, all_rotated_imgs = self.run_batchwise(img_or_path_list)
         else:
@@ -263,4 +263,4 @@ if __name__ == "__main__":
     save_cls_res(cls_res_all, img_paths, include_score=True, save_path=save_fp)
     # print('All cls res: ', cls_res_all)
     print("Done! Text direction classification results saved in ", save_dir)
-    print("Time cost: ", t, "FPS: ", len(img_paths) / t)
+    print("CLS time: ", t, "FPS: ", len(img_paths) / t)

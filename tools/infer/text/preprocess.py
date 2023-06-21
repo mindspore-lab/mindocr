@@ -117,21 +117,19 @@ class Preprocessor(object):
                     f"batch mode = {batch_mode}."
                 )
 
-            _logger.info(
-                f"Pick optimal preprocess hyper-params for {task} algo {algo}:\n",
-                "\n".join(
-                    [
-                        f"{k}:\t{str(v)}"
-                        for k, v in dict(
-                            target_height=target_height,
-                            target_width=target_width,
-                            padding=padding,
-                            keep_ratio=keep_ratio,
-                            norm_before_pad=norm_before_pad,
-                        ).items()
-                    ]
-                ),
+            hparam = "\n".join(
+                [
+                    f"{k}:\t{str(v)}"
+                    for k, v in dict(
+                        target_height=target_height,
+                        target_width=target_width,
+                        padding=padding,
+                        keep_ratio=keep_ratio,
+                        norm_before_pad=norm_before_pad,
+                    ).items()
+                ]
             )
+            _logger.info(f"Pick optimal preprocess hyper-params for {task} algo {algo}:\n{hparam}")
 
             pipeline = [
                 {"DecodeImage": {"img_mode": "RGB", "keep_ori": True, "to_float32": False}},
