@@ -16,7 +16,7 @@ MindOCR, and pay attention to selecting the ACL/Lite environment based on the mo
 
 MindOCR inference not only supports exported models from trained ckpt file, but also supports the third-party models, as
 listed in the [MindOCR Models Support List](models_list.md) and
-[Third-Party Models Support List](models_list_thirdparty.md).
+[Third-party Models Support List](models_list_thirdparty.md) (PaddleOCR, MMOCR, etc.).
 
 Please refer to the [Conversion Tutorial](convert_tutorial.md), to convert it into a model format supported by
 MindOCR inference.
@@ -184,7 +184,7 @@ Notes：
 
 `*_model_name_or_config` can be the model name or YAML config file path, please refer to
 [MindOCR Models Support List](models_list.md) and
-[Third-Party Models Support List](models_list_thirdparty.md).
+[Third-party Models Support List](models_list_thirdparty.md) (PaddleOCR, MMOCR, etc.).
 
 ### 5. Inference (C++)
 

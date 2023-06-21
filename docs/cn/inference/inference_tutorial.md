@@ -11,7 +11,7 @@ MindOCR的推理支持Ascend310/Ascend310P设备，采用[MindSpore Lite](https:
 
 ### 3. 模型转换
 
-MindOCR除了支持自身训练端导出模型的推理外，还支持第三方模型的推理，列表见[MindOCR模型支持列表](models_list.md)和[第三方模型支持列表](models_list_thirdparty.md)。
+MindOCR除了支持自身训练端导出模型的推理外，还支持第三方模型的推理，列表见[MindOCR模型支持列表](models_list.md)和[第三方模型支持列表](models_list_thirdparty.md)（如PaddleOCR、MMOCR等）。
 
 请参考[模型转换教程](convert_tutorial.md)，将其转换为MindOCR推理支持的模型格式。
 
@@ -174,7 +174,7 @@ word_1814.png  "cathay"
 
 说明：
 
-`*_model_name_or_config`可以填模型名或YAML配置文件路径，可参考[MindOCR模型支持列表](models_list.md)和[第三方模型支持列表](models_list_thirdparty.md)。
+`*_model_name_or_config`可以填模型名或YAML配置文件路径，可参考[MindOCR模型支持列表](models_list.md)和[第三方模型支持列表](models_list_thirdparty.md)（如PaddleOCR、MMOCR等）。
 
 ### 5. 推理 (C++)
 
