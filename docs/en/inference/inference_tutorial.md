@@ -1,5 +1,3 @@
-English | [中文](../../cn/inference/inference_tutorial.md)
-
 ## Inference - Tutorial
 
 ### 1. Introduction

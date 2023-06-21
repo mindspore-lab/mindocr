@@ -1,5 +1,3 @@
-[English](../../en/inference/convert_dynamic.md) | 中文
-
 ## 推理 - 模型Shape分档
 
 ### 1. 简介

@@ -1,5 +1,3 @@
-[English](../../en/datasets/syntext150k.md) | 中文
-
 # 数据集下载
 
 SynText150k [文章](https://arxiv.org/abs/2002.10200)
@@ -22,4 +20,4 @@ path-to-data-dir/
 
 ```
 
-[返回](../../../tools/dataset_converters/README_CN.md)
+[返回dataset converters](converters.md)

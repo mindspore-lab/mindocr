@@ -1,5 +1,3 @@
-[English](../../en/inference/models_list.md) | 中文
-
 ## 推理 - MindOCR模型推理支持列表
 
 MindOCR推理支持训练端ckpt导出的模型，本文档展示了已适配的模型列表。

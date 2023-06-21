@@ -1,5 +1,3 @@
-[English](../../en/inference/models_list_thirdparty.md) | 中文
-
 ## 推理 - 第三方模型推理支持列表
 
 MindOCR可以支持第三方模型的推理，本文档展示了已适配的模型列表。
