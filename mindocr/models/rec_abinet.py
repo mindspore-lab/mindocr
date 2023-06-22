@@ -1,6 +1,5 @@
 from ._registry import register_model
-
-# from .backbones.mindcv_models.utils import load_pretrained
+from .backbones.mindcv_models.utils import load_pretrained
 from .base_model import BaseModel
 
 __all__ = ["ABINetModel", "abinet"]
@@ -13,7 +12,7 @@ def _cfg(url="", **kwargs):
 default_cfgs = {
     # 'abinet':
     "abinet": _cfg(
-        url="https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_vision_en_28a9ec62.ckpt"
+        url="https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en_34aeaf96.ckpt"
     ),
 }
 
@@ -37,9 +36,8 @@ def abinet(pretrained=False, **kwargs):
     model = ABINetModel(model_config)
 
     # load pretrained weights
-    # if pretrained:
-    #     default_cfg = default_cfgs['abinet']
-    #     load_pretrained(model, default_cfg)
-    # 上传的出现问题
+    if pretrained:
+        default_cfg = default_cfgs['abinet']
+        load_pretrained(model, default_cfg)
 
     return model
