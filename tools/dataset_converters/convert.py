@@ -31,9 +31,7 @@ from ctw1500 import CTW1500_Converter
 from ic15 import IC15_Converter
 from ic19_art import IC19_ART_Converter
 from lsvt import LSVT_Converter
-from mlt2017_9 import MLT2017_Converter
-
-# from mlt2019 import MLT2019_Converter
+from mlt2017_9 import MLT2017_Converter, MLT2019_Converter
 from mtwi2018 import MTWI2018_Converter
 from rctw17 import RCTW17_Converter
 from rects import RECTS_Converter
