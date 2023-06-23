@@ -1,7 +1,7 @@
 import math
 import numbers
 import random
-from typing import Any, Callable, Dict, List
+from typing import Any, Dict
 
 import cv2
 import numpy as np
@@ -9,18 +9,6 @@ import numpy as np
 from mindspore.dataset.vision import RandomColorAdjust
 
 __all__ = ["SVTRGeometry", "SVTRDeterioration", "CVColorJitter"]
-
-
-class _Compose:
-    """A replacement of mindspore compose, prevent dublicated compose call in mindspore dataset piepline"""
-
-    def __init__(self, transforms: List[Callable[..., Any]]) -> None:
-        self.transforms = transforms
-
-    def __call__(self, x):
-        for func in self.transforms:
-            x = func(x)
-        return x
 
 
 def sample_asym(magnitude, size=None):
@@ -352,8 +340,8 @@ class SVTRDeterioration(object):
         if random.random() < self.p:
             img = data["image"]
             random.shuffle(self.transforms)
-            transforms = _Compose(self.transforms)
-            img = transforms(img)
+            for func in self.transforms:
+                img = func(img)
             data["image"] = img
         return data
 
@@ -383,8 +371,8 @@ class SVTRGeometry(object):
             img = data["image"]
             if self.aug_type:
                 random.shuffle(self.transforms)
-                transforms = _Compose(self.transforms[: random.randint(1, 3)])
-                img = transforms(img)
+                for func in self.transforms[: random.randint(1, 3)]:
+                    img = func(img)
             else:
                 img = self.transforms[random.randint(0, 2)](img)
             data["image"] = img
