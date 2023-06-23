@@ -277,19 +277,19 @@ class CVRescale(object):
 
 
 class CVGaussianNoise(object):
-    def __init__(self, mean=0, std=20):
+    def __init__(self, mean=0, variance=20):
         self.mean = mean
-        self.std = std
+        self.variance = variance
 
     def __call__(self, img):
-        if isinstance(self.std, numbers.Number):
-            std = max(int(sample_asym(self.std)), 1)
-        elif isinstance(self.std, (tuple, list)) and len(self.std) == 2:
-            std = int(sample_uniform(self.std[0], self.std[1]))
+        if isinstance(self.variance, numbers.Number):
+            variance = max(int(sample_asym(self.variance)), 1)
+        elif isinstance(self.variance, (tuple, list)) and len(self.variance) == 2:
+            variance = int(sample_uniform(self.variance[0], self.variance[1]))
         else:
             raise Exception("degree must be number or list with length 2")
 
-        noise = np.random.normal(self.mean, std**0.5, img.shape)
+        noise = np.random.normal(self.mean, variance**0.5, img.shape)
         img = np.clip(img + noise, 0, 255).astype(np.uint8)
         return img
 
@@ -334,11 +334,11 @@ class CVColorJitter(object):
 
 
 class SVTRDeterioration(object):
-    def __init__(self, var, degrees, factor, p=0.5):
+    def __init__(self, variance, degrees, factor, p=0.5):
         self.p = p
         transforms = []
-        if var is not None:
-            transforms.append(CVGaussianNoise(var=var))
+        if variance is not None:
+            transforms.append(CVGaussianNoise(variance=variance))
         if degrees is not None:
             transforms.append(CVMotionBlur(degrees=degrees))
         if factor is not None:
