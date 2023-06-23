@@ -7,22 +7,25 @@ copyright: Copyright &copy; 2022 - 2023 MindSpore Lab
 nav:
   - Home: index.md
 #  - Installation: installation.md
-  - Model Zoo: mkdocs/modelzoo.md
+  - Model Zoo:
+    - 1. Training: mkdocs/modelzoo_training.md
+    - 2. Inference - MindOCR Models List: inference/models_list.md
+    - 3. Inference - Third-party Models List: inference/models_list_thirdparty.md
   - Tutorials:
-    - Datasets:
+    - 1. Datasets:
         - Dataset Preparation: datasets/converters.md
         - Data Transformation Mechanism: tutorials/transform_tutorial.md
-    - Model Training:
+    - 2. Model Training:
         - Yaml Configuration: tutorials/yaml_configuration.md
         - Text Detection: tutorials/training_detection_custom_dataset.md
         - Text Recognition: tutorials/training_recognition_custom_dataset.md
         - Distributed Training on Ascend with OpenMPI/HCCL: tutorials/distribute_train.md
         - Advance Training: tutorials/advanced_train.md
-    - Inference and Deployment:
+    - 3. Inference and Deployment:
 #        - Model Conversion: inference/convert_tutorial.md
         - Python/C++ Inference on Ascend 310: inference/inference_tutorial.md
         - Python Online Inference: mkdocs/online_inference.md
-    - Developer Guides:
+    - 4. Developer Guides:
         - Customize Dataset: mkdocs/customize_dataset.md
         - Customize Data Transformation: mkdocs/customize_data_transform.md
         - Customize a New Model: mkdocs/customize_model.md
@@ -144,6 +147,7 @@ plugins:
           Quick Start: 快速开始
           Configuration: 配置
           Finetune: 微调
+          Training: 训练
           Inference: 推理
           Deployment: 部署
           Notes: 说明

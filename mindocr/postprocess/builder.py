@@ -4,11 +4,14 @@ from . import (
     det_east_postprocess,
     det_pse_postprocess,
     rec_abinet_postprocess,
+    det_fce_postprocess,
+    det_pse_postprocess,
     rec_postprocess,
 )
 from .cls_postprocess import *
 from .det_db_postprocess import *
 from .det_east_postprocess import *
+from .det_fce_postprocess import *
 from .det_pse_postprocess import *
 from .rec_abinet_postprocess import *
 from .rec_postprocess import *
@@ -22,6 +25,7 @@ supported_postprocess = (
     + rec_postprocess.__all__
     + cls_postprocess.__all__
     + rec_abinet_postprocess.__all__
+    + det_fce_postprocess.__all__
 )
 
 
