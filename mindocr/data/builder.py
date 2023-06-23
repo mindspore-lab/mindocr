@@ -167,10 +167,11 @@ def build_dataset(
         input_columns=dataset_column_names,
         backward_comp=version.parse(ms.__version__) < version.parse("2.0.0rc"),
     )
+    using_multiprocess_for_pipeline = loader_config.get("using_multiprocess_for_pipeline ", True)
     for group in transforms:
         ds = ds.map(
             **group,
-            python_multiprocessing=True,
+            python_multiprocessing=using_multiprocess_for_pipeline,
             num_parallel_workers=num_workers_map,
             max_rowsize=loader_config.get("max_rowsize", 64),
         )

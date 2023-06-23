@@ -1,15 +1,26 @@
 import math
 import numbers
 import random
-from typing import Any, Dict
+from typing import Any, Callable, Dict, List
 
 import cv2
 import numpy as np
 
-from mindspore.dataset.transforms import Compose
 from mindspore.dataset.vision import RandomColorAdjust
 
 __all__ = ["SVTRGeometry", "SVTRDeterioration", "CVColorJitter"]
+
+
+class _Compose:
+    """A replacement of mindspore compose, prevent dublicated compose call in mindspore dataset piepline"""
+
+    def __init__(self, transforms: List[Callable[..., Any]]) -> None:
+        self.transforms = transforms
+
+    def __call__(self, x):
+        for func in self.transforms:
+            x = func(x)
+        return x
 
 
 def sample_asym(magnitude, size=None):
@@ -165,6 +176,10 @@ class CVRandomAffine(object):
 
         return angle, translations, scale, shear
 
+    @staticmethod
+    def project(x, y, a, b, c):
+        return int(a * x + b * y + c)
+
     def __call__(self, img):
         src_h, src_w = img.shape[:2]
         angle, translate, scale, shear = self.get_params(self.degrees, self.translate, self.scale, self.shear, src_h)
@@ -174,10 +189,7 @@ class CVRandomAffine(object):
 
         startpoints = [(0, 0), (src_w - 1, 0), (src_w - 1, src_h - 1), (0, src_h - 1)]
 
-        def project(x, y, a, b, c):
-            return int(a * x + b * y + c)
-
-        endpoints = [(project(x, y, *M[0]), project(x, y, *M[1])) for x, y in startpoints]
+        endpoints = [(self.project(x, y, *M[0]), self.project(x, y, *M[1])) for x, y in startpoints]
 
         rect = cv2.minAreaRect(np.array(endpoints))
         bbox = cv2.boxPoints(rect).astype(dtype=np.int32)
@@ -265,37 +277,42 @@ class CVRescale(object):
 
 
 class CVGaussianNoise(object):
-    def __init__(self, mean=0, var=20):
+    def __init__(self, mean=0, std=20):
         self.mean = mean
-        if isinstance(var, numbers.Number):
-            self.var = max(int(sample_asym(var)), 1)
-        elif isinstance(var, (tuple, list)) and len(var) == 2:
-            self.var = int(sample_uniform(var[0], var[1]))
+        self.std = std
+
+    def __call__(self, img):
+        if isinstance(self.std, numbers.Number):
+            std = max(int(sample_asym(self.std)), 1)
+        elif isinstance(self.std, (tuple, list)) and len(self.std) == 2:
+            std = int(sample_uniform(self.std[0], self.std[1]))
         else:
             raise Exception("degree must be number or list with length 2")
 
-    def __call__(self, img):
-        noise = np.random.normal(self.mean, self.var**0.5, img.shape)
+        noise = np.random.normal(self.mean, std**0.5, img.shape)
         img = np.clip(img + noise, 0, 255).astype(np.uint8)
         return img
 
 
 class CVMotionBlur(object):
     def __init__(self, degrees=12, angle=90):
-        if isinstance(degrees, numbers.Number):
-            self.degree = max(int(sample_asym(degrees)), 1)
-        elif isinstance(degrees, (tuple, list)) and len(degrees) == 2:
-            self.degree = int(sample_uniform(degrees[0], degrees[1]))
-        else:
-            raise Exception("degree must be number or list with length 2")
-        self.angle = sample_uniform(-angle, angle)
+        self.angle = angle
+        self.degrees = degrees
 
     def __call__(self, img):
-        M = cv2.getRotationMatrix2D((self.degree // 2, self.degree // 2), self.angle, 1)
-        motion_blur_kernel = np.zeros((self.degree, self.degree))
-        motion_blur_kernel[self.degree // 2, :] = 1
-        motion_blur_kernel = cv2.warpAffine(motion_blur_kernel, M, (self.degree, self.degree))
-        motion_blur_kernel = motion_blur_kernel / self.degree
+        if isinstance(self.degrees, numbers.Number):
+            degree = max(int(sample_asym(self.degrees)), 1)
+        elif isinstance(self.degrees, (tuple, list)) and len(self.degrees) == 2:
+            degree = int(sample_uniform(self.degrees[0], self.degrees[1]))
+        else:
+            raise Exception("degree must be number or list with length 2")
+
+        angle = sample_uniform(-self.angle, self.angle)
+        M = cv2.getRotationMatrix2D((degree // 2, degree // 2), angle, 1)
+        motion_blur_kernel = np.zeros((degree, degree))
+        motion_blur_kernel[degree // 2, :] = 1
+        motion_blur_kernel = cv2.warpAffine(motion_blur_kernel, M, (degree, degree))
+        motion_blur_kernel = motion_blur_kernel / degree
         img = cv2.filter2D(img, -1, motion_blur_kernel)
         img = np.clip(img, 0, 255).astype(np.uint8)
         return img
@@ -334,7 +351,7 @@ class SVTRDeterioration(object):
         if random.random() < self.p:
             img = data["image"]
             random.shuffle(self.transforms)
-            transforms = Compose(self.transforms)
+            transforms = _Compose(self.transforms)
             img = transforms(img)
             data["image"] = img
         return data
@@ -365,7 +382,7 @@ class SVTRGeometry(object):
             img = data["image"]
             if self.aug_type:
                 random.shuffle(self.transforms)
-                transforms = Compose(self.transforms[: random.randint(1, 3)])
+                transforms = _Compose(self.transforms[: random.randint(1, 3)])
                 img = transforms(img)
             else:
                 img = self.transforms[random.randint(0, 2)](img)
