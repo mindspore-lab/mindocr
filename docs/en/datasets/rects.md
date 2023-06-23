@@ -1,19 +1,19 @@
 English | [中文](../../cn/datasets/rects_CN.md)
 
-# ReCTS Dataset - [Official Website](https://rrc.cvc.uab.es/?ch=12&com=introduction)
+# ReCTS Dataset
+[Official Website](https://rrc.cvc.uab.es/?ch=12&com=introduction)
 
 ## Data Downloading
-
-[Download Source](https://rrc.cvc.uab.es/?ch=12&com=downloads). Need to register an account to download this dataset.
+Note: You need to register an account to download this dataset.
 
 <details>
     <summary>How to Download ReCTS Images and Annotations</summary>
 
-The ReCTS images and annotations dataset can be downloaded from [here](https://rrc.cvc.uab.es/?ch=12&com=downloads)
+The ReCTS images and annotations dataset can be downloaded from [here](https://rrc.cvc.uab.es/?ch=12&com=downloads).
 
 </details>
 
-After downloading the images and annotations, unzip the file, after which the data structure should be like as follows (ignoring the archive files):
+After downloading the images and annotations, unzip the file, after which the directory structure should be like as follows (ignoring the archive files):
 ```txt
 ReCTS
   |--- img
@@ -44,6 +44,6 @@ python tools/dataset_converters/convert.py \
     --output_path path/to/ReCTS/det_gt.txt
 ```
 
-Then you can have an annotation file in the standard form `det_gt.txt` under the folder `ReCTS/`.
+The generated standard annotation file `det_gt.txt` will now be placed under the folder `ReCTS/`.
 
 [Back to README](../../../tools/dataset_converters/README.md)

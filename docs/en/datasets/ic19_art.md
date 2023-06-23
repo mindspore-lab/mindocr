@@ -1,21 +1,22 @@
 English | [中文](../../cn/datasets/ic19_art_CN.md)
 
-# ICDAR2019 Dataset - [Official Website](https://rrc.cvc.uab.es/?ch=14&com=introduction)
+# ICDAR2019 Dataset
+[Official Website](https://rrc.cvc.uab.es/?ch=14&com=introduction)
 
 ## Data Downloading
 
-[Download Source](https://rrc.cvc.uab.es/?ch=14&com=downloads). Need to register an account to download this dataset.
+Note: You need to register an account to download this dataset.
 
 <details>
-    <summary>How to Download ICDAR2019 ArT Dataset</summary>
+    <summary>How to Download ICDAR2019 ArT Images and Annotations</summary>
 
-The ICDAR2019 images and annotations dataset can be downloaded from [here](https://rrc.cvc.uab.es/?ch=14&com=downloads)
+The ICDAR2019 ArT images and annotations dataset can be downloaded from [here](https://rrc.cvc.uab.es/?ch=14&com=downloads).
 
 For the images, the archived file `train_images.tar.gz` from the section "Task 1 and Task 3" needs to be downloaded. For the annotations, the .JSON file `train_labels.json` from the same section needs to be downloaded.
 
 </details>
 
-After downloading the dataset, unzip the files, after which the data structure should be like as follows (ignoring the archive files):
+After downloading the dataset, unzip the files, after which the directory structure should be like as follows (ignoring the archive files):
 ```txt
 ICDAR2019-ArT
   |--- train_images
@@ -40,6 +41,6 @@ python tools/dataset_converters/convert.py \
     --output_path path/to/ICDAR2019-ArT/det_gt.txt
 ```
 
-Then you can have an annotation file in the standard form `det_gt.txt` under the folder `ICDAR2019-ArT/`.
+The generated standard annotation file `det_gt.txt` will now be placed under the folder `ICDAR2019-ArT/`.
 
 [Back to README](../../../tools/dataset_converters/README.md)

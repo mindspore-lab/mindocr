@@ -1,19 +1,18 @@
 English | [中文](../../cn/datasets/textocr_CN.md)
 
-# TextOCR Dataset - [Official Website](https://textvqa.org/textocr/)
+# TextOCR Dataset
+[Official Website](https://textvqa.org/textocr/)
 
 ## Data Downloading
-
-[Download Source](https://textvqa.org/textocr/dataset/). Need to register an account to download this dataset.
 
 <details>
     <summary>How to Download TextOCR Dataset</summary>
 
-The TextOCR dataset can be downloaded from [here](https://textvqa.org/textocr/dataset/) 
+The TextOCR dataset can be downloaded from [here](https://textvqa.org/textocr/dataset/).
 
 </details>
 
-After downloading the images and annotations, unzip the files, after which the data structure should be like as follows (ignoring the archive files):
+After downloading the images and annotations, unzip the files, after which the directory structure should be like as follows (ignoring the archive files):
 ```txt
 TextOCR
   |--- train_val_images
@@ -38,6 +37,6 @@ python tools/dataset_converters/convert.py \
     --output_path path/to/TextOCR/det_gt.txt
 ```
 
-Then you can have an annotation file in the standard form `det_gt.txt` under the folder `TextOCR/`.
+The generated standard annotation file `det_gt.txt` will now be placed under the folder `TextOCR/`.
 
 [Back to README](../../../tools/dataset_converters/README.md)

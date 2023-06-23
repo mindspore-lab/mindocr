@@ -1,13 +1,14 @@
 English | [中文](../../cn/datasets/casia10k_CN.md)
 
-# CASIA-10K Dataset - [Official Website](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html)
+# CASIA-10K Dataset
+[Official Website](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html)
 
 ## Data Downloading
 
 <details>
-    <summary>How to Download COCO-Text Images and Annotations</summary>
+    <summary>How to Download CASIA-10K Images and Annotations</summary>
 
-The COCO-Text images dataset can be downloaded from [here](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html) 
+The CASIA-10K dataset can be downloaded from [here](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html).
 
 </details>
 
@@ -45,6 +46,6 @@ python tools/dataset_converters/convert.py \
     --output_path path/to/CASIA-10K/det_gt.txt
 ```
 
-Then you can have an annotation file in the standard form `det_gt.txt` under the folder `CASIA-10K/` for the train set.
+The generated standard annotation file `det_gt.txt` will now be placed under the folder `CASIA-10K/`.
 
 [Back to README](../../../tools/dataset_converters/README.md)
