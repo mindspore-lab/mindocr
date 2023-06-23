@@ -103,8 +103,6 @@ class CVRandomAffine(object):
 
     def _get_inverse_affine_matrix(self, center, angle, translate, scale, shear):
         # https://github.com/pytorch/vision/blob/v0.4.0/torchvision/transforms/functional.py#L717
-        from numpy import cos, sin, tan
-
         if isinstance(shear, numbers.Number):
             shear = [shear, 0]
 
@@ -120,10 +118,10 @@ class CVRandomAffine(object):
         tx, ty = translate
 
         # RSS without scaling
-        a = cos(rot - sy) / cos(sy)
-        b = -cos(rot - sy) * tan(sx) / cos(sy) - sin(rot)
-        c = sin(rot - sy) / cos(sy)
-        d = -sin(rot - sy) * tan(sx) / cos(sy) + cos(rot)
+        a = np.cos(rot - sy) / np.cos(sy)
+        b = -np.cos(rot - sy) * np.tan(sx) / np.cos(sy) - np.sin(rot)
+        c = np.sin(rot - sy) / np.cos(sy)
+        d = -np.sin(rot - sy) * np.tan(sx) / np.cos(sy) + np.cos(rot)
 
         # Inverted rotation matrix with scale and shear
         # det([[a, b], [c, d]]) == 1, since det(rotation) = 1 and det(shear) = 1
@@ -243,19 +241,20 @@ class CVRescale(object):
             factor: the decayed factor from base size, factor=4 keeps target scale by default.
             base_size: base size the build the bottom layer of pyramid
         """
-        self.factor = factor
-        self.base_h, self.base_w = base_size[:2]
-
-    def __call__(self, img):
-        if isinstance(self.factor, numbers.Number):
-            factor = round(sample_uniform(0, self.factor))
-        elif isinstance(self.factor, (tuple, list)) and len(self.factor) == 2:
-            factor = round(sample_uniform(self.factor[0], self.factor[1]))
+        if isinstance(factor, numbers.Number):
+            self.factor = (0, factor)
+        elif isinstance(factor, (tuple, list)) and len(factor) == 2:
+            self.factor = (factor[0], factor[1])
         else:
             raise Exception("factor must be number or list with length 2")
 
+        self.base_h, self.base_w = base_size[:2]
+
+    def __call__(self, img):
+        factor = round(sample_uniform(self.factor[0], self.factor[1]))
         if factor == 0:
             return img
+
         src_h, src_w = img.shape[:2]
         cur_w, cur_h = self.base_w, self.base_h
         scale_img = cv2.resize(img, (cur_w, cur_h), interpolation=get_interpolation())
@@ -268,15 +267,16 @@ class CVRescale(object):
 class CVGaussianNoise(object):
     def __init__(self, mean=0, variance=20):
         self.mean = mean
-        self.variance = variance
 
-    def __call__(self, img):
-        if isinstance(self.variance, numbers.Number):
-            variance = max(int(sample_asym(self.variance)), 1)
-        elif isinstance(self.variance, (tuple, list)) and len(self.variance) == 2:
-            variance = int(sample_uniform(self.variance[0], self.variance[1]))
+        if isinstance(variance, numbers.Number):
+            self.variance = lambda: max(int(sample_asym(variance)), 1)
+        elif isinstance(variance, (tuple, list)) and len(variance) == 2:
+            self.variance = lambda: int(sample_uniform(variance[0], variance[1]))
         else:
             raise Exception("degree must be number or list with length 2")
+
+    def __call__(self, img):
+        variance = self.variance()
 
         noise = np.random.normal(self.mean, variance**0.5, img.shape)
         img = np.clip(img + noise, 0, 255).astype(np.uint8)
@@ -286,15 +286,16 @@ class CVGaussianNoise(object):
 class CVMotionBlur(object):
     def __init__(self, degrees=12, angle=90):
         self.angle = angle
-        self.degrees = degrees
 
-    def __call__(self, img):
-        if isinstance(self.degrees, numbers.Number):
-            degree = max(int(sample_asym(self.degrees)), 1)
-        elif isinstance(self.degrees, (tuple, list)) and len(self.degrees) == 2:
-            degree = int(sample_uniform(self.degrees[0], self.degrees[1]))
+        if isinstance(degrees, numbers.Number):
+            self.degrees = lambda: max(int(sample_asym(degrees)), 1)
+        elif isinstance(degrees, (tuple, list)) and len(degrees) == 2:
+            self.degrees = lambda: int(sample_uniform(degrees[0], degrees[1]))
         else:
             raise Exception("degree must be number or list with length 2")
+
+    def __call__(self, img):
+        degree = self.degrees()
 
         angle = sample_uniform(-self.angle, self.angle)
         M = cv2.getRotationMatrix2D((degree // 2, degree // 2), angle, 1)
@@ -339,8 +340,7 @@ class SVTRDeterioration(object):
     def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
         if random.random() < self.p:
             img = data["image"]
-            random.shuffle(self.transforms)
-            for func in self.transforms:
+            for func in random.sample(self.transforms, k=len(self.transforms)):
                 img = func(img)
             data["image"] = img
         return data
@@ -370,8 +370,7 @@ class SVTRGeometry(object):
         if random.random() < self.p:
             img = data["image"]
             if self.aug_type:
-                random.shuffle(self.transforms)
-                for func in self.transforms[: random.randint(1, 3)]:
+                for func in random.sample(self.transforms, k=random.randint(1, 3)):
                     img = func(img)
             else:
                 img = self.transforms[random.randint(0, 2)](img)
