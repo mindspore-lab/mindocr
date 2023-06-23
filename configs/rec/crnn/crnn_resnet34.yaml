@@ -105,8 +105,9 @@ train:
     batch_size: *batch_size
     drop_remainder: True
     max_rowsize: 12
-    num_workers: 4
+    num_workers: 1
     num_workers_dataset: 1
+    using_multiprocess_for_pipeline: False
 
 eval:
   ckpt_load_path: ./tmp_rec/best.ckpt
@@ -179,5 +180,6 @@ predict:
     batch_size: 1
     drop_remainder: True
     max_rowsize: 12
-    num_workers: 4
+    num_workers: 1
     num_workers_dataset: 1
+    using_multiprocess_for_pipeline: False
