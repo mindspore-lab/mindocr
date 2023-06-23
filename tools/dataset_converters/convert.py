@@ -24,14 +24,16 @@ sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../..")))
 
 from borndigital import BORNDIGITAL_Converter
 from casia10k import CASIA10K_Converter
+from ccpd import CCPD_Converter
 from cocotext import COCOTEXT_Converter
 from ctw import CTW_Converter
 from ctw1500 import CTW1500_Converter
 from ic15 import IC15_Converter
 from ic19_art import IC19_ART_Converter
 from lsvt import LSVT_Converter
-from mlt2017 import MLT2017_Converter
-from mlt2019 import MLT2019_Converter
+from mlt2017_9 import MLT2017_Converter
+
+# from mlt2019 import MLT2019_Converter
 from mtwi2018 import MTWI2018_Converter
 from rctw17 import RCTW17_Converter
 from rects import RECTS_Converter
@@ -46,6 +48,7 @@ from totaltext import TOTALTEXT_Converter
 
 supported_datasets = [
     "casia10k",
+    "ccpd",
     "borndigital",
     "ic15",
     "totaltext",
