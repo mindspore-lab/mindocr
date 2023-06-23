@@ -21,7 +21,7 @@ After downloading the images as above, unzip them and collect them into a single
     <summary>How to Download LSVT Annotations</summary>
 
 The LSVT annotations (in JSON format) can be downloaded from [here](https://rrc.cvc.uab.es/?ch=16&com=downloads).
-The file train_full_labels.json needs to be downloaded.
+The file `train_full_labels.json` needs to be downloaded.
 
 </details>
 
