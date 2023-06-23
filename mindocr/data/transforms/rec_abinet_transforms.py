@@ -3,6 +3,7 @@ transform for text recognition tasks.
 """
 
 import copy
+import logging
 import random
 import re
 import warnings
@@ -38,9 +39,6 @@ class ABINetTransforms(object):
 
     def __init__(
         self,
-        # start_token='<BOS>',
-        # end_token='<EOS>',
-        # unkown_token='',
     ):
         # ABINet_Transforms
         self.case_sensitive = False
@@ -55,7 +53,7 @@ class ABINetTransforms(object):
             label = re.sub("[^0-9a-zA-Z]+", "", label)
             if len(label) > 25 or len(label) <= 0:
                 string_false2 = f"en(label) > 25 or len(label) <= 0:   {label}, {len(label)}"
-                print(string_false2)
+                logging.info(string_false2)
             label = label[:25]
             buf = six.BytesIO()
             buf.write(img_lmdb)
@@ -65,10 +63,10 @@ class ABINetTransforms(object):
                 image = PIL.Image.open(buf).convert("RGB")
             if not _check_image(image, pixels=6):
                 string_false1 = f"_check_image false:   {label}, {len(label)}"
-                print(string_false1)
+                logging.info(string_false1)
         except Exception:
             string_false = f"Corrupted image is found:   {label}, {len(label)}"
-            print(string_false)
+            logging.info(string_false)
 
         image = np.array(image)
 
@@ -147,7 +145,7 @@ class ABINetEvalTransforms(object):
             label = re.sub("[^0-9a-zA-Z]+", "", label)
             if len(label) > 25 or len(label) <= 0:
                 string_false2 = f"en(label) > 25 or len(label) <= 0:   {label}, {len(label)}"
-                print(string_false2)
+                logging.info(string_false2)
             label = label[:25]
             buf = six.BytesIO()
             buf.write(img_lmdb)
@@ -157,10 +155,10 @@ class ABINetEvalTransforms(object):
                 image = PIL.Image.open(buf).convert("RGB")
             if not _check_image(image, pixels=6):
                 string_false1 = f"_check_image false:   {label}, {len(label)}"
-                print(string_false1)
+                logging.info(string_false1)
         except Exception:
             string_false = f"Corrupted image is found:   {label}, {len(label)}"
-            print(string_false)
+            logging.info(string_false)
 
         image = np.array(image)
 

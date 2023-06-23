@@ -398,7 +398,6 @@ class ResNet(nn.Cell):
         x = self.layer3(x)
         x = self.layer4(x)
         x = self.layer5(x)
-        # print(x.shape)
         return x
 
 

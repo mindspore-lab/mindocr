@@ -1,5 +1,6 @@
 """
 """
+import logging
 from typing import Union
 
 import numpy as np
@@ -26,7 +27,7 @@ class ABINetLabelDecode(object):
         if character_dict_path is None:
             char_list = [c for c in "0123456789abcdefghijklmnopqrstuvwxyz"]
             self.lower = True
-            print(
+            logging.info(
                 "INFO: `character_dict_path` for RecCTCLabelDecode is not given. "
                 'Default dict "0123456789abcdefghijklmnopqrstuvwxyz" is applied. Only number and English letters '
                 "(regardless of lower/upper case) will be recognized and evaluated."
@@ -45,7 +46,7 @@ class ABINetLabelDecode(object):
             self.space_idx = len(char_list) - 1
         else:
             if " " in char_list:
-                print(
+                logging.info(
                     "WARNING: The dict still contains space char in dict although use_space_char is set to be False, "
                     "because the space char is coded in the dictionary file ",
                     character_dict_path,
