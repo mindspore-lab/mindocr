@@ -255,22 +255,23 @@ class CVRescale(object):
             factor: the decayed factor from base size, factor=4 keeps target scale by default.
             base_size: base size the build the bottom layer of pyramid
         """
-        if isinstance(factor, numbers.Number):
-            self.factor = round(sample_uniform(0, factor))
-        elif isinstance(factor, (tuple, list)) and len(factor) == 2:
-            self.factor = round(sample_uniform(factor[0], factor[1]))
-        else:
-            raise Exception("factor must be number or list with length 2")
-        # assert factor is valid
+        self.factor = factor
         self.base_h, self.base_w = base_size[:2]
 
     def __call__(self, img):
-        if self.factor == 0:
+        if isinstance(self.factor, numbers.Number):
+            factor = round(sample_uniform(0, self.factor))
+        elif isinstance(self.factor, (tuple, list)) and len(self.factor) == 2:
+            factor = round(sample_uniform(self.factor[0], self.factor[1]))
+        else:
+            raise Exception("factor must be number or list with length 2")
+
+        if factor == 0:
             return img
         src_h, src_w = img.shape[:2]
         cur_w, cur_h = self.base_w, self.base_h
         scale_img = cv2.resize(img, (cur_w, cur_h), interpolation=get_interpolation())
-        for _ in range(self.factor):
+        for _ in range(factor):
             scale_img = cv2.pyrDown(scale_img)
         scale_img = cv2.resize(scale_img, (src_w, src_h), interpolation=get_interpolation())
         return scale_img
