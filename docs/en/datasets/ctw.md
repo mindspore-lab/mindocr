@@ -1,10 +1,11 @@
 English | [中文](../../cn/datasets/ctw_CN.md)
 
-# CTW Dataset - [Official Website](https://ctwdataset.github.io/)
+# CTW Dataset
+[Official Website](https://ctwdataset.github.io/)
 
 ## Data Downloading
 
-[Download Source](https://ctwdataset.github.io/downloads.html). Need to provide name and email address to download this dataset.
+Note: You need to fill in a form to download this dataset.
 
 <details>
     <summary>How to Download CTW Images</summary>
@@ -17,9 +18,9 @@ The images are in 26 batches, i.e. 26 different .tar archived files of the forma
 
 <details>
     <summary>How to Download CTW Annotations</summary>
-    
-The CTW annotations (in JSON Lines format i.e. `.jsonl`) can be downloaded from [here](https://ctwdataset.github.io/downloads.html)
-The annotations archived file is named "ctw-annotations.tar.gz".
+
+The CTW annotations (in JSON Lines format i.e. `.jsonl`) can be downloaded from [here](https://ctwdataset.github.io/downloads.html).
+The annotations archived file is named `ctw-annotations.tar.gz`.
 
 </details>
 
@@ -53,7 +54,8 @@ python tools/dataset_converters/convert.py \
     --output_path path/to/CTW/det_gt.txt
 ```
 
-Then you can have an annotation file in the standard form `det_gt.txt` under the folder `CTW/`.
-Note that the `label_dir` flag will may be altered to prepare the validation data.
- 
+The generated standard annotation file `det_gt.txt` will now be placed under the folder `CTW/`.
+
+Note that the `label_dir` flag may be altered to prepare the validation data.
+
 [Back to README](../../../tools/dataset_converters/README.md)

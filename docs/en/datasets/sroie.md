@@ -1,15 +1,16 @@
 English | [中文](../../cn/datasets/sroie_CN.md)
 
-# SROIE Dataset - [Official Website](https://rrc.cvc.uab.es/?ch=13&com=introduction)
+# SROIE Dataset
+[Official Website](https://rrc.cvc.uab.es/?ch=13&com=introduction)
 
 ## Data Downloading
-
-[Download Source](https://rrc.cvc.uab.es/?ch=13&com=downloads). Need to register an account to download this dataset.
+Note: You need to register an account to download this dataset.
 
 <details>
     <summary>How to Download SROIE Dataset</summary>
 
-The SROIE dataset can be downloaded from [here](https://rrc.cvc.uab.es/?ch=13&com=downloads) 
+The SROIE dataset can be downloaded from [here](https://rrc.cvc.uab.es/?ch=13&com=downloads).
+
 This dataset is divided into 3 tasks: (1) Text Localisation, (2) OCR, and (3) Key Information Extraction. For now, we consider and download the updated dataset only for Task 1.
 
 </details>
@@ -39,6 +40,6 @@ python tools/dataset_converters/convert.py \
     --output_path path/to/SROIE/det_gt.txt
 ```
 
-Then you can have an annotation file in the standard form `det_gt.txt` under the folder `SROIE/`.
+The generated standard annotation file `det_gt.txt` will now be placed under the folder `SROIE/`.
 
 [Back to README](../../../tools/dataset_converters/README.md)
