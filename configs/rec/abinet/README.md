@@ -60,7 +60,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
 #### 3.1.2 Dataset Download
-Please download lmdb dataset for traininig and evaluation from
+Please download LMDB dataset for traininig and evaluation from
   - `training` contains two datasets: [MJSynth (MJ)](https://pan.baidu.com/s/1mgnTiyoR8f6Cm655rFI4HQ) and [SynthText (ST)](https://pan.baidu.com/s/1mgnTiyoR8f6Cm655rFI4HQ)
   - `evaluation` contains several benchmarking datasets, which are [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset), [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf), and [CUTE](http://cs-chan.com/downloads_CUTE80_dataset.html).
 
@@ -98,9 +98,9 @@ data_lmdb_release/
 
 #### 3.1.3 Dataset Usage
 
-Here we used the datasets under `training/` folders for **training**. After training, we used the datasets under `evaluation/` to evluation model accuracy.
+Here we used the datasets under `training/` folders for **train**. After training, we used the datasets under `evaluation/` to evluation model accuracy.
 
-**Training:**
+**Train:**
 - [MJSynth (MJ)](https://pan.baidu.com/s/1mgnTiyoR8f6Cm655rFI4HQ)
 - [SynthText (ST)](https://pan.baidu.com/s/1mgnTiyoR8f6Cm655rFI4HQ)
 
@@ -131,7 +131,7 @@ eval:
   dataset:
     type: LMDBDataset
     dataset_root: dir/to/data_lmdb_release/                           # Root dir of validation dataset
-    data_dir: validation/                                             # Dir of validation dataset, concatenated with `dataset_root` to be the complete dir of validation dataset
+    data_dir: evaluation/                                             # Dir of validation dataset, concatenated with `dataset_root` to be the complete dir of validation dataset
     # label_file:                                                     # Path of validation label file, concatenated with `dataset_root` to be the complete path of validation label file, not required when using LMDBDataset
   ...
 ```
@@ -141,9 +141,13 @@ eval:
 We use the dataset under `evaluation/` as the benchmark dataset. On **each individual dataset** (e.g. CUTE80, IC13_857, etc.), we perform a full evaluation by setting the dataset's directory to the evaluation dataset. This way, we get a list of the corresponding accuracies for each dataset, and then the reported accuracies are the average of these values.
 
 To reproduce the reported evaluation results, you can:
-- Repeat the evaluation step for all individual datasets: CUTE80, IC13_857, IC15_1811, IIIT5k_3000, SVT, SVTP. Then take the average score.
+- Option 1: Repeat the evaluation step for all individual datasets: CUTE80, IC13_857,  IC15_1811,  IIIT5k_3000, SVT, SVTP. Then take the average score.
+
+- Option 2: Put all the benchmark datasets folder under the same directory, e.g. `evaluation/`. And use the script `tools/benchmarking/multi_dataset_eval.py`.
 
 
+
+1. Evaluate on one specific dataset
 
 For example, you can evaluate the model on dataset `CUTE80` by modifying the config yaml as follows:
 
@@ -162,6 +166,27 @@ eval:
 ```
 
 By running `tools/eval.py` as noted in section [Model Evaluation](#33-model-evaluation) with the above config yaml, you can get the accuracy performance on dataset CUTE80.
+
+2. Evaluate on multiple datasets under the same folder
+
+Assume you have put all benckmark datasets under evaluation/ as shown below:
+
+``` text
+data_lmdb_release/
+├── evaluation
+│   ├── CUTE80
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC13_857
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── IC15_1811
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   ├── ...
+```
+
+then you can evaluate on each dataset by modifying the config yaml as follows, and execute the script `tools/benchmarking/multi_dataset_eval.py`.
 
 
 #### 3.1.4 Check YAML Config Files
@@ -185,7 +210,7 @@ train:
   dataset:
     type: LMDBDataset
     dataset_root: dir/to/data_lmdb_release/                           # Root dir of training dataset
-    data_dir: training/                                               # Dir of training dataset, concatenated with `dataset_root` to be the complete dir of training dataset
+    data_dir: train/                                               # Dir of training dataset, concatenated with `dataset_root` to be the complete dir of training dataset
     # label_file:                                                     # Path of training label file, concatenated with `dataset_root` to be the complete path of training label file, not required when using LMDBDataset
 ...
 eval:
@@ -194,7 +219,7 @@ eval:
   dataset:
     type: LMDBDataset
     dataset_root: dir/to/data_lmdb_release/                           # Root dir of validation/evaluation dataset
-    data_dir: validation/                                             # Dir of validation/evaluation dataset, concatenated with `dataset_root` to be the complete dir of validation/evaluation dataset
+    data_dir: evaluation/                                             # Dir of validation/evaluation dataset, concatenated with `dataset_root` to be the complete dir of validation/evaluation dataset
     # label_file:                                                     # Path of validation/evaluation label file, concatenated with `dataset_root` to be the complete path of validation/evaluation label file, not required when using LMDBDataset
   ...
   loader:
@@ -241,7 +266,7 @@ python tools/eval.py --config configs/rec/abinet/abinet.yaml
 ```
 
 **Notes:**
-- Context for val_while_train: Since mindspore.nn.transformer requires a fixed batchsize when defined, when choosing to train and validate at the same time, line 92 in tools/train.py
+- Context for val_while_train: Since mindspore.nn.transformer requires a fixed batchsize when defined, when choosing val_while_train=True, it is necessary to ensure that the batchsize of the validation set is the same as that of the model. So line 92 in tools/train.py
 ```
 refine_batch_size=True
 ```
@@ -249,7 +274,14 @@ should be changed to
 ```
 refine_batch_size=False
 ```
-
+- Meanwhile, line 185 in minocr.data.builder.py
+```
+drop_remainder = False
+```
+should be changed to
+```
+drop_remainder = True
+```
 ## References
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 
