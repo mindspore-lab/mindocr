@@ -128,9 +128,6 @@ class ABINetEvalTransforms(object):
 
     def __init__(
         self,
-        # start_token='<BOS>',
-        # end_token='<EOS>',
-        # unkown_token='',
     ):
         # ABINet_Transforms
         self.case_sensitive = False

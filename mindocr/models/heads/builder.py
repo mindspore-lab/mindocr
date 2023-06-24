@@ -1,7 +1,16 @@
 __all__ = ['build_head']
 
 
-supported_heads = ['ConvHead', 'DBHead', 'EASTHead', 'CTCHead', 'PSEHead', 'AttentionHead', 'ClsHead', 'FCEHead', 'ABINetHead']
+supported_heads = [
+    'ConvHead',
+    'DBHead',
+    'EASTHead',
+    'CTCHead',
+    'PSEHead',
+    'AttentionHead',
+    'ClsHead',
+    'FCEHead',
+    'ABINetHead']
 
 from .cls_mv3_head import ClsHead
 from .conv_head import ConvHead

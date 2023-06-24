@@ -2,10 +2,9 @@ from . import (
     cls_postprocess,
     det_db_postprocess,
     det_east_postprocess,
-    det_pse_postprocess,
-    rec_abinet_postprocess,
     det_fce_postprocess,
     det_pse_postprocess,
+    rec_abinet_postprocess,
     rec_postprocess,
 )
 from .cls_postprocess import *
