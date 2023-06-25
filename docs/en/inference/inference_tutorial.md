@@ -39,13 +39,23 @@ python infer.py \
     --cls_model_name_or_config=ch_pp_mobile_cls_v2.0 \
     --rec_model_path=/path/to/mindir/crnn_resnet34.mindir \
     --rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
-    --res_save_dir=det_cls_rec
+    --res_save_dir=det_cls_rec \
+    --vis_pipeline_save_dir=det_cls_rec
 ```
 
-The results will be saved in det_cls_rec/pipeline_results.txt, with the following format:
+The visualization images are stored in det_cls_rec, as shown in the picture.
+
+<p align="center">
+  <img src="https://github.com/heepengpeng/mindocr/assets/122354463/1e55b19a-af79-4882-a50a-3a6fc490300d" width=480 />
+</p>
+<p align="center">
+  <em>Visualization of text detection and recognition result</em>
+</p>
+
+The results are saved in det_cls_rec/pipeline_results.txt in the following format:
 
 ```
-img_478.jpg	[{"transcription": "spa", "points": [[1114, 35], [1200, 0], [1234, 52], [1148, 97]]}, {...}]
+img_195.jpg	[{"transcription": "admission", "points": [[298.0, 295.0], [396.0, 309.0], [392.0, 331.0], [295.0, 317.0]]}, {...}]
 ```
 
 
@@ -61,13 +71,23 @@ python infer.py \
     --det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
     --rec_model_path=/path/to/mindir/crnn_resnet34.mindir \
     --rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
-    --res_save_dir=det_rec
+    --res_save_dir=det_rec \
+    --vis_pipeline_save_dir=det_rec
 ```
 
-The results will be saved in det_rec/pipeline_results.txt, with the following format:
+The visualization images are stored in det_rec, as shown in the picture.
+
+<p align="center">
+  <img src="https://github.com/heepengpeng/mindocr/assets/122354463/1e55b19a-af79-4882-a50a-3a6fc490300d" width=480 />
+</p>
+<p align="center">
+  <em>Visualization of text detection and recognition result</em>
+</p>
+
+The recognition results are saved in det_rec/pipeline_results.txt in the following format:
 
 ```
-img_478.jpg	[{"transcription": "spa", "points": [[1114, 35], [1200, 0], [1234, 52], [1148, 97]]}, {...}]
+img_195.jpg	[{"transcription": "admission", "points": [[298.0, 295.0], [396.0, 309.0], [392.0, 331.0], [295.0, 317.0]]}, {...}]
 ```
 
 - detection
@@ -80,13 +100,23 @@ python infer.py \
     --backend=lite \
     --det_model_path=/path/to/mindir/dbnet_resnet50.mindir \
     --det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
-    --res_save_dir=det
+    --res_save_dir=det \
+    --vis_det_save_dir=det
 ```
 
-The results will be saved in det/det_results.txt, with the following format:
+The visualization results are stored in the det folder, as shown in the picture.
+
+<p align="center">
+  <img src="https://github.com/heepengpeng/mindocr/assets/122354463/e7e708f7-7a69-4f3f-9234-bad909052e7a" width=480 />
+</p>
+<p align="center">
+  <em>Visualization of text detection result</em>
+</p>
+
+The detection results are saved in the det/det_results.txt file in the following format:
 
 ```
-img_478.jpg    [[[1114, 35], [1200, 0], [1234, 52], [1148, 97]], [...]]]
+img_195.jpg	[[[298.0, 295.0], [396.0, 309.0], [392.0, 331.0], [295.0, 317.0]], [...]]
 ```
 
 - classification

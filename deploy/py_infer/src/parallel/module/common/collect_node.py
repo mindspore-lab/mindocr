@@ -7,7 +7,7 @@ import numpy as np
 
 from ....data_process.utils import cv_utils
 from ....infer import TaskType
-from ....utils import VisMode, Visualization, log, safe_list_writer
+from ....utils import log, safe_list_writer, visual_utils
 from ...datatype import ProcessData, ProfilingData, StopData
 from ...framework import ModuleBase
 
@@ -41,25 +41,22 @@ class CollectNode(ModuleBase):
     def single_image_save(self, image_name, image):
         if self.args.save_crop_res_dir:
             filename = os.path.join(self.args.crop_save_dir, os.path.splitext(image_name)[0])
-            vis_tool = Visualization(VisMode.crop)
             box_list = [np.array(x["points"]).reshape(-1, 2) for x in self.image_pipeline_res[image_name]]
-            crop_list = vis_tool(image, box_list)
+            crop_list = visual_utils.vis_crop(image, box_list)
             for i, crop in enumerate(crop_list):
                 cv_utils.img_write(filename + "_crop_" + str(i) + ".jpg", crop)
 
         if self.args.save_vis_pipeline_save_dir:
             filename = os.path.join(self.args.vis_pipeline_save_dir, os.path.splitext(image_name)[0])
-            vis_tool = Visualization(VisMode.bbox_text)
             box_list = [np.array(x["points"]).reshape(-1, 2) for x in self.image_pipeline_res[image_name]]
             text_list = [x["transcription"] for x in self.image_pipeline_res[image_name]]
-            box_text = vis_tool(image, box_list, text_list, font_path=self.args.vis_font_path)
+            box_text = visual_utils.vis_bbox_text(image, box_list, text_list, font_path=self.args.vis_font_path)
             cv_utils.img_write(filename + ".jpg", box_text)
 
         if self.args.save_vis_det_save_dir:
             filename = os.path.join(self.args.vis_det_save_dir, os.path.splitext(image_name)[0])
-            vis_tool = Visualization(VisMode.bbox)
             box_list = [np.array(x).reshape(-1, 2) for x in self.image_pipeline_res[image_name]]
-            box_line = vis_tool(image, box_list)
+            box_line = visual_utils.vis_bbox(image, box_list, [255, 255, 0], 2)
             cv_utils.img_write(filename + ".jpg", box_line)
 
         log.info(f"{image_name} is finished.")
