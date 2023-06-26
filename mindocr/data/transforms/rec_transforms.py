@@ -412,7 +412,7 @@ class RecResizeImg(RecResizeNormImg):
     """
 
     def __init__(self, image_shape, infer_mode=False, character_dict_path=None, padding=True, **kwargs):
-        super.__init__(
+        super().__init__(
             image_shape,
             infer_mode,
             character_dict_path,
