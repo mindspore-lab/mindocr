@@ -17,7 +17,7 @@ common:
 
 model:
   type: rec
-  pretrained : "./tmp_rec/best.ckpt"
+  pretrained : "./tmp_rec/pretrain.ckpt"
   transform: null
   backbone:
     name: abinet_backbone

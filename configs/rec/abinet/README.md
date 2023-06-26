@@ -42,15 +42,14 @@ According to our experiments, the evaluation results on public benchmark dataset
   <div align="center">
   <summary>Detailed accuracy results for each benchmark dataset</summary>
 
-  | **Model**  |  **IC13_857** |  **IC15_1811** |  **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** |
-  | :------:  |   :------: |  :------: | :------: | :------: | :------: | :------: |
-  | ABINet  |  97.08% | 85.86% |   96.33% | 93.51% | 89.30% | 91.32% |
-
+  | **Model**  | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
+  | :------:  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
+  | ABINet  | 95.58% | 95.96% | 97.08% | 95.27% | 85.86% | 82.04% | 96.33% | 93.51%| 89.30% | 91.32% | 92.23% |
   </div>
 </details>
 
-**Notes:**
-- Context: The weight corresponding to the above results is [abinet_vision_en_28a9ec62.ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_vision_en_28a9ec62.ckpt). Other results are comming soon.
+<!-- **Notes:**
+- Context: The weight corresponding to the above results is [abinet_vision_en_28a9ec62.ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en_34aeaf96.ckpt). Other results are comming soon. -->
 
 
 ## 3. Quick Start

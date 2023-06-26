@@ -43,6 +43,9 @@ import copy
 import os
 import sys
 
+import mindspore as ms
+
+ms.set_context(device_id=5)
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../..")))
 
@@ -51,7 +54,6 @@ import argparse
 import yaml
 from addict import Dict
 
-import mindspore as ms
 from mindspore.communication import get_group_size, get_rank, init
 
 from mindocr.data import build_dataset
@@ -86,7 +88,7 @@ def main(cfg):
             )
         else:
             device_id = cfg.system.get("device_id", 0)
-            ms.set_context(device_id=device_id)
+            # ms.set_context(device_id=device_id)
             print(
                 f"INFO: Standalone evaluation. Device id: {device_id}, "
                 f"specified by system.device_id in yaml config file or is default value 0."

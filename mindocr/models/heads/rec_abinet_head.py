@@ -1,7 +1,7 @@
 import mindspore as ms
 from mindspore import nn
 
-from ...models.utils.abinet_utils import ABINetBlock
+from ..utils.abinet_layers import ABINetBlock
 
 __all__ = ["ABINetHead"]
 
@@ -44,10 +44,8 @@ class BaseAlignment(ABINetBlock):
 
     def construct(self, l_feature, v_feature):
 
-        concat = ms.ops.Concat(2)
-        f = concat((l_feature, v_feature))
-        sigmoid = ms.ops.Sigmoid()
-        f_att = sigmoid(self.w_att(f))
+        f = ms.ops.concat((l_feature, v_feature), axis=2)
+        f_att = ms.ops.sigmoid(self.w_att(f))
         output = f_att * v_feature + (1 - f_att) * l_feature
         logits = self.cls(output)  # (N, T, C)
         pt_lengths = self._get_length(logits)

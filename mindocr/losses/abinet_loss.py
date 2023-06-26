@@ -1,5 +1,3 @@
-import numpy as np
-
 import mindspore as ms
 import mindspore.numpy as msnp
 from mindspore import nn
@@ -100,9 +98,6 @@ class SoftCrossEntropyLoss(nn.Cell):
         super().__init__()
 
     def construct(self, gt_labels, pt_logits, gt_lengths, label_for_mask, softmax=True):
-        log_softmax = nn.LogSoftmax(axis=-1)
-        log = ms.ops.Log()
-        concat_op = ms.ops.Concat()
         data_pt_list = []
         mask_list = []
         gt_list = []
@@ -121,17 +116,17 @@ class SoftCrossEntropyLoss(nn.Cell):
             mask_list.append(mask_pt)
             gt_list.append(gt_labels[i])
 
-        concat_pt_logits = concat_op(data_pt_list)
-        concat_mask = concat_op(mask_list)
-        concat_gt_labels = concat_op(gt_list)
+        concat_pt_logits = ms.ops.concat(data_pt_list)
+        concat_mask = ms.ops.concat(mask_list)
+        concat_gt_labels = ms.ops.concat(gt_list)
         concat_mask = concat_mask.astype(ms.float16)
         concat_pt_logits = concat_pt_logits * concat_mask
 
         if softmax:
             concat_pt_logits = concat_pt_logits.astype(ms.float16)
-            log_prob = log_softmax(concat_pt_logits)
+            log_prob = ms.ops.log_softmax(concat_pt_logits)
         else:
-            log_prob = log(concat_pt_logits)
+            log_prob = ms.ops.log(concat_pt_logits)
 
         loss = -(concat_gt_labels * log_prob)
         loss = loss.astype(ms.float16)
@@ -140,127 +135,3 @@ class SoftCrossEntropyLoss(nn.Cell):
         loss_mean = loss / mean_divide
 
         return loss_mean
-
-
-class CharsetMapper(object):
-    def __init__(self, max_length=30, null_char="\u2591"):
-        self.null_char = null_char
-        self.max_length = max_length
-        self.label_to_char = self._read_charset()
-        self.char_to_label = dict(map(reversed, self.label_to_char.items()))
-        self.num_classes = len(self.label_to_char)
-
-    def _read_charset(self):
-        charset = {}
-        charset = {
-            0: "░",
-            1: "a",
-            2: "b",
-            3: "c",
-            4: "d",
-            5: "e",
-            6: "f",
-            7: "g",
-            8: "h",
-            9: "i",
-            10: "j",
-            11: "k",
-            12: "l",
-            13: "m",
-            14: "n",
-            15: "o",
-            16: "p",
-            17: "q",
-            18: "r",
-            19: "s",
-            20: "t",
-            21: "u",
-            22: "v",
-            23: "w",
-            24: "x",
-            25: "y",
-            26: "z",
-            27: "1",
-            28: "2",
-            29: "3",
-            30: "4",
-            31: "5",
-            32: "6",
-            33: "7",
-            34: "8",
-            35: "9",
-            36: "0",
-        }
-        self.null_label = 0
-        charset[self.null_label] = self.null_char
-        return charset
-
-    def trim(self, text):
-        assert isinstance(text, str)
-        return text.replace(self.null_char, "")
-
-    def get_text(self, labels, length=None, padding=True, trim=False):
-        """Returns a string corresponding to a sequence of character ids."""
-        length = length if length else self.max_length
-        labels = [int(a) if isinstance(a, ms.Tensor) else int(a) for a in labels]
-        if padding:
-            labels = labels + [self.null_label] * (length - len(labels))
-        text = "".join([self.label_to_char[label] for label in labels])
-        if trim:
-            text = self.trim(text)
-        return text
-
-    def get_labels(self, text, length=None, padding=True, case_sensitive=False):
-        """Returns the labels of the corresponding text."""
-        length = length if length else self.max_length
-        if padding:
-            text = text + self.null_char * (length - len(text))
-        if not case_sensitive:
-            text = text.lower()
-        labels = [self.char_to_label[char] for char in text]
-        return labels
-
-    def pad_labels(self, labels, length=None):
-        length = length if length else self.max_length
-        return labels + [self.null_label] * (length - len(labels))
-
-    @property
-    def digits(self):
-        return "0123456789"
-
-    @property
-    def digit_labels(self):
-        return self.get_labels(self.digits, padding=False)
-
-    @property
-    def alphabets(self):
-        all_chars = list(self.char_to_label.keys())
-        valid_chars = []
-        for c in all_chars:
-            if c in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ":
-                valid_chars.append(c)
-        return "".join(valid_chars)
-
-    @property
-    def alphabet_labels(self):
-        return self.get_labels(self.alphabets, padding=False)
-
-
-def onehot(label, depth, device=None):
-    label_shape = 26
-
-    onehot_output = np.zeros((label_shape, depth))
-
-    label_expand = np.expand_dims(label, -1)
-    label_expand = np.expand_dims(label_expand, -1)
-    label_expand_onehot = np.zeros((26, 37))
-    a = 0
-    for i in label_expand:
-        i = int(i)
-        label_expand_onehot[a][i] = 1
-        a = a + 1
-
-    label_expand_onehot = label_expand_onehot
-    onehot_output = label_expand_onehot + onehot_output
-
-    return onehot_output

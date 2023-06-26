@@ -3,9 +3,9 @@ import numpy as np
 import mindspore as ms
 from mindspore import nn
 
-from ...models.utils.abinet_utils import ABINetBlock, PositionalEncoding
-from ...models.utils.abinet_utils import TransformerDecoder as ms_TransformerDecoder
-from ...models.utils.abinet_utils import _default_tfmer_cfg
+from ..utils.abinet_layers import ABINetBlock, PositionalEncoding
+from ..utils.abinet_layers import TransformerDecoder as ms_TransformerDecoder
+from ..utils.abinet_layers import _default_tfmer_cfg
 
 __all__ = ["ABINetEncoder"]
 
@@ -123,8 +123,7 @@ class BCNLanguage(ABINetBlock):
         embed = embed.transpose(1, 0, 2)
         embed = self.token_encoder(embed)  # (T, N, E)
         embed = embed.transpose(1, 0, 2)
-        zeroo = ms.ops.Zeros()
-        zeros = zeroo((self.batchsize, 26, 512), ms.float32)
+        zeros = ms.ops.zeros((self.batchsize, 26, 512), ms.float32)
         zeros = zeros.transpose(1, 0, 2)
         query = self.pos_encoder(zeros)
         query = query.transpose(1, 0, 2)

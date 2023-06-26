@@ -41,15 +41,14 @@ Table Format:
   <div align="center">
   <summary>每个基准数据集的详细精度结果</summary>
 
-  | **Model**  |  **IC13_857** |  **IC15_1811** |  **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** |
-  | :------:  |   :------: |  :------: | :------: | :------: | :------: | :------: |
-  | ABINet  |  97.08% | 85.86% |   96.33% | 93.51% | 89.30% | 91.32% |
-
+  | **Model**  | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
+  | :------:  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
+  | ABINet  | 95.58% | 95.96% | 97.08% | 95.27% | 85.86% | 82.04% | 96.33% | 93.51%| 89.30% | 91.32% | 92.23% |
   </div>
 </details>
 
-**注意:**
-- 上述结果对应的权重为[abinet_vision_en_28a9ec62.ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_vision_en_28a9ec62.ckpt). 其他结果很快补充。
+<!-- **注意:**
+- 上述结果对应的权重为[abinet_vision_en_28a9ec62.ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en_34aeaf96.ckpt). 其他结果很快补充。 -->
 
 
 ## 3. 快速开始
@@ -162,7 +161,7 @@ eval:
   dataset:
     type: LMDBDataset
     dataset_root: dir/to/data_lmdb_release/                           # 验证或评估数据集根目录
-    data_dir: evaluation/                                             # 验证或评估数据集目录，将与`dataset_root`拼接形成完整验证或评估数据集目录
+    data_dir: evaluation/CUTE80/                                             # 验证或评估数据集目录，将与`dataset_root`拼接形成完整验证或评估数据集目录
     # label_file:                                                     # 验证或评估数据集的标签文件路径，将与`dataset_root`拼接形成完整的验证或评估数据的标签文件路径。当数据集为LMDB格式时无需配置
   ...
 ```
