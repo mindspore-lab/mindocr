@@ -55,7 +55,7 @@ class ABINetTransforms(object):
         try:
             label = re.sub("[^0-9a-zA-Z]+", "", label)
             if len(label) > 25 or len(label) <= 0:
-                string_false2 = f"en(label) > 25 or len(label) <= 0:   {label}, {len(label)}"
+                string_false2 = f"len(label) > 25 or len(label) <= 0:   {label}, {len(label)}"
                 _logger.warning(string_false2)
             label = label[:25]
             buf = six.BytesIO()

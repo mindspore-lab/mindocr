@@ -37,7 +37,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 | **Model** | **Context** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
 | :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |
-| ABINet      | D910x8-MS1.9-G | 92.23%    | 20828 s/epoch       | 93 | [yaml](https://github.com/safeandnewYH/ABINet_Figs/blob/main/abinet.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en_34aeaf96.ckpt)
+| ABINet      | D910x8-MS1.9-G | 92.23%    | 20076 s/epoch       | 99 | [yaml](https://github.com/safeandnewYH/ABINet_Figs/blob/main/abinet.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en_34aeaf96.ckpt)
 </div>
 
 <details open>
