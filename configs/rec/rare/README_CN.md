@@ -41,7 +41,7 @@ Table Format:
 | RARE      | D910x4-MS1.10-G | ResNet34_vd | 无 | 85.19%    | 3166 s/epoch         | 4561    | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e-b65dd225.mindir) |
 </div>
 
-<details open>
+<details open markdown>
   <div align="center">
   <summary>在各个基准数据集上的准确率</summary>
 

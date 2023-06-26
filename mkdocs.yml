@@ -1,0 +1,166 @@
+site_name: MindOCR Docs
+site_url: https://mindspore-lab.github.io/mindocr
+repo_url: https://github.com/mindspore-lab/mindocr
+repo_name: mindspore-lab/mindocr
+copyright: Copyright &copy; 2022 - 2023 MindSpore Lab
+
+nav:
+  - Home: index.md
+#  - Installation: installation.md
+  - Model Zoo:
+    - 1. Training: mkdocs/modelzoo_training.md
+    - 2. Inference - MindOCR Models List: inference/models_list.md
+    - 3. Inference - Third-party Models List: inference/models_list_thirdparty.md
+  - Tutorials:
+    - 1. Datasets:
+        - Dataset Preparation: datasets/converters.md
+        - Data Transformation Mechanism: tutorials/transform_tutorial.md
+    - 2. Model Training:
+        - Yaml Configuration: tutorials/yaml_configuration.md
+        - Text Detection: tutorials/training_detection_custom_dataset.md
+        - Text Recognition: tutorials/training_recognition_custom_dataset.md
+        - Distributed Training on Ascend with OpenMPI/HCCL: tutorials/distribute_train.md
+        - Advance Training: tutorials/advanced_train.md
+    - 3. Inference and Deployment:
+#        - Model Conversion: inference/convert_tutorial.md
+        - Python/C++ Inference on Ascend 310: inference/inference_tutorial.md
+        - Python Online Inference: mkdocs/online_inference.md
+    - 4. Developer Guides:
+        - Customize Dataset: mkdocs/customize_dataset.md
+        - Customize Data Transformation: mkdocs/customize_data_transform.md
+        - Customize a New Model: mkdocs/customize_model.md
+        - Customize Postprocessing Method: mkdocs/customize_postprocess.md
+  - Reference:
+      - API doc: reference/api_doc.md
+  - Notes:
+#      - Change Log: notes/changelog.md
+      - Contributing: mkdocs/contributing.md
+#      - Code of Conduct: notes/code_of_conduct.md
+#      - FAQ: notes/faq.md
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+  features:
+    # - navigation.instant  # see https://github.com/ultrabug/mkdocs-static-i18n/issues/62
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - search.highlight
+    - search.share
+    - search.suggest
+    - content.action.view
+    - content.action.edit
+    - content.tabs.link
+    - content.code.copy
+    - content.code.select
+    - content.code.annotations
+
+markdown_extensions:
+  # Officially Supported Extensions
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - meta
+  - sane_lists
+  - tables
+  - toc:
+      permalink: true
+  - wikilinks
+  # Third Party Extensions(Bundles, PyMdown Extensions)
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+#hooks:
+#  - docs/gen_ref_pages.py
+
+plugins:
+  - search
+  - include-markdown
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            # Headings
+            show_root_heading: true
+            show_root_toc_entry: true
+            show_object_full_path: true
+            # Members
+            show_submodules: false
+            # Docstrings
+            docstring_section_style: spacy
+  - i18n:
+      default_language: en
+      docs_structure: folder
+      languages:
+        en:
+          name: English
+        cn:
+          name: 中文
+      nav_translations:
+        cn:
+          Home: 主页
+          Installation: 安装
+          Model Zoo: 模型仓库
+          Tutorials: 教程
+          Quick Start: 快速开始
+          Configuration: 配置
+          Finetune: 微调
+          Training: 训练
+          Inference: 推理
+          Deployment: 部署
+          Notes: 说明
+          Change Log: 更新日志
+          Code of Conduct: 行为准则
+          FAQ: 常见问题
+
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/solid/paper-plane
+      link: mailto:mindspore-lab@huawei.com
+    - icon: fontawesome/brands/github
+      link: https://github.com/mindspore-lab/mindocr
+    - icon: fontawesome/brands/zhihu
+      link: https://www.zhihu.com/people/mindsporelab

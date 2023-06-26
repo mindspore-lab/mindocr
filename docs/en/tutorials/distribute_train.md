@@ -6,7 +6,7 @@ On GPU processors, scripts can be run with OpenMPI for training.
 
 ## Run scripts with OpenMPI
 
-MindSpore supports scripts execution with OpenMPI's `mpirun` on Ascend hardware platform. Users can refer to [DBNet Readme](../../../configs/det/dbnet/README.md#34-training) for more information on training. The following is the command use case:
+MindSpore supports scripts execution with OpenMPI's `mpirun` on Ascend hardware platform. Users can refer to [DBNet Readme](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/dbnet/README.md#34-training) for more information on training. The following is the command use case:
 
 ```shell
 # n is the number of GPUs/NPUs used in training

@@ -1,6 +1,4 @@
-English | [中文](../../cn/inference/models_list.md)
-
-## Inference - MindOCR Models Support List
+## Inference - MindOCR Models List
 
 MindOCR inference supports exported models from trained ckpt file, and this document displays a list of adapted models.
 

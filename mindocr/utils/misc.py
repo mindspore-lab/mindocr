@@ -19,3 +19,18 @@ class AverageMeter:
         self.sum += val * n
         self.count += n
         self.avg = self.sum / self.count
+
+
+def fetch_optimizer_lr(opt):
+    # print(f"Before, global step: {opt.global_step}")
+    lr = opt.learning_rate
+    if opt.dynamic_lr:
+        if opt.is_group_lr:
+            lr = ()
+            for learning_rate in opt.learning_rate:
+                cur_dynamic_lr = learning_rate(opt.global_step - 1).reshape(())
+                lr += (cur_dynamic_lr,)
+        else:
+            lr = opt.learning_rate(opt.global_step - 1).reshape(())
+    # print(f"After, global step: {opt.global_step}")
+    return lr

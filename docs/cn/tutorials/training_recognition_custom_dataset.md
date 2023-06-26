@@ -1,5 +1,3 @@
-[English](../../en/tutorials/training_recognition_custom_dataset.md) | 中文
-
 # 使用自定义数据集训练识别网络
 
 本文档提供如何使用自定义数据集进行识别网络训练的教学，包括训练中、英文等不同语种的识别网络。
@@ -7,8 +5,8 @@
 ## 数据集准备
 
 目前MindOCR识别网络支持两种输入形式，分别为
-- `通用数据`：使用图像和文本文件储存的文件格式，以[RecDataset](../../../mindocr/data/rec_dataset.py)类型读取。
-- `LMDB数据`: 使用[LMDB](https://www.symas.com/lmdb)储存的文件格式，以[LMDBDataset](../../../mindocr/data/rec_lmdb_dataset.py)类型读取。
+- `通用数据`：使用图像和文本文件储存的文件格式，以[RecDataset](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/rec_dataset.py)类型读取。
+- `LMDB数据`: 使用[LMDB](https://www.symas.com/lmdb)储存的文件格式，以[LMDBDataset](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/rec_lmdb_dataset.py)类型读取。
 
 以下教学以使用`通用数据`文件格式为例。
 

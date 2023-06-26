@@ -1,5 +1,3 @@
-English | [中文](../../cn/inference/convert_tutorial.md)
-
 ## Inference - Model Conversion Tutorial
 
 ### 1. MindOCR models

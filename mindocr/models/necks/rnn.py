@@ -4,10 +4,7 @@ import numpy as np
 
 from mindspore import Tensor, nn, ops
 
-from mindocr.utils.logger import Logger
-
 __all__ = ['RNNEncoder']
-_logger = Logger("mindocr")
 
 
 class RNNEncoder(nn.Cell):

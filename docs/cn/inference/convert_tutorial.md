@@ -1,5 +1,3 @@
-[English](../../en/inference/convert_tutorial.md) | 中文
-
 ## 推理 - 模型转换教程
 
 ### 1. MindOCR模型
