@@ -8,12 +8,13 @@ supported_losses = [
     "EASTLoss",
     "CrossEntropySmooth",
     "FCELoss",
+    "SARLoss",
     "VisionLANLoss",
 ]
 
 from .cls_loss import CrossEntropySmooth
 from .det_loss import DBLoss, EASTLoss, FCELoss, PSEDiceLoss
-from .rec_loss import AttentionLoss, CTCLoss, VisionLANLoss
+from .rec_loss import AttentionLoss, CTCLoss, SARLoss, VisionLANLoss
 
 
 def build_loss(name, **kwargs):
