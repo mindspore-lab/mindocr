@@ -35,7 +35,9 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 <div align="center">
 
-
+| **Model** | **Context** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
+| :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |
+| ABINet      | D910x8-MS1.9-G | 92.23%    | 20828 s/epoch       | 93 | [yaml](https://github.com/safeandnewYH/ABINet_Figs/blob/main/abinet.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en_34aeaf96.ckpt)
 </div>
 
 <details open>
@@ -48,8 +50,10 @@ According to our experiments, the evaluation results on public benchmark dataset
   </div>
 </details>
 
-<!-- **Notes:**
-- Context: The weight corresponding to the above results is [abinet_vision_en_28a9ec62.ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en_34aeaf96.ckpt). Other results are comming soon. -->
+
+**Notes:**
+- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x4-MS1.10-G is for training on 4 pieces of Ascend 910 NPU using graph mode based on Minspore version 1.10.
+- The input Shapes of MindIR of ABINet is (1, 3, 32, 128).
 
 
 ## 3. Quick Start
@@ -97,7 +101,7 @@ data_lmdb_release/
 
 #### 3.1.3 Dataset Usage
 
-Here we used the datasets under `training/` folders for **train**. After training, we used the datasets under `evaluation/` to evluation model accuracy.
+Here we used the datasets under `train/` folders for **train**. After training, we used the datasets under `evaluation/` to evluation model accuracy.
 
 **Train:**
 - [MJSynth (MJ)](https://pan.baidu.com/s/1mgnTiyoR8f6Cm655rFI4HQ)
