@@ -21,20 +21,20 @@
 
 ### 2. 文本识别
 
-|                名称                |  模型   |       骨干网络       |    来源    |       测试数据        | accuracy | norm edit distance |
-|:---------------------------------:|:-------:|:------------------:|:---------:|:--------------------:|:--------:|:------------------:|
-|       ch_pp_server_rec_v2.0       |  CRNN   |      ResNet34      | PaddleOCR | MLT17 (only Chinese) |  0.4991  |       0.7411       |
-|          ch_pp_rec_OCRv3          |  SVTR   | MobileNetV1Enhance | PaddleOCR | MLT17 (only Chinese) |  0.4991  |       0.7535       |
-|          ch_pp_rec_OCRv2          |  CRNN   | MobileNetV1Enhance | PaddleOCR | MLT17 (only Chinese) |  0.4459  |       0.7036       |
-|       ch_pp_mobile_rec_v2.0       |  CRNN   |    MobileNetV3     | PaddleOCR | MLT17 (only Chinese) |  0.2459  |       0.4878       |
-|          en_pp_rec_OCRv3          |  SVTR   | MobileNetV1Enhance | PaddleOCR | MLT17 (only English) |  0.7964  |       0.8854       |
-| en_pp_mobile_rec_number_v2.0_slim |  CRNN   |    MobileNetV3     | PaddleOCR | MLT17 (only English) |  0.0164  |       0.0657       |
-|   en_pp_mobile_rec_number_v2.0    |  CRNN   |    MobileNetV3     | PaddleOCR | MLT17 (only English) |  0.4304  |       0.5944       |
-|     en_pp_rec_crnn_resnet34vd     |  CRNN   |    Resnet34_vd     | PaddleOCR |         IC15         |  0.6635  |       0.8392       |
-|   en_pp_rec_rosetta_resnet34vd    | Rosetta |    Resnet34_vd     | PaddleOCR |         IC15         |  0.6428  |       0.8321       |
-|      en_pp_rec_vitstr_vitstr      | VITSTR  |       vitstr       | PaddleOCR |         IC15         |  0.6842  |       0.8578       |
-|      en_mm_rec_nrtr_resnet31      |  NRTR   |      ResNet31      |   MMOCR   |         IC15         |  0.6726  |       0.8574       |
-|    en_mm_rec_satrn_shallowcnn     |  SATRN  |     shallowcnn     |   MMOCR   |         IC15         |  0.7352  |       0.8887       |
+|                名称                |  模型   |       骨干网络       |    来源    |       测试数据        | accuracy | norm edit distance | FPS |
+|:---------------------------------:|:-------:|:------------------:|:---------:|:--------------------:|:--------:|:------------------:|:--:|
+|       ch_pp_server_rec_v2.0       |  CRNN   |      ResNet34      | PaddleOCR | MLT17 (only Chinese) |  0.4991  |       0.7411       ||
+|          ch_pp_rec_OCRv3          |  SVTR   | MobileNetV1Enhance | PaddleOCR | MLT17 (only Chinese) |  0.4991  |       0.7535       ||
+|          ch_pp_rec_OCRv2          |  CRNN   | MobileNetV1Enhance | PaddleOCR | MLT17 (only Chinese) |  0.4459  |       0.7036       ||
+|       ch_pp_mobile_rec_v2.0       |  CRNN   |    MobileNetV3     | PaddleOCR | MLT17 (only Chinese) |  0.2459  |       0.4878       ||
+|          en_pp_rec_OCRv3          |  SVTR   | MobileNetV1Enhance | PaddleOCR | MLT17 (only English) |  0.7964  |       0.8854       ||
+| en_pp_mobile_rec_number_v2.0_slim |  CRNN   |    MobileNetV3     | PaddleOCR | MLT17 (only English) |  0.0164  |       0.0657       ||
+|   en_pp_mobile_rec_number_v2.0    |  CRNN   |    MobileNetV3     | PaddleOCR | MLT17 (only English) |  0.4304  |       0.5944       ||
+|     en_pp_rec_crnn_resnet34vd     |  CRNN   |    Resnet34_vd     | PaddleOCR |         IC15         |  0.6635  |       0.8392       ||
+|   en_pp_rec_rosetta_resnet34vd    | Rosetta |    Resnet34_vd     | PaddleOCR |         IC15         |  0.6428  |       0.8321       | 552.40 |
+|      en_pp_rec_vitstr_vitstr      | VITSTR  |       vitstr       | PaddleOCR |         IC15         |  0.6842  |       0.8578       | 364.67 |
+|      en_mm_rec_nrtr_resnet31      |  NRTR   |      ResNet31      |   MMOCR   |         IC15         |  0.6726  |       0.8574       | 32.63 |
+|    en_mm_rec_satrn_shallowcnn     |  SATRN  |     shallowcnn     |   MMOCR   |         IC15         |  0.7352  |       0.8887       | 32.14 |
 
 请注意，上述模型采用了shape分档，因此该性能仅表示在某些shape下的性能。
 
