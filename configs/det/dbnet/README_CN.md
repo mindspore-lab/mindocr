@@ -98,8 +98,8 @@ DBNet和DBNet++在ICDAR2015，MSRA-TD500，SCUT-CTW1500，Total-Text和MLT2017�
 
 | **模型**         | **环境配置**    | **骨干网络** | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间** | **吞吐量** | **配置文件**                  | **模型权重下载**                                                                                                                                                                                         |
 |-----------------|---------------|-------------|----------------|------------|---------------|-------------|--------------|----------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| DBNet           | D910x8-MS2.0-G | ResNet-18    | SynthText       | 72.55%     | 83.23%        | 77.52%      | 20.9 s/epoch  |  43.1 img/s      | [yaml](db_r18_mlt2017.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_mlt2017-5af33809.ckpt)  |
-| DBNet           | D910x8-MS2.0-G | ResNet-50    | SynthText      | 74.88%     | 83.77%        | 79.08%      | 23.6 s/epoch  |   38.2 img/s     | [yaml](db_r50_mlt2017.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_mlt2017-3bd6e569.ckpt)  |
+| DBNet           | D910x8-MS2.0-G | ResNet-18    | SynthText       | 72.55%     | 83.23%        | 77.52%      | 20.9 s/epoch  |  344.8 img/s      | [yaml](db_r18_mlt2017.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_mlt2017-5af33809.ckpt)  |
+| DBNet           | D910x8-MS2.0-G | ResNet-50    | SynthText      | 74.88%     | 83.77%        | 79.08%      | 23.6 s/epoch  |   305.6 img/s     | [yaml](db_r50_mlt2017.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_mlt2017-3bd6e569.ckpt)  |
 </div>
 
 ### SynthText
