@@ -142,6 +142,7 @@ eval:
       - DetLabelEncode:
       # GridResize already sets the evaluation size to [ 736, 1280 ].
       - DetResize:  # GridResize
+          target_size: [736, 1280]
           keep_ratio: False
           limit_type: None
           divisor: 32
