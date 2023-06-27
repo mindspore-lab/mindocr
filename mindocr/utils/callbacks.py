@@ -2,8 +2,6 @@ import os
 import time
 from typing import List, Tuple
 
-from packaging import version
-
 import mindspore as ms
 from mindspore import save_checkpoint
 from mindspore.train.callback._callback import Callback, _handle_loss
@@ -15,14 +13,6 @@ from .misc import AverageMeter, fetch_optimizer_lr
 from .recorder import PerfRecorder
 
 __all__ = ["EvalSaveCallback"]
-
-# WARNING: `mindspore.ms_function` will be deprecated and removed in a future version.
-if version.parse(ms.__version__) >= version.parse("2.0.0rc"):
-    from mindspore import jit
-else:
-    from mindspore import ms_function
-
-    jit = ms_function
 
 
 class EvalSaveCallback(Callback):
@@ -115,7 +105,6 @@ class EvalSaveCallback(Callback):
             )
         self.start_epoch = start_epoch
 
-    @jit
     def _reduce(self, x):
         return self._reduce_sum(x) / self._device_num  # average value across all devices
 
