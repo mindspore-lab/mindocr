@@ -325,7 +325,7 @@ To use a specific dictionary, set the parameter `character_dict_path` to the pat
 
 **Notes:**
 - You can include the space character by setting the parameter `use_space_char` in configuration yaml to True.
-- Remember to check the value of `dataset->transform_pipeline->RecAttnLabelEncode->lower` in the configuration yaml. Set it to False if you prefer case-sensitive encoding.
+- Remember to check the value of `dataset->transform_pipeline->RecCTCLabelEncode->lower` in the configuration yaml. Set it to False if you prefer case-sensitive encoding.
 
 
 ## 5. Chinese Text Recognition Model Training

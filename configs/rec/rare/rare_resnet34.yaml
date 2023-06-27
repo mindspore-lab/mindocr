@@ -6,6 +6,7 @@ system:
   log_interval: 100
   val_while_train: True
   drop_overflow_update: False
+  ckpt_max_keep: 5
 
 common:
   character_dict_path: &character_dict_path
@@ -75,35 +76,33 @@ train:
     sample_ratio: 1.0
     shuffle: True
     transform_pipeline:
-      - DecodeImage:
-          img_mode: BGR
-          to_float32: False
+      - Decode:
       - RecAttnLabelEncode:
           max_text_len: *max_text_len
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
           lower: True
-      - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize.
+      - RecResizeImg:
           image_shape: [32, 100] # H, W
           infer_mode: *infer_mode
           character_dict_path: *character_dict_path
           padding: False # aspect ratio will be preserved if true.
-      - NormalizeImage: # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec.
-          bgr_to_rgb: True
-          is_hwc: True
+      - Normalize:
           mean: [127.0, 127.0, 127.0]
           std: [127.0, 127.0, 127.0]
-      - ToCHWImage:
+      - HWC2CHW:
     output_columns: ["image", "text_seq"]
-    net_input_column_index: [0, 1] # input indices for network forward func in output_columns
-    label_column_index: [1] # input indices marked as label
+    net_input_column_index: [0, 1]
+    label_column_index: [1]
 
   loader:
-    shuffle: True # TODO: tbc
+    shuffle: True
     batch_size: *batch_size
     drop_remainder: True
     max_rowsize: 12
     num_workers: 1
+    num_workers_dataset: 1
+    using_multiprocess_for_pipeline: False
 
 eval:
   ckpt_load_path: "./tmp_rec/best.ckpt"
@@ -116,9 +115,7 @@ eval:
     sample_ratio: 1.0
     shuffle: False
     transform_pipeline:
-      - DecodeImage:
-          img_mode: RGB
-          to_float32: False
+      - Decode:
       - RecAttnLabelEncode:
           max_text_len: *max_text_len
           character_dict_path: *character_dict_path
@@ -130,15 +127,16 @@ eval:
           keep_ratio: False
           padding: False
           norm_before_pad: False
-      - ToCHWImage:
-    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
+      - HWC2CHW:
     output_columns: ["image", "text_padded", "text_length"]
-    net_input_column_index: [0] # input indices for network forward func in output_columns
-    label_column_index: [1, 2] # input indices marked as label
+    net_input_column_index: [0]
+    label_column_index: [1, 2]
 
   loader:
     shuffle: False
-    batch_size: 512
+    batch_size: 64
     drop_remainder: False
     max_rowsize: 12
     num_workers: 1
+    num_workers_dataset: 1
+    using_multiprocess_for_pipeline: False

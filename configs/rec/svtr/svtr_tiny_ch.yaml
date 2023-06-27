@@ -106,9 +106,7 @@ train:
     filter_max_len: True
     max_text_len: *max_text_len
     transform_pipeline:
-      - DecodeImage:
-          img_mode: BGR
-          to_float32: False
+      - Decode:
       - RecCTCLabelEncode:
           max_text_len: *max_text_len
           character_dict_path: *character_dict_path
@@ -120,12 +118,10 @@ train:
       - SVTRRecResizeImg:
           image_shape: [32, 320]
           padding: True
-      - NormalizeImage:
-          bgr_to_rgb: True
-          is_hwc: True
+      - Normalize:
           mean: [127.0, 127.0, 127.0]
           std: [127.0, 127.0, 127.0]
-      - ToCHWImage:
+      - HWC2CHW:
     output_columns: ["image", "text_seq"]
     net_input_column_index: [0]
     label_column_index: [1]
@@ -134,8 +130,10 @@ train:
     shuffle: True
     batch_size: *batch_size
     drop_remainder: True
-    max_rowsize: 12
+    max_rowsize: 24
     num_workers: 1
+    num_workers_dataset: 1
+    using_multiprocess_for_pipeline: False
 
 eval:
   ckpt_load_path: ./tmp_rec/best.ckpt
@@ -148,9 +146,7 @@ eval:
     sample_ratio: 1.0
     shuffle: False
     transform_pipeline:
-      - DecodeImage:
-          img_mode: BGR
-          to_float32: False
+      - Decode:
       - RecCTCLabelEncode:
           max_text_len: *max_text_len
           character_dict_path: *character_dict_path
@@ -162,12 +158,10 @@ eval:
       - SVTRRecResizeImg:
           image_shape: [32, 320] # H, W
           padding: True
-      - NormalizeImage:
-          bgr_to_rgb: True
-          is_hwc: True
+      - Normalize:
           mean: [127.0, 127.0, 127.0]
           std: [127.0, 127.0, 127.0]
-      - ToCHWImage:
+      - HWC2CHW:
     output_columns: ["image", "text_padded", "text_length"]
     net_input_column_index: [0]
     label_column_index: [1, 2]
@@ -176,5 +170,7 @@ eval:
     shuffle: False
     batch_size: 64
     drop_remainder: False
-    max_rowsize: 12
+    max_rowsize: 24
     num_workers: 1
+    num_workers_dataset: 1
+    using_multiprocess_for_pipeline: False

@@ -1,15 +1,16 @@
 system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
   distribute: True
-  amp_level: 'O3'
+  amp_level: "O3"
   seed: 42
   log_interval: 100
   val_while_train: True
   drop_overflow_update: False
+  ckpt_max_keep: 5
 
 common:
-  character_dict_path: &character_dict_path  #mindocr/utils/dict/en_dict.txt
-  num_classes: &num_classes 37 # num_chars_in_dict+1,  TODO: retreive it from dict or check correctness
+  character_dict_path: &character_dict_path
+  num_classes: &num_classes 37 # num_chars_in_dict + 1
   max_text_len: &max_text_len 24
   infer_mode: &infer_mode False
   use_space_char: &use_space_char False
@@ -44,8 +45,8 @@ metric:
 
 loss:
   name: CTCLoss
-  pred_seq_len: 25 # TODO: retrieve from the network output shape.
-  max_label_len: *max_text_len  # this value should be smaller than pre_seq_len
+  pred_seq_len: 25
+  max_label_len: *max_text_len # this value should be smaller than pre_seq_len
   batch_size: *batch_size
 
 scheduler:
@@ -68,48 +69,45 @@ loss_scaler:
   loss_scale: 512
 
 train:
-  ckpt_save_dir: './tmp_rec'
+  ckpt_save_dir: "./tmp_rec"
   pred_cast_fp32: False # let CTCLoss cast internally
   dataset_sink_mode: False
   dataset:
     type: LMDBDataset
     dataset_root: path/to/data_lmdb_release/ # Optional, if set, dataset_root will be used as a prefix for data_dir
     data_dir: training/
-    # label_file: # not required when using LMDBDataset
+    label_file: null # not required when using LMDBDataset
     sample_ratio: 1.0
     shuffle: True
     transform_pipeline:
-      - DecodeImage:
-          img_mode: BGR
-          to_float32: False
+      - Decode:
       - RecCTCLabelEncode:
           max_text_len: *max_text_len
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
           lower: True
-      - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize.
+      - RecResizeImg:
           image_shape: [32, 100] # H, W
           infer_mode: *infer_mode
           character_dict_path: *character_dict_path
           padding: False # aspect ratio will be preserved if true.
-      - NormalizeImage:  # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec.
-          bgr_to_rgb: True
-          is_hwc: True
-          mean : [127.0, 127.0, 127.0]
-          std : [127.0, 127.0, 127.0]
+      - Normalize:
+          mean: [127.0, 127.0, 127.0]
+          std: [127.0, 127.0, 127.0]
       - HWC2CHW:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
-    output_columns: ['image', 'text_seq'] #, 'length'] #'img_path']
+    output_columns: ["image", "text_seq"]
     net_input_column_index: [0] # input indices for network forward func in output_columns
     label_column_index: [1] # input indices marked as label
-    #keys_for_loss: 4 # num labels for loss func
 
   loader:
-      shuffle: True # TODO: tbc
-      batch_size: *batch_size
-      drop_remainder: True
-      max_rowsize: 12
-      num_workers: 8
+    shuffle: True
+    batch_size: *batch_size
+    drop_remainder: True
+    max_rowsize: 12
+    num_workers: 1
+    num_workers_dataset: 1
+    using_multiprocess_for_pipeline: False
 
 eval:
   ckpt_load_path: ./tmp_rec/best.ckpt
@@ -118,13 +116,11 @@ eval:
     type: LMDBDataset
     dataset_root: path/to/data_lmdb_release/
     data_dir: validation/
-    # label_file: # not required when using LMDBDataset
+    label_file: null # not required when using LMDBDataset
     sample_ratio: 1.0
     shuffle: False
     transform_pipeline:
-      - DecodeImage:
-          img_mode: RGB
-          to_float32: False
+      - Decode:
       - RecCTCLabelEncode:
           max_text_len: *max_text_len
           character_dict_path: *character_dict_path
@@ -138,16 +134,17 @@ eval:
           norm_before_pad: False
       - HWC2CHW:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
-    output_columns: ['image', 'text_padded', 'text_length']  # TODO return text string padding w/ fixed length, and a scaler to indicate the length
+    output_columns: ["image", "text_padded", "text_length"]
     net_input_column_index: [0] # input indices for network forward func in output_columns
     label_column_index: [1, 2] # input indices marked as label
 
   loader:
-      shuffle: False # TODO: tbc
-      batch_size: 64
-      drop_remainder: False
-      max_rowsize: 12
-      num_workers: 8
+    shuffle: False
+    batch_size: 64
+    drop_remainder: False
+    max_rowsize: 12
+    num_workers: 4
+    num_workers_dataset: 1
 
 predict:
   ckpt_load_path: ./tmp_rec/best.ckpt
@@ -164,28 +161,25 @@ predict:
       - DecodeImage:
           img_mode: BGR
           to_float32: False
-#      - RecCTCLabelEncode:
-#          max_text_len: *max_text_len
-#          character_dict_path: *character_dict_path
-#          use_space_char: *use_space_char
-#          lower: True
-      - RecResizeImg: # different from paddle (paddle converts image from HWC to CHW and rescale to [-1, 1] after resize.
+      - RecResizeImg:
           image_shape: [32, 100] # H, W
           infer_mode: *infer_mode
           character_dict_path: *character_dict_path
           padding: False # aspect ratio will be preserved if true.
-      - NormalizeImage:  # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec.
+      - NormalizeImage:
           bgr_to_rgb: True
           is_hwc: True
-          mean : [127.0, 127.0, 127.0]
-          std : [127.0, 127.0, 127.0]
+          mean: [127.0, 127.0, 127.0]
+          std: [127.0, 127.0, 127.0]
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
-    output_columns: [ 'img_path', 'image', 'raw_img_shape' ]
+    output_columns: ["img_path", "image", "raw_img_shape"]
 
   loader:
-      shuffle: False # TODO: tbc
-      batch_size: 1
-      drop_remainder: True
-      max_rowsize: 12
-      num_workers: 8
+    shuffle: False
+    batch_size: 1
+    drop_remainder: True
+    max_rowsize: 12
+    num_workers: 1
+    num_workers_dataset: 1
+    using_multiprocess_for_pipeline: False

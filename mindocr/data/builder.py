@@ -169,10 +169,11 @@ def build_dataset(
         input_columns=dataset_column_names,
         backward_comp=version.parse(ms.__version__) < version.parse("2.0.0rc"),
     )
+    using_multiprocess_for_pipeline = loader_config.get("using_multiprocess_for_pipeline", True)
     for group in transforms:
         ds = ds.map(
             **group,
-            python_multiprocessing=True,
+            python_multiprocessing=using_multiprocess_for_pipeline,
             num_parallel_workers=num_workers_map,
             max_rowsize=loader_config.get("max_rowsize", 64),
         )
@@ -185,23 +186,23 @@ def build_dataset(
     num_samples = ds.get_dataset_size()
     batch_size = loader_config["batch_size"]
 
-    device_id = shard_id or 0
-    is_main_device = device_id == 0
+    rank_id = shard_id or 0
+    is_main_rank = rank_id == 0
     _logger.info(
-        f"Creating dataloader (training={is_train}) for device {device_id}. Number of data samples: {num_samples}"
+        f"Creating dataloader (training={is_train}) for rank {rank_id}. Number of data samples: {num_samples}"
     )
 
     if "refine_batch_size" in kwargs:
         batch_size = _check_batch_size(num_samples, batch_size, refine=kwargs["refine_batch_size"])
 
     drop_remainder = loader_config.get("drop_remainder", is_train)
-    if is_train and not drop_remainder and is_main_device:
+    if is_train and not drop_remainder and is_main_rank:
         _logger.warning(
             "`drop_remainder` should be True for training, "
             "otherwise the last batch may lead to training fail in Graph mode."
         )
     elif not is_train and drop_remainder:
-        if is_main_device:
+        if is_main_rank:
             _logger.warning(
                 "`drop_remainder` is forced to be False for evaluation "
                 "to include the last batch for accurate evaluation."
