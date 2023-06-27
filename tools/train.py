@@ -55,7 +55,7 @@ def main(cfg):
 
     set_seed(cfg.system.seed)
 
-    is_main_rank = rank_id in [None, 0]
+    is_main_device = rank_id in [None, 0]
 
     # create logger, only rank0 log will be output to the screen
     logger = get_logger(log_dir=cfg.train.ckpt_save_dir, rank=rank_id)
@@ -207,7 +207,7 @@ def main(cfg):
     )
 
     # save args used for training
-    if is_main_rank:
+    if is_main_device:
         with open(os.path.join(cfg.train.ckpt_save_dir, "args.yaml"), "w") as f:
             args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False, sort_keys=False)
             f.write(args_text)
@@ -233,20 +233,22 @@ if __name__ == "__main__":
 
     # data sync for modelarts
     if args.enable_modelarts:
-        import json
+        from ast import literal_eval
 
-        from tools.modelarts_adapter.modelarts import LOCAL_RANK, sync_data, update_config_value_by_key
+        import moxing as mox
+
+        from tools.modelarts_adapter.modelarts import get_device_id, sync_data, update_config_value_by_key
 
         dataset_root = "/cache/data/"
         # download dataset from server to local on device 0, other devices will wait until data sync finished.
         if args.multi_data_url:
-            multi_data_url = json.loads(args.multi_data_url)
-            multi_data_url = [x["dataset_url"] for x in multi_data_url]
-            sync_data(multi_data_url, dataset_root)
+            multi_data_url = literal_eval(args.multi_data_url)
+            for x in multi_data_url:
+                sync_data(x["dataset_url"], dataset_root)
         else:
-            sync_data([args.data_url], dataset_root)
+            sync_data(args.data_url, dataset_root)
 
-        if LOCAL_RANK == 0:
+        if get_device_id() == 0:
             # mox.file.copy_parallel(src_url=args.data_url, dst_url=dataset_root)
             print(
                 f"INFO: datasets found: {os.listdir(dataset_root)} \n"
@@ -268,8 +270,11 @@ if __name__ == "__main__":
             new_dict_path = os.path.join(root_dir, config.common.character_dict_path)
             update_config_value_by_key(config, "character_dict_path", new_dict_path)
 
-        # move output to /cache/output
-        config.train.ckpt_save_dir = "/cache/output"
-
     # main train and eval
     main(config)
+
+    # model sync for modelarts
+    if args.enable_modelarts:
+        # upload models from local to server
+        if get_device_id() == 0:
+            mox.file.copy_parallel(src_url=config.train.ckpt_save_dir, dst_url=args.train_url)

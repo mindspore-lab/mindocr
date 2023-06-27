@@ -75,7 +75,7 @@ train:
   dataset:
     type: LMDBDataset
     dataset_root: path/to/data_lmdb_release/ # Optional, if set, dataset_root will be used as a prefix for data_dir
-    data_dir: ["ST", "MJ"]
+    data_dir: training/
     label_file: null # not required when using LMDBDataset
     sample_ratio: 1.0
     shuffle: True

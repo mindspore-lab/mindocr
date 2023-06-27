@@ -36,7 +36,6 @@ def create_parser():
     group.add_argument("--data_url", type=str, default="", help="path to dataset")
     group.add_argument("--ckpt_url", type=str, default="", help="pre_train_model path in obs")
     group.add_argument("--train_url", type=str, default="", help="model folder to save/load")
-    group.add_argument("--pretrain_url", type=str, default="", help="url for pretrain model")
 
     # args = parser.parse_args()
 
