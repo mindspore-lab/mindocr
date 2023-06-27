@@ -1,5 +1,5 @@
 postprocess:
-  name: DistillationCTCLabelDecode
+  name: RecCTCLabelDecode
   use_space_char: True
   blank_at_last: False
 
