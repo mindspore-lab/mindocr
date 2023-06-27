@@ -1,22 +1,13 @@
 from typing import Tuple
 
 import numpy as np
-from packaging import version
 
-import mindspore as ms
 import mindspore.nn as nn
 import mindspore.ops as ops
 from mindspore import Tensor
-from mindspore.ops.primitive import constexpr
 
+from ..utils.misc import ms_version_is_large_than_2_0
 from .tps_spatial_transformer import TPSSpatialTransformer
-
-
-@constexpr
-def _if_version_is_large_than_two_point_zero():
-    if version.parse(ms.__version__) >= version.parse("2.0.0rc"):
-        return True
-    return False
 
 
 def conv3x3_block(
@@ -120,7 +111,7 @@ class STN_ON(nn.Cell):
         self.out_channels = in_channels
 
     def construct(self, image: Tensor) -> Tensor:
-        if _if_version_is_large_than_two_point_zero():
+        if ms_version_is_large_than_2_0():
             stn_input = ops.interpolate(image, size=self.tps_inputsize, mode="bilinear")
         else:
             stn_input = ops.interpolate(

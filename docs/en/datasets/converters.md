@@ -36,6 +36,7 @@ python tools/dataset_converters/convert.py \
 
 ## Text Recognition Annotation
 
+### Common Dataset Format
 The annotation format for text recognition dataset follows
 ```text
 word_7.png	fusionopolis
@@ -63,4 +64,20 @@ python tools/dataset_converters/convert.py \
         --task rec \
         --label_dir /path/to/ic15/rec/ch4_test_word_images_gt/gt.txt
         --output_path /path/to/ic15/rec/ch4_test_word_images_gt/rec_gt.txt
+```
+
+### LMDB Dataset Format
+
+Some of the dataset can be converted to LMDB format. Currently, this is only supported for the `SynthText` and `SynthAdd` datasets.
+
+To convert to LMDB format, please run
+
+``` shell
+python tools/dataset_converters/convert.py \
+    --dataset_name synthtext \
+    --task rec_lmdb \
+    --image_dir /path/to/SynthText \
+    --label_dir /path/to/SynthText_gt.mat \
+    --output_path ST_full
+```
 ```

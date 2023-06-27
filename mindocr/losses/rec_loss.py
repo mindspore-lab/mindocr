@@ -4,7 +4,7 @@ import mindspore as ms
 from mindspore import Tensor, nn, ops
 from mindspore.nn.loss.loss import LossBase
 
-__all__ = ["CTCLoss", "AttentionLoss"]
+__all__ = ["CTCLoss", "AttentionLoss", "MasterLoss"]
 
 
 class CTCLoss(LossBase):
@@ -62,6 +62,20 @@ class AttentionLoss(LossBase):
         super().__init__()
         # ignore <GO> symbol, assume it is placed at 0th index
         self.criterion = nn.CrossEntropyLoss(reduction=reduction, ignore_index=0)
+
+    def construct(self, logits: Tensor, labels: Tensor) -> Tensor:
+        labels = labels[:, 1:]  # wihout <GO> symbol
+        num_classes = logits.shape[-1]
+        logits = ops.reshape(logits, (-1, num_classes))
+        labels = ops.reshape(labels, (-1,))
+        return self.criterion(logits, labels)
+
+
+class MasterLoss(LossBase):
+    def __init__(self, reduction: str = "mean") -> None:
+        super().__init__()
+        # ignore <PAD> symbol, assume it is placed at 2nd index
+        self.criterion = nn.CrossEntropyLoss(reduction=reduction, ignore_index=2)
 
     def construct(self, logits: Tensor, labels: Tensor) -> Tensor:
         labels = labels[:, 1:]  # wihout <GO> symbol
