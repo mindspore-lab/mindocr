@@ -8,8 +8,6 @@ PREPROCESS_MAPPING_OPS = {
     "DecodeImage": transforms.DecodeImage,
     "NormalizeImage": transforms.NormalizeImage,
     "ToCHWImage": transforms.ToCHWImage,
-    "GridResize": functools.partial(transforms.DetResize, keep_ratio=False, padding=False),
-    "ScalePadImage": transforms.ScalePadImage,
     # det
     "DetResize": transforms.DetResize,
     "DetResizeNormForInfer": transforms.DetResizeNormForInfer,

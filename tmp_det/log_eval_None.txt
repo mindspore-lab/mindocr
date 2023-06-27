@@ -1,0 +1,152 @@
+2023-06-27 11:47:31,261:INFO:
+========================================
+Model: det_resnet50-DBFPN-DBHead
+AMP level: O0
+Num batches: 500
+Batch size: 1
+Allow rescaling polygons for Det postprocess: True
+========================================
+
+Start evaluating...
+2023-06-27 11:47:56,972:INFO:
+========================================
+Model: det_resnet50-DBFPN-DBHead
+AMP level: O0
+Num batches: 500
+Batch size: 1
+Allow rescaling polygons for Det postprocess: True
+========================================
+
+Start evaluating...
+2023-06-27 11:48:55,585:INFO:
+========================================
+Model: det_resnet50-DBFPN-DBHead
+AMP level: O0
+Num batches: 500
+Batch size: 1
+Allow rescaling polygons for Det postprocess: True
+========================================
+
+Start evaluating...
+2023-06-27 11:49:57,400:INFO:Performance: {'recall': 0.817043813192104, 'precision': 0.8570707070707071, 'f-score': 0.836578752772985}
+2023-06-27 11:56:03,322:INFO:
+========================================
+Model: det_resnet50-DBFPN-DBHead
+AMP level: O0
+Num batches: 500
+Batch size: 1
+Allow rescaling polygons for Det postprocess: True
+========================================
+
+Start evaluating...
+2023-06-27 11:56:54,063:INFO:Performance: {'recall': 0.8353394318728936, 'precision': 0.8662006989515726, 'f-score': 0.8504901960784313}
+2023-06-27 12:09:29,771:INFO:
+========================================
+Model: det_mobilenet_v3-DBFPN-DBHead
+AMP level: O0
+Num batches: 500
+Batch size: 1
+Allow rescaling polygons for Det postprocess: True
+========================================
+
+Start evaluating...
+2023-06-27 12:10:41,545:INFO:Performance: {'recall': 0.7631198844487241, 'precision': 0.782716049382716, 'f-score': 0.7727937591418821}
+2023-06-27 12:22:51,881:INFO:
+========================================
+Model: det_mobilenet_v3-DBFPN-DBHead
+AMP level: O0
+Num batches: 500
+Batch size: 1
+Allow rescaling polygons for Det postprocess: True
+========================================
+
+Start evaluating...
+2023-06-27 12:23:42,848:INFO:Performance: {'recall': 0.7631198844487241, 'precision': 0.782716049382716, 'f-score': 0.7727937591418821}
+2023-06-27 13:40:26,582:INFO:
+========================================
+Model: det_resnet18-DBFPN-DBHead
+AMP level: O0
+Num batches: 197
+Batch size: 1
+Allow rescaling polygons for Det postprocess: True
+========================================
+
+Start evaluating...
+2023-06-27 13:41:10,215:INFO:Performance: {'recall': 0.7955326460481099, 'precision': 0.8785578747628083, 'f-score': 0.8349864743011721}
+2023-06-27 13:42:11,510:INFO:
+========================================
+Model: det_resnet18-DBFPN-DBHead
+AMP level: O0
+Num batches: 197
+Batch size: 1
+Allow rescaling polygons for Det postprocess: True
+========================================
+
+Start evaluating...
+2023-06-27 13:42:55,667:INFO:Performance: {'recall': 0.8195876288659794, 'precision': 0.8310104529616724, 'f-score': 0.8252595155709342}
+2023-06-27 13:43:22,922:INFO:
+========================================
+Model: det_resnet18-DBFPN-DBHead
+AMP level: O0
+Num batches: 197
+Batch size: 1
+Allow rescaling polygons for Det postprocess: True
+========================================
+
+Start evaluating...
+2023-06-27 13:43:52,145:INFO:Performance: {'recall': 0.7955326460481099, 'precision': 0.8785578747628083, 'f-score': 0.8349864743011721}
+2023-06-27 13:47:27,446:INFO:
+========================================
+Model: det_resnet50-DBFPN-DBHead
+AMP level: O0
+Num batches: 197
+Batch size: 1
+Allow rescaling polygons for Det postprocess: True
+========================================
+
+Start evaluating...
+2023-06-27 13:48:15,178:INFO:Performance: {'recall': 0.8367697594501718, 'precision': 0.8758992805755396, 'f-score': 0.8558875219683655}
+2023-06-27 13:59:29,588:INFO:
+========================================
+Model: det_mobilenet_v3-DBFPN-DBHead
+AMP level: O0
+Num batches: 500
+Batch size: 1
+Allow rescaling polygons for Det postprocess: True
+========================================
+
+Start evaluating...
+2023-06-27 14:00:22,108:INFO:Performance: {'recall': 0.7631198844487241, 'precision': 0.782716049382716, 'f-score': 0.7727937591418821}
+2023-06-27 14:01:45,018:INFO:
+========================================
+Model: det_resnet50-DBFPN-DBHead
+AMP level: O0
+Num batches: 500
+Batch size: 1
+Allow rescaling polygons for Det postprocess: True
+========================================
+
+Start evaluating...
+2023-06-27 14:02:33,343:INFO:Performance: {'recall': 0.8353394318728936, 'precision': 0.8662006989515726, 'f-score': 0.8504901960784313}
+2023-06-27 16:01:15,188:INFO:
+========================================
+Model: det_mobilenet_v3-DBFPN-DBHead
+AMP level: O0
+Num batches: 500
+Batch size: 1
+Allow rescaling polygons for Det postprocess: True
+========================================
+
+Start evaluating...
+2023-06-27 16:02:07,584:INFO:Performance: {'recall': 0.7631198844487241, 'precision': 0.782716049382716, 'f-score': 0.7727937591418821}
+2023-06-27 16:02:54,274:INFO:
+========================================
+Model: det_mobilenet_v3-DBFPN-DBHead
+AMP level: O0
+Num batches: 500
+Batch size: 1
+Allow rescaling polygons for Det postprocess: True
+========================================
+
+Start evaluating...
+2023-06-27 16:03:45,544:INFO:Performance: {'recall': 0.7631198844487241, 'precision': 0.782716049382716, 'f-score': 0.7727937591418821}

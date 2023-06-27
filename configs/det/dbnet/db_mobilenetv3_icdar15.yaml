@@ -140,12 +140,17 @@ eval:
           img_mode: RGB
           to_float32: False
       - DetLabelEncode:
-      - GridResize:
-          factor: 32
       # GridResize already sets the evaluation size to [ 736, 1280 ].
-      # Uncomment ScalePadImage block for other resolutions.
-#      - ScalePadImage:
-#          target_size: [ 736, 1280 ] # h, w
+      - DetResize:  # GridResize
+          keep_ratio: False
+          limit_type: None
+          divisor: 32
+      # Uncomment the following DetResize-ScalePadImage block for other resolutions.
+      # - DetResize:  #ScalePadImage
+      #     target_size: [ 736, 1280 ]
+      #     padding: True
+      #     limit_type: None
+      #     force_divisable: False
       - NormalizeImage:
           bgr_to_rgb: False
           is_hwc: True
