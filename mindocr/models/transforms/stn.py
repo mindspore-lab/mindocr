@@ -6,7 +6,7 @@ import mindspore.nn as nn
 import mindspore.ops as ops
 from mindspore import Tensor
 
-from ..utils.misc import ms_version_is_large_than_2_0
+from ...utils.misc import is_ms_version_2
 from .tps_spatial_transformer import TPSSpatialTransformer
 
 
@@ -111,7 +111,7 @@ class STN_ON(nn.Cell):
         self.out_channels = in_channels
 
     def construct(self, image: Tensor) -> Tensor:
-        if ms_version_is_large_than_2_0():
+        if is_ms_version_2():
             stn_input = ops.interpolate(image, size=self.tps_inputsize, mode="bilinear")
         else:
             stn_input = ops.interpolate(

@@ -7,8 +7,8 @@ import mindspore.nn as nn
 import mindspore.ops as ops
 from mindspore import Tensor
 
+from ...utils.misc import is_ms_version_2
 from ..utils.attention_cells import MultiHeadAttention, PositionalEncoding, PositionwiseFeedForward
-from ..utils.misc import ms_version_is_large_than_2_0
 
 __all__ = ["MasterDecoder"]
 
@@ -74,7 +74,7 @@ class MasterDecoder(nn.Cell):
         self.generator = nn.Dense(in_channels, out_channels)
 
         # mask related
-        if ms_version_is_large_than_2_0():
+        if is_ms_version_2():
             self.tril = ops.tril
         else:
             self.tril = nn.Tril()

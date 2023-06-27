@@ -50,7 +50,8 @@ metric:
   ignore_symbol: True
 
 loss:
-  name: MasterLoss
+  name: AttentionLoss
+  ignore_index: 2
 
 scheduler:
   scheduler: warmup_cosine_decay
