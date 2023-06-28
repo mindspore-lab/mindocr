@@ -157,7 +157,7 @@ class RandomScale:
     Randomly scales an image and its polygons in a predefined scale range.
     Args:
         scale_range: (min, max) scale range.
-        size_limits: (min_height, max_height, min_width, max_width) size limits. Default: None.
+        size_limits: (min_side_len, max_side_len) size limits. Default: None.
         p: probability of the augmentation being applied to an image.
     """
 
@@ -183,20 +183,17 @@ class RandomScale:
             (polys)
         """
         if random.random() < self._p:
-            scale = np.random.uniform(*self._range)
-
-            size = np.arr(data["image"].shape[:2])
-            size = np.round(scale * size)
-
-            if self._size_limits is not None:
-                min_len, max_len = self._size_limits
+            size = data["image"].shape[:2]
+            if self._size_limits:
+                min_scale = max(self._size_limits[0] / size[0], self._size_limits[0] / size[1], self._range[0])
+                max_scale = min(self._size_limits[1] / size[0], self._size_limits[1] / size[1], self._range[1])
+                scale = np.random.uniform(min_scale, max_scale)
             else:
-                min_len, max_len = 0, np.inf
+                scale = np.random.uniform(*self._range)
 
-            if size >= min_len and size <= max_len:
-                data["image"] = cv2.resize(data["image"], dsize=None, fx=scale, fy=scale)
-                if "polys" in data:
-                    data["polys"] *= scale
+            data["image"] = cv2.resize(data["image"], dsize=None, fx=scale, fy=scale)
+            if "polys" in data:
+                data["polys"] *= scale
 
         return data
 
