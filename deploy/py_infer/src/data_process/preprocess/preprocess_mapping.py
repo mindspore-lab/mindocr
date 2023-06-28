@@ -1,5 +1,3 @@
-import functools
-
 from . import transforms
 
 # other ops node will be skipped
