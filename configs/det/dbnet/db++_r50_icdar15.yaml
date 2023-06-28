@@ -137,11 +137,6 @@ eval:
           img_mode: RGB
           to_float32: False
       - DetLabelEncode:
-      # - DetResize:  # ScalePadImage
-      #     target_size: [ 1152, 2048 ] # h, w
-      #     padding: True
-      #     limit_type: None
-      #     force_divisable: False
       - DetResize:
           target_size: [ 1152, 2048]
           keep_ratio: True

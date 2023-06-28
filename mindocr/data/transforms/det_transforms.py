@@ -395,7 +395,7 @@ class DetResize:
         interpolation: int = cv2.INTER_LINEAR,
         **kwargs,
     ):
-        if target_size is not None or limit_type == "None":
+        if target_size is not None:
             limit_type = None
 
         self.target_size = target_size
