@@ -13,6 +13,7 @@ eval:
           img_mode: BGR
           channel_first: False
       - DetResize:  #ScalePadImage
+          keep_ratio: True
           padding: True
           limit_type: None
           force_divisable: False
