@@ -79,8 +79,7 @@ class DetLabelEncode:
                 txt_tags.append(True)
             else:
                 txt_tags.append(False)
-        if len(boxes) == 0:
-            return None
+
         boxes = self.expand_points_num(boxes)
         boxes = np.array(boxes, dtype=np.float32)
         txt_tags = np.array(txt_tags, dtype=np.bool)
