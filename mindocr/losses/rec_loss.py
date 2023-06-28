@@ -4,7 +4,7 @@ import mindspore as ms
 from mindspore import Tensor, nn, ops
 from mindspore.nn.loss.loss import LossBase
 
-__all__ = ["CTCLoss", "AttentionLoss"]
+__all__ = ["CTCLoss", "AttentionLoss", "VisionLANLoss"]
 
 
 class CTCLoss(LossBase):
@@ -54,6 +54,91 @@ class CTCLoss(LossBase):
 
         loss, _ = self.ctc_loss(logit, self.label_indices, label_values, self.sequence_length)
         loss = self.get_loss(loss)
+        return loss
+
+
+class VisionLANLoss(LossBase):
+    """VisionLAN Loss. It predicts the cross entropy loss while ignoring the target value\
+        that equals to -100.
+    Args:
+        mode (str): mode of the loss, selected from ["LF_1", "LF_2", "LA"]. Default: "LF_1".
+        weight_res (float): weight of the remaining text prediction loss. Default: 0.5.
+        weight_mas (float): weight of the masked text prediction loss. Default: 0.5.
+        reduction (str): reduction method. Default: "mean".
+    """
+
+    def __init__(self, mode="LF_1", weight_res=0.5, weight_mas=0.5, reduction="mean", **kwargs):
+        super().__init__()
+        self.criterion = nn.CrossEntropyLoss(
+            reduction=reduction, ignore_index=-100
+        )  # ignore the samples in the target padded with -100
+        assert mode in ["LF_1", "LF_2", "LA"]
+        self.mode = mode
+        self.weight_res = weight_res
+        self.weight_mas = weight_mas
+
+    def replace_label_with_target_value(self, target, label_length, target_value=-100):
+        """In each row of target, replace the elements (zeros) by the pad value.
+        Args:
+            target: (Tensor), target text indexes, shape (B, max_len)
+            target_value: (int), the value used to replace the padded label. Default: -100.
+
+        Returns:
+            target: (Tensor), target text indexes, shape (B, max_len)
+        """
+        b, max_len = target.shape
+        # label_length is the length of valid characters
+        # 1. update the invalid characters except for the first invalid character to the target value
+        # 2. if some samples' lengths equal to max_len, then the tensor would not be updated
+        indices = label_length[:, None]
+        nonzero_mask = ops.cast(target != 0, ms.float32)
+        updates = ops.ones(indices.shape, nonzero_mask.dtype)
+        nonzero_mask = ops.tensor_scatter_elements(nonzero_mask, indices, updates, axis=1)
+        nonzero_mask = ops.cast(nonzero_mask, ms.bool_)
+        target[~nonzero_mask] = target_value
+        return target
+
+    def construct(self, predicts, label, label_res, label_sub, label_length):
+        text_pre = predicts[0]
+        b, l, c = text_pre.shape
+        target = ops.cast(label, ms.int32)  # target text indexes
+        label_length = ops.cast(label_length, ms.int32)
+        target = self.replace_label_with_target_value(target, label_length)
+        if self.mode == "LF_1":  # train the backbone, sequence model, and prediction layer
+            loss = self.criterion(
+                text_pre.view(b * l, c),
+                target.view(
+                    b * l,
+                ),
+            )
+        else:  # train the backbone, sequence model, and prediction layer with masking
+            text_rem = predicts[1]
+            b1, l1, c1 = text_rem.shape
+            text_mas = predicts[2]
+            b2, l2, c2 = text_mas.shape
+            target_res = ops.cast(label_res, ms.int32)
+            target_sub = ops.cast(label_sub, ms.int32)
+            target_res = self.replace_label_with_target_value(target_res, label_length - 1)
+            target_sub = self.replace_label_with_target_value(target_sub, ops.ones((len(label_length),), ms.int32))
+            loss_ori = self.criterion(
+                text_pre.view(b * l, c),
+                target.view(
+                    b * l,
+                ),
+            )
+            loss_res = self.criterion(
+                text_rem.view(b1 * l1, c1),
+                target_res.view(
+                    b1 * l1,
+                ),
+            )
+            loss_mas = self.criterion(
+                text_mas.view(b2 * l2, c2),
+                target_sub.view(
+                    b2 * l2,
+                ),
+            )
+            loss = loss_ori + loss_res * self.weight_res + loss_mas * self.weight_mas
         return loss
 
 

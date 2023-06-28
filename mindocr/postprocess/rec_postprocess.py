@@ -7,7 +7,7 @@ import numpy as np
 
 from mindspore import Tensor
 
-__all__ = ["RecCTCLabelDecode", "RecAttnLabelDecode", "RecMasterLabelDecode"]
+__all__ = ["RecCTCLabelDecode", "RecAttnLabelDecode", "RecMasterLabelDecode", "VisionLANPostProcess"]
 _logger = logging.getLogger(__name__)
 
 
@@ -153,6 +153,91 @@ class RecCTCLabelDecode(object):
 
         texts, confs = self.decode(pred_indices, pred_prob, remove_duplicate=True)
 
+        return {"texts": texts, "confs": confs, "raw_chars": raw_chars}
+
+
+class VisionLANPostProcess(RecCTCLabelDecode):
+    """Convert the predicted tensor to text strings, confidence(probabilities), and raw characters
+    Args:
+        character_dict_path: path to dictionary, if None, a dictionary containing 36 chars
+            (i.e., "0123456789abcdefghijklmnopqrstuvwxyz") will be used.
+        use_space_char(bool): if True, add space char to the dict to recognize the space in between two words
+        lower (bool): if True, all upper-case chars in the label text will be converted to lower case.
+            Set to be True if dictionary only contains lower-case chars.
+            Set to be False if not and want to recognition both upper-case and lower-case.
+        blank_at_last(bool): padding with blank index (not the space index).
+            If True, a blank/padding token will be appended to the end of the dictionary, so that
+            blank_index = num_chars, where num_chars is the number of character in the dictionary including space char
+            if used. If False, blank token will be inserted in the beginning of the dictionary, so blank_index=0.
+        max_text_length(int): the maximum length of the text string. Default is 25.
+    Attributes:
+        character (dict): the dictionary of valid characters.
+        max_text_length (int): the maximum length of the text string.
+        num_classes (int): the number of classes (which valid characters char and the speical token for blank padding).
+            so num_classes = num_valid_chars + 1
+    """
+
+    def __init__(
+        self, character_dict_path=None, use_space_char=False, blank_at_last=True, lower=False, max_text_length=25
+    ):
+        super(VisionLANPostProcess, self).__init__(character_dict_path, use_space_char, blank_at_last, lower)
+        self.max_text_length = max_text_length
+        assert (
+            not blank_at_last
+        ), "VisionLAN uses blank_at_last =  False, please check your configuration for VisionLANPostProcess"
+
+    def __call__(self, preds, *args, **kwargs):
+        if isinstance(preds, Tensor):  # eval mode
+            text_pre = preds.numpy()  # (max_len, b, 37)) before the softmax function
+            b = text_pre.shape[1]
+            lenText = self.max_text_length
+            nsteps = self.max_text_length
+            out_res = np.zeros(shape=[lenText, b, self.num_classes])
+            out_length = np.zeros(shape=[b])
+            now_step = 0
+            for _ in range(nsteps):
+                if 0 in out_length and now_step < nsteps:
+                    tmp_result = text_pre[now_step, :, :]  # (b, 37)
+                    out_res[now_step] = tmp_result
+                    tmp_result = (-tmp_result).argsort(axis=1)[
+                        :, 0
+                    ]  # top1 result index at axis=1, 37 is the dictionary size
+                    for j in range(b):
+                        if out_length[j] == 0 and tmp_result[j] == 0:
+                            # for the jth sample, if the character with greatest probibility is <PAD>,
+                            # assign the now_step+1 to  out_length[j] as the prediction length
+                            out_length[j] = now_step + 1
+                    now_step += 1
+            for j in range(0, b):
+                if int(out_length[j]) == 0:
+                    out_length[j] = nsteps
+            start = 0
+            output = np.zeros((int(out_length.sum()), self.num_classes))
+            for i in range(0, b):
+                cur_length = int(out_length[i])
+                output[start : start + cur_length] = out_res[0:cur_length, i, :]
+                start += cur_length
+            net_out = output
+            length = out_length
+        else:  # do not call postprocess in train mode
+            raise ValueError("Do not call postprocess in train mode")
+        texts = []
+        raw_chars = []
+        confs = []
+        # 1. apply softmax function to net_out
+        net_out = np.exp(net_out) / (np.expand_dims(np.exp(net_out).sum(1), axis=1) + 1e-7)  # (N, 37)
+        for i in range(0, length.shape[0]):
+            start = int(length[:i].sum())
+            end = int(length[:i].sum() + length[i])
+            preds_idx_r = (-net_out[start:end]).argsort(1)[:, 0]  # top1 result index at axis=1
+            preds_idx = preds_idx_r.tolist()
+            pred_chars = [self.character[idx] if idx > 0 and idx <= len(self.character) else "" for idx in preds_idx]
+            preds_text = "".join(pred_chars)
+            preds_prob = net_out[start:end].max(axis=1)  # top1 result at axis=1
+            preds_prob = np.exp(np.log(preds_prob).sum() / (preds_prob.shape[0] + 1e-6))
+            texts.append(preds_text)
+            raw_chars.append(pred_chars)
+            confs.append(preds_prob)
         return {"texts": texts, "confs": confs, "raw_chars": raw_chars}
 
 

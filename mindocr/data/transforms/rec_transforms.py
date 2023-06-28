@@ -3,6 +3,7 @@ transform for text recognition tasks.
 """
 import logging
 import math
+from random import sample
 from typing import Any, Dict, List, Optional
 
 import cv2
@@ -12,6 +13,7 @@ __all__ = [
     "RecCTCLabelEncode",
     "RecAttnLabelEncode",
     "RecMasterLabelEncode",
+    "VisionLANLabelEncode",
     "RecResizeImg",
     "RecResizeNormForInfer",
     "SVTRRecResizeImg",
@@ -130,6 +132,99 @@ class RecCTCLabelEncode(object):
         data["text_length"] = len(data["label"])
         data["text_padded"] = data["label"] + " " * (self.max_text_len - len(data["label"]))
 
+        return data
+
+
+class VisionLANLabelEncode(RecCTCLabelEncode):
+    """Convert text label (str) to the labels needed by the VisionLAN, inheritated from RecCTCLabelEncode
+
+    Args:
+        max_text_len: a fixed length (max_text_len) of char indices, which the label, label_res, label_mas,
+            text_padded will be padded to.
+        character_dict_path: path to dictionary, if None, a dictionary containing 36 chars
+            (i.e., "0123456789abcdefghijklmnopqrstuvwxyz") will be used.
+        use_space_char(bool): if True, add space char to the dict to recognize the space in between two words
+        blank_at_last(bool): padding with blank index (not the space index). If True, a blank/padding token will be
+            appended to the end of the dictionary, so that blank_index = num_chars, where num_chars is the number of
+            character in the dictionary including space char if used. If False, blank token will be inserted in the
+            beginning of the dictionary, so blank_index=0.
+        lower (bool): if True, all upper-case chars in the label text will be converted to lower case.
+            Set to be True if dictionary only contains lower-case chars.
+            Set to be False if not and want to recognition both upper-case and lower-case.
+
+    Attributes:
+        blank_idx: the index of the blank token for padding
+        max_text_len: the padded text length
+        num_valid_chars: the number of valid characters (including space char if used) in the dictionary
+        num_classes: the number of classes (which valid characters char and the speical token for blank padding).
+            so num_classes = num_valid_chars + 1
+    """
+
+    def __init__(
+        self, max_text_len, character_dict_path=None, use_space_char=False, blank_at_last=True, lower=False, **kwargs
+    ):
+        super(VisionLANLabelEncode, self).__init__(
+            max_text_len, character_dict_path, use_space_char, blank_at_last, lower
+        )
+        assert (
+            not blank_at_last
+        ), "VisionLAN applies the blank token at the beginning of the dictionary, so the blank_at_last should be False"
+        self.max_text_len = self.max_text_len + 1  # since VisionLAN predicts EOS, increaset the max_text_len by 1
+
+    def __call__(self, data):
+        """
+        required keys:
+            label -> (str) original text string
+        added keys:
+            label_id -> (int), the index for the randomly chosen character to be occluded
+            label -> (np.ndarray),  sequence of character indices for the original text
+                                    string after padding to max_text_len
+            label_res -> (np.ndarray), sequence of character indices where the character is
+                                    removed after padding to max_text_len
+            label_sub -> (np.ndarray),  sequence of character indices of the occluded character
+                                    after padding to max_text_len
+            length -> (np.int32) the number of valid chars in the encoded char index sequence,
+                                    where valid means the char is in dictionary.
+            text_padded ->  text string padded to fixed length, to solved the dynamic shape
+                                    issue in dataloader.
+        """
+        text = data["label"]  # original string
+        # 1. randomly select a character to be occluded, save its index to label_id
+        len_str = len(text)
+        if len_str == 0:
+            raise ValueError("The length of the label string is zero")
+        change_num = 1
+        order = list(range(len_str))
+        label_id = sample(order, change_num)[0]  # randomly select the change character index
+        # 2. obtain two strings: label_sub and label_res
+        label_sub = text[label_id]
+        if label_id == (len_str - 1):
+            label_res = text[:label_id]
+        elif label_id == 0:
+            label_res = text[1:]
+        else:
+            label_res = text[:label_id] + text[label_id + 1 :]
+
+        data["label_id"] = label_id  # character index
+        # 3. encode strings (valid characters) to indices
+        char_indices = str2idx(data["label"], self.dict, max_text_len=self.max_text_len, lower=self.lower)
+        if char_indices is None:
+            char_indices = []
+        label_res = str2idx(label_res, self.dict, max_text_len=self.max_text_len, lower=self.lower, ignore_warning=True)
+        label_sub = str2idx(label_sub, self.dict, max_text_len=self.max_text_len, lower=self.lower, ignore_warning=True)
+        if label_res is None:
+            label_res = []
+        if label_sub is None:
+            label_sub = []
+        data["length"] = len(char_indices)
+        # 4. pad to a fixed length by appending zeros (self.blank_idx)
+        char_indices = char_indices + [self.blank_idx] * (self.max_text_len - len(char_indices))
+        data["text_padded"] = data["label"] + " " * (self.max_text_len - len(data["label"]))
+        data["label"] = np.array(char_indices)
+        label_res = label_res + [self.blank_idx] * (self.max_text_len - len(label_res))
+        label_sub = label_sub + [self.blank_idx] * (self.max_text_len - len(label_sub))
+        data["label_res"] = np.array(label_res)
+        data["label_sub"] = np.array(label_sub)
         return data
 
 
@@ -326,6 +421,7 @@ def str2idx(
     max_text_len: int = 23,
     lower: bool = False,
     unknown_idx: Optional[int] = None,
+    ignore_warning: bool = False,
 ) -> List[int]:
     """
     Encode text (string) to a squence of char indices
@@ -348,7 +444,7 @@ def str2idx(
         else:
             char_indices.append(label_dict[char])
 
-    if len(char_indices) == 0:
+    if len(char_indices) == 0 and not ignore_warning:
         _logger.warning("`{}` does not contain any valid character in the dictionary.".format(text))
         return None
 

@@ -54,7 +54,7 @@ def create_scheduler(
             and the LR will be consistent for each batch in one epoch.
             Otherwise, learning rate will be updated dynamically in each step. (default=False)
     Returns:
-        Cell object for computing LR with input of current global steps
+        A list of float numbers indicating the learning rate at every step
     """
     # check params
     if milestones is None:

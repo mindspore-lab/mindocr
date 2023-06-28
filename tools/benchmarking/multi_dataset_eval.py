@@ -49,7 +49,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../..")))
 
 import argparse
 
-import yaml
+from tools.arg_parser import parse_args_and_config
+
+args, config = parse_args_and_config()
+
 from addict import Dict
 
 import mindspore as ms
@@ -121,7 +124,7 @@ def main(cfg):
     for dirpath, dirnames, _ in os.walk(data_dir_root + "/"):
         if not dirnames:
             dataset_config = copy.deepcopy(cfg.eval.dataset)
-            dataset_config["data_dir"] = dirpath
+            dataset_config["data_dir"] = os.path.abspath(dirpath)
             # dataloader
             # load dataset
             loader_eval = build_dataset(
@@ -203,13 +206,5 @@ def parse_args():
 
 
 if __name__ == "__main__":
-    # argpaser
-    args = parse_args()
-    yaml_fp = args.config
-    with open(yaml_fp) as fp:
-        config = yaml.safe_load(fp)
     config = Dict(config)
-
-    # print(config)
-
     main(config)

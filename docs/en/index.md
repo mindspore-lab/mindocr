@@ -151,7 +151,7 @@ For more illustration and usage, please refer to the model training section in [
 - [x] [DBNet++](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README.md) (TPAMI'2022)
 - [x] [PSENet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/psenet/README.md) (CVPR'2019)
 - [x] [EAST](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/east/README.md)(CVPR'2017)
-- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [coming soon]
+- [x] [FCENet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/fcenet/README.md) (CVPR'2021)
 
 </details>
 
@@ -161,6 +161,8 @@ For more illustration and usage, please refer to the model training section in [
 - [x] [CRNN](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/README.md) (TPAMI'2016)
 - [x] [CRNN-Seq2Seq/RARE](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/README.md) (CVPR'2016)
 - [x] [SVTR](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/README.md) (IJCAI'2022)
+- [x] [MASTER](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/master/README.md) (PR'2019)
+- [x] [VISIONLAN](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/README.md) (ICCV'2021)
 - [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 
 </details>

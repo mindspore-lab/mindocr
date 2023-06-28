@@ -149,20 +149,21 @@ python tools/eval.py \
 <details open markdown>
 <summary>文本检测</summary>
 
-- [x] [DBNet](configs/det/dbnet/README.md) (AAAI'2020)
-- [x] [DBNet++](configs/det/dbnet/README.md) (TPAMI'2022)
-- [x] [PSENet](configs/det/psenet/README.md) (CVPR'2019)
-- [x] [EAST](configs/det/east/README.md)(CVPR'2017)
-- [x] [FCENet](configs/det/fcenet/README.md) (CVPR'2021)
+- [x] [DBNet](configs/det/dbnet/README_CN.md) (AAAI'2020)
+- [x] [DBNet++](configs/det/dbnet/README_CN.md) (TPAMI'2022)
+- [x] [PSENet](configs/det/psenet/README_CN.md) (CVPR'2019)
+- [x] [EAST](configs/det/east/README_CN.md)(CVPR'2017)
+- [x] [FCENet](configs/det/fcenet/README_CN.md) (CVPR'2021)
 </details>
 
 <details open markdown>
 <summary>文本识别</summary>
 
-- [x] [CRNN](configs/rec/crnn/README.md) (TPAMI'2016)
-- [x] [CRNN-Seq2Seq/RARE](configs/rec/rare/README.md) (CVPR'2016)
-- [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022)
-- [x] [MASTER](configs/rec/master/README.md) (PR'2019)
+- [x] [CRNN](configs/rec/crnn/README_CN.md) (TPAMI'2016)
+- [x] [CRNN-Seq2Seq/RARE](configs/rec/rare/README_CN.md) (CVPR'2016)
+- [x] [SVTR](configs/rec/svtr/README_CN.md) (IJCAI'2022)
+- [x] [MASTER](configs/rec/master/README_CN.md) (PR'2019)
+- [x] [VISIONLAN](configs/rec/visionlan/README_CN.md) (ICCV'2021)
 - [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 </details>
 
@@ -207,10 +208,13 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 ## 重要信息
 
 ### 更新日志
+- 2023/07/05
+1. 增加新模型
+    - 文本识别[VISIONLAN](configs/rec/visionlan)
 - 2023/06/29
 1. 新增2个SoTA模型
-    - 文本检测[FCENet](configs/det/facenet)
-    - 文本识别[MASTER](configs/det/facenet)
+    - 文本检测[FCENet](configs/det/fcenet)
+    - 文本识别[MASTER](configs/rec/master)
 - 2023/06/07
 1. 增加新模型
     - 文本检测[PSENet](configs/det/psenet)

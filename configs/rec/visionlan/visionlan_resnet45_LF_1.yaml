@@ -1,0 +1,172 @@
+system:
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: True
+  amp_level: 'O2'
+  seed: 42
+  log_interval: 200
+  val_while_train: True
+  drop_overflow_update: False
+
+common:
+  character_dict_path: &character_dict_path
+  num_classes: &num_classes 37 # num_chars_in_dict+1,  TODO: retreive it from dict or check correctness
+  max_text_len: &max_text_len 25
+  infer_mode: &infer_mode False
+  use_space_char: &use_space_char False
+  batch_size: &batch_size 192
+  blank_at_last: &blank_at_last False # pad blank at the last or the first of the dictionary
+  lower: &lower True
+  training_step: &training_step 'LF_1'
+
+model:
+  type: rec
+  transform: null
+  resume: False
+  backbone:
+    name: rec_resnet45
+    pretrained: False
+    strides: [2, 2, 2, 1, 1]
+
+  head:
+    name: VisionLANHead
+    n_layers: 3
+    n_position: 256
+    n_dim: 512
+    max_text_length:  *max_text_len
+    training_step: *training_step
+
+
+postprocess:
+  name: VisionLANPostProcess
+  character_dict_path: *character_dict_path
+  use_space_char: *use_space_char
+  blank_at_last: *blank_at_last
+  lower: *lower
+  max_text_length: *max_text_len
+
+metric:
+  name: RecMetric
+  main_indicator: acc
+  character_dict_path: *character_dict_path
+  ignore_space: True
+  print_flag: False
+
+loss:
+  name: VisionLANLoss
+  mode: *training_step
+  weight_res: 0.5
+  weight_mas: 0.5
+
+scheduler:
+  scheduler: step_decay
+  min_lr: 0.0
+  lr: &init_lr 0.0001
+  decay_rate: 0.1
+  decay_epochs: 6
+  num_epochs: 8
+  warmup_epochs: 0
+
+optimizer:
+  opt: adam
+  weight_decay: 0.0
+  nesterov: False
+  # lr: # no need to set lr here because in train.py, the lr scheduler is passed to create_optimizer
+  grouping_strategy: visionlan
+  training_step: *training_step
+
+loss_scaler:
+  type: dynamic
+  loss_scale: 512
+  scale_factor: 2.0
+  scale_window: 1000
+
+train:
+  ema: True
+  ema_decay: 0.9999
+  clip_norm: 20.0
+  ckpt_save_dir: './tmp_visionlan/LF_1'
+  dataset_sink_mode: False
+  pred_cast_fp32: False
+  dataset:
+    type: LMDBDataset
+    dataset_root: ./datasets # Optional, if set, dataset_root will be used as a prefix for data_dir
+    data_dir: train
+    # label_file: # not required when using LMDBDataset
+    sample_ratio: 1.0
+    shuffle: True
+    filter_max_len: True
+    max_text_len: *max_text_len
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          to_float32: False
+      - VisionLANLabelEncode:
+          max_text_len: *max_text_len
+          character_dict_path: *character_dict_path
+          use_space_char: *use_space_char
+          blank_at_last: *blank_at_last
+          lower: *lower
+      - SVTRRecAug:
+          aug_type: 0
+      - SVTRRecResizeImg:
+          image_shape: [64, 256] # H, W
+          padding: False
+      - NormalizeImage:
+          bgr_to_rgb: True
+          is_hwc: True
+          mean: [127.0, 127.0, 127.0]
+          std: [127.0, 127.0, 127.0]
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
+    output_columns: ['image', 'label', 'label_res', 'label_sub', 'label_id', 'length']
+    net_input_column_index: [0, 4] # input indices for network forward func in output_columns
+    label_column_index: [1, 2, 3, 5] # input indices marked as label
+
+  loader:
+      shuffle: True # TODO: tbc
+      batch_size: *batch_size
+      drop_remainder: True
+      max_rowsize: 12
+      num_workers: 8
+
+eval:
+  ckpt_load_path: ./tmp_visionlan/LF_1/best.ckpt
+  dataset_sink_mode: False
+  dataset:
+    type: LMDBDataset
+    dataset_root: ./datasets
+    data_dir: evaluation/Sumof6benchmarks
+    # label_file: # not required when using LMDBDataset
+    sample_ratio: 1.0
+    shuffle: False
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          to_float32: False
+      - VisionLANLabelEncode:
+          max_text_len: *max_text_len
+          character_dict_path: *character_dict_path
+          use_space_char: *use_space_char
+          blank_at_last: *blank_at_last
+          lower: *lower
+      - SVTRRecResizeImg:
+          image_shape: [64, 256] # H, W
+          padding: False
+      - NormalizeImage:
+          bgr_to_rgb: True
+          is_hwc: True
+          mean: [127.0, 127.0, 127.0]
+          std: [127.0, 127.0, 127.0]
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
+    output_columns: ['image', 'text_padded', 'length']
+    net_input_column_index: [0] # input indices for network forward func in output_columns
+    label_column_index: [1, 2]
+
+
+  loader:
+      shuffle: False # TODO: tbc
+      batch_size: 64
+      drop_remainder: False
+      max_rowsize: 12
+      num_workers: 8

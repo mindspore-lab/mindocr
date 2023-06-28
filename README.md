@@ -168,6 +168,7 @@ For more illustration and usage, please refer to the model training section in [
 - [x] [CRNN-Seq2Seq/RARE](configs/rec/rare/README.md) (CVPR'2016)
 - [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022)
 - [x] [MASTER](configs/rec/master/README.md) (PR'2019)
+- [x] [VISIONLAN](configs/rec/visionlan/README.md) (ICCV'2021)
 - [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 
 </details>
@@ -212,10 +213,13 @@ We will include more datasets for training and evaluation. This list will be con
 ## Notes
 
 ### What is New
+- 2023/07/05
+1. Add new trained models
+    - [VISIONLAN](configs/rec/visionlan) for text recognition
 - 2023/06/29
 1. Add new trained models
-    - [FCENet](configs/det/facenet) for text detection
-    - [MASTER](configs/det/facenet) for text recognition
+    - [FCENet](configs/det/fcenet) for text detection
+    - [MASTER](configs/rec/master) for text recognition
 - 2023/06/07
 1. Add new trained models
     - [PSENet](configs/det/psenet) for text detection
