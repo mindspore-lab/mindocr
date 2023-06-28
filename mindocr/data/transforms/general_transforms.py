@@ -164,7 +164,7 @@ class RandomScale:
     def __init__(
         self,
         scale_range: Union[tuple, list],
-        size_limits: Optional[Union[tuple, list]] = None,
+        size_limits: Union[tuple, list] = None,
         p: float = 0.5,
         **kwargs,
     ):
@@ -185,15 +185,15 @@ class RandomScale:
         if random.random() < self._p:
             scale = np.random.uniform(*self._range)
 
-            H, W, _ = data["image"].shape
-            H_scaled, W_scaled = int(scale * H), int(scale * W)
+            size = np.arr(data["image"].shape[:2])
+            size = np.round(scale * size)
 
             if self._size_limits is not None:
-                H_min, H_max, W_min, W_max = self._size_limits
+                min_len, max_len = self._size_limits
             else:
-                H_min, H_max, W_min, W_max = 0, float("inf"), 0, float("inf")
+                min_len, max_len = 0, np.inf
 
-            if H_min <= H_scaled <= H_max and W_min <= W_scaled <= W_max:
+            if size >= min_len and size <= max_len:
                 data["image"] = cv2.resize(data["image"], dsize=None, fx=scale, fy=scale)
                 if "polys" in data:
                     data["polys"] *= scale
