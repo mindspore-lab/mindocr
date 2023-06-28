@@ -1,5 +1,5 @@
 import random
-from typing import List, Union
+from typing import List, Optional, Union
 
 import cv2
 import numpy as np
@@ -157,11 +157,19 @@ class RandomScale:
     Randomly scales an image and its polygons in a predefined scale range.
     Args:
         scale_range: (min, max) scale range.
+        size_limits: (min_height, max_height, min_width, max_width) size limits. Default: None.
         p: probability of the augmentation being applied to an image.
     """
 
-    def __init__(self, scale_range: Union[tuple, list], p: float = 0.5, **kwargs):
+    def __init__(
+        self,
+        scale_range: Union[tuple, list],
+        size_limits: Optional[Union[tuple, list]] = None,
+        p: float = 0.5,
+        **kwargs,
+    ):
         self._range = scale_range
+        self._size_limits = size_limits
         self._p = p
         assert kwargs.get("is_train", True), ValueError("RandomScale augmentation must be used for training only")
 
@@ -176,9 +184,19 @@ class RandomScale:
         """
         if random.random() < self._p:
             scale = np.random.uniform(*self._range)
-            data["image"] = cv2.resize(data["image"], dsize=None, fx=scale, fy=scale)
-            if "polys" in data:
-                data["polys"] *= scale
+
+            H, W, _ = data["image"].shape
+            H_scaled, W_scaled = int(scale * H), int(scale * W)
+
+            if self._size_limits is not None:
+                H_min, H_max, W_min, W_max = self._size_limits
+            else:
+                H_min, H_max, W_min, W_max = 0, float("inf"), 0, float("inf")
+
+            if H_min <= H_scaled <= H_max and W_min <= W_scaled <= W_max:
+                data["image"] = cv2.resize(data["image"], dsize=None, fx=scale, fy=scale)
+                if "polys" in data:
+                    data["polys"] *= scale
 
         return data
 
