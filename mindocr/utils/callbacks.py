@@ -66,7 +66,12 @@ class EvalSaveCallback(Callback):
         self.loader_eval = loader
         self.network = network
         self.ema = ema
-        self.logger = Logger("mindocr")
+
+        if logger is None:
+            self.logger = Logger("mindocr", rank=self.rank_id)
+        else:
+            self.logger = logger
+
         self.val_interval = val_interval
         self.val_start_epoch = val_start_epoch
         self.log_interval = log_interval
