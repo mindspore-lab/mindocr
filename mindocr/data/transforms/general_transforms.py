@@ -1,5 +1,5 @@
 import random
-from typing import List, Optional, Union
+from typing import List, Union
 
 import cv2
 import numpy as np
