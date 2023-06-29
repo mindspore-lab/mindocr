@@ -9,8 +9,6 @@ import cv2
 from shapely.geometry import Polygon
 from tqdm import tqdm
 
-from mindocr.data.utils.polygon_utils import sort_clockwise
-
 
 class BORNDIGITAL_Converter:
     """
@@ -49,9 +47,8 @@ class BORNDIGITAL_Converter:
                         line[:4] = [int(x) for x in line[:4]]
 
                         points = [[line[0], line[1]], [line[2], line[1]], [line[2], line[3]], [line[0], line[3]]]
-                        points = sort_clockwise(points).tolist()
                         if not Polygon(points).is_valid:
-                            print(f"Warning {img_path.name}: skipping invalid polygon {points}")
+                            print(f"Warning {img_path.name}: skipping invalid polygon {line[:4]}")
                             continue
 
                         label.append(
