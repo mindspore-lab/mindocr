@@ -8,7 +8,7 @@
 
 The CCPD can be downloaded from [here](https://github.com/detectRecog/CCPD) using either the Google or BaiduYun drive links.
 
-This dataset is divided into 3 train/val/test splits: the images in the `ccpd_base` folder are split into train/val sets and the images in all other folders (i.e. ccpd_blur, ccpd_challenge, ... , ccpd_weather) are exploited for the test set.
+This dataset is divided into 3 sets: train, val, test. Labels for each set can be found under the `splits` directory of the dataset.
 
 The annotations for each image are embedded into the filename of the image. The format is described on their official website [here](https://github.com/detectRecog/CCPD#dataset-annotations).
 
@@ -41,11 +41,10 @@ To prepare the data for text detection, you can run the following commands:
 python tools/dataset_converters/convert.py \
     --dataset_name ccpd --task det \
     --image_dir path/to/CCPD2019/ccpd_base/ \
+    --label_dir path/to/CCPD2019/splits/train.txt \
     --output_path path/to/CCPD2019/det_gt.txt
 ```
 
 The generated standard annotation file `det_gt.txt` will now be placed under the folder `CCPD2019/`.
-
-Note that the `label_dir` flag is not required for this dataset because the labels are embedded within the images' file name.
 
 [Back to dataset converters](converters.md)

@@ -1,4 +1,6 @@
 """Metric for accuracy evaluation."""
+import re
+
 from rapidfuzz.distance import Levenshtein
 
 import mindspore as ms
@@ -17,6 +19,7 @@ class RecMetric(nn.Metric):
         filter_ood: filter out-of-dictionary characters(e.g., '$' for the default digit+en dictionary) in
             ground truth text. Default is True.
         lower: convert GT text to lower case. Recommend to set True if the dictionary does not contains upper letters
+        ignore_symbol: Ignore the symbols in the predictions
 
     Notes:
         Since the OOD characters are skipped during label encoding in data transformation by default,
@@ -30,6 +33,7 @@ class RecMetric(nn.Metric):
         ignore_space=True,
         filter_ood=True,
         lower=True,
+        ignore_symbol=False,
         print_flag=False,
         device_num=1,
         **kwargs
@@ -39,11 +43,15 @@ class RecMetric(nn.Metric):
         self.ignore_space = ignore_space
         self.filter_ood = filter_ood
         self.lower = lower
+        self.ignore_symbol = ignore_symbol
         self.print_flag = print_flag
 
         self.device_num = device_num
         self.all_reduce = None if device_num == 1 else ops.AllReduce()
         self.metric_names = ["acc", "norm_edit_distance"]
+
+        if self.ignore_symbol:
+            self.valid_symbol = re.compile(r"[^A-Z^a-z^0-9^\u4e00-\u9fa5]")
 
         # TODO: use parsed dictionary object
         if character_dict_path is None:
@@ -115,6 +123,11 @@ class RecMetric(nn.Metric):
 
             if self.filter_ood:  # filter out of dictionary characters
                 label = "".join([c for c in label if c in self.dict])
+
+            # remove symbols
+            if self.ignore_symbol:
+                label = self.valid_symbol.sub("", label)
+                pred = self.valid_symbol.sub("", pred)
 
             if self.print_flag:
                 print(pred, " :: ", label)

@@ -1,11 +1,7 @@
 import json
-import os
 from pathlib import Path
 
-from shapely.geometry import Polygon
 from tqdm import tqdm
-
-from mindocr.data.utils.polygon_utils import sort_clockwise
 
 
 class CCPD_Converter:
@@ -134,39 +130,39 @@ class CCPD_Converter:
         ]
 
     def convert(self, task="det", image_dir=None, label_path=None, output_path=None):
+        label_path = Path(label_path)
+        assert label_path.exists(), f"{label_path} does not exist!"
+
         if task == "det":
-            self._format_det_label(Path(image_dir), output_path)
+            self._format_det_label(Path(image_dir), label_path, output_path)
         else:
             raise ValueError("The CCPD dataset currently supports detection only!")
 
-    def _format_det_label(self, image_dir: Path, output_path: str):
+    def _format_det_label(self, image_dir: Path, label_path: Path, output_path: str):
         with open(output_path, "w", encoding="utf-8") as out_file:
-            images = os.listdir(image_dir)
-            for img_name in tqdm(images, total=len(images)):
-                label = []  # a list structure in order to align the format with other dataset converters.
+            with open(label_path, "r") as f:
+                for line in tqdm(f.readlines()):
+                    img_path = image_dir / line.strip()
+                    assert img_path.exists(), f"Image {img_path} not found."
 
-                area, tilt, bbox, vertices, lp, brightness, blurriness = img_name.split(".")[0].split("-")
-                h_tilt, v_tilt = [int(x) for x in tilt.split("_")]
-                bbox = [[int(x) for x in coordinates.split("&")] for coordinates in bbox.split("_")]  # reshape (2, 2)
+                    area, tilt, bbox, vertices, lp, brightness, blurriness = img_path.stem.split("-")
+                    h_tilt, v_tilt = [int(x) for x in tilt.split("_")]
+                    bbox = [
+                        [int(x) for x in coordinates.split("&")] for coordinates in bbox.split("_")
+                    ]  # reshape (2, 2)
 
-                points = [
-                    [int(x) for x in coordinates.split("&")] for coordinates in vertices.split("_")
-                ]  # reshape (N, 2)
+                    points = [
+                        [int(x) for x in coordinates.split("&")] for coordinates in vertices.split("_")
+                    ]  # reshape (N, 2)
 
-                points = sort_clockwise(points).tolist()  # fix broken polygons
-                if not Polygon(points).is_valid:
-                    print(f"Warning {img_name}: skipping invalid polygon {points}")
-                    continue
+                    province = self.provinces[int(lp.split("_")[0])]
+                    alphabet = self.alphabets[int(lp.split("_")[1])]
+                    ad = ""
+                    for i in lp.split("_")[2:]:
+                        ad += self.ads[int(i)]
+                    lp_text = province + alphabet + ad
 
-                province = self.provinces[int(lp.split("_")[0])]
-                alphabet = self.alphabets[int(lp.split("_")[1])]
-                ad = ""
-                for i in lp.split("_")[2:]:
-                    ad += self.ads[int(i)]
-                lp_text = province + alphabet + ad
-
-                label.append(
-                    {
+                    label = {
                         "area": int(area),
                         "h_tilt": h_tilt,
                         "v_tilt": v_tilt,
@@ -176,7 +172,6 @@ class CCPD_Converter:
                         "brightness": int(brightness),
                         "blurriness": int(blurriness),
                     }
-                )
 
-                img_path = img_name if self._relative else str(image_dir / img_name)
-                out_file.write(img_path + "\t" + json.dumps(label, ensure_ascii=False) + "\n")
+                    img_path = img_path.name if self._relative else str(img_path)
+                    out_file.write(img_path + "\t" + json.dumps(label, ensure_ascii=False) + "\n")
