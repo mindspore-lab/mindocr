@@ -311,33 +311,6 @@ class FCEPostprocess(DetBasePostprocess):
         r = self.get_boundary(score_maps, np.array([[0, 0, 1, 1]]))
         return {"polys": [row[0] for row in r], "scores": [row[1] for row in r]}
 
-    def resize_boundary(self, boundaries, scale_factor):
-        """Rescale boundaries via scale_factor.
-        Args:
-            boundaries (list[list[float]]): The boundary list. Each boundary
-            with size 2k+1 with k>=4.
-            scale_factor(ndarray): The scale factor of size (4,).
-        Returns:
-            boundaries (list[list[float]]): The scaled boundaries.
-        """
-        # assert check_argument.is_2dlist(boundaries)
-        # assert isinstance(scale_factor, np.ndarray)
-        # assert scale_factor.shape[0] == 4
-
-        boxes = []
-        scores = []
-        for b in boundaries:
-            sz = len(b)
-            valid_boundary(b, True)
-            scores.append(b[-1])
-            b = (
-                (np.array(b[: sz - 1]) * (np.tile(scale_factor[:2], int((sz - 1) / 2)).reshape(1, sz - 1)))
-                .flatten()
-                .tolist()
-            )
-            boxes.append(np.array(b).reshape([-1, 2]))
-
-        return np.array(boxes, dtype=np.float32), scores
 
     def get_boundary(self, score_maps, shape_list):
         assert len(score_maps) == len(self.scales)
