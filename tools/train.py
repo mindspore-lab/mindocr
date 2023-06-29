@@ -1,6 +1,7 @@
 """
 Model training
 """
+import logging
 import os
 import shutil
 import sys
@@ -28,11 +29,13 @@ from mindocr.scheduler import create_scheduler
 from mindocr.utils.callbacks import EvalSaveCallback
 from mindocr.utils.checkpoint import resume_train_network
 from mindocr.utils.ema import EMA
-from mindocr.utils.logger import get_logger
+from mindocr.utils.logger import set_logger
 from mindocr.utils.loss_scaler import get_loss_scales
 from mindocr.utils.model_wrapper import NetWithLossWrapper
 from mindocr.utils.seed import set_seed
 from mindocr.utils.train_step_wrapper import TrainOneStepWrapper
+
+logger = logging.getLogger("mindocr.train")
 
 
 def main(cfg):
@@ -67,9 +70,14 @@ def main(cfg):
     set_seed(cfg.system.seed)
 
     is_main_device = rank_id in [None, 0]
-
+    rank = 0 if rank_id is None else rank_id
     # create logger, only rank0 log will be output to the screen
-    logger = get_logger(log_dir=cfg.train.ckpt_save_dir, rank=rank_id)
+    set_logger(
+        name="mindocr",
+        output_dir=cfg.train.ckpt_save_dir,
+        rank=rank,
+        log_level=eval(cfg.system.get("log_level", logging.INFO)),
+    )
 
     # create dataset
     loader_train = build_dataset(
@@ -166,7 +174,6 @@ def main(cfg):
         pred_cast_fp32=(amp_level != "O0"),
         rank_id=rank_id,
         device_num=device_num,
-        logger=logger,
         batch_size=cfg.train.loader.batch_size,
         ckpt_save_dir=cfg.train.ckpt_save_dir,
         main_indicator=cfg.metric.main_indicator,

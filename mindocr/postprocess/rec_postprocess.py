@@ -1,15 +1,14 @@
 """
 """
+import logging
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
 from mindspore import Tensor
 
-from ..utils.logger import Logger
-
 __all__ = ["RecCTCLabelDecode", "RecAttnLabelDecode"]
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 class RecCTCLabelDecode(object):

@@ -1,6 +1,7 @@
 """
 Model evaluation
 """
+import logging
 import os
 import sys
 
@@ -17,8 +18,10 @@ from mindocr.metrics import build_metric
 from mindocr.models import build_model
 from mindocr.postprocess import build_postprocess
 from mindocr.utils.evaluator import Evaluator
-from mindocr.utils.logger import get_logger
+from mindocr.utils.logger import set_logger
 from tools.arg_parser import parse_args_and_config
+
+logger = logging.getLogger("mindocr.eval")
 
 
 def main(cfg):
@@ -37,25 +40,21 @@ def main(cfg):
         device_num = None
         rank_id = None
         if "DEVICE_ID" in os.environ:
-            print(
-                f"INFO: Standalone evaluation. Device id: {os.environ.get('DEVICE_ID')}, "
+            logger.info(
+                f"Standalone evaluation. Device id: {os.environ.get('DEVICE_ID')}, "
                 f"specified by environment variable 'DEVICE_ID'."
             )
         else:
             device_id = cfg.system.get("device_id", 0)
             ms.set_context(device_id=device_id)
-            print(
-                f"INFO: Standalone evaluation. Device id: {device_id}, "
+            logger.info(
+                f"Standalone evaluation. Device id: {device_id}, "
                 f"specified by system.device_id in yaml config file or is default value 0."
             )
 
     is_main_device = rank_id in [None, 0]
-
-    logger = get_logger(
-        log_dir=cfg.train.ckpt_save_dir or "./",
-        rank=rank_id,
-        log_fn=f"log_eval_{rank_id}.txt",
-    )
+    rank = 0 if rank_id is None else rank_id
+    set_logger(name="mindocr", output_dir=cfg.train.ckpt_save_dir, rank=rank)
 
     # load dataset
     loader_eval = build_dataset(

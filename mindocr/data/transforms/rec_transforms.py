@@ -1,13 +1,12 @@
 """
 transform for text recognition tasks.
 """
+import logging
 import math
 from typing import Any, Dict, List, Optional
 
 import cv2
 import numpy as np
-
-from mindocr.utils.logger import Logger
 
 __all__ = [
     "RecCTCLabelEncode",
@@ -18,7 +17,7 @@ __all__ = [
     "Rotate90IfVertical",
     "ClsLabelEncode",
 ]
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 class RecCTCLabelEncode(object):
