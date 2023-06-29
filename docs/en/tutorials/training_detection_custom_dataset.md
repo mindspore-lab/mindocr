@@ -214,7 +214,7 @@ metric:
   main_indicator: f-score
 
 loss:
-  name: L1BalancedCELoss
+  name: DBLoss
   eps: 1.0e-6
   l1_scale: 10
   bce_scale: 5
@@ -233,7 +233,7 @@ optimizer:
   momentum: 0.9
   weight_decay: 1.0e-4
 ```
-It uses `SGD` optimizer (in `mindocr/optim/optim.factory.py`) and `polynomial_decay` (in `mindocr/scheduler/scheduler_factory.py`) as the learning scheduler. The loss function is `L1BalancedCELoss` (in `mindocr/losses/det_loss.py`) and the evaluation metric is `DetMetric` ( in `mindocr/metrics/det_metrics.py`).
+It uses `SGD` optimizer (in `mindocr/optim/optim.factory.py`) and `polynomial_decay` (in `mindocr/scheduler/scheduler_factory.py`) as the learning scheduler. The loss function is `DBLoss` (in `mindocr/losses/det_loss.py`) and the evaluation metric is `DetMetric` ( in `mindocr/metrics/det_metrics.py`).
 
 
 ## 3. Model Training, Evaluation, and Inference

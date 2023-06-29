@@ -99,7 +99,7 @@
 
 | 字段 | 用途 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
-| name | 损失函数类名 | - | 目前支持 L1BalancedCELoss, CTCLoss, AttentionLoss, PSEDiceLoss, EASTLoss and CrossEntropySmooth |
+| name | 损失函数类名 | - | 目前支持 DBLoss, CTCLoss, AttentionLoss, PSEDiceLoss, EASTLoss and CrossEntropySmooth |
 | pred_seq_len | 预测文本的长度 | 26 | 由网络架构决定 |
 | max_label_len | 最长标签长度 | 25 | 数值应小于网络预测文本的长度 |
 | batch_size | 单卡批量大小 | 32 | \ |
