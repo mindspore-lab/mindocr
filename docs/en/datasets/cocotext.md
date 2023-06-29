@@ -1,7 +1,5 @@
-English | [中文](../../cn/datasets/cocotext_CN.md)
-
 # COCO-Text Dataset
-[Official Website](https://vision.cornell.edu/se3/coco-text-2/)
+[Official Website](https://rrc.cvc.uab.es/?ch=5)
 
 ## Data Downloading
 
@@ -47,4 +45,4 @@ python tools/dataset_converters/convert.py \
 
 The generated standard annotation file `det_gt.txt` will now be placed under the folder `COCO-Text/`.
 
-[Back to README](../../../tools/dataset_converters/README.md)
+[Back to dataset converters](converters.md)

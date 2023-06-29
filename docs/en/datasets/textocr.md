@@ -1,5 +1,3 @@
-English | [中文](../../cn/datasets/textocr_CN.md)
-
 # TextOCR Dataset
 [Official Website](https://textvqa.org/textocr/)
 
@@ -39,4 +37,4 @@ python tools/dataset_converters/convert.py \
 
 The generated standard annotation file `det_gt.txt` will now be placed under the folder `TextOCR/`.
 
-[Back to README](../../../tools/dataset_converters/README.md)
+[Back to dataset converters](converters.md)

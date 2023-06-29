@@ -1,5 +1,3 @@
-English | [中文](../../cn/datasets/ccpd_CN.md)
-
 # Chinese City Parking Dataset (CCPD) 2019
 [Official Website](https://github.com/detectRecog/CCPD)
 
@@ -50,4 +48,4 @@ The generated standard annotation file `det_gt.txt` will now be placed under the
 
 Note that the `label_dir` flag is not required for this dataset because the labels are embedded within the images' file name.
 
-[Back to README](../../../tools/dataset_converters/README.md)
+[Back to dataset converters](converters.md)

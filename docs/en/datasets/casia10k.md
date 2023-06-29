@@ -1,5 +1,3 @@
-English | [中文](../../cn/datasets/casia10k_CN.md)
-
 # CASIA-10K Dataset
 [Official Website](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html)
 
@@ -48,4 +46,4 @@ python tools/dataset_converters/convert.py \
 
 The generated standard annotation file `det_gt.txt` will now be placed under the folder `CASIA-10K/`.
 
-[Back to README](../../../tools/dataset_converters/README.md)
+[Back to dataset converters](converters.md)

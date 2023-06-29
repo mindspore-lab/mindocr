@@ -2,7 +2,32 @@ This document shows how to convert ocr annotation to the general format (not inc
 
 You may also refer to [`convert_datasets.sh`](https://github.com/mindspore-lab/mindocr/blob/main/tools/convert_datasets.sh) which is a quick solution for converting annotation files of all datasets under a given directory.
 
-To download and convert OCR datasets to the required data format, please refer to the following instructions: [Chinese text recognition](chinese_text_recognition.md), [CTW1500](ctw1500.md), [ICDAR2015](icdar2015.md), [MLT2017](mlt2017.md), [SVT](svt.md), [Syntext 150k](syntext150k.md), [TD500](td500.md), [Total Text](totaltext.md), [SynthText](synthtext.md).
+<details>
+<summary>To download and convert OCR datasets to the required data format, please refer to these instructions.</summary>
+
+- [Born-Digital Images](borndigital.md)
+- [CASIA-10K](casia10k.md)
+- [CCPD](ccpd.md)
+- [Chinese text recognition](chinese_text_recognition.md)
+- [COCO-Text](cocotext.md)
+- [CTW](ctw.md)
+- [ICDAR2015](icdar2015.md)
+- [ICDAR2019 ArT](ic19_art.md)
+- [LSVT](lsvt.md)
+- [MLT2017](mlt2017.md)
+- [MSRA-TD500](td500.md)
+- [MTWI-2018](mtwi2018.md)
+- [RCTW-17](rctw17.md)
+- [ReCTS](rects.md)
+- [SCUT-CTW1500](ctw1500.md)
+- [SROIE](sroie.md)
+- [SVT](svt.md)
+- [SynText150k](syntext150k.md)
+- [SynthText](synthtext.md)
+- [TextOCR](textocr.md)
+- [Total-Text](totaltext.md)
+
+</details>
 
 ## Text Detection/Spotting Annotation
 

@@ -1,5 +1,3 @@
-English | [中文](../../cn/datasets/ctw_CN.md)
-
 # CTW Dataset
 [Official Website](https://ctwdataset.github.io/)
 
@@ -58,4 +56,4 @@ The generated standard annotation file `det_gt.txt` will now be placed under the
 
 Note that the `label_dir` flag may be altered to prepare the validation data.
 
-[Back to README](../../../tools/dataset_converters/README.md)
+[Back to dataset converters](converters.md)
