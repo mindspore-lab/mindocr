@@ -26,9 +26,6 @@ class ABINetModel(BaseModel):
 def abinet(pretrained=False, **kwargs):
     model_config = {
         "backbone": {"name": "abinet_backbone", "pretrained": False},
-        "neck": {
-            "name": "ABINetEncoder",
-        },
         "head": {
             "name": "ABINetHead",
         },

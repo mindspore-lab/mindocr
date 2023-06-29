@@ -25,7 +25,7 @@ __all__ = [
 class ABINetIterBackbone(nn.Cell):
     def __init__(self, batchsize=96):
         super().__init__()
-        self.out_channels = 512
+        self.out_channels = [1, 512]
         self.batchsize = batchsize
         self.vision = BaseVision(self.batchsize)
 

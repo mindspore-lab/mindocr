@@ -36,7 +36,7 @@ Table Format:
 
 | **Model** | **Context** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
 | :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |
-| ABINet      | D910x8-MS1.9-G | 92.23%    | 20076 s/epoch       | 99 | [yaml](https://github.com/safeandnewYH/ABINet_Figs/blob/main/abinet.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en_34aeaf96.ckpt)
+| ABINet      | D910x8-MS1.9-G | 92.23%    | 22993 s/epoch       | 86 | [yaml](https://github.com/safeandnewYH/ABINet_Figs/blob/main/abinet.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en_34aeaf96.ckpt)
 </div>
 
 <details open>
@@ -45,7 +45,7 @@ Table Format:
 
   | **Model**  | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
   | :------:  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-  | ABINet  | 95.58% | 95.96% | 97.08% | 95.27% | 85.86% | 82.04% | 96.33% | 93.51%| 89.30% | 91.32% | 92.23% |
+  | ABINet  | 95.81% | 96.08% | 97.32% | 95.47% | 86.31% | 82.52% | 96.37% | 93.82%| 89.61% | 92.01% | 92.53% |
   </div>
 </details>
 
