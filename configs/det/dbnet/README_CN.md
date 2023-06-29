@@ -52,7 +52,7 @@ DBNet++在检测不同尺寸的文本方面表现更好，尤其是对于尺寸�
 
 | **模型**   | **环境配置**    | **骨干网络**   |       **语言**     | **F-score**     | **吞吐量** | **模型权重下载**                                                                                             |
 |-----------|----------------|--------------|-------------------|:---------------------------:|----------------|----------------------------------------------------------------------------------------------------------|
-| DBNet     | D910x8-MS2.0-G | ResNet-50    | Chinese + English |           83.41%            | 602 img/s      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_ch_en_general-a5dbb141.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_ch_en_general-a5dbb141-912f0a90.mindir) |
+| DBNet     | D910x8-MS2.0-G | ResNet-50    | Chinese + English |           83.41%            | 256 img/s      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_ch_en_general-a5dbb141.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_ch_en_general-a5dbb141-912f0a90.mindir) |
 | DBNet++   | D910x4-MS2.0-G | ResNet-50    | Chinese + English |           84.30%            | 256 img/s      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_ch_en_general-884ba5b9.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_ch_en_general-884ba5b9-b3f52398.mindir) |
 </div>
 
