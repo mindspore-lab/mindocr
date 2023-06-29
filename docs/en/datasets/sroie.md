@@ -1,7 +1,5 @@
-English | [中文](../../cn/datasets/sroie_CN.md)
-
 # SROIE Dataset
-[Official Website](https://rrc.cvc.uab.es/?ch=13&com=introduction)
+[Official Website](https://rrc.cvc.uab.es/?ch=13)
 
 ## Data Downloading
 Note: You need to register an account to download this dataset.
@@ -42,4 +40,4 @@ python tools/dataset_converters/convert.py \
 
 The generated standard annotation file `det_gt.txt` will now be placed under the folder `SROIE/`.
 
-[Back to README](../../../tools/dataset_converters/README.md)
+[Back to dataset converters](converters.md)

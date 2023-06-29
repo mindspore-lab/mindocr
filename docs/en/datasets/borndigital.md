@@ -1,5 +1,3 @@
-English | [中文](../../cn/datasets/borndigital_CN.md)
-
 # Born-Digital Images Dataset
 [Official Website](https://rrc.cvc.uab.es/?ch=1)
 
@@ -44,4 +42,4 @@ python tools/dataset_converters/convert.py \
 
 The generated standard annotation file `det_gt.txt` will now be placed under the folder `Born-Digital/`.
 
-[Back to README](../../../tools/dataset_converters/README.md)
+[Back to dataset converters](converters.md)

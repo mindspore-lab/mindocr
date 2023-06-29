@@ -1,5 +1,3 @@
-English | [中文](../../cn/datasets/rctw17_CN.md)
-
 # RCTW-17 Dataset
 [Official Website](https://rctw.vlrlab.net/)
 
@@ -43,4 +41,4 @@ python tools/dataset_converters/convert.py \
 
 The generated standard annotation file `det_gt.txt` will now be placed under the folder `RCTW-17/`.
 
-[Back to README](../../../tools/dataset_converters/README.md)
+[Back to dataset converters](converters.md)

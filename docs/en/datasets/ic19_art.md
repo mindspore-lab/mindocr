@@ -1,7 +1,5 @@
-English | [中文](../../cn/datasets/ic19_art_CN.md)
-
 # ICDAR2019 Dataset
-[Official Website](https://rrc.cvc.uab.es/?ch=14&com=introduction)
+[Official Website](https://rrc.cvc.uab.es/?ch=14)
 
 ## Data Downloading
 
@@ -43,4 +41,4 @@ python tools/dataset_converters/convert.py \
 
 The generated standard annotation file `det_gt.txt` will now be placed under the folder `ICDAR2019-ArT/`.
 
-[Back to README](../../../tools/dataset_converters/README.md)
+[Back to dataset converters](converters.md)
