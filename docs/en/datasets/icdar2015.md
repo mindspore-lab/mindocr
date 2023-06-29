@@ -1,4 +1,6 @@
-# Data Downloading
+# ICDAR 2015 Datasets
+
+## Data Downloading
 ICDAR 2015 [paper](https://rrc.cvc.uab.es/?ch=4)
 
 [download source](https://rrc.cvc.uab.es/?ch=4&com=downloads): one must register an account to download the dataset.

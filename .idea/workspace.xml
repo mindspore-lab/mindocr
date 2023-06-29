@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="ee505402-5100-4597-8a95-f29f86bf5642" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/docs/cn/datasets/borndigital.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/cn/datasets/casia10k.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/cn/datasets/ccpd.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/cn/datasets/cocotext.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/cn/datasets/ctw.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/cn/datasets/ic19_art.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/cn/datasets/lsvt.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/cn/datasets/mtwi2018.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/cn/datasets/rctw17.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/cn/datasets/rects.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/cn/datasets/sroie.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/cn/datasets/textocr.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README_CN.md" beforeDir="false" afterPath="$PROJECT_DIR$/README_CN.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/cn/datasets/ctw1500.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/cn/datasets/ctw1500.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/cn/datasets/icdar2015.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/cn/datasets/icdar2015.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/cn/datasets/mlt2017.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/cn/datasets/mlt2017.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/cn/datasets/svt.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/cn/datasets/svt.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/cn/datasets/syntext150k.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/cn/datasets/syntext150k.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/cn/datasets/synthtext.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/cn/datasets/synthtext.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/cn/datasets/td500.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/cn/datasets/td500.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/cn/datasets/totaltext.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/cn/datasets/totaltext.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/cn/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/cn/index.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/en/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/en/index.md" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="2RrOEj5lpm3WfzxFKy1gAs7W2lU" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/docs/cn/datasets" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\user\PycharmProjects\open_source\MINDSPORE\mindocr\docs\cn\datasets" />
+    </key>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ee505402-5100-4597-8a95-f29f86bf5642" name="Default Changelist" comment="" />
+      <created>1688004623898</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1688004623898</updated>
+    </task>
+    <servers />
+  </component>
+</project>

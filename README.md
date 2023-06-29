@@ -183,7 +183,7 @@ MindOCR provides a [dataset conversion tool](tools/dataset_converters) to OCR da
 <summary>General OCR Datasets</summary>
 
 - [Born-Digital Images](https://rrc.cvc.uab.es/?ch=1) [[download](docs/en/datasets/borndigital.md)]
-- [CASIA-10K](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html) [[download](docs/en/datasets/casia10k.md)
+- [CASIA-10K](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html) [[download](docs/en/datasets/casia10k.md)]
 - [CCPD](https://github.com/detectRecog/CCPD) [[download](docs/en/datasets/ccpd.md)]
 - [Chinese Text Recognition Benchmark](https://github.com/FudanVI/benchmarking-chinese-text-recognition) [[paper](https://arxiv.org/abs/2112.15093)] [[download](docs/en/datasets/chinese_text_recognition.md)]
 - [COCO-Text](https://rrc.cvc.uab.es/?ch=5) [[download](docs/en/datasets/cocotext.md)]

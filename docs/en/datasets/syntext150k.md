@@ -1,4 +1,6 @@
-# Data Downloading
+# SynText150k Datasets
+
+## Data Downloading
 
 SynText150k [paper](https://arxiv.org/abs/2002.10200)
 
