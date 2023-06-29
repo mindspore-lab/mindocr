@@ -294,4 +294,4 @@ Please refer to [ONNX -> OM](#23-onnx---om) in the PaddleOCR section above.
 
 #### 3.3 ONNX -> MindIR
 
-Please refer to [ONNX -> MIndIR](#24-onnx---mindir) in the PaddleOCR section above.
+Please refer to [ONNX -> MindIR](#24-onnx---mindir) in the PaddleOCR section above.

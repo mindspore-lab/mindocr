@@ -79,3 +79,6 @@ python deploy/models_utils/onnx_optim/insert_pse_postprocess.py \
 ### 4. Third-party model inference performance
 
 Please refer to the [third-party model inference test performance table](model_perf_thirdparty.md).
+
+### 5. ONNX mode Optimization
+Please refer to the [ONNX Model Optimization](onnx_optim.md)。

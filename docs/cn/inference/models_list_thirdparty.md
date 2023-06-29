@@ -75,3 +75,6 @@ python deploy/models_utils/onnx_optim/insert_pse_postprocess.py \
 ### 4. 第三方模型推理精度
 
 请参考[第三方模型推理精度表格](model_perf_thirdparty.md)。
+
+### 5. ONNX 模型优化
+请参考[ONNX 模型优化](onnx_optim.md)。

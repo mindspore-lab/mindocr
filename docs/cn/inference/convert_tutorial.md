@@ -287,4 +287,4 @@ graph LR;
 
 #### 3.3 ONNX -> MindIR
 
-请参考上文PaddleOCR小节的[ONNX -> MIndIR](#24-onnx---mindir)。
+请参考上文PaddleOCR小节的[ONNX -> MindIR](#24-onnx---mindir)。
