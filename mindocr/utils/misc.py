@@ -1,5 +1,8 @@
+from packaging import version
+
 import mindspore as ms
 from mindspore import Tensor
+from mindspore.ops.primitive import constexpr
 
 
 class AverageMeter:
@@ -34,3 +37,11 @@ def fetch_optimizer_lr(opt):
             lr = opt.learning_rate(opt.global_step - 1).reshape(())
     # print(f"After, global step: {opt.global_step}")
     return lr
+
+
+@constexpr
+def is_ms_version_2():
+    """This check can be applied in `nn.Cell.construct` method, to
+    make compatibilities in differenct Mindspore version
+    """
+    return version.parse(ms.__version__) >= version.parse("2.0.0rc")
