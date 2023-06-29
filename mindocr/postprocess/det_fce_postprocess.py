@@ -311,7 +311,6 @@ class FCEPostprocess(DetBasePostprocess):
         r = self.get_boundary(score_maps, np.array([[0, 0, 1, 1]]))
         return {"polys": [row[0] for row in r], "scores": [row[1] for row in r]}
 
-
     def get_boundary(self, score_maps, shape_list):
         assert len(score_maps) == len(self.scales)
         # import pdb;pdb.set_trace()
