@@ -195,7 +195,7 @@ def main(cfg):
 def parse_args():
     parser = argparse.ArgumentParser(description="Evaluation Config", add_help=False)
     parser.add_argument(
-        "-c", "--config", type=str, default="", help="YAML config file specifying default arguments (default=" ")"
+        "-c", "--config", required=True, help="YAML config file specifying default arguments (default=" ")"
     )
     args = parser.parse_args()
 

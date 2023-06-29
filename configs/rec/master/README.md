@@ -1,21 +1,21 @@
-English | [中文](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/README_CN.md)
+English | [中文](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/master/README_CN.md)
 
-# RARE (CRNN-Seq2Seq)
+# MASTER
 <!--- Guideline: use url linked to abstract in ArXiv instead of PDF for fast loading.  -->
 
-> [Robust Scene Text Recognition with Automatic Rectification](https://arxiv.org/abs/1603.03915)
+> [MASTER: Multi-Aspect Non-local Network for Scene Text Recognition](https://arxiv.org/abs/1910.02562)
 
 ## 1. Introduction
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
-Recognizing text in natural images is a challenging task with many unsolved problems. Different from those in documents, words in natural images often possess irregular shapes, which are caused by perspective distortion, curved character placement, etc. The paper proposes RARE (Robust text recognizer with Automatic REctification), a recognition model that is robust to irregular text. RARE is a specially-designed deep neural network, which consists of a Spatial Transformer Network (STN) and a Sequence Recognition Network (SRN). In testing, an image is firstly rectified via a predicted Thin-Plate-Spline (TPS) transformation, into a more "readable" image for the following SRN, which recognizes text through a sequence recognition approach. It shows that the model is able to recognize several types of irregular text, including perspective text and curved text. RARE is end-to-end trainable, requiring only images and associated text labels, making it convenient to train and deploy the model in practical systems. State-of-the-art or highly-competitive performance achieved on several benchmarks well demonstrates the effectiveness of the proposed model. [<a href="#references">1</a>]
+Attention-based scene text recognizers have gained huge success, which leverages a more compact intermediate representation to learn 1d- or 2d- attention by a RNN-based encoder-decoder architecture. However, such methods suffer from attention-drift problem because high similarity among encoded features leads to attention confusion under the RNN-based local attention mechanism. Moreover, RNN-based methods have low efficiency due to poor parallelization. To overcome these problems, this paper proposes the MASTER, a self-attention based scene text recognizer that (1) not only encodes the input-output attention but also learns self-attention which encodes feature-feature and target-target relationships inside the encoder and decoder and (2) learns a more powerful and robust intermediate representation to spatial distortion, and (3) owns a great training efficiency because of high training parallelization and a high-speed inference because of an efficient memory-cache mechanism. Extensive experiments on various benchmarks demonstrate the superior performance of MASTER on both regular and irregular scene text. [<a href="#references">1</a>]
 
 <!--- Guideline: If an architecture table/figure is available in the paper, put one here and cite for intuitive illustration. -->
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/8342575/236731076-f10ae537-c691-4776-8aa3-5a150e14554e.png" width=450 />
+  <img src="https://github.com/zhtmike/mindocr/assets/8342575/cd3121ca-e58f-4f45-b336-dc0134e0564e" width=450 />
 </p>
 <p align="center">
-  <em> Figure 1. Architecture of SRN in RARE [<a href="#references">1</a>] </em>
+  <em> Figure 1. Architecture of MASTER [<a href="#references">1</a>] </em>
 </p>
 
 ## 2. Results
@@ -35,27 +35,27 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 <div align="center">
 
-| **Model** | **Context**    | **Backbone** | **Transform Module** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
-| :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :--------: |:-----: |
-| RARE     | D910x4-MS1.10-G | ResNet34_vd | None | 85.19%    | 3166 s/epoch         | 4561 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ascend-309dc63e-b96c2a4b.mindir) |
+| **Model** | **Context** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
+| :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |
+| Master-Resnet31  | D910x8-MS1.10-G | 90.20%  | 3721 s/epoch   | 4632  | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/master/master_resnet31.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31-7565c75f.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31_ascend-7565c75f-65015efe.mindir) |
 </div>
 
 <details open markdown>
   <div align="center">
   <summary>Detailed accuracy results for each benchmark dataset</summary>
 
-  | **Model** | **Backbone** | **Transform Module** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
-  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-  | RARE | ResNet34_vd | None | 95.12% | 94.58% | 94.28% | 92.71% | 75.31% | 69.52% | 88.17% | 87.33% | 78.91% | 76.04% | 85.19% |
+  | **Model** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
+  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
+  | Master-ResNet31| 95.81% | 95.73%  | 96.97% | 95.57% | 81.83% | 78.29% | 96.33% | 90.57% | 82.33% | 88.54% | 90.20% |
   </div>
 </details>
 
 **Notes:**
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x4-MS1.10-G is for training on 4 pieces of Ascend 910 NPU using graph mode based on Minspore version 1.10.
+- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x8-MS1.10-G is for training on 8 pieces of Ascend 910 NPU using graph mode based on Minspore version 1.10.
 - To reproduce the result on other contexts, please ensure the global batch size is the same.
-- The characters supported by model are lowercase English characters from a to z and numbers from 0 to 9. More explanation on dictionary, please refer to [4. Character Dictionary](#4-character-dictionary).
 - The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#312-dataset-download) section.
-- The input Shapes of MindIR of RARE is (1, 3, 32, 100) and it is for Ascend only.
+- The input Shapes of MindIR of MASTER is (1, 3, 48, 160).
+
 
 ## 3. Quick Start
 ### 3.1 Preparation
@@ -63,17 +63,48 @@ According to our experiments, the evaluation results on public benchmark dataset
 #### 3.1.1 Installation
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
-#### 3.1.2 Dataset Download
-Please download lmdb dataset for traininig and evaluation from  [here](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (ref: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here)). There're several zip files:
-- `data_lmdb_release.zip` contains the **entire** datasets including training data, validation data and evaluation data.
-    - `training/` contains two datasets: [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)
+#### 3.1.2 Dataset Preparation
+
+##### 3.1.2.1 MJSynth, validation and evaluation dataset
+Part of the lmdb dataset for training and evaluation can be downloaded from [here](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (ref: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here)). There're several zip files:
+- `data_lmdb_release.zip` contains the datasets including training data, validation data and evaluation data.
+    - `training/` contains two datasets: [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/). *Here we use **MJSynth only**.*
     - `validation/` is the union of the training sets of [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), and [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset).
     - `evaluation/` contains several benchmarking datasets, which are [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset), [IC03](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions), [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf), and [CUTE](http://cs-chan.com/downloads_CUTE80_dataset.html).
 - `validation.zip`: same as the validation/ within data_lmdb_release.zip
 - `evaluation.zip`: same as the evaluation/ within data_lmdb_release.zip
 
+##### 3.1.2.2 SynthText dataset
 
-Unzip the `data_lmdb_release.zip`, the data structure should be like
+For `SynthText`, we do not use the given LMDB dataset in `data_lmdb_release.zip`, since it only contains part of the cropped images. Please download the raw dataset from <https://www.robots.ox.ac.uk/~vgg/data/scenetext/> and prepare the LMDB dataset using the following command
+
+```bash
+python tools/dataset_converters/convert.py \
+    --dataset_name synthtext \
+    --task rec_lmdb \
+    --image_dir path_to_SynthText \
+    --label_dir path_to_SynthText_gt.mat \
+    --output_path ST_full
+```
+the `ST_full` contained the full cropped images of SynthText in LMDB data format. Please replace the `ST` folder with the `ST_full` folder.
+
+##### 3.1.2.3 SynthAdd dataset
+
+Please download the **SynthAdd** Dataset from <Mhttps://pan.baidu.com/s/1uV0LtoNmcxbO-0YA7Ch4dg> (code: 627x). This dataset is proposed in <https://arxiv.org/abs/1811.00751>. Please prepare the corresponding LMDB dataset using the following command
+
+```bash
+python tools/dataset_converters/convert.py \
+    --dataset_name synthadd \
+    --task rec_lmdb \
+    --image_dir path_to_SynthAdd \
+    --output_path SynthAdd
+```
+
+Please put the `SynthAdd` folder in `/training` directory.
+
+#### 3.1.3 Dataset Usage
+
+Finally, the data structure should like the following command.
 
 ``` text
 data_lmdb_release/
@@ -102,7 +133,10 @@ data_lmdb_release/
 │   │   └── MJ_valid
 │   │       ├── data.mdb
 │   │       └── lock.mdb
-│   └── ST
+│   ├── ST_full
+│   │   ├── data.mdb
+│   │   └── lock.mdb
+│   └── SythAdd
 │       ├── data.mdb
 │       └── lock.mdb
 └── validation
@@ -110,17 +144,17 @@ data_lmdb_release/
     └── lock.mdb
 ```
 
-#### 3.1.3 Dataset Usage
-
 Here we used the datasets under `training/` folders for training, and the union dataset `validation/` for validation. After training, we used the datasets under `evaluation/` to evaluate model accuracy.
 
-**Training:** (total 14,442,049 samples)
+**Training:** (total 17,402,659 samples)
 - [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/)
   - Train: 21.2 GB, 7224586 samples
   - Valid: 2.36 GB, 802731 samples
   - Test: 2.61 GB, 891924 samples
-- [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)
-  - Train: 16.0 GB, 5522808 samples
+- [SynthText Full (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)
+  - 17.0 GB, 7266529 samples
+- [SynthAdd (SynthAdd)](https://arxiv.org/abs/1811.00751)
+  - 2.7 GB, 1216889 samples
 
 **Validation:**
 - Valid: 138 MB, 6992 samples
@@ -233,6 +267,7 @@ Apart from the dataset setting, please also check the following important args: 
 system:
   distribute: True                                                    # `True` for distributed training, `False` for standalone training
   amp_level: 'O2'
+  amp_level_infer: "O2"
   seed: 42
   val_while_train: True                                               # Validate while training
   drop_overflow_update: False
@@ -275,7 +310,7 @@ It is easy to reproduce the reported results with the pre-defined training recip
 
 ```shell
 # distributed training on multiple GPU/Ascend devices
-mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/rare/rare_resnet34.yaml
+mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/master/master_resnet31.yaml
 ```
 
 
@@ -285,7 +320,7 @@ If you want to train or finetune the model on a smaller dataset without distribu
 
 ```shell
 # standalone training on a CPU/GPU/Ascend device
-python tools/train.py --config configs/rec/rare/rare_resnet34.yaml
+python tools/train.py --config configs/rec/master/master_resnet31.yaml
 ```
 
 The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir`. The default directory is `./tmp_rec`.
@@ -295,7 +330,7 @@ The training result (including checkpoints, per-epoch performance and curves) wi
 To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 
 ```shell
-python tools/eval.py --config configs/rec/rare/rare_resnet34.yaml
+python tools/eval.py --config configs/rec/master/master_resnet31.yaml
 ```
 
 ## 4. Character Dictionary
@@ -317,49 +352,15 @@ There are some built-in dictionaries, which are placed in `mindocr/utils/dict/`,
 You can also customize a dictionary file (***.txt) and place it under `mindocr/utils/dict/`, the format of the dictionary file should be a .txt file with one character per line.
 
 
-To use a specific dictionary, set the parameter `character_dict_path` to the path of the dictionary, and change the parameter `num_classes` to the corresponding number, which is the number of characters in the dictionary + 2.
+To use a specific dictionary, set the parameter `character_dict_path` to the path of the dictionary, and change the parameter `num_classes` to the corresponding number, which is the number of characters in the dictionary + 1.
 
 
 **Notes:**
 - You can include the space character by setting the parameter `use_space_char` in configuration yaml to True.
-- Remember to check the value of `dataset->transform_pipeline->RecAttnLabelEncode->lower` in the configuration yaml. Set it to False if you prefer case-sensitive encoding.
+- Remember to check the value of `dataset->transform_pipeline->RecMasterLabelEncode->lower` in the configuration yaml. Set it to False if you prefer case-sensitive encoding.
 
 
-## 5. Chinese Text Recognition Model Training
-
-Currently, this model supports multilingual recognition and provides pre-trained models for different languages. Details are as follows:
-
-### Chinese Dataset Preparation and Configuration
-
-We use a public Chinese text benchmark dataset [Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition) for RARE training and evaluation.
-
-For detailed instruction of data preparation and yaml configuration, please refer to [ch_dataset](../../../docs/en/datasets/chinese_text_recognition.md).
-
-### Training
-
-To train with the prepared datsets and config file, please run:
-
-```shell
-mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/rare/rare_resnet34_ch.yaml
-```
-
-### Results and Pretrained Weights
-
-After training, evaluation results on the benchmark test set are as follows, where we also provide the model config and pretrained weights.
-<div align="center">
-
-| **Model** | **Language** | **Backbone** | **Transform Module** | **Scene** | **Web** | **Document** | **Train T.** | **FPS** | **Recipe** | **Download** |
-| :-----: | :-----:  | :--------: | :------------: | :--------: | :--------: | :--------: | :--------: | :--------: |:---------: | :-----------: |
-| RARE    | Chinese | ResNet34_vd | None | 62.15% | 67.05% | 97.60% | 414 s/epoch | 2160 |  [rare_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-5f3023e2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch_ascend-5f3023e2-11f0d554.mindir) |
-</div>
-
-- The input Shapes of MindIR of RARE is (1, 3, 32, 320) and it is for Ascend only.
-
-### Training with Custom Datasets
-You can train models for different languages with your own custom datasets. Loading the pretrained Chinese model to finetune on your own dataset usually yields better results than training from scratch. Please refer to the tutorial [Training Recognition Network with Custom Datasets](../../../docs/en/tutorials/training_recognition_custom_dataset.md).
-
-
-## 6. MindSpore Lite Inference
+## 5. MindSpore Lite Inference
 
 To inference with MindSpot Lite on Ascend 310, please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial.md). In short, the whole process consists of the following steps:
 
@@ -368,9 +369,9 @@ To inference with MindSpot Lite on Ascend 310, please refer to the tutorial [Min
 Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../README.md) tutorial and use the following command to export the trained ckpt model to  MindIR file:
 
 ```shell
-python tools/export.py --model_name rare_resnet34 --data_shape 32 100 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name master_resnet31 --data_shape 48 160 --local_ckpt_path /path/to/local_ckpt.ckpt
 # or
-python tools/export.py --model_name configs/rec/rare/rare_resnet34 --data_shape 32 100 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name configs/rec/master/master_resnet31.yaml --data_shape 48 160 --local_ckpt_path /path/to/local_ckpt.ckpt
 ```
 
 The `data_shape` is the model input shape of height and width for MindIR file. The shape value of MindIR in the download link can be found in [Notes](#2-results) under results table.
@@ -384,7 +385,7 @@ Please refer to [Environment Installation](../../../docs/en/inference/environmen
 
 Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#1-mindocr-models),
 and use the `converter_lite` tool for offline conversion of the MindIR file, where the `input_shape` in `configFile` needs to be filled in with the value from MindIR export,
-as mentioned above (1, 3, 32, 100), and the format is NCHW.
+as mentioned above (1, 3, 48, 160), and the format is NCHW.
 
 **4. Inference**
 
@@ -396,7 +397,7 @@ python infer.py \
     --device=Ascend \
     --device_id=0 \
     --rec_model_path=your_path_to/output.mindir \
-    --rec_model_name_or_config=../../configs/rec/rare/rare_resnet34.yaml \
+    --rec_model_name_or_config=../../configs/rec/master/master_resnet31.yaml \
     --backend=lite \
     --res_save_dir=results_dir
 ```
@@ -405,4 +406,4 @@ python infer.py \
 ## References
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 
-[1] Baoguang Shi, Xinggang Wang, Pengyuan Lyu, Cong Yao, Xiang Bai. Robust Scene Text Recognition with Automatic Rectification. arXiv preprint arXiv:1603.03915, 2016.
+[1] Ning Lu, Wenwen Yu, Xianbiao Qi, Yihao Chen, Ping Gong, Rong Xiao, Xiang Bai. MASTER: Multi-Aspect Non-local Network for Scene Text Recognition. arXiv preprint arXiv:1910.02562, 2019.
