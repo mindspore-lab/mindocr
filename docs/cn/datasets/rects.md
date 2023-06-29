@@ -3,12 +3,13 @@
 ## 数据集下载
 
 ReCTS数据集[官网](https://rrc.cvc.uab.es/?ch=12)
+
 注意: 在下载之前，你需要先注册一个账号。
 
 <details>
     <summary>从何处下载ReCTS数据集</summary>
 
-[下载地址](https://rrc.cvc.uab.es/?ch=12&com=downloads).
+[下载地址](https://rrc.cvc.uab.es/?ch=12&com=downloads)
 
 </details>
 

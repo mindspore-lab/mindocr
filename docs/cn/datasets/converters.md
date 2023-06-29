@@ -28,6 +28,7 @@
 - [Total-Text](totaltext.md)
 
 </details>
+
 ## 文本检测/端到端文本检测
 
 转换后的标注文件格式应为：

@@ -3,6 +3,7 @@
 ## 数据集下载
 
 COCO-Text数据集[官网](https://rrc.cvc.uab.es/?ch=5)
+
 注意: 在下载之前，你需要先注册一个账号。
 
 <details>

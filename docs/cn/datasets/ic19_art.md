@@ -3,12 +3,13 @@
 ## 数据集下载
 
 ICDAR2019 ArT数据集[官网](https://rrc.cvc.uab.es/?ch=14)
+
 注意: 在下载之前，你需要先注册一个账号。
 
 <details>
     <summary>从何处下载ICDAR2019 ArT数据集</summary>
 
-[下载地址](https://rrc.cvc.uab.es/?ch=14&com=downloads).
+[下载地址](https://rrc.cvc.uab.es/?ch=14&com=downloads)
 
 图像需要下载“任务1和任务3”部分中的存档文件`train_images.tar.gz`。注释需要下载同一节中的.JSON文件`train_labels.json`。
 
