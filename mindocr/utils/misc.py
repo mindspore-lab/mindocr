@@ -46,10 +46,7 @@ def fetch_optimizer_lr(opt):
 class AllReduce(nn.Cell):
     def __init__(self, reduce: str = "mean", device_num: Optional[int] = None) -> None:
         super().__init__()
-        if reduce == "mean":
-            self.average = True
-        else:
-            self.average = False
+        self.average = reduce == "mean"
 
         if device_num is None:
             self.device_num = 1
