@@ -36,7 +36,7 @@ Table Format:
 
 | **Model** | **Context** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
 | :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |
-| ABINet      | D910x8-MS1.9-G | 92.53%    | 22993 s/epoch       | 86 | [yaml](https://github.com/safeandnewYH/ABINet_Figs/blob/main/abinet_resnet45_en.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en-41e4bbd0.ckpt)
+| ABINet      | D910x8-MS1.9-G | 92.53%    | 22993 s/epoch       | 86 | [yaml](abinet_resnet45_en.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en-41e4bbd0.ckpt)
 </div>
 
 <details open>
