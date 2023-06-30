@@ -1,6 +1,8 @@
 from packaging import version
 
 import mindspore as ms
+import mindspore.nn as nn
+import mindspore.ops as ops
 from mindspore import Tensor
 from mindspore.ops.primitive import constexpr
 
@@ -37,6 +39,27 @@ def fetch_optimizer_lr(opt):
             lr = opt.learning_rate(opt.global_step - 1).reshape(())
     # print(f"After, global step: {opt.global_step}")
     return lr
+
+
+class AllReduce(nn.Cell):
+    def __init__(self, reduce: str = "mean", device_num: int = 1):
+        super().__init__()
+        if reduce == "mean":
+            self.average = True
+        else:
+            self.average = False
+
+        self.device_num = device_num
+        self.all_reduce = ops.AllReduce()
+
+    def construct(self, x: Tensor) -> Tensor:
+        dtype = x.dtype
+        x = ops.cast(x, ms.float32)
+        x = self.all_reduce(x)
+        if self.average:
+            x = x / self.device_num
+        x = ops.cast(x, dtype)
+        return x
 
 
 @constexpr
