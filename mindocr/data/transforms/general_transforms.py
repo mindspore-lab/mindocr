@@ -168,8 +168,8 @@ class RandomScale:
         p: float = 0.5,
         **kwargs,
     ):
-        self._range = scale_range
-        self._size_limits = size_limits
+        self._range = sorted(scale_range)
+        self._size_limits = sorted(size_limits)
         self._p = p
         assert kwargs.get("is_train", True), ValueError("RandomScale augmentation must be used for training only")
 
@@ -183,8 +183,8 @@ class RandomScale:
             (polys)
         """
         if random.random() < self._p:
-            size = data["image"].shape[:2]
             if self._size_limits:
+                size = data["image"].shape[:2]
                 min_scale = max(self._size_limits[0] / size[0], self._size_limits[0] / size[1], self._range[0])
                 max_scale = min(self._size_limits[1] / size[0], self._size_limits[1] / size[1], self._range[1])
                 scale = np.random.uniform(min_scale, max_scale)
