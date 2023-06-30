@@ -220,7 +220,7 @@ Notes：
 
 Currently, only the Chinese DBNet, CRNN, and SVTR models in the PP-OCR series are supported.
 
-Enter the inference directory：`cd deploy/cpp_infer`,then execute the compilation script 'bash build.sh'. Once the build
+Enter the inference directory：`cd deploy/cpp_infer`,then execute the compilation script `bash build.sh`. Once the build
 process is complete, an executable file named 'infer' will be generated in the 'dist' directory located in the current
 path.
 

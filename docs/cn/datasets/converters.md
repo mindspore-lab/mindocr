@@ -34,6 +34,8 @@ python tools/dataset_converters/convert.py \
 ```
 
 ## 文本识别
+
+### 通用数据格式
 文本识别数据集的标注格式如下：
 
 ```text
@@ -62,4 +64,18 @@ python tools/dataset_converters/convert.py \
         --task rec \
         --label_dir /path/to/ic15/rec/ch4_test_word_images_gt/gt.txt
         --output_path /path/to/ic15/rec/ch4_test_word_images_gt/rec_gt.txt
+```
+
+### LMDB数据格式
+
+部分数据支持转换成LMDB格式，目前仅支持`SynthText`和`SynthAdd`数据集。
+
+要转换成LMDB格式，请运行：
+``` shell
+python tools/dataset_converters/convert.py \
+    --dataset_name synthtext \
+    --task rec_lmdb \
+    --image_dir /path/to/SynthText \
+    --label_dir /path/to/SynthText_gt.mat \
+    --output_path ST_full
 ```
