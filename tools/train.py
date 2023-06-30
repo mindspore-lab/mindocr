@@ -17,7 +17,6 @@ from addict import Dict
 
 import mindspore as ms
 from mindspore.communication import get_group_size, get_rank, init
-from mindspore.train.callback import CheckpointConfig, ModelCheckpoint
 
 from mindocr.data import build_dataset
 from mindocr.losses import build_loss
@@ -90,7 +89,7 @@ def main(cfg):
             num_shards=device_num,
             shard_id=rank_id,
             is_train=False,
-            refine_batch_size=False,
+            refine_batch_size=True,
         )
 
     # create model
@@ -223,18 +222,13 @@ def main(cfg):
         with open(os.path.join(cfg.train.ckpt_save_dir, "args.yaml"), "w") as f:
             args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False, sort_keys=False)
             f.write(args_text)
-    ckpoint_cf = CheckpointConfig(save_checkpoint_steps=5000, keep_checkpoint_max=100, exception_save=True)
-    ckpoint_cb = ModelCheckpoint(
-        prefix="mindocr_train_4card_lr0.0001",
-        config=ckpoint_cf,
-        directory="/home/gaohan/code/abinet/mindocr_train_4card_ckpt" + str(get_rank()) + "_ckpt",
-    )
+
     # training
     model = ms.Model(train_net)
     model.train(
         cfg.scheduler.num_epochs,
         loader_train,
-        callbacks=[eval_cb, ckpoint_cb],
+        callbacks=[eval_cb],
         dataset_sink_mode=cfg.train.dataset_sink_mode,
         initial_epoch=start_epoch,
     )
