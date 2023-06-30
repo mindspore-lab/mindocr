@@ -17,8 +17,9 @@ logger_initialized = {}
 def set_logger(
     name: Optional[str] = None,
     output_dir: Optional[str] = None,
+    log_fn: Optional[str] = None,
     rank: int = 0,
-    log_level: str = logging.INFO,
+    log_level: Optional[str] = logging.INFO,
 ) -> logging.Logger:
     """Initialize the logger.
 
@@ -31,9 +32,9 @@ def set_logger(
     Args:
         name: Logger name. Defaults to None to set up root logger.
         output_dir: The directory to save log.
+        log_fn: The name to save log.
         rank: Process rank in the distributed training. Defaults to 0.
         log_level: Verbosity level of the logger. Defaults to ``logging.INFO``.
-        color: If True, color the output. Defaults to True.
 
     Returns:
         logging.Logger: A initialized logger.
@@ -59,7 +60,9 @@ def set_logger(
 
     if output_dir is not None:
         os.makedirs(output_dir, exist_ok=True)
-        file_handler = logging.FileHandler(os.path.join(output_dir, f"rank{rank}.log"))
+        if log_fn is None:
+            log_fn = "log_%s.txt" % rank
+        file_handler = logging.FileHandler(os.path.join(output_dir, log_fn))
         file_handler.setLevel(log_level)
         file_handler.setFormatter(logging.Formatter(fmt=fmt, datefmt=datefmt))
         logger.addHandler(file_handler)

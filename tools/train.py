@@ -51,33 +51,38 @@ def main(cfg):
             gradients_mean=True,
             # parameter_broadcast=True,
         )
+        # create logger, only rank0 log will be output to the screen
+        set_logger(
+            name="mindocr",
+            output_dir=cfg.train.ckpt_save_dir,
+            rank=rank_id,
+            log_level=eval(cfg.system.get("log_level", "logging.INFO")),
+        )
     else:
         device_num = None
         rank_id = None
+
+        # create logger, only rank0 log will be output to the screen
+        set_logger(
+            name="mindocr",
+            output_dir=cfg.train.ckpt_save_dir,
+            rank=0,
+            log_level=eval(cfg.system.get("log_level", "logging.INFO")),
+        )
         if "DEVICE_ID" in os.environ:
-            print(
-                f"INFO: Standalone training. Device id: {os.environ.get('DEVICE_ID')}, "
+            logger.info(
+                f"Standalone training. Device id: {os.environ.get('DEVICE_ID')}, "
                 f"specified by environment variable 'DEVICE_ID'."
             )
         else:
             device_id = cfg.system.get("device_id", 0)
             ms.set_context(device_id=device_id)
-            print(
-                f"INFO: Standalone training. Device id: {device_id}, "
+            logger.info(
+                f"Standalone training. Device id: {device_id}, "
                 f"specified by system.device_id in yaml config file or is default value 0."
             )
 
     set_seed(cfg.system.seed)
-
-    is_main_device = rank_id in [None, 0]
-    rank = 0 if rank_id is None else rank_id
-    # create logger, only rank0 log will be output to the screen
-    set_logger(
-        name="mindocr",
-        output_dir=cfg.train.ckpt_save_dir,
-        rank=rank,
-        log_level=eval(cfg.system.get("log_level", logging.INFO)),
-    )
 
     # create dataset
     loader_train = build_dataset(
@@ -225,7 +230,7 @@ def main(cfg):
     )
 
     # save args used for training
-    if is_main_device:
+    if rank_id in [None, 0]:
         with open(os.path.join(cfg.train.ckpt_save_dir, "args.yaml"), "w") as f:
             args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False, sort_keys=False)
             f.write(args_text)

@@ -36,9 +36,13 @@ def main(cfg):
             parallel_mode="data_parallel",
             gradients_mean=True,
         )
+        set_logger(
+            name="mindocr", output_dir=cfg.train.ckpt_save_dir or "./", log_fn=f"log_eval_{rank_id}.txt", rank=rank_id
+        )
     else:
         device_num = None
         rank_id = None
+        set_logger(name="mindocr", output_dir=cfg.train.ckpt_save_dir or "./", log_fn=f"log_eval_{rank_id}.txt", rank=0)
         if "DEVICE_ID" in os.environ:
             logger.info(
                 f"Standalone evaluation. Device id: {os.environ.get('DEVICE_ID')}, "
@@ -51,10 +55,6 @@ def main(cfg):
                 f"Standalone evaluation. Device id: {device_id}, "
                 f"specified by system.device_id in yaml config file or is default value 0."
             )
-
-    is_main_device = rank_id in [None, 0]
-    rank = 0 if rank_id is None else rank_id
-    set_logger(name="mindocr", output_dir=cfg.train.ckpt_save_dir, rank=rank)
 
     # load dataset
     loader_eval = build_dataset(
@@ -129,7 +129,7 @@ def main(cfg):
     )
 
     measures = net_evaluator.eval()
-    if is_main_device:
+    if rank_id in [None, 0]:
         logger.info(f"Performance: {measures}")
 
 
