@@ -164,12 +164,12 @@ class RandomScale:
     def __init__(
         self,
         scale_range: Union[tuple, list],
-        size_limits: Union[tuple, list] = [],
+        size_limits: Union[tuple, list] = None,
         p: float = 0.5,
         **kwargs,
     ):
         self._range = sorted(scale_range)
-        self._size_limits = sorted(size_limits)
+        self._size_limits = sorted(size_limits) if size_limits else []
         self._p = p
         assert kwargs.get("is_train", True), ValueError("RandomScale augmentation must be used for training only")
 
