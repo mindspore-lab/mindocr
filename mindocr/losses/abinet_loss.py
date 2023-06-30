@@ -11,12 +11,7 @@ class ABINetLoss(nn.Cell):
         super().__init__()
         self.ce = SoftCrossEntropyLoss()
         self.bce = nn.BCELoss(reduction="mean")
-        self.losses = ms.Parameter([])
         self.cast = P.Cast()
-
-    # @property
-    def last_losses(self):
-        return self.losses
 
     def _merge_list(self, all_res):
         if not isinstance(all_res, (list, tuple)):

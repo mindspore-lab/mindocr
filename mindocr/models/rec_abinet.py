@@ -12,7 +12,7 @@ def _cfg(url="", **kwargs):
 default_cfgs = {
     # 'abinet':
     "abinet": _cfg(
-        url="https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en_34aeaf96.ckpt"
+        url="https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_pretrain_en-821ca20b.ckpt"
     ),
 }
 

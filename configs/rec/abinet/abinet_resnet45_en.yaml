@@ -23,11 +23,9 @@ model:
     name: abinet_backbone
     pretrained: False
     batchsize: *batch_size
-  neck:
-    name: ABINetEncoder
-    batchsize: *batch_size
   head:
     name: ABINetHead
+    batchsize: *batch_size
 
 postprocess:
   name: ABINetLabelDecode
@@ -106,7 +104,7 @@ eval:
 
   loader:
       shuffle: False # TODO: tbc
-      batch_size: 96
+      batch_size: *batch_size
       drop_remainder: False
       max_rowsize: 128
       num_workers: 8

@@ -37,7 +37,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 | **Model** | **Context** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
 | :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |
-| ABINet      | D910x8-MS1.9-G | 92.23%    | 22993 s/epoch       | 86 | [yaml](https://github.com/safeandnewYH/ABINet_Figs/blob/main/abinet.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en_34aeaf96.ckpt)
+| ABINet      | D910x8-MS1.9-G | 92.23%    | 22993 s/epoch       | 86 | [yaml](https://github.com/safeandnewYH/ABINet_Figs/blob/main/abinet_resnet45_en.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en-41e4bbd0.ckpt)
 </div>
 
 <details open>
@@ -103,17 +103,25 @@ data_lmdb_release/
 
 Here we used the datasets under `train/` folders for **train**. After training, we used the datasets under `evaluation/` to evluation model accuracy.
 
-**Train:**
+**Train:**  (total 15,895,356 samples)
 - [MJSynth (MJ)](https://pan.baidu.com/s/1mgnTiyoR8f6Cm655rFI4HQ)
+  - Train: 21.2 GB, 7224586 samples
+  - Valid: 2.36 GB, 802731 samples
+  - Test: 2.61 GB, 891924 samples
 - [SynthText (ST)](https://pan.baidu.com/s/1mgnTiyoR8f6Cm655rFI4HQ)
+  - Total: 24.6 GB, 6976115 samples
 
-**Evaluation:**
-- [CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html)
-- [IC13_857](http://rrc.cvc.uab.es/?ch=2)
-- [IC15_1811](http://rrc.cvc.uab.es/?ch=4)
-- [IIIT5k_3000](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html)
-- [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset)
-- [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf)
+**Evaluation:** (total 12,067 samples)
+- [CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html): 8.8 MB, 288 samples
+- [IC03_860](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions): 36 MB, 860 samples
+- [IC03_867](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions): 4.9 MB, 867 samples
+- [IC13_857](http://rrc.cvc.uab.es/?ch=2): 72 MB, 857 samples
+- [IC13_1015](http://rrc.cvc.uab.es/?ch=2): 77 MB, 1015 samples
+- [IC15_1811](http://rrc.cvc.uab.es/?ch=4): 21 MB, 1811 samples
+- [IC15_2077](http://rrc.cvc.uab.es/?ch=4): 25 MB, 2077 samples
+- [IIIT5k_3000](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html): 50 MB, 3000 samples
+- [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset): 2.4 MB, 647 samples
+- [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf): 1.8 MB, 645 samples
 
 
 **Data configuration for model training**
@@ -245,9 +253,10 @@ It is easy to reproduce the reported results with the pre-defined training recip
 
 ```shell
 # distributed training on multiple GPU/Ascend devices
-mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/abinet/abinet.yaml
+mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
-
+The pre-trained model needs to be loaded during ABINet model training, and the weight of the pre-trained model is
+from https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_pretrain_en-821ca20b.ckpt. It is needed to add the path of the pretrained weight to the model pretrained in "configs/rec/abinet/abinet_resnet45_en.yaml".
 
 * Standalone Training
 
@@ -255,7 +264,7 @@ If you want to train or finetune the model on a smaller dataset without distribu
 
 ```shell
 # standalone training on a CPU/GPU/Ascend device
-python tools/train.py --config configs/rec/abinet/abinet.yaml
+python tools/train.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
 
 The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir`. The default directory is `./tmp_rec`.
@@ -265,7 +274,7 @@ The training result (including checkpoints, per-epoch performance and curves) wi
 To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 
 ```
-python tools/eval.py --config configs/rec/abinet/abinet.yaml
+python tools/eval.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
 
 **Notes:**
@@ -277,13 +286,26 @@ should be changed to
 ```
 refine_batch_size=False
 ```
-- Meanwhile, line 185 in minocr.data.builder.py
+- Meanwhile, line 179-185 in minocr.data.builder.py
 ```
-drop_remainder = False
+if not is_train:
+    if drop_remainder and is_main_device:
+        _logger.warning(
+            "`drop_remainder` is forced to be False for evaluation "
+            "to include the last batch for accurate evaluation."
+        )
+        drop_remainder = False
+
 ```
 should be changed to
 ```
-drop_remainder = True
+if not is_train:
+    # if drop_remainder and is_main_device:
+        _logger.warning(
+            "`drop_remainder` is forced to be False for evaluation "
+            "to include the last batch for accurate evaluation."
+        )
+        drop_remainder = True
 ```
 ## References
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->

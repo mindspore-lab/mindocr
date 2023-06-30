@@ -36,7 +36,7 @@ Table Format:
 
 | **Model** | **Context** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
 | :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |
-| ABINet      | D910x8-MS1.9-G | 92.23%    | 22993 s/epoch       | 86 | [yaml](https://github.com/safeandnewYH/ABINet_Figs/blob/main/abinet.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en_34aeaf96.ckpt)
+| ABINet      | D910x8-MS1.9-G | 92.23%    | 22993 s/epoch       | 86 | [yaml](https://github.com/safeandnewYH/ABINet_Figs/blob/main/abinet_resnet45_en.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en-41e4bbd0.ckpt)
 </div>
 
 <details open>
@@ -49,8 +49,7 @@ Table Format:
   </div>
 </details>
 
-<!-- **注意:**
-- 上述结果对应的权重为[abinet_vision_en_28a9ec62.ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en_34aeaf96.ckpt). 其他结果很快补充。 -->
+
 
 
 ## 3. 快速开始
@@ -101,17 +100,26 @@ data_lmdb_release/
 
 在这里，我们使用 `train/` 文件夹下的数据集进行训练，我们使用 `evaluation/` 下的数据集来评估模型的准确性。
 
-**Train:**
+**Train:**  (total 15,895,356 samples)
 - [MJSynth (MJ)](https://pan.baidu.com/s/1mgnTiyoR8f6Cm655rFI4HQ)
+  - Train: 21.2 GB, 7224586 samples
+  - Valid: 2.36 GB, 802731 samples
+  - Test: 2.61 GB, 891924 samples
 - [SynthText (ST)](https://pan.baidu.com/s/1mgnTiyoR8f6Cm655rFI4HQ)
+  - Total: 24.6 GB, 6976115 samples
 
-**Evaluation:**
-- [CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html)
-- [IC13_857](http://rrc.cvc.uab.es/?ch=2)
-- [IC15_1811](http://rrc.cvc.uab.es/?ch=4)
-- [IIIT5k_3000](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html)
-- [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset)
-- [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf)
+
+**Evaluation:** (total 12,067 samples)
+- [CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html): 8.8 MB, 288 samples
+- [IC03_860](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions): 36 MB, 860 samples
+- [IC03_867](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions): 4.9 MB, 867 samples
+- [IC13_857](http://rrc.cvc.uab.es/?ch=2): 72 MB, 857 samples
+- [IC13_1015](http://rrc.cvc.uab.es/?ch=2): 77 MB, 1015 samples
+- [IC15_1811](http://rrc.cvc.uab.es/?ch=4): 21 MB, 1811 samples
+- [IC15_2077](http://rrc.cvc.uab.es/?ch=4): 25 MB, 2077 samples
+- [IIIT5k_3000](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html): 50 MB, 3000 samples
+- [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset): 2.4 MB, 647 samples
+- [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf): 1.8 MB, 645 samples
 
 
 **模型训练的数据配置**
@@ -258,9 +266,9 @@ eval:
 
 ```shell
 # 在多个 GPU/Ascend 设备上进行分布式训练
-mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/abinet/abinet.yaml
+mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
-
+ABINet模型训练时需要加载预训练模型，预训练模型的权重来自https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_pretrain_en-821ca20b.ckpt，需要在“configs/rec/abinet/abinet_resnet45_en.yaml”中model的pretrained添加预训练权重的路径。
 
 * 单卡训练
 
@@ -268,7 +276,7 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/abine
 
 ```shell
 # CPU/GPU/Ascend 设备上的单卡训练
-python tools/train.py --config configs/rec/abinet/abinet.yaml
+python tools/train.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
 
 
@@ -280,7 +288,7 @@ python tools/train.py --config configs/rec/abinet/abinet.yaml
 若要评估已训练模型的准确性，可以使用`eval.py`。请在yaml配置文件的`eval`部分将参数`ckpt_load_path`设置为模型checkpoint的文件路径，设置`distribute`为False，然后运行：
 
 ```
-python tools/eval.py --config configs/rec/abinet/abinet.yaml
+python tools/eval.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
 
 **注意:**
@@ -292,13 +300,26 @@ refine_batch_size=True
 ```
 refine_batch_size=False
 ```
-- 同时， minocr.data.builder.py中的第185行
+- 同时， minocr.data.builder.py中的第179-185行
 ```
-drop_remainder = False
+if not is_train:
+    if drop_remainder and is_main_device:
+        _logger.warning(
+            "`drop_remainder` is forced to be False for evaluation "
+            "to include the last batch for accurate evaluation."
+        )
+        drop_remainder = False
+
 ```
 应该被改为
 ```
-drop_remainder = True
+if not is_train:
+    # if drop_remainder and is_main_device:
+        _logger.warning(
+            "`drop_remainder` is forced to be False for evaluation "
+            "to include the last batch for accurate evaluation."
+        )
+        drop_remainder = True
 ```
 ## 参考文献
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
