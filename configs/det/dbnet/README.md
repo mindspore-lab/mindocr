@@ -72,6 +72,8 @@ The test set consists of 598 images manually selected from the above-mentioned d
 | DBNet++   | D910x4-MS2.0-G | ResNet-50    | Chinese + English |           84.30%            | 256 img/s      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_ch_en_general-884ba5b9.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_ch_en_general-884ba5b9-b3f52398.mindir) |
 </div>
 
+> The input_shape for exported DBNet MindIR and DBNet++ MindIR in the links are `(1,3,736,1280)` and `(1,3,1152,2048)`, respectively.
+
 
 ## 3. Results
 
@@ -91,7 +93,7 @@ DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total
 | DBNet++             | D910x1-MS2.0-G | ResNet-50     | SynthText  | 85.70%     | 87.81%        | 86.74%      | 17.7 s/epoch | 56 img/s  | [yaml](db++_r50_icdar15.yaml)       | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2-9934aff0.mindir)   |
 </div>
 
-> The input_shape for exported DBNet MindIR and DBNet++ MindIR in the link are `(1,3,736,1280)` and `(1,3,1152,2048)`, respectively.
+> The input_shape for exported DBNet MindIR and DBNet++ MindIR in the links are `(1,3,736,1280)` and `(1,3,1152,2048)`, respectively.
 
 ### MSRA-TD500
 

@@ -56,6 +56,9 @@ DBNet++在检测不同尺寸的文本方面表现更好，尤其是对于尺寸�
 | DBNet++   | D910x4-MS2.0-G | ResNet-50    | Chinese + English |           84.30%            | 256 img/s      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_ch_en_general-884ba5b9.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_ch_en_general-884ba5b9-b3f52398.mindir) |
 </div>
 
+> 链接中模型DBNet的MindIR导出时的输入Shape为`(1,3,736,1280)`，模型DBNet++的MindIR导出时的输入Shape为`(1,3,1152,2048)`。
+
+
 ## 3. 实验结果
 
 DBNet和DBNet++在ICDAR2015，MSRA-TD500，SCUT-CTW1500，Total-Text和MLT2017数据集上训练。另外，我们在SynthText数据集上进行了预训练，并提供预训练权重下载链接。所有训练结果如下：
