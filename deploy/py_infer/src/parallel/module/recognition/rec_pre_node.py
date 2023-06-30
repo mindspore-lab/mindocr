@@ -12,10 +12,9 @@ class RecPreNode(ModuleBase):
 
     def init_self_args(self):
         self.text_recognizer = TextRecognizer(self.args)
-        self.text_recognizer.init()
-        self.text_recognizer.free_model()
-
+        self.text_recognizer.init(preprocess=True, model=False, postprocess=False)
         super().init_self_args()
+        return self.text_recognizer.get_params()
 
     def process(self, input_data):
         """
@@ -32,18 +31,13 @@ class RecPreNode(ModuleBase):
             self.process_with_det_rec(input_data)
 
     def process_with_single_rec(self, input_data):
-        images = [input_data.frame]
+        images = input_data.frame
         _, split_data = self.text_recognizer.preprocess(images)
 
+        # len(images) <= rec_batch_num, so len(split_data) == 1
         send_data = ProcessData(
-            sub_image_size=1,
-            image_path=input_data.image_path,
-            image_total=input_data.image_total,
             data=split_data[0],
-            frame=input_data.frame,
-            sub_image_total=1,
-            image_name=input_data.image_name,
-            image_id=input_data.image_id,
+            image_path=input_data.image_path,
         )
 
         self.send_to_next_module(send_data)
@@ -60,13 +54,10 @@ class RecPreNode(ModuleBase):
         for split_image, split_data, split_result in zip(split_sub_images, split_sub_data, split_sub_results):
             send_data = ProcessData(
                 sub_image_size=len(split_image),
-                image_path=input_data.image_path,
-                image_total=input_data.image_total,
                 infer_result=split_result,
                 data=split_data,
+                image_path=input_data.image_path,
                 frame=input_data.frame,
                 sub_image_total=input_data.sub_image_total,
-                image_name=input_data.image_name,
-                image_id=input_data.image_id,
             )
             self.send_to_next_module(send_data)

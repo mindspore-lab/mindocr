@@ -9,7 +9,7 @@ class DetInferNode(ModuleBase):
 
     def init_self_args(self):
         self.text_detector = TextDetector(self.args)
-        self.text_detector.init(warmup=True)
+        self.text_detector.init(preprocess=False, model=True, postprocess=False)
         super().init_self_args()
 
     def process(self, input_data):
