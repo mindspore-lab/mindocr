@@ -118,6 +118,16 @@ graph LR;
     ONNX -- converter_lite --> o2(MindIR);
 ```
 
+Two formats of Paddle models are used here, the training model and the inference model. The differences are as follows:
+
+| type            | format                                 | description                                                                                                          |
+|:----------------|:---------------------------------------|:---------------------------------------------------------------------------------------------------------------------|
+| trained model   | .pdparams、.pdopt、.states             | PaddlePaddle trained model, which can store information such as model structure, weights, optimizer status, etc      |
+| inference model | inference.pdmodel、inference.pdiparams | PaddlePaddle inference model, which can be derived from its trained model, saving the network structure and weights. |
+
+After downloading the model file and decompressing it, please distinguish between the trained model and inference model
+according to the model format.
+
 #### 2.1 Trained -> Inference model
 
 In the download link of PaddleOCR model, there are two formats: trained model and inference model. If a training model is provided, it needs to be converted to the format of inference model.

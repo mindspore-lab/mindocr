@@ -8,6 +8,7 @@ from .cls_mobilenet_v3 import *
 from .det_mobilenet import *
 from .det_resnet import *
 from .rec_abinet_backbone import *
+from .rec_master import *
 from .rec_resnet import *
 from .rec_svtr import *
 from .rec_vgg import *

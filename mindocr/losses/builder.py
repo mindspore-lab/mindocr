@@ -10,6 +10,7 @@ supported_losses = [
     "ABINetLoss",
     "FCELoss",
 ]
+
 from .abinet_loss import ABINetLoss
 from .cls_loss import CrossEntropySmooth
 from .det_loss import EASTLoss, FCELoss, L1BalancedCELoss, PSEDiceLoss

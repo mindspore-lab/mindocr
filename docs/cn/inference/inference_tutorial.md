@@ -33,13 +33,23 @@ python infer.py \
     --cls_model_name_or_config=ch_pp_mobile_cls_v2.0 \
     --rec_model_path=/path/to/mindir/crnn_resnet34.mindir \
     --rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
-    --res_save_dir=det_cls_rec
+    --res_save_dir=det_cls_rec \
+    --vis_pipeline_save_dir=det_cls_rec
 ```
+
+可视化图片存放在det_cls_rec中,如图所示：
+
+<p align="center">
+  <img src="https://github.com/heepengpeng/mindocr/assets/122354463/1e55b19a-af79-4882-a50a-3a6fc490300d" width=480 />
+</p>
+<p align="center">
+  <em>文本检测识别结果可视化</em>
+</p>
 
 结果保存在det_cls_rec/pipeline_results.txt，格式如下：
 
 ```
-img_478.jpg	[{"transcription": "spa", "points": [[1114, 35], [1200, 0], [1234, 52], [1148, 97]]}, {...}]
+img_195.jpg	[{"transcription": "admission", "points": [[298.0, 295.0], [396.0, 309.0], [392.0, 331.0], [295.0, 317.0]]}, {...}]
 ```
 
 - 检测+识别
@@ -54,13 +64,23 @@ python infer.py \
     --det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
     --rec_model_path=/path/to/mindir/crnn_resnet34.mindir \
     --rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
-    --res_save_dir=det_rec
+    --res_save_dir=det_rec \
+    --vis_pipeline_save_dir=det_rec
 ```
 
-结果保存在det_rec/pipeline_results.txt，格式如下：
+可视化结果存放在det_rec中，如图所示：
+
+<p align="center">
+  <img src="https://github.com/heepengpeng/mindocr/assets/122354463/1e55b19a-af79-4882-a50a-3a6fc490300d" width=480 />
+</p>
+<p align="center">
+  <em>文本检测识别结果可视化</em>
+</p>
+
+识别结果保存在det_rec/pipeline_results.txt，格式如下：
 
 ```
-img_478.jpg	[{"transcription": "spa", "points": [[1114, 35], [1200, 0], [1234, 52], [1148, 97]]}, {...}]
+img_195.jpg	[{"transcription": "admission", "points": [[298.0, 295.0], [396.0, 309.0], [392.0, 331.0], [295.0, 317.0]]}, {...}]
 ```
 
 - 检测
@@ -73,13 +93,23 @@ python infer.py \
     --backend=lite \
     --det_model_path=/path/to/mindir/dbnet_resnet50.mindir \
     --det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
-    --res_save_dir=det
+    --res_save_dir=det \
+    --vis_det_save_dir=det
 ```
 
-结果保存在det/det_results.txt，格式如下：
+可视化结果存放在det中，如图所示：
+
+<p align="center">
+  <img src="https://github.com/heepengpeng/mindocr/assets/122354463/e7e708f7-7a69-4f3f-9234-bad909052e7a" width=480 />
+</p>
+<p align="center">
+  <em>文本检测结果可视化</em>
+</p>
+
+检测结果保存在det/det_results.txt，格式如下：
 
 ```
-img_478.jpg    [[[1114, 35], [1200, 0], [1234, 52], [1148, 97]], [...]]]
+img_195.jpg	[[[298.0, 295.0], [396.0, 309.0], [392.0, 331.0], [295.0, 317.0]], [...]]
 ```
 
 - 分类

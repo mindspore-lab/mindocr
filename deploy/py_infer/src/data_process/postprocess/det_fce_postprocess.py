@@ -30,7 +30,7 @@ class FCEPostprocess(DetBasePostprocess):
         box_type: str = "quad",
         rescale_fields=["polys"],
     ):
-        super().__init__(box_type, rescale_fields)
+        super().__init__(rescale_fields=rescale_fields, box_type=box_type)
         self.fourier_degree = fourier_degree
         self.num_reconstr_points = num_reconstr_points
         self.scales = scales
