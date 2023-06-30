@@ -157,7 +157,7 @@ class RandomScale:
     Randomly scales an image and its polygons in a predefined scale range.
     Args:
         scale_range: (min, max) scale range.
-        size_limits: (min_side_len, max_side_len) size limits. Default: [].
+        size_limits: (min_side_len, max_side_len) size limits. Default: None.
         p: probability of the augmentation being applied to an image.
     """
 
