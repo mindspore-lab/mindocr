@@ -1,3 +1,5 @@
+from typing import Optional
+
 from packaging import version
 
 import mindspore as ms
@@ -42,14 +44,18 @@ def fetch_optimizer_lr(opt):
 
 
 class AllReduce(nn.Cell):
-    def __init__(self, reduce: str = "mean", device_num: int = 1):
+    def __init__(self, reduce: str = "mean", device_num: Optional[int] = None) -> None:
         super().__init__()
         if reduce == "mean":
             self.average = True
         else:
             self.average = False
 
-        self.device_num = device_num
+        if device_num is None:
+            self.device_num = 1
+        else:
+            self.device_num = device_num
+
         self.all_reduce = ops.AllReduce()
 
     def construct(self, x: Tensor) -> Tensor:
