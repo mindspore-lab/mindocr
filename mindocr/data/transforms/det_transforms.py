@@ -24,8 +24,6 @@ __all__ = [
     "RandomCropWithBBox",
     "RandomCropWithMask",
     "DetResize",
-    "GridResize",
-    "ScalePadImage",
 ]
 _logger = Logger("mindocr")
 
@@ -381,9 +379,7 @@ class DetResize:
     Note:
         1. The default choices limit_type=min, with large `limit_side_len` are recommended for inference in detection
         for better accuracy,
-        2. If target_size set, keep_ratio=True, limit_type=null, padding=True, this transform works the same as
-        ScalePadImage,
-        3. If inference speed is the first priority to guarantee, you can set limit_type=max with a small
+        2. If inference speed is the first priority to guarantee, you can set limit_type=max with a small
         `limit_side_len` like 960.
     """
 
@@ -527,45 +523,6 @@ class DetResize:
             data["shape_list"][3] = data["shape_list"][3] * scale_h
 
         return data
-
-
-class GridResize(DetResize):
-    """
-    Resize image to make it divisible by a specified factor exactly.
-    Resize polygons correspondingly, if provided.
-
-    Args:
-        factor: by which an image should be divisible.
-    """
-
-    def __init__(self, factor: int = 32, **kwargs):
-        super().__init__(
-            target_size=None,
-            keep_ratio=False,
-            padding=False,
-            limit_type=None,
-            force_divisable=True,
-            divisor=factor,
-        )
-
-
-class ScalePadImage(DetResize):
-    """
-    Scale image and polys by the shorter side, then pad to the target_size.
-    input image format: hwc
-
-    Args:
-        target_size: [H, W] of the output image.
-    """
-
-    def __init__(self, target_size: list, **kwargs):
-        super().__init__(
-            target_size=target_size,
-            keep_ratio=True,
-            padding=True,
-            limit_type=None,
-            force_divisable=False,
-        )
 
 
 def expand_poly(poly, distance: float, joint_type=pyclipper.JT_ROUND) -> List[list]:
