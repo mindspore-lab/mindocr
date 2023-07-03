@@ -1,4 +1,6 @@
-# Data Downloading
+# Total-Text Datasets
+
+## Data Downloading
 
 Total-Text [paper](https://arxiv.org/abs/1710.10400)
 

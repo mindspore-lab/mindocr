@@ -25,7 +25,7 @@ class SYNTHTEXT_Converter:
         min_area: area below which polygons will be filtered out
     """
 
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
         self._image_dir = None
 
     def _sort_and_validate(self, sample: Tuple[np.ndarray, ...]) -> Tuple[np.ndarray, ...]:
