@@ -2,7 +2,7 @@ This document shows how to convert ocr annotation to the general format (not inc
 
 You may also refer to [`convert_datasets.sh`](https://github.com/mindspore-lab/mindocr/blob/main/tools/convert_datasets.sh) which is a quick solution for converting annotation files of all datasets under a given directory.
 
-<details>
+<details open markdown>
 <summary>To download and convert OCR datasets to the required data format, please refer to these instructions.</summary>
 
 - [Born-Digital Images](borndigital.md)
