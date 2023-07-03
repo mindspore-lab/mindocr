@@ -153,7 +153,7 @@ python tools/eval.py \
 - [x] [DBNet++](configs/det/dbnet/README.md) (TPAMI'2022)
 - [x] [PSENet](configs/det/psenet/README.md) (CVPR'2019)
 - [x] [EAST](configs/det/east/README.md)(CVPR'2017)
-- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [敬请期待]
+- [x] [FCENet](configs/det/fcenet/README.md) (CVPR'2021)
 </details>
 
 <details open markdown>
@@ -162,6 +162,7 @@ python tools/eval.py \
 - [x] [CRNN](configs/rec/crnn/README.md) (TPAMI'2016)
 - [x] [CRNN-Seq2Seq/RARE](configs/rec/rare/README.md) (CVPR'2016)
 - [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022)
+- [x] [MASTER](configs/rec/master/README.md) (PR'2019)
 - [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 </details>
 
@@ -191,7 +192,10 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 ## 重要信息
 
 ### 更新日志
-
+- 2023/06/29
+1. 新增2个SoTA模型
+    - 文本检测[FCENet](configs/det/facenet)
+    - 文本识别[MASTER](configs/det/facenet)
 - 2023/06/07
 1. 增加新模型
     - 文本检测[PSENet](configs/det/psenet)

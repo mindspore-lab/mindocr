@@ -9,7 +9,7 @@ from mindspore.train.callback._callback import Callback, _handle_loss
 
 from .checkpoint import CheckpointManager
 from .evaluator import Evaluator
-from .misc import AverageMeter, fetch_optimizer_lr
+from .misc import AllReduce, AverageMeter, fetch_optimizer_lr
 from .recorder import PerfRecorder
 
 __all__ = ["EvalSaveCallback"]
@@ -89,8 +89,8 @@ class EvalSaveCallback(Callback):
 
         self._loss_avg_meter = AverageMeter()
 
-        self._reduce_sum = ms.ops.AllReduce()
         self._device_num = device_num
+        self._reduce = AllReduce(device_num=self._device_num)
         # lamda expression is not supported in jit
         self._loss_reduce = self._reduce if device_num is not None else lambda x: x
 
@@ -103,9 +103,6 @@ class EvalSaveCallback(Callback):
                 prefer_low_perf=(self.main_indicator == "train_loss"),
             )
         self.start_epoch = start_epoch
-
-    def _reduce(self, x):
-        return self._reduce_sum(x) / self._device_num  # average value across all devices
 
     def on_train_step_end(self, run_context):
         """

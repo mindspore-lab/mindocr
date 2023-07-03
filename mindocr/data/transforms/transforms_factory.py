@@ -115,8 +115,7 @@ def transforms_dbnet_icdar15(phase="train"):
         pipeline = [
             {"DecodeImage": {"img_mode": "RGB", "to_float32": False}},
             {"DetLabelEncode": None},
-            {"GridResize": {"factor": 32}},
-            {"ScalePadImage": {"target_size": [736, 1280]}},
+            {"DetResize": {"target_size": [736, 1280], "keep_ratio": False, "limit_type": None, "divisor": 32}},
             {
                 "NormalizeImage": {
                     "bgr_to_rgb": False,
@@ -130,8 +129,9 @@ def transforms_dbnet_icdar15(phase="train"):
     else:
         pipeline = [
             {"DecodeImage": {"img_mode": "RGB", "to_float32": False}},
-            {"GridResize": {"factor": 32}},
-            {"ScalePadImage": {"target_size": [736, 1280]}},
+            {
+                "DetResize": {"target_size": [736, 1280], "keep_ratio": False, "limit_type": None, "divisor": 32}
+            },  # GridResize
             {
                 "NormalizeImage": {
                     "bgr_to_rgb": False,
