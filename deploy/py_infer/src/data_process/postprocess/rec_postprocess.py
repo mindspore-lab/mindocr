@@ -10,6 +10,7 @@ mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..
 sys.path.insert(0, mindocr_path)
 
 from mindocr.postprocess import rec_postprocess  # noqa
+from mindocr.postprocess.rec_postprocess import RecAttnLabelDecode  # noqa
 
 
 #  TODO: unify RecCTCLabelDecode with with trained side

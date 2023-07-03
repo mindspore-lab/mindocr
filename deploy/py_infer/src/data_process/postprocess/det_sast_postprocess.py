@@ -29,7 +29,7 @@ class SASTPostprocess(det_base_postprocess.DetBasePostprocess):
         rescale_fields=["polys"],
         **kwargs
     ):
-        super().__init__(box_type, rescale_fields)
+        super().__init__(rescale_fields=rescale_fields, box_type=box_type)
 
         self.score_thresh = score_thresh
         self.nms_thresh = nms_thresh

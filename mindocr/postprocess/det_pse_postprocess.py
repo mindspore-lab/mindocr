@@ -10,6 +10,24 @@ __all__ = ["PSEPostprocess"]
 
 
 class PSEPostprocess(DetBasePostprocess):
+    """
+    Post-processing module for PSENet text detection.
+
+    This module takes the network predictions and performs post-processing to obtain the final text detection results.
+
+    Args:
+        binary_thresh (float): The threshold value for binarization. Default is 0.5.
+        box_thresh (float): The threshold value for generating bounding boxes. Default is 0.85.
+        min_area (int): The minimum area threshold for filtering small text regions. Default is 16.
+        box_type (str): The type of bounding boxes to generate. Can be "quad" or "poly". Default is "quad".
+        scale (int): The scale factor for resizing the predicted output. Default is 4.
+        output_score_kernels (bool): Whether to output the scores and kernels. Default is False.
+        rescale_fields (list): The list of fields to be rescaled. Default is ["polys"].
+
+    Returns:
+        dict: A dictionary containing the final text detection results.
+    """
+
     def __init__(
         self,
         binary_thresh=0.5,

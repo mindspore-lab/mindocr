@@ -2,6 +2,7 @@
 transforms for text detection tasks.
 """
 import json
+import logging
 import math
 import random
 import warnings
@@ -11,8 +12,6 @@ import cv2
 import numpy as np
 import pyclipper
 from shapely.geometry import Polygon, box
-
-from mindocr.utils.logger import Logger
 
 __all__ = [
     "DetLabelEncode",
@@ -24,10 +23,8 @@ __all__ = [
     "RandomCropWithBBox",
     "RandomCropWithMask",
     "DetResize",
-    "GridResize",
-    "ScalePadImage",
 ]
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 class DetLabelEncode:
@@ -381,9 +378,7 @@ class DetResize:
     Note:
         1. The default choices limit_type=min, with large `limit_side_len` are recommended for inference in detection
         for better accuracy,
-        2. If target_size set, keep_ratio=True, limit_type=null, padding=True, this transform works the same as
-        ScalePadImage,
-        3. If inference speed is the first priority to guarantee, you can set limit_type=max with a small
+        2. If inference speed is the first priority to guarantee, you can set limit_type=max with a small
         `limit_side_len` like 960.
     """
 
@@ -529,45 +524,6 @@ class DetResize:
         return data
 
 
-class GridResize(DetResize):
-    """
-    Resize image to make it divisible by a specified factor exactly.
-    Resize polygons correspondingly, if provided.
-
-    Args:
-        factor: by which an image should be divisible.
-    """
-
-    def __init__(self, factor: int = 32, **kwargs):
-        super().__init__(
-            target_size=None,
-            keep_ratio=False,
-            padding=False,
-            limit_type=None,
-            force_divisable=True,
-            divisor=factor,
-        )
-
-
-class ScalePadImage(DetResize):
-    """
-    Scale image and polys by the shorter side, then pad to the target_size.
-    input image format: hwc
-
-    Args:
-        target_size: [H, W] of the output image.
-    """
-
-    def __init__(self, target_size: list, **kwargs):
-        super().__init__(
-            target_size=target_size,
-            keep_ratio=True,
-            padding=True,
-            limit_type=None,
-            force_divisable=False,
-        )
-
-
 def expand_poly(poly, distance: float, joint_type=pyclipper.JT_ROUND) -> List[list]:
     offset = pyclipper.PyclipperOffset()
     offset.AddPath(poly, joint_type, pyclipper.ET_CLOSEDPOLYGON)
@@ -575,12 +531,35 @@ def expand_poly(poly, distance: float, joint_type=pyclipper.JT_ROUND) -> List[li
 
 
 class PSEGtDecode:
+    """
+    PSENet transformation which shrinks text polygons.
+
+    Args:
+       kernel_num (int): The number of kernels.
+       min_shrink_ratio (float): The minimum shrink ratio.
+       min_shortest_edge (int): The minimum shortest edge.
+
+    Returns:
+       dict: A dictionary containing shrinked image data, polygons, ground truth kernels, ground truth text and masks.
+    """
+
     def __init__(self, kernel_num=7, min_shrink_ratio=0.4, min_shortest_edge=640, **kwargs):
         self.kernel_num = kernel_num
         self.min_shrink_ratio = min_shrink_ratio
         self.min_shortest_edge = min_shortest_edge
 
     def _shrink(self, text_polys, rate, max_shr=20):
+        """
+        Shrink text polygons.
+
+        Args:
+            text_polys (list): A list of text polygons.
+            rate (float): The shrink rate.
+            max_shr (int): The maximum shrink.
+
+        Returns:
+            list: A list of shrinked text polygons.
+        """
         rate = rate * rate
         shrinked_text_polys = []
         for bbox in text_polys:
@@ -604,6 +583,14 @@ class PSEGtDecode:
         return shrinked_text_polys
 
     def __call__(self, data):
+        """
+        Args:
+            data (dict): A dictionary containing image data.
+
+        Returns:
+            dict: dict: A dictionary containing shrinked image data, polygons,
+            ground truth kernels, ground truth text and masks.
+        """
         image = data["image"]
         text_polys = data["polys"]
         ignore_tags = data["ignore_tags"]

@@ -1,5 +1,3 @@
-[English](../../en/inference/convert_tutorial.md) | 中文
-
 ## 推理 - 模型转换教程
 
 ### 1. MindOCR模型
@@ -120,6 +118,16 @@ graph LR;
     ONNX -- atc --> o1(OM);
     ONNX -- converter_lite --> o2(MindIR);
 ```
+
+涉及到2种格式的Paddle模型，训练模型和推理模型，区别如下：
+
+| 模型类型 | 模型格式                                | 简介                                                       |
+|:-------|:---------------------------------------|:-----------------------------------------------------------|
+| 训练模型 | .pdparams、.pdopt、.states             | PaddlePaddle训练模型，可保存的模型的权重、优化器状态等信息         |
+| 推理模型 | inference.pdmodel、inference.pdiparams | PaddlePaddle推理模型，可由其训练模型导出得到，保存了模型的结构和参数 |
+
+下载模型文件并解压，请根据模型格式来区别是训练模型还是推理模型。
+
 
 #### 2.1 训练模型 -> 推理模型
 

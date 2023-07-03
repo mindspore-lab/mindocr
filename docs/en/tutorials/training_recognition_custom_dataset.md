@@ -1,5 +1,3 @@
-English | [中文](../../cn/tutorials/training_recognition_custom_dataset.md)
-
 # Training Recognition Network with Custom Datasets
 
 This document provides tutorials on how to train recognition networks using custom datasets, including the training of recognition networks in Chinese and English languages.
@@ -7,8 +5,8 @@ This document provides tutorials on how to train recognition networks using cust
 ## Dataset preperation
 
 Currently, MindOCR recognition network supports two input formats, namely
-- `Common Dataset`：A file format that stores images and text files. It is read by [RecDataset](../../../mindocr/data/rec_dataset.py).
-- `LMDB Dataset`: A file format provided by [LMDB](https://www.symas.com/lmdb). It is read by [LMDBDataset](../../../mindocr/data/rec_lmdb_dataset.py).
+- `Common Dataset`：A file format that stores images and text files. It is read by [RecDataset](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/rec_dataset.py).
+- `LMDB Dataset`: A file format provided by [LMDB](https://www.symas.com/lmdb). It is read by [LMDBDataset](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/rec_lmdb_dataset.py).
 
 The following tutorials take the use of the `Common Dataset` file format as an example.
 

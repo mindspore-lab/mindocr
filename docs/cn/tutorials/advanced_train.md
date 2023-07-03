@@ -4,7 +4,7 @@
 
 训练策略可在模型YAML配置文件中进行配置。请在设置后运行`tools/train.py`脚本进行训练
 
-[Yaml配置文件参考样例](../../../configs/rec/crnn/crnn_icdar15.yaml)
+[Yaml配置文件参考样例](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/crnn/crnn_icdar15.yaml)
 
 ```yaml
 train:
@@ -54,4 +54,4 @@ model:
 
 ### OpenI云平台训练
 
-请参考[MindOCR云上训练快速入门](../../cn/tutorials/training_on_openi.md)
+请参考[MindOCR云上训练快速入门](training_on_openi.md)

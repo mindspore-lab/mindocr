@@ -1,28 +1,31 @@
 import glob
+import logging
 import os
+from pathlib import Path
+from typing import List
 
 import cv2
 import numpy as np
 
-from mindocr.utils.logger import Logger
-
-_logger = Logger("mindocr")
+_logger = logging.getLogger("mindocr")
 
 
-def get_image_paths(img_dir):
+def get_image_paths(img_dir: str) -> List[str]:
     """
-    img_dir (str): path to an image or path to a directory containing multiple images
-    """
+    Args:
+        img_dir: path to an image or a directory containing multiple images.
 
-    fmts = ["jpg", "png", "jpeg"]
-    img_paths = []
-    if os.path.isfile(img_dir):
-        assert os.path.exists(img_dir), f"{img_dir} does NOT exist. Please check the file path."
-        img_paths.append(img_dir)
+    Returns:
+        List: list of image paths in the directory and its subdirectories.
+    """
+    img_dir = Path(img_dir)
+    assert img_dir.exists(), f"{img_dir} does NOT exist. Please check the directory / file path."
+
+    extensions = [".jpg", ".png", ".jpeg"]
+    if img_dir.is_file():
+        img_paths = [str(img_dir)]
     else:
-        for fmt in fmts:
-            img_paths.extend(glob.glob(os.path.join(img_dir, f"*.{fmt}")))
-            img_paths.extend(glob.glob(os.path.join(img_dir, f"*.{fmt.upper()}")))
+        img_paths = [str(file) for file in img_dir.rglob("*.*") if file.suffix.lower() in extensions]
 
     assert (
         len(img_paths) > 0

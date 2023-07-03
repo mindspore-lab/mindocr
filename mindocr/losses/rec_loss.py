@@ -58,10 +58,10 @@ class CTCLoss(LossBase):
 
 
 class AttentionLoss(LossBase):
-    def __init__(self, reduction: str = "mean") -> None:
+    def __init__(self, reduction: str = "mean", ignore_index: int = 0) -> None:
         super().__init__()
         # ignore <GO> symbol, assume it is placed at 0th index
-        self.criterion = nn.CrossEntropyLoss(reduction=reduction, ignore_index=0)
+        self.criterion = nn.CrossEntropyLoss(reduction=reduction, ignore_index=ignore_index)
 
     def construct(self, logits: Tensor, labels: Tensor) -> Tensor:
         labels = labels[:, 1:]  # wihout <GO> symbol

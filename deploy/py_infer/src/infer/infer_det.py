@@ -56,7 +56,7 @@ class TextDetector(InferBase):
 
     def postprocess(self, pred, shape_list: np.ndarray) -> np.ndarray:
         polys = self.postprocess_ops(tuple(pred), shape_list)["polys"][0]  # {'polys': [img0_polys, ...], ...}
-        polys = np.array(polys) if isinstance(polys, (tuple, list)) else polys
+        polys = np.array(polys)
         # polys.shape may be (0,), (polys_num, points_num, 2), (1, polys_num, points_num, 2)
         polys_shape = (-1, *polys.shape[-2:]) if polys.size != 0 else (0, 0, 2)
         return polys.reshape(*polys_shape)  # (polys_num, points_num, 2), because bs=1

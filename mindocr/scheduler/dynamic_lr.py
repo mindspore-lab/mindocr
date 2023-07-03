@@ -185,15 +185,16 @@ def cosine_annealing_warm_restarts_lr(te, tm, eta_min, *, eta_max, steps_per_epo
             if tt >= math.pi:
                 tt = tt - math.pi
         if epoch_idx + 1 == te_next:  # time to restart
-            tt = 0                    # by setting to 0 we set lr to lr_max, see above
-            te = te * tm              # change the period of restarts
-            te_next = te_next + te    # note the next restart's epoch
+            tt = 0  # by setting to 0 we set lr to lr_max, see above
+            te = te * tm  # change the period of restarts
+            te_next = te_next + te  # note the next restart's epoch
     return lrs
 
 
 if __name__ == "__main__":
     # Demonstrate how these schedulers work by printing & visualizing the returned list.
     import matplotlib.pyplot as plt
+
     table = (
         (("constant_lr", constant_lr(0.5, 4, lr=0.05, steps_per_epoch=2, epochs=10),),),
         (("linear_lr", linear_lr(0.5, 1.0, 4, lr=0.05, steps_per_epoch=2, epochs=10)),

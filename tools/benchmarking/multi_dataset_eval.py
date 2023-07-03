@@ -40,6 +40,7 @@ USAGE:
 """
 
 import copy
+import logging
 import os
 import sys
 
@@ -59,14 +60,15 @@ from mindocr.metrics import build_metric
 from mindocr.models import build_model
 from mindocr.postprocess import build_postprocess
 from mindocr.utils.callbacks import Evaluator
-from mindocr.utils.logger import Logger
+from mindocr.utils.logger import set_logger
 
-_logger = Logger("mindocr")
+logger = logging.getLogger("mindocr")
 
 
 def main(cfg):
     # env init
     ms.set_context(mode=cfg.system.mode)
+    set_logger(name="mindocr")
     if cfg.system.distribute:
         init()
         device_num = get_group_size()
@@ -101,7 +103,7 @@ def main(cfg):
     network.set_train(False)
 
     if not cfg.system.amp_level_infer and cfg.system.amp_level != "O0":
-        _logger.info("Evaluation will run in full-precision(fp32)")
+        logger.info("Evaluation will run in full-precision(fp32)")
 
     # postprocess, metric
     postprocessor = build_postprocess(cfg.postprocess)
@@ -157,17 +159,17 @@ def main(cfg):
                 )
 
             # log
-            _logger.info("=" * 40)
-            _logger.info(f"Num batches: {num_batches}")
+            logger.info("=" * 40)
+            logger.info(f"Num batches: {num_batches}")
             if "name" in cfg.model:
-                _logger.info(f"Model: {cfg.model.name}")
+                logger.info(f"Model: {cfg.model.name}")
             else:
-                _logger.info(f"Model: {cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}")
-            _logger.info("=" * 40)
+                logger.info(f"Model: {cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}")
+            logger.info("=" * 40)
 
             measures = net_evaluator.eval()
             if is_main_device:
-                _logger.info(f"Performance: {measures}")
+                logger.info(f"Performance: {measures}")
 
             results.append(measures)
             acc_summary[dirpath] = measures
@@ -185,15 +187,15 @@ def main(cfg):
 
     acc_summary["Average"] = avg_dict
 
-    _logger.info(f"Average score: {avg_dict}")
+    logger.info(f"Average score: {avg_dict}")
 
-    _logger.info(f"Summary: {acc_summary}")
+    logger.info(f"Summary: {acc_summary}")
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Evaluation Config", add_help=False)
     parser.add_argument(
-        "-c", "--config", type=str, default="", help="YAML config file specifying default arguments (default=" ")"
+        "-c", "--config", required=True, help="YAML config file specifying default arguments (default=" ")"
     )
     args = parser.parse_args()
 
