@@ -1,17 +1,20 @@
 """
 Create and run transformations from a config or predefined transformation pipeline
 """
+import logging
 from typing import Dict, List
 
 import numpy as np
 
 from .det_east_transforms import *
+from .det_fce_transforms import *
 from .det_transforms import *
 from .general_transforms import *
 from .rec_transforms import *
 from .svtr_transform import *
 
 __all__ = ["create_transforms", "run_transforms", "transforms_dbnet_icdar15"]
+_logger = logging.getLogger(__name__)
 
 
 # TODO: use class with __call__, to perform transformation
@@ -48,7 +51,7 @@ def create_transforms(transform_pipeline: List, global_config: Dict = None):
             transforms.append(transform_config)
         else:
             raise TypeError("transform_config must be a dict or a callable instance")
-        # print(global_config)
+
     return transforms
 
 
@@ -57,11 +60,15 @@ def run_transforms(data, transforms=None, verbose=False):
         transforms = []
     for i, transform in enumerate(transforms):
         if verbose:
-            print(f"Trans {i}: ", transform)
-            print("\tInput: ", {k: data[k].shape for k in data if isinstance(data[k], np.ndarray)})
+            _logger.info(f"Trans {i}: {transform}")
+            _logger.info(
+                "\tInput: " + "\t".join([f"{k}: {data[k].shape}" for k in data if isinstance(data[k], np.ndarray)])
+            )
         data = transform(data)
         if verbose:
-            print("\tOutput: ", {k: data[k].shape for k in data if isinstance(data[k], np.ndarray)})
+            _logger.info(
+                "\tOutput: " + "\t".join([f"{k}: {data[k].shape}" for k in data if isinstance(data[k], np.ndarray)])
+            )
 
         if data is None:
             raise RuntimeError("Empty result is returned from transform `{transform}`")
@@ -108,8 +115,7 @@ def transforms_dbnet_icdar15(phase="train"):
         pipeline = [
             {"DecodeImage": {"img_mode": "RGB", "to_float32": False}},
             {"DetLabelEncode": None},
-            {"GridResize": {"factor": 32}},
-            {"ScalePadImage": {"target_size": [736, 1280]}},
+            {"DetResize": {"target_size": [736, 1280], "keep_ratio": False, "limit_type": None, "divisor": 32}},
             {
                 "NormalizeImage": {
                     "bgr_to_rgb": False,
@@ -123,8 +129,9 @@ def transforms_dbnet_icdar15(phase="train"):
     else:
         pipeline = [
             {"DecodeImage": {"img_mode": "RGB", "to_float32": False}},
-            {"GridResize": {"factor": 32}},
-            {"ScalePadImage": {"target_size": [736, 1280]}},
+            {
+                "DetResize": {"target_size": [736, 1280], "keep_ratio": False, "limit_type": None, "divisor": 32}
+            },  # GridResize
             {
                 "NormalizeImage": {
                     "bgr_to_rgb": False,

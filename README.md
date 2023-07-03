@@ -1,4 +1,4 @@
-<div align="center">
+<div align="center" markdown>
 
 # MindOCR
 
@@ -11,13 +11,13 @@
 
 English | [中文](README_CN.md)
 
-[Introduction](#introduction) |
-[Installation](#installation) |
-[Quick Start](#quick-start) |
-[Tutorials](#tutorials) |
-[Model List](#model-list) |
-[Dataset List](#dataset-list) |
-[Notes](#notes)
+[📝Introduction](#introduction) |
+[🔨Installation](#installation) |
+[🚀Quick Start](#quick-start) |
+[📚Tutorials](#tutorials) |
+[🎁Model List](#model-list) |
+[📰Dataset List](#dataset-list) |
+[🎉Notes](#notes)
 
 </div>
 
@@ -25,7 +25,7 @@ English | [中文](README_CN.md)
 MindOCR is an open-source toolbox for OCR development and application based on [MindSpore](https://www.mindspore.cn/en), which integrates series of mainstream text detection and recognition algorihtms and models and provides easy-to-use training and inference tools. It can accelerate the process of developing and deploying SoTA text detection and recognition models in real-world applications, such as DBNet/DBNet++ and CRNN/SVTR, and help fulfill the need of image-text understanding .
 
 
-<details open>
+<details open markdown>
 <summary> Major Features </summary>
 
 - **Modular design**: We decoupled the OCR task into several configurable modules. Users can setup the training and evaluation pipelines, customize the data processing pipeline and model architectures easily by modifying just few lines of code.
@@ -135,9 +135,9 @@ For more illustration and usage, please refer to the model training section in [
     - [Data Transformation Mechanism](docs/en/tutorials/transform_tutorial.md)
 - Model Training
     - [Yaml Configuration](docs/en/tutorials/yaml_configuration.md)
-    - [Text Detection]()  (coming soon)
+    - [Text Detection](docs/en/tutorials/training_detection_custom_dataset.md)
     - [Text Recognition](docs/en/tutorials/training_recognition_custom_dataset.md)
-    - [Distributed Training](docs/cn/tutorials/distribute_train.md)
+    - [Distributed Training](docs/en/tutorials/distribute_train.md)
     - [Advance: Gradient Accumulation, EMA, Resume Training, etc](docs/en/tutorials/advanced_train.md)
 - Inference and Deployment
     - [Python/C++ Inference on Ascend 310](docs/en/inference/inference_tutorial.md)
@@ -150,52 +150,46 @@ For more illustration and usage, please refer to the model training section in [
 
 ## Model List
 
-<details open>
+<details open markdown>
 <summary>Text Detection</summary>
 
 - [x] [DBNet](configs/det/dbnet/README.md) (AAAI'2020)
 - [x] [DBNet++](configs/det/dbnet/README.md) (TPAMI'2022)
 - [x] [PSENet](configs/det/psenet/README.md) (CVPR'2019)
 - [x] [EAST](configs/det/east/README.md)(CVPR'2017)
-- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [coming soon]
+- [x] [FCENet](configs/det/fcenet/README.md) (CVPR'2021)
 
 </details>
 
-<details open>
+<details open markdown>
 <summary>Text Recognition</summary>
 
 - [x] [CRNN](configs/rec/crnn/README.md) (TPAMI'2016)
 - [x] [CRNN-Seq2Seq/RARE](configs/rec/rare/README.md) (CVPR'2016)
 - [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022)
+- [x] [MASTER](configs/rec/master/README.md) (PR'2019)
 - [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 
 </details>
 
 For the detailed performance of the trained models, please refer to [configs](./configs).
 
-For detailed support for MindSpore Lite and ACL inference models, please refer to [MindOCR Models Support List](docs/en/inference/models_list.md) and [Third-Party Models Support List](docs/en/inference/models_list_thirdparty.md).
+For detailed support for MindSpore Lite and ACL inference models, please refer to [MindOCR Models Support List](docs/en/inference/models_list.md) and [Third-party Models Support List](docs/en/inference/models_list_thirdparty.md) (PaddleOCR, MMOCR, etc.).
 
 ## Dataset List
 
 MindOCR provides a [dataset conversion tool](tools/dataset_converters) to OCR datasets with different formats and support customized dataset by users. We have validated the following public OCR datasets in model training/evaluation.
 
-<details open>
+<details open markdown>
 <summary>General OCR Datasets</summary>
 
 - [x] [ICDAR2015](https://rrc.cvc.uab.es/?ch=4) [[paper](https://rrc.cvc.uab.es/files/short_rrc_2015.pdf)] [[download](docs/en/datasets/icdar2015.md)]
-
 - [x] [Total-Text](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset)  [[paper](https://arxiv.org/abs/1710.10400)]  [[download](docs/en/datasets/totaltext.md)]
-
 - [x] [Syntext150k](https://github.com/aim-uofa/AdelaiDet) [[paper](https://arxiv.org/abs/2002.10200)] [[download](docs/en/datasets/syntext150k.md)]
-
 - [x] [MLT2017](https://rrc.cvc.uab.es/?ch=8&com=introduction) [[paper](https://ieeexplore.ieee.org/abstract/document/8270168)]  [[download](docs/en/datasets/mlt2017.md)] (multi-language)
-
 - [x] [MSRA-TD500](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500)) [[paper](https://ieeexplore.ieee.org/abstract/document/6247787)]  [[download](docs/en/datasets/td500.md)]
-
 - [x] [SCUT-CTW1500](https://github.com/Yuliang-Liu/Curve-Text-Detector) [[paper](https://www.sciencedirect.com/science/article/pii/S0031320319300664)]   [[download](docs/en/datasets/ctw1500.md)]
-
 - [x] [Chinese-Text-Recognition-Benchmark](https://github.com/FudanVI/benchmarking-chinese-text-recognition)  [[paper](https://arxiv.org/abs/2112.15093)]   [[download](https://github.com/FudanVI/benchmarking-chinese-text-recognition#download)]
-
 </details>
 
 We will include more datasets for training and evaluation. This list will be continuously updated.
@@ -203,7 +197,10 @@ We will include more datasets for training and evaluation. This list will be con
 ## Notes
 
 ### What is New
-
+- 2023/06/29
+1. Add new trained models
+    - [FCENet](configs/det/facenet) for text detection
+    - [MASTER](configs/det/facenet) for text recognition
 - 2023/06/07
 1. Add new trained models
     - [PSENet](configs/det/psenet) for text detection

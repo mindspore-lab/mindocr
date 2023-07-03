@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 
@@ -15,14 +16,18 @@ import mindspore as ms
 from mindocr.data import build_dataset
 from mindocr.models import build_model
 from mindocr.postprocess import build_postprocess
+from mindocr.utils.logger import set_logger
+
+logger = logging.getLogger("mindocr")
 
 
 class BasePredict(object):
     def __init__(self, predict_cfg):
         # env init
         ms.set_context(mode=predict_cfg.system.mode)
+        set_logger(name="mindocr")
         if predict_cfg.system.distribute:
-            print("WARNING: Distribut mode blocked. Evaluation only runs in standalone mode.")
+            logger.warning("Distribut mode blocked. Evaluation only runs in standalone mode.")
 
         self.loader_predict = build_dataset(
             predict_cfg.predict.dataset, predict_cfg.predict.loader, num_shards=None, shard_id=None, is_train=False
@@ -41,7 +46,7 @@ class BasePredict(object):
         self.network.set_train(False)
 
         if predict_cfg.system.amp_level != "O0":
-            print("INFO: Evaluation will run in full-precision(fp32)")
+            logger.info("Evaluation will run in full-precision(fp32)")
 
         # TODO: check float type conversion in official Model.eval
         # ms.amp.auto_mixed_precision(network, amp_level='O0')

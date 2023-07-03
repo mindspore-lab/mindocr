@@ -6,6 +6,7 @@ Example:
 """
 
 import json
+import logging
 import os
 import sys
 from typing import List
@@ -24,6 +25,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../../../")))
 
 from mindocr import build_model
 from mindocr.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
+from mindocr.utils.logger import set_logger
 from mindocr.utils.visualize import draw_boxes, show_imgs
 
 # map algorithm name to model name (which can be checked by `mindocr.list_models()`)
@@ -34,6 +36,7 @@ algo_to_model_name = {
     "DB_MV3": "dbnet_mobilenetv3",
     "PSE": "psenet_resnet152",
 }
+logger = logging.getLogger("mindocr")
 
 
 class TextDetector(object):
@@ -55,8 +58,8 @@ class TextDetector(object):
             model_name, pretrained=pretrained, ckpt_load_path=ckpt_load_path, amp_level=args.det_amp_level
         )
         self.model.set_train(False)
-        print(
-            "INFO: Init detection model: {} --> {}. Model weights loaded from {}".format(
+        logger.info(
+            "Init detection model: {} --> {}. Model weights loaded from {}".format(
                 args.det_algorithm, model_name, "pretrained url" if pretrained else ckpt_load_path
             )
         )
@@ -108,8 +111,8 @@ class TextDetector(object):
                 show=False,
                 save_path=os.path.join(self.vis_dir, fn + "_det_preproc.png"),
             )
-        print("Original image shape: ", data["image_ori"].shape)
-        print("After det preprocess: ", data["image"].shape)
+        logger.info(f"Original image shape: {data['image_ori'].shape}")
+        logger.info(f"After det preprocess: {data['image'].shape}")
 
         # infer
         input_np = data["image"]
@@ -122,8 +125,6 @@ class TextDetector(object):
         det_res = self.postprocess(net_output, data)
 
         # validate: filter polygons with too small number of points or area
-        # print('Postprocess result: ', det_res)
-
         det_res_final = validate_det_res(det_res, data["image_ori"].shape[:2], min_poly_points=3, min_area=3)
 
         if do_visualize:
@@ -155,7 +156,6 @@ def validate_det_res(det_res, img_shape, order_clockwise=True, min_poly_points=3
     if len(polys) == 0:
         return dict(polys=[], scores=[])
 
-    # print(polys)
     h, w = img_shape[:2]
     # clip if ouf of image
     if not isinstance(polys, list):
@@ -166,26 +166,22 @@ def validate_det_res(det_res, img_shape, order_clockwise=True, min_poly_points=3
             polys[i][:, 0] = np.clip(polys[i][:, 0], 0, w - 1)
             polys[i][:, 1] = np.clip(polys[i][:, 1], 0, h - 1)
 
-    # print(polys)
     new_polys = []
     if scores is not None:
         new_scores = []
     for i, poly in enumerate(polys):
         # refine points to clockwise order
-        # print(poly)
         if order_clockwise:
             if len(poly) == 4:
                 poly = order_points_clockwise(poly)
             else:
-                print("WARNING: order_clockwise only supports quadril polygons currently")
-            # print('after clockwise', poly)
+                logger.warning("order_clockwise only supports quadril polygons currently")
         # filter
         if len(poly) < min_poly_points:
             continue
 
         if min_area > 0:
             p = Polygon(poly)
-            # print(p.is_valid, p.is_empty)
             if p.is_valid and not p.is_empty:
                 if p.area >= min_area:
                     poly_np = np.array(p.exterior.coords)[:-1, :]
@@ -233,6 +229,7 @@ def save_det_res(det_res_all: List[dict], img_paths: List[str], include_score=Fa
 if __name__ == "__main__":
     # parse args
     args = parse_args()
+    set_logger(name="mindocr")
     save_dir = args.draw_img_save_dir
     img_paths = get_image_paths(args.image_dir)
     # uncomment it to quick test the infer FPS
@@ -246,12 +243,12 @@ if __name__ == "__main__":
     # run for each image
     det_res_all = []
     for i, img_path in enumerate(img_paths):
-        print(f"\nINFO: Infering [{i+1}/{len(img_paths)}]: ", img_path)
+        logger.info(f"\nInfering [{i+1}/{len(img_paths)}]: {img_path}")
         det_res, _ = text_detect(img_path, do_visualize=True)
         det_res_all.append(det_res)
-        print(f"INFO: Num detected text boxes: {len(det_res['polys'])}")
+        logger.info(f"Num detected text boxes: {len(det_res['polys'])}")
 
     # save all results in a txt file
     save_det_res(det_res_all, img_paths, save_path=os.path.join(save_dir, "det_results.txt"))
 
-    print("Done! Text detection results saved in ", save_dir)
+    logger.info(f"Done! Text detection results saved in {save_dir}")

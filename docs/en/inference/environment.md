@@ -1,5 +1,3 @@
-English | [中文](../../cn/inference/environment.md)
-
 ## Inference - Environment Installation
 
 MindOCR supports inference for Ascend310/Ascend310P device.

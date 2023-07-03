@@ -37,10 +37,10 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 | **Model** | **Context**    | **Backbone** | **Transform Module** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
 | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :--------: |:-----: |
-| RARE     | D910x4-MS1.10-G | ResNet34_vd | None | 85.19%    | 3166 s/epoch         | 4561 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e-b65dd225.mindir) |
+| RARE     | D910x4-MS1.10-G | ResNet34_vd | None | 85.19%    | 3166 s/epoch         | 4561 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ascend-309dc63e-b96c2a4b.mindir) |
 </div>
 
-<details open>
+<details open markdown>
   <div align="center">
   <summary>Detailed accuracy results for each benchmark dataset</summary>
 
@@ -55,7 +55,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 - To reproduce the result on other contexts, please ensure the global batch size is the same.
 - The characters supported by model are lowercase English characters from a to z and numbers from 0 to 9. More explanation on dictionary, please refer to [4. Character Dictionary](#4-character-dictionary).
 - The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#312-dataset-download) section.
-- The input Shapes of MindIR of RARE is (1, 3, 32, 100).
+- The input Shapes of MindIR of RARE is (1, 3, 32, 100) and it is for Ascend only.
 
 ## 3. Quick Start
 ### 3.1 Preparation
@@ -350,8 +350,10 @@ After training, evaluation results on the benchmark test set are as follows, whe
 
 | **Model** | **Language** | **Backbone** | **Transform Module** | **Scene** | **Web** | **Document** | **Train T.** | **FPS** | **Recipe** | **Download** |
 | :-----: | :-----:  | :--------: | :------------: | :--------: | :--------: | :--------: | :--------: | :--------: |:---------: | :-----------: |
-| RARE    | Chinese | ResNet34_vd | None | 62.15% | 67.05% | 97.60% | 414 s/epoch | 2160 |  [rare_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-5f3023e2.ckpt) \| [mindir]() |
+| RARE    | Chinese | ResNet34_vd | None | 62.15% | 67.05% | 97.60% | 414 s/epoch | 2160 |  [rare_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-5f3023e2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch_ascend-5f3023e2-11f0d554.mindir) |
 </div>
+
+- The input Shapes of MindIR of RARE is (1, 3, 32, 320) and it is for Ascend only.
 
 ### Training with Custom Datasets
 You can train models for different languages with your own custom datasets. Loading the pretrained Chinese model to finetune on your own dataset usually yields better results than training from scratch. Please refer to the tutorial [Training Recognition Network with Custom Datasets](../../../docs/en/tutorials/training_recognition_custom_dataset.md).

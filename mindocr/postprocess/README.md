@@ -52,7 +52,7 @@
     - `shape_list` is originally recorded in image resize transformation, such as `DetResize`.
 
 
-**Example Code:** [DetBasePostprocess](mindocr/postprocess/det_base_postprocess.py) and [DetDBPostprocess](mindocr/postprocess/det_db_postprocess.py)
+**Example Code:** [DetBasePostprocess](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/postprocess/det_base_postprocess.py) and [DetDBPostprocess](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/postprocess/det_db_postprocess.py)
 
 
 ### Recognition Postprocessing API Protocols
@@ -62,7 +62,7 @@
         - use_space_char
         - blank_at_last
         - lower
-    Please see the API docs in [RecCTCLabelDecode](mindocr/postprocess/rec_postprocess.py) for argument illustration.
+    Please see the API docs in [RecCTCLabelDecode](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/postprocess/rec_postprocess.py) for argument illustration.
 
 2. `__call__()` method:
     - Input args:
@@ -73,4 +73,4 @@
         - `texts` (List[str]): list of preditected text string
         - `confs` (List[float]): confidence of each prediction
 
-**Example code:** [RecCTCLabelDecode](mindocr/postprocess/rec_postprocess.py)
+**Example code:** [RecCTCLabelDecode](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/postprocess/rec_postprocess.py)

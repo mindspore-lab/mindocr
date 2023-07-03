@@ -1,5 +1,3 @@
-English | [中文](../../cn/datasets/synthtext.md)
-
 # Data Downloading
 
 SynthText is a synthetically generated dataset, in which word instances are placed in natural scene images, while taking into account the scene layout.
@@ -26,4 +24,4 @@ path-to-data-dir/
 > ```
 > This operation will generate a filtered output in the same format as the original `SynthText`.
 
-[Back to README](../../../tools/dataset_converters/README.md)
+[Back to dataset converters](converters.md)

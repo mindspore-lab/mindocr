@@ -1,8 +1,8 @@
 # 配置文件参数说明
 
-- [训练环境参数-system](#1-训练环境参数-system)
-- [通用参数-common](#2-通用参数-common)
-- [模型架构-model](#3-模型架构-model)
+- [环境参数-system](#1-环境参数-system)
+- [共用参数-common](#2-共用参数-common)
+- [模型定义参数-model](#3-模型定义参数-model)
 - [后处理-postprocess](#4-后处理-postprocess)
 - [评估指标-metric](#5-评估指标-metric)
 - [损失函数-loss](#6-损失函数-loss)
@@ -10,7 +10,7 @@
   - [学习率调整策略-scheduler](#学习率调整策略-scheduler)
   - [优化器-optimizer](#优化器-optimizer)
   - [损失缩放-loss_scaler](#损失缩放系数-loss_scaler)
-- [训练和评估流程(train, eval)](#8-训练和评估流程-train-eval)
+- [训练和评估流程(train, eval)](#8-训练评估流程-train-eval)
   - [训练流程-train](#训练流程-train)
   - [评估流程-eval](#评估流程-eval)
 
@@ -23,6 +23,7 @@
 | ---- | ---- | ---- | ---- | ---- |
 | mode | MindSpore运行模式(静态图/动态图) | 0 | 0 / 1 | 0: 表示在GRAPH_MODE模式中运行; 1: PYNATIVE_MODE模式 |
 | distribute | 是否开启并行训练 | True | True / False | \ |
+| device_id | 指定单卡训练时的卡id | 7 | 机器可用的卡的id | 该参数仅在distribute=False（单卡训练）和环境变量DEVICE_ID未设置时生效。单卡训练时，如该参数和环境变量DEVICE_ID均未设置，则默认使用0卡。 |
 | amp_level | 混合精度模式 | O0 | O0/O1/O2/O3 | 'O0' - 不变化。<br> 'O1' - 将白名单内的Cell和运算转为float16精度，其余部分保持float32精度。<br> 'O2' - 将黑名单内的Cell和运算保持float32精度，其余部分转为float16精度。<br> 'O3' - 将网络全部转为float16精度。|
 | seed | 随机种子 | 42 | Integer | \ |
 | ckpt_save_policy | 模型权重保存策略 | top_k | "top_k" 或 "latest_k" | "top_k"表示保存前k个评估指标分数最高的checkpoint；"latest_k"表示保存最新的k个checkpoint。 `k`的数值通过`ckpt_max_keep`参数定义 |
@@ -41,7 +42,7 @@
 
 ## 3. 模型定义参数 (model)
 
-在MindOCR中，模型的网络架构划分为 Transform, Backbone, Neck和Head四个模块。详细请参阅[文档](../mindocr/models/README.md)，以下是各部分的配置说明与例子。
+在MindOCR中，模型的网络架构划分为 Transform, Backbone, Neck和Head四个模块。详细请参阅[文档](../../../mindocr/models/README.md)，以下是各部分的配置说明与例子。
 
 | 字段 | 说明 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
@@ -63,11 +64,11 @@
 
 > 注意：对于不同网络，backbone/neck/head模块可配置参数会有所不同，具体可配置参数由上表模块的`name`参数指定的类的__init__入参所决定 （如若指定下neck模块的name为DBFPN，由于DBFPN类初始化包括adaptive入参，则可在yaml中model.head层级下配置adaptive等参数。
 
-参考例子: [DBNet](./det/dbnet/db_r50_mlt2017.yaml), [CRNN](./rec/crnn/crnn_icdar15.yaml)
+参考例子: [DBNet](../../../configs/det/dbnet/db_r50_mlt2017.yaml), [CRNN](../../../configs/rec/crnn/crnn_icdar15.yaml)
 
 ## 4. 后处理 (postprocess)
 
-代码位置请看： [mindocr/postprocess](../mindocr/postprocess/)
+代码位置请看： [mindocr/postprocess](../../../mindocr/postprocess/)
 
 | 字段 | 说明 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
@@ -77,11 +78,11 @@
 
 > 注意：对于不同后处理方法（由name指定），可配置的参数有所不同，并由后处理类的初始化方法__init__的入参所决定。
 
-参考例子: [DBNet](./det/dbnet/db_r50_mlt2017.yaml), [PSENet](./det/psenet/pse_r152_icdar15.yaml)
+参考例子: [DBNet](../../../configs/det/dbnet/db_r50_mlt2017.yaml), [PSENet](../../../configs/det/psenet/pse_r152_icdar15.yaml)
 
 ## 5. 评估指标 (metric)
 
-代码位置请看： [mindocr/metrics](../mindocr/metrics)
+代码位置请看： [mindocr/metrics](../../../mindocr/metrics)
 
 | 字段 | 说明 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
@@ -94,11 +95,11 @@
 
 ## 6. 损失函数 (loss)
 
-代码位置请看： [mindocr/losses](../mindocr/losses)
+代码位置请看： [mindocr/losses](../../../mindocr/losses)
 
 | 字段 | 用途 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
-| name | 损失函数类名 | - | 目前支持 L1BalancedCELoss, CTCLoss, AttentionLoss, PSEDiceLoss, EASTLoss and CrossEntropySmooth |
+| name | 损失函数类名 | - | 目前支持 DBLoss, CTCLoss, AttentionLoss, PSEDiceLoss, EASTLoss and CrossEntropySmooth |
 | pred_seq_len | 预测文本的长度 | 26 | 由网络架构决定 |
 | max_label_len | 最长标签长度 | 25 | 数值应小于网络预测文本的长度 |
 | batch_size | 单卡批量大小 | 32 | \ |
@@ -109,7 +110,7 @@
 
 ### 学习率调整策略 (scheduler)
 
-代码位置请看： [mindocr/scheduler](../mindocr/scheduler)
+代码位置请看： [mindocr/scheduler](../../../mindocr/scheduler)
 
 | 字段 | 说明 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
@@ -123,7 +124,7 @@
 
 ### 优化器 (optimizer)
 
-代码位置请看： [mindocr/optim](../mindocr/optim)
+代码位置请看： [mindocr/optim](../../../mindocr/optim)
 
 | 字段 | 说明 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
@@ -144,7 +145,7 @@
 | scale_window | 当使用dynamic loss scaler时，经过scale_window训练步未出现溢出时，将loss_scale放大scale_factor倍 | 1000 | 如果连续的`scale_window`步数没有溢出，损失将增加`loss_scale`*`scale_factor`缩放 |
 
 
-## 8. 训练、评估和推理流程 (train, eval, predict)
+## 8. 训练、评估流程 (train, eval)
 
 训练流程的配置放在 `train` 底下，评估阶段的配置放在 `eval` 底下。注意，在模型训练的时候，若打开边训练边评估模式，即val_while_train=True时，则在每个epoch训练完毕后按照 `eval` 底下的配置运行一次评估。在非训练阶段，只运行模型评估的时候，只读取 `eval` 配置。
 
@@ -162,17 +163,17 @@
 | ema | 是否启动EMA算法  | False | \ |
 | ema_decay | EMA衰减率 | 0.9999 | \ |
 | pred_cast_fp32 | 是否将logits的数据类型强制转换为fp32 | False | \ |
-| **dataset** | 数据集配置 | 详细请参阅[Data文档](../mindocr/data/README.md) ||
+| **dataset** | 数据集配置 | 详细请参阅[Data文档](../../../mindocr/data/README.md) ||
 | type | 数据集类型 | - | 目前支持 LMDBDataset, RecDataset 和 DetDataset |
 | dataset_root | 数据集所在根目录 | None | Optional |
 | data_dir | 数据集所在子目录 | - | 如果没有设置`dataset_root`，请将此设置成完整目录 |
 | label_file | 数据集的标签文件路径 | - | 如果没有设置`dataset_root`，请将此设置成完整路径，否则只需设置子路径 |
 | sample_ratio | 数据集抽样比率 | 1.0 | 若数值<1.0，则随机选取 |
 | shuffle | 是否打乱数据顺序 | 在训练阶段为True，否则为False | True/False |
-| transform_pipeline | 数据处理流程 | None | 详情请看 [transforms](../mindocr/data/transforms) |
+| transform_pipeline | 数据处理流程 | None | 详情请看 [transforms](../../../mindocr/data/transforms/README.md) |
 | output_columns | 数据加载（data loader）最终需要输出的数据属性名称列表（给到网络/loss计算/后处理) (类型：列表），候选的数据属性名称由transform_pipeline所决定。 | None | 如果值为None，则输出所有列。以crnn为例，output_columns: \['image', 'text_seq'\]  |
 | net_input_column_index | output_columns中，属于网络construct函数的输入项的索引 | [0] | \ |
-| label_column_index | output_columns中，属于loss函数的输入项的索引 | [1] | \ |
+| label_column_index | 在train阶段，该参数指定了output_columns中的label项，用于计算loss。在eval阶段，该参数指定了output_columns中的ground truth项，用于metric计算。 | [1] | \ |
 | **loader** | 数据加载设置 ||
 | shuffle | 每个epoch是否打乱数据顺序 | 在训练阶段为True，否则为False | True/False |
 | batch_size | 单卡的批量大小 | - | \ |
@@ -180,7 +181,7 @@
 | max_rowsize | 指定在多进程之间复制数据时，共享内存分配的最大空间 | 64 | \ |
 | num_workers | 指定 batch 操作的并发进程数/线程数 | n_cpus / n_devices - 2 | 该值应大于或等于2 |
 
-参考例子: [DBNet](./det/dbnet/db_r50_mlt2017.yaml), [CRNN](./rec/crnn/crnn_icdar15.yaml)
+参考例子: [DBNet](../../../configs/det/dbnet/db_r50_mlt2017.yaml), [CRNN](../../../configs/rec/crnn/crnn_icdar15.yaml)
 
 ### 评估流程 (eval)
 

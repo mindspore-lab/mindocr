@@ -1,7 +1,7 @@
 # Configuration parameter description
 
-- [system](#1-training-environment-context-parameters-system)
-- [common](#2-common-parameters-common)
+- [system](#1-environment-parameters-system)
+- [common](#2-shared-parameters-common)
 - [model](#3-model-architecture-model)
 - [postprocess](#4-postprocessing-postprocess)
 - [metric](#5-evaluation-metrics-metric)
@@ -10,7 +10,7 @@
   - [scheduler](#learning-rate-adjustment-strategy-scheduler)
   - [optimizer](#optimizer)
   - [loss_scaler](#loss-scaling-loss_scaler)
-- [train, eval](#8-training-and-evaluation-process-train-eval)
+- [train, eval](#8-training-evaluation-and-predict-process-train-eval-predict)
   - [train](#training-process-train)
   - [eval](#evaluation-process-eval)
 
@@ -22,6 +22,7 @@ This document takes `configs/rec/crnn/crnn_icdar15.yaml` as an example to descri
 | ---- | ---- | ---- | ---- | ---- |
 | mode | Mindspore running mode (static graph/dynamic graph) | 0 | 0 / 1 | 0: means running in GRAPH_MODE mode; 1: PYNATIVE_MODE mode |
 | distribute | Whether to enable parallel training | True | True / False | \ |
+| device_id | Specify the device id while standalone training | 7 | The ids of all devices in the server | Only valid when distribute=False (standalone training) and environment variable 'DEVICE_ID' is NOT set. While standalone training, if both this arg and environment variable 'DEVICE_ID' are NOT set, use device 0 by default. |
 | amp_level | Mixed precision mode | O0 | O0/O1/O2/O3 | 'O0' - no change. <br> 'O1' - convert the cells and operations in the whitelist to float16 precision, and keep the rest in float32 precision. <br> 'O2' - Keep the cells and operations in the blacklist with float32 precision, and convert the rest to float16 precision. <br> 'O3' - Convert all networks to float16 precision. |
 | seed | Random seed | 42 | Integer | \ |
 | ckpt_save_policy | The policy for saving model weights | top_k | "top_k" or "latest_k" | "top_k" means to keep the top k checkpoints according to the metric score; "latest_k" means to keep the last k checkpoints. The value of `k` is set via `ckpt_max_keep` |
@@ -38,7 +39,7 @@ Because the same parameter may need to be reused in different configuration sect
 
 ## 3. Model architecture (model)
 
-In MindOCR, the network architecture of the model is divided into four modules: Transform, Backbone, Neck and Head. For details, please refer to [documentation](../mindocr/models/README.md), the following are the configuration instructions and examples of each module.
+In MindOCR, the network architecture of the model is divided into four modules: Transform, Backbone, Neck and Head. For details, please refer to [documentation](../../../mindocr/models/README.md), the following are the configuration instructions and examples of each module.
 
 | Parameter | Description | Default | Remarks |
 | :---- | :---- | :---- | :---- |
@@ -60,11 +61,11 @@ In MindOCR, the network architecture of the model is divided into four modules: 
 
 > Note: For different networks, the configurable parameters of the backbone/neck/head module will be different. The specific configurable parameters are determined by the __init__ input parameter of the class specified by the `name` parameter of the module in the above table (For example, assume you specify the neck module is DBFPN. Since the DBFPN class initialization includes adaptive input parameters, parameters such as adaptive can be configured under the model.head in yaml.)
 
-Reference example: [DBNet](./det/dbnet/db_r50_mlt2017.yaml), [CRNN](./rec/crnn/crnn_icdar15.yaml)
+Reference example: [DBNet](../../../configs/det/dbnet/db_r50_mlt2017.yaml), [CRNN](../../../configs/rec/crnn/crnn_icdar15.yaml)
 
 ## 4. Postprocessing (postprocess)
 
-Please see the code in [mindocr/postprocess](../mindocr/postprocess/)
+Please see the code in [mindocr/postprocess](../../../mindocr/postprocess/)
 
 | Parameter | Description | Example | Remarks |
 | :---- | :---- | :---- | :---- |
@@ -74,12 +75,12 @@ Please see the code in [mindocr/postprocess](../mindocr/postprocess/)
 
 > Note: For different post-processing methods (specified by name), the configurable parameters are different, and are determined by the input parameters of the initialization method `__init__` of the post-processing class.
 
-Reference example: [DBNet](./det/dbnet/db_r50_mlt2017.yaml), [PSENet](./det/psenet/pse_r152_icdar15.yaml)
+Reference example: [DBNet](../../../configs/det/dbnet/db_r50_mlt2017.yaml), [PSENet](../../../configs/det/psenet/pse_r152_icdar15.yaml)
 
 
 ## 5. Evaluation metrics (metric)
 
-Please see the code in [mindocr/metrics](../mindocr/metrics)
+Please see the code in [mindocr/metrics](../../../mindocr/metrics)
 
 | Parameter | Description | Default | Remarks |
 | :---- | :---- | :---- | :---- |
@@ -92,11 +93,11 @@ Please see the code in [mindocr/metrics](../mindocr/metrics)
 
 ## 6. Loss function (loss)
 
-Please see the code in [mindocr/losses](../mindocr/losses)
+Please see the code in [mindocr/losses](../../../mindocr/losses)
 
 | Parameter | Description | Default | Remarks |
 | :---- | :---- | :---- | :---- |
-| name | loss function name | - | Currently supports L1BalancedCELoss, CTCLoss, AttentionLoss, PSEDiceLoss, EASTLoss and CrossEntropySmooth |
+| name | loss function name | - | Currently supports DBLoss, CTCLoss, AttentionLoss, PSEDiceLoss, EASTLoss and CrossEntropySmooth |
 | pred_seq_len | length of predicted text | 26 | Determined by network architecture |
 | max_label_len | The longest label length | 25 | The value is less than the length of the text predicted by the network |
 | batch_size | single card batch size | 32 | \ |
@@ -107,7 +108,7 @@ Please see the code in [mindocr/losses](../mindocr/losses)
 
 ### Learning rate adjustment strategy (scheduler)
 
-Please see the code in [mindocr/scheduler](../mindocr/scheduler)
+Please see the code in [mindocr/scheduler](../../../mindocr/scheduler)
 
 | Parameter | Description | Default | Remarks |
 | :---- | :---- | :---- | :---- |
@@ -121,7 +122,7 @@ Please see the code in [mindocr/scheduler](../mindocr/scheduler)
 
 ### optimizer
 
-Please see the code location: [mindocr/optim](../mindocr/optim)
+Please see the code location: [mindocr/optim](../../../mindocr/optim)
 
 | Parameter | Description | Default | Remarks |
 | :---- | :---- | :---- | :---- |
@@ -159,14 +160,14 @@ The configuration of the training process is placed under `train`, and the confi
 | ema | Whether to use EMA algorithm | False | \ |
 | ema_decay | EMA decay rate | 0.9999 | \ |
 | pred_cast_fp32 | Whether to cast the data type of logits to fp32 | False | \ |
-| **dataset** | Dataset configuration | | For details, please refer to [Data document](../mindocr/data/README.md) |
+| **dataset** | Dataset configuration | | For details, please refer to [Data document](../../../mindocr/data/README.md) |
 | type | Dataset class name | - | Currently supports LMDBDataset, RecDataset and DetDataset |
 | dataset_root | The root directory of the dataset | None | Optional |
 | data_dir | The subdirectory where the dataset is located | - | If `dataset_root` is not set, please set this to the full directory |
 | label_file | The label file path of the dataset | - | If `dataset_root` is not set, please set this to the full path, otherwise just set the subpath |
 | sample_ratio | Data set sampling ratio | 1.0 | If value < 1.0, random selection |
 | shuffle | Whether to shuffle the data order | True if undering training, otherwise False | True/False |
-| transform_pipeline | Data processing flow | None | For details, please see [transforms](../mindocr/data/transforms) |
+| transform_pipeline | Data processing flow | None | For details, please see [transforms](../../../mindocr/data/transforms/README.md) |
 | output_columns | Data loader (data loader) needs to output a list of data attribute names (given to the network/loss calculation/post-processing) (type: list), and the candidate data attribute names are determined by transform_pipeline. | None | If the value is None, all columns are output. Take crnn as an example, output_columns: \['image', 'text_seq'\] |
 | net_input_column_index | In output_columns, the indices of the input items required by the network construct function | [0] | \ |
 | label_column_index | In output_columns, the indices of the input items required by the loss function | [1] | \ |
@@ -177,7 +178,7 @@ The configuration of the training process is placed under `train`, and the confi
 | max_rowsize | Specifies the maximum space allocated by shared memory when copying data between multiple processes | 64 | Default value: 64 |
 | num_workers | Specifies the number of concurrent processes/threads for batch operations | n_cpus / n_devices - 2 | This value should be greater than or equal to 2 |
 
-Reference example: [DBNet](./det/dbnet/db_r50_mlt2017.yaml), [CRNN](./rec/crnn/crnn_icdar15.yaml)
+Reference example: [DBNet](../../../configs/det/dbnet/db_r50_mlt2017.yaml), [CRNN](../../../configs/rec/crnn/crnn_icdar15.yaml)
 
 ### Evaluation process (eval)
 

@@ -1,5 +1,3 @@
-[English](../../en/datasets/synthtext.md) | 中文
-
 # 数据下载
 
 SynthText是一个合成生成的数据集，其中单词实例被放置在自然场景图像中，并考虑了场景布局。
@@ -27,4 +25,4 @@ path-to-data-dir/
 > 以上的操作会产生与`SynthText`原始标注格式相同但是是经过过滤后的标注数据.
 
 
-[返回](../../../tools/dataset_converters/README_CN.md)
+[返回dataset converters](converters.md)

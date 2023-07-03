@@ -60,9 +60,9 @@ def read_pred_content(filename):
 
 def read_gt_content(filename):
     results = {}
-    with open(filename, encoding="utf-8-sig") as f:
+    with open(filename, encoding="utf-8") as f:
         for line in f:
-            name, content = line.split(",", 1)
+            name, content = line.split("\t", 1)
             results[name] = content.strip()
     return results
 
