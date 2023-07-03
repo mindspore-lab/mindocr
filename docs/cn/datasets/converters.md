@@ -2,7 +2,7 @@
 
 您也可以参考 [`convert_datasets.sh`](https://github.com/mindspore-lab/mindocr/blob/main/tools/convert_datasets.sh)。这是将给定目录下所有数据集的标注文件转换为通用格式的Shell 脚本。
 
-<details>
+<details open markdown>
 <summary>要下载OCR数据集并将其转换为所需的数据格式，请参阅以下介绍.</summary>
 
 - [Born-Digital Images](borndigital.md)
