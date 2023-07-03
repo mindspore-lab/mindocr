@@ -1,5 +1,6 @@
 """Scheduler Factory"""
-from ..utils.logger import Logger
+import logging
+
 from .dynamic_lr import (
     cosine_decay_lr,
     cosine_decay_refined_lr,
@@ -14,7 +15,7 @@ from .dynamic_lr import (
 )
 
 __all__ = ["create_scheduler"]
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 def create_scheduler(

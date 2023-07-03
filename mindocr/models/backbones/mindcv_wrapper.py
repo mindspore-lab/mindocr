@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 import numpy as np
@@ -5,11 +6,9 @@ import numpy as np
 import mindspore as ms
 from mindspore import load_checkpoint, load_param_into_net, nn, ops
 
-from mindocr.utils.logger import Logger
-
 from . import mindcv_models
 
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 class MindCVBackboneWrapper(nn.Cell):

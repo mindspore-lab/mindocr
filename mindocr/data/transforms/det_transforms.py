@@ -2,6 +2,7 @@
 transforms for text detection tasks.
 """
 import json
+import logging
 import math
 import random
 import warnings
@@ -11,8 +12,6 @@ import cv2
 import numpy as np
 import pyclipper
 from shapely.geometry import Polygon, box
-
-from mindocr.utils.logger import Logger
 
 __all__ = [
     "DetLabelEncode",
@@ -25,7 +24,7 @@ __all__ = [
     "RandomCropWithMask",
     "DetResize",
 ]
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 class DetLabelEncode:

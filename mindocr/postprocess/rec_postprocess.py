@@ -1,15 +1,14 @@
 """
 """
+import logging
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
 from mindspore import Tensor
 
-from ..utils.logger import Logger
-
 __all__ = ["RecCTCLabelDecode", "RecAttnLabelDecode", "RecMasterLabelDecode"]
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 class RecCTCLabelDecode(object):
@@ -312,7 +311,7 @@ class RecMasterLabelDecode(RecAttnLabelDecode):
             char_list = list("0123456789abcdefghijklmnopqrstuvwxyz")
 
             self.lower = True
-            print("INFO: The character_dict_path is None, model can only recognize number and lower letters")
+            _logger.info("The character_dict_path is None, model can only recognize number and lower letters")
         else:
             # parse char dictionary
             char_list = []
@@ -328,10 +327,9 @@ class RecMasterLabelDecode(RecAttnLabelDecode):
             self.space_idx = len(char_list) - 1
         else:
             if " " in char_list:
-                print(
-                    "WARNING: The dict still contains space char in dict although use_space_char is set to be False, "
-                    "because the space char is coded in the dictionary file ",
-                    character_dict_path,
+                _logger.warning(
+                    "The dict still contains space char in dict although use_space_char is set to be False, "
+                    f"because the space char is coded in the dictionary file {character_dict_path}"
                 )
 
         self.num_valid_chars = len(char_list)  # the number of valid chars (including space char if used)
