@@ -1,15 +1,15 @@
+import logging
 import os
 from typing import Any, List, Optional
 
 import lmdb
 import numpy as np
 
-from ..utils.logger import Logger
 from .base_dataset import BaseDataset
 from .transforms.transforms_factory import create_transforms, run_transforms
 
 __all__ = ["LMDBDataset"]
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 class LMDBDataset(BaseDataset):

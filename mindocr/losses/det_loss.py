@@ -1,3 +1,4 @@
+import logging
 from typing import Tuple, Union
 
 import numpy as np
@@ -7,11 +8,8 @@ import mindspore.common.dtype as mstype
 import mindspore.numpy as mnp
 from mindspore import Tensor, nn, ops
 
-from mindocr.utils.logger import Logger
-
 __all__ = ["DBLoss", "PSEDiceLoss", "EASTLoss", "FCELoss"]
-_logger = Logger("mindocr")
-
+_logger = logging.getLogger(__name__)
 
 class DBLoss(nn.LossBase):
     """

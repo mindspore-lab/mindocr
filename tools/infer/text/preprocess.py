@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 
@@ -7,9 +8,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../../../")))
 
 from mindocr.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from mindocr.data.transforms import create_transforms, run_transforms
-from mindocr.utils.logger import Logger
 
-_logger = Logger("mindocr")
+_logger = logging.getLogger("mindocr")
 
 
 class Preprocessor(object):

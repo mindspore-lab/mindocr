@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import shutil
 
@@ -6,9 +7,7 @@ import numpy as np
 import yaml
 from addict import Dict
 
-from mindocr.utils.logger import Logger
-
-_logger = Logger("mindocr")
+_logger = logging.getLogger("mindocr")
 
 
 def check_args(args):
