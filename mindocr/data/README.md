@@ -8,7 +8,7 @@
 ├── builder.py					# API for create dataset and loader
 ├── det_dataset.py				# general text detection dataset class
 ├── rec_dataset.py				# general rec detection dataset class
-├── rec_lmdb_dataset.py				# LMDB dataset class (To be impl.)
+├── rec_lmdb_dataset.py				# LMDB dataset class
 └── transforms
     ├── det_transforms.py			# processing and augmentation ops (callabel classes) especially for detection tasks
     ├── general_transforms.py			# general processing and augmentation ops (callabel classes)

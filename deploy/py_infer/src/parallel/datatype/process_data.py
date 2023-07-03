@@ -18,8 +18,6 @@ class ProcessData:
     image_id: int = ""
     frame: np.ndarray = None
 
-    original_width: int = 0
-    original_height: int = 0
     sub_image_list: list = field(default_factory=lambda: [])
     sub_image_size: int = 0
     data: Union[np.ndarray, List[np.ndarray], Dict] = None
@@ -29,3 +27,4 @@ class ProcessData:
 class StopData:
     skip: bool = True
     image_total: int = 0
+    exception: bool = False

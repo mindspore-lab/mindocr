@@ -1,4 +1,8 @@
+import logging
+
 from mindspore import nn
+
+_logger = logging.getLogger(__name__)
 
 
 def get_loss_scales(cfg):
@@ -34,8 +38,8 @@ def get_loss_scales(cfg):
             if grad_accu_steps > 1:
                 scale_factor = scale_factor ** (1 / grad_accu_steps)
                 scale_window = scale_window * grad_accu_steps
-                print(
-                    "INFO: gradient_accumulation_steps > 1, scale_factor and scale_window are adjusted accordingly for "
+                _logger.info(
+                    "gradient_accumulation_steps > 1, scale_factor and scale_window are adjusted accordingly for "
                     "dynamic loss scaler"
                 )
             loss_scale_manager = nn.DynamicLossScaleUpdateCell(

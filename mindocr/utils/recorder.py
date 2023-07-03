@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import List
 
@@ -6,9 +7,7 @@ import numpy as np
 
 import mindspore as ms
 
-from .logger import Logger
-
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 def plot_result(result_path, save_fig=False, sep="\t", na_padding="last", replace_val=-1):

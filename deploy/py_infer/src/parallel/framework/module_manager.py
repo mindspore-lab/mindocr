@@ -12,7 +12,6 @@ class ModuleManager:
     MODULE_QUEUE_MAX_SIZE = 16
 
     def __init__(self, msg_queue: Queue, task_queue: Queue, args):
-        self.device_id = 0
         self.pipeline_map = defaultdict(lambda: defaultdict(ModulesInfo))
         self.msg_queue = msg_queue
         self.stop_manager = Queue(1)
@@ -116,13 +115,6 @@ class ModuleManager:
             process.start()
 
     def deinit_pipeline_module(self):
-        # wait for the stop msg
-        while self.stop_manager.empty():
-            continue
-
-        # pop the sign from shared queue
-        self.stop_manager.get()
-
         # the empty() is not reliable, double check the msg queue is empty for receive the profiling data
         while not self.msg_queue.empty():
             self.msg_queue.get()

@@ -1,12 +1,12 @@
 """
 group parameters for setting different weight decay or learning rate for different layers in the network.
 """
-from ..utils.logger import Logger
+import logging
 
 __all__ = ["create_group_params"]
 
 supported_grouping_strategies = ["svtr", "filter_norm_and_bias"]
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 def grouping_default(params, weight_decay):

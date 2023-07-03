@@ -1,12 +1,11 @@
 """checkpoint manager """
+import logging
 import os
 import stat
 
 import mindspore as ms
 
-from .logger import Logger
-
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 class CheckpointManager:

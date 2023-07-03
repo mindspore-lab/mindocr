@@ -1,0 +1,157 @@
+system:
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: True
+  amp_level: O2
+  amp_level_infer: O2 # running inference in O2 mode
+  seed: 42
+  log_interval: 100
+  val_while_train: True
+  drop_overflow_update: False
+  ckpt_max_keep: 3
+
+common:
+  character_dict_path: &character_dict_path mindocr/utils/dict/en_dict90.txt
+  num_classes: &num_classes 94 # num_chars_in_dict + 4
+  max_text_len: &max_text_len 30
+  infer_mode: &infer_mode False
+  use_space_char: &use_space_char False
+  use_unknown_char: &use_unknown_char True
+  batch_size: &batch_size 512
+
+model:
+  type: rec
+  transform: null
+  backbone:
+    name: rec_resnet_master_resnet31
+    pretrained: False
+  neck:
+    name: MasterEncoder
+    with_encoder: False
+  head:
+    name: MasterDecoder
+    out_channels: *num_classes
+    batch_max_length: *max_text_len
+
+postprocess:
+  name: RecMasterLabelDecode
+  character_dict_path: *character_dict_path
+  use_space_char: *use_space_char
+  lower: False
+  use_unknown_char: *use_unknown_char
+
+metric:
+  name: RecMetric
+  main_indicator: acc
+  character_dict_path: *character_dict_path
+  ignore_space: True
+  print_flag: False
+  lower: True
+  filter_ood: False
+  ignore_symbol: True
+
+loss:
+  name: AttentionLoss
+  ignore_index: 2
+
+scheduler:
+  scheduler: warmup_cosine_decay
+  min_lr: 0.00001
+  lr: 0.001
+  num_epochs: 20
+  warmup_epochs: 1
+  decay_epochs: 19
+
+optimizer:
+  opt: adamw
+  filter_bias_and_bn: True
+  weight_decay: 0.05
+
+loss_scaler:
+  type: dynamic
+  loss_scale: 512
+  scale_factor: 2.0
+  scale_window: 1000
+
+train:
+  ckpt_save_dir: ./tmp_rec
+  dataset_sink_mode: False
+  ema: True
+  ema_decay: 0.9999
+  dataset:
+    type: LMDBDataset
+    dataset_root: path/to/data_lmdb_release/
+    data_dir: training/
+    label_file: null
+    sample_ratio: 1.0
+    shuffle: True
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: RGB
+          to_float32: True
+      - RecMasterLabelEncode:
+          max_text_len: *max_text_len
+          character_dict_path: *character_dict_path
+          use_space_char: *use_space_char
+          use_unknown_char: *use_unknown_char
+          lower: False
+      - NormalizeImage:
+          is_hwc: True
+          mean: [127.0, 127.0, 127.0]
+          std: [127.0, 127.0, 127.0]
+      - RecResizeImg:
+          image_shape: [48, 160] # H, W
+          infer_mode: *infer_mode
+          character_dict_path: *character_dict_path
+          padding: True
+      - ToCHWImage:
+    output_columns: ["image", "text_seq"]
+    net_input_column_index: [0, 1]
+    label_column_index: [1]
+
+  loader:
+    shuffle: True
+    batch_size: *batch_size
+    drop_remainder: True
+    max_rowsize: 12
+    num_workers: 2
+
+eval:
+  ckpt_load_path: ./tmp_rec/best.ckpt
+  dataset_sink_mode: False
+  dataset:
+    type: LMDBDataset
+    dataset_root: path/to/data_lmdb_release/
+    data_dir: validation/
+    label_file: null
+    sample_ratio: 1.0
+    shuffle: False
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: RGB
+          to_float32: True
+      - RecMasterLabelEncode:
+          max_text_len: *max_text_len
+          character_dict_path: *character_dict_path
+          use_space_char: *use_space_char
+          use_unknown_char: *use_unknown_char
+          lower: False
+      - NormalizeImage:
+          is_hwc: True
+          mean: [127.0, 127.0, 127.0]
+          std: [127.0, 127.0, 127.0]
+      - RecResizeImg:
+          image_shape: [48, 160] # H, W
+          infer_mode: *infer_mode
+          character_dict_path: *character_dict_path
+          padding: True
+      - ToCHWImage:
+    output_columns: ["image", "text_padded", "text_length"]
+    net_input_column_index: [0]
+    label_column_index: [1, 2]
+
+  loader:
+    shuffle: False
+    batch_size: 64
+    drop_remainder: False
+    max_rowsize: 12
+    num_workers: 2

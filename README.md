@@ -157,7 +157,7 @@ For more illustration and usage, please refer to the model training section in [
 - [x] [DBNet++](configs/det/dbnet/README.md) (TPAMI'2022)
 - [x] [PSENet](configs/det/psenet/README.md) (CVPR'2019)
 - [x] [EAST](configs/det/east/README.md)(CVPR'2017)
-- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [coming soon]
+- [x] [FCENet](configs/det/fcenet/README.md) (CVPR'2021)
 
 </details>
 
@@ -167,6 +167,7 @@ For more illustration and usage, please refer to the model training section in [
 - [x] [CRNN](configs/rec/crnn/README.md) (TPAMI'2016)
 - [x] [CRNN-Seq2Seq/RARE](configs/rec/rare/README.md) (CVPR'2016)
 - [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022)
+- [x] [MASTER](configs/rec/master/README.md) (PR'2019)
 - [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 
 </details>
@@ -196,7 +197,10 @@ We will include more datasets for training and evaluation. This list will be con
 ## Notes
 
 ### What is New
-
+- 2023/06/29
+1. Add new trained models
+    - [FCENet](configs/det/facenet) for text detection
+    - [MASTER](configs/det/facenet) for text recognition
 - 2023/06/07
 1. Add new trained models
     - [PSENet](configs/det/psenet) for text detection

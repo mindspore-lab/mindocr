@@ -1,18 +1,18 @@
 """ optim factory """
 import inspect
+import logging
 import os
 from typing import Optional
 
 from mindspore import load_checkpoint, load_param_into_net, nn
 
-from ..utils.logger import Logger
 from .adamw import AdamW
 from .adan import Adan
 from .lion import Lion
 from .nadam import NAdam
 
 __all__ = ["create_optimizer"]
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 def init_group_params(params, weight_decay):
