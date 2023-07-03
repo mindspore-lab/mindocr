@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
 from mindspore import Tensor, nn, ops
-from mindspore.common.initializer import TruncatedNormal
+from mindspore.common.initializer import TruncatedNormal, XavierUniform
 
 from .asf import AdaptiveScaleFusion
 
@@ -26,17 +26,23 @@ class FPN(nn.Cell):
 
 
 class DBFPN(nn.Cell):
-    def __init__(self, in_channels, out_channels=256, weight_init='HeUniform',
-                 bias=False, use_asf=False, channel_attention=True):
-        """
-        in_channels: resnet18=[64, 128, 256, 512]
-                    resnet50=[2048,1024,512,256]
-        out_channels: Inner channels in Conv2d
+    """
+    DBNet & DBNet++'s Feature Pyramid Network that combines features extracted from a backbone at different scales
+    into a single feature map.
 
-        bias: Whether conv layers have bias or not.
-        use_asf: use ASF module for multi-scale feature aggregation (DBNet++ only)
-        channel_attention: use channel attention in ASF module
-        """
+    Args:
+        in_channels: list of channel numbers of each input feature (e.g. resnet18 is [64, 128, 256, 512] and
+                     resnet50 is [2048,1024,512,256]).
+        out_channels: number of channels in the combined output feature map. Default: 256.
+        weight_init: weights initialization method. Default: 'HeUniform'.
+        bias: use bias in Conv2d operations. Default: False.
+        use_asf: use Adaptive Scale Fusion module for multiscaled feature aggregation (DBNet++ only).
+        channel_attention: use channel attention in addition to spatial and scale attentions in ASF module.
+                           Default: True.
+    """
+
+    def __init__(self, in_channels: list, out_channels: int = 256, weight_init: str = 'HeUniform',
+                 bias: bool = False, use_asf: bool = False, channel_attention: bool = True):
         super().__init__()
         self.out_channels = out_channels
 
@@ -52,7 +58,7 @@ class DBFPN(nn.Cell):
 
         self.fuse = AdaptiveScaleFusion(out_channels, channel_attention, weight_init) if use_asf else ops.Concat(axis=1)
 
-    def construct(self, features):
+    def construct(self, features: List[Tensor]) -> Tensor:
         for i, uc_op in enumerate(self.unify_channels):
             features[i] = uc_op(features[i])
 
@@ -62,7 +68,7 @@ class DBFPN(nn.Cell):
         for i, out in enumerate(self.out):
             features[i] = _resize_nn(out(features[i]), shape=features[0].shape[2:])
 
-        return self.fuse(features[::-1])   # matching the reverse order of the original work
+        return self.fuse(features[::-1])  # matching the reverse order of the original work
 
 
 def _conv(in_channels, out_channels, kernel_size=3, stride=1, padding=0, pad_mode='same', has_bias=False):
@@ -76,7 +82,72 @@ def _bn(channels, momentum=0.1):
     return nn.BatchNorm2d(channels, momentum=momentum)
 
 
+class FCEFPN(nn.Cell):
+
+    def __init__(self, in_channels, out_channel):
+        in_channels = in_channels[1:]
+        super(FCEFPN, self).__init__()
+
+        self.reduce_conv_c3 = self.Xavier_conv(in_channels[0], out_channel, kernel_size=1, has_bias=True)
+
+        self.reduce_conv_c4 = self.Xavier_conv(in_channels[1], out_channel, kernel_size=1, has_bias=True)
+
+        self.reduce_conv_c5 = self.Xavier_conv(in_channels[2], out_channel, kernel_size=1, has_bias=True)
+
+        self.smooth_conv_p5 = self.Xavier_conv(out_channel, out_channel, kernel_size=3, padding=1, pad_mode='pad',
+                                               has_bias=True)
+
+        self.smooth_conv_p4 = self.Xavier_conv(out_channel, out_channel, kernel_size=3, padding=1, pad_mode='pad',
+                                               has_bias=True)
+
+        self.smooth_conv_p3 = self.Xavier_conv(out_channel, out_channel, kernel_size=3, padding=1, pad_mode='pad',
+                                               has_bias=True)
+
+        self.out_channels = out_channel
+
+    def construct(self, features):
+        _, c3, c4, c5 = features
+
+        p5 = self.reduce_conv_c5(c5)
+
+        c4 = self.reduce_conv_c4(c4)
+        p4 = ops.interpolate(p5, scale_factor=(2.0, 2.0), mode="area") + c4
+        c3 = self.reduce_conv_c3(c3)
+        p3 = ops.interpolate(p4, scale_factor=(2.0, 2.0), mode="area") + c3
+
+        p5 = self.smooth_conv_p5(p5)
+        p4 = self.smooth_conv_p4(p4)
+        p3 = self.smooth_conv_p3(p3)
+
+        out = [p3, p4, p5]  # self.concat((p3, p4, p5))
+
+        return out
+
+    def Xavier_conv(self, in_channels, out_channels, kernel_size=3, stride=1, padding=0, pad_mode='same',
+                    has_bias=False):
+        init_value = XavierUniform()
+        return nn.Conv2d(in_channels, out_channels,
+                         kernel_size=kernel_size, stride=stride, padding=padding,
+                         pad_mode=pad_mode, weight_init=init_value, has_bias=has_bias)
+
+
 class PSEFPN(nn.Cell):
+    """
+    PSE Feature Pyramid Network (FPN) module for text detection.
+
+    This module takes multiple input feature maps and performs feature fusion
+    and upsampling to generate a single output feature map.
+
+    Args:
+        in_channels (List[int]): The input channel dimensions for each feature map
+                                 in the following order: [c2, c3, c4, c5].
+        out_channels (int): The output channel size.
+
+    Returns:
+        Tensor: The output feature map of shape [batch_size, out_channels * 4, H, W].
+
+    """
+
     def __init__(self, in_channels: List[int], out_channels):
         super().__init__()
         super(PSEFPN, self).__init__()

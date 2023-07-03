@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from tqdm import tqdm
@@ -7,6 +8,7 @@ from mindspore.common import dtype as mstype
 from mindspore.ops import functional as F
 
 __all__ = ["Evaluator"]
+_logger = logging.getLogger(__name__)
 
 
 class Evaluator:
@@ -154,7 +156,7 @@ class Evaluator:
                 m.update(preds, gt)
 
             if self.verbose:
-                print("Data meta info: ", data_info)
+                _logger.info(f"Data meta info: {data_info}")
 
         for m in self.metrics:
             res_dict = m.eval()

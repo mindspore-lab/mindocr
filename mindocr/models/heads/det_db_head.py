@@ -5,7 +5,20 @@ import mindspore.nn as nn
 
 
 class DBHead(nn.Cell):
-    def __init__(self, in_channels: int, k=50, adaptive=False, bias=False, weight_init='HeUniform'):
+    """
+    Differentiable Binarization model's head described in `DBNet <https://arxiv.org/abs/1911.08947>`__ paper.
+    Predicts probability (or segmentation) map along with threshold and approximate binary maps (last two are optional).
+
+    Args:
+        in_channels: Number of input channels.
+        k: Amplification factor for the approximate binarization step. Default: 50
+        adaptive: Whether to produce threshold and approximate binary maps during training (recommended).
+                  Inactive during inference (to save computational time). Default: True.
+        bias: Use bias in Conv2d operations. Default: False.
+        weight_init: Weights initialization method. Default: 'HeUniform'.
+    """
+    def __init__(self, in_channels: int, k: int = 50, adaptive: bool = True, bias: bool = False,
+                 weight_init: str = 'HeUniform'):
         super().__init__()
         self.adaptive = adaptive
 
@@ -16,7 +29,7 @@ class DBHead(nn.Cell):
             self.diff_bin = nn.Sigmoid()
 
     @staticmethod
-    def _init_heatmap(in_channels, inter_channels, weight_init, bias):
+    def _init_heatmap(in_channels: int, inter_channels: int, weight_init: str, bias: bool) -> nn.SequentialCell:
         return nn.SequentialCell([  # `pred` block from the original work
             nn.Conv2d(in_channels, inter_channels, kernel_size=3, padding=1, pad_mode='pad', has_bias=bias,
                       weight_init=weight_init),
@@ -32,19 +45,9 @@ class DBHead(nn.Cell):
         ])
 
     def construct(self, features: ms.Tensor) -> Union[ms.Tensor, Tuple[ms.Tensor, ...]]:
-        """
-        Args:
-            features (Tensor): encoded features
-        Returns:
-            Union(
-            binary: predicted binary map
-            thresh: predicted threshold map (only return if adaptive is True in training)
-            thresh_binary: differentiable binary map (only if adaptive is True in training)
-        """
         binary = self.segm(features)
 
-        if self.adaptive and self.training:
-            # only use binary map to derive polygons in inference
+        if self.adaptive and self.training:     # use the binary map only to derive polygons during inference
             thresh = self.thresh(features)
             thresh_binary = self.diff_bin(self.k * binary - thresh)  # Differentiable Binarization
             return binary, thresh, thresh_binary

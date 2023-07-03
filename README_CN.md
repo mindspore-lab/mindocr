@@ -1,4 +1,4 @@
-<div align="center">
+<div align="center" markdown>
 
 # MindOCR
 
@@ -11,13 +11,13 @@
 
 [English](README.md) | 中文
 
-[简介](#简介) |
-[安装教程](#安装教程) |
-[快速开始](#快速开始) |
-[使用教程](#使用教程) |
-[模型列表](#模型列表) |
-[数据集列表](#数据集列表) |
-[更新日志](#更新日志)
+[📝简介](#简介) |
+[🔨安装教程](#安装教程) |
+[🚀快速开始](#快速开始) |
+[📚使用教程](#使用教程) |
+[🎁模型列表](#模型列表) |
+[📰数据集列表](#数据集列表) |
+[🎉更新日志](#更新日志)
 
 </div>
 
@@ -25,7 +25,7 @@
 MindOCR是一个基于[MindSpore](https://www.mindspore.cn/en) 框架开发的OCR开源工具箱，集成系列主流文字检测识别的算法、模型，并提供易用的训练和推理工具，可以帮助用户快速开发和应用业界SoTA文本检测、文本识别模型，如DBNet/DBNet++和CRNN/SVTR，满足图像文档理解的需求。
 
 
-<details open>
+<details open markdown>
 <summary> 主要特性 </summary>
 
 - **模块化设计**: MindOCR将OCR任务解耦成多个可配置模块，用户只需修改几行代码，就可以轻松地在定制化的数据和模型上配置训练、评估的全流程；
@@ -128,15 +128,15 @@ python tools/eval.py \
 
 - 数据集
     - [数据集准备](tools/dataset_converters/README_CN.md)
-    - [数据增强策略](docs/en/tutorials/transform_tutorial.md)
+    - [数据增强策略](docs/cn/tutorials/transform_tutorial.md)
 - 模型训练
     - [Yaml配置文件](docs/cn/tutorials/yaml_configuration.md)
-    - [文本检测]()  (即将更新)
+    - [文本检测](docs/cn/tutorials/training_detection_custom_dataset.md)
     - [文本识别](docs/cn/tutorials/training_recognition_custom_dataset.md)
     - [分布式训练](docs/cn/tutorials/distribute_train.md)
-    - [进阶技巧：梯度累积，EMA，断点续训等](docs/en/tutorials/advanced_train.md)
+    - [进阶技巧：梯度累积，EMA，断点续训等](docs/cn/tutorials/advanced_train.md)
 - 推理与部署
-    - [基于Python/C++t和昇腾310的OCR推理](docs/cn/inference/inference_tutorial.md)
+    - [基于Python/C++和昇腾310的OCR推理](docs/cn/inference/inference_tutorial.md)
     - [基于Python的OCR在线推理](tools/infer/text/README.md)
 - 开发者指南
     - [如何自定义数据集](mindocr/data/README.md)
@@ -146,58 +146,56 @@ python tools/eval.py \
 
 ## 模型列表
 
-<details open>
+<details open markdown>
 <summary>文本检测</summary>
 
 - [x] [DBNet](configs/det/dbnet/README.md) (AAAI'2020)
 - [x] [DBNet++](configs/det/dbnet/README.md) (TPAMI'2022)
 - [x] [PSENet](configs/det/psenet/README.md) (CVPR'2019)
 - [x] [EAST](configs/det/east/README.md)(CVPR'2017)
-- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [敬请期待]
+- [x] [FCENet](configs/det/fcenet/README.md) (CVPR'2021)
 </details>
 
-<details open>
-
+<details open markdown>
 <summary>文本识别</summary>
 
 - [x] [CRNN](configs/rec/crnn/README.md) (TPAMI'2016)
 - [x] [CRNN-Seq2Seq/RARE](configs/rec/rare/README.md) (CVPR'2016)
 - [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022)
+- [x] [MASTER](configs/rec/master/README.md) (PR'2019)
 - [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 </details>
 
 关于以上模型的具体训练方法和结果，请参见[configs](./configs)下各模型子目录的readme文档。
 
-关于[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)模型推理的支持列表，请参见[MindOCR支持模型列表](docs/en/inference/models_list.md) and [第三方模型推理支持列表](docs/en/inference/models_list_thirdparty.md)。
+关于[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)模型推理的支持列表，请参见[MindOCR支持模型列表](docs/en/inference/models_list.md) and [第三方模型推理支持列表](docs/en/inference/models_list_thirdparty.md)（如PaddleOCR、MMOCR等）。
 
 ## 数据集列表
 
 MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支持不同格式的OCR数据集，支持用户自定义的数据集。
 当前已在模型训练评估中验证过的公开OCR数据集如下。
 
-<details open>
+<details open markdown>
 <summary>通用OCR数据集</summary>
 
 - [x] [ICDAR2015](https://rrc.cvc.uab.es/?ch=4) [[paper](https://rrc.cvc.uab.es/files/short_rrc_2015.pdf)] [[download](docs/cn/datasets/icdar2015.md)]
-
 - [x] [Total-Text](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset)  [[paper](https://arxiv.org/abs/1710.10400)]  [[download](docs/en/datasets/totaltext.md)]
-
 - [x] [Syntext150k](https://github.com/aim-uofa/AdelaiDet) [[paper](https://arxiv.org/abs/2002.10200)] [[download](docs/en/datasets/syntext150k.md)]
-
 - [x] [MLT2017](https://rrc.cvc.uab.es/?ch=8&com=introduction) [[paper](https://ieeexplore.ieee.org/abstract/document/8270168)]  [[download](docs/en/datasets/mlt2017.md)] (multi-language)
-
 - [x] [MSRA-TD500](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500)) [[paper](https://ieeexplore.ieee.org/abstract/document/6247787)]  [[download](docs/en/datasets/td500.md)]
-
 - [x] [SCUT-CTW1500](https://github.com/Yuliang-Liu/Curve-Text-Detector) [[paper](https://www.sciencedirect.com/science/article/pii/S0031320319300664)]   [[download](docs/en/datasets/ctw1500.md)]
-
 - [x] [Chinese-Text-Recognition-Benchmark](https://github.com/FudanVI/benchmarking-chinese-text-recognition)  [[paper](https://arxiv.org/abs/2112.15093)]   [[download](https://github.com/FudanVI/benchmarking-chinese-text-recognition#download)]
+</details>
 
 我们会在更多的数据集上进行模型训练和验证。该列表将持续更新。
 
 ## 重要信息
 
 ### 更新日志
-
+- 2023/06/29
+1. 新增2个SoTA模型
+    - 文本检测[FCENet](configs/det/facenet)
+    - 文本识别[MASTER](configs/det/facenet)
 - 2023/06/07
 1. 增加新模型
     - 文本检测[PSENet](configs/det/psenet)
@@ -207,7 +205,7 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
     - [totaltext](docs/cn/datasets/totaltext.md)
     - [mlt2017](docs/cn/datasets/mlt2017.md)
     - [chinese_text_recognition](docs/cn/datasets/chinese_text_recognition.md)
-3. 增加断点重训(resume training)功能，可在训练意外中断时使用。如需使用，请在配置文件中`model`字段下增加`resume`参数，允许传入具体路径`resume: /path/to/train_resume.ckpt`或者通过设置`resume: True`来加载在ckpt_save_dir下保存的trian_resume.ckpt
+3. 增加断点续训(resume training)功能，可在训练意外中断时使用。如需使用，请在配置文件中`model`字段下增加`resume`参数，允许传入具体路径`resume: /path/to/train_resume.ckpt`或者通过设置`resume: True`来加载在ckpt_save_dir下保存的trian_resume.ckpt
 4. 改进检测模块的后处理部分：默认情况下，将检测到的文本多边形重新缩放到原始图像空间，可以通过在`eval.dataset.output_columns`列表中增加"shape_list"实现。
 5. 重构在线推理以支持更多模型，详情请参见[README.md](tools/infer/text/README.md) 。
 
@@ -232,7 +230,7 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 
 - 2023/04/21
 1. 添加参数分组以支持训练中的正则化。用法：在yaml config中添加`grouping_strategy`参数以选择预定义的分组策略，或使用`no_weight_decay_params`参数选择要从权重衰减中排除的层（例如，bias、norm）。示例可参考`configs/rec/crn/crnn_icdar15.yaml`
-2. 添加梯度积累，支持大批量训练。用法：在yaml配置中添加`gradient_accumulation_steps`，全局批量大小=batch_size * devices * gradient_aaccumulation_steps。示例可参考`configs/rec/crn/crnn_icdar15.yaml`
+2. 添加梯度累积，支持大批量训练。用法：在yaml配置中添加`gradient_accumulation_steps`，全局批量大小=batch_size * devices * gradient_aaccumulation_steps。示例可参考`configs/rec/crn/crnn_icdar15.yaml`
 3. 添加梯度裁剪，支持训练稳定。通过在yaml配置中将`grad_clip`设置为True来启用。
 
 - 2023/03/23

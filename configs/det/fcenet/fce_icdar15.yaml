@@ -1,0 +1,147 @@
+system:
+  mode: 1 # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: False
+  amp_level: 'O0'
+  seed: 42
+  # log_interval: 10
+  val_while_train: True
+  drop_overflow_update: False
+
+model:
+  resume: False
+  type: det
+  transform: null
+  backbone:
+    name: det_resnet50
+    pretrained: True
+  neck:
+    name: FCEFPN
+    out_channel: 256
+  head:
+    name: FCEHead
+    fourier_degree: 5
+
+postprocess:
+  name: FCEPostprocess
+  text_repr_type: 'quad'
+  alpha: 1.2
+  beta: 1.0
+  scales: [ 8, 16, 32 ]
+
+metric:
+  name: DetMetric
+  main_indicator: f-score
+
+loss:
+  name: FCELoss
+  fourier_degree: 5
+  num_sample: 50
+
+scheduler:
+  scheduler: polynomial_decay
+  lr: 0.002
+  min_lr: 0.0000002
+  num_epochs: 1500
+  warmup_epochs: 0
+optimizer:
+  opt: momentum
+  weight_decay: 5.0e-4
+  momentum: 0.9
+  filter_bias_and_bn: False
+
+
+
+train:
+  ckpt_save_dir: './tmp_det_fcenet'
+  dataset_sink_mode: False
+  ema: True
+  dataset:
+    type: DetDataset
+    dataset_root: data
+    data_dir: icda/ch4_training_images
+    label_file: icda/train_det_gt.txt
+    sample_ratio: 1.0
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: RGB
+          to_float32: False
+      - DetLabelEncode:
+      - DetResize:
+          target_size: [ 800, 800 ]
+          keep_ratio: True
+          padding: True
+      - RandomScale:
+          scale_range: [ 0.75,2.5 ]
+          p: 1.0
+      - RandomHorizontalFlip:
+          p: 0.5
+      - RandomRotate:
+          degrees: [ -10, 10 ]
+          expand_canvas: False
+          p: 1.0
+      - RandomCropWithBBox:
+          max_tries: 10
+          min_crop_ratio: 0.1
+          crop_size: [ 640, 640 ]
+          p: 1.0
+      - ValidatePolygons:
+      - RandomColorAdjust:
+          brightness: 0.1255  # 32.0 / 255
+          saturation: 0.5
+      - NormalizeImage:
+          bgr_to_rgb: False
+          is_hwc: True
+          mean: imagenet
+          std: imagenet
+      - FCENetTargets:
+          fourier_degree: 5
+          level_proportion_range: [ [ 0, 0.25 ], [ 0.2, 0.65 ], [ 0.55, 1.0 ] ]
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visualize
+    output_columns: [ 'image', 'p3_maps','p4_maps','p5_maps' ]
+    #    output_columns: ['image'] # for debug op performance
+    net_input_column_index: [ 0 ] # input indices for network forward func in output_columns
+    label_column_index: [ 1, 2, 3 ] # input indices marked as label
+
+  loader:
+    shuffle: True
+    batch_size: 8
+    drop_remainder: True
+    num_workers: 8
+
+eval:
+  ckpt_load_path: './best.ckpt'
+  dataset_sink_mode: False
+  dataset:
+    type: DetDataset
+    dataset_root: data
+    data_dir: icda/ch4_test_images
+    label_file: icda/test_det_gt.txt
+    sample_ratio: 1.0
+    shuffle: False
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: RGB
+          to_float32: False
+      - DetLabelEncode:
+      - DetResize:
+          target_size: [ 800, 800 ]
+          keep_ratio: True
+          padding: True
+      - NormalizeImage:
+          bgr_to_rgb: False
+          is_hwc: True
+          mean: imagenet
+          std: imagenet
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the labels for evaluation
+    output_columns: [ 'image', 'polys', 'ignore_tags','img_path','texts', 'shape_list' ]
+    net_input_column_index: [ 0 ] # input indices for network forward func in output_columns
+    label_column_index: [ 1, 2,3,4 ] # input indices marked as label
+  #    num_keys_of_labels: 2 # num labels
+
+  loader:
+    shuffle: False
+    batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
+    drop_remainder: False
+    num_workers: 1

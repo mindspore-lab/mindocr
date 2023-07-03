@@ -89,12 +89,9 @@ class Postprocessor(object):
                 scores = output["scores"][0]
             else:
                 polys, scores = output[0]
-            # print(polys)
 
             if not self.rescale_internally:
                 scale_h, scale_w = data["shape_list"][2:]
-                # print('before rescale: poly 0', polys[0])
-                # print('scale ratio: ', scale_h, scale_w)
                 if len(polys) > 0:
                     if not isinstance(polys, list):
                         polys[:, :, 0] = polys[:, :, 0] / scale_w
@@ -107,8 +104,6 @@ class Postprocessor(object):
                             polys[i][:, 1] = polys[i][:, 1] / scale_h
                             if self.round:
                                 polys[i] = np.round(polys[i])
-
-                # print('after rescale: poly 0', polys[0])
 
             det_res = dict(polys=polys, scores=scores)
 

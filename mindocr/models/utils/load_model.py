@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import Callable, Dict, Optional
 
@@ -6,6 +7,7 @@ from mindspore import load_checkpoint, load_param_into_net
 from ..backbones.mindcv_models.utils import auto_map, download_pretrained
 
 __all__ = ["load_model", "drop_inconsistent_shape_parameters"]
+_logger = logging.getLogger(__name__)
 
 
 def drop_inconsistent_shape_parameters(model, param_dict):
@@ -16,12 +18,12 @@ def drop_inconsistent_shape_parameters(model, param_dict):
             if param_dict[name].shape == param.shape:
                 updated_param_dict[name] = param_dict[name]
             else:
-                print(
-                    f"WARNING: Dropping checkpoint parameter `{name}` with shape `{param_dict[name].shape}`, "
+                _logger.warning(
+                    f"Dropping checkpoint parameter `{name}` with shape `{param_dict[name].shape}`, "
                     f"which is inconsistent with cell shape `{param.shape}`"
                 )
         else:
-            print(f"WARNING: Cannot find checkpoint parameter `{name}`.")
+            _logger.warning(f"Cannot find checkpoint parameter `{name}`.")
     return updated_param_dict
 
 
@@ -72,7 +74,7 @@ def load_model(
 
     load_param_into_net(network, params, strict_load=strict)
 
-    print(
-        f"INFO: Finish loading model checkoint from {load_from}. "
+    _logger.info(
+        f"Finish loading model checkoint from {load_from}. "
         "If no parameter fail-load warning displayed, all checkpoint params have been successfully loaded."
     )

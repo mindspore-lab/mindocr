@@ -1,3 +1,4 @@
+import logging
 import os
 from typing import Any, List, Optional
 
@@ -8,6 +9,7 @@ from .base_dataset import BaseDataset
 from .transforms.transforms_factory import create_transforms, run_transforms
 
 __all__ = ["LMDBDataset"]
+_logger = logging.getLogger(__name__)
 
 
 class LMDBDataset(BaseDataset):
@@ -104,13 +106,13 @@ class LMDBDataset(BaseDataset):
                     )
 
     def filter_idx_list(self, idx_list: np.ndarray) -> np.ndarray:
-        print("Start filtering the idx list...")
+        _logger.info("Start filtering the idx list...")
         new_idx_list = list()
         for lmdb_idx, file_idx in idx_list:
             label = self.get_lmdb_sample_info(self.lmdb_sets[int(lmdb_idx)]["txn"], int(file_idx), label_only=True)
             if len(label) > self.max_text_len:
-                print(
-                    f"WARNING: skip the label with length ({len(label)}), "
+                _logger.warning(
+                    f"skip the label with length ({len(label)}), "
                     f"which is longer than than max length ({self.max_text_len})."
                 )
                 continue
@@ -130,6 +132,11 @@ class LMDBDataset(BaseDataset):
         else:
             results = {}
 
+        message = "\n".join(
+            [f"{os.path.basename(os.path.abspath(x['rootdir'])):<20}{x['data_size']}" for x in results.values()]
+        )
+        _logger.info("Number of LMDB records:\n" + message)
+
         return results
 
     def load_hierarchical_lmdb_dataset(self, data_dir, start_idx=0):
@@ -137,7 +144,13 @@ class LMDBDataset(BaseDataset):
         dataset_idx = start_idx
         for rootdir, dirs, _ in os.walk(data_dir + "/"):
             if not dirs:
-                env = lmdb.open(rootdir, max_readers=32, readonly=True, lock=False, readahead=False, meminit=False)
+                try:
+                    env = lmdb.Environment(
+                        rootdir, max_readers=32, readonly=True, lock=False, readahead=False, meminit=False
+                    )
+                except lmdb.Error as e:
+                    _logger.warning(str(e))
+                    continue
                 txn = env.begin(write=False)
                 data_size = int(txn.get("num-samples".encode()))
                 lmdb_sets[dataset_idx] = {"rootdir": rootdir, "env": env, "txn": txn, "data_size": data_size}

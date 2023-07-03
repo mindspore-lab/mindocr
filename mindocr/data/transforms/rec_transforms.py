@@ -1,6 +1,7 @@
 """
 transform for text recognition tasks.
 """
+import logging
 import math
 from typing import Any, Dict, List, Optional
 
@@ -10,12 +11,14 @@ import numpy as np
 __all__ = [
     "RecCTCLabelEncode",
     "RecAttnLabelEncode",
+    "RecMasterLabelEncode",
     "RecResizeImg",
     "RecResizeNormForInfer",
     "SVTRRecResizeImg",
     "Rotate90IfVertical",
     "ClsLabelEncode",
 ]
+_logger = logging.getLogger(__name__)
 
 
 class RecCTCLabelEncode(object):
@@ -64,7 +67,6 @@ class RecCTCLabelEncode(object):
             char_list = [c for c in "0123456789abcdefghijklmnopqrstuvwxyz"]
 
             self.lower = True
-            # print("INFO: The character_dict_path is None, model can only recognize number and lower letters")
         else:
             # TODO: this is commonly used in other modules, wrap into a func or class.
             # parse char dictionary
@@ -80,10 +82,9 @@ class RecCTCLabelEncode(object):
             self.space_idx = len(char_list) - 1
         else:
             if " " in char_list:
-                print(
-                    "WARNING: The dict still contains space char in dict although use_space_char is set to be False, "
-                    "because the space char is coded in the dictionary file ",
-                    character_dict_path,
+                _logger.warning(
+                    "The dict still contains space char in dict although use_space_char is set to be False, "
+                    f"because the space char is coded in the dictionary file {character_dict_path}"
                 )
 
         self.num_valid_chars = len(char_list)  # the number of valid chars (including space char if used)
@@ -161,6 +162,7 @@ class RecAttnLabelEncode:
             so num_classes = num_valid_chars + 1
         """
         self.max_text_len = max_text_len
+        self.space_idx = None
         self.lower = lower
 
         # read dict
@@ -168,7 +170,7 @@ class RecAttnLabelEncode:
             char_list = list("0123456789abcdefghijklmnopqrstuvwxyz")
 
             self.lower = True
-            print("INFO: The character_dict_path is None, model can only recognize number and lower letters")
+            _logger.info("The character_dict_path is None, model can only recognize number and lower letters")
         else:
             # parse char dictionary
             char_list = []
@@ -181,13 +183,12 @@ class RecAttnLabelEncode:
         if use_space_char:
             if " " not in char_list:
                 char_list.append(" ")
-            self.space_idx = len(char_list) + 1
+            self.space_idx = len(char_list) - 1
         else:
             if " " in char_list:
-                print(
-                    "WARNING: The dict still contains space char in dict although use_space_char is set to be False, "
-                    "because the space char is coded in the dictionary file ",
-                    character_dict_path,
+                _logger.warning(
+                    "The dict still contains space char in dict although use_space_char is set to be False, "
+                    f"because the space char is coded in the dictionary file {character_dict_path}"
                 )
 
         self.num_valid_chars = len(char_list)  # the number of valid chars (including space char if used)
@@ -219,7 +220,113 @@ class RecAttnLabelEncode:
         return data
 
 
-def str2idx(text: str, label_dict: Dict[str, int], max_text_len: int = 23, lower: bool = False) -> List[int]:
+class RecMasterLabelEncode:
+    def __init__(
+        self,
+        max_text_len: int = 25,
+        character_dict_path: Optional[str] = None,
+        use_space_char: bool = False,
+        use_unknown_char: bool = False,
+        lower: bool = False,
+        **kwargs,
+    ) -> None:
+        """
+        Convert text label (str) to a sequence of character indices according to the char dictionary
+
+        Args:
+            max_text_len: to pad the label text to a fixed length (max_text_len) of text for attn loss computate.
+            character_dict_path: path to dictionary, if None, a dictionary containing 36 chars
+                (i.e., "0123456789abcdefghijklmnopqrstuvwxyz") will be used.
+            use_space_char(bool): if True, add space char to the dict to recognize the space in between two words
+            use_unknown_char(bool): Use the unknown character to replace the unknown character instead of skipping
+            lower (bool): if True, all upper-case chars in the label text will be converted to lower case.
+                Set to be True if dictionary only contains lower-case chars. Set to be False if not and want to
+                recognition both upper-case and lower-case.
+
+        Attributes:
+            go_idx: the index of the GO token
+            stop_idx: the index of the STOP token
+            pad_idx: the index of the PAD token
+            num_valid_chars: the number of valid characters (including space char if used) in the dictionary
+            num_classes: the number of classes (which valid characters char and the speical token for blank padding).
+                so num_classes = num_valid_chars + 1
+        """
+        self.max_text_len = max_text_len
+        self.space_idx = None
+        self.unknown_idx = None
+        self.unknown_token = "<UNKNOWN>"
+        self.lower = lower
+
+        # read dict
+        if character_dict_path is None:
+            char_list = list("0123456789abcdefghijklmnopqrstuvwxyz")
+
+            self.lower = True
+            _logger.info("The character_dict_path is None, model can only recognize number and lower letters")
+        else:
+            # parse char dictionary
+            char_list = []
+            with open(character_dict_path, "r") as f:
+                for line in f:
+                    c = line.rstrip("\n\r")
+                    char_list.append(c)
+
+        # add space char if set
+        if use_space_char:
+            if " " not in char_list:
+                char_list.append(" ")
+            self.space_idx = len(char_list) - 1
+        else:
+            if " " in char_list:
+                _logger.warning(
+                    "The dict still contains space char in dict although use_space_char is set to be False, "
+                    f"because the space char is coded in the dictionary file {character_dict_path}"
+                )
+
+        self.num_valid_chars = len(char_list)  # the number of valid chars (including space char if used)
+
+        special_token = ["<GO>", "<STOP>", "<PAD>"]
+        char_list = special_token + char_list
+
+        self.go_idx = 0
+        self.stop_idx = 1
+        self.pad_idx = 2
+
+        # use unknow char if set
+        if use_unknown_char:
+            char_list = char_list + [self.unknown_token]
+            self.unknown_idx = len(char_list) - 1
+
+        self.dict = {c: idx for idx, c in enumerate(char_list)}
+
+        self.num_classes = len(self.dict)
+
+    def __call__(self, data: Dict[str, Any]) -> str:
+        char_indices = str2idx(
+            data["label"], self.dict, max_text_len=self.max_text_len, lower=self.lower, unknown_idx=self.unknown_idx
+        )
+
+        if char_indices is None:
+            char_indices = []
+        data["length"] = np.array(len(char_indices), dtype=np.int32)
+
+        char_indices = (
+            [self.go_idx] + char_indices + [self.stop_idx] + [self.pad_idx] * (self.max_text_len - len(char_indices))
+        )
+        data["text_seq"] = np.array(char_indices, dtype=np.int32)
+
+        data["text_length"] = len(data["label"])
+        data["text_padded"] = data["label"] + " " * (self.max_text_len - len(data["label"]))
+        return data
+
+
+def str2idx(
+    text: str,
+    label_dict: Dict[str, int],
+    max_text_len: int = 23,
+    lower: bool = False,
+    unknown_idx: Optional[int] = None,
+) -> List[int]:
     """
     Encode text (string) to a squence of char indices
     Args:
@@ -229,18 +336,20 @@ def str2idx(text: str, label_dict: Dict[str, int], max_text_len: int = 23, lower
     """
     if len(text) == 0 or len(text) > max_text_len:
         return None
+
     if lower:
         text = text.lower()
 
     char_indices = []
-    # TODO: for char not in the dictionary, skipping may lead to None data. Use a char replacement? refer to mmocr
     for char in text:
         if char not in label_dict:
-            # print('WARNING: {} is not in dict'.format(char))
-            continue
-        char_indices.append(label_dict[char])
+            if unknown_idx is not None:
+                char_indices.append(unknown_idx)
+        else:
+            char_indices.append(label_dict[char])
+
     if len(char_indices) == 0:
-        print("WARNING: {} doesnot contain any valid char in the dict".format(text))
+        _logger.warning("`{}` does not contain any valid character in the dictionary.".format(text))
         return None
 
     return char_indices
@@ -271,17 +380,7 @@ def resize_norm_img(img, image_shape, padding=True, interpolation=cv2.INTER_LINE
             resized_w = int(math.ceil(imgH * ratio))
         resized_image = cv2.resize(img, (resized_w, imgH))
 
-    """
-    resized_image = resized_image.astype('float32')
-    if image_shape[0] == 1:
-        resized_image = resized_image / 255
-        resized_image = resized_image[np.newaxis, :]
-    else:
-        resized_image = resized_image.transpose((2, 0, 1)) / 255
-    resized_image -= 0.5
-    resized_image /= 0.5
-    """
-    padding_im = np.zeros((imgH, imgW, c), dtype=np.uint8)
+    padding_im = np.zeros((imgH, imgW, c), dtype=resized_image.dtype)
     padding_im[:, 0:resized_w, :] = resized_image
     valid_ratio = min(1.0, float(resized_w / imgW))
     return padding_im, valid_ratio
@@ -304,19 +403,7 @@ def resize_norm_img_chinese(img, image_shape):
         resized_w = int(math.ceil(imgH * ratio))
     resized_image = cv2.resize(img, (resized_w, imgH))
 
-    """
-    resized_image = resized_image.astype('float32')
-    if image_shape[0] == 1:
-        resized_image = resized_image / 255
-        resized_image = resized_image[np.newaxis, :]
-    else:
-        resized_image = resized_image.transpose((2, 0, 1)) / 255
-    resized_image -= 0.5
-    resized_image /= 0.5
-    """
-    # padding_im = np.zeros((imgC, imgH, imgW), dtype=np.float32)
-    padding_im = np.zeros((imgH, imgW, c), dtype=np.uint8)
-    # padding_im[:, :, 0:resized_w] = resized_image
+    padding_im = np.zeros((imgH, imgW, c), dtype=resized_image.dtype)
     padding_im[:, 0:resized_w, :] = resized_image
     valid_ratio = min(1.0, float(resized_w / imgW))
     return padding_im, valid_ratio
@@ -420,7 +507,6 @@ class RecResizeNormForInfer(object):
         else:
             src_wh_ratio = w / float(h)
             resize_w = math.ceil(min(src_wh_ratio, max_wh_ratio) * resize_h)
-        # print('Rec resize: ', h, w, "->", resize_h, resize_w)
         resized_img = cv2.resize(img, (resize_w, resize_h), interpolation=self.interpolation)
 
         # TODO: norm before padding
@@ -483,82 +569,3 @@ class ClsLabelEncode(object):
         data["label"] = label
 
         return data
-
-
-if __name__ == "__main__":
-    text = "012 ab%c"
-
-    # test dict and ctc label encode
-    trans = RecCTCLabelEncode(10, use_space_char=False)
-    inp = {"label": text}
-    out = trans(inp)
-    seq = out["text_seq"]
-    gt = np.array([0, 1, 2, 10, 11, 12] + [trans.blank_idx] * 4)
-    assert trans.num_valid_chars == 36
-    assert trans.num_classes == 37
-    assert out["length"] == len(text) - 2, "Not equal: {}, {}".format(
-        out["length"], text
-    )  # use_space_char=Flase, space and OOV char excluded
-    assert np.array_equal(seq, gt)
-
-    # test dict and attn label encode
-    trans = RecAttnLabelEncode(10, use_space_char=False)
-    inp = {"label": text}
-    out = trans(inp)
-    seq = out["text_seq"]
-    gt = np.array([trans.go_idx] + [2, 3, 4, 12, 13, 14] + [trans.stop_idx] + [trans.go_idx] * 2)
-    assert trans.num_valid_chars == 36
-    assert trans.num_classes == 38
-    assert out["length"] == len(text) - 2, "Not equal: {}, {}".format(
-        out["length"], text
-    )  # use_space_char=Flase, space and OOV char excluded
-    assert np.array_equal(seq, gt)
-
-    trans = RecCTCLabelEncode(max_text_len=10, use_space_char=True)
-    inp = {"label": text}
-    out = trans(inp)
-    seq = out["text_seq"]
-    gt = np.array([0, 1, 2, trans.space_idx, 10, 11, 12] + [trans.blank_idx] * 3)
-    assert trans.num_valid_chars == 36 + 1, "num_valid_chars is {}".format(trans.num_valid_chars)
-    assert trans.num_classes == 37 + 1
-    assert np.array_equal(seq, gt)
-    assert out["length"] == len(text) - 1, "Not equal: {}, {}".format(
-        out["length"], text
-    )  # use_space_char=True, length
-
-    trans = RecAttnLabelEncode(max_text_len=10, use_space_char=True)
-    inp = {"label": text}
-    out = trans(inp)
-    seq = out["text_seq"]
-    gt = np.array([trans.go_idx] + [2, 3, 4, trans.space_idx, 12, 13, 14] + [trans.stop_idx] + [trans.go_idx] * 1)
-    assert trans.num_valid_chars == 36 + 1, "num_valid_chars is {}".format(trans.num_valid_chars)
-    assert trans.num_classes == 38 + 1
-    assert np.array_equal(seq, gt)
-    assert out["length"] == len(text) - 1, "Not equal: {}, {}".format(
-        out["length"], text
-    )  # use_space_char=True, length
-
-    trans = RecCTCLabelEncode(
-        max_text_len=10, character_dict_path="mindocr/utils/dict/en_dict.txt", use_space_char=False
-    )
-    inp = {"label": text}
-    out = trans(inp)
-    seq = out["text_seq"]
-    gt = np.array([0, 1, 2, 94, 49, 50, 51, 95, 95, 95])
-    assert trans.num_valid_chars == 95
-    assert trans.num_classes == 96
-    assert out["length"] == len(text), "Not equal: {}, {}".format(
-        out["length"], text
-    )  # use_space_char=False, but the dict contains space, % is also in dict
-
-    trans = RecAttnLabelEncode(
-        max_text_len=10, character_dict_path="mindocr/utils/dict/en_dict.txt", use_space_char=False
-    )
-    inp = {"label": text}
-    out = trans(inp)
-    seq = out["text_seq"]
-    assert trans.num_valid_chars == 95
-    assert trans.num_classes == 97
-    assert out["length"] == len(text), "Not equal: {}, {}".format(
-        out["length"], text
-    )  # use_space_char=False, but the dict contains space, % is also in dict

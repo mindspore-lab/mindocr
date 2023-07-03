@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 import sys
 
@@ -12,7 +13,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../../../../")))
 import cv2
 import numpy as np
 
+from mindocr.utils.logger import set_logger
 from mindocr.utils.visualize import recover_image
+
+logger = logging.getLogger("mindocr")
 
 
 def parse_args():
@@ -142,12 +146,13 @@ def predict_rec(args, det_pred_outputs):
 
 def main():
     args = parse_args()
+    set_logger(name="mindocr")
     det_pred_outputs = predict_det(args)
-    print("Detection finished!")
+    logger.info("Detection finished!")
     det_pred_outputs = rescale(det_pred_outputs)
-    print("Rescale finished!")
+    logger.info("Rescale finished!")
     predict_rec(args, det_pred_outputs)
-    print("Detection and recognition finished!!!")
+    logger.info("Detection and recognition finished!!!")
 
 
 if __name__ == "__main__":

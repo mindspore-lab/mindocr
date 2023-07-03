@@ -165,7 +165,7 @@ class RandomScale:
         self._p = p
         assert kwargs.get("is_train", True), ValueError("RandomScale augmentation must be used for training only")
 
-    def __call__(self, data: dict):
+    def __call__(self, data: dict) -> dict:
         """
         required keys:
             image, HWC

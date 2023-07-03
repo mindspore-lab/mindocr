@@ -5,7 +5,7 @@
 All the training tricks can be configured in the model config files.
 After setting, please run `tools/train.py` script to initiate training.
 
-[Example Yaml Config](../../../configs/rec/crnn/crnn_icdar15.yaml)
+[Example Yaml Config](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/crnn/crnn_icdar15.yaml)
 
 ```yaml
 train:
@@ -62,4 +62,4 @@ model:
 
 ### Training on OpenI Cloud Platform
 
-Please refer to the [MindOCR OpenI Training Guideline](../../cn/tutorials/training_on_openi.md)
+Please refer to the [MindOCR OpenI Training Guideline](training_on_openi.md)

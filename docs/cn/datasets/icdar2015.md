@@ -1,5 +1,3 @@
-[English](../../en/datasets/icdar2015.md) | 中文
-
 # 数据集下载
 ICDAR 2015 [文章](https://rrc.cvc.uab.es/?ch=4)
 
@@ -69,4 +67,4 @@ path-to-data-dir/
     Challenge4_Test_Task3_GT.zip
 ```
 
-[返回](../../../tools/dataset_converters/README_CN.md)
+[返回dataset converters](converters.md)

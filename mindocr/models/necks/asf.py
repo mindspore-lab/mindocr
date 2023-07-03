@@ -4,11 +4,14 @@ from mindspore import nn, ops
 class AdaptiveScaleFusion(nn.Cell):
     """
     Adaptive Scale Fusion module from the `DBNet++ <https://arxiv.org/abs/2202.10304>`__ paper.
+
     Args:
-        channels: number of input to and output channels from ASF
-        channel_attention: use channel attention
+        channels: number of input to and output channels from ASF.
+        channel_attention: use channel attention in addition to spatial and scale attentions in ASF module.
+                           Default: True.
+        weight_init: weights initialization method. Default: 'HeUniform'.
     """
-    def __init__(self, channels, channel_attention=True, weight_init='HeUniform'):
+    def __init__(self, channels: int, channel_attention: bool = True, weight_init: str = 'HeUniform'):
         super().__init__()
         out_channels = channels // 4
         self.conv = nn.Conv2d(channels, out_channels, kernel_size=3, padding=1, pad_mode='pad', has_bias=True,
