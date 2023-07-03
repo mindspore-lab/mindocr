@@ -97,7 +97,7 @@ Please see the code in [mindocr/losses](../../../mindocr/losses)
 
 | Parameter | Description | Default | Remarks |
 | :---- | :---- | :---- | :---- |
-| name | loss function name | - | Currently supports L1BalancedCELoss, CTCLoss, AttentionLoss, PSEDiceLoss, EASTLoss and CrossEntropySmooth |
+| name | loss function name | - | Currently supports DBLoss, CTCLoss, AttentionLoss, PSEDiceLoss, EASTLoss and CrossEntropySmooth |
 | pred_seq_len | length of predicted text | 26 | Determined by network architecture |
 | max_label_len | The longest label length | 25 | The value is less than the length of the text predicted by the network |
 | batch_size | single card batch size | 32 | \ |

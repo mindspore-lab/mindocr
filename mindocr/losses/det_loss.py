@@ -8,11 +8,10 @@ import mindspore.common.dtype as mstype
 import mindspore.numpy as mnp
 from mindspore import Tensor, nn, ops
 
-__all__ = ["L1BalancedCELoss", "PSEDiceLoss", "EASTLoss", "FCELoss"]
+__all__ = ["DBLoss", "PSEDiceLoss", "EASTLoss", "FCELoss"]
 _logger = logging.getLogger(__name__)
 
-
-class L1BalancedCELoss(nn.LossBase):
+class DBLoss(nn.LossBase):
     """
     Apply Balanced CrossEntropy Loss on `binary`, MaskL1Loss on `thresh`, DiceLoss on `thresh_binary` and return
     overall weighted loss.
