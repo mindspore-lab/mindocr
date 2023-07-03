@@ -11,6 +11,7 @@ from mindspore import Tensor, nn, ops
 __all__ = ["DBLoss", "PSEDiceLoss", "EASTLoss", "FCELoss"]
 _logger = logging.getLogger(__name__)
 
+
 class DBLoss(nn.LossBase):
     """
     Apply Balanced CrossEntropy Loss on `binary`, MaskL1Loss on `thresh`, DiceLoss on `thresh_binary` and return
