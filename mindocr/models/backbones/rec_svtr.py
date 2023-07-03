@@ -448,7 +448,7 @@ class SVTRNet(nn.Cell):
             extra_pool_at_last_stage: Apply extra averaging pooling with the given window at the last layer. Default: 1.
             sub_num: Patch coefficient in patch embedding. Default: 2.
             prenorm: Apply normailzation after feature extraction. Default: True.
-            use_lenhead: Add head after the backbone. Default: False.
+            use_lenhead: Add extra head after the backbone for center loss. Default: False.
             **kwargs: Dummy arguments for compatibility only.
         """
         super().__init__()
