@@ -29,7 +29,7 @@ On Ascend platform, some common restrictions on using the distributed service ar
 
 ### 1.1 Run scripts with OpenMPI
 
-On Ascend hardware platform, users can use OpenMPI's `mpirun` to run distributed training with `n` devices. For example, in [DBNet Readme](mkdocs/dbnet_readme.md), the following command is used to train the model on devices `0` and `1`:
+On Ascend hardware platform, users can use OpenMPI's `mpirun` to run distributed training with `n` devices. For example, in [DBNet Readme](../../mkdocs/dbnet_readme.md), the following command is used to train the model on devices `0` and `1`:
 
 ```shell
 # n is the number of NPUs used in training
