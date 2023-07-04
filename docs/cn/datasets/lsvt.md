@@ -6,7 +6,7 @@ LSVT数据集[官网](https://rrc.cvc.uab.es/?ch=16)
 
 注意: 在下载之前，你需要先注册一个账号。
 
-<details>
+<details open markdown>
     <summary>从何处下载LSVT数据集</summary>
 
 [下载地址](https://rrc.cvc.uab.es/?ch=16&com=downloads)

@@ -3,7 +3,7 @@
 
 ## Data Downloading
 
-<details>
+<details open markdown>
     <summary>How to Download the CCPD Dataset</summary>
 
 The CCPD can be downloaded from [here](https://github.com/detectRecog/CCPD) using either the Google or BaiduYun drive links.

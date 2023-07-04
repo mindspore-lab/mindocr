@@ -5,7 +5,7 @@
 
 Note: You need to fill in a form to download this dataset.
 
-<details>
+<details open markdown>
     <summary>How to Download CTW Images</summary>
 
 The CTW images dataset can be downloaded from [here](https://ctwdataset.github.io/downloads.html).
@@ -14,7 +14,7 @@ The images are in 26 batches, i.e. 26 different .tar archived files of the forma
 
 </details>
 
-<details>
+<details open markdown>
     <summary>How to Download CTW Annotations</summary>
 
 The CTW annotations (in JSON Lines format i.e. `.jsonl`) can be downloaded from [here](https://ctwdataset.github.io/downloads.html).

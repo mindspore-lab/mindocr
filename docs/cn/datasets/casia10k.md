@@ -3,7 +3,7 @@
 ## 数据集下载
 CASIA-10K 数据集[官网](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html)
 
-<details>
+<details open markdown>
     <summary>从何处下载CASIA-10K数据集</summary>
 
 [下载地址](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html)
