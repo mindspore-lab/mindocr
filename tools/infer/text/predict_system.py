@@ -9,6 +9,7 @@ Example:
 """
 
 import json
+import logging
 import os
 import sys
 from time import time
@@ -26,7 +27,10 @@ import mindspore as ms
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../../../")))
 
+from mindocr.utils.logger import set_logger
 from mindocr.utils.visualize import visualize  # noqa
+
+logger = logging.getLogger("mindocr")
 
 
 class TextSystem(object):
@@ -69,9 +73,8 @@ class TextSystem(object):
         # detect text regions on an image
         det_res, data = self.text_detect(img_or_path, do_visualize=False)
         time_profile["det"] = time() - start
-        # print(det_res)
         polys = det_res["polys"].copy()
-        print(f"INFO: Num detected text boxes: {len(polys)}\nDet time: ", time_profile["det"])
+        logger.info(f"Num detected text boxes: {len(polys)}\nDet time: {time_profile['det']}")
 
         # crop text regions
         crops = []
@@ -79,7 +82,6 @@ class TextSystem(object):
             poly = polys[i].astype(np.float32)
             cropped_img = crop_text_region(data["image_ori"], poly, box_type=self.box_type)
             crops.append(cropped_img)
-            # print('Crop ', i, cropped_img.shape)
 
             if self.save_crop_res:
                 cv2.imwrite(os.path.join(self.crop_res_save_dir, f"{fn}_crop_{i}.jpg"), cropped_img)
@@ -90,11 +92,10 @@ class TextSystem(object):
         rec_res_all_crops = self.text_recognize(crops, do_visualize=False)
         time_profile["rec"] = time() - rs
 
-        print(
-            "INFO: Recognized texts: \n"
+        logger.info(
+            "Recognized texts: \n"
             + "\n".join([f"{text}\t{score}" for text, score in rec_res_all_crops])
-            + "\nRec time: ",
-            time_profile["rec"],
+            + f"\nRec time: {time_profile['rec']}"
         )
 
         # filter out low-score texts and merge detection and recognition results
@@ -155,6 +156,7 @@ def save_res(boxes_all, text_scores_all, img_paths, save_path="system_results.tx
 def main():
     # parse args
     args = parse_args()
+    set_logger(name="mindocr")
     save_dir = args.draw_img_save_dir
     img_paths = get_image_paths(args.image_dir)
 
@@ -175,7 +177,7 @@ def main():
     tot_time = {}  # {'det': 0, 'rec': 0, 'all': 0}
     boxes_all, text_scores_all = [], []
     for i, img_path in enumerate(img_paths):
-        print(f"\nINFO: Infering [{i+1}/{len(img_paths)}]: ", img_path)
+        logger.info(f"\nINFO: Infering [{i+1}/{len(img_paths)}]: {img_path}")
         boxes, text_scores, time_prof = text_spot(img_path, do_visualize=args.visualize_output)
         boxes_all.append(boxes)
         text_scores_all.append(text_scores)
@@ -187,14 +189,14 @@ def main():
                 tot_time[k] += time_prof[k]
 
     fps = len(img_paths) / tot_time["all"]
-    print("Total time:", tot_time["all"])
-    print("Average FPS: ", fps)
+    logger.info(f"Total time:{tot_time['all']}")
+    logger.info(f"Average FPS: {fps}")
     avg_time = {k: tot_time[k] / len(img_paths) for k in tot_time}
-    print("Averge time cost: ", avg_time)
+    logger.info(f"Averge time cost: {avg_time}")
 
     # save result
     save_res(boxes_all, text_scores_all, img_paths, save_path=os.path.join(save_dir, "system_results.txt"))
-    print("Done! Results saved in ", os.path.join(save_dir, "system_results.txt"))
+    logger.info(f"Done! Results saved in {os.path.join(save_dir, 'system_results.txt')}")
 
 
 if __name__ == "__main__":

@@ -41,7 +41,7 @@ Table Format:
 | SVTR-Tiny      | D910x4-MS1.10-G | 89.02%    | 4866 s/epoch        | 2968 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb-5cf5a130.mindir) |
 </div>
 
-<details open>
+<details open markdown>
   <div align="center">
   <summary>在各个基准数据集上的准确率</summary>
 
@@ -56,6 +56,7 @@ Table Format:
 - 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
 - 模型所能识别的字符都是默认的设置，即所有英文小写字母a至z及数字0至9，详细请看[4. 字符词典](#4-字符词典)
 - 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[数据集下载及使用](#312-数据集下载)章节。
+- SVTR的MindIR导出时的输入Shape均为(1, 3, 64, 256)。
 
 ## 3. 快速开始
 ### 3.1 环境及数据准备
@@ -332,7 +333,7 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 
 我们采用公开的中文基准数据集[Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition)进行SVTR模型的训练和验证。
 
-详细的数据准备和config文件配置方式, 请参考 [中文识别数据集准备](../../../docs/cn/datasets/chinese_text_recognition_CN.md)
+详细的数据准备和config文件配置方式, 请参考 [中文识别数据集准备](../../../docs/cn/datasets/chinese_text_recognition.md)
 
 ### 模型训练验证
 
@@ -354,6 +355,47 @@ mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/svtr/
 
 ### 使用自定义数据集进行训练
 您可以在自定义的数据集基于提供的预训练权重进行微调训练, 以在特定场景获得更高的识别准确率，具体步骤请参考文档 [使用自定义数据集训练识别网络](../../../docs/cn/tutorials/training_recognition_custom_dataset_CN.md)。
+
+
+## 6. MindSpore Lite 推理
+
+请参考[MindOCR 推理](../../../docs/cn/inference/inference_tutorial.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
+
+**1. 模型导出**
+
+请先[下载](#2-评估结果)已导出的MindIR文件，或者参考[模型导出](../../README.md)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
+
+```shell
+python tools/export.py --model_name svtr_tiny --data_shape 64 256 --local_ckpt_path /path/to/local_ckpt.ckpt
+# or
+python tools/export.py --model_name configs/rec/svtr/svtr_tiny.yaml --data_shape 64 256 --local_ckpt_path /path/to/local_ckpt.ckpt
+```
+
+其中，`data_shape`是导出MindIR时的模型输入Shape的height和width，下载链接中MindIR对应的shape值见[注释](#2-评估结果)。
+
+**2. 环境搭建**
+
+请参考[环境安装](../../../docs/cn/inference/environment.md#2-mindspore-lite推理)教程，配置MindSpore Lite推理运行环境。
+
+**3. 模型转换**
+
+请参考[模型转换](../../../docs/cn/inference/convert_tutorial.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换，
+其中`configFile`文件中的`input_shape`需要填写模型导出时shape，如上述的(1, 3, 64, 256)，格式为NCHW。
+
+**4. 执行推理**
+
+假设在模型转换后得到output.mindir文件，在`deploy/py_infer`目录下使用以下命令进行推理：
+
+```shell
+python infer.py \
+    --input_images_dir=/your_path_to/test_images \
+    --device=Ascend \
+    --device_id=0 \
+    --rec_model_path=your_path_to/output.mindir \
+    --rec_model_name_or_config=../../configs/rec/svtr/svtr_tiny.yaml \
+    --backend=lite \
+    --res_save_dir=results_dir
+```
 
 ## 参考文献
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->

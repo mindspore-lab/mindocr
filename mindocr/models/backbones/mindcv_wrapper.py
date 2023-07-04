@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 import numpy as np
@@ -6,6 +7,8 @@ import mindspore as ms
 from mindspore import load_checkpoint, load_param_into_net, nn, ops
 
 from . import mindcv_models
+
+_logger = logging.getLogger(__name__)
 
 
 class MindCVBackboneWrapper(nn.Cell):
@@ -52,13 +55,13 @@ class MindCVBackboneWrapper(nn.Cell):
             h = ops.stop_gradient(h)
             self.out_channels = h.shape[1]
 
-            print(f'INFO: Load MindCV Backbone {model_name}, the output features shape for input 224x224 is {h.shape}. '
-                  f'\n\tProbed out_channels : ', self.out_channels)
+            _logger.info(f'Load MindCV Backbone {model_name}, the output features shape for input 224x224 is {h.shape}.'
+                         f'\n\tProbed out_channels : {self.out_channels}')
         else:
             self.network = network
             self.out_channels = self.network.out_channels
-            print(f'INFO: Load MindCV Backbone {model_name} with feature index {out_indices}, '
-                  f'output channels: {self.out_channels}')
+            _logger.info(f'Load MindCV Backbone {model_name} with feature index {out_indices}, '
+                         f'output channels: {self.out_channels}')
 
     def construct(self, x):
         if self.features_only:

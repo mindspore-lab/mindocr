@@ -40,4 +40,4 @@ Please visually check the correctness of the transformation on image and annotat
 
 
 ### Important Notes
-1. For spatial transformation operaions that will be used in text detection inference or evaluation (e.g. determinstic resize, scale), please record the space transformation information in `shape_list`. Otherwise, the postprocessing method won't be able to map the results back to the orignal image space. On how to record `shape_list`, please refer to [DetResize](./det_transforms.py).
+1. For spatial transformation operaions that will be used in text detection inference or evaluation (e.g. determinstic resize, scale), please record the space transformation information in `shape_list`. Otherwise, the postprocessing method won't be able to map the results back to the orignal image space. On how to record `shape_list`, please refer to [DetResize](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/transforms/det_transforms.py).

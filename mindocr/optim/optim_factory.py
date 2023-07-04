@@ -1,5 +1,6 @@
 """ optim factory """
 import inspect
+import logging
 import os
 from typing import Optional
 
@@ -11,6 +12,7 @@ from .lion import Lion
 from .nadam import NAdam
 
 __all__ = ["create_optimizer"]
+_logger = logging.getLogger(__name__)
 
 
 def init_group_params(params, weight_decay):
@@ -73,8 +75,8 @@ def create_optimizer(
         if not isinstance(params[0], dict):  # check whether param grouping strategy is encoded in `params`
             params = init_group_params(params, weight_decay)
         else:
-            print(
-                "WARNING: Customized param grouping strategy detected in `params`. "
+            _logger.warning(
+                "Customized param grouping strategy detected in `params`. "
                 "filter_bias_and_bn (default=True) will be disabled"
             )
 

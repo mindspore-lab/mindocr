@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import sys
 
@@ -48,13 +49,21 @@ def eval_rec_adapt_train(preds, labels, character_dict_path):
     return eval_res
 
 
-def read_content(filename):
+def read_pred_content(filename):
     results = {}
     with open(filename, encoding="utf-8") as f:
         for line in f:
             name, content = line.split("\t", 1)
-            results[name] = content.strip().replace('"', "")
+            results[name] = json.loads(content).strip()
+    return results
 
+
+def read_gt_content(filename):
+    results = {}
+    with open(filename, encoding="utf-8") as f:
+        for line in f:
+            name, content = line.split("\t", 1)
+            results[name] = content.strip()
     return results
 
 
@@ -70,8 +79,8 @@ if __name__ == "__main__":
     pred_path = args.pred_path
     character_dict_path = args.character_dict_path
 
-    labels = read_content(gt_path)
-    preds = read_content(pred_path)
+    labels = read_gt_content(gt_path)
+    preds = read_pred_content(pred_path)
     labels_keys = labels.keys()
     preds_keys = preds.keys()
 

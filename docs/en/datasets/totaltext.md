@@ -1,12 +1,12 @@
-English | [中文](../../cn/datasets/totaltext_CN.md)
+# Total-Text Datasets
 
-# Data Downloading
+## Data Downloading
 
 Total-Text [paper](https://arxiv.org/abs/1710.10400)
 
 Download Total-Text Images from [source](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset)  (size = 441Mb).
 
-<details>
+<details open markdown>
   <summary>How to Download Total-Text Images</summary>
 
    The Total-Text dataset can be downloaded at [this https URL](https://drive.google.com/file/d/1bC68CzsSVTusZVvOkk7imSZSbgD1MqK2/view?usp=sharing) (size = 441Mb).
@@ -15,7 +15,7 @@ Download Total-Text Images from [source](https://github.com/cs-chan/Total-Text-D
 
 Download Total-Text Ground Truth from [source](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Groundtruth/Text).
 
-<details>
+<details open markdown>
   <summary>How to Download Total-Text Ground Truth</summary>
 
    The groundtruth of the Total-Text dataset can be downloaded through  [this https URL](https://drive.google.com/file/d/1v-pd-74EkZ3dWe6k0qppRtetjdPQ3ms1/view?usp=sharing) for text file format('.txt').
@@ -32,4 +32,4 @@ path-to-data-dir/
 
 ```
 
-[Back to README](../../../tools/dataset_converters/README.md)
+[Back to dataset converters](converters.md)

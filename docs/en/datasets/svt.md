@@ -1,5 +1,3 @@
-English | [中文](../../cn/datasets/svt_CN.md)
-
 # The Street View Text Dataset (SVT)
 
 ## Data Downloading
@@ -38,4 +36,4 @@ python tools/dataset_converters/convert.py \
 
 Then you can have a folder `cropped_images/` and an annotation file `rec_train_gt.txt` under the folder `svt1/`.
 
-[Back to README](../../../tools/dataset_converters/README.md)
+[Back to dataset converters](converters.md)

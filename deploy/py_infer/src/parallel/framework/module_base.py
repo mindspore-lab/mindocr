@@ -4,7 +4,7 @@ from ctypes import c_longdouble
 from multiprocessing import Manager
 
 from ...utils import log
-from ..datatype import ModuleInitArgs, ProfilingData
+from ..datatype import ModuleInitArgs, ProfilingData, StopData
 
 
 class ModuleBase(object):
@@ -14,7 +14,6 @@ class ModuleBase(object):
         self.module_name = ""
         self.without_input_queue = False
         self.instance_id = 0
-        self.device_id = -1
         self.is_stop = False
         self.msg_queue = msg_queue
         self.input_queue = None
@@ -36,9 +35,14 @@ class ModuleBase(object):
             log.error(f"{self.__class__.__name__} init failed: {error}")
             raise error
 
-        while not self.msg_queue.full() and stop_manager.full():
+        # waiting for init sign
+        while not self.msg_queue.full():
             continue
-        time.sleep(0.5)
+
+        # waiting for the release of stop sign
+        while stop_manager.full():
+            continue
+
         while True:
             if stop_manager.full():
                 break
@@ -54,7 +58,9 @@ class ModuleBase(object):
             try:
                 self.process(send_data)
             except Exception as error:
+                self.process(StopData(exception=True))
                 log.exception(f"ERROR occurred in {self.module_name} module for {send_data.image_name}: {error}.")
+
             cost_time = time.time() - start_time
             self.process_cost.value += cost_time
 
@@ -85,7 +91,6 @@ class ModuleBase(object):
         profiling_data = ProfilingData(
             module_name=self.module_name,
             instance_id=self.instance_id,
-            device_id=self.device_id,
             process_cost_time=self.process_cost.value,
             send_cost_time=self.send_cost.value,
         )

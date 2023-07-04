@@ -1,7 +1,7 @@
 system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
   distribute: True
-  device_id: 7  # only valid when distribute=True, i.e., standalone training
+  device_id: 7  # only valid when distribute=False (standalone training) and environment variable 'DEVICE_ID' is NOT set
   amp_level: 'O0'
   seed: 4
   ckpt_save_policy: top_k # top_k or latest_k

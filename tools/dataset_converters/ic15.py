@@ -10,9 +10,19 @@ from mindocr.data.utils.polygon_utils import sort_clockwise
 class IC15_Converter(object):
     """
     Format annotation to standard form for ic15 dataset.
+    The ground truth is provided in terms of word bounding boxes. Bounding boxes are specified by the coordinates of
+    their four corners in a clock-wise manner. For each image a corresponding UTF-8 encoded text file is provided,
+    following the naming convention:
+        `[image name].txt`
+    The text files are comma separated files, where each line corresponds to one text block in the image and gives
+    its bounding box coordinates (four corners, clockwise) and its transcription in the format:
+        `x1,y1,x2,y2,x3,y3,x4,y4,transcription`
+    Note that the transcription is anything that follows the 8th comma until the end of line. No escape characters are
+    to be used.
+    If the transcription is provided as "###", then text block (word) is considered as "don't care".
     """
 
-    def __init__(self, path_mode="relative"):
+    def __init__(self, path_mode="relative", **kwargs):
         self.path_mode = path_mode
 
     def convert(self, task="det", image_dir=None, label_path=None, output_path=None):

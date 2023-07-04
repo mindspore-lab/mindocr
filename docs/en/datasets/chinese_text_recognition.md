@@ -1,5 +1,3 @@
-English | [中文](../../cn/datasets/chinese_text_recognition_CN.md)
-
 # Chinese-Text-Recognition
 
 This document introduce the dataset preparation for Chinese Text Recognition.
@@ -103,4 +101,4 @@ eval:
   ...
 ```
 
-[Back to README](../../../tools/dataset_converters/README.md)
+[Back to dataset converters](converters.md)

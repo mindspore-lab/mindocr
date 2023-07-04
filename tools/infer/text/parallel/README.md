@@ -76,7 +76,7 @@ Otherwise, the args values in (1) yaml config file will be used by default. You 
    Run the following command to start the detection and recognition prediction pipeline. **Note that the args values below will overwrite their counterparts in yaml config file.**
 
    ```bash
-   python tools/predict/text/parallel/predict_system.py \
+   python tools/infer/text/parallel/predict_system.py \
                 --raw_data_dir path/to/raw_data \
                 --det_ckpt_path path/to/detection_ckpt \
                 --rec_ckpt_path path/to/recognition_ckpt

@@ -1,5 +1,3 @@
-import functools
-
 from . import transforms
 
 # other ops node will be skipped
@@ -8,8 +6,6 @@ PREPROCESS_MAPPING_OPS = {
     "DecodeImage": transforms.DecodeImage,
     "NormalizeImage": transforms.NormalizeImage,
     "ToCHWImage": transforms.ToCHWImage,
-    "GridResize": functools.partial(transforms.DetResize, keep_ratio=False, padding=False),
-    "ScalePadImage": transforms.ScalePadImage,
     # det
     "DetResize": transforms.DetResize,
     "DetResizeNormForInfer": transforms.DetResizeNormForInfer,
@@ -17,6 +13,7 @@ PREPROCESS_MAPPING_OPS = {
     "SVTRRecResizeImg": transforms.SVTRRecResizeImg,
     "RecResizeNormForInfer": transforms.RecResizeNormForInfer,
     "RecResizeNormForViTSTR": transforms.RecResizeNormForViTSTR,
+    "RecResizeNormForMMOCR": transforms.RecResizeNormForMMOCR,
     # cls
     "ClsResizeNormForInfer": transforms.ClsResizeNormForInfer,
 }

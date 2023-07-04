@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 from shapely.geometry import Polygon
@@ -19,13 +19,31 @@ def _get_iou(pd, pg):
 
 
 class DetectionIoUEvaluator:
-    """ """
+    """
+    Converts ground truth and predicted polygon locations into binary classification labels based on
+    the IoU between them. This simplifies metric calculations, such as Recall, Precision, etc.
 
-    def __init__(self, min_iou=0.5, min_intersect=0.5):
+    Args:
+        min_iou: Minimum IoU between the ground truth and prediction to be considered as a correct prediction.
+        min_intersect: Minimum intersection with an ignored ground truth for the prediction to be considered as ignored
+                       (and thus to be excluded from further calculations).
+    """
+
+    def __init__(self, min_iou: float = 0.5, min_intersect: float = 0.5):
         self._min_iou = min_iou
         self._min_intersect = min_intersect
 
-    def __call__(self, gt: List[dict], preds: List[np.ndarray]):
+    def __call__(self, gt: List[dict], preds: List[np.ndarray]) -> Tuple[List[int], List[int]]:
+        """
+        Converts GT and predicted polygons into binary classification labels, where 1 is positive and 0 is negative.
+
+        Args:
+            gt: list of ground truth dictionaries with keys: "polys" and "ignore".
+            preds: list of predicted by a model polygons.
+
+        Returns:
+            binary labels for the ground truth and predicted polygons.
+        """
         # filter invalid groundtruth polygons and split them into useful and ignored
         gt_polys, gt_ignore = [], []
         for sample in gt:
@@ -77,9 +95,14 @@ class DetectionIoUEvaluator:
 
 
 class DetMetric(nn.Metric):
-    """ """
+    """
+    Calculate Recall, Precision, and F-score for predicted polygons given ground truth.
 
-    def __init__(self, device_num=1, **kwargs):
+    Args:
+        device_num: number of devices used in the metric calculation.
+    """
+
+    def __init__(self, device_num: int = 1, **kwargs):
         super().__init__()
         self._evaluator = DetectionIoUEvaluator()
         self._gt_labels, self._det_labels = [], []
@@ -92,7 +115,7 @@ class DetMetric(nn.Metric):
 
     def update(self, *inputs):
         """
-        compute metric on a batch of data
+        Compute the metrics on a single batch of data.
 
         Args:
             inputs (tuple): contain two elements preds, gt
@@ -124,14 +147,12 @@ class DetMetric(nn.Metric):
         fp = np.sum((gt_lst == 0) * (det_lst == 1))
         return tp, fp, fn
 
-    def eval(self):
+    def eval(self) -> dict:
         """
-        Evaluate by aggregating results from batch update
+        Evaluate by aggregating results from all batches.
 
-        Returns: dict, average precision, recall, f1-score of all samples
-            precision: precision,
-            recall: recall,
-            f-score: f-score
+        Returns:
+            average recall, precision, f1-score of all samples.
         """
         # flatten predictions and labels into 1D-array
         self._det_labels = np.array([lbl for label in self._det_labels for lbl in label])
