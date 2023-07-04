@@ -6,7 +6,7 @@
 
 注意: 在下载之前，你需要先注册一个账号。
 
-<details>
+<details open markdown>
     <summary>从何处下载Born-Digital Images数据集</summary>
 
 [下载地址](https://rrc.cvc.uab.es/?ch=1&com=downloads)

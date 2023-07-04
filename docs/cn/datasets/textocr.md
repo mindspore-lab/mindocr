@@ -4,7 +4,7 @@
 
 TextOCR数据集[官网](https://textvqa.org/textocr/)
 
-<details>
+<details open markdown>
     <summary>从何处下载TextOCR数据集</summary>
 
 [下载地址](https://textvqa.org/textocr/dataset/)

@@ -5,7 +5,7 @@ ICDAR 2015 [paper](https://rrc.cvc.uab.es/?ch=4)
 
 [download source](https://rrc.cvc.uab.es/?ch=4&com=downloads): one must register an account to download the dataset.
 
-<details>
+<details open markdown>
   <summary>Where to Download ICDAR 2015</summary>
 
 ICDAR 2015 Challenge has three tasks. Task 1 is Text Localization. Task 3 is Word Recognition. Task 4 is End-to-end Text Spotting. Task 2 Text Segmentation is not available.

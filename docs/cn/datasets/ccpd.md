@@ -3,7 +3,7 @@
 ## 数据集下载
 
 CCPD数据集[官网](https://github.com/detectRecog/CCPD)
-<details>
+<details open markdown>
     <summary>从何处下载CCPD数据集</summary>
 
 [下载地址](https://github.com/detectRecog/CCPD)

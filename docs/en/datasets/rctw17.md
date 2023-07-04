@@ -3,7 +3,7 @@
 
 ## Data Downloading
 
-<details>
+<details open markdown>
     <summary>How to Download RCTW-17 Dataset</summary>
 
 The RCTW dataset can be downloaded from [here](https://rctw.vlrlab.net/dataset).
