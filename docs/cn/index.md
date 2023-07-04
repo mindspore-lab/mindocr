@@ -143,19 +143,21 @@ python tools/eval.py \
 <details open markdown>
 <summary>文本检测</summary>
 
-- [x] [DBNet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README.md) (AAAI'2020)
-- [x] [DBNet++](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README.md) (TPAMI'2022)
-- [x] [PSENet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/psenet/README.md) (CVPR'2019)
-- [x] [EAST](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/east/README.md)(CVPR'2017)
-- [ ] [FCENet](https://arxiv.org/abs/2104.10442) (CVPR'2021) [敬请期待]
+- [x] [DBNet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README_CN.md) (AAAI'2020)
+- [x] [DBNet++](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README_CN.md) (TPAMI'2022)
+- [x] [PSENet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/psenet/README_CN.md) (CVPR'2019)
+- [x] [EAST](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/east/README_CN.md)(CVPR'2017)
+- [x] [FCENet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/fcenet/README_CN.md) (CVPR'2021)
 </details>
 
 <details open markdown>
 <summary>文本识别</summary>
 
-- [x] [CRNN](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/README.md) (TPAMI'2016)
-- [x] [CRNN-Seq2Seq/RARE](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/README.md) (CVPR'2016)
-- [x] [SVTR](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/README.md) (IJCAI'2022)
+- [x] [CRNN](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/README_CN.md) (TPAMI'2016)
+- [x] [CRNN-Seq2Seq/RARE](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/README_CN.md) (CVPR'2016)
+- [x] [SVTR](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/README_CN.md) (IJCAI'2022)
+- [x] [MASTER](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/master/README_CN.md) (PR'2019)
+- [x] [VISIONLAN](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/README_CN.md) (ICCV'2021)
 - [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 </details>
 
