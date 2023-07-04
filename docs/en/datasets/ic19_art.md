@@ -6,7 +6,7 @@
 Note: You need to register an account to download this dataset.
 
 <details open markdown>
-    <summary>How to Download ICDAR2019 ArT Images and Annotations</summary>
+<summary>How to Download ICDAR2019 ArT Images and Annotations</summary>
 
 The ICDAR2019 ArT images and annotations dataset can be downloaded from [here](https://rrc.cvc.uab.es/?ch=14&com=downloads).
 

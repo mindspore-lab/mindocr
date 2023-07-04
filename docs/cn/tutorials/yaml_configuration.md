@@ -42,7 +42,7 @@
 
 ## 3. 模型定义参数 (model)
 
-在MindOCR中，模型的网络架构划分为 Transform, Backbone, Neck和Head四个模块。详细请参阅[文档](../../../mindocr/models/README.md)，以下是各部分的配置说明与例子。
+在MindOCR中，模型的网络架构划分为 Transform, Backbone, Neck和Head四个模块。详细请参阅[文档](mkdocs/customize_model.md)，以下是各部分的配置说明与例子。
 
 | 字段 | 说明 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
@@ -163,14 +163,14 @@
 | ema | 是否启动EMA算法  | False | \ |
 | ema_decay | EMA衰减率 | 0.9999 | \ |
 | pred_cast_fp32 | 是否将logits的数据类型强制转换为fp32 | False | \ |
-| **dataset** | 数据集配置 | 详细请参阅[Data文档](../../../mindocr/data/README.md) ||
+| **dataset** | 数据集配置 | 详细请参阅[Data文档](mkdocs/customize_dataset.md) ||
 | type | 数据集类型 | - | 目前支持 LMDBDataset, RecDataset 和 DetDataset |
 | dataset_root | 数据集所在根目录 | None | Optional |
 | data_dir | 数据集所在子目录 | - | 如果没有设置`dataset_root`，请将此设置成完整目录 |
 | label_file | 数据集的标签文件路径 | - | 如果没有设置`dataset_root`，请将此设置成完整路径，否则只需设置子路径 |
 | sample_ratio | 数据集抽样比率 | 1.0 | 若数值<1.0，则随机选取 |
 | shuffle | 是否打乱数据顺序 | 在训练阶段为True，否则为False | True/False |
-| transform_pipeline | 数据处理流程 | None | 详情请看 [transforms](../../../mindocr/data/transforms/README.md) |
+| transform_pipeline | 数据处理流程 | None | 详情请看 [transforms](mkdocs/customize_data_transform.md) |
 | output_columns | 数据加载（data loader）最终需要输出的数据属性名称列表（给到网络/loss计算/后处理) (类型：列表），候选的数据属性名称由transform_pipeline所决定。 | None | 如果值为None，则输出所有列。以crnn为例，output_columns: \['image', 'text_seq'\]  |
 | net_input_column_index | output_columns中，属于网络construct函数的输入项的索引 | [0] | \ |
 | label_column_index | 在train阶段，该参数指定了output_columns中的label项，用于计算loss。在eval阶段，该参数指定了output_columns中的ground truth项，用于metric计算。 | [1] | \ |

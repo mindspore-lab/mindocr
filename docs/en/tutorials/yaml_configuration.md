@@ -39,7 +39,7 @@ Because the same parameter may need to be reused in different configuration sect
 
 ## 3. Model architecture (model)
 
-In MindOCR, the network architecture of the model is divided into four modules: Transform, Backbone, Neck and Head. For details, please refer to [documentation](../../../mindocr/models/README.md), the following are the configuration instructions and examples of each module.
+In MindOCR, the network architecture of the model is divided into four modules: Transform, Backbone, Neck and Head. For details, please refer to [documentation](mkdocs/customize_model.md), the following are the configuration instructions and examples of each module.
 
 | Parameter | Description | Default | Remarks |
 | :---- | :---- | :---- | :---- |
@@ -160,14 +160,14 @@ The configuration of the training process is placed under `train`, and the confi
 | ema | Whether to use EMA algorithm | False | \ |
 | ema_decay | EMA decay rate | 0.9999 | \ |
 | pred_cast_fp32 | Whether to cast the data type of logits to fp32 | False | \ |
-| **dataset** | Dataset configuration | | For details, please refer to [Data document](../../../mindocr/data/README.md) |
+| **dataset** | Dataset configuration | | For details, please refer to [Data document](mkdocs/customize_dataset.md) |
 | type | Dataset class name | - | Currently supports LMDBDataset, RecDataset and DetDataset |
 | dataset_root | The root directory of the dataset | None | Optional |
 | data_dir | The subdirectory where the dataset is located | - | If `dataset_root` is not set, please set this to the full directory |
 | label_file | The label file path of the dataset | - | If `dataset_root` is not set, please set this to the full path, otherwise just set the subpath |
 | sample_ratio | Data set sampling ratio | 1.0 | If value < 1.0, random selection |
 | shuffle | Whether to shuffle the data order | True if undering training, otherwise False | True/False |
-| transform_pipeline | Data processing flow | None | For details, please see [transforms](../../../mindocr/data/transforms/README.md) |
+| transform_pipeline | Data processing flow | None | For details, please see [transforms](mkdocs/customize_data_transform.md) |
 | output_columns | Data loader (data loader) needs to output a list of data attribute names (given to the network/loss calculation/post-processing) (type: list), and the candidate data attribute names are determined by transform_pipeline. | None | If the value is None, all columns are output. Take crnn as an example, output_columns: \['image', 'text_seq'\] |
 | net_input_column_index | In output_columns, the indices of the input items required by the network construct function | [0] | \ |
 | label_column_index | In output_columns, the indices of the input items required by the loss function | [1] | \ |

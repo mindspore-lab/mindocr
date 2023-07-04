@@ -5,7 +5,7 @@
 Note: You need to register an account to download this dataset.
 
 <details open markdown>
-    <summary>How to Download ReCTS Images and Annotations</summary>
+<summary>How to Download ReCTS Images and Annotations</summary>
 
 The ReCTS images and annotations dataset can be downloaded from [here](https://rrc.cvc.uab.es/?ch=12&com=downloads).
 

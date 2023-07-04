@@ -5,7 +5,7 @@
 Note: You need to register an account to download this dataset.
 
 <details open markdown>
-    <summary>How to Download LSVT Images</summary>
+<summary>How to Download LSVT Images</summary>
 
 The LSVT images dataset can be downloaded from [here](https://rrc.cvc.uab.es/?ch=16&com=downloads).
 

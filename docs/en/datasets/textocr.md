@@ -4,7 +4,7 @@
 ## Data Downloading
 
 <details open markdown>
-    <summary>How to Download TextOCR Dataset</summary>
+<summary>How to Download TextOCR Dataset</summary>
 
 The TextOCR dataset can be downloaded from [here](https://textvqa.org/textocr/dataset/).
 

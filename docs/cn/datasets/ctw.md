@@ -7,7 +7,7 @@ COCO-Text数据集[官网](https://ctwdataset.github.io/)
 注意: 您需要填写表格才能下载此数据集。
 
 <details open markdown>
-    <summary>从何处下载CTW数据集</summary>
+<summary>从何处下载CTW数据集</summary>
 
 [下载地址](https://ctwdataset.github.io/downloads.html)
 

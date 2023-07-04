@@ -5,7 +5,7 @@
 Note: You need to register an account to download this dataset.
 
 <details open markdown>
-    <summary>How to Download SROIE Dataset</summary>
+<summary>How to Download SROIE Dataset</summary>
 
 The SROIE dataset can be downloaded from [here](https://rrc.cvc.uab.es/?ch=13&com=downloads).
 

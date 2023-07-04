@@ -4,7 +4,7 @@
 
 RCTW-17数据集[官网](https://rctw.vlrlab.net/)
 <details open markdown>
-    <summary>从何处下载RCTW-17数据集</summary>
+<summary>从何处下载RCTW-17数据集</summary>
 
 [下载地址](https://rctw.vlrlab.net/dataset)
 

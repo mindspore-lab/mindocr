@@ -7,7 +7,7 @@ SROIE数据集[官网](https://rrc.cvc.uab.es/?ch=13)
 注意: 在下载之前，你需要先注册一个账号。
 
 <details open markdown>
-    <summary>从何处下载SROIE数据集</summary>
+<summary>从何处下载SROIE数据集</summary>
 
 [下载地址](https://rrc.cvc.uab.es/?ch=13&com=downloads)
 
