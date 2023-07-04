@@ -68,7 +68,7 @@
 
 ## 4. 后处理 (postprocess)
 
-代码位置请看： [mindocr/postprocess](../../../mindocr/postprocess/)
+代码位置请看： [mindocr/postprocess](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/postprocess)
 
 | 字段 | 说明 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
@@ -82,7 +82,7 @@
 
 ## 5. 评估指标 (metric)
 
-代码位置请看： [mindocr/metrics](../../../mindocr/metrics)
+代码位置请看： [mindocr/metrics](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/metrics)
 
 | 字段 | 说明 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
@@ -95,7 +95,7 @@
 
 ## 6. 损失函数 (loss)
 
-代码位置请看： [mindocr/losses](../../../mindocr/losses)
+代码位置请看： [mindocr/losses](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/losses)
 
 | 字段 | 用途 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
@@ -110,7 +110,7 @@
 
 ### 学习率调整策略 (scheduler)
 
-代码位置请看： [mindocr/scheduler](../../../mindocr/scheduler)
+代码位置请看： [mindocr/scheduler](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/scheduler)
 
 | 字段 | 说明 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
@@ -124,7 +124,7 @@
 
 ### 优化器 (optimizer)
 
-代码位置请看： [mindocr/optim](../../../mindocr/optim)
+代码位置请看： [mindocr/optim](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/optim)
 
 | 字段 | 说明 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |

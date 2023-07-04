@@ -65,7 +65,7 @@ Reference example: [DBNet](https://github.com/mindspore-lab/mindocr/blob/main/co
 
 ## 4. Postprocessing (postprocess)
 
-Please see the code in [mindocr/postprocess](../../../mindocr/postprocess/)
+Please see the code in [mindocr/postprocess](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/postprocess)
 
 | Parameter | Description | Example | Remarks |
 | :---- | :---- | :---- | :---- |
@@ -80,7 +80,7 @@ Reference example: [DBNet](https://github.com/mindspore-lab/mindocr/blob/main/co
 
 ## 5. Evaluation metrics (metric)
 
-Please see the code in [mindocr/metrics](../../../mindocr/metrics)
+Please see the code in [mindocr/metrics](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/metrics)
 
 | Parameter | Description | Default | Remarks |
 | :---- | :---- | :---- | :---- |
@@ -93,7 +93,7 @@ Please see the code in [mindocr/metrics](../../../mindocr/metrics)
 
 ## 6. Loss function (loss)
 
-Please see the code in [mindocr/losses](../../../mindocr/losses)
+Please see the code in [mindocr/losses](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/losses)
 
 | Parameter | Description | Default | Remarks |
 | :---- | :---- | :---- | :---- |
@@ -108,7 +108,7 @@ Please see the code in [mindocr/losses](../../../mindocr/losses)
 
 ### Learning rate adjustment strategy (scheduler)
 
-Please see the code in [mindocr/scheduler](../../../mindocr/scheduler)
+Please see the code in [mindocr/scheduler](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/scheduler)
 
 | Parameter | Description | Default | Remarks |
 | :---- | :---- | :---- | :---- |
@@ -122,7 +122,7 @@ Please see the code in [mindocr/scheduler](../../../mindocr/scheduler)
 
 ### optimizer
 
-Please see the code location: [mindocr/optim](../../../mindocr/optim)
+Please see the code location: [mindocr/optim](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/optim)
 
 | Parameter | Description | Default | Remarks |
 | :---- | :---- | :---- | :---- |
