@@ -1,4 +1,6 @@
-# Data Downloading
+# SynthText Datasets
+
+## Data Downloading
 
 SynthText is a synthetically generated dataset, in which word instances are placed in natural scene images, while taking into account the scene layout.
 [Paper](https://www.robots.ox.ac.uk/~vgg/publications/2016/Gupta16/) | [Download SynthText](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c)

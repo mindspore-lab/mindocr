@@ -1,9 +1,11 @@
-# 数据集下载
+# ICDAR 2015 数据集
+
+## 数据集下载
 ICDAR 2015 [文章](https://rrc.cvc.uab.es/?ch=4)
 
 [下载地址](https://rrc.cvc.uab.es/?ch=4&com=downloads): 在下载之前，您需要先注册一个账号。
 
-<details>
+<details open markdown>
   <summary>从何处下载 ICDAR 2015</summary>
 
 ICDAR 2015 挑战赛分为三个任务。任务1是文本定位。任务3是单词识别。任务4是端到端文本检测识别。任务2文本分割的数据不可用。

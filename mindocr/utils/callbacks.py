@@ -140,7 +140,7 @@ class EvalSaveCallback(Callback):
             msg = (
                 f"epoch: [{cur_epoch}/{cb_params.epoch_num+self.start_epoch}] "
                 f"step: [{cur_step_in_epoch}/{cb_params.batch_num}], "
-                f"loss: {loss:.6f}, " + lr_str + f"per step time: {per_step_time:.3f} ms, fps: {fps:.2f} img/s"
+                f"loss: {loss:.6f}, " + lr_str + f"per step time: {per_step_time:.3f} ms, fps per card: {fps:.2f} img/s"
             )
 
             _logger.info(msg)
@@ -179,7 +179,7 @@ class EvalSaveCallback(Callback):
         fps = 1000 * self.batch_size / per_step_time
         msg = (
             f"epoch: [{cur_epoch}/{cb_params.epoch_num+self.start_epoch}], loss: {train_loss:.6f}, "
-            f"epoch time: {epoch_time:.3f} s, per step time: {per_step_time:.3f} ms, fps: {fps:.2f} img/s"
+            f"epoch time: {epoch_time:.3f} s, per step time: {per_step_time:.3f} ms, fps per card: {fps:.2f} img/s"
         )
         _logger.info(msg)
 
