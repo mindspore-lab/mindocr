@@ -91,15 +91,13 @@ class BasicBlock(nn.Cell):
 @register_backbone_class
 class RecResNet(nn.Cell):
     r'''The RecResNet model is the customized ResNet backbone for Recognition.
-        ResNet Network is based on \
-            [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385) \
-                paper.
+        ResNet Network is based on
+        `"Deep Residual Learning for Image Recognition"
+        <https://arxiv.org/abs/1512.03385>`_ paper.
 
         Args:
             in_channels (int): the number of input channels of images. Default: 3.
-            layers (int): the number of layers of ResNet, which defines the structure of ResNet \
-                according to [Deep Residual Learning for Image Recognition](https://arxiv.org/abs/1512.03385) \
-                    paper. Default: 34.
+            layers (int): the number of layers of ResNet, which defines the structure of ResNet. Default: 34.
             kwargs (dict): input args for the ResNet Network.
 
         Return:
