@@ -1,7 +1,6 @@
 import logging
-from typing import Tuple, Union
-
 from math import pi
+from typing import Tuple, Union
 
 import mindspore as ms
 import mindspore.common.dtype as mstype
@@ -318,8 +317,11 @@ class FCELoss(nn.LossBase):
         neg = ((1 - target) * train_mask).astype(ms.float32)
 
         n_pos = ops.stop_gradient(pos.sum())
-        n_neg = ops.select(n_pos < self.ohem_thresh, ms.Tensor(100, ms.int32),
-                           ops.minimum(neg.sum(), self.ohem_ratio * n_pos).astype(ms.int32))
+        n_neg = ops.select(
+            n_pos < self.ohem_thresh,
+            ms.Tensor(100, ms.int32),
+            ops.minimum(neg.sum(), self.ohem_ratio * n_pos).astype(ms.int32),
+        )
         n_neg = ops.stop_gradient(n_neg)
 
         loss = ops.cross_entropy(predict, target, reduction="none")
