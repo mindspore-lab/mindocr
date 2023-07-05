@@ -198,8 +198,7 @@ def main(cfg):
     # save args used for training
     if rank_id in [None, 0]:
         with open(os.path.join(cfg.train.ckpt_save_dir, "args.yaml"), "w") as f:
-            args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False, sort_keys=False)
-            f.write(args_text)
+            yaml.safe_dump(cfg.to_dict(), stream=f, default_flow_style=False, sort_keys=False)
 
     # log
     num_devices = device_num if device_num is not None else 1
