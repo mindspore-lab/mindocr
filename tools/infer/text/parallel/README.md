@@ -2,7 +2,6 @@
 
 This folder contains code and scripts for MindOCR online parallel inference. Instead of inferring detection for one image followed by recognizing all the detected regions batch-wisely, the parallel version intends to infer detection for all input images at first, save all the cropped images for the detected regions, and finally run text recognition on all the crop images at once.
 > The current code only support batch size = 1.
-> To run it for your model, please add `predict` section in the model yaml config file to describe the data processing and loading pipeline for inference.
 
 This doc introduces how to run the detection and recognition prediction pipeline using MindOCR-trained ckpt files.
 
@@ -11,7 +10,7 @@ This doc introduces how to run the detection and recognition prediction pipeline
 
 | Text detection + text recognition pipeline | Datasets                                                          | Inference acc |
 |--------------------------------------------|-------------------------------------------------------------------|---------------|
-| DBNet+CRNN                                 | [ICDAR15](https://rrc.cvc.uab.es/?ch=4&com=downloads)<sup>*</sup> | 55.99%        |
+| DBNet+CRNN                                 | [ICDAR15](https://rrc.cvc.uab.es/?ch=4&com=downloads)<sup>*</sup> | 58.11%        |
 
 > *We use Test Set in ICDAR15 Task 4.1.
 
@@ -36,28 +35,29 @@ Otherwise, the args values in (1) yaml config file will be used by default. You 
 
 #### (1) yaml config file
 
-   Detection model and recognition model have one yaml config file respectively. Please pay attention to the `predict` module in both detection and recognition config files. The important args are listed below.
+   Detection model and recognition model have one yaml config file respectively. Please pay attention to the `eval` module in both detection and recognition config files. The important args are listed below.
 
    ```yaml
    # yaml config file for detection model or recognition model
    ...
-   predict:
+   eval:
      ckpt_load_path: tmp_det/best.ckpt              <--- args.det_ckpt_path (if set) overwrites it in det yaml, args.rec_ckpt_path (if set) overwrites it in rec yaml; or update it here directly
      dataset_sink_mode: False
      dataset:
-       type: PredictDataset
+       type: DetDataset                             <--- default value can be kept, it's overwriten as PredictDataset during the online inference pipeline
        dataset_root: path/to/dataset_root           <--- args.raw_data_dir (if set) overwrites it in det yaml, args.crop_save_dir (if set) overwrites it in rec yaml; or update it here directly
        data_dir: ic15/det/test/ch4_test_images      <--- args.raw_data_dir (if set) overwrites it in det yaml, args.crop_save_dir (if set) overwrites it in rec yaml; or update it here directly
        sample_ratio: 1.0
        transform_pipeline:
          ...
-       output_columns: [ 'img_path', 'image', 'raw_img_shape' ]
-       num_columns_to_net: 1
+       output_columns: [ "image", ... ]              <--- default value can be kept, it's overwriten during the online inference pipeline
      loader:
-       shuffle: False
-       batch_size: 1
+       shuffle: False                                <--- default value can be kept, it's overwriten as False during the online inference pipeline
+       batch_size: 1                                 <--- default value can be kept, it's overwriten as 1 during the online inference pipeline
        ...
    ```
+   - In online inference pipeline, the value of `eval.dataset.output_columns` is overwriten as `["image", "img_path", "shape_list"]` (detection), or `["image", "img_path"]` (recognition). Please refer to [utils_predict.py](utils_predict.py) for more details.
+   - Label files are not required in online inference, so the transform_pipeline does not apply operation on label, i.e., skip the `DetLabelEncode`, `RecCTCLabelEncode`, `RecAttnLabelEncode` operations.
 
 #### (2) args list in prediction script `predict_system.py`
    | Argument          | Explanation                                                                                                        | Default                                    |
@@ -78,15 +78,17 @@ Otherwise, the args values in (1) yaml config file will be used by default. You 
    ```bash
    python tools/infer/text/parallel/predict_system.py \
                 --raw_data_dir path/to/raw_data \
+                --det_config_path path/to/detection_config \
                 --det_ckpt_path path/to/detection_ckpt \
+                --rec_config_path path/to/recognition_config \
                 --rec_ckpt_path path/to/recognition_ckpt
    ```
 
 ### 2.4 Evaluation of prediction results
    After the prediction finishes, the results including image names, bounding boxes (`points`) and recognized texts (`transcription`) will be saved in `args.result_save_path`. The format of prediction results is shown below.
    ```text
-   img_1.jpg	[{"transcription": "hello", "points": [600, 150, 715, 157, 714, 177, 599, 170]}, {"transcription": "world", "points": [622, 126, 695, 129, 694, 154, 621, 151]}, ...]
-   img_2.jpg	[{"transcription": "apple", "points": [553, 338, 706, 318, 709, 342, 556, 362]}, ...]
+   img_1.jpg	[{"transcription": "hello", "points": [[600, 150], [715, 157], [714, 177], [599, 170]]}, {"transcription": "world", "points": [[622, 126], [695, 129], [694, 154], [621, 151]]}, ...]
+   img_2.jpg	[{"transcription": "apple", "points": [[553, 338], [706, 318], [709, 342], [556, 362]]}, ...]
    ...
    ```
    Prepare the **ground truth** file (in the same format as above) and **prediction results** file, and then run the following command to evaluate the prediction results.

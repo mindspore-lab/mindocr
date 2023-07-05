@@ -13,7 +13,7 @@ class EASTProcessTrain:
         super(EASTProcessTrain, self).__init__()
         self.scale = scale
         self.length = length
-        self.output_columns = ['image', 'score_map', 'geo_map', 'training_mask']
+        self.output_columns = ["image", "score_map", "geo_map", "training_mask"]
 
     def __call__(self, data):
         vertices, labels = self._extract_vertices(data["label"])

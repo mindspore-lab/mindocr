@@ -67,7 +67,6 @@ def parse_args():
 def predict_det(args):
     det_cfg = load_yaml(args.det_config_path)
     det_cfg = update_config(args, det_cfg, "det")
-
     det_predictor = BasePredict(det_cfg)
     vis_tool = Visualization(VisMode.crop)
     # t0 = time()
@@ -83,10 +82,9 @@ def predict_det(args):
         original_img_path = ori_img_path_list[idx].asnumpy()[0]
         # original_img_filename = os.path.splitext(os.path.basename(original_img_path))[0]
         original_img_filename = os.path.basename(original_img_path)
-
         image = np.squeeze(image.asnumpy(), axis=0)  # TODO: only works when batch size = 1
         image = recover_image(image)
-        cropped_images = vis_tool(image, box_list[idx][0][0])
+        cropped_images = vis_tool(image, box_list[idx]["polys"][0])
         # cropped_images_dict[original_img_filename] = cropped_images
         box_dict[
             original_img_filename
@@ -96,7 +94,7 @@ def predict_det(args):
         if args.crop_save_dir:
             for i, crop in enumerate(cropped_images):
                 crop_save_filename = original_img_filename + "_crop_" + str(i) + ".jpg"
-                box_dict[original_img_filename][crop_save_filename] = box_list[idx][0][0][i]
+                box_dict[original_img_filename][crop_save_filename] = box_list[idx]["polys"][0][i]
                 cv2.imwrite(os.path.join(args.crop_save_dir, crop_save_filename), crop)
 
     det_pred_outputs["predicted_boxes"] = box_dict
@@ -110,8 +108,7 @@ def predict_det(args):
 def predict_rec(args, det_pred_outputs):
     rec_cfg = load_yaml(args.rec_config_path)
     rec_cfg = update_config(args, rec_cfg, "rec")
-
-    rec_cfg.predict.loader.batch_size = 1  # TODO
+    rec_cfg.eval.loader.batch_size = 1  # TODO
     rec_predictor = BasePredict(rec_cfg)
     # t2 = time()
 

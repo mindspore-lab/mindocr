@@ -75,18 +75,36 @@ def update_config(args, cfg, model_type):
     """
     if model_type == "det":
         if args.raw_data_dir:
-            cfg.predict.dataset.dataset_root = args.raw_data_dir
-            cfg.predict.dataset.data_dir = "."
+            cfg.eval.dataset.dataset_root = args.raw_data_dir
+            cfg.eval.dataset.data_dir = "."
         if args.det_ckpt_path:
-            cfg.predict.ckpt_load_path = args.det_ckpt_path
+            cfg.eval.ckpt_load_path = args.det_ckpt_path
+        cfg.eval.dataset.output_columns = ["image", "img_path", "shape_list"]
+        for op in cfg.eval.dataset.transform_pipeline:  # TODO: remove this if 'polygons=False' in DetResize by default
+            if "DetResize" in op:
+                op["DetResize"]["polygons"] = False
     elif model_type == "rec":
         if args.crop_save_dir:
-            cfg.predict.dataset.dataset_root = args.crop_save_dir
-            cfg.predict.dataset.data_dir = "."
+            cfg.eval.dataset.dataset_root = args.crop_save_dir
+            cfg.eval.dataset.data_dir = "."
         if args.rec_ckpt_path:
-            cfg.predict.ckpt_load_path = args.rec_ckpt_path
+            cfg.eval.ckpt_load_path = args.rec_ckpt_path
+        cfg.eval.dataset.output_columns = ["image", "img_path"]
     else:
         raise ValueError("Invalid value of 'model_type'. It must be 'det' or 'rec'.")
+
+    cfg.eval.dataset.type = "PredictDataset"
+    cfg.eval.dataset.label_file = None
+    cfg.eval.dataset.mindrecord = False
+    cfg.eval.loader.shuffle = False
+    cfg.eval.loader.batch_size = 1
+    label_ops = []
+    for op in cfg.eval.dataset.transform_pipeline:  # remove label transform op, no need label in prediction
+        if "label" in str(op.keys()).lower():
+            label_ops.append(op)
+    for op in label_ops:
+        cfg.eval.dataset.transform_pipeline.remove(op)
+        print(f"INFO: Skip label operation '{op}' during data transform pipeline.")
 
     return cfg
 
@@ -96,20 +114,19 @@ def save_pipeline_results(box_dict, rec_text_dict, save_path):
         for ori_img_name, crop_content in box_dict.items():
             line = []
             for crop_img_name, box in crop_content.items():
-                line.append(
-                    {
-                        "transcription": rec_text_dict[crop_img_name],
-                        "points": box.reshape(
-                            -1,
-                        ).tolist(),
-                    }
-                )
+                line.append({"transcription": rec_text_dict[crop_img_name], "points": box.tolist()})
             f.write(f"{ori_img_name}\t{json.dumps(line)}\n")
     _logger.info(f"Detection and recognition prediction pipeline results are saved in '{os.path.realpath(save_path)}'.")
 
 
 def rescale(det_pred_outputs):
-    # assert len(det_pred_outputs['pred_images']) == len(det_pred_outputs['raw_imgs_shape'])
+    if "raw_imgs_shape" not in det_pred_outputs:
+        print(
+            "WARNING: Rescaling is not performed during online inference, because raw images shapes are not recorded. "
+            "Please check whether 'shape_list' is in 'output_columns' of dataset or not."
+        )
+        return det_pred_outputs
+
     # TODO: can do in BasePredict
     assert len(det_pred_outputs["pred_images"]) == len(det_pred_outputs["predicted_boxes"]), (
         "The number of images before and after detection prediction doesn't match. "
@@ -120,7 +137,7 @@ def rescale(det_pred_outputs):
         os.path.basename(img_path.asnumpy()[0]) for img_path in det_pred_outputs["img_paths"]
     ]  # TODO: can do in BasePredict
     pred_images_shape = np.array([np.array(img.shape[-2:]) for img in det_pred_outputs["pred_images"]])
-    raw_images_shape = np.array([shape.asnumpy()[0] for shape in det_pred_outputs["raw_imgs_shape"]])
+    raw_images_shape = np.array([shape.asnumpy() for shape in det_pred_outputs["raw_imgs_shape"]])
     scales = raw_images_shape / pred_images_shape
     scales = scales[:, ::-1]  # H, W -> W, H
     imgname_scale_mapping = dict(zip(imgnames, scales))

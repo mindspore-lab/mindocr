@@ -30,19 +30,22 @@ class BasePredict(object):
             logger.warning("Distribut mode blocked. Evaluation only runs in standalone mode.")
 
         self.loader_predict = build_dataset(
-            predict_cfg.predict.dataset, predict_cfg.predict.loader, num_shards=None, shard_id=None, is_train=False
+            predict_cfg.eval.dataset, predict_cfg.eval.loader, num_shards=None, shard_id=None, is_train=False
         )
 
-        self.img_path_column_idx = predict_cfg.predict.dataset.output_columns.index("img_path")
-        self.image_column_idx = predict_cfg.predict.dataset.output_columns.index("image")
-        self.raw_img_shape_column_idx = predict_cfg.predict.dataset.output_columns.index("raw_img_shape")
+        self.img_path_column_idx = predict_cfg.eval.dataset.output_columns.index("img_path")
+        self.image_column_idx = predict_cfg.eval.dataset.output_columns.index("image")
+        if "shape_list" in predict_cfg.eval.dataset.output_columns:
+            self.shape_list_column_idx = predict_cfg.eval.dataset.output_columns.index("shape_list")
+        else:
+            self.shape_list_column_idx = None
         self.loader_predict.get_dataset_size()
 
         # model
         assert (
-            "ckpt_load_path" in predict_cfg.predict
+            "ckpt_load_path" in predict_cfg.eval
         ), "Please provide \n`eval:\n\tckpt_load_path`\n in the yaml config file "
-        self.network = build_model(predict_cfg.model, ckpt_load_path=predict_cfg.predict.ckpt_load_path)
+        self.network = build_model(predict_cfg.model, ckpt_load_path=predict_cfg.eval.ckpt_load_path)
         self.network.set_train(False)
 
         if predict_cfg.system.amp_level != "O0":
@@ -54,11 +57,14 @@ class BasePredict(object):
         self.postprocessor = build_postprocess(predict_cfg.postprocess)
 
     def __call__(self):
-        pred_outputs = {"img_paths": [], "pred_images": [], "preds": [], "raw_imgs_shape": []}
+        if self.shape_list_column_idx is not None:
+            pred_outputs = {"img_paths": [], "pred_images": [], "preds": [], "raw_imgs_shape": []}
+        else:
+            pred_outputs = {"img_paths": [], "pred_images": [], "preds": []}
+
         for idx, data in tqdm(enumerate(self.loader_predict)):
             img_path = data[self.img_path_column_idx]
             input_image = data[self.image_column_idx]
-            raw_img_shape = data[self.raw_img_shape_column_idx]
 
             pred = self.network(input_image)
             pred = self.postprocessor(pred)  # [bboxes, scores], shape=[(N, K, 4, 2), (N, K)]
@@ -66,7 +72,9 @@ class BasePredict(object):
             pred_outputs["img_paths"].append(img_path)
             pred_outputs["pred_images"].append(input_image)
             pred_outputs["preds"].append(pred)
-            pred_outputs["raw_imgs_shape"].append(raw_img_shape)
+            if self.shape_list_column_idx is not None:
+                raw_img_shape = data[self.shape_list_column_idx][0][:2]  # [src_h, src_w]
+                pred_outputs["raw_imgs_shape"].append(raw_img_shape)
 
         return pred_outputs
 

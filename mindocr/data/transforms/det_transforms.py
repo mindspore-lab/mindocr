@@ -519,8 +519,7 @@ class DetResize:
             data["polys"][:, :, 1] = data["polys"][:, :, 1] * scale_h
 
         if "shape_list" not in data:
-            src_h, src_w = data.get("raw_img_shape", (h, w))
-            data["shape_list"] = np.array([src_h, src_w, scale_h, scale_w], dtype=np.float32)
+            data["shape_list"] = np.array([h, w, scale_h, scale_w], dtype=np.float32)
         else:
             data["shape_list"][2] = data["shape_list"][2] * scale_h
             data["shape_list"][3] = data["shape_list"][3] * scale_h

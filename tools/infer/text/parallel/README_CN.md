@@ -1,8 +1,7 @@
 # MindOCR检测识别在线推理(并行版)
 
 此文件夹包含MindOCR在线并行推理的代码和脚本。与串行推理不同（串行版：对某一张图像进行检测推理，接着对其检测到的文字区域进行识别推理，再对下一张图像进行检测，依次类推），并行版本首先对所有的输入图像进行检测推理，得到所有图像的各个文字区域，并抠图保存，再执行文字识别推理，读取所有抠图进行文本识别。
-> 目前代码只支持batch size = 1.
-> 需要在模型yaml配置文件中添加`predict`字段，配置推理阶段的数据处理和加载流程。
+> 目前代码只支持batch size = 1。
 
 本文档介绍如何使用MindOCR训练出来的ckpt文件进行文本检测+文本识别的串联推理。
 
@@ -10,7 +9,7 @@
 
 | 文本检测+文本识别模型组合 | 数据集                                                               | 推理精度    |
 |---------------|-------------------------------------------------------------------|---------|
-| DBNet+CRNN    | [ICDAR15](https://rrc.cvc.uab.es/?ch=4&com=downloads)<sup>*</sup> | 55.99%  |
+| DBNet+CRNN    | [ICDAR15](https://rrc.cvc.uab.es/?ch=4&com=downloads)<sup>*</sup> | 58.11%  |
 
 > *此处用于推理的是ICDAR15 Task 4.1中的Test Set
 
@@ -34,27 +33,29 @@
 
 #### (1) yaml配置文件
 
-   检测模型和识别模型各有一个yaml配置文件。请重点关注这**两个**文件中`predict`模块内的内容，重点参数如下。
+   检测模型和识别模型各有一个yaml配置文件。请重点关注这**两个**文件中`eval`模块内的内容，重点参数如下。
 
    ```yaml
    # 检测模型或识别模型的yaml配置文件
    ...
-   predict:
+   eval:
      ckpt_load_path: tmp_det/best.ckpt              <--- args.det_ckpt_path覆盖检测yaml, args.rec_ckpt_path覆盖识别yaml; 或手动更新该值
      dataset_sink_mode: False
      dataset:
-       type: PredictDataset
+       type: DetDataset                             <--- 可保留默认值，它在推理流程中会自动被覆盖为PredictDataset
        dataset_root: path/to/dataset_root           <--- args.raw_data_dir覆盖检测yaml, args.crop_save_dir覆盖识别yaml; 或手动更新该值
        data_dir: ic15/det/test/ch4_test_images      <--- args.raw_data_dir覆盖检测yaml, args.crop_save_dir覆盖识别yaml; 或手动更新该值
        sample_ratio: 1.0
        transform_pipeline:
          ...
-       output_columns: [ 'img_path', 'image', 'raw_img_shape' ]
+       output_columns: [ "image", ... ]             <--- 可保留默认值，它在推理流程中会自动被其他值覆盖
      loader:
-       shuffle: False
-       batch_size: 1
+       shuffle: False                               <--- 可保留默认值，它在推理流程中会自动被覆盖为False
+       batch_size: 1                                <--- 可保留默认值，它在推理流程中会自动被覆盖为1
        ...
    ```
+   - `eval.dataset.output_columns`参数在推理流程中将会被自动重新赋值为 `["image", "img_path", "shape_list"]`（检测模型），或 `["image", "img_path"]`（识别模型）。详情请见[utils_predict.py](utils_predict.py)。
+   - 在线推理不需要label文件，所以transform_pipeline不会对label进行处理，即跳过了`DetLabelEncode`、`RecCTCLabelEncode`、`RecAttnLabelEncode`操作。
 
 #### (2) 推理脚本`predict_system.py`的args参数列表
 
@@ -76,7 +77,9 @@
    ```bash
    python tools/infer/text/parallel/predict_system.py \
                 --raw_data_dir path/to/raw_data \
+                --det_config_path path/to/detection_config \
                 --det_ckpt_path path/to/detection_ckpt \
+                --rec_config_path path/to/recognition_config \
                 --rec_ckpt_path path/to/recognition_ckpt
    ```
 
@@ -84,8 +87,8 @@
 
    推理完成后，图片名、文字检测框(`points`)和识别的文字(`trancription`)将保存在args.result_save_path。推理结果文件格式示例如下：
    ```text
-   img_1.jpg	[{"transcription": "hello", "points": [600, 150, 715, 157, 714, 177, 599, 170]}, {"transcription": "world", "points": [622, 126, 695, 129, 694, 154, 621, 151]}, ...]
-   img_2.jpg	[{"transcription": "apple", "points": [553, 338, 706, 318, 709, 342, 556, 362]}, ...]
+   img_1.jpg	[{"transcription": "hello", "points": [[600, 150], [715, 157], [714, 177], [599, 170]]}, {"transcription": "world", "points": [[622, 126], [695, 129], [694, 154], [621, 151]]}, ...]
+   img_2.jpg	[{"transcription": "apple", "points": [[553, 338], [706, 318], [709, 342], [556, 362]]}, ...]
    ...
    ```
 
