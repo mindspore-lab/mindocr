@@ -37,6 +37,8 @@ class LMDBDataset(BaseDataset):
             character in the label. If it is not provided, then `0123456789abcdefghijklmnopqrstuvwxyz` will be used.
             Default: None.
         label_standandize (bool): Apply label standardization (NFKD). default: False.
+        random_choice_if_none (bool): Random choose another data if the result returned from data transform is none.
+            Default: False.
 
     Returns:
         data (tuple): Depending on the transform pipeline, __get_item__ returns a tuple for the specified data item.
@@ -68,6 +70,7 @@ class LMDBDataset(BaseDataset):
         filter_zero_text_image: bool = False,
         character_dict_path: Optional[str] = None,
         label_standandize: bool = False,
+        random_choice_if_none: bool = False,
         **kwargs: Any,
     ):
         self.data_dir = data_dir
@@ -75,6 +78,7 @@ class LMDBDataset(BaseDataset):
         self.max_text_len = max_text_len
         self.label_standandize = label_standandize
         self.extra_count_if_repeat = extra_count_if_repeat
+        self.random_choice_if_none = random_choice_if_none
 
         shuffle = shuffle if shuffle is not None else is_train
 
@@ -266,10 +270,25 @@ class LMDBDataset(BaseDataset):
         lmdb_idx, file_idx = self.data_idx_order_list[idx]
         sample_info = self.get_lmdb_sample_info(self.lmdb_sets[int(lmdb_idx)]["txn"], int(file_idx))
 
+        if sample_info is None and self.random_choice_if_none:
+            _logger.warning("sample_info is None, randomly choose another data.")
+            random_idx = np.random.randint(self.__len__())
+            return self.__getitem__(random_idx)
+
         data = {"img_lmdb": sample_info[0], "label": sample_info[1]}
 
         # perform transformation on data
-        data = run_transforms(data, transforms=self.transforms)
+        try:
+            data = run_transforms(data, transforms=self.transforms)
+        except Exception as e:
+            if self.random_choice_if_none:
+                _logger.warning("data is None after transforms, randomly choose another data.")
+                random_idx = np.random.randint(self.__len__())
+                return self.__getitem__(random_idx)
+            else:
+                _logger.warning(f"Error occurred during preprocess.\n {e}")
+                raise e
+
         output_tuple = tuple(data[k] for k in self.output_columns)
 
         return output_tuple
