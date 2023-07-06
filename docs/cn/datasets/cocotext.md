@@ -6,7 +6,7 @@ COCO-Text数据集[官网](https://rrc.cvc.uab.es/?ch=5)
 
 数据集图像和JSON标注文件`annotations v1.4 JSON`可从[此处](https://rrc.cvc.uab.es/?ch=5&com=downloads)下载。
 
->注意：在下载之前，请先注册一个账号。
+> 注意：在下载之前，请先注册一个账号。
 
 请从上述网站下载数据并解压缩文件。解压文件后，数据结构应该是这样的：
 
