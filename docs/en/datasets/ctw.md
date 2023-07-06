@@ -5,22 +5,9 @@
 
 Note: You need to fill in a form to download this dataset.
 
-<details open markdown>
-<summary>How to Download CTW Images</summary>
+The CTW images dataset can be downloaded from [this download link](https://ctwdataset.github.io/downloads.html). The images are in 26 batches, i.e. 26 different .tar archived files of the format `images-trainval/ctw-trainval*.tar`. All 26 batches need to be downloaded.
 
-The CTW images dataset can be downloaded from [here](https://ctwdataset.github.io/downloads.html).
-
-The images are in 26 batches, i.e. 26 different .tar archived files of the format `images-trainval/ctw-trainval*.tar`. All 26 batches need to be downloaded.
-
-</details>
-
-<details open markdown>
-<summary>How to Download CTW Annotations</summary>
-
-The CTW annotations (in JSON Lines format i.e. `.jsonl`) can be downloaded from [here](https://ctwdataset.github.io/downloads.html).
-The annotations archived file is named `ctw-annotations.tar.gz`.
-
-</details>
+The CTW annotations (in JSON Lines format i.e. `.jsonl`) can be downloaded from [this download link](https://ctwdataset.github.io/downloads.html). The annotations archived file is named `ctw-annotations.tar.gz`.
 
 After downloading the zipped images, unzip the batches and collect all the images into a single folder e.g. `train_val/`.
 After downloading the zipped annotations, unzip them.

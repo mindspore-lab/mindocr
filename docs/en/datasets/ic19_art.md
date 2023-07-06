@@ -5,14 +5,7 @@
 
 Note: You need to register an account to download this dataset.
 
-<details open markdown>
-<summary>How to Download ICDAR2019 ArT Images and Annotations</summary>
-
-The ICDAR2019 ArT images and annotations dataset can be downloaded from [here](https://rrc.cvc.uab.es/?ch=14&com=downloads).
-
-For the images, the archived file `train_images.tar.gz` from the section "Task 1 and Task 3" needs to be downloaded. For the annotations, the .JSON file `train_labels.json` from the same section needs to be downloaded.
-
-</details>
+The ICDAR2019 ArT images and annotations dataset can be downloaded from [this download link](https://rrc.cvc.uab.es/?ch=14&com=downloads). For the images, the archived file `train_images.tar.gz` from the section "Task 1 and Task 3" needs to be downloaded. For the annotations, the .JSON file `train_labels.json` from the same section needs to be downloaded.
 
 After downloading the dataset, unzip the files, after which the directory structure should be like as follows (ignoring the archive files):
 ```txt

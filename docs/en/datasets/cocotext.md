@@ -5,19 +5,7 @@
 
 Note: You need to register an account to download this dataset.
 
-<details open markdown>
-<summary>How to Download COCO-Text Images</summary>
-
-The COCO-Text images dataset can be downloaded from [here](https://rrc.cvc.uab.es/?ch=5&com=downloads).
-
-</details>
-
-<details open markdown>
-<summary>How to Download COCO-Text Annotations</summary>
-
-The COCO-Text annotations (in JSON format), `annotations v1.4 JSON`, can be downloaded from [here](https://rrc.cvc.uab.es/?ch=5&com=downloads).
-
-</details>
+The COCO-Text images dataset can be downloaded from [this download link](https://rrc.cvc.uab.es/?ch=5&com=downloads). The annotations (in JSON format), `annotations v1.4 JSON`, can be downloaded from [here](https://rrc.cvc.uab.es/?ch=5&com=downloads).
 
 After downloading the images and annotations, unzip the files, after which the directory structure should be like as follows (ignoring the archive files):
 ```txt

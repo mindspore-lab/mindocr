@@ -3,14 +3,10 @@
 ## 数据集下载
 
 RCTW-17数据集[官网](https://rctw.vlrlab.net/)
-<details open markdown>
-<summary>从何处下载RCTW-17数据集</summary>
 
 [下载地址](https://rctw.vlrlab.net/dataset)
 
 图像训练集分为两个集合`train_images.zip.001`和`train_images.zip.002`，注释文件为`*_gts.zip`。
-
-</details>
 
 图像下载解压缩后，请合并到同一个文件中，例如`train_images`，最终目录结构如下：
 ```txt

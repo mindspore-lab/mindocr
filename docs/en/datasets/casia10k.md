@@ -3,12 +3,7 @@
 
 ## Data Downloading
 
-<details open markdown>
-<summary>How to Download CASIA-10K Images and Annotations</summary>
-
-The CASIA-10K dataset can be downloaded from [here](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html).
-
-</details>
+The CASIA-10K dataset can be downloaded from [this download link](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html).
 
 After downloading the file as above, unzip it, after which the directory structure should be like as follows (ignoring the archive file):
 
