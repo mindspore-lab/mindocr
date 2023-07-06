@@ -4,7 +4,7 @@
 
 
 The LSVT dataset [Official Website](https://rrc.cvc.uab.es/?ch=16) |
- [Download Link](https://rrc.cvc.uab.es/?ch=16&com=downloads) 
+ [Download Link](https://rrc.cvc.uab.es/?ch=16&com=downloads)
 
 > Note: Please register an account to download this dataset.
 

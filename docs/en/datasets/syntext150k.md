@@ -4,7 +4,7 @@
 
 SynText150k [paper](https://arxiv.org/abs/2002.10200)
 
-Download Syntext-150k 
+Download Syntext-150k
 - Part1: 54,327 [[images]](https://universityofadelaide.box.com/s/1jcvu6z9jojmhzojuqrwxvwxmrlw7uib)[[annotations]](https://universityofadelaide.box.com/s/zc73pyzvymqkjg3vkb2ayjol7y5a4fsk)
 - Part2: 94,723 [[images]](https://universityofadelaide.box.com/s/ibihmhkzpc1zuh56mxyehad1dv1l73ua)[[annotations]](https://universityofadelaide.box.com/s/rk55zheij8ubvwgzg7dfjbxgi27l8xld)
 
