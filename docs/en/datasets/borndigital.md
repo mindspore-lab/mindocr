@@ -3,7 +3,7 @@
 
 ## Data Downloading
 
-The Born-Digital dataset [Official Website](https://rrc.cvc.uab.es/?ch=1) | [Download Link](https://rrc.cvc.uab.es/?ch=1&com=downloads).
+The Born-Digital dataset [Official Website](https://rrc.cvc.uab.es/?ch=1) | [Download Link](https://rrc.cvc.uab.es/?ch=1&com=downloads)
 
 > Note: Please register an account to download this dataset.
 
