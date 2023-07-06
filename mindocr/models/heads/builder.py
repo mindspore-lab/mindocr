@@ -1,5 +1,17 @@
 __all__ = ['build_head']
-supported_heads = ['ConvHead', 'DBHead', 'EASTHead', 'CTCHead', 'PSEHead', 'AttentionHead', 'ClsHead', 'FCEHead']
+supported_heads = [
+    'ConvHead',
+    'DBHead',
+    'EASTHead',
+    'CTCHead',
+    'PSEHead',
+    'AttentionHead',
+    'ClsHead',
+    'FCEHead',
+    'MasterDecoder',
+    'RobustScannerHead',
+    'VisionLANHead',
+]
 from .cls_mv3_head import ClsHead
 from .conv_head import ConvHead
 from .det_db_head import DBHead
@@ -8,6 +20,9 @@ from .det_fce_head import FCEHead
 from .det_pse_head import PSEHead
 from .rec_attn_head import AttentionHead
 from .rec_ctc_head import CTCHead
+from .rec_master_decoder import MasterDecoder
+from .rec_robustscanner_head import RobustScannerHead
+from .rec_visionlan_head import VisionLANHead
 
 
 def build_head(head_name, **kwargs):

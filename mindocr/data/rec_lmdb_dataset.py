@@ -1,15 +1,15 @@
+import logging
 import os
 from typing import Any, List, Optional
 
 import lmdb
 import numpy as np
 
-from ..utils.logger import Logger
 from .base_dataset import BaseDataset
 from .transforms.transforms_factory import create_transforms, run_transforms
 
 __all__ = ["LMDBDataset"]
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 class LMDBDataset(BaseDataset):
@@ -27,6 +27,7 @@ class LMDBDataset(BaseDataset):
             if None, all data keys will be used for return.
         filter_max_len (bool): Filter the records where the label is longer than the `max_text_len`.
         max_text_len (int): The maximum text length the dataloader expected.
+        random_choice_if_none (bool): Random choose another data if the result returned from data transform is none
 
     Returns:
         data (tuple): Depending on the transform pipeline, __get_item__ returns a tuple for the specified data item.
@@ -54,11 +55,13 @@ class LMDBDataset(BaseDataset):
         output_columns: Optional[List[str]] = None,
         filter_max_len: bool = False,
         max_text_len: Optional[int] = None,
+        random_choice_if_none: bool = False,
         **kwargs: Any,
     ):
         self.data_dir = data_dir
         self.filter_max_len = filter_max_len
         self.max_text_len = max_text_len
+        self.random_choice_if_none = random_choice_if_none
 
         shuffle = shuffle if shuffle is not None else is_train
 
@@ -132,6 +135,11 @@ class LMDBDataset(BaseDataset):
         else:
             results = {}
 
+        message = "\n".join(
+            [f"{os.path.basename(os.path.abspath(x['rootdir'])):<20}{x['data_size']}" for x in results.values()]
+        )
+        _logger.info("Number of LMDB records:\n" + message)
+
         return results
 
     def load_hierarchical_lmdb_dataset(self, data_dir, start_idx=0):
@@ -139,7 +147,13 @@ class LMDBDataset(BaseDataset):
         dataset_idx = start_idx
         for rootdir, dirs, _ in os.walk(data_dir + "/"):
             if not dirs:
-                env = lmdb.open(rootdir, max_readers=32, readonly=True, lock=False, readahead=False, meminit=False)
+                try:
+                    env = lmdb.Environment(
+                        rootdir, max_readers=32, readonly=True, lock=False, readahead=False, meminit=False
+                    )
+                except lmdb.Error as e:
+                    _logger.warning(str(e))
+                    continue
                 txn = env.begin(write=False)
                 data_size = int(txn.get("num-samples".encode()))
                 lmdb_sets[dataset_idx] = {"rootdir": rootdir, "env": env, "txn": txn, "data_size": data_size}
@@ -186,10 +200,25 @@ class LMDBDataset(BaseDataset):
         lmdb_idx, file_idx = self.data_idx_order_list[idx]
         sample_info = self.get_lmdb_sample_info(self.lmdb_sets[int(lmdb_idx)]["txn"], int(file_idx))
 
+        if sample_info is None and self.random_choice_if_none:
+            _logger.warning("sample_info is None, randomly choose another data.")
+            random_idx = np.random.randint(self.__len__())
+            return self.__getitem__(random_idx)
+
         data = {"img_lmdb": sample_info[0], "label": sample_info[1]}
 
         # perform transformation on data
-        data = run_transforms(data, transforms=self.transforms)
+        try:
+            data = run_transforms(data, transforms=self.transforms)
+        except Exception as e:
+            if self.random_choice_if_none:
+                _logger.warning("data is None after transforms, randomly choose another data.")
+                random_idx = np.random.randint(self.__len__())
+                return self.__getitem__(random_idx)
+            else:
+                _logger.warning(f"Error occurred during preprocess.\n {e}")
+                raise e
+
         output_tuple = tuple(data[k] for k in self.output_columns)
 
         return output_tuple

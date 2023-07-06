@@ -175,7 +175,7 @@ def fcenet_decode(
     scale,
     alpha=1.0,
     beta=2.0,
-    text_repr_type="poly",
+    box_type="poly",
     score_thr=0.3,
     nms_thr=0.1,
 ):
@@ -190,7 +190,7 @@ def fcenet_decode(
                 = (Score_{text region} ^ alpha)
                 * (Score_{text center region}^ beta)
         beta (float) : The parameter to calculate final score.
-        text_repr_type (str):  Boundary encoding type 'poly' or 'quad'.
+        box_type (str):  Boundary encoding type 'poly' or 'quad'.
         score_thr (float) : The threshold used to filter out the final
             candidates.
         nms_thr (float) :  The threshold of nms.
@@ -200,7 +200,7 @@ def fcenet_decode(
     """
     assert isinstance(preds, list)
     assert len(preds) == 2
-    assert text_repr_type in ["poly", "quad"]
+    assert box_type in ["poly", "quad"]
 
     # import pdb;pdb.set_trace()
     cls_pred = preds[0][0]
@@ -244,7 +244,7 @@ def fcenet_decode(
 
     boundaries = poly_nms(boundaries, nms_thr)
 
-    if text_repr_type == "quad":
+    if box_type == "quad":
         new_boundaries = []
         for boundary in boundaries:
             poly = np.array(boundary[:-1]).reshape(-1, 2).astype(np.float32)
@@ -261,7 +261,7 @@ class FCEPostprocess(DetBasePostprocess):
     FCEPostprocess class for post-processing the predictions of FCENet.
 
     Args:
-        scales (list): List of scale factors for different scales of FCENet predictions.
+        rescale_fields (list): List of scale factors for different scales of FCENet predictions.
         fourier_degree (int): Order of Fourier coefficients. Default is 5.
         num_reconstr_points (int): Number of reconstructed points for boundaries. Default is 50.
         decoding_type (str): Decoding type. Default is "fcenet".
@@ -269,13 +269,13 @@ class FCEPostprocess(DetBasePostprocess):
         nms_thr (float): IOU threshold for non-maximum suppression. Default is 0.1.
         alpha (float): Weight parameter for reconstruction loss. Default is 1.0.
         beta (float): Weight parameter for stability loss. Default is 1.0.
-        text_repr_type (str): Text representation type. Default is "poly".
+        box_type (str): Text representation type. Default is "poly".
 
     """
 
     def __init__(
         self,
-        scales,
+        rescale_fields,
         fourier_degree=5,
         num_reconstr_points=50,
         decoding_type="fcenet",
@@ -283,9 +283,9 @@ class FCEPostprocess(DetBasePostprocess):
         nms_thr=0.1,
         alpha=1.0,
         beta=1.0,
-        text_repr_type="poly",
+        box_type="poly",
     ):
-        self.scales = scales
+        self.rescale_fields = rescale_fields
         self.fourier_degree = fourier_degree
         self.num_reconstr_points = num_reconstr_points
         self.decoding_type = decoding_type
@@ -293,7 +293,7 @@ class FCEPostprocess(DetBasePostprocess):
         self.nms_thr = nms_thr
         self.alpha = alpha
         self.beta = beta
-        self.text_repr_type = text_repr_type
+        self.box_type = box_type
 
         # def __call__(self, preds, shape_list):
         #     score_maps = preds['maps']
@@ -339,11 +339,11 @@ class FCEPostprocess(DetBasePostprocess):
         return np.array(boxes, dtype=np.float32), scores
 
     def get_boundary(self, score_maps, shape_list):
-        assert len(score_maps) == len(self.scales)
+        assert len(score_maps) == len(self.rescale_fields)
         # import pdb;pdb.set_trace()
         boundaries = []
         for idx, score_map in enumerate(score_maps):
-            scale = self.scales[idx]
+            scale = self.rescale_fields[idx]
             boundaries = boundaries + self._get_boundary_single(score_map, scale)
 
         # nms
@@ -368,7 +368,7 @@ class FCEPostprocess(DetBasePostprocess):
             scale=scale,
             alpha=self.alpha,
             beta=self.beta,
-            text_repr_type=self.text_repr_type,
+            box_type=self.box_type,
             score_thr=self.score_thr,
             nms_thr=self.nms_thr,
         )

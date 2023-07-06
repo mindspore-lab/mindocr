@@ -42,7 +42,7 @@
 
 ## 3. 模型定义参数 (model)
 
-在MindOCR中，模型的网络架构划分为 Transform, Backbone, Neck和Head四个模块。详细请参阅[文档](../../../mindocr/models/README.md)，以下是各部分的配置说明与例子。
+在MindOCR中，模型的网络架构划分为 Transform, Backbone, Neck和Head四个模块。详细请参阅[文档](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/models/README.md)，以下是各部分的配置说明与例子。
 
 | 字段 | 说明 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
@@ -64,11 +64,11 @@
 
 > 注意：对于不同网络，backbone/neck/head模块可配置参数会有所不同，具体可配置参数由上表模块的`name`参数指定的类的__init__入参所决定 （如若指定下neck模块的name为DBFPN，由于DBFPN类初始化包括adaptive入参，则可在yaml中model.head层级下配置adaptive等参数。
 
-参考例子: [DBNet](../../../configs/det/dbnet/db_r50_mlt2017.yaml), [CRNN](../../../configs/rec/crnn/crnn_icdar15.yaml)
+参考例子: [DBNet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/db_r50_mlt2017.yaml), [CRNN](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_icdar15.yaml)
 
 ## 4. 后处理 (postprocess)
 
-代码位置请看： [mindocr/postprocess](../../../mindocr/postprocess/)
+代码位置请看： [mindocr/postprocess](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/postprocess)
 
 | 字段 | 说明 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
@@ -78,11 +78,11 @@
 
 > 注意：对于不同后处理方法（由name指定），可配置的参数有所不同，并由后处理类的初始化方法__init__的入参所决定。
 
-参考例子: [DBNet](../../../configs/det/dbnet/db_r50_mlt2017.yaml), [PSENet](../../../configs/det/psenet/pse_r152_icdar15.yaml)
+参考例子: [DBNet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/db_r50_mlt2017.yaml), [PSENet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/psenet/pse_r152_icdar15.yaml)
 
 ## 5. 评估指标 (metric)
 
-代码位置请看： [mindocr/metrics](../../../mindocr/metrics)
+代码位置请看： [mindocr/metrics](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/metrics)
 
 | 字段 | 说明 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
@@ -95,11 +95,11 @@
 
 ## 6. 损失函数 (loss)
 
-代码位置请看： [mindocr/losses](../../../mindocr/losses)
+代码位置请看： [mindocr/losses](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/losses)
 
 | 字段 | 用途 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
-| name | 损失函数类名 | - | 目前支持 L1BalancedCELoss, CTCLoss, AttentionLoss, PSEDiceLoss, EASTLoss and CrossEntropySmooth |
+| name | 损失函数类名 | - | 目前支持 DBLoss, CTCLoss, AttentionLoss, PSEDiceLoss, EASTLoss and CrossEntropySmooth |
 | pred_seq_len | 预测文本的长度 | 26 | 由网络架构决定 |
 | max_label_len | 最长标签长度 | 25 | 数值应小于网络预测文本的长度 |
 | batch_size | 单卡批量大小 | 32 | \ |
@@ -110,7 +110,7 @@
 
 ### 学习率调整策略 (scheduler)
 
-代码位置请看： [mindocr/scheduler](../../../mindocr/scheduler)
+代码位置请看： [mindocr/scheduler](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/scheduler)
 
 | 字段 | 说明 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
@@ -124,7 +124,7 @@
 
 ### 优化器 (optimizer)
 
-代码位置请看： [mindocr/optim](../../../mindocr/optim)
+代码位置请看： [mindocr/optim](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/optim)
 
 | 字段 | 说明 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
@@ -163,14 +163,14 @@
 | ema | 是否启动EMA算法  | False | \ |
 | ema_decay | EMA衰减率 | 0.9999 | \ |
 | pred_cast_fp32 | 是否将logits的数据类型强制转换为fp32 | False | \ |
-| **dataset** | 数据集配置 | 详细请参阅[Data文档](../../../mindocr/data/README.md) ||
+| **dataset** | 数据集配置 | 详细请参阅[Data文档](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/README.md) ||
 | type | 数据集类型 | - | 目前支持 LMDBDataset, RecDataset 和 DetDataset |
 | dataset_root | 数据集所在根目录 | None | Optional |
 | data_dir | 数据集所在子目录 | - | 如果没有设置`dataset_root`，请将此设置成完整目录 |
 | label_file | 数据集的标签文件路径 | - | 如果没有设置`dataset_root`，请将此设置成完整路径，否则只需设置子路径 |
 | sample_ratio | 数据集抽样比率 | 1.0 | 若数值<1.0，则随机选取 |
 | shuffle | 是否打乱数据顺序 | 在训练阶段为True，否则为False | True/False |
-| transform_pipeline | 数据处理流程 | None | 详情请看 [transforms](../../../mindocr/data/transforms/README.md) |
+| transform_pipeline | 数据处理流程 | None | 详情请看 [transforms](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/transforms/README.md) |
 | output_columns | 数据加载（data loader）最终需要输出的数据属性名称列表（给到网络/loss计算/后处理) (类型：列表），候选的数据属性名称由transform_pipeline所决定。 | None | 如果值为None，则输出所有列。以crnn为例，output_columns: \['image', 'text_seq'\]  |
 | net_input_column_index | output_columns中，属于网络construct函数的输入项的索引 | [0] | \ |
 | label_column_index | 在train阶段，该参数指定了output_columns中的label项，用于计算loss。在eval阶段，该参数指定了output_columns中的ground truth项，用于metric计算。 | [1] | \ |
@@ -181,7 +181,7 @@
 | max_rowsize | 指定在多进程之间复制数据时，共享内存分配的最大空间 | 64 | \ |
 | num_workers | 指定 batch 操作的并发进程数/线程数 | n_cpus / n_devices - 2 | 该值应大于或等于2 |
 
-参考例子: [DBNet](../../../configs/det/dbnet/db_r50_mlt2017.yaml), [CRNN](../../../configs/rec/crnn/crnn_icdar15.yaml)
+参考例子: [DBNet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/db_r50_mlt2017.yaml), [CRNN](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_icdar15.yaml)
 
 ### 评估流程 (eval)
 

@@ -74,7 +74,7 @@
    运行以下命令，开始串联推理。**以下传入的参数值将覆盖yaml文件中的对应参数值。**
 
    ```bash
-   python tools/predict/text/parallel/predict_system.py \
+   python tools/infer/text/parallel/predict_system.py \
                 --raw_data_dir path/to/raw_data \
                 --det_ckpt_path path/to/detection_ckpt \
                 --rec_ckpt_path path/to/recognition_ckpt

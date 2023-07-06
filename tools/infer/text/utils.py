@@ -1,4 +1,5 @@
 import glob
+import logging
 import os
 from pathlib import Path
 from typing import List
@@ -6,9 +7,7 @@ from typing import List
 import cv2
 import numpy as np
 
-from mindocr.utils.logger import Logger
-
-_logger = Logger("mindocr")
+_logger = logging.getLogger("mindocr")
 
 
 def get_image_paths(img_dir: str) -> List[str]:

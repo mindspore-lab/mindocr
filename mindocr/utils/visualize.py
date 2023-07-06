@@ -1,3 +1,4 @@
+import logging
 import math
 from typing import List, Union
 
@@ -7,10 +8,9 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 from ..data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
-from .logger import Logger
 
 __all__ = ["show_img", "show_imgs", "draw_boxes", "draw_texts_with_boxes", "recover_image", "visualize"]
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 def show_img(img: np.array, is_bgr_img=True, title="img", show=True, save_path=None):

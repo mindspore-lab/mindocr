@@ -1,3 +1,4 @@
+import logging
 import os
 import random
 from typing import List, Union
@@ -5,12 +6,11 @@ from typing import List, Union
 import numpy as np
 from scipy.io import loadmat
 
-from ..utils.logger import Logger
 from .base_dataset import BaseDataset
 from .transforms.transforms_factory import create_transforms, run_transforms
 
 __all__ = ["DetDataset", "SynthTextDataset"]
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 class DetDataset(BaseDataset):
@@ -136,8 +136,7 @@ class DetDataset(BaseDataset):
 
                 for line in lines:
                     img_name, annot_str = self._parse_annotation(line)
-                    if annot_str == "[]":
-                        continue
+
                     img_path = os.path.join(img_dir, img_name)
                     assert os.path.exists(img_path), "{} does not exist!".format(img_path)
 

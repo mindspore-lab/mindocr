@@ -23,8 +23,8 @@ Notes:
         performance.
     - The online ckpt files are downloaded from https://download.mindspore.cn/toolkits/mindocr/.
 """
-
 import argparse
+import logging
 import os
 import sys
 
@@ -37,13 +37,14 @@ __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "..")))
 
 from mindocr import build_model, list_models
-from mindocr.utils.logger import Logger
+from mindocr.utils.logger import set_logger
 
-_logger = Logger("mindocr")
+logger = logging.getLogger("mindocr.export")
 
 
 def export(name_or_config, data_shape, local_ckpt_path, save_dir):
     ms.set_context(mode=ms.GRAPH_MODE)  # , device_target="Ascend")
+    set_logger(name="mindocr")
 
     if name_or_config.endswith(".yml") or name_or_config.endswith(".yaml"):
         with open(name_or_config, "r") as f:
@@ -65,7 +66,7 @@ def export(name_or_config, data_shape, local_ckpt_path, save_dir):
     else:
         net = build_model(model_cfg, pretrained=True, amp_level=amp_level)
 
-    _logger.info(f"Set the AMP level of the model to be `{amp_level}`.")
+    logger.info(f"Set the AMP level of the model to be `{amp_level}`.")
 
     net.set_train(False)
 
@@ -76,9 +77,7 @@ def export(name_or_config, data_shape, local_ckpt_path, save_dir):
     output_path = os.path.join(save_dir, name) + ".mindir"
     ms.export(net, x, file_name=output_path, file_format="MINDIR")
 
-    _logger.info(
-        f"=> Finish exporting {name} to {os.path.realpath(output_path)}. The data shape [H, W] is {data_shape}"
-    )
+    logger.info(f"=> Finish exporting {name} to {os.path.realpath(output_path)}. The data shape [H, W] is {data_shape}")
 
 
 def check_args(args):
