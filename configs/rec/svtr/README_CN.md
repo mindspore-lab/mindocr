@@ -38,7 +38,7 @@ Table Format:
 
 | **模型** | **环境配置** | **平均准确率** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** |
 | :-----: | :-----:  | :-----: | :-----: | :-----: |:--------: | :-----: |
-| SVTR-Tiny      | D910x4-MS1.10-G | 89.02%    | 4866 s/epoch        | 2968 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb-5cf5a130.mindir) |
+| SVTR-Tiny      | D910x4-MS1.10-G | 90.10%    |  s/epoch        | | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/) |
 </div>
 
 <details open markdown>
@@ -47,7 +47,7 @@ Table Format:
 
   | **模型** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **平均准确率** |
   | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
- | SVTR-Tiny  | 95.58% | 95.39% | 94.75% | 93.60% | 82.88% | 76.99% | 91.03% | 90.11% | 84.81% | 85.07% | 89.02% |
+ | SVTR-Tiny  | % | % | % | % | % | % | % | % | % | % | % |
   </div>
 </details>
 
@@ -64,18 +64,34 @@ Table Format:
 #### 3.1.1 安装
 环境安装教程请参考MindOCR的 [installation instruction](https://github.com/mindspore-lab/mindocr#installation).
 
-#### 3.1.2 数据集下载
-LMDB格式的训练及验证数据集可以从[这里](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (出处: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here))下载。连接中的文件包含多个压缩文件，其中:
-- `data_lmdb_release.zip` 包含了**完整**的一套数据集，有训练集(training/），验证集(validation/)以及测试集(evaluation)。
-    - `training.zip` 包括两个数据集，分别是 [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) 和 [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)
+#### 3.1.2 数据集准备
+
+##### 3.1.2.1 MJSynth, 验证集和测试集
+部分LMDB格式的训练及验证数据集可以从[这里](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (出处: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here))下载。连接中的文件包含多个压缩文件，其中:
+- `data_lmdb_release.zip` 包含了了部分数据集，有训练集(training/），验证集(validation/)以及测试集(evaluation)。
+    - `training.zip` 包括两个数据集，分别是 [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) 和 [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)。 这里我们只使用**MJSynth**。
     - `validation.zip` 是多个单独数据集的训练集的一个合集，包括[IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), 和 [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset)。
     - `evaluation.zip` 包含多个基准评估数据集，有[IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset), [IC03](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions), [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf)和 [CUTE](http://cs-chan.com/downloads_CUTE80_dataset.html)
 - `validation.zip`: 与 data_lmdb_release.zip 中的validation/ 一样。
 - `evaluation.zip`: 与 data_lmdb_release.zip 中的evaluation/ 一样。
 
+##### 3.1.2.2 SynthText dataset
+
+我们不使用`data_lmdb_release.zip`提供的`SynthText`数据, 因为它只包含部分切割下来的图片。请从<https://www.robots.ox.ac.uk/~vgg/data/scenetext/>下载原始数据, 并使用以下命令转换成LMDB格式
+
+```bash
+python tools/dataset_converters/convert.py \
+    --dataset_name synthtext \
+    --task rec_lmdb \
+    --image_dir path_to_SynthText \
+    --label_dir path_to_SynthText_gt.mat \
+    --output_path ST_full
+```
+`ST_full` 包含了所有已切割的图片，以LMDB格式储存。 请将 `ST` 文件夹换成 `ST_full` 文件夹。
+
 #### 3.1.3 数据集使用
 
-解压文件后，数据文件夹结构如下：
+最终数据文件夹结构如下：
 
 ``` text
 data_lmdb_release/
@@ -104,7 +120,7 @@ data_lmdb_release/
 │   │   └── MJ_valid
 │   │       ├── data.mdb
 │   │       └── lock.mdb
-│   └── ST
+│   └── ST_full
 │       ├── data.mdb
 │       └── lock.mdb
 └── validation
@@ -120,7 +136,7 @@ data_lmdb_release/
   - Valid: 2.36 GB, 802731 samples
   - Test: 2.61 GB, 891924 samples
 - [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)
-  - Train: 16.0 GB, 5522808 samples
+  - Train: 17.0 GB, 7266529 samples
 
 **Validation:**
 - Valid: 138 MB, 6992 samples

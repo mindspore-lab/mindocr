@@ -1,4 +1,4 @@
-from typing import Any, Callable, List, Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple, Type, Union
 
 import numpy as np
 
@@ -7,6 +7,7 @@ import mindspore.nn as nn
 import mindspore.ops as ops
 from mindspore import Parameter, Tensor
 
+from ...utils.misc import is_ms_version_2
 from ._registry import register_backbone, register_backbone_class
 from .mindcv_models.layers import DropPath
 
@@ -23,7 +24,7 @@ class ConvBNLayer(nn.Cell):
         padding: int = 0,
         bias_attr: bool = False,
         groups: int = 1,
-        act: Callable[..., nn.Cell] = nn.GELU,
+        act: Type[nn.Cell] = nn.GELU,
     ) -> None:
         super(ConvBNLayer, self).__init__()
         self.conv = nn.Conv2d(
@@ -52,7 +53,7 @@ class Mlp(nn.Cell):
         in_features: int,
         hidden_features: int = None,
         out_features: int = None,
-        act_layer: Callable[..., nn.Cell] = nn.GELU,
+        act_layer: Type[nn.Cell] = nn.GELU,
         drop: float = 0.0,
     ) -> None:
         super(Mlp, self).__init__()
@@ -61,7 +62,10 @@ class Mlp(nn.Cell):
         self.fc1 = nn.Dense(in_features, hidden_features)
         self.act = act_layer()
         self.fc2 = nn.Dense(hidden_features, out_features)
-        self.drop = nn.Dropout(keep_prob=1 - drop)
+        if is_ms_version_2():
+            self.drop = nn.Dropout(p=drop)
+        else:
+            self.drop = nn.Dropout(keep_prob=1 - drop)
 
     def construct(self, x: Tensor) -> Tensor:
         x = self.fc1(x)
@@ -77,8 +81,8 @@ class ConvMixer(nn.Cell):
         self,
         dim: int,
         num_heads: int = 8,
-        HW: Tuple[int, int] = [8, 25],
-        local_k: Tuple[int, int] = [3, 3],
+        HW: Tuple[int, int] = (8, 25),
+        local_k: Tuple[int, int] = (3, 3),
     ) -> None:
         super().__init__()
         self.HW = HW
@@ -86,15 +90,15 @@ class ConvMixer(nn.Cell):
         self.local_mixer = nn.Conv2d(
             dim,
             dim,
-            local_k,
+            tuple(local_k),
             1,
             pad_mode="pad",
-            padding=[
+            padding=(
                 local_k[0] // 2,
                 local_k[0] // 2,
                 local_k[1] // 2,
                 local_k[1] // 2,
-            ],
+            ),
             group=num_heads,
             has_bias=True,
         )
@@ -128,9 +132,15 @@ class Attention(nn.Cell):
         self.scale = qk_scale or head_dim**-0.5
 
         self.qkv = nn.Dense(dim, dim * 3, has_bias=qkv_bias)
-        self.attn_drop = nn.Dropout(keep_prob=1 - attn_drop)
+        if is_ms_version_2():
+            self.attn_drop = nn.Dropout(p=attn_drop)
+        else:
+            self.attn_drop = nn.Dropout(keep_prob=1 - attn_drop)
         self.proj = nn.Dense(dim, dim)
-        self.proj_drop = nn.Dropout(keep_prob=1 - proj_drop)
+        if is_ms_version_2():
+            self.proj_drop = nn.Dropout(p=proj_drop)
+        else:
+            self.proj_drop = nn.Dropout(keep_prob=1 - proj_drop)
         self.HW = HW
         if HW is not None:
             H = HW[0]
@@ -140,15 +150,15 @@ class Attention(nn.Cell):
         if mixer == "Local" and HW is not None:
             hk = local_k[0]
             wk = local_k[1]
-            mask = ops.ones((H * W, H + hk - 1, W + wk - 1), ms.float32)
+            mask = np.ones((H * W, H + hk - 1, W + wk - 1), np.float32)
             for h in range(0, H):
                 for w in range(0, W):
                     mask[h * W + w, h : h + hk, w : w + wk] = 0.0
             mask = mask[:, hk // 2 : H + hk // 2, wk // 2 : W + wk // 2]
-            mask = ops.reshape(mask, (mask.shape[0], -1))
-            mask_inf = ms.numpy.full([H * W, H * W], float("-inf"), dtype="float32")
-            mask = ms.numpy.where(mask < 1, mask, mask_inf)
-            self.mask = mask[None, None, ...]
+            mask = np.reshape(mask, (mask.shape[0], -1))
+            mask_inf = np.full([H * W, H * W], -np.inf, dtype=np.float32)
+            mask = np.where(mask < 1, mask, mask_inf)
+            self.mask = ms.Tensor(mask[None, None, ...])
         self.mixer = mixer
         self.matmul = ops.BatchMatMul()
 
@@ -183,7 +193,7 @@ class Block(nn.Cell):
         dim: int,
         num_heads: int,
         mixer: str = "Global",
-        local_mixer: Tuple[int, int] = [7, 11],
+        local_mixer: Tuple[int, int] = (7, 11),
         HW: Optional[Tuple[int, int]] = None,
         mlp_ratio: float = 4.0,
         qkv_bias: bool = False,
@@ -191,8 +201,8 @@ class Block(nn.Cell):
         drop: float = 0.0,
         attn_drop: float = 0.0,
         drop_path: float = 0.0,
-        act_layer: Callable[..., nn.Cell] = nn.GELU,
-        norm_layer: Union[str, Callable[..., nn.Cell]] = "nn.LayerNorm",
+        act_layer: Type[nn.Cell] = nn.GELU,
+        norm_layer: Union[str, Type[nn.Cell]] = "nn.LayerNorm",
         epsilon: float = 1e-6,
         prenorm: bool = True,
     ) -> None:
@@ -339,8 +349,8 @@ class SubSample(nn.Cell):
         out_channels: int,
         types: str = "Pool",
         stride: Tuple[int, int] = (2, 1),
-        sub_norm: Union[str, Callable[..., nn.Cell]] = "nn.LayerNorm",
-        act: Optional[Callable[..., nn.Cell]] = None,
+        sub_norm: Union[str, Type[nn.Cell]] = "nn.LayerNorm",
+        act: Optional[Type[nn.Cell]] = None,
     ) -> None:
         super().__init__()
         self.types = types
@@ -391,13 +401,13 @@ class SubSample(nn.Cell):
 class SVTRNet(nn.Cell):
     def __init__(
         self,
-        img_size: Tuple[int, int] = [32, 100],
+        img_size: Tuple[int, int] = (32, 100),
         in_channels: int = 3,
         embed_dim: List[int] = [64, 128, 256],
         depth: List[int] = [3, 6, 3],
         num_heads: List[int] = [2, 4, 8],
         mixer: List[str] = ["Local"] * 6 + ["Global"] * 6,  # Local, Global, Conv
-        local_mixer: List[Tuple[int, int]] = [[7, 11], [7, 11], [7, 11]],
+        local_mixer: List[Tuple[int, int]] = [(7, 11), (7, 11), (7, 11)],
         patch_merging: str = "Conv",  # Conv, Pool, None
         mlp_ratio: float = 4.0,
         qkv_bias: bool = True,
@@ -406,8 +416,8 @@ class SVTRNet(nn.Cell):
         last_drop: float = 0.1,
         attn_drop_rate: float = 0.0,
         drop_path_rate: float = 0.1,
-        norm_layer: Union[str, Callable[..., nn.Cell]] = "nn.LayerNorm",
-        sub_norm: Union[str, Callable[..., nn.Cell]] = "nn.LayerNorm",
+        norm_layer: Union[str, Type[nn.Cell]] = "nn.LayerNorm",
+        sub_norm: Union[str, Type[nn.Cell]] = "nn.LayerNorm",
         epsilon: float = 1e-6,
         out_channels: int = 192,
         block_unit: str = "Block",
@@ -417,6 +427,7 @@ class SVTRNet(nn.Cell):
         sub_num: int = 2,
         prenorm: int = True,
         use_lenhead: bool = False,
+        use_pos_embed: bool = True,
         **kwargs: Any,
     ) -> None:
         r"""SVTRNet Backbone, based on
@@ -449,6 +460,7 @@ class SVTRNet(nn.Cell):
             sub_num: Patch coefficient in patch embedding. Default: 2.
             prenorm: Apply normailzation after feature extraction. Default: True.
             use_lenhead: Add extra head after the backbone for center loss. Default: False.
+            use_pos_embed: Add positional embedding after feature extraction. Default; True.
             **kwargs: Dummy arguments for compatibility only.
         """
         super().__init__()
@@ -470,11 +482,17 @@ class SVTRNet(nn.Cell):
         num_patches = self.patch_embed.num_patches
         self.HW = [img_size[0] // (2**sub_num), img_size[1] // (2**sub_num)]
 
-        self.pos_embed = Parameter(
-            ops.zeros((1, num_patches, embed_dim[0]), ms.float32)
-        )
+        if use_pos_embed:
+            self.pos_embed = Parameter(
+                ops.zeros((1, num_patches, embed_dim[0]), ms.float32)
+            )
+        else:
+            self.pos_embed = None
 
-        self.pos_drop = nn.Dropout(keep_prob=1 - drop_rate)
+        if is_ms_version_2():
+            self.pos_drop = nn.Dropout(p=drop_rate)
+        else:
+            self.pos_drop = nn.Dropout(keep_prob=1 - drop_rate)
         Block_unit = eval(block_unit)
         dpr = np.linspace(0, drop_path_rate, num=sum(depth))
         self.blocks1 = nn.CellList(
@@ -578,7 +596,10 @@ class SVTRNet(nn.Cell):
                 has_bias=False,
             )
             self.hardswish = nn.HSwish()
-            self.dropout = nn.Dropout(keep_prob=1 - last_drop)
+            if is_ms_version_2():
+                self.dropout = nn.Dropout(p=last_drop)
+            else:
+                self.dropout = nn.Dropout(keep_prob=1 - last_drop)
             if extra_pool_at_last_stage > 1:
                 self.pool = ops.AvgPool(
                     kernel_size=(1, extra_pool_at_last_stage),
@@ -594,12 +615,18 @@ class SVTRNet(nn.Cell):
         if use_lenhead:
             self.len_conv = nn.Dense(embed_dim[2], self.out_channels)
             self.hardswish_len = nn.HSwish()
-            self.dropout_len = nn.Dropout(keep_prob=1 - last_drop)
+            if is_ms_version_2():
+                self.dropout_len = nn.Dropout(p=last_drop)
+            else:
+                self.dropout_len = nn.Dropout(keep_prob=1 - last_drop)
 
     def forward_features(self, x: Tensor) -> Tensor:
         x = self.patch_embed(x)
-        x = x + self.pos_embed
-        x = self.pos_drop(x)
+
+        if self.pos_embed is not None:
+            x = x + self.pos_embed
+            x = self.pos_drop(x)
+
         for blk in self.blocks1:
             x = blk(x)
         if self.patch_merging is not None:
