@@ -2,11 +2,9 @@
 
 ## 数据集下载
 
-原生数字图像数据集（Born-Digital Images）[官网](https://rrc.cvc.uab.es/?ch=1)
+原生数字图像数据集（Born-Digital Images）[官网](https://rrc.cvc.uab.es/?ch=1) | [下载链接](https://rrc.cvc.uab.es/?ch=1&com=downloads)
 
-注意: 在下载之前，你需要先注册一个账号。
-
-[下载地址](https://rrc.cvc.uab.es/?ch=1&com=downloads)
+> 注意: 在下载之前，请先注册一个账号。
 
 该数据集分为4个任务: 任务1为文本定位, 任务2为文本分割, 任务3为单词识别, 任务4为端到端文本检测识别。这里我们仅考虑下载使用任务1数据集。
 

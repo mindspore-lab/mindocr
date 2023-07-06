@@ -1,10 +1,10 @@
 # ReCTS Dataset
-[Official Website](https://rrc.cvc.uab.es/?ch=12)
 
 ## Data Downloading
-Note: You need to register an account to download this dataset.
 
-The ReCTS images and annotations dataset can be downloaded from [this download link](https://rrc.cvc.uab.es/?ch=12&com=downloads).
+The ReCTS images and annotations dataset [Official Website](https://rrc.cvc.uab.es/?ch=12) | [Download Link](https://rrc.cvc.uab.es/?ch=12&com=downloads)
+
+> Note: Please register an account to download this dataset.
 
 After downloading the images and annotations, unzip the file, after which the directory structure should be like as follows (ignoring the archive files):
 ```txt

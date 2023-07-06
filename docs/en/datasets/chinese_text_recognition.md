@@ -1,12 +1,10 @@
 # Chinese-Text-Recognition
 
-This document introduce the dataset preparation for Chinese Text Recognition.
-
 ## Data Downloading
 
-Following the setup in [Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition), we use the same training, validation and evaliation data as described in [Datasets](https://github.com/FudanVI/benchmarking-chinese-text-recognition#datasets).
+Following the setup in [Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition), we use the same training, validation and evaliation data as described in [Datasets](https://github.com/FudanVI/benchmarking-chinese-text-recognition#datasets) section.
 
-Please download the following LMDB files as introduced in [Downloads](https://github.com/FudanVI/benchmarking-chinese-text-recognition/blob/main/README.md#download):
+Please download the following LMDB files as introduced in [Downloads](https://github.com/FudanVI/benchmarking-chinese-text-recognition/blob/main/README.md#download) section:
 
 - scene datasets: The union dataset contains [RCTW](https://rctw.vlrlab.net/dataset), [ReCTS](https://rrc.cvc.uab.es/?ch=12&com=downloads), [LSVT](https://rrc.cvc.uab.es/?ch=16&com=introduction), [ArT](https://rrc.cvc.uab.es/?ch=14&com=downloads), [CTW](https://link.springer.com/article/10.1007/s11390-019-1923-y)
 - web: [MTWI](https://tianchi.aliyun.com/competition/entrance/231684/introduction)

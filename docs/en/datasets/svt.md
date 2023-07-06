@@ -1,10 +1,8 @@
 # The Street View Text Dataset (SVT)
 
-The Street View Text Dataset (SVT) ([Official Website](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset))
-
 ## Data Downloading
 
-[Dataset Download Link](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset)
+The Street View Text Dataset (SVT) [Download Link](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset)
 
 Please download the data from the website above and unzip the file.
 After unzipping the file, the data structure should be like:

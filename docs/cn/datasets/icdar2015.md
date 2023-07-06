@@ -1,18 +1,15 @@
 # ICDAR 2015 数据集
 
 ## 数据集下载
-ICDAR 2015 [文章](https://rrc.cvc.uab.es/?ch=4)
+ICDAR 2015 [官网](https://rrc.cvc.uab.es/?ch=4) | [下载链接](https://rrc.cvc.uab.es/?ch=4&com=downloads)
 
-[下载地址](https://rrc.cvc.uab.es/?ch=4&com=downloads): 在下载之前，您需要先注册一个账号。
-
-<details open markdown>
-<summary>从何处下载 ICDAR 2015</summary>
+> 注意：在下载之前，请先注册一个账号。
 
 ICDAR 2015 挑战赛分为三个任务。任务1是文本定位。任务3是单词识别。任务4是端到端文本检测识别。任务2文本分割的数据不可用。
 
 ### Text Localization
 
-有四个与任务1相关的文件需要下载（[下载地址](https://rrc.cvc.uab.es/?ch=4&com=downloads)）， 它们分别是：
+有四个与任务1相关的文件需要下载， 它们分别是：
 
 ```
 ch4_training_images.zip
@@ -23,7 +20,7 @@ Challenge4_Test_Task1_GT.zip
 
 ### Word Recognition
 
-有三个与任务3相关的文件需要下载（[下载地址](https://rrc.cvc.uab.es/?ch=4&com=downloads)）， 它们分别是：
+有三个与任务3相关的文件需要下载， 它们分别是：
 
 ```
 ch4_training_word_images_gt.zip
@@ -35,7 +32,7 @@ Challenge4_Test_Task3_GT.txt
 
 ### E2E
 
-有九个与任务4相关的文件需要下载（[下载地址](https://rrc.cvc.uab.es/?ch=4&com=downloads)）。其中包括任务1中的四个文件， 还有五个词汇文件。
+有九个与任务4相关的文件需要下载。其中包括任务1中的四个文件， 还有五个词汇文件。
 
 ```
 ch4_training_vocabulary.txt

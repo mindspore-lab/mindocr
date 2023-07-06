@@ -1,10 +1,14 @@
 # LSVT Dataset
-[Official Website](https://rrc.cvc.uab.es/?ch=16)
 
 ## Data Downloading
-Note: You need to register an account to download this dataset.
 
-The LSVT images dataset can be downloaded from [this download link](https://rrc.cvc.uab.es/?ch=16&com=downloads). The images are split into two zipped files `train_full_images_0.tar.gz` and `train_full_images_1.tar.gz`. Both are to be downloaded. After downloading the images as above, unzip them and collect them into a single folder e.g. `train_images`.
+
+The LSVT dataset [Official Website](https://rrc.cvc.uab.es/?ch=16) |
+ [Download Link](https://rrc.cvc.uab.es/?ch=16&com=downloads) 
+
+> Note: Please register an account to download this dataset.
+
+The images are split into two zipped files `train_full_images_0.tar.gz` and `train_full_images_1.tar.gz`. Both are to be downloaded. After downloading the images as above, unzip them and collect them into a single folder e.g. `train_images`.
 
 The LSVT annotations (in JSON format) can be downloaded from [this download link](https://rrc.cvc.uab.es/?ch=16&com=downloads).
 The file `train_full_labels.json` needs to be downloaded.

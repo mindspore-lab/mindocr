@@ -1,9 +1,10 @@
 # RCTW-17 Dataset
-[Official Website](https://rctw.vlrlab.net/)
 
 ## Data Downloading
 
-The RCTW dataset can be downloaded from [this download link](https://rctw.vlrlab.net/dataset). The training set is split into two zip files `train_images.zip.001` and `train_images.zip.002`. The annotations are `*_gts.zip` files.
+The RCTW dataset [Official Website](https://rctw.vlrlab.net/) | [Download Link](https://rctw.vlrlab.net/dataset)
+
+The training set is split into two zip files `train_images.zip.001` and `train_images.zip.002`. The annotations are `*_gts.zip` files.
 
 After downloading and unzipping the images and annotations, collect the images into a single folder e.g. `train_images/`, after which the directory structure should be like as follows (ignoring the archive files):
 ```txt

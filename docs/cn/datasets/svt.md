@@ -1,9 +1,7 @@
 # The Street View Text(SVT) 数据集
 
 ## 数据下载
-街景文本数据集（SVT）[官网](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset)
-
-[下载数据集](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset)
+街景文本数据集（SVT）[下载链接](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset)
 
 请从上述网站下载数据并解压缩文件。解压文件后，数据结构应该是这样的：
 

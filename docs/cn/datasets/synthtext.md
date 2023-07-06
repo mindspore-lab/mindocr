@@ -4,7 +4,7 @@
 
 SynthText是一个合成生成的数据集，其中单词实例被放置在自然场景图像中，并考虑了场景布局。
 
-[论文](https://www.robots.ox.ac.uk/~vgg/publications/2016/Gupta16/) | [下载SynthText](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c)
+[论文](https://www.robots.ox.ac.uk/~vgg/publications/2016/Gupta16/) | [下载链接](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c)
 
 下载`SynthText.zip`文件并解压缩到`[path-to-data-dir]`文件夹中：
 ```

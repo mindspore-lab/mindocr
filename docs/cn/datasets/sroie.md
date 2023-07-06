@@ -2,11 +2,9 @@
 
 ## 数据集下载
 
-SROIE数据集[官网](https://rrc.cvc.uab.es/?ch=13)
+SROIE数据集[官网](https://rrc.cvc.uab.es/?ch=13) | [下载链接](https://rrc.cvc.uab.es/?ch=13&com=downloads)
 
-注意: 在下载之前，你需要先注册一个账号。
-
-[下载地址](https://rrc.cvc.uab.es/?ch=13&com=downloads)
+> 注意: 在下载之前，请先注册一个账号。
 
 该数据集共3个任务：任务1为文本检测，任务2为OCR，任务3为关键信息提取。这里，我们仅下载和使用任务1数据集。
 

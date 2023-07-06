@@ -2,9 +2,7 @@
 
 ## 数据集下载
 
-CCPD数据集[官网](https://github.com/detectRecog/CCPD)
-
-[下载地址](https://github.com/detectRecog/CCPD)
+CCPD数据集[下载链接](https://github.com/detectRecog/CCPD)
 
 该数据集被分为3个部分：训练集、验证集和测试集，每个集合的标签可在`splits`文件夹下发现。
 

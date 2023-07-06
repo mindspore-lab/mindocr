@@ -1,9 +1,8 @@
 # CASIA-10K 数据集
 
 ## 数据集下载
-CASIA-10K 数据集[官网](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html)
 
-[下载地址](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html)
+CASIA-10K 数据集[下载链接](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html)
 
 请从上述网站下载数据并解压缩文件。解压文件后，数据结构应该是这样的：
 

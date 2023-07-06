@@ -1,9 +1,8 @@
 # CASIA-10K Dataset
-[Official Website](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html)
 
 ## Data Downloading
 
-The CASIA-10K dataset can be downloaded from [this download link](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html).
+The CASIA-10K dataset can be downloaded from this [link](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html).
 
 After downloading the file as above, unzip it, after which the directory structure should be like as follows (ignoring the archive file):
 

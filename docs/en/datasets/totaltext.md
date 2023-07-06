@@ -6,11 +6,11 @@
 
 - github repo：
   - [images](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset)
-  - [labels](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Groundtruth/Text)
+  - [annotations](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Groundtruth/Text)
 
 - Dataset download link：
   - [images](https://drive.google.com/file/d/1bC68CzsSVTusZVvOkk7imSZSbgD1MqK2/view?usp=sharing) (size = 441Mb)
-  - [labels](https://drive.google.com/file/d/1v-pd-74EkZ3dWe6k0qppRtetjdPQ3ms1/view?usp=sharing) (.txt format)
+  - [annotations](https://drive.google.com/file/d/1v-pd-74EkZ3dWe6k0qppRtetjdPQ3ms1/view?usp=sharing) (.txt format)
 
 After downloading the two files, place them under `[path-to-data-dir]` folder:
 ```

@@ -2,11 +2,9 @@
 
 ## 数据集下载
 
-COCO-Text数据集[官网](https://ctwdataset.github.io/)
+COCO-Text数据集[官网](https://ctwdataset.github.io/) | [下载链接](https://ctwdataset.github.io/downloads.html)
 
-注意: 您需要填写表格才能下载此数据集。
-
-[下载地址](https://ctwdataset.github.io/downloads.html)
+>注意: 您需要填写表格才能下载此数据集。
 
 图像分为26批，即26个不同的.tar存档文件，格式为`images-trainval/ctw-trainval*.tar`。所有26批都需要下载。
 注释存档文件名为`ctw-annotations.tar.gz`。

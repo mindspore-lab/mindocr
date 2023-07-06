@@ -2,7 +2,7 @@
 
 ## 数据集下载
 
-- Total-Text [文章](https://arxiv.org/abs/1710.10400)
+- Total-Text [论文](https://arxiv.org/abs/1710.10400)
 
 - github仓库地址：
   - [图像](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset)
