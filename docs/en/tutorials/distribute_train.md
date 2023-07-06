@@ -1,4 +1,3 @@
-English | [中文](../../cn/tutorials/distribute_train.md)
 # Distributed parallel training
 
 This document provides a tutorial on distributed parallel training.

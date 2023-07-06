@@ -288,7 +288,7 @@ Copy{
 }
 
 ```
-To get the `device_ip` of the target device, run `cat /etc/hccn.conf` and look for the value of `address_x`, which is the ip address. More details can be found in [distributed training tutorial](../../en/tutorials/distribute_train.md).
+To get the `device_ip` of the target device, run `cat /etc/hccn.conf` and look for the value of `address_x`, which is the ip address. More details can be found in [distributed training tutorial](distribute_train.md).
 
 ### 3.2 Evaluation
 

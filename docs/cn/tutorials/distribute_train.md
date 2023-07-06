@@ -1,5 +1,3 @@
-[English](../../en/tutorials/distribute_train.md) | 中文
-
 # 分布式并行训练
 
 本文档提供分布式并行训练的教程，在Ascend处理器上有两种方式可以进行单机多卡训练，通过OpenMPI运行脚本或通过配置RANK_TABLE_FILE进行单机多卡训练。在GPU处理器上可通过OpenMPI运行脚本进行单机多卡训练。
