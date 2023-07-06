@@ -158,6 +158,7 @@ python tools/eval.py \
 - [x] [SVTR](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/README_CN.md) (IJCAI'2022)
 - [x] [MASTER](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/master/README_CN.md) (PR'2019)
 - [x] [VISIONLAN](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/README_CN.md) (ICCV'2021)
+- [x] [RobustScanner](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner/README.md) (ECCV'2020)
 - [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 </details>
 
