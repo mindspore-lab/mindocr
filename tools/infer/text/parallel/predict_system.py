@@ -47,7 +47,7 @@ def parse_args():
         help="Saving dir for images cropped during prediction pipeline.",
     )
     parser.add_argument(
-        "--result_save_dir",
+        "--result_save_path",
         type=str,
         default="predict_result/ckpt_pred_result.txt",
         required=False,
@@ -123,8 +123,8 @@ def predict_rec(args, det_pred_outputs):
     # print(f'---rec time: {rec_time}s')
     # print(f"---rec FPS: {len(det_pred_outputs['pred_images']) / rec_time}")
 
-    if args.result_save_dir:
-        save_pipeline_results(det_pred_outputs["predicted_boxes"], rec_text_dict, args.result_save_dir)
+    if args.result_save_path:
+        save_pipeline_results(det_pred_outputs["predicted_boxes"], rec_text_dict, args.result_save_path)
 
     # if args.vis_result_save_dir:
     #     vis_tool = Visualization(VisMode.bbox_text)

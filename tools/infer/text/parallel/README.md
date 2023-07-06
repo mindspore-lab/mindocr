@@ -8,11 +8,13 @@ This doc introduces how to run the detection and recognition prediction pipeline
 
 ## 1. Pipeline model lists
 
-| Text detection + text recognition pipeline | Datasets                                                          | Inference acc |
-|--------------------------------------------|-------------------------------------------------------------------|---------------|
-| DBNet+CRNN                                 | [ICDAR15](https://rrc.cvc.uab.es/?ch=4&com=downloads)<sup>*</sup> | 58.11%        |
+| Det. Algorithm | Rec. Algorithm  | Dataset                                                           | Accuracy (%) | FPS (imgs/s) |
+|----------------|-----------------|-------------------------------------------------------------------|--------------|--------------|
+| DBNet          |  CRNN           | [ICDAR15](https://rrc.cvc.uab.es/?ch=4&com=downloads)<sup>*</sup> | 58.11%       | 3.42         |
+| DBNet++        |  SVTR           | [ICDAR15](https://rrc.cvc.uab.es/?ch=4&com=downloads)<sup>*</sup> | 63.55%       | 0.86         |
 
 > *We use Test Set in ICDAR15 Task 4.1.
+> The elapsed time of FPS here includes the data loading, model loading and results saving time.
 
 ## 2. Quick start
 
@@ -52,7 +54,7 @@ Otherwise, the args values in (1) yaml config file will be used by default. You 
          ...
        output_columns: [ "image", ... ]              <--- default value can be kept, it's overwriten during the online inference pipeline
      loader:
-       shuffle: False                                <--- default value can be kept, it's overwriten as False during the online inference pipeline
+       ...
        batch_size: 1                                 <--- default value can be kept, it's overwriten as 1 during the online inference pipeline
        ...
    ```

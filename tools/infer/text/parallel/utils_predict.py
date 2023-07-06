@@ -56,11 +56,11 @@ def check_args(args):
             "'dataset_root/data_dir' in rec yaml file."
         )
 
-    if args.result_save_dir:
-        args.result_save_dir = os.path.realpath(args.result_save_dir)
-        os.makedirs(os.path.dirname(args.result_save_dir), exist_ok=True)
+    if args.result_save_path:
+        args.result_save_path = os.path.realpath(args.result_save_path)
+        os.makedirs(os.path.dirname(args.result_save_path), exist_ok=True)
     else:
-        _logger.warning("The 'result_save_dir' is empty. The pipeline prediction result will not be saved.")
+        _logger.warning("The 'result_save_path' is empty. The pipeline prediction result will not be saved.")
 
     # if args.vis_result_save_dir:
     #     if os.path.exists(args.vis_result_save_dir):
@@ -96,7 +96,6 @@ def update_config(args, cfg, model_type):
     cfg.eval.dataset.type = "PredictDataset"
     cfg.eval.dataset.label_file = None
     cfg.eval.dataset.mindrecord = False
-    cfg.eval.loader.shuffle = False
     cfg.eval.loader.batch_size = 1
     label_ops = []
     for op in cfg.eval.dataset.transform_pipeline:  # remove label transform op, no need label in prediction
