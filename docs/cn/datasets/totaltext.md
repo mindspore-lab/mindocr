@@ -4,7 +4,7 @@
 
 Total-Text [文章](https://arxiv.org/abs/1710.10400)
 
-下载数据集图像 [地址](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset)  (size = 441Mb).
+[数据集github仓库](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset)
 
 [图像下载链接](https://drive.google.com/file/d/1bC68CzsSVTusZVvOkk7imSZSbgD1MqK2/view?usp=sharing) (size = 441Mb).
 
