@@ -1,4 +1,4 @@
-# The Street View Text Dataset (SVT)
+# The Street View Text(SVT) 数据集
 
 ## 数据下载
 街景文本数据集（SVT）[官网](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset)

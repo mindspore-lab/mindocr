@@ -8,7 +8,7 @@ import tqdm
 
 from ..infer import SUPPORTED_TASK_BASIC_MODULE
 from ..utils import log, safe_div
-from .datatype import ModuleConnectDesc, ModuleDesc, StopSign
+from .datatype import ModuleConnectDesc, ModuleDesc, StartSign, StopSign
 from .framework import ModuleManager
 from .module import MODEL_DICT
 
@@ -30,6 +30,7 @@ class ParallelPipeline:
         self.input_queue = Queue(self.TASK_QUEUE_SIZE)
         self.process = Process(target=self._build_pipeline_kernel)
         self.process.start()
+        self.input_queue.get(block=True)
 
     def stop_pipeline(self):
         self.input_queue.put(StopSign(), block=True)
@@ -71,19 +72,26 @@ class ParallelPipeline:
 
         # waiting for task receive
         while not msg_queue.full():
+            time.sleep(0.1)
             continue
 
-        start_time = time.time()
-        # release all init sign
         for _ in range(module_size):
             msg_queue.get()
+
+        # send start sign for input queue
+        self.input_queue.put(StartSign())
 
         # release the stop sign, infer start
         manager.stop_manager.get(block=False)
 
-        manager.deinit_pipeline_module()
+        start_time = time.time()
+
+        # waiting for inference, and pop the sign from shared queue
+        manager.stop_manager.get(block=True)
 
         cost_time = time.time() - start_time
+
+        manager.deinit_pipeline_module()
 
         # collect the profiling data
         profiling_data = defaultdict(lambda: [0, 0])
@@ -95,13 +103,13 @@ class ParallelPipeline:
             if msg_info.module_name != -1:
                 image_total = msg_info.image_total
 
-        self.profiling(profiling_data, image_total)
-
-        print(
-            f"Number of images: {image_total}, "
-            f"total cost {cost_time:.2f}s, "
-            f"FPS: {safe_div(image_total, cost_time):.2f}"
-        )
+        if image_total > 0:
+            self.profiling(profiling_data, image_total)
+            print(
+                f"Number of images: {image_total}, "
+                f"total cost {cost_time:.2f}s, "
+                f"FPS: {safe_div(image_total, cost_time):.2f}"
+            )
 
         msg_queue.close()
         msg_queue.join_thread()

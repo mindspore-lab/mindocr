@@ -1,3 +1,4 @@
+import logging
 from typing import Dict, List, Tuple, Union
 
 import numpy as np
@@ -5,10 +6,8 @@ import numpy as np
 import mindspore as ms
 from mindspore import Tensor
 
-from ..utils.logger import Logger
-
 __all__ = ["DetBasePostprocess"]
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 class DetBasePostprocess:

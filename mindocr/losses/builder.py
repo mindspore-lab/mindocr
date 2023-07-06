@@ -1,17 +1,19 @@
 __all__ = ["build_loss"]
 
 supported_losses = [
-    "L1BalancedCELoss",
+    "DBLoss",
     "CTCLoss",
     "AttentionLoss",
     "PSEDiceLoss",
     "EASTLoss",
     "CrossEntropySmooth",
     "FCELoss",
+    "VisionLANLoss",
 ]
+
 from .cls_loss import CrossEntropySmooth
-from .det_loss import EASTLoss, FCELoss, L1BalancedCELoss, PSEDiceLoss
-from .rec_loss import AttentionLoss, CTCLoss
+from .det_loss import DBLoss, EASTLoss, FCELoss, PSEDiceLoss
+from .rec_loss import AttentionLoss, CTCLoss, VisionLANLoss
 
 
 def build_loss(name, **kwargs):

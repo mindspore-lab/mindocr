@@ -1,14 +1,13 @@
 import functools
+import logging
 import os
 import subprocess
 import sys
 import time
 from typing import Any, Callable, Dict, List, Union
 
-from mindocr.utils.logger import Logger
-
 LOCAL_RANK = int(os.getenv("RANK_ID", 0))
-_logger = Logger("mindocr")
+_logger = logging.getLogger("mindocr.tools.modelarts")
 
 _global_sync_count = 0
 

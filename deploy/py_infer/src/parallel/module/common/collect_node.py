@@ -100,6 +100,8 @@ class CollectNode(ModuleBase):
             self.result_handle(input_data)
         elif isinstance(input_data, StopData):
             self.stop_handle(input_data)
+            if input_data.exception:
+                self.send_to_next_module("stop")
         else:
             raise ValueError("unknown input data")
 
@@ -111,7 +113,6 @@ class CollectNode(ModuleBase):
         profiling_data = ProfilingData(
             module_name=self.module_name,
             instance_id=self.instance_id,
-            device_id=self.device_id,
             process_cost_time=self.process_cost.value,
             send_cost_time=self.send_cost.value,
             image_total=self.image_total.value,

@@ -2,7 +2,32 @@ This document shows how to convert ocr annotation to the general format (not inc
 
 You may also refer to [`convert_datasets.sh`](https://github.com/mindspore-lab/mindocr/blob/main/tools/convert_datasets.sh) which is a quick solution for converting annotation files of all datasets under a given directory.
 
-To download and convert OCR datasets to the required data format, please refer to the following instructions: [Chinese text recognition](chinese_text_recognition.md), [CTW1500](ctw1500.md), [ICDAR2015](icdar2015.md), [MLT2017](mlt2017.md), [SVT](svt.md), [Syntext 150k](syntext150k.md), [TD500](td500.md), [Total Text](totaltext.md), [SynthText](synthtext.md).
+<details open markdown>
+<summary>To download and convert OCR datasets to the required data format, please refer to these instructions.</summary>
+
+- [Born-Digital Images](borndigital.md)
+- [CASIA-10K](casia10k.md)
+- [CCPD](ccpd.md)
+- [Chinese text recognition](chinese_text_recognition.md)
+- [COCO-Text](cocotext.md)
+- [CTW](ctw.md)
+- [ICDAR2015](icdar2015.md)
+- [ICDAR2019 ArT](ic19_art.md)
+- [LSVT](lsvt.md)
+- [MLT2017](mlt2017.md)
+- [MSRA-TD500](td500.md)
+- [MTWI-2018](mtwi2018.md)
+- [RCTW-17](rctw17.md)
+- [ReCTS](rects.md)
+- [SCUT-CTW1500](ctw1500.md)
+- [SROIE](sroie.md)
+- [SVT](svt.md)
+- [SynText150k](syntext150k.md)
+- [SynthText](synthtext.md)
+- [TextOCR](textocr.md)
+- [Total-Text](totaltext.md)
+
+</details>
 
 ## Text Detection/Spotting Annotation
 
@@ -36,6 +61,7 @@ python tools/dataset_converters/convert.py \
 
 ## Text Recognition Annotation
 
+### Common Dataset Format
 The annotation format for text recognition dataset follows
 ```text
 word_7.png	fusionopolis
@@ -63,4 +89,20 @@ python tools/dataset_converters/convert.py \
         --task rec \
         --label_dir /path/to/ic15/rec/ch4_test_word_images_gt/gt.txt
         --output_path /path/to/ic15/rec/ch4_test_word_images_gt/rec_gt.txt
+```
+
+### LMDB Dataset Format
+
+Some of the dataset can be converted to LMDB format. Currently, this is only supported for the `SynthText` and `SynthAdd` datasets.
+
+To convert to LMDB format, please run
+
+``` shell
+python tools/dataset_converters/convert.py \
+    --dataset_name synthtext \
+    --task rec_lmdb \
+    --image_dir /path/to/SynthText \
+    --label_dir /path/to/SynthText_gt.mat \
+    --output_path ST_full
+```
 ```

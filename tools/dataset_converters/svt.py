@@ -84,7 +84,7 @@ class SVT_Converter:
     Format annotation to standard form for SVT dataset
     """
 
-    def __init__(self, path_mode="relative"):
+    def __init__(self, path_mode="relative", **kwargs):
         self.path_mode = path_mode
 
     def convert(self, task="rec", image_dir=None, label_path=None, output_path=None):

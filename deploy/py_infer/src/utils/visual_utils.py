@@ -38,10 +38,11 @@ def vis_bbox_text(image, box_list, text_list, font_path):
     :param font_path: path to font file
     :return: image with box and text
     """
-    _font_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../docs/fonts/simfang.ttf"))
-    if not os.path.isfile(_font_path):
-        raise ValueError(f"font_path must be a file, but got {font_path}.")
-    font_path = _font_path
+    if font_path is None:
+        _font_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../docs/fonts/simfang.ttf"))
+        if os.path.isfile(_font_path):
+            font_path = _font_path
+
     image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     h, w = image.height, image.width
     img_left = image.copy()

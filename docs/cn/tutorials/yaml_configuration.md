@@ -99,7 +99,7 @@
 
 | 字段 | 用途 | 默认值 | 备注 |
 | :---- | :---- | :---- | :---- |
-| name | 损失函数类名 | - | 目前支持 L1BalancedCELoss, CTCLoss, AttentionLoss, PSEDiceLoss, EASTLoss and CrossEntropySmooth |
+| name | 损失函数类名 | - | 目前支持 DBLoss, CTCLoss, AttentionLoss, PSEDiceLoss, EASTLoss and CrossEntropySmooth |
 | pred_seq_len | 预测文本的长度 | 26 | 由网络架构决定 |
 | max_label_len | 最长标签长度 | 25 | 数值应小于网络预测文本的长度 |
 | batch_size | 单卡批量大小 | 32 | \ |
@@ -173,7 +173,7 @@
 | transform_pipeline | 数据处理流程 | None | 详情请看 [transforms](../../../mindocr/data/transforms/README.md) |
 | output_columns | 数据加载（data loader）最终需要输出的数据属性名称列表（给到网络/loss计算/后处理) (类型：列表），候选的数据属性名称由transform_pipeline所决定。 | None | 如果值为None，则输出所有列。以crnn为例，output_columns: \['image', 'text_seq'\]  |
 | net_input_column_index | output_columns中，属于网络construct函数的输入项的索引 | [0] | \ |
-| label_column_index | output_columns中，属于loss函数的输入项的索引 | [1] | \ |
+| label_column_index | 在train阶段，该参数指定了output_columns中的label项，用于计算loss。在eval阶段，该参数指定了output_columns中的ground truth项，用于metric计算。 | [1] | \ |
 | **loader** | 数据加载设置 ||
 | shuffle | 每个epoch是否打乱数据顺序 | 在训练阶段为True，否则为False | True/False |
 | batch_size | 单卡的批量大小 | - | \ |

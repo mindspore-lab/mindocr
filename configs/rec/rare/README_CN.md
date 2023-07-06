@@ -38,7 +38,7 @@ Table Format:
 
 | **模型** | **环境配置** | **骨干网络** | **空间变换网络** | **平均准确率** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** |
 | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :--------: |:-----: |
-| RARE      | D910x4-MS1.10-G | ResNet34_vd | 无 | 85.19%    | 3166 s/epoch         | 4561    | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e-b65dd225.mindir) |
+| RARE      | D910x4-MS1.10-G | ResNet34_vd | 无 | 85.19%    | 3166 s/epoch         | 4561    | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ascend-309dc63e-b96c2a4b.mindir) |
 </div>
 
 <details open markdown>
@@ -56,7 +56,7 @@ Table Format:
 - 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
 - 模型所能识别的字符都是默认的设置，即所有英文小写字母a至z及数字0至9，详细请看[4. 字符词典](#4-字符词典)
 - 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[数据集下载及使用](#312-数据集下载)章节。
-- RARE的MindIR导出时的输入Shape均为(1, 3, 32, 100)。
+- RARE的MindIR导出时的输入Shape均为(1, 3, 32, 100)，只能在昇腾卡上使用。
 
 ## 3. 快速开始
 ### 3.1 环境及数据准备
@@ -355,8 +355,10 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/rare/
 
 | **模型** | **语种** | **骨干网络** | **空间变换网络** | **街景类** | **网页类** | **文档类** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** |
 | :-----: | :-----:  | :--------: | :------------: | :--------: | :--------: | :--------: |:--------: | :--------: |:--------: | :--------: |
-| RARE    | 中文 | ResNet34_vd | 无 | 62.15% | 67.05% | 97.60% | 414 s/epoch | 2160 | [rare_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-5f3023e2.ckpt) \| [mindir]() |
+| RARE    | 中文 | ResNet34_vd | 无 | 62.15% | 67.05% | 97.60% | 414 s/epoch | 2160 | [rare_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-5f3023e2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch_ascend-5f3023e2-11f0d554.mindir) |
 </div>
+
+- RARE的MindIR导出时的输入Shape均为(1, 3, 32, 320)，只能在昇腾卡上使用。
 
 ### 使用自定义数据集进行训练
 您可以在自定义的数据集基于提供的预训练权重进行微调训练, 以在特定场景获得更高的识别准确率，具体步骤请参考文档 [使用自定义数据集训练识别网络](../../../docs/cn/tutorials/training_recognition_custom_dataset_CN.md)。

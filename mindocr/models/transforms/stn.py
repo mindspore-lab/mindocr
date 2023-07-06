@@ -1,22 +1,13 @@
 from typing import Tuple
 
 import numpy as np
-from packaging import version
 
-import mindspore as ms
 import mindspore.nn as nn
 import mindspore.ops as ops
 from mindspore import Tensor
-from mindspore.ops.primitive import constexpr
 
+from ...utils.misc import is_ms_version_2
 from .tps_spatial_transformer import TPSSpatialTransformer
-
-
-@constexpr
-def _if_version_is_large_than_two_point_zero():
-    if version.parse(ms.__version__) >= version.parse("2.0.0rc"):
-        return True
-    return False
 
 
 def conv3x3_block(
@@ -96,6 +87,19 @@ class STN(nn.Cell):
 
 
 class STN_ON(nn.Cell):
+    """TPS Transformation head, based on
+    `"ASTER: An Attentional Scene Text Recognizer with Flexible Rectification"
+    <https://ieeexplore.ieee.org/abstract/document/8395027/>`_.
+
+    Args:
+        in_channels: Number of input channels. Default: 3.
+        tps_inputsize: Input size before passing through the TPS block. The input
+            will be interpolate bilinearly to this size first. Default: [32, 64].
+        tps_outputsize: Output size after padding through the TPS block. Default: [32. 100].
+        num_control_points: Number of control points in the block. Default: 20.
+        tps_margins: The TPS margins. Default: [0.05, 0.05].
+        stn_activation: Whether to apply the activtion after the STN output. Default: "none".
+    """
     def __init__(
         self,
         in_channels: int = 3,
@@ -120,7 +124,7 @@ class STN_ON(nn.Cell):
         self.out_channels = in_channels
 
     def construct(self, image: Tensor) -> Tensor:
-        if _if_version_is_large_than_two_point_zero():
+        if is_ms_version_2():
             stn_input = ops.interpolate(image, size=self.tps_inputsize, mode="bilinear")
         else:
             stn_input = ops.interpolate(

@@ -215,7 +215,7 @@ metric:
   main_indicator: f-score
 
 loss:
-  name: L1BalancedCELoss
+  name: DBLoss
   eps: 1.0e-6
   l1_scale: 10
   bce_scale: 5
@@ -234,7 +234,7 @@ optimizer:
   momentum: 0.9
   weight_decay: 1.0e-4
 ```
-它使用 `SGD` 优化器（在 `mindocr/optim/optim.factory.py` 中）和 `polynomial_decay`（在 `mindocr/scheduler/scheduler_factory.py` 中）作为学习率调整策略。损失函数是 `L1BalancedCELoss`（在 `mindocr/losses/det_loss.py` 中），评估指标是 `DetMetric`（在 `mindocr/metrics/det_metrics.py` 中）。
+它使用 `SGD` 优化器（在 `mindocr/optim/optim.factory.py` 中）和 `polynomial_decay`（在 `mindocr/scheduler/scheduler_factory.py` 中）作为学习率调整策略。损失函数是 `DBLoss`（在 `mindocr/losses/det_loss.py` 中），评估指标是 `DetMetric`（在 `mindocr/metrics/det_metrics.py` 中）。
 
 ## 3. 模型训练, 测试和推理
 
