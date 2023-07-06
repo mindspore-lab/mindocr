@@ -2,15 +2,15 @@
 
 ## 数据集下载
 
-Total-Text [文章](https://arxiv.org/abs/1710.10400)
+- Total-Text [文章](https://arxiv.org/abs/1710.10400)
 
-[数据集github仓库](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset)
+- github仓库地址：
+  - [图像](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset)
+  - [标注文件](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Groundtruth/Text)
 
-[图像下载链接](https://drive.google.com/file/d/1bC68CzsSVTusZVvOkk7imSZSbgD1MqK2/view?usp=sharing) (size = 441Mb).
-
-下载数据集标注 [地址](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Groundtruth/Text).
-
-[标注下载链接](https://drive.google.com/file/d/1v-pd-74EkZ3dWe6k0qppRtetjdPQ3ms1/view?usp=sharing) for text file format('.txt').
+- 下载链接：
+  - [图像](https://drive.google.com/file/d/1bC68CzsSVTusZVvOkk7imSZSbgD1MqK2/view?usp=sharing) (size = 441Mb)
+  - [标注文件](https://drive.google.com/file/d/1v-pd-74EkZ3dWe6k0qppRtetjdPQ3ms1/view?usp=sharing) (.txt格式)
 
 在下载完成后，把这两个文件放在 `[path-to-data-dir]` 文件夹内，如下所示:
 ```
