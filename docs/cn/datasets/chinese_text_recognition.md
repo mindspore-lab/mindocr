@@ -1,12 +1,10 @@
 # 中文文字识别数据集
 
-本文档介绍中文文本识别的数据集准备。
-
 ## 数据下载
 
-按照 [Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition) 中的设置，我们使用与 [Datasets](https://github.com/FudanVI/benchmarking-chinese-text-recognition#datasets) 中描述的相同的训练、验证和评估数据。
+按照 [Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition) 中的设置，我们使用与 [Datasets](https://github.com/FudanVI/benchmarking-chinese-text-recognition#datasets) 章节中描述的相同的训练、验证和评估数据。
 
-请下载[Download](https://github.com/FudanVI/benchmarking-chinese-text-recognition/blob/main/README.md#download)中介绍的以下LMDB文件：
+请下载 [Download](https://github.com/FudanVI/benchmarking-chinese-text-recognition/blob/main/README.md#download) 章节中介绍的以下LMDB文件：
 
 - 场景数据集：联合数据集包含 [RCTW](https://rctw.vlrlab.net/dataset), [ReCTS](https://rrc.cvc.uab.es/?ch=12&com=downloads), [LSVT](https://rrc.cvc.uab.es/?ch=16&com=introduction), [ArT](https://rrc.cvc.uab.es/?ch=14&com=downloads), [CTW](https://link.springer.com/article/10.1007/s11390-019-1923-y)
 - 网页：[MTWI](https://tianchi.aliyun.com/competition/entrance/231684/introduction)

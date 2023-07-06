@@ -1,14 +1,9 @@
 # TextOCR Dataset
-[Official Website](https://textvqa.org/textocr/)
+
 
 ## Data Downloading
 
-<details open markdown>
-    <summary>How to Download TextOCR Dataset</summary>
-
-The TextOCR dataset can be downloaded from [here](https://textvqa.org/textocr/dataset/).
-
-</details>
+The TextOCR dataset [Official Website](https://textvqa.org/textocr/) | [Download Link](https://textvqa.org/textocr/dataset/)
 
 After downloading the images and annotations, unzip the files, after which the directory structure should be like as follows (ignoring the archive files):
 ```txt

@@ -1,18 +1,10 @@
 # Chinese City Parking Dataset (CCPD) 2019
-[Official Website](https://github.com/detectRecog/CCPD)
 
 ## Data Downloading
 
-<details open markdown>
-    <summary>How to Download the CCPD Dataset</summary>
-
-The CCPD can be downloaded from [here](https://github.com/detectRecog/CCPD) using either the Google or BaiduYun drive links.
-
-This dataset is divided into 3 sets: train, val, test. Labels for each set can be found under the `splits` directory of the dataset.
+The CCPD can be downloaded from this [link](https://github.com/detectRecog/CCPD) using either the Google or BaiduYun drive links. This dataset is divided into 3 sets: train, val, test. Labels for each set can be found under the `splits` directory of the dataset.
 
 The annotations for each image are embedded into the filename of the image. The format is described on their official website [here](https://github.com/detectRecog/CCPD#dataset-annotations).
-
-</details>
 
 After downloading the dataset, the directory structure should be like as follows:
 ```txt

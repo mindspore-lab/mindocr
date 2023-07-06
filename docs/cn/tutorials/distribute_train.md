@@ -1,5 +1,3 @@
-[English](../../en/tutorials/distribute_train.md) | 中文
-
 # 分布式并行训练
 
 本文档提供分布式并行训练的教程，在Ascend处理器上有两种方式可以进行单机多卡训练，通过OpenMPI运行脚本或通过配置RANK_TABLE_FILE进行单机多卡训练。在GPU处理器上可通过OpenMPI运行脚本进行单机多卡训练。
@@ -29,7 +27,7 @@
 
 ### 1.1 通过OpenMPI运行脚本进行训练
 
-在 Ascend 硬件平台上，用户可以使用 `OpenMPI` 的 `mpirun` 命令来运行 `n` 个设备的分布式训练。例如，在 [DBNet Readme](../../../configs/det/dbnet/README.md#34-training) 中，使用以下命令在设备 `0` 和设备 `1` 上训练模型：
+在 Ascend 硬件平台上，用户可以使用 `OpenMPI` 的 `mpirun` 命令来运行 `n` 个设备的分布式训练。例如，在 [DBNet Readme](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README_CN.md#34-training) 中，使用以下命令在设备 `0` 和设备 `1` 上训练模型：
 
 ```shell
 # n 代表分布式训练使用的NPU的数量

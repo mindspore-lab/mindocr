@@ -1,17 +1,12 @@
 # SROIE Dataset
-[Official Website](https://rrc.cvc.uab.es/?ch=13)
 
 ## Data Downloading
-Note: You need to register an account to download this dataset.
 
-<details open markdown>
-    <summary>How to Download SROIE Dataset</summary>
+The SROIE dataset [Official Website](https://rrc.cvc.uab.es/?ch=13) | [Download Link](https://rrc.cvc.uab.es/?ch=13&com=downloads)
 
-The SROIE dataset can be downloaded from [here](https://rrc.cvc.uab.es/?ch=13&com=downloads).
+> Note: Please register an account to download this dataset.
 
 This dataset is divided into 3 tasks: (1) Text Localisation, (2) OCR, and (3) Key Information Extraction. For now, we consider and download the updated dataset only for Task 1.
-
-</details>
 
 After downloading and unzipping the dataset as above and renaming the extracted folder as appropriate e.g. `train`, the directory structure should be like as follows (ignoring the archive files):
 ```txt

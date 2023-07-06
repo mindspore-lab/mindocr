@@ -1,17 +1,13 @@
 # Born-Digital Images Dataset
-[Official Website](https://rrc.cvc.uab.es/?ch=1)
+
 
 ## Data Downloading
-Note: You need to register an account to download this dataset.
 
-<details open markdown>
-    <summary>How to Download Born-Digital Images and Annotations</summary>
+The Born-Digital dataset [Official Website](https://rrc.cvc.uab.es/?ch=1) | [Download Link](https://rrc.cvc.uab.es/?ch=1&com=downloads)
 
-The Born-Digital dataset can be downloaded from [here](https://rrc.cvc.uab.es/?ch=1&com=downloads).
+> Note: Please register an account to download this dataset.
 
 This dataset is divided into 4 tasks: (1.1) Text Localization, (1.2) Text Segmentation, (1.3) Word Recognition, and  (1.4) End To End.  For now, we consider and download only the dataset for Task 1.1.
-
-</details>
 
 After downloading the images and annotations, unzip the files and rename as appropriate e.g. `train_images` for the images and `train_labels` for the ground truths, after which the directory structure should be like as follows (ignoring the archive files):
 ```txt

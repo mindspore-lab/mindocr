@@ -2,18 +2,11 @@
 
 ## 数据集下载
 
-LSVT数据集[官网](https://rrc.cvc.uab.es/?ch=16)
+LSVT数据集[官网](https://rrc.cvc.uab.es/?ch=16) | [下载链接](https://rrc.cvc.uab.es/?ch=16&com=downloads)
 
-注意: 在下载之前，你需要先注册一个账号。
-
-<details open markdown>
-    <summary>从何处下载LSVT数据集</summary>
-
-[下载地址](https://rrc.cvc.uab.es/?ch=16&com=downloads)
+> 注意: 在下载之前，请先注册一个账号。
 
 图像需要下载`train_full_images_0.tar.gz`和`train_full_images_1.tar.gz`两个压缩文件，注释需要下载`train_full_labels.json`文件。
-
-</details>
 
 图像下载解压缩后，请合并到同一个文件中，例如`train_images`，最终目录结构如下：
 ```txt

@@ -2,14 +2,7 @@
 
 ## 数据集下载
 
-TextOCR数据集[官网](https://textvqa.org/textocr/)
-
-<details open markdown>
-    <summary>从何处下载TextOCR数据集</summary>
-
-[下载地址](https://textvqa.org/textocr/dataset/)
-
-</details>
+TextOCR数据集[官网](https://textvqa.org/textocr/) | [下载链接](https://textvqa.org/textocr/dataset/)
 
 请从上述网站下载数据并解压缩文件。解压文件后，数据结构应该是这样的：
 ```txt
