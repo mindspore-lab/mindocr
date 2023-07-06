@@ -71,7 +71,7 @@ def run_transforms(data, transforms=None, verbose=False):
             )
 
         if data is None:
-            raise RuntimeError("Empty result is returned from transform `{transform}`")
+            raise RuntimeError(f"Empty result is returned from transform `{transform}`")
     return data
 
 

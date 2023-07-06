@@ -149,8 +149,28 @@ class AttentionLoss(LossBase):
         self.criterion = nn.CrossEntropyLoss(reduction=reduction, ignore_index=ignore_index)
 
     def construct(self, logits: Tensor, labels: Tensor) -> Tensor:
-        labels = labels[:, 1:]  # wihout <GO> symbol
+        labels = labels[:, 1:]  # without <GO> symbol
         num_classes = logits.shape[-1]
         logits = ops.reshape(logits, (-1, num_classes))
         labels = ops.reshape(labels, (-1,))
         return self.criterion(logits, labels)
+
+
+class SARLoss(LossBase):
+    def __init__(self, **kwargs):
+        super(SARLoss, self).__init__()
+        ignore_index = kwargs.get("ignore_index", 92)
+        self.loss_func = nn.loss.CrossEntropyLoss(reduction="mean", ignore_index=ignore_index)
+
+    def construct(self, predicts, label):
+        predict = predicts[:, :-1, :]  # ignore last index of outputs to be in same seq_len with targets
+        label = label.astype("int32")[:, 1:]  # ignore first index of target in loss calculation
+        num_classes = predict.shape[2]
+        assert (
+            len(label.shape) == len(list(predict.shape)) - 1
+        ), "The target's shape and inputs' shape is [N, d] and [N, num_steps]"
+
+        inputs = ops.reshape(predict, (-1, num_classes))
+        targets = ops.reshape(label, (-1,))
+        loss = self.loss_func(inputs, targets)
+        return loss
