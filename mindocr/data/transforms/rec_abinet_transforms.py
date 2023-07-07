@@ -1,8 +1,8 @@
 """
 transform for text recognition tasks.
 """
-
 import copy
+import logging
 import random
 import re
 import warnings
@@ -15,8 +15,6 @@ from PIL import Image
 
 import mindspore.dataset as ds
 
-from mindocr.utils.logger import Logger
-
 from ...models.utils.abinet_layers import CharsetMapper, onehot
 from .svtr_transform import (
     CVColorJitter,
@@ -28,8 +26,7 @@ from .svtr_transform import (
     CVRescale,
 )
 
-_logger = Logger("mindocr")
-
+_logger = logging.getLogger(__name__)
 __all__ = ["ABINetTransforms", "ABINetRecAug", "ABINetEval", "ABINetEvalTransforms"]
 
 
