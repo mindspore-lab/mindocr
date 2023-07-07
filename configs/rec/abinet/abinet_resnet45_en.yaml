@@ -70,10 +70,9 @@ train:
     transform_pipeline:
       - ABINetTransforms:
       - ABINetRecAug:
-      - NormalizeImage:
-          is_hwc: False
-          mean: [0.485, 0.456, 0.406]
-          std: [0.485, 0.456, 0.406]
+      - Normalize:
+          mean: [ 123.675, 116.28, 103.53 ]
+          std: [ 58.395, 57.12, 57.375 ]
     # #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
     output_columns: ['image','label','length','label_for_mask'] #'img_path']
 

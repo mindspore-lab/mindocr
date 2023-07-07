@@ -43,6 +43,7 @@ class FCENetTargets:
         self.level_proportion_range = tuple(level_proportion_range)
 
         self.orientation_thr = orientation_thr
+        self.output_columns = ["p3_maps", "p4_maps", "p5_maps"]
 
     def vector_angle(self, vec1, vec2):
         if vec1.ndim > 1:

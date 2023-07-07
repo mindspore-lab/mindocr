@@ -43,13 +43,12 @@ scheduler:
   min_lr: 0.0000002
   num_epochs: 1500
   warmup_epochs: 0
+
 optimizer:
   opt: momentum
   weight_decay: 5.0e-4
   momentum: 0.9
   filter_bias_and_bn: False
-
-
 
 train:
   ckpt_save_dir: './tmp_det_fcenet'
@@ -58,13 +57,11 @@ train:
   dataset:
     type: DetDataset
     dataset_root: data
-    data_dir: icda/ch4_training_images
-    label_file: icda/train_det_gt.txt
+    data_dir: icdar/ch4_training_images
+    label_file: icdar/train_det_gt.txt
     sample_ratio: 1.0
     transform_pipeline:
-      - DecodeImage:
-          img_mode: RGB
-          to_float32: False
+      - Decode:
       - DetLabelEncode:
       - DetResize:
           target_size: [ 800, 800 ]
@@ -85,21 +82,18 @@ train:
           crop_size: [ 640, 640 ]
           p: 1.0
       - ValidatePolygons:
-      - RandomColorAdjust:
-          brightness: 0.1255  # 32.0 / 255
-          saturation: 0.5
-      - NormalizeImage:
-          bgr_to_rgb: False
-          is_hwc: True
-          mean: imagenet
-          std: imagenet
       - FCENetTargets:
           fourier_degree: 5
           level_proportion_range: [ [ 0, 0.25 ], [ 0.2, 0.65 ], [ 0.55, 1.0 ] ]
-      - ToCHWImage:
+      - RandomColorAdjust:
+          brightness: 0.1255  # 32.0 / 255
+          saturation: 0.5
+      - Normalize:
+          mean: &mean [ 123.675, 116.28, 103.53 ]
+          std: &std [ 58.395, 57.12, 57.375 ]
+      - HWC2CHW:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visualize
-    output_columns: [ 'image', 'p3_maps','p4_maps','p5_maps' ]
-    #    output_columns: ['image'] # for debug op performance
+    output_columns: [ 'image', 'p3_maps', 'p4_maps', 'p5_maps' ]
     net_input_column_index: [ 0 ] # input indices for network forward func in output_columns
     label_column_index: [ 1, 2, 3 ] # input indices marked as label
 
@@ -107,7 +101,7 @@ train:
     shuffle: True
     batch_size: 8
     drop_remainder: True
-    num_workers: 8
+    num_workers: 10
 
 eval:
   ckpt_load_path: './best.ckpt'
@@ -115,33 +109,28 @@ eval:
   dataset:
     type: DetDataset
     dataset_root: data
-    data_dir: icda/ch4_test_images
-    label_file: icda/test_det_gt.txt
+    data_dir: icdar/ch4_test_images
+    label_file: icdar/test_det_gt.txt
     sample_ratio: 1.0
     shuffle: False
     transform_pipeline:
-      - DecodeImage:
-          img_mode: RGB
-          to_float32: False
+      - Decode:
       - DetLabelEncode:
       - DetResize:
           target_size: [ 800, 800 ]
           keep_ratio: True
           padding: True
-      - NormalizeImage:
-          bgr_to_rgb: False
-          is_hwc: True
-          mean: imagenet
-          std: imagenet
-      - ToCHWImage:
+      - Normalize:
+          mean: *mean
+          std: *std
+      - HWC2CHW:
     #  the order of the dataloader list, matching the network input and the labels for evaluation
-    output_columns: [ 'image', 'polys', 'ignore_tags','img_path','texts', 'shape_list' ]
+    output_columns: [ 'image', 'polys', 'ignore_tags', 'shape_list' ]
     net_input_column_index: [ 0 ] # input indices for network forward func in output_columns
-    label_column_index: [ 1, 2,3,4 ] # input indices marked as label
-  #    num_keys_of_labels: 2 # num labels
+    label_column_index: [ 1, 2 ] # input indices marked as label
 
   loader:
     shuffle: False
     batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
     drop_remainder: False
-    num_workers: 1
+    num_workers: 3

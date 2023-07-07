@@ -30,7 +30,7 @@ _logger = logging.getLogger(__name__)
 __all__ = ["ABINetTransforms", "ABINetRecAug", "ABINetEval", "ABINetEvalTransforms"]
 
 
-class ABINetTransforms(object):
+class ABINetTransforms:
     """Convert text label (str) to a sequence of character indices according to the char dictionary
 
     Args:
@@ -43,6 +43,7 @@ class ABINetTransforms(object):
         # ABINet_Transforms
         self.case_sensitive = False
         self.charset = CharsetMapper(max_length=26)
+        self.output_columns = ["image", "label", "length", "label_for_mask"]
 
     def __call__(self, data: dict):
         img_lmdb = data["img_lmdb"]
@@ -83,7 +84,7 @@ class ABINetTransforms(object):
         return data_dict
 
 
-class ABINetRecAug(object):
+class ABINetRecAug:
     def __init__(self):
         self.transforms = ds.transforms.Compose(
             [
@@ -103,6 +104,8 @@ class ABINetRecAug(object):
         self.w = 128
         self.h = 32
 
+        self.output_columns = ["image"]
+
     def __call__(self, data):
         img = data["image"]
         img = self.transforms(img)
@@ -119,7 +122,7 @@ def _check_image(x, pixels=6):
         return True
 
 
-class ABINetEvalTransforms(object):
+class ABINetEvalTransforms:
     """Convert text label (str) to a sequence of character indices according to the char dictionary
 
     Args:
@@ -132,6 +135,7 @@ class ABINetEvalTransforms(object):
         # ABINet_Transforms
         self.case_sensitive = False
         self.charset = CharsetMapper(max_length=26)
+        self.output_columns = ["image", "label", "length"]
 
     def __call__(self, data: dict):
         img_lmdb = data["img_lmdb"]
@@ -171,6 +175,7 @@ class ABINetEval(object):
         self.toTensor = ds.vision.ToTensor()
         self.w = 128
         self.h = 32
+        self.output_columns = ["image", "label"]
 
     def __call__(self, data):
         img = data["image"]
