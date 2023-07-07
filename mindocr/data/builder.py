@@ -107,11 +107,6 @@ def build_dataset(
     # Check dataset paths (dataset_root, data_dir, and label_file) and update to absolute format
     dataset_config = _check_dataset_paths(dataset_config)
 
-    # OpenCV spawns as many threads as there are CPU cores, thus causing multiprocessing overhead.
-    # It is better to limit the number of threads per sample but increase the total number of pipeline threads
-    # to process more samples simultaneously.
-    cv2.setNumThreads(2)
-
     # prefetch_size: the length of the cache queue in the data pipeline for each worker,
     # used to reduce waiting time. Larger value leads to more memory consumption.
     ms.dataset.config.set_prefetch_size(loader_config.get("prefetch_size", 16))
@@ -131,6 +126,11 @@ def build_dataset(
             f"`num_workers` is adjusted to {num_workers_map} "
             f"to fit {cores} CPU cores shared among {num_devices} devices"
         )
+
+    # OpenCV spawns as many threads as there are CPU cores, thus causing multithread overhead.
+    # It is better to limit the number of threads per sample and increase the total number of pipeline workers instead
+    # to process more samples simultaneously.
+    cv2.setNumThreads(max(cores // (2 * num_workers_map * num_devices), 2))  # derived empirically
 
     if dataset_config.get("mindrecord", False):
         # read the MR file's schema to load the stored list of columns
@@ -188,9 +188,7 @@ def build_dataset(
 
     rank_id = shard_id or 0
     is_main_rank = rank_id == 0
-    _logger.info(
-        f"Creating dataloader (training={is_train}) for rank {rank_id}. Number of data samples: {num_samples}"
-    )
+    _logger.info(f"Creating dataloader (training={is_train}) for rank {rank_id}. Number of data samples: {num_samples}")
 
     if "refine_batch_size" in kwargs:
         batch_size = _check_batch_size(num_samples, batch_size, refine=kwargs["refine_batch_size"])
