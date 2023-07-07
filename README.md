@@ -169,6 +169,7 @@ For more illustration and usage, please refer to the model training section in [
 - [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022)
 - [x] [MASTER](configs/rec/master/README.md) (PR'2019)
 - [x] [VISIONLAN](configs/rec/visionlan/README.md) (ICCV'2021)
+- [x] [RobustScanner](configs/rec/robustscanner/README.md) (ECCV'2020)
 - [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 
 </details>
@@ -213,6 +214,9 @@ We will include more datasets for training and evaluation. This list will be con
 ## Notes
 
 ### What is New
+- 2023/07/06
+1. Add new trained models
+    - [RobustScanner](configs/rec/robustscanner) for text recognition
 - 2023/07/05
 1. Add new trained models
     - [VISIONLAN](configs/rec/visionlan) for text recognition

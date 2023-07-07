@@ -164,6 +164,7 @@ python tools/eval.py \
 - [x] [SVTR](configs/rec/svtr/README_CN.md) (IJCAI'2022)
 - [x] [MASTER](configs/rec/master/README_CN.md) (PR'2019)
 - [x] [VISIONLAN](configs/rec/visionlan/README_CN.md) (ICCV'2021)
+- [x] [RobustScanner](configs/rec/robustscanner/README_CN.md) (ECCV'2020)
 - [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
 </details>
 
@@ -208,6 +209,9 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 ## 重要信息
 
 ### 更新日志
+- 2023/07/06
+1. 增加新模型
+    - 文本识别[RobustScanner](configs/rec/robustscanner)
 - 2023/07/05
 1. 增加新模型
     - 文本识别[VISIONLAN](configs/rec/visionlan)
