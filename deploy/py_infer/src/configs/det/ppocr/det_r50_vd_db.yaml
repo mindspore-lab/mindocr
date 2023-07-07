@@ -16,7 +16,7 @@ eval:
           keep_ratio: True
           padding: True
           limit_type: None
-          force_divisable: False
+          force_divisible: False
       - NormalizeImage:
           mean: [ 123.675, 116.28 , 103.53 ]
           std: [ 58.395, 57.12 , 57.375 ]

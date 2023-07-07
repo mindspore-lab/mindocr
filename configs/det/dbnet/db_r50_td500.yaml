@@ -133,7 +133,7 @@ eval:
           keep_ratio: True
           padding: True
           limit_type: None
-          force_divisable: False
+          force_divisible: False
       - Normalize:
           mean: *mean
           std: *std

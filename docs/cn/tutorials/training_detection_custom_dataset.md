@@ -170,7 +170,7 @@ eval:
       - DetResize:
           target_size: [ 736, 1280 ]
           keep_ratio: False
-          force_divisable: True
+          force_divisible: True
       - NormalizeImage:
           bgr_to_rgb: False
           is_hwc: True

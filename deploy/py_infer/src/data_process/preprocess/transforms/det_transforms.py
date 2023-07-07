@@ -15,7 +15,7 @@ __all__ = ["DetResize", "DetResizeNormForInfer"]
 
 
 class DetResize(det_transforms.DetResize):
-    # limit_type and force_divisable is not supported currently, because inference model don't support dynamic shape
+    # limit_type and force_divisible is not supported currently, because inference model don't support dynamic shape
     def __init__(self, keep_ratio=True, padding=True, interpolation=cv2.INTER_LINEAR, **kwargs):
         if keep_ratio and (not padding):
             print(
@@ -24,7 +24,7 @@ class DetResize(det_transforms.DetResize):
             )
             padding = True
 
-        skipped = ("target_size", "limit_type", "force_divisable")
+        skipped = ("target_size", "limit_type", "force_divisible")
         [kwargs.pop(name, None) for name in skipped]
 
         super().__init__(
@@ -32,7 +32,7 @@ class DetResize(det_transforms.DetResize):
             keep_ratio=keep_ratio,
             padding=padding,
             limit_type=None,
-            force_divisable=False,
+            force_divisible=False,
             interpolation=interpolation,
             **kwargs,
         )
