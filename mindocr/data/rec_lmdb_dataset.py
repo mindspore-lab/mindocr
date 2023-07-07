@@ -16,10 +16,9 @@ class LMDBDataset(BaseDataset):
     The annotaiton format is required to aligned to paddle, which can be done using the `converter.py` script.
 
     Args:
-        is_train: Whether the dataset is for training. Default: True.
         data_dir: data root directory for lmdb dataset(s). Default: ".".
         sample_ratio: Sampling ratio from current dataset. Default: 1.0.
-        shuffle: Optional, if not given, shuffle = is_train. Default: None.
+        shuffle(bool): shuffle samples within dataset. Useful only when `sample_ratio` is set below 1. (Default: False).
         filter_max_len (bool): Filter the records where the label is longer than the `max_text_len`. Default: False.
         max_text_len (int): The maximum text length the dataloader expected. Default: None.
         random_choice_if_none (bool): Random choose another data if the result returned from data transform is none
@@ -42,10 +41,9 @@ class LMDBDataset(BaseDataset):
 
     def __init__(
         self,
-        is_train: bool = True,
         data_dir: str = ".",
         sample_ratio: float = 1.0,
-        shuffle: Optional[bool] = None,
+        shuffle: bool = False,
         filter_max_len: bool = False,
         max_text_len: Optional[int] = None,
         random_choice_if_none: bool = False,
@@ -55,8 +53,6 @@ class LMDBDataset(BaseDataset):
         self.filter_max_len = filter_max_len
         self.max_text_len = max_text_len
         self.random_choice_if_none = random_choice_if_none
-
-        shuffle = shuffle if shuffle is not None else is_train
 
         self.lmdb_sets = self.load_list_of_hierarchical_lmdb_dataset(data_dir)
 

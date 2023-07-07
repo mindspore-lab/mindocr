@@ -149,7 +149,7 @@ def build_dataset(
     else:
         dataset_class_name = dataset_config.pop("type")
         assert dataset_class_name in supported_dataset_types, "Invalid dataset name"
-        dataset = eval(dataset_class_name)(is_train=is_train, **dataset_config)
+        dataset = eval(dataset_class_name)(**dataset_config)
 
         ds = ms.dataset.GeneratorDataset(
             dataset,

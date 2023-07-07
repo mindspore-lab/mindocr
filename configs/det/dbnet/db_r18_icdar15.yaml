@@ -129,9 +129,11 @@ eval:
     transform_pipeline:
       - Decode:
       - DetLabelEncode:
-      - DetResize:
+      - DetResize:  # GridResize 32
           target_size: [ 736, 1280 ]
           keep_ratio: False
+          limit_type: None
+          divisor: 32
       - Normalize:
           mean: *mean
           std: *std
