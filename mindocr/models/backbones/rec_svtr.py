@@ -464,7 +464,6 @@ class SVTRNet(nn.Cell):
             **kwargs: Dummy arguments for compatibility only.
         """
         super().__init__()
-        self.img_size = img_size
         self.embed_dim = embed_dim
         self.out_channels = out_channels
         self.prenorm = prenorm
@@ -495,7 +494,7 @@ class SVTRNet(nn.Cell):
             self.pos_drop = nn.Dropout(keep_prob=1 - drop_rate)
         Block_unit = eval(block_unit)
         dpr = np.linspace(0, drop_path_rate, num=sum(depth))
-        self.blocks1 = nn.CellList(
+        self.blocks1 = nn.SequentialCell(
             [
                 Block_unit(
                     dim=embed_dim[0],
@@ -529,7 +528,7 @@ class SVTRNet(nn.Cell):
         else:
             HW = self.HW
         self.patch_merging = patch_merging
-        self.blocks2 = nn.CellList(
+        self.blocks2 = nn.SequentialCell(
             [
                 Block_unit(
                     dim=embed_dim[1],
@@ -562,7 +561,7 @@ class SVTRNet(nn.Cell):
             HW = [self.HW[0] // 4, self.HW[1]]
         else:
             HW = self.HW
-        self.blocks3 = nn.CellList(
+        self.blocks3 = nn.SequentialCell(
             [
                 Block_unit(
                     dim=embed_dim[2],
@@ -627,24 +626,21 @@ class SVTRNet(nn.Cell):
             x = x + self.pos_embed
             x = self.pos_drop(x)
 
-        for blk in self.blocks1:
-            x = blk(x)
+        x = self.blocks1(x)
         if self.patch_merging is not None:
             x = self.sub_sample1(
                 x.transpose([0, 2, 1]).reshape(
                     [-1, self.embed_dim[0], self.HW[0], self.HW[1]]
                 )
             )
-        for blk in self.blocks2:
-            x = blk(x)
+        x = self.blocks2(x)
         if self.patch_merging is not None:
             x = self.sub_sample2(
                 x.transpose([0, 2, 1]).reshape(
                     [-1, self.embed_dim[1], self.HW[0] // 2, self.HW[1]]
                 )
             )
-        for blk in self.blocks3:
-            x = blk(x)
+        x = self.blocks3(x)
         if not self.prenorm:
             x = self.norm(x)
         return x

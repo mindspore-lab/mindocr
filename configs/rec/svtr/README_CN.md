@@ -38,7 +38,7 @@ Table Format:
 
 | **模型** | **环境配置** | **平均准确率** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** |
 | :-----: | :-----:  | :-----: | :-----: | :-----: |:--------: | :-----: |
-| SVTR-Tiny      | D910x4-MS1.10-G | 90.10%    |  s/epoch        | | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/) |
+| SVTR-Tiny      | D910x4-MS1.10-G | 90.23%    | 3638 s/epoch        | 4560 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3-86ece8c8.mindir) |
 </div>
 
 <details open markdown>
@@ -47,7 +47,7 @@ Table Format:
 
   | **模型** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **平均准确率** |
   | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
- | SVTR-Tiny  | % | % | % | % | % | % | % | % | % | % | % |
+  | SVTR-Tiny  | 95.70% | 95.50% | 95.33% | 93.99% | 83.60% | 79.83% | 94.70% | 91.96% | 85.58% | 86.11% | 90.23% |
   </div>
 </details>
 
