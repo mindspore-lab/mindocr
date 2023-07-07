@@ -2,70 +2,75 @@
 
 [![Download Notebook](https://mindspore-website.obs.cn-north-4.myhuaweicloud.com/website-images/r1.8/resource/_static/logo_notebook.png)](https://download.mindspore.cn/toolkits/mindocr/tutorials/transform_tutorial.ipynb)&emsp;
 
-### Mechanism
+## Mechanism
 
-1. Each transformation is a class with a callable function. An example is as follows
+1. There are 2 types of supported transforms by MindOCR: native MindSpore (such as `Decode`, `HWC2CHW`, etc.) and custom
+python transforms. MindOCR provides numerous python transforms suitable for wide variety applications in OCR.
+2. Python transform class must have a `__call__` method with a dictionary as input to and output from it as in the
+following example:
+
 
 ```python
-class ToCHWImage(object):
-    """ convert hwc image to chw image
-    required keys: image
-    modified keys: image
-    """
+class RandomHorizontalFlip:
+    def __init__(self, polygons: bool = True, p: float = 0.5, **kwargs):
+        self._p = p
+        self.output_columns = ["image", "polys"] if polygons else ["image"]
 
-    def __init__(self, **kwargs):
-        pass
+    def __call__(self, data: dict) -> dict:
+        if random.random() < self._p:
+            data["image"] = cv2.flip(data["image"], 1)
 
-    def __call__(self, data: dict):
-        img = data['image']
-        if isinstance(img, Image.Image):
-            img = np.array(img)
-        data['image'] = img.transpose((2, 0, 1))
+            if "polys" in self.output_columns:
+                mat = np.float32([[-1, 0, data["image"].shape[1] - 1], [0, 1, 0]])
+                data["polys"] = cv2.transform(data["polys"], mat)
+                # TODO: assign a new starting point located in the top left
+                data["polys"] = data["polys"][:, ::-1, :]  # preserve the original order (e.g. clockwise)
+
         return data
 ```
 
-2. The input for transformation is always a dict, which contain data info like img_path, raw label, etc.
+2. The input / output dictionary contains data keys such as `image`, `polys`, etc. A transformation can modify / add new
+values to the data dictionary, but should not delete keys (data) from it.
+3. Each transformation class must have a `self.output_columns` member. It is necessary for the pipeline data mapping.
+4. :warning: For better transformation pipeline efficiency, python and MindSpore transformations should be grouped together in the config files in such way that the number of groups they form is minimized.
+That is, python operations should be followed by python operations and MindSpore operations by MindSpore operations. For example:
 
-3. The transformation api should have clarify the required keys in input and the modified or/and added keys in output the data dict.
+```yaml
+transform_pipeline:
+  - Decode:                                           <- MindSpore transformation
+  - DetLabelEncode:                                   ─┐
+  - ShrinkBinaryMap:                                   │
+      min_text_size: 8                                 │
+      shrink_ratio: 0.4                                │ Python transformations
+  - BorderMap:                                         │
+      shrink_ratio: 0.4                                │
+      thresh_min: 0.3                                  │
+      thresh_max: 0.7                                 ─┘
+  - RandomColorAdjust:                                ─┐
+      brightness: 0.1255                               │
+      saturation: 0.5                                  │
+  - Normalize:                                         │ MindSpore transformations
+      mean: [ 123.675, 116.28, 103.53 ]                │
+      std: [ 58.395, 57.12, 57.375 ]                   │
+  - HWC2CHW:                                          ─┘
+```
+In the example above, the minimum possible number of transformation groups is 3 (we must `Decode` an image first before applying transformations to it).
 
-Available transformations can be checked in `mindocr/data/transforms/*_transform.py`
+Available transformations can be found in `mindocr/data/transforms/*_transform.py`
 
-
-```python
+```shell
 # import and check available transforms
-
-from mindocr.data.transforms import general_transforms, det_transforms, rec_transforms
+>>> from mindocr.data.transforms import general_transforms, det_transforms, rec_transforms
+>>> general_transforms.__all__
+['RandomScale', 'RandomRotate', 'RandomHorizontalFlip']
+>>> det_transforms.__all__
+['DetLabelEncode', 'BorderMap', 'ShrinkBinaryMap', 'expand_poly', 'PSEGtDecode', 'ValidatePolygons', 'RandomCropWithBBox', 'RandomCropWithMask', 'DetResize']
+>>> rec_transforms.__all__
+['RecCTCLabelEncode', 'RecAttnLabelEncode', 'RecMasterLabelEncode', 'VisionLANLabelEncode', 'RecResizeImg', 'RecResizeNormForInfer', 'SVTRRecResizeImg', 'Rotate90IfVertical', 'ClsLabelEncode', 'SARLabelEncode', 'RobustScannerRecResizeImg']
 ```
 
 
-```python
-general_transforms.__all__
-```
-
-
-
-
-    ['DecodeImage', 'NormalizeImage', 'ToCHWImage', 'PackLoaderInputs']
-
-
-
-
-```python
-det_transforms.__all__
-```
-
-
-
-
-    ['DetLabelEncode',
-     'MakeBorderMap',
-     'MakeShrinkMap',
-     'EastRandomCropData',
-     'PSERandomCrop']
-
-
-
-### Text detection
+## Text detection
 
 ### 1. Load image and annotations
 
@@ -111,18 +116,19 @@ print('raw annotation: ', annot)
     raw annotation:  [{"transcription": "where", "points": [[483, 197], [529, 174], [530, 197], [485, 221]]}, {"transcription": "people", "points": [[531, 168], [607, 136], [608, 166], [532, 198]]}, {"transcription": "meet", "points": [[613, 128], [691, 100], [691, 131], [613, 160]]}, {"transcription": "###", "points": [[695, 299], [888, 315], [931, 635], [737, 618]]}, {"transcription": "###", "points": [[709, 19], [876, 8], [880, 286], [713, 296]]}, {"transcription": "###", "points": [[530, 270], [660, 246], [661, 300], [532, 324]]}, {"transcription": "###", "points": [[113, 356], [181, 359], [180, 387], [112, 385]]}, {"transcription": "###", "points": [[281, 328], [369, 338], [366, 361], [279, 351]]}, {"transcription": "###", "points": [[66, 314], [183, 313], [183, 328], [68, 330]]}]
 
 
-#### Decode the image  -  DecodeImage
+#### MindSpore transform: Decode an image
 
 
 ```python
+import numpy as np
+from mindspore.dataset.vision import Decode
 #img_path = '/Users/Samit/Data/datasets/ic15/det/train/ch4_training_images/img_1.jpg'
-decode_image = general_transforms.DecodeImage(img_mode='RGB')
+decode_image = Decode()
 
 # TODO: check the input keys and output keys for the trans. func.
 
-data = {'img_path': img_path}
-data  = decode_image(data)
-img = data['image']
+img_buffer = np.fromfile(img_path, np.uint8)
+img  = decode_image(img_buffer)
 
 # visualize
 from mindocr.utils.visualize import show_img, show_imgs
@@ -149,7 +155,7 @@ print('avg reading time: ', avg)
     avg reading time:  0.004545390605926514
 
 
-#### DetLabelEncode
+#### Python transform: DetLabelEncode
 
 
 ```python
@@ -178,11 +184,11 @@ show_img(res)
 
 ### 2. Image and annotation processing/augmentation
 
-#### RandomCrop - EastRandomCropData
+#### RandomCropWithBBox
 
 
 ```python
-from mindocr.data.transforms.general_transforms import RandomCropWithBBox
+from mindocr.data.transforms.det_transforms import RandomCropWithBBox
 import copy
 
 #crop_data = det_transforms.EastRandomCropData(size=(640, 640))
@@ -213,7 +219,8 @@ for i in range(2):
 
 
 ```python
-random_color_adj = general_transforms.RandomColorAdjust(brightness=0.4, saturation=0.5)
+from mindspore.dataset.vision import RandomColorAdjust
+random_color_adj = RandomColorAdjust(brightness=0.4, saturation=0.5)
 
 data_cache = copy.deepcopy(data)
 #data_cache['image'] = data_cache['image'][:,:, ::-1]
@@ -224,3 +231,11 @@ show_img(data_adj['image'], is_bgr_img=True)
 
 
 ![output_21_0](https://user-images.githubusercontent.com/20376974/228161397-c64faae6-b4a2-41ff-9531-5bced781fd9d.png)
+
+
+## FAQ
+1. **During execution, I see the following warning: `Using shared memory queue, but rowsize is larger than allocated
+memory max_rowsize: X MB, current rowsize: X MB`. How can I fix this?**</br>
+This warning indicated that the amount of shared memory allocated for copying data between processes is insufficient.
+You need to increase the amount of allocated memory in the configuration file by setting `max_rowsize` under
+`train.loader` or `eval.loader` (depending on your pipeline needs) to a larger value (default value is 64MB).

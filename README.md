@@ -17,6 +17,7 @@ English | [中文](README_CN.md)
 [📚Tutorials](#tutorials) |
 [🎁Model List](#model-list) |
 [📰Dataset List](#dataset-list) |
+[:question:FAQ](#faq) |
 [🎉Notes](#notes)
 
 </div>
@@ -210,6 +211,15 @@ MindOCR provides a [dataset conversion tool](tools/dataset_converters) to OCR da
 </details>
 
 We will include more datasets for training and evaluation. This list will be continuously updated.
+
+
+## FAQ
+1. **During execution, I see the following warning: `Using shared memory queue, but rowsize is larger than allocated
+memory max_rowsize: X MB, current rowsize: X MB`. How can I fix this?**</br>
+This warning indicated that the amount of shared memory allocated for copying data between processes is insufficient.
+You need to increase the amount of allocated memory in the configuration file by setting `max_rowsize` under
+`train.loader` or `eval.loader` (depending on your pipeline needs) to a larger value (default value is 64MB).
+
 
 ## Notes
 
