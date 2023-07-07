@@ -516,6 +516,8 @@ class SARLabelDecode(object):
         return result_list
 
     def __call__(self, preds, label=None, *args, **kwargs):
+        if isinstance(preds, tuple):
+            preds = preds[0]
         if isinstance(preds, Tensor):
             preds = preds.asnumpy()
         preds_idx = preds.argmax(axis=2)
