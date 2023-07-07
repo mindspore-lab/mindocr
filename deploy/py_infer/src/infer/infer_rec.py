@@ -1,6 +1,5 @@
 import math
 import os
-from collections import defaultdict
 from typing import Dict, List, Tuple, Union
 
 import numpy as np
@@ -14,11 +13,7 @@ from .infer_base import InferBase
 class TextRecognizer(InferBase):
     def __init__(self, args):
         super(TextRecognizer, self).__init__(args)
-
-        self._hw_list = []
-        self._bs_list = []
-
-        self.model = defaultdict()
+        self.model: Dict[int, Model] = {}
         self.shape_type = None
 
     def __get_shape_for_single_model(self, filename):
@@ -65,7 +60,10 @@ class TextRecognizer(InferBase):
 
         return max_h, max_w
 
-    def init(self, warmup=False):
+    def _init_preprocess(self):
+        self.preprocess_ops = build_preprocess(self.args.rec_config_path)
+
+    def _init_model(self):
         model_path = self.args.rec_model_path
 
         if os.path.isfile(model_path):
@@ -91,13 +89,12 @@ class TextRecognizer(InferBase):
 
         self._bs_list.sort()
 
-        self.preprocess_ops = build_preprocess(self.args.rec_config_path)
+    def _init_postprocess(self):
         params = {"character_dict_path": self.args.character_dict_path}
         self.postprocess_ops = build_postprocess(self.args.rec_config_path, **params)
 
-        if warmup:
-            for model in self.model.values():
-                model.warmup()
+    def get_params(self):
+        return {"rec_batch_num": self._bs_list}
 
     def __call__(self, image: Union[np.ndarray, List[np.ndarray]]):
         images = [image] if isinstance(image, np.ndarray) else image
@@ -129,10 +126,10 @@ class TextRecognizer(InferBase):
         return split_bs, split_data
 
     def model_infer(self, data: Dict) -> List[np.ndarray]:
-        input = data["image"]
-        bs, *_ = input.shape
+        input_data = data["image"]
+        bs, *_ = input_data.shape
         n = bs if bs in self._bs_list else -1
-        return self.model[n].infer([input])
+        return self.model[n].infer([input_data])
 
     def postprocess(self, pred, batch=None):
         pred = gear_utils.get_batch_from_padding(pred, batch)

@@ -15,9 +15,6 @@ class DecodeNode(ModuleBase):
             self.send_to_next_module(input_data)
             return
 
-        image_path = input_data.image_path
-
-        image_src = cv_utils.img_read(image_path)
-        input_data.frame = image_src
+        input_data.frame = [cv_utils.img_read(image_path) for image_path in input_data.image_path]
 
         self.send_to_next_module(input_data)

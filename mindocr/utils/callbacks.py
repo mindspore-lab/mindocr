@@ -1,3 +1,4 @@
+import logging
 import os
 import time
 from typing import List, Tuple
@@ -8,11 +9,11 @@ from mindspore.train.callback._callback import Callback, _handle_loss
 
 from .checkpoint import CheckpointManager
 from .evaluator import Evaluator
-from .logger import Logger
-from .misc import AverageMeter, fetch_optimizer_lr
+from .misc import AllReduce, AverageMeter, fetch_optimizer_lr
 from .recorder import PerfRecorder
 
 __all__ = ["EvalSaveCallback"]
+_logger = logging.getLogger(__name__)
 
 
 class EvalSaveCallback(Callback):
@@ -35,7 +36,6 @@ class EvalSaveCallback(Callback):
         pred_cast_fp32=False,
         rank_id=0,
         device_num=None,
-        logger=None,
         batch_size=20,
         ckpt_save_dir="./",
         main_indicator="hmean",
@@ -56,12 +56,6 @@ class EvalSaveCallback(Callback):
         self.loader_eval = loader
         self.network = network
         self.ema = ema
-
-        if logger is None:
-            self.logger = Logger("mindocr", rank=self.rank_id)
-        else:
-            self.logger = logger
-
         self.val_interval = val_interval
         self.val_start_epoch = val_start_epoch
         self.log_interval = log_interval
@@ -95,8 +89,8 @@ class EvalSaveCallback(Callback):
 
         self._loss_avg_meter = AverageMeter()
 
-        self._reduce_sum = ms.ops.AllReduce()
         self._device_num = device_num
+        self._reduce = AllReduce(device_num=self._device_num)
         # lamda expression is not supported in jit
         self._loss_reduce = self._reduce if device_num is not None else lambda x: x
 
@@ -109,9 +103,6 @@ class EvalSaveCallback(Callback):
                 prefer_low_perf=(self.main_indicator == "train_loss"),
             )
         self.start_epoch = start_epoch
-
-    def _reduce(self, x):
-        return self._reduce_sum(x) / self._device_num  # average value across all devices
 
     def on_train_step_end(self, run_context):
         """
@@ -149,10 +140,10 @@ class EvalSaveCallback(Callback):
             msg = (
                 f"epoch: [{cur_epoch}/{cb_params.epoch_num+self.start_epoch}] "
                 f"step: [{cur_step_in_epoch}/{cb_params.batch_num}], "
-                f"loss: {loss:.6f}, " + lr_str + f"per step time: {per_step_time:.3f} ms, fps: {fps:.2f} img/s"
+                f"loss: {loss:.6f}, " + lr_str + f"per step time: {per_step_time:.3f} ms, fps per card: {fps:.2f} img/s"
             )
 
-            self.logger.info(msg)
+            _logger.info(msg)
             self.step_start_time = time.time()
 
     def on_train_epoch_begin(self, run_context):
@@ -188,9 +179,9 @@ class EvalSaveCallback(Callback):
         fps = 1000 * self.batch_size / per_step_time
         msg = (
             f"epoch: [{cur_epoch}/{cb_params.epoch_num+self.start_epoch}], loss: {train_loss:.6f}, "
-            f"epoch time: {epoch_time:.3f} s, per step time: {per_step_time:.3f} ms, fps: {fps:.2f} img/s"
+            f"epoch time: {epoch_time:.3f} s, per step time: {per_step_time:.3f} ms, fps per card: {fps:.2f} img/s"
         )
-        self.logger.info(msg)
+        _logger.info(msg)
 
         eval_done = False
         if self.loader_eval is not None:
@@ -205,7 +196,7 @@ class EvalSaveCallback(Callback):
                 if self.is_main_device:
                     perf = measures[self.main_indicator]
                     eval_time = time.time() - eval_start
-                    self.logger.info(f"Performance: {measures}, eval time: {eval_time}")
+                    _logger.info(f"Performance: {measures}, eval time: {eval_time}")
             else:
                 measures = {m_name: None for m_name in self.net_evaluator.metric_names}
                 eval_time = 0
@@ -223,7 +214,7 @@ class EvalSaveCallback(Callback):
                 # ema weight will be saved if enabled.
                 save_checkpoint(self.network, os.path.join(self.ckpt_save_dir, "best.ckpt"))
 
-                self.logger.info(f"=> Best {self.main_indicator}: {self.best_perf}, checkpoint saved.")
+                _logger.info(f"=> Best {self.main_indicator}: {self.best_perf}, checkpoint saved.")
 
             # save history checkpoints
             self.ckpt_manager.save(self.network, perf, ckpt_name=f"e{cur_epoch}.ckpt")
@@ -258,10 +249,10 @@ class EvalSaveCallback(Callback):
     def on_train_end(self, run_context):
         if self.is_main_device:
             self.rec.save_curves()  # save performance curve figure
-            self.logger.info(f"=> Best {self.main_indicator}: {self.best_perf} \nTraining completed!")
+            _logger.info(f"=> Best {self.main_indicator}: {self.best_perf} \nTraining completed!")
 
             if self.ckpt_save_policy == "top_k":
                 log_str = f"Top K checkpoints:\n{self.main_indicator}\tcheckpoint\n"
                 for p, ckpt_name in self.ckpt_manager.get_ckpt_queue():
                     log_str += f"{p:.4f}\t{os.path.join(self.ckpt_save_dir, ckpt_name)}\n"
-                self.logger.info(log_str)
+                _logger.info(log_str)

@@ -11,8 +11,7 @@ class DetPostNode(ModuleBase):
 
     def init_self_args(self):
         self.text_detector = TextDetector(self.args)
-        self.text_detector.init()
-        self.text_detector.free_model()
+        self.text_detector.init(preprocess=False, model=False, postprocess=True)
         super().init_self_args()
 
     def process(self, input_data):
@@ -28,11 +27,12 @@ class DetPostNode(ModuleBase):
             infer_res_list.append(box.tolist())
 
         input_data.infer_result = infer_res_list
-        input_data.sub_image_total = len(infer_res_list)
-        input_data.sub_image_size = len(infer_res_list)
 
         if self.task_type in (TaskType.DET_REC, TaskType.DET_CLS_REC):
-            image = input_data.frame
+            input_data.sub_image_total = len(infer_res_list)
+            input_data.sub_image_size = len(infer_res_list)
+
+            image = input_data.frame[0]  # bs=1 for det
             sub_image_list = []
             for box in boxes:
                 sub_image = cv_utils.crop_box_from_image(image, box)
@@ -41,7 +41,7 @@ class DetPostNode(ModuleBase):
 
         input_data.data = None
 
-        if not (self.args.save_crop_res_dir or self.args.save_vis_det_save_dir or self.args.save_vis_pipeline_save_dir):
+        if not (self.args.crop_save_dir or self.args.vis_det_save_dir or self.args.vis_pipeline_save_dir):
             input_data.frame = None
 
         if not infer_res_list:
