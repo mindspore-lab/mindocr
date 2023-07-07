@@ -7,11 +7,13 @@ supported_losses = [
     "PSEDiceLoss",
     "EASTLoss",
     "CrossEntropySmooth",
+    "ABINetLoss",
     "FCELoss",
     "SARLoss",
     "VisionLANLoss",
 ]
 
+from .abinet_loss import ABINetLoss
 from .cls_loss import CrossEntropySmooth
 from .det_loss import DBLoss, EASTLoss, FCELoss, PSEDiceLoss
 from .rec_loss import AttentionLoss, CTCLoss, SARLoss, VisionLANLoss
