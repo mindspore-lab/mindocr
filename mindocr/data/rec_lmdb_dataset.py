@@ -156,7 +156,7 @@ class LMDBDataset(BaseDataset):
             if label_length > self.max_text_len:
                 _logger.warning(
                     f"skip the label with length ({label_length}), "
-                    f"which is longer than than max length ({self.max_text_len})."
+                    f"which is longer than the max length ({self.max_text_len})."
                 )
                 continue
             new_idx_list.append((lmdb_idx, file_idx))
