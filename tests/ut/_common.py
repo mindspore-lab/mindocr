@@ -61,6 +61,7 @@ def update_config_for_CI(
         config["train"]["clip_grad"] = clip_grad
         config["train"]["ema"] = ema
 
+        config["train"]["dataset"]["mindrecord"] = False
         config["train"]["dataset"]["dataset_root"] = "data/Canidae/"
         config["train"]["dataset"]["data_dir"] = "train/dogs"
         config["train"]["dataset"]["label_file"] = f"train/{task}_gt.txt"
@@ -77,6 +78,7 @@ def update_config_for_CI(
         if "batch_size" in config["loss"]:
             config["loss"]["batch_size"] = 2
 
+        config["eval"]["dataset"]["mindrecord"] = False
         config["eval"]["dataset"]["dataset_root"] = "data/Canidae/"
         config["eval"]["dataset"]["data_dir"] = "val/dogs"
         config["eval"]["dataset"]["label_file"] = f"val/{task}_gt.txt"
