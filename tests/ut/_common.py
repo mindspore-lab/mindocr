@@ -68,7 +68,9 @@ def update_config_for_CI(
         config["train"]["dataset"][
             "sample_ratio"
         ] = 0.1  # TODO: 120 training samples in total, don't be larger than batchsize after sampling
-        config["train"]["loader"]["num_workers"] = 1  # github server only support 2 workers at most
+        config["train"]["loader"]["num_workers"] = 1  # GitHub server only support 2 workers at most
+        config["train"]["loader"]["num_workers_dataset"] = 1
+        config["train"]["loader"]["num_workers_batch"] = 1
         # if config['train']['loader']['batch_size'] > 120:
         config["train"]["loader"]["batch_size"] = 2  # to save memory
         config["train"]["loader"]["max_rowsize"] = 16  # to save memory
@@ -83,7 +85,9 @@ def update_config_for_CI(
         config["eval"]["dataset"]["data_dir"] = "val/dogs"
         config["eval"]["dataset"]["label_file"] = f"val/{task}_gt.txt"
         config["eval"]["dataset"]["sample_ratio"] = 0.1
-        config["eval"]["loader"]["num_workers"] = 1  # github server only support 2 workers at most
+        config["eval"]["loader"]["num_workers"] = 1  # GitHub server only support 2 workers at most
+        config["eval"]["loader"]["num_workers_dataset"] = 1
+        config["eval"]["loader"]["num_workers_batch"] = 1
         config["eval"]["loader"]["batch_size"] = 1
         config["eval"]["loader"]["max_rowsize"] = 16  # to save memory
         config["eval"]["loader"]["prefetch_size"] = 2  # to save memory
