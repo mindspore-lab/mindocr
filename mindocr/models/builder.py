@@ -78,6 +78,8 @@ def build_model(name_or_config: Union[str, dict], **kwargs):
         auto_mixed_precision(network, amp_level=kwargs["amp_level"])
 
     num_params = sum([param.size for param in network.get_parameters()])
+    num_trainable_params = sum([param.size for param in network.trainable_params()])
     _logger.info(f"Total number of model parameters: {num_params}")
+    _logger.info(f"Total number of model trainable parameters: {num_trainable_params }")
 
     return network
