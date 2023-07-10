@@ -1,6 +1,7 @@
 """
 build models
 """
+import logging
 from typing import Union
 
 from mindspore.amp import auto_mixed_precision
@@ -10,6 +11,7 @@ from .base_model import BaseModel
 from .utils import load_model
 
 __all__ = ["build_model"]
+_logger = logging.getLogger(__name__)
 
 
 def build_model(name_or_config: Union[str, dict], **kwargs):
@@ -74,5 +76,8 @@ def build_model(name_or_config: Union[str, dict], **kwargs):
 
     if "amp_level" in kwargs:
         auto_mixed_precision(network, amp_level=kwargs["amp_level"])
+
+    num_params = sum([param.size for param in network.get_parameters()])
+    _logger.info(f"Total number of model parameters: {num_params}")
 
     return network
