@@ -1,11 +1,23 @@
+from mindspore.dataset.vision import HWC2CHW, Normalize
+
 from . import transforms
+
+
+class MSWrapper:
+    def __init__(self, transform, **params):
+        self._transform = transform(**params)
+
+    def __call__(self, data: dict) -> dict:
+        data["image"] = self._transform(data["image"])
+        return data
+
 
 # other ops node will be skipped
 PREPROCESS_MAPPING_OPS = {
     # general
     "DecodeImage": transforms.DecodeImage,
-    "NormalizeImage": transforms.NormalizeImage,
-    "ToCHWImage": transforms.ToCHWImage,
+    "Normalize": lambda **x: MSWrapper(Normalize, **x),
+    "HWC2CHW": lambda: MSWrapper(HWC2CHW),
     # det
     "DetResize": transforms.DetResize,
     "DetResizeNormForInfer": transforms.DetResizeNormForInfer,

@@ -21,7 +21,7 @@ def test_transforms_pipeline(task):
         target_size = (32, 100)
 
     preprocess_ops = build_preprocess(config_fp)
-    image = np.random.randint(0, 255, size=image_shape).astype(np.float32)
+    image = np.random.randint(0, 256, size=image_shape, dtype=np.uint8)
     data = preprocess_ops(image, target_size=target_size)
 
     assert data["image"].shape == (1, 3) + target_size
