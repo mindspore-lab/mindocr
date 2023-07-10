@@ -113,7 +113,9 @@ train:
     shuffle: True
     batch_size: 20
     drop_remainder: True
-    num_workers: 8
+    num_workers: 20
+    num_workers_dataset: 10
+    max_rowsize: 96
 
 eval:
   ckpt_load_path: tmp_det/best.ckpt
@@ -144,4 +146,5 @@ eval:
     shuffle: False
     batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
     drop_remainder: False
-    num_workers: 2
+    num_workers: 5
+    max_rowsize: 96

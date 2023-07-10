@@ -239,3 +239,9 @@ memory max_rowsize: X MB, current rowsize: X MB`. How can I fix this?**</br>
 This warning indicated that the amount of shared memory allocated for copying data between processes is insufficient.
 You need to increase the amount of allocated memory in the configuration file by setting `max_rowsize` under
 `train.loader` or `eval.loader` (depending on your pipeline needs) to a larger value (default value is 64MB).
+
+2. **I want to debug the data transformation pipeline, but the debugger doesn't stop at breakpoints. How can I debug?**</br>
+To debug the data transformation pipeline, you need to set it to the debug mode first. You can do it by uncommenting
+the `ms.dataset.config.set_debug_mode(True)` command located in
+[mindocr/data/builder.py](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/builder.py). This will allow
+the data pipeline to run synchronously and sequentially with a single thread.
