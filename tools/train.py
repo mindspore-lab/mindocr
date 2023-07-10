@@ -216,7 +216,7 @@ def main(cfg):
         f"Distribute: {cfg.system.distribute}\n"
         f"Model: {model_name}\n"
         f"Total number of parameters: {num_params}\n"
-        f"Total number of trainable parameters: {num_trainable_params }\n"
+        f"Total number of trainable parameters: {num_trainable_params}\n"
         f"Data root: {cfg.train.dataset.dataset_root}\n"
         f"Optimizer: {cfg.optimizer.opt}\n"
         f"Weight decay: {cfg.optimizer.weight_decay} \n"
