@@ -71,6 +71,8 @@ def main(cfg):
     cfg.model.backbone.pretrained = False
     amp_level = cfg.system.get("amp_level_infer", "O0")
     network = build_model(cfg.model, ckpt_load_path=cfg.eval.ckpt_load_path, amp_level=amp_level)
+    num_params = sum([param.size for param in network.get_parameters()])
+    num_trainable_params = sum([param.size for param in network.trainable_params()])
     network.set_train(False)
 
     # postprocess, metric
@@ -120,6 +122,8 @@ def main(cfg):
     logger.info(
         f"\n{info_seg}\n"
         f"Model: {model_name}\n"
+        f"Total number of parameters: {num_params}\n"
+        f"Total number of trainable parameters: {num_trainable_params }\n"
         f"AMP level: {amp_level}\n"
         f"Num batches: {num_batches}\n"
         f"Batch size: {cfg.eval.loader.batch_size}\n"

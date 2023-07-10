@@ -108,6 +108,8 @@ def main(cfg):
     # create model
     amp_level = cfg.system.get("amp_level", "O0")
     network = build_model(cfg.model, ckpt_load_path=cfg.model.pop("pretrained", None), amp_level=amp_level)
+    num_params = sum([param.size for param in network.get_parameters()])
+    num_trainable_params = sum([param.size for param in network.trainable_params()])
 
     # create loss
     loss_fn = build_loss(cfg.loss.pop("name"), **cfg["loss"])
@@ -213,6 +215,8 @@ def main(cfg):
         f"\n{info_seg}\n"
         f"Distribute: {cfg.system.distribute}\n"
         f"Model: {model_name}\n"
+        f"Total number of parameters: {num_params}\n"
+        f"Total number of trainable parameters: {num_trainable_params }\n"
         f"Data root: {cfg.train.dataset.dataset_root}\n"
         f"Optimizer: {cfg.optimizer.opt}\n"
         f"Weight decay: {cfg.optimizer.weight_decay} \n"
