@@ -131,7 +131,7 @@ data_lmdb_release/
 
 Here we used the datasets under `training/` folders for training, and the union dataset `validation/` for validation. After training, we used the datasets under `evaluation/` to evaluate model accuracy.
 
-**Training:** (total 14,442,049 samples)
+**Training:** (total 16,185,770 samples)
 - [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/)
   - Train: 21.2 GB, 7224586 samples
   - Valid: 2.36 GB, 802731 samples

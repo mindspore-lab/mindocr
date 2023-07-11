@@ -130,7 +130,7 @@ data_lmdb_release/
 
 在这里，我们使用 `training/` 文件夹下的数据集进行训练，并使用联合数据集 `validation/` 进行验证。训练后，我们使用 `evaluation/` 下的数据集来评估模型的准确性。
 
-**Training:** (total 14,442,049 samples)
+**Training:** (total 16,185,770 samples)
 - [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/)
   - Train: 21.2 GB, 7224586 samples
   - Valid: 2.36 GB, 802731 samples
