@@ -204,15 +204,12 @@ def fcenet_decode(
     assert len(preds) == 2
     assert box_type in ["poly", "quad"]
 
-    # import pdb;pdb.set_trace()
     cls_pred = preds[0][0]
-    # tr_pred = F.softmax(cls_pred[0:2], axis=0).cpu().numpy()
-    # tcl_pred = F.softmax(cls_pred[2:], axis=0).cpu().numpy()
 
     tr_pred = cls_pred[0:2]
     tcl_pred = cls_pred[2:]
 
-    reg_pred = preds[1][0].transpose([1, 2, 0])  # .cpu().numpy()
+    reg_pred = preds[1][0].transpose([1, 2, 0])
     x_pred = reg_pred[:, :, : 2 * fourier_degree + 1]
     y_pred = reg_pred[:, :, 2 * fourier_degree + 1 :]
 
@@ -308,12 +305,11 @@ class FCEPostprocess(DetBasePostprocess):
             cls_res = value[:, :4, :, :]
             reg_res = value[:, 4:, :, :]
             score_maps.append([cls_res, reg_res])
-        r = self.get_boundary(score_maps, np.array([[0, 0, 1, 1]]))
-        return {"polys": [row[0] for row in r], "scores": [row[1] for row in r]}
+        polys, scores = self.get_boundary(score_maps, np.array([[0, 0, 1, 1]]))
+        return {"polys": polys, "scores": scores}
 
     def get_boundary(self, score_maps, shape_list):
         assert len(score_maps) == len(self.scales)
-        # import pdb;pdb.set_trace()
         boundaries = []
         for idx, score_map in enumerate(score_maps):
             scale = self.scales[idx]
@@ -330,8 +326,7 @@ class FCEPostprocess(DetBasePostprocess):
             scores.append(b[-1])
             boundary = np.array(b[: sz - 1]).flatten().tolist()
             boxes.append(np.array(boundary).reshape([-1, 2]))
-        boxes_batch = [[np.array(boxes, dtype=np.float32), scores]]
-        return boxes_batch
+        return np.array(boxes, dtype=np.float32), scores
 
     def _get_boundary_single(self, score_map, scale):
         assert len(score_map) == 2
