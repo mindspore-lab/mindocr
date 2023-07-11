@@ -351,7 +351,8 @@ class FCELoss(nn.LossBase):
         i_vect = ms.ops.arange(0, self.num_sample, dtype=ms.float16).view((1, -1))
 
         transform_matrix = 2 * pi / self.num_sample * ops.matmul(k_vect, i_vect)
-
+        real_maps = real_maps.half()
+        imag_maps = imag_maps.half()
         x1 = ops.matmul(real_maps, ops.cos(transform_matrix))
         x2 = ops.matmul(imag_maps, ops.sin(transform_matrix))
         y1 = ops.matmul(real_maps, ops.sin(transform_matrix))
@@ -360,7 +361,7 @@ class FCELoss(nn.LossBase):
         x_maps = x1 - x2
         y_maps = y1 + y2
 
-        return x_maps, y_maps
+        return x_maps.to(ms.float32), y_maps.to(ms.float32)
 
 
 class PSEDiceLoss(nn.Cell):
