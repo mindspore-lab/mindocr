@@ -347,24 +347,10 @@ class FCELoss(nn.LossBase):
                 represented by n sample points (xn, yn), whose shape is (-1, n)
         """
 
-        # device = real_maps.device
-
-        # k_vect = torch.arange(
-        #     -self.fourier_degree,
-        #     self.fourier_degree + 1,
-        #     dtype=torch.float,
-        #     device=device).view(-1, 1)
-        # i_vect = torch.arange(
-        #     0, self.num_sample, dtype=torch.float, device=device).view(1, -1)
-        k_vect = ms.ops.arange(-self.fourier_degree, self.fourier_degree + 1, dtype=ms.float32).view((-1, 1))
-        i_vect = ms.ops.arange(0, self.num_sample, dtype=ms.float32).view((1, -1))
+        k_vect = ms.ops.arange(-self.fourier_degree, self.fourier_degree + 1, dtype=ms.float16).view((-1, 1))
+        i_vect = ms.ops.arange(0, self.num_sample, dtype=ms.float16).view((1, -1))
 
         transform_matrix = 2 * pi / self.num_sample * ops.matmul(k_vect, i_vect)
-
-        # x1 = self.einsum((real_maps,ops.cos(transform_matrix)))
-        # x2 = self.einsum((imag_maps,ops.sin(transform_matrix)))
-        # y1 = self.einsum((real_maps,ops.sin(transform_matrix)))
-        # y2 = self.einsum((imag_maps,ops.cos(transform_matrix)))
 
         x1 = ops.matmul(real_maps, ops.cos(transform_matrix))
         x2 = ops.matmul(imag_maps, ops.sin(transform_matrix))
