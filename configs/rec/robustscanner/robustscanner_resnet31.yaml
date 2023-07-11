@@ -119,7 +119,7 @@ eval:
           to_float32: False
       - SARLabelEncode: # Class handling label
           max_text_len: *max_text_len
-#          character_dict_path: *character_dict_path
+          character_dict_path: *character_dict_path
           use_space_char: *use_space_char
           is_training: False
           lower: True
