@@ -1,10 +1,9 @@
-from . import (
+from . import (  # rec_abinet_postprocess,
     cls_postprocess,
     det_db_postprocess,
     det_east_postprocess,
     det_fce_postprocess,
     det_pse_postprocess,
-    # rec_abinet_postprocess,
     rec_postprocess,
 )
 from .cls_postprocess import *
@@ -12,6 +11,7 @@ from .det_db_postprocess import *
 from .det_east_postprocess import *
 from .det_fce_postprocess import *
 from .det_pse_postprocess import *
+
 # from .rec_abinet_postprocess import *
 from .rec_postprocess import *
 

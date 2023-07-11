@@ -1,5 +1,5 @@
 -r ../requirements.txt
-mindspore>=1.9,<=1.10
+mindspore>=1.9,<=2.0
 mkdocs>=1.4.2
 mkdocs-material>=9.1.7
 mkdocstrings[python]>=0.21.2
