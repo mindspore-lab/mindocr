@@ -6,7 +6,7 @@ import pytest
 import yaml
 from addict import Dict
 
-from mindocr.utils.logger import get_logger
+from mindocr.utils.logger import set_logger
 
 
 @pytest.mark.parametrize("task", ["det", "rec"])
@@ -20,4 +20,4 @@ def test_logger(task):
         cfg = yaml.safe_load(fp)
     cfg = Dict(cfg)
 
-    get_logger(cfg.train.ckpt_save_dir, rank=0)
+    set_logger(name="mindocr", output_dir=cfg.train.ckpt_save_dir, rank=0)

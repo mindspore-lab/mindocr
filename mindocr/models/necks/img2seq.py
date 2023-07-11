@@ -8,9 +8,11 @@ __all__ = ["Img2Seq"]
 
 
 class Img2Seq(nn.Cell):
-    """
-    Inputs: feature list with shape [N, C, 1, W]
-    Outputs: first feature with shape [W, N, C]
+    """Img2Seq Neck, for converting the input from [N, C, 1, W] to [W, N, C] for
+    further processing.
+
+    Args:
+        in_channels: Number of the input channels.
     """
 
     def __init__(self, in_channels: int) -> None:

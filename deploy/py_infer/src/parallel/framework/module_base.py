@@ -26,11 +26,13 @@ class ModuleBase(object):
         self.module_name = init_args.module_name
         self.instance_id = init_args.instance_id
 
-    def process_handler(self, stop_manager, input_queue, output_queue):
+    def process_handler(self, stop_manager, module_params, input_queue, output_queue):
         self.input_queue = input_queue
         self.output_queue = output_queue
         try:
-            self.init_self_args()
+            params = self.init_self_args()
+            if params:
+                module_params.update(**params)
         except Exception as error:
             log.error(f"{self.__class__.__name__} init failed: {error}")
             raise error
@@ -59,7 +61,9 @@ class ModuleBase(object):
                 self.process(send_data)
             except Exception as error:
                 self.process(StopData(exception=True))
-                log.exception(f"ERROR occurred in {self.module_name} module for {send_data.image_name}: {error}.")
+                log.exception(
+                    f"ERROR occurred in {self.module_name} module for {', '.join(send_data.image_path)}: {error}."
+                )
 
             cost_time = time.time() - start_time
             self.process_cost.value += cost_time

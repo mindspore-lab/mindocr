@@ -179,7 +179,7 @@ class CVRandomAffine(object):
         endpoints = [(project(x, y, *M[0]), project(x, y, *M[1])) for x, y in startpoints]
 
         rect = cv2.minAreaRect(np.array(endpoints))
-        bbox = cv2.boxPoints(rect).astype(dtype=np.int)
+        bbox = cv2.boxPoints(rect).astype(dtype=np.int32)
         max_x, max_y = bbox[:, 0].max(), bbox[:, 1].max()
         min_x, min_y = bbox[:, 0].min(), bbox[:, 1].min()
 
@@ -205,8 +205,8 @@ class CVRandomPerspective(object):
         self.distortion = distortion
 
     def get_params(self, width, height, distortion):
-        offset_h = sample_asym(distortion * height / 2, size=4).astype(dtype=np.int)
-        offset_w = sample_asym(distortion * width / 2, size=4).astype(dtype=np.int)
+        offset_h = sample_asym(distortion * height / 2, size=4).astype(dtype=np.int32)
+        offset_w = sample_asym(distortion * width / 2, size=4).astype(dtype=np.int32)
         topleft = (offset_w[0], offset_h[0])
         topright = (width - 1 - offset_w[1], offset_h[1])
         botright = (width - 1 - offset_w[2], height - 1 - offset_h[2])
@@ -223,7 +223,7 @@ class CVRandomPerspective(object):
 
         # TODO: more robust way to crop image
         rect = cv2.minAreaRect(endpoints)
-        bbox = cv2.boxPoints(rect).astype(dtype=np.int)
+        bbox = cv2.boxPoints(rect).astype(dtype=np.int32)
         max_x, max_y = bbox[:, 0].max(), bbox[:, 1].max()
         min_x, min_y = bbox[:, 0].min(), bbox[:, 1].min()
         min_x, min_y = max(min_x, 0), max(min_y, 0)

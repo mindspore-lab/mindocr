@@ -1,5 +1,5 @@
 system:
-  mode: 1 # 0 for graph mode, 1 for pynative mode in MindSpore
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
   distribute: False
   amp_level: 'O0'
   seed: 42
@@ -53,7 +53,7 @@ optimizer:
 
 train:
   ckpt_save_dir: './tmp_det_fcenet'
-  dataset_sink_mode: False
+  dataset_sink_mode: True
   ema: True
   dataset:
     type: DetDataset

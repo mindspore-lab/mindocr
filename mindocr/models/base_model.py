@@ -50,7 +50,8 @@ class BaseModel(nn.Cell):
 
         self.model_name = f'{backbone_name}_{neck_name}_{head_name}'
 
-    def construct(self, x, y=None):
+    def construct(self, *args):
+        x = args[0]
         if self.transform is not None:
             x = self.transform(x)
 
@@ -59,8 +60,8 @@ class BaseModel(nn.Cell):
 
         nout = self.neck(bout)
 
-        if y is not None:
-            hout = self.head(nout, y)
+        if len(args) > 1:
+            hout = self.head(nout, args[1:])
         else:
             hout = self.head(nout)
 

@@ -36,7 +36,7 @@ metric:
   main_indicator: f-score
 
 loss:
-  name: L1BalancedCELoss
+  name: DBLoss
   eps: 1.0e-6
   l1_scale: 10
   bce_scale: 5
@@ -133,16 +133,11 @@ eval:
           img_mode: RGB
           to_float32: False
       - DetLabelEncode:
-      #- GridResize:
-      #    factor: 32
-      # GridResize already sets the evaluation size to [ 736, 1280 ].
-      # Uncomment ScalePadImage block for other resolutions.
-#      - ScalePadImage:
-#          target_size: [ 736, 1280 ] # h, w
-      - DetResize:
+      - DetResize:  # GridResize 32
           target_size: [ 736, 1280 ]
           keep_ratio: False
-          force_divisable: True #  GridResize 32
+          limit_type: None
+          divisor: 32
       - NormalizeImage:
           bgr_to_rgb: False
           is_hwc: True
@@ -174,12 +169,11 @@ predict:
           img_mode: RGB
           to_float32: False
 #      - DetLabelEncode:
-      - GridResize:
-          factor: 32
-      # GridResize already sets the evaluation size to [ 736, 1280 ].
-      # Uncomment ScalePadImage block for other resolutions.
-#      - ScalePadImage:
-#          target_size: [ 736, 1280 ] # h, w
+      - DetResize:  # GridResize 32
+          target_size: [ 736, 1280 ]
+          keep_ratio: False
+          limit_type: None
+          divisor: 32
       - NormalizeImage:
           bgr_to_rgb: False
           is_hwc: True
