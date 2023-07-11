@@ -8,7 +8,8 @@
 | dbnet_resnet18     | icdar2015  | 20 | 1 | 81.73 | 186 | 108 | O0 | [mindocr_dbnet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/dbnet)  |
 | dbnet_resnet50     | icdar2015  | 10 | 1 | 85.05 | 133 | 75.2 | O0 | [mindocr_dbnet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/dbnet)  |
 | dbnet++_resnet50   | icdar2015  | 32 | 1 | 86.74 | 571 | 56 | O0 | [mindocr_dbnet++](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/dbnet)  |
-| psenet_resnet152   | icdar2015  | 8 | 8 | 82.06 | 8455.88 | 7.57 | O0 | [mindocr_psenet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) |
+| psenet_resnet152   | icdar2015  | 8 | 8 | 82.06 | 769.6| 83.16| O0 | [mindocr_psenet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) |
+| psenet_resnet50   | icdar2015  | 8 | 8 | 81.37 | 304.138 | 210.43 | O0 | [mindocr_psenet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) |
 | east_resnet50      | icdar2015  | 20 | 8 | 84.87 | 256 | 625 | O0 | [mindocr_east](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/east)   |
 | fcenet_resnet50    | icdar2015  | 8 | 4 | 84.12 | 4570.64 | 7 | O0 | [mindocr_fcenet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/fcenet)   |
 
