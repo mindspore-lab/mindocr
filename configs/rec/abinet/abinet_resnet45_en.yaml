@@ -1,0 +1,110 @@
+system:
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: True
+  amp_level: 'O0'
+  seed: 42
+  log_interval: 100
+  val_while_train: False
+  drop_overflow_update: False
+
+common:
+  character_dict_path: &character_dict_path
+  num_classes: &num_classes 37
+  max_text_len: &max_text_len 25
+  infer_mode: &infer_mode False
+  use_space_char: &use_space_char False
+  batch_size: &batch_size 96
+
+model:
+  type: rec
+  pretrained : "./tmp_rec/pretrain.ckpt"
+  transform: null
+  backbone:
+    name: abinet_backbone
+    pretrained: False
+    batchsize: *batch_size
+  head:
+    name: ABINetHead
+    batchsize: *batch_size
+
+postprocess:
+  name: ABINetLabelDecode
+
+metric:
+  name: RecMetric
+  main_indicator: acc
+  character_dict_path: *character_dict_path
+  ignore_space: True
+  print_flag: False
+  filter_ood: False
+
+loss:
+  name: ABINetLoss
+
+
+scheduler:
+  scheduler: step_decay
+  decay_rate: 0.1
+  decay_epochs: 6
+  warmup_epochs: 0
+  lr: 0.0001
+  num_epochs : 10
+
+
+optimizer:
+  opt: adam
+
+
+train:
+  clip_grad: True
+  clip_norm: 20.0
+  ckpt_save_dir: './tmp_rec'
+  dataset_sink_mode: False
+  dataset:
+    type: LMDBDataset
+    dataset_root: path/to/data_lmdb_release/
+    data_dir: train/
+    # label_files: # not required when using LMDBDataset
+    sample_ratio: 1.0
+    shuffle: True
+    transform_pipeline:
+      - ABINetTransforms:
+      - ABINetRecAug:
+      - NormalizeImage:
+          is_hwc: False
+          mean: [0.485, 0.456, 0.406]
+          std: [0.485, 0.456, 0.406]
+    # #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
+    output_columns: ['image','label','length','label_for_mask'] #'img_path']
+
+  loader:
+      shuffle: True # TODO: tbc
+      batch_size: *batch_size
+      drop_remainder: True
+      max_rowsize: 128
+      num_workers: 20
+
+eval:
+  ckpt_load_path: ./tmp_rec/best.ckpt
+  dataset_sink_mode: False
+  dataset:
+    type: LMDBDataset
+    dataset_root: path/to/data_lmdb_release/
+    data_dir: evaluation/
+    # label_files: # not required when using LMDBDataset
+    sample_ratio: 1.0
+    shuffle: False
+    transform_pipeline:
+      - ABINetEvalTransforms:
+      - ABINetEval:
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
+    output_columns: ['image','label','length','label_for_mask']  # TODO return text string padding w/ fixed length, and a scaler to indicate the length
+    net_input_column_index: [0] # input indices for network forward func in output_columns
+    label_column_index: [1, 2] # input indices marked as label
+
+  loader:
+      shuffle: False # TODO: tbc
+      batch_size: *batch_size
+      drop_remainder: False
+      max_rowsize: 128
+      num_workers: 8

@@ -280,17 +280,17 @@ class EASTFPN(nn.Cell):
     def construct(self, features):
         f1, f2, f3, f4 = features
 
-        out = ops.ResizeBilinear(f3.shape[2:], True)(f4)
+        out = ops.ResizeBilinearV2(True)(f4, f3.shape[2:])
         out = self.concat((out, f3))
         out = self.relu1(self.bn1(self.conv1(out)))
         out = self.relu2(self.bn2(self.conv2(out)))
 
-        out = ops.ResizeBilinear(f2.shape[2:], True)(out)
+        out = ops.ResizeBilinearV2(True)(out, f2.shape[2:])
         out = self.concat((out, f2))
         out = self.relu3(self.bn3(self.conv3(out)))
         out = self.relu4(self.bn4(self.conv4(out)))
 
-        out = ops.ResizeBilinear(f1.shape[2:], True)(out)
+        out = ops.ResizeBilinearV2(True)(out, f1.shape[2:])
         out = self.concat((out, f1))
         out = self.relu5(self.bn5(self.conv5(out)))
         out = self.relu6(self.bn6(self.conv6(out)))

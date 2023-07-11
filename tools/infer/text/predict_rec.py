@@ -5,6 +5,7 @@ Example:
     $ python tools/infer/text/predict_rec.py  --image_dir {path_to_img} --rec_algorithm CRNN
     $ python tools/infer/text/predict_rec.py  --image_dir {path_to_img} --rec_algorithm CRNN_CH
 """
+import logging
 import os
 import sys
 from time import time
@@ -23,7 +24,7 @@ __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../../../")))
 
 from mindocr import build_model
-from mindocr.utils.logger import Logger
+from mindocr.utils.logger import set_logger
 from mindocr.utils.visualize import show_imgs
 
 # map algorithm name to model name (which can be checked by `mindocr.list_models()`)
@@ -35,7 +36,7 @@ algo_to_model_name = {
     "RARE_CH": "rare_resnet34_ch",
     "SVTR": "svtr_tiny",
 }
-_logger = Logger("mindocr")
+logger = logging.getLogger("mindocr")
 
 
 class TextRecognizer(object):
@@ -43,7 +44,7 @@ class TextRecognizer(object):
         self.batch_num = args.rec_batch_num
         self.batch_mode = args.rec_batch_mode
         # self.batch_mode = args.rec_batch_mode and (self.batch_num > 1)
-        _logger.info(
+        logger.info(
             "recognize in {} mode {}".format(
                 "batch" if self.batch_mode else "serial",
                 "batch_size: " + str(self.batch_num) if self.batch_mode else "",
@@ -67,7 +68,7 @@ class TextRecognizer(object):
         # amp_level = 'O2' if args.rec_algorithm.startswith('SVTR') else args.rec_amp_level
         amp_level = args.rec_amp_level
         if args.rec_algorithm.startswith("SVTR") and amp_level != "O2":
-            _logger.warning(
+            logger.warning(
                 "SVTR recognition model is optimized for amp_level O2. ampl_level for rec model is changed to O2"
             )
             amp_level = "O2"
@@ -78,7 +79,7 @@ class TextRecognizer(object):
         self.cast_pred_fp32 = amp_level != "O0"
         if self.cast_pred_fp32:
             self.cast = ops.Cast()
-        _logger.info(
+        logger.info(
             "Init recognition model: {} --> {}. Model weights loaded from {}".format(
                 args.rec_algorithm, model_name, "pretrained url" if pretrained else ckpt_load_path
             )
@@ -117,7 +118,7 @@ class TextRecognizer(object):
         """
 
         assert isinstance(img_or_path_list, list), "Input for text recognition must be list of images or image paths."
-        _logger.info(f"num images for rec: {len(img_or_path_list)}")
+        logger.info(f"num images for rec: {len(img_or_path_list)}")
         if self.batch_mode:
             rec_res_all_crops = self.run_batchwise(img_or_path_list, do_visualize)
         else:
@@ -148,7 +149,7 @@ class TextRecognizer(object):
         for idx in range(0, num_imgs, self.batch_num):  # batch begin index i
             batch_begin = idx
             batch_end = min(idx + self.batch_num, num_imgs)
-            _logger.info(f"Rec img idx range: [{batch_begin}, {batch_end})")
+            logger.info(f"Rec img idx range: [{batch_begin}, {batch_end})")
             # TODO: set max_wh_ratio to the maximum wh ratio of images in the batch. and update it for resize,
             #  which may improve recognition accuracy in batch-mode
             # especially for long text image. max_wh_ratio=max(max_wh_ratio, img_w / img_h).
@@ -215,8 +216,8 @@ class TextRecognizer(object):
                 show=False,
                 save_path=os.path.join(self.vis_dir, fn + "_rec_preproc.png"),
             )
-        _logger.info(f"Origin image shape: {data['image_ori'].shape}")
-        _logger.info(f"Preprocessed image shape: {data['image'].shape}")
+        logger.info(f"Origin image shape: {data['image_ori'].shape}")
+        logger.info(f"Preprocessed image shape: {data['image'].shape}")
 
         # infer
         input_np = data["image"]
@@ -237,7 +238,7 @@ class TextRecognizer(object):
 
         rec_res = (rec_res["texts"][0], rec_res["confs"][0])
 
-        _logger.info(f"Crop {crop_idx} rec result: {rec_res}")
+        logger.info(f"Crop {crop_idx} rec result: {rec_res}")
 
         return rec_res
 
@@ -261,6 +262,7 @@ def save_rec_res(rec_res_all, img_paths, include_score=False, save_path="./rec_r
 if __name__ == "__main__":
     # parse args
     args = parse_args()
+    set_logger(name="mindocr")
     save_dir = args.draw_img_save_dir
     img_paths = get_image_paths(args.image_dir)
     # uncomment it to quick test the infer FPS
@@ -280,6 +282,6 @@ if __name__ == "__main__":
     # save all results in a txt file
     save_fp = os.path.join(save_dir, "rec_results.txt" if args.rec_batch_mode else "rec_results_serial.txt")
     save_rec_res(rec_res_all, img_paths, save_path=save_fp)
-    print("All rec res: ", rec_res_all)
-    print("Done! Text recognition results saved in ", save_dir)
-    print("Time cost: ", t, "FPS: ", len(img_paths) / t)
+    logger.info(f"All rec res: {rec_res_all}")
+    logger.info(f"Done! Text recognition results saved in {save_dir}")
+    logger.info(f"Time cost: {t}, FPS: {len(img_paths) / t}")

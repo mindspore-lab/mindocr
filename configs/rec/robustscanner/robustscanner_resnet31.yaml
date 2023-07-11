@@ -1,0 +1,140 @@
+system:
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: True
+  amp_level: 'O0'
+  seed: 42
+  log_interval: 100
+  val_while_train: True
+  drop_overflow_update: False
+
+common:
+  character_dict_path: &character_dict_path mindocr/utils/dict/en_dict90.txt
+  max_text_len: &max_text_len 40
+  use_space_char: &use_space_char False
+  batch_size: &batch_size 64
+
+model:
+  type: rec
+  transform: null
+  backbone:
+    name: rec_resnet31
+    pretrained: False
+  head:
+    name: RobustScannerHead
+    out_channels: 93  # 90 + unknown + start + padding
+    enc_outchannles: 128
+    hybrid_dec_rnn_layers: 2
+    hybrid_dec_dropout: 0.
+    position_dec_rnn_layers: 2
+    start_idx: 91
+    mask: True
+    padding_idx: 92
+    encode_value: False
+    max_text_len: *max_text_len
+
+postprocess:
+  name: SARLabelDecode
+  character_dict_path: *character_dict_path
+  use_space_char: *use_space_char
+  rm_symbol: True
+
+metric:
+  name: RecMetric
+  main_indicator: acc
+  character_dict_path: *character_dict_path
+  ignore_space: True
+  print_flag: False
+
+loss:
+  name: SARLoss
+  ignore_index: 92
+
+scheduler:
+  scheduler: multi_step_decay
+  milestones: [6, 8]
+  decay_rate: 0.1
+  lr: 0.001
+  num_epochs: 10
+  warmup_epochs: 0
+
+optimizer:
+  opt: adamW
+  beta1: 0.9
+  beta2: 0.999
+
+loss_scaler:
+  type: static
+  loss_scale: 512
+
+train:
+  ema: True
+  ckpt_save_dir: './tmp_rec'
+  dataset_sink_mode: False
+  dataset:
+    type: LMDBDataset
+    dataset_root: path/to/data/ # Optional, if set, dataset_root will be used as a prefix for data_dir
+    data_dir: training/
+    # label_files: # not required when using LMDBDataset
+    sample_ratio: 1.0
+    shuffle: True
+    random_choice_if_none: True  # Random choose another data if the result returned from data transform is none
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          to_float32: False
+      - SARLabelEncode: # Class handling label
+          max_text_len: *max_text_len
+          character_dict_path: *character_dict_path
+          use_space_char: *use_space_char
+          lower: True
+      - RobustScannerRecResizeImg:
+          image_shape: [ 3, 48, 48, 160 ] # h:48 w:[48,160]
+          width_downsample_ratio: 0.25
+          max_text_len: *max_text_len
+    output_columns: ['image', 'label', 'valid_width_mask', 'word_positions']
+    net_input_column_index: [0, 1, 2, 3] # input indices for network forward func in output_columns
+    label_column_index: [1] # input indices marked as label
+    #keys_for_loss: 4 # num labels for loss func
+
+  loader:
+      shuffle: True # TODO: tbc
+      batch_size: *batch_size
+      drop_remainder: True
+      max_rowsize: 12
+      num_workers: 8
+
+eval:
+  ckpt_load_path: ./tmp_rec/best.ckpt
+  dataset_sink_mode: False
+  dataset:
+    type: LMDBDataset
+    dataset_root: path/to/data/
+    data_dir: evaluation/
+    # label_files: # not required when using LMDBDataset
+    sample_ratio: 1.0
+    shuffle: False
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          to_float32: False
+      - SARLabelEncode: # Class handling label
+          max_text_len: *max_text_len
+          character_dict_path: *character_dict_path
+          use_space_char: *use_space_char
+          is_training: False
+          lower: True
+      - RobustScannerRecResizeImg:
+          image_shape: [ 3, 48, 48, 160 ]
+          width_downsample_ratio: 0.25
+          max_text_len: *max_text_len
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
+    output_columns: [ 'image', 'valid_width_mask', 'word_positions', 'text_padded', 'text_length' ]
+    net_input_column_index: [ 0, 1, 2 ] # input indices for network forward func in output_columns
+    label_column_index: [3, 4]
+
+  loader:
+      shuffle: False # TODO: tbc
+      batch_size: 64
+      drop_remainder: True
+      max_rowsize: 12
+      num_workers: 8

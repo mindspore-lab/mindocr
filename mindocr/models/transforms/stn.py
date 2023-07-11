@@ -87,6 +87,19 @@ class STN(nn.Cell):
 
 
 class STN_ON(nn.Cell):
+    """TPS Transformation head, based on
+    `"ASTER: An Attentional Scene Text Recognizer with Flexible Rectification"
+    <https://ieeexplore.ieee.org/abstract/document/8395027/>`_.
+
+    Args:
+        in_channels: Number of input channels. Default: 3.
+        tps_inputsize: Input size before passing through the TPS block. The input
+            will be interpolate bilinearly to this size first. Default: [32, 64].
+        tps_outputsize: Output size after padding through the TPS block. Default: [32. 100].
+        num_control_points: Number of control points in the block. Default: 20.
+        tps_margins: The TPS margins. Default: [0.05, 0.05].
+        stn_activation: Whether to apply the activtion after the STN output. Default: "none".
+    """
     def __init__(
         self,
         in_channels: int = 3,

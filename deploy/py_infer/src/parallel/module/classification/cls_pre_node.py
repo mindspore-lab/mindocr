@@ -12,10 +12,9 @@ class ClsPreNode(ModuleBase):
 
     def init_self_args(self):
         self.text_classifier = TextClassifier(self.args)
-        self.text_classifier.init()
-        self.text_classifier.free_model()
-
+        self.text_classifier.init(preprocess=True, model=False, postprocess=False)
         super().init_self_args()
+        return self.text_classifier.get_params()
 
     def process(self, input_data):
         """
@@ -31,18 +30,13 @@ class ClsPreNode(ModuleBase):
             self.process_with_det_cls_rec(input_data)
 
     def process_with_single_cls(self, input_data):
-        images = [input_data.frame]
+        images = input_data.frame
         _, split_data = self.text_classifier.preprocess(images)
 
+        # len(images) <= cls_batch_num, so len(split_data) == 1
         send_data = ProcessData(
-            sub_image_size=1,
-            image_path=input_data.image_path,
-            image_total=input_data.image_total,
             data=split_data[0],
-            frame=input_data.frame,
-            sub_image_total=1,
-            image_name=input_data.image_name,
-            image_id=input_data.image_id,
+            image_path=input_data.image_path,
         )
 
         self.send_to_next_module(send_data)
@@ -59,13 +53,10 @@ class ClsPreNode(ModuleBase):
             send_data = ProcessData(
                 sub_image_size=len(split_image),
                 sub_image_list=split_image,
-                image_path=input_data.image_path,
-                image_total=input_data.image_total,
                 infer_result=split_result,
                 data=split_data,
+                image_path=input_data.image_path,
                 frame=input_data.frame,
                 sub_image_total=input_data.sub_image_total,
-                image_name=input_data.image_name,
-                image_id=input_data.image_id,
             )
             self.send_to_next_module(send_data)

@@ -9,7 +9,7 @@ class RecInferNode(ModuleBase):
 
     def init_self_args(self):
         self.text_recognizer = TextRecognizer(self.args)
-        self.text_recognizer.init(warmup=True)
+        self.text_recognizer.init(preprocess=False, model=True, postprocess=False)
 
         super().init_self_args()
 

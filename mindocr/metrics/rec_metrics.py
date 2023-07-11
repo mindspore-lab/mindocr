@@ -1,4 +1,5 @@
 """Metric for accuracy evaluation."""
+import logging
 import re
 
 from rapidfuzz.distance import Levenshtein
@@ -8,6 +9,7 @@ import mindspore.ops as ops
 from mindspore import ms_function, nn
 
 __all__ = ["RecMetric"]
+_logger = logging.getLogger(__name__)
 
 
 class RecMetric(nn.Metric):
@@ -36,7 +38,7 @@ class RecMetric(nn.Metric):
         ignore_symbol=False,
         print_flag=False,
         device_num=1,
-        **kwargs
+        **kwargs,
     ):
         super().__init__()
         self.clear()
@@ -91,7 +93,6 @@ class RecMetric(nn.Metric):
         preds, gt = inputs
         pred_texts = preds["texts"]
         # pred_confs = preds['confs']
-        # print('pred: ', pred_texts, len(pred_texts))
 
         # remove padded chars in GT
         if isinstance(gt, tuple) or isinstance(gt, list):
@@ -108,11 +109,7 @@ class RecMetric(nn.Metric):
             if isinstance(gt_texts, ms.Tensor):
                 gt_texts = gt_texts.asnumpy()
 
-        # print('2: ', gt_texts)
         for pred, label in zip(pred_texts, gt_texts):
-            # print('pred', pred, 'END')
-            # print('label ', label, 'END')
-
             if self.ignore_space:
                 pred = pred.replace(" ", "")
                 label = label.replace(" ", "")
@@ -130,7 +127,7 @@ class RecMetric(nn.Metric):
                 pred = self.valid_symbol.sub("", pred)
 
             if self.print_flag:
-                print(pred, " :: ", label)
+                _logger.info(f"{pred} :: {label}")
 
             edit_distance = Levenshtein.normalized_distance(pred, label)
             self._norm_edit_dis += edit_distance
@@ -147,7 +144,7 @@ class RecMetric(nn.Metric):
     def eval(self):
         if self._total_num == 0:
             raise RuntimeError("Accuary can not be calculated, because the number of samples is 0.")
-        print("correct num: ", self._correct_num, ", total num: ", self._total_num)
+        _logger.info(f"correct num: {self._correct_num}, total num: {self._total_num}")
 
         if self.all_reduce:
             # sum over all devices

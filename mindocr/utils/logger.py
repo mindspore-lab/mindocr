@@ -1,80 +1,71 @@
-"""Custom Logger."""
+"""Set Logger
+
+The implementation is based on https://github.com/serend1p1ty/core-pytorch-utils/blob/main/cpu/logger.py
+"""
 import logging
 import os
 import sys
+from typing import Optional
+
+__all__ = [
+    "set_logger",
+]
+
+logger_initialized = {}
 
 
-class Logger(logging.Logger):
-    """
-    Logger.
+def set_logger(
+    name: Optional[str] = None,
+    output_dir: Optional[str] = None,
+    log_fn: Optional[str] = None,
+    rank: int = 0,
+    log_level: Optional[str] = logging.INFO,
+) -> logging.Logger:
+    """Initialize the logger.
+
+    If the logger has not been initialized, this method will initialize the
+    logger by adding one or two handlers, otherwise the initialized logger will
+    be directly returned. During initialization, only logger of the master
+    process is added console handler. If ``output_dir`` is specified, all loggers
+    will be added file handler.
 
     Args:
-         logger_name: String. Logger name.
-         rank: Integer. Rank id.
+        name: Logger name. Defaults to None to set up root logger.
+        output_dir: The directory to save log.
+        log_fn: The name to save log.
+        rank: Process rank in the distributed training. Defaults to 0.
+        log_level: Verbosity level of the logger. Defaults to ``logging.INFO``.
+
+    Returns:
+        logging.Logger: A initialized logger.
     """
+    if name in logger_initialized:
+        return logger_initialized[name]
 
-    def __init__(self, logger_name, rank=0, log_fn=None):
-        super(Logger, self).__init__(logger_name)
-        self.rank = rank or 0
-        self.log_fn = log_fn
-        is_main_device = not rank
+    # get root logger if name is None
+    logger = logging.getLogger(name)
+    logger.setLevel(log_level)
+    # the messages of this logger will not be propagated to its parent
+    logger.propagate = False
 
-        if is_main_device:
-            console = logging.StreamHandler(sys.stdout)
-            console.setLevel(logging.INFO)
-            formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
-            console.setFormatter(formatter)
-            self.addHandler(console)
+    fmt = "%(asctime)s %(name)s %(levelname)s - %(message)s"
+    datefmt = "[%Y-%m-%d %H:%M:%S]"
 
-    def setup_logging_file(self, log_dir):
-        """Setup logging file."""
-        if not os.path.exists(log_dir):
-            os.makedirs(log_dir, exist_ok=True)
-        if self.log_fn is None:
-            log_name = "log_%s.txt" % self.rank
-            self.log_save_path = os.path.join(log_dir, log_name)
-        else:
-            self.log_save_path = os.path.join(log_dir, self.log_fn)
-        fh = logging.FileHandler(self.log_save_path)
-        fh.setLevel(logging.INFO)
-        formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(message)s")
-        fh.setFormatter(formatter)
-        self.addHandler(fh)
+    # create console handler for master process
+    if rank == 0:
+        console_handler = logging.StreamHandler(stream=sys.stdout)
+        console_handler.setLevel(log_level)
+        console_handler.setFormatter(logging.Formatter(fmt=fmt, datefmt=datefmt))
+        logger.addHandler(console_handler)
 
-    def info(self, msg, *args, **kwargs):
-        if self.isEnabledFor(logging.INFO):
-            self._log(logging.INFO, msg, args, **kwargs)
+    if output_dir is not None:
+        os.makedirs(output_dir, exist_ok=True)
+        if log_fn is None:
+            log_fn = "log_%s.txt" % rank
+        file_handler = logging.FileHandler(os.path.join(output_dir, log_fn))
+        file_handler.setLevel(log_level)
+        file_handler.setFormatter(logging.Formatter(fmt=fmt, datefmt=datefmt))
+        logger.addHandler(file_handler)
 
-    def warning(self, msg, *args, **kwargs):
-        if self.isEnabledFor(logging.WARNING):
-            self._log(logging.WARNING, msg, args, **kwargs)
-
-    def error(self, msg, *args, **kwargs):
-        if self.isEnabledFor(logging.ERROR):
-            self._log(logging.ERROR, msg, args, **kwargs)
-
-    def save_args(self, args):
-        self.info("Args:")
-        args_dict = vars(args)
-        for key in args_dict.keys():
-            self.info("--> %s: %s", key, args_dict[key])
-        self.info("")
-
-    def important_info(self, msg, *args, **kwargs):
-        if self.isEnabledFor(logging.INFO) and self.rank == 0:
-            line_width = 2
-            important_msg = "\n"
-            important_msg += ("*" * 70 + "\n") * line_width
-            important_msg += ("*" * line_width + "\n") * 2
-            important_msg += "*" * line_width + " " * 8 + msg + "\n"
-            important_msg += ("*" * line_width + "\n") * 2
-            important_msg += ("*" * 70 + "\n") * line_width
-            self.info(important_msg, *args, **kwargs)
-
-
-def get_logger(log_dir, rank, log_fn=None):
-    """Get Logger."""
-    logger = Logger("mindocr", rank, log_fn=log_fn)
-    logger.setup_logging_file(log_dir)
-
+    logger_initialized[name] = logger
     return logger
