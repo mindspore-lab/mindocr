@@ -10,7 +10,7 @@
 | dbnet++_resnet50   | icdar2015  | 32 | 1 | 86.74 | 571 | 56 | O0 | [mindocr_dbnet++](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/dbnet)  |
 | psenet_resnet152   | icdar2015  | 8 | 8 | 82.06 | 8455.88 | 7.57 | O0 | [mindocr_psenet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) |
 | east_resnet50      | icdar2015  | 20 | 8 | 84.87 | 256 | 625 | O0 | [mindocr_east](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/east)   |
-| fcenet_resnet50    | icdar2015  | 8 | 4 | 84.12 | 4570.64 | 7 | O0 | [mindocr_fcenet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/fcenet)   |
+| fcenet_resnet50    | icdar2015  | 8 | 4 | 84.12 | 2978.65 | 10.36 | O0 | [mindocr_fcenet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/fcenet)   |
 
 ### 文本识别
 
