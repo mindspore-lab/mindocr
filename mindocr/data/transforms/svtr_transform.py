@@ -263,9 +263,9 @@ class CVRescale(object):
 
 
 class CVGaussianNoise(object):
-    def __init__(self, mean=0, varience=20):
+    def __init__(self, mean=0, variance=20):
         self.mean = mean
-        self.variance = varience
+        self.variance = variance
 
     def __call__(self, img):
         if isinstance(self.variance, numbers.Number):
@@ -317,11 +317,11 @@ class CVColorJitter(object):
 
 
 class SVTRDeterioration(object):
-    def __init__(self, varience, degrees, factor, p=0.5):
+    def __init__(self, variance, degrees, factor, p=0.5):
         self.p = p
         transforms = []
-        if varience is not None:
-            transforms.append(CVGaussianNoise(varience=varience))
+        if variance is not None:
+            transforms.append(CVGaussianNoise(variance=variance))
         if degrees is not None:
             transforms.append(CVMotionBlur(degrees=degrees))
         if factor is not None:
@@ -381,7 +381,7 @@ class SVTRRecAug(object):
                     distortion=0.5,
                     p=geometry_p,
                 ),
-                SVTRDeterioration(varience=20, degrees=6, factor=4, p=deterioration_p),
+                SVTRDeterioration(variance=20, degrees=6, factor=4, p=deterioration_p),
                 CVColorJitter(
                     brightness=0.5,
                     contrast=0.5,
