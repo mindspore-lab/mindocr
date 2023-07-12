@@ -5,6 +5,16 @@
 MindOCR的推理支持Ascend310/Ascend310P设备，采用[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)两种推理后端，
 集成了文本检测、角度分类和文字识别模块，实现了端到端的OCR推理过程，并采用流水并行化方式优化推理性能。
 
+MindOCR Lite整体的推理流程如下：
+
+```mermaid
+graph LR;
+    A[MindOCR models] -- export --> B[MindIR] -- converter_lite --> C[MindSpore Lite MindIR];
+    D[ThirdParty models] -- xx2onnx --> E[ONNX] -- converter_lite --> C;
+    C --input --> F[MindOCR Infer] -- outputs --> G[Evaluation];
+    H[images] --input --> F[MindOCR Infer];
+```
+
 ### 2. 运行环境
 
 请参考[运行环境准备](environment.md)，配置MindOCR的推理运行环境，注意结合模型的支持情况来选择ACL/Lite环境。

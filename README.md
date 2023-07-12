@@ -22,7 +22,7 @@ English | [中文](README_CN.md)
 </div>
 
 ## Introduction
-MindOCR is an open-source toolbox for OCR development and application based on [MindSpore](https://www.mindspore.cn/en), which integrates series of mainstream text detection and recognition algorihtms and models and provides easy-to-use training and inference tools. It can accelerate the process of developing and deploying SoTA text detection and recognition models in real-world applications, such as DBNet/DBNet++ and CRNN/SVTR, and help fulfill the need of image-text understanding .
+MindOCR is an open-source toolbox for OCR development and application based on [MindSpore](https://www.mindspore.cn/en), which integrates series of mainstream text detection and recognition algorihtms/models, provides easy-to-use training and inference tools. It can accelerate the process of developing and deploying SoTA text detection and recognition models in real-world applications, such as DBNet/DBNet++ and CRNN/SVTR, and help fulfill the need of image-text understanding.
 
 
 <details open markdown>
@@ -35,6 +35,8 @@ MindOCR is an open-source toolbox for OCR development and application based on [
 
 
 ## Installation
+
+<details close markdown>
 
 #### Prerequisites
 
@@ -73,6 +75,8 @@ pip install -e .
 pip install mindocr
 ```
 > As this project is under active development, the version installed from PyPI is out-of-date currently. (will update soon).
+
+</details>
 
 ## Quick Start
 
@@ -114,12 +118,14 @@ You may adapt it to your task/dataset, for example, by running
 # train text detection model DBNet++ on icdar15 dataset
 python tools/train.py --config configs/det/dbnet/db++_r50_icdar15.yaml
 ```
+
 ```shell
 # train text recognition model CRNN on icdar15 dataset
 python tools/train.py --config configs/rec/crnn/crnn_icdar15.yaml
 ```
 
-Similarly, it is simple to evaluate the trained model with the `tools/eval.py` script.
+Similarly, it is easy to evaluate the trained model with the `tools/eval.py` script.
+
 ```shell
 python tools/eval.py \
     --config {path/to/model_config.yaml} \
@@ -131,7 +137,7 @@ For more illustration and usage, please refer to the model training section in [
 ## Tutorials
 
 - Datasets
-    - [Dataset Preparation](tools/dataset_converters/README.md)
+    - [Dataset Preparation](docs/en/datasets/converters.md)
     - [Data Transformation Mechanism](docs/en/tutorials/transform_tutorial.md)
 - Model Training
     - [Yaml Configuration](docs/en/tutorials/yaml_configuration.md)
@@ -182,7 +188,7 @@ For detailed support for MindSpore Lite and ACL inference models, please refer t
 
 MindOCR provides a [dataset conversion tool](tools/dataset_converters) to OCR datasets with different formats and support customized dataset by users. We have validated the following public OCR datasets in model training/evaluation.
 
-<details open markdown>
+<details close markdown>
 <summary>General OCR Datasets</summary>
 
 - [Born-Digital Images](https://rrc.cvc.uab.es/?ch=1) [[download](docs/en/datasets/borndigital.md)]
@@ -279,7 +285,6 @@ which can be enabled by add "shape_list" to the `eval.dataset.output_columns` li
     iv)  Add run parameter `enable_modelarts` and set True on the website UI interface.
     v)   Fill in other blanks and launch.
   ```
-
 
 ### How to Contribute
 
