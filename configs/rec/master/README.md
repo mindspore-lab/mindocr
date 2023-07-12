@@ -104,7 +104,7 @@ Please put the `SynthAdd` folder in `/training` directory.
 
 #### 3.1.3 Dataset Usage
 
-Finally, the data structure should like the following command.
+Finally, the data structure should like this.
 
 ``` text
 data_lmdb_release/
