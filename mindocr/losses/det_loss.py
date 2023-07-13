@@ -333,7 +333,7 @@ class FCELoss(nn.LossBase):
 
         return (loss_pos + loss_neg.sum()) / (n_pos + n_neg.astype(ms.float32) + 1e-7)
 
-    def fourier2poly(self, real_maps, imag_maps):
+    def fourier2poly(self, real_maps: Tensor, imag_maps: Tensor) -> Tuple[Tensor, Tensor]:
         """Transform Fourier coefficient maps to polygon maps.
         Args:
             real_maps (tensor): A map composed of the real parts of the
@@ -347,34 +347,25 @@ class FCELoss(nn.LossBase):
                 represented by n sample points (xn, yn), whose shape is (-1, n)
         """
 
-        # device = real_maps.device
+        k_vect = ms.ops.arange(-self.fourier_degree, self.fourier_degree + 1, dtype=ms.float16).view((-1, 1))
+        i_vect = ms.ops.arange(0, self.num_sample, dtype=ms.float16).view((1, -1))
 
-        # k_vect = torch.arange(
-        #     -self.fourier_degree,
-        #     self.fourier_degree + 1,
-        #     dtype=torch.float,
-        #     device=device).view(-1, 1)
-        # i_vect = torch.arange(
-        #     0, self.num_sample, dtype=torch.float, device=device).view(1, -1)
-        k_vect = ms.ops.arange(-self.fourier_degree, self.fourier_degree + 1, dtype=ms.float32).view((-1, 1))
-        i_vect = ms.ops.arange(0, self.num_sample, dtype=ms.float32).view((1, -1))
+        transform_matrix = 2 * pi / self.num_sample * ops.matmul(k_vect, i_vect).astype(ms.float32)
 
-        transform_matrix = 2 * pi / self.num_sample * ops.matmul(k_vect, i_vect)
+        real_maps = real_maps.half()
+        imag_maps = imag_maps.half()
+        cos = ops.cos(transform_matrix).half()
+        sin = ops.sin(transform_matrix).half()
 
-        # x1 = self.einsum((real_maps,ops.cos(transform_matrix)))
-        # x2 = self.einsum((imag_maps,ops.sin(transform_matrix)))
-        # y1 = self.einsum((real_maps,ops.sin(transform_matrix)))
-        # y2 = self.einsum((imag_maps,ops.cos(transform_matrix)))
-
-        x1 = ops.matmul(real_maps, ops.cos(transform_matrix))
-        x2 = ops.matmul(imag_maps, ops.sin(transform_matrix))
-        y1 = ops.matmul(real_maps, ops.sin(transform_matrix))
-        y2 = ops.matmul(imag_maps, ops.cos(transform_matrix))
+        x1 = ops.matmul(real_maps, cos)
+        x2 = ops.matmul(imag_maps, sin)
+        y1 = ops.matmul(real_maps, sin)
+        y2 = ops.matmul(imag_maps, cos)
 
         x_maps = x1 - x2
         y_maps = y1 + y2
 
-        return x_maps, y_maps
+        return x_maps.to(ms.float32), y_maps.to(ms.float32)
 
 
 class PSEDiceLoss(nn.Cell):
