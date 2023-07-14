@@ -1,5 +1,6 @@
 import logging
 import os
+import unicodedata
 from typing import Any, Optional
 
 import lmdb
@@ -18,11 +19,21 @@ class LMDBDataset(BaseDataset):
     Args:
         data_dir: data root directory for lmdb dataset(s). Default: ".".
         sample_ratio: Sampling ratio from current dataset. Default: 1.0.
-        shuffle(bool): shuffle samples within dataset. Useful only when `sample_ratio` is set below 1. (Default: False).
+        shuffle(bool): shuffle samples within dataset. Useful only when `sample_ratio` is set below 1. Default: False.
         filter_max_len (bool): Filter the records where the label is longer than the `max_text_len`. Default: False.
+        extra_count_if_repeat (bool): Count extra length if there is a consectutive pair of same characters,
+            e.g., length of "aa" = 3, length of "aab" = 4. It is usually used in CTC alignment, prevent the situation
+            if the input has not enough space for the target during alignment.
         max_text_len (int): The maximum text length the dataloader expected. Default: None.
-        random_choice_if_none (bool): Random choose another data if the result returned from data transform is none
-        **kwargs: Dummmy arguments for compatibilities only.
+        filter_zero_text_image (bool): Filter the recods where the label does not have any valid character.
+            Default: False.
+        character_dict_path (str): The path of the character dictionary. It is used to determine if there is any valid
+            character in the label. If it is not provided, then `0123456789abcdefghijklmnopqrstuvwxyz` will be used.
+            Default: None.
+        label_standandize (bool): Apply label standardization (NFKD). default: False.
+        random_choice_if_none (bool): Random choose another data if the result returned from data transform is none.
+            Default: False.
+        **kwargs: Dummy arguments for compatibilities only.
 
     Returns:
         data (tuple): Return the tuple of the encoded image array and the corresponding label
@@ -45,13 +56,19 @@ class LMDBDataset(BaseDataset):
         sample_ratio: float = 1.0,
         shuffle: bool = False,
         filter_max_len: bool = False,
+        extra_count_if_repeat: bool = False,
         max_text_len: Optional[int] = None,
+        filter_zero_text_image: bool = False,
+        character_dict_path: Optional[str] = None,
+        label_standandize: bool = False,
         random_choice_if_none: bool = False,
         **kwargs: Any,
     ):
         self.data_dir = data_dir
         self.filter_max_len = filter_max_len
         self.max_text_len = max_text_len
+        self.label_standandize = label_standandize
+        self.extra_count_if_repeat = extra_count_if_repeat
         self.random_choice_if_none = random_choice_if_none
 
         self.lmdb_sets = self.load_list_of_hierarchical_lmdb_dataset(data_dir)
@@ -65,20 +82,70 @@ class LMDBDataset(BaseDataset):
         if filter_max_len:
             if max_text_len is None:
                 raise ValueError("`max_text_len` must be provided when `filter_max_len` is True.")
-            self.data_idx_order_list = self.filter_idx_list(self.data_idx_order_list)
+            self.data_idx_order_list = self.filter_idx_list_exceeds_max_length(self.data_idx_order_list)
+
+        # filter zero text image
+        if filter_zero_text_image:
+            self.data_idx_order_list = self.filter_idx_list_with_zero_text(
+                self.data_idx_order_list, character_dict_path
+            )
 
         self.output_columns = ["image", "label"]
 
-    def filter_idx_list(self, idx_list: np.ndarray) -> np.ndarray:
-        _logger.info("Start filtering the idx list...")
+    @staticmethod
+    def count_extra_len_if_repeated(label: str) -> int:
+        if len(label) < 2:
+            return len(label)
+        num = 1
+        for i in range(1, len(label)):
+            if label[i] == label[i - 1]:
+                num += 2
+            else:
+                num += 1
+        return num
+
+    def filter_idx_list_exceeds_max_length(self, idx_list: np.ndarray) -> np.ndarray:
+        _logger.info("Start filtering the idx list which exceeds max length...")
         new_idx_list = list()
         for lmdb_idx, file_idx in idx_list:
             label = self.get_lmdb_sample_info(self.lmdb_sets[int(lmdb_idx)]["txn"], int(file_idx), label_only=True)
-            if len(label) > self.max_text_len:
+            if self.extra_count_if_repeat:
+                label_length = self.count_extra_len_if_repeated(label)
+            else:
+                label_length = len(label)
+
+            if label_length > self.max_text_len:
                 _logger.warning(
-                    f"skip the label with length ({len(label)}), "
-                    f"which is longer than than max length ({self.max_text_len})."
+                    f"skip the label with length ({label_length}), "
+                    f"which is longer than the max length ({self.max_text_len})."
                 )
+                continue
+            new_idx_list.append((lmdb_idx, file_idx))
+        new_idx_list = np.array(new_idx_list)
+        return new_idx_list
+
+    def filter_idx_list_with_zero_text(
+        self, idx_list: np.ndarray, character_dict_path: Optional[str] = None
+    ) -> np.ndarray:
+        _logger.info("Start filtering the idx list which has zero text...")
+        if character_dict_path is None:
+            char_list = [c for c in "0123456789abcdefghijklmnopqrstuvwxyz"]
+        else:
+            char_list = []
+            with open(character_dict_path, "r") as f:
+                for line in f:
+                    c = line.rstrip("\n\r")
+                    char_list.append(c)
+
+        char_list = [x.lower() for x in char_list] + [x.upper() for x in char_list]
+        char_list = set(char_list)
+
+        new_idx_list = list()
+        for lmdb_idx, file_idx in idx_list:
+            label = self.get_lmdb_sample_info(self.lmdb_sets[int(lmdb_idx)]["txn"], int(file_idx), label_only=True)
+
+            if len(set(label).intersection(char_list)) == 0:
+                _logger.warning(f"skip the label `{label}`, " f"which does not contain any valid character.")
                 continue
             new_idx_list.append((lmdb_idx, file_idx))
         new_idx_list = np.array(new_idx_list)
@@ -149,6 +216,9 @@ class LMDBDataset(BaseDataset):
         if label is None:
             raise ValueError(f"Cannot find key {label_key}")
         label = label.decode("utf-8")
+
+        if self.label_standandize:
+            label = unicodedata.normalize("NFKD", label)
 
         if label_only:
             return label

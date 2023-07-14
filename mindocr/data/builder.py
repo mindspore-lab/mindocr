@@ -188,7 +188,10 @@ def build_dataset(
 
     rank_id = shard_id or 0
     is_main_rank = rank_id == 0
-    _logger.info(f"Creating dataloader (training={is_train}) for rank {rank_id}. Number of data samples: {num_samples}")
+    _logger.info(
+        f"Creating dataloader (training={is_train}) for rank {rank_id}. Number of data samples: {num_samples}"
+        f" per device ({num_samples * num_devices} total)."
+    )
 
     if "refine_batch_size" in kwargs:
         batch_size = _check_batch_size(num_samples, batch_size, refine=kwargs["refine_batch_size"])

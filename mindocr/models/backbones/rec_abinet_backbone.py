@@ -12,7 +12,8 @@ from ..utils.abinet_layers import (
     TransformerEncoder,
     _default_tfmer_cfg,
 )
-from ._registry import register_backbone, register_backbone_class
+
+# from ._registry import register_backbone, register_backbone_class
 
 __all__ = [
     "ABINetIterBackbone",
@@ -21,7 +22,7 @@ __all__ = [
 # ABINet_backbone
 
 
-@register_backbone_class
+# @register_backbone_class
 class ABINetIterBackbone(nn.Cell):
     def __init__(self, batchsize=96):
         super().__init__()
@@ -34,7 +35,7 @@ class ABINetIterBackbone(nn.Cell):
         return v_res
 
 
-@register_backbone
+# @register_backbone
 def abinet_backbone(pretrained: bool = True, **kwargs):
     model = ABINetIterBackbone(**kwargs)
 

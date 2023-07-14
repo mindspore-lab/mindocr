@@ -5,8 +5,9 @@ import re
 from rapidfuzz.distance import Levenshtein
 
 import mindspore as ms
-import mindspore.ops as ops
-from mindspore import ms_function, nn
+from mindspore import nn
+
+from ..utils.misc import AllReduce
 
 __all__ = ["RecMetric"]
 _logger = logging.getLogger(__name__)
@@ -49,7 +50,7 @@ class RecMetric(nn.Metric):
         self.print_flag = print_flag
 
         self.device_num = device_num
-        self.all_reduce = None if device_num == 1 else ops.AllReduce()
+        self.all_reduce = AllReduce(reduce="sum") if device_num > 1 else None
         self.metric_names = ["acc", "norm_edit_distance"]
 
         if self.ignore_symbol:
@@ -136,11 +137,6 @@ class RecMetric(nn.Metric):
 
             self._total_num += 1
 
-    @ms_function
-    def all_reduce_fun(self, x):
-        res = self.all_reduce(x)
-        return res
-
     def eval(self):
         if self._total_num == 0:
             raise RuntimeError("Accuary can not be calculated, because the number of samples is 0.")
@@ -148,9 +144,9 @@ class RecMetric(nn.Metric):
 
         if self.all_reduce:
             # sum over all devices
-            correct_num = self.all_reduce_fun(self._correct_num)
-            norm_edit_dis = self.all_reduce_fun(self._norm_edit_dis)
-            total_num = self.all_reduce_fun(self._total_num)
+            correct_num = self.all_reduce(self._correct_num)
+            norm_edit_dis = self.all_reduce(self._norm_edit_dis)
+            total_num = self.all_reduce(self._total_num)
         else:
             correct_num = self._correct_num
             norm_edit_dis = self._norm_edit_dis

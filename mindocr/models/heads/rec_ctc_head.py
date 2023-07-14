@@ -5,6 +5,8 @@ import mindspore as ms
 from mindspore import nn, ops
 from mindspore.common.initializer import Uniform
 
+from ...utils.misc import is_ms_version_2
+
 __all__ = ['CTCHead']
 
 
@@ -55,7 +57,10 @@ class CTCHead(nn.Cell):
             self.dense1 = nn.Dense(in_channels, out_channels, weight_init=weight_init, bias_init=bias_init)
         else:
             self.dense1 = nn.Dense(in_channels, mid_channels, weight_init=weight_init, bias_init=bias_init)
-            self.dropout = nn.Dropout(keep_prob=1 - dropout)
+            if is_ms_version_2():
+                self.dropout = nn.Dropout(p=dropout)
+            else:
+                self.dropout = nn.Dropout(keep_prob=1 - dropout)
             self.dense2 = nn.Dense(mid_channels, out_channels, weight_init=weight_init, bias_init=bias_init)
 
     def construct(self, x: ms.Tensor) -> ms.Tensor:

@@ -8,7 +8,9 @@
 | dbnet_resnet18     | icdar2015  | 20 | 1 | 81.73 | 186 | 108 | O0 | [mindocr_dbnet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/dbnet)  |
 | dbnet_resnet50     | icdar2015  | 10 | 1 | 85.05 | 133 | 75.2 | O0 | [mindocr_dbnet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/dbnet)  |
 | dbnet++_resnet50   | icdar2015  | 32 | 1 | 86.74 | 571 | 56 | O0 | [mindocr_dbnet++](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/dbnet)  |
-| psenet_resnet152   | icdar2015  | 8 | 8 | 82.06 | 8455.88 | 7.57 | O0 | [mindocr_psenet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) |
+| psenet_resnet152   | icdar2015  | 8 | 8 | 82.06 | 769.6| 83.16 | O0 | [mindocr_psenet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) |
+| psenet_resnet50   | icdar2015  | 8 | 8 | 81.37 | 304.138 | 210.43 | O0 | [mindocr_psenet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) |
+|  east_mobilenetv3   | icdar2015  | 20 | 8 |  75.32  |   138   | 1185 | O0 | [mindocr_east](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/east)   |
 | east_resnet50      | icdar2015  | 20 | 8 | 84.87 | 256 | 625 | O0 | [mindocr_east](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/east)   |
 | fcenet_resnet50    | icdar2015  | 8 | 4 | 84.12 | 4570.64 | 7 | O0 | [mindocr_fcenet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/fcenet)   |
 
@@ -21,7 +23,7 @@
 | crnn_resnet34_vd   | IC03,13,15,IIIT,etc | 64 | 8 | 84.45 | 76.48 | 6694.84 | O3 |  [mindocr_crnn](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/crnn)   |
 | rare_resnet34_vd   | IC03,13,15,IIIT,etc | 512 | 4 | 85.19 | 449 | 4561 | O2 |  [mindocr_rare](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/rare)   |
 | visionlan_resnet45| IC03,13,15,IIIT,etc | 192| 4 | 90.61 | 417 | 1840 | O2 | [mindocr_visionlan](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_1.yaml) |
-| robustscanner_resnet31 | IC13,15,IIIT,SVT,etc | 256 | 4 | 87.51 |   825   |   310   | O0  |           [mindocr_robustscanner](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner)            |
+| robustscanner_resnet31 | IC13,15,IIIT,SVT,etc | 256 | 4 | 87.86 |   825   |   310   | O0  |           [mindocr_robustscanner](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner)            |
 
 ### 文本方向分类
 

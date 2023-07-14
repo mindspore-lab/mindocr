@@ -15,7 +15,7 @@ def _cfg(url='', input_size=(3, 48, 160), **kwargs):
 
 default_cfgs = {
     "robustscanner_resnet31": _cfg(
-        url="https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-72710b5f.ckpt",
+        url="https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37.ckpt",
     ),
 }
 
