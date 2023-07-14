@@ -30,7 +30,7 @@ class LMDBDataset(BaseDataset):
         character_dict_path (str): The path of the character dictionary. It is used to determine if there is any valid
             character in the label. If it is not provided, then `0123456789abcdefghijklmnopqrstuvwxyz` will be used.
             Default: None.
-        label_standandize (bool): Apply label standardization (NFKD). default: False.
+        label_standardize (bool): Apply label standardization (NFKD). default: False.
         random_choice_if_none (bool): Random choose another data if the result returned from data transform is none.
             Default: False.
         **kwargs: Dummy arguments for compatibilities only.
@@ -60,14 +60,14 @@ class LMDBDataset(BaseDataset):
         max_text_len: Optional[int] = None,
         filter_zero_text_image: bool = False,
         character_dict_path: Optional[str] = None,
-        label_standandize: bool = False,
+        label_standardize: bool = False,
         random_choice_if_none: bool = False,
         **kwargs: Any,
     ):
         self.data_dir = data_dir
         self.filter_max_len = filter_max_len
         self.max_text_len = max_text_len
-        self.label_standandize = label_standandize
+        self.label_standardize = label_standardize
         self.extra_count_if_repeat = extra_count_if_repeat
         self.random_choice_if_none = random_choice_if_none
 
@@ -217,7 +217,7 @@ class LMDBDataset(BaseDataset):
             raise ValueError(f"Cannot find key {label_key}")
         label = label.decode("utf-8")
 
-        if self.label_standandize:
+        if self.label_standardize:
             label = unicodedata.normalize("NFKD", label)
 
         if label_only:

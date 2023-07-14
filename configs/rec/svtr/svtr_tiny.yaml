@@ -115,7 +115,7 @@ train:
     extra_count_if_repeat: True
     max_text_len: *max_text_len
     character_dict_path: *character_dict_path
-    label_standandize: True
+    label_standardize: True
     transform_pipeline:
       - Decode:
       - SVTRGeometry:
