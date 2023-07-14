@@ -2,12 +2,12 @@ import logging
 import os
 import sys
 
+import numpy as np
+
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../../../")))
 
-
-from mindocr.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
-from mindocr.data.transforms import create_transforms, run_transforms
+from mindocr.data.transforms import create_transforms
 
 _logger = logging.getLogger("mindocr")
 
@@ -20,7 +20,7 @@ class Preprocessor(object):
             limit_type = kwargs.get("det_limit_type", "min")
 
             pipeline = [
-                {"DecodeImage": {"img_mode": "RGB", "keep_ori": True, "to_float32": False}},
+                {"Decode": None},
                 # {'DetResize':
                 #     {'target_size': [732, 1280],
                 #      'keep_ratio': False,
@@ -38,17 +38,11 @@ class Preprocessor(object):
                         "limit_type": limit_type,
                         "padding": False,
                         "force_divisible": True,
+                        "polygons": False,
                     }
                 },
-                {
-                    "NormalizeImage": {
-                        "bgr_to_rgb": False,
-                        "is_hwc": True,
-                        "mean": IMAGENET_DEFAULT_MEAN,
-                        "std": IMAGENET_DEFAULT_STD,
-                    }
-                },
-                {"ToCHWImage": None},
+                {"Normalize": {"mean": [123.675, 116.28, 103.53], "std": [58.395, 57.12, 57.375]}},
+                {"HWC2CHW": None},
             ]
             _logger.info(f"Pick optimal preprocess hyper-params for det algo {algo}:\n {pipeline[1]}")
             # TODO: modify the base pipeline for non-DBNet network if needed
@@ -127,7 +121,7 @@ class Preprocessor(object):
             )
 
             pipeline = [
-                {"DecodeImage": {"img_mode": "RGB", "keep_ori": True, "to_float32": False}},
+                {"Decode": None},
                 {
                     "RecResizeNormForInfer": {
                         "target_height": target_height,
@@ -138,34 +132,47 @@ class Preprocessor(object):
                         # 'interpolation': cv2.INTER_CUBIC
                     }
                 },
-                # {'NormalizeImage':
-                #     {'bgr_to_rgb': False,
-                #    'is_hwc': True,
-                #    'mean': [127.0, 127.0, 127.0],
+                # {'Normalize':
+                #     {'mean': [127.0, 127.0, 127.0],
                 #    'std': [127.0, 127.0, 127.0]}},
-                {"ToCHWImage": None},
+                {"HWC2CHW": None},
             ]
 
         self.pipeline = pipeline
-        self.transforms = create_transforms(pipeline)
+        transforms = create_transforms(pipeline, input_columns=["image"], backward_comp=True)
+        self._output_columns = transforms[-1]["column_order"]
+        self._transforms = []
+        for transform in transforms:  # unwrap pipeline transforms
+            if isinstance(transform["operations"], list):
+                self._transforms.extend(transform["operations"])
+            else:
+                self._transforms.append(transform["operations"])
 
     # TODO: allow multiple image inputs and preprocess them with multi-thread
     def __call__(self, img_or_path):
         """
         Return:
             dict, preprocessed data containing keys:
-                - image: np.array, transfomred image
+                - image: np.array, transformed image
                 - image_ori: np.array, original image
                 - shape: list of [ori_h, ori_w, scale_h, scale_w]
                 and other keys added in transform pipeline.
         """
+        data = dict()
         if isinstance(img_or_path, str):
-            data = {"img_path": img_or_path}
-            output = run_transforms(data, self.transforms)
+            image = np.fromfile(img_or_path, np.uint8)
+            data["image"] = self._transforms[0](image)
+            data["img_path"] = img_or_path
         else:
-            data = {"image": img_or_path}
-            data["image_ori"] = img_or_path.copy()  # TODO
-            data["image_shape"] = img_or_path.shape
-            output = run_transforms(data, self.transforms[1:])
+            data["image"] = img_or_path
 
-        return output
+        data["image_ori"] = data["image"].copy()
+
+        for transform in self._transforms[1:]:
+            output = transform(data["image"])
+            if isinstance(output, tuple):
+                data.update(dict(zip(self._output_columns, output)))
+            else:
+                data["image"] = output
+
+        return data
