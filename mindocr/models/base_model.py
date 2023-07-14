@@ -61,7 +61,7 @@ class BaseModel(nn.Cell):
         nout = self.neck(bout)
 
         if len(args) > 1:
-            hout = self.head(nout, args[1:])
+            hout = self.head(nout, *args[1:])
         else:
             hout = self.head(nout)
 
