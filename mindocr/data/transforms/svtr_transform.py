@@ -102,7 +102,6 @@ class CVRandomAffine(object):
             self.shear = shear
 
     def _get_inverse_affine_matrix(self, center, angle, translate, scale, shear):
-        # https://github.com/pytorch/vision/blob/v0.4.0/torchvision/transforms/functional.py#L717
         if isinstance(shear, numbers.Number):
             shear = [shear, 0]
 
@@ -317,9 +316,7 @@ class CVColorJitter(object):
 
     def __call__(self, data: Dict[str, Any]) -> Dict[str, Any]:
         if random.random() < self.p:
-            img = data["image"]
-            img = self.transforms(img)
-            data["image"] = img
+            data["image"] = self.transforms(data["image"])
         return data
 
 

@@ -56,9 +56,28 @@ combination of these two modules leads to scale-robust feature fusion.
 DBNet++ performs better in detecting text instances of diverse scales, especially for large-scale text instances where
 DBNet may generate inaccurate or discrete bounding boxes.
 
-## 2. Results
 
-DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total-Text, and MLT2017 datasets. In addition, we conducted pre-training on the SynthText dataset and provided a url to download pretrained weights. All training results are as follows:
+## 2. General purpose models
+
+Here we present general purpose models that were trained on wide variety of tasks (real-world photos, street views, documents, etc.) and challenges (straight texts, curved texts, long text lines, etc.) with two primary languages: Chinese and English. These models can be used right off-the-shelf in your applications or for initialization of your models.
+
+The models were trained on 12 public datasets (CTW, LSVT, RCTW-17, TextOCR, etc.) that contain wide range of images. The training set has 153,511 images and the validation set has 9,786 images.<br/>
+The test set consists of 598 images manually selected from the above-mentioned datasets.
+
+<div align="center">
+
+| **Model** | **Context**    | **Backbone** | **Languages**     | **F-score on Our Test Set** | **Throughput** | **Download**                                                                                             |
+|-----------|----------------|--------------|-------------------|:---------------------------:|----------------|----------------------------------------------------------------------------------------------------------|
+| DBNet     | D910x8-MS2.0-G | ResNet-50    | Chinese + English |           83.41%            | 256 img/s      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_ch_en_general-a5dbb141.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_ch_en_general-a5dbb141-912f0a90.mindir) |
+| DBNet++   | D910x4-MS2.0-G | ResNet-50    | Chinese + English |           84.30%            | 104 img/s      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_ch_en_general-884ba5b9.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_ch_en_general-884ba5b9-b3f52398.mindir) |
+</div>
+
+> The input_shape for exported DBNet MindIR and DBNet++ MindIR in the links are `(1,3,736,1280)` and `(1,3,1152,2048)`, respectively.
+
+
+## 3. Results
+
+DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total-Text, and MLT2017 datasets. In addition, we conducted pre-training on the SynthText dataset and provided a URL to download pretrained weights. All training results are as follows:
 
 
 ### ICDAR2015
@@ -74,7 +93,7 @@ DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total
 | DBNet++   | D910Ax1-MS2.0-G | ResNet-50    | SynthText      | 85.70%     | 87.81%        | 86.74%      | 14.0 s/epoch | 71.3 img/s     | [yaml](db++_r50_icdar15.yaml)       | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2-9934aff0.mindir)   |
 </div>
 
-> The input_shape for exported DBNet MindIR and DBNet++ MindIR in the link are `(1,3,736,1280)` and `(1,3,1152,2048)`, respectively.
+> The input_shape for exported DBNet MindIR and DBNet++ MindIR in the links are `(1,3,736,1280)` and `(1,3,1152,2048)`, respectively.
 
 ### MSRA-TD500
 
@@ -135,15 +154,15 @@ DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total
 
 
 
-## 3. Quick Start
+## 4. Quick Start
 
-### 3.1 Installation
+### 4.1 Installation
 
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
-### 3.2 Dataset preparation
+### 4.2 Dataset preparation
 
-#### 3.2.1 ICDAR2015 dataset
+#### 4.2.1 ICDAR2015 dataset
 
 Please download [ICDAR2015](https://rrc.cvc.uab.es/?ch=4&com=downloads) dataset, and convert the labels to the desired format referring to [dataset_converters](../../../tools/dataset_converters/README.md).
 
@@ -165,7 +184,7 @@ The prepared dataset file struture should be:
     └── train_det_gt.txt
 ```
 
-#### 3.2.2 MSRA-TD500 dataset
+#### 4.2.2 MSRA-TD500 dataset
 
 Please download [MSRA-TD500](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500)) dataset，and convert the labels to the desired format referring to [dataset_converters](../../../tools/dataset_converters/README.md).
 
@@ -189,7 +208,7 @@ MSRA-TD500
  │   ├── test_det_gt.txt
 ```
 
-#### 3.2.3 SCUT-CTW1500 dataset
+#### 4.2.3 SCUT-CTW1500 dataset
 
 Please download [SCUT-CTW1500](https://github.com/Yuliang-Liu/Curve-Text-Detector) dataset，and convert the labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
 
@@ -209,7 +228,7 @@ ctw1500
  ├── train_det_gt.txt
 ```
 
-#### 3.2.4 Total-Text dataset
+#### 4.2.4 Total-Text dataset
 
 Please download [Total-Text](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset) dataset，and convert the labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
 
@@ -231,7 +250,7 @@ totaltext
  ├── train_det_gt.txt
 ```
 
-#### 3.2.5 MLT2017 dataset
+#### 4.2.5 MLT2017 dataset
 
 The MLT2017 dataset is a multilingual text detection and recognition dataset that includes nine languages: Chinese, Japanese, Korean, English, French, Arabic, Italian, German, and Hindi. Please download [MLT2017](https://rrc.cvc.uab.es/?ch=8&com=downloads) and extract the dataset. Then convert the .gif format images in the data to .jpg or .png format, and convert the labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
 
@@ -255,7 +274,7 @@ MLT_2017
 
 > If users want to use their own dataset for training, please convert the labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md). Then configure the yaml file, and use a single or multiple devices to run train.py for training. For detailed information, please refer to the following tutorials.
 
-#### 3.2.6 SynthText dataset
+#### 4.2.6 SynthText dataset
 
 Please download [SynthText](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c) dataset and process it as described in [dataset_converters](../../../tools/dataset_converters/README.md)
 
@@ -285,7 +304,7 @@ Please download [SynthText](https://academictorrents.com/details/2dba9518166cbd1
 > ```
 > This operation will generate a filtered output in the same format as the original `SynthText`.
 
-### 3.3 Update yaml config file
+### 4.3 Update yaml config file
 
 Update `configs/det/dbnet/db_r50_icdar15.yaml` configuration file with data paths,
 specifically the following parts. The `dataset_root` will be concatenated with `data_dir` and `label_file` respectively to be the complete dataset directory and label file path.
@@ -338,7 +357,7 @@ model:
 
 [comment]: <> (The only difference between _DBNet_ and _DBNet++_ is in the _Adaptive Scale Fusion_ module, which is controlled by the `use_asf` parameter in the `neck` module.)
 
-### 3.4 Training
+### 4.4 Training
 
 * Standalone training
 
@@ -360,7 +379,7 @@ mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet
 The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir` in yaml config file. The default directory is `./tmp_det`.
 
 
-### 3.5 Evaluation
+### 4.5 Evaluation
 
 To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 
@@ -368,7 +387,7 @@ To evaluate the accuracy of the trained model, you can use `eval.py`. Please set
 python tools/eval.py -c=configs/det/dbnet/db_r50_icdar15.yaml
 ```
 
-### 3.6 MindSpore Lite Inference
+## 5. MindSpore Lite Inference
 
 Please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial.md) for model inference based on MindSpot Lite on Ascend 310, including the following steps:
 

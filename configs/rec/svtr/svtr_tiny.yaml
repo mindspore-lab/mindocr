@@ -7,6 +7,7 @@ system:
   log_interval: 100
   val_while_train: True
   drop_overflow_update: False
+  ckpt_save_policy: latest_k
   ckpt_max_keep: 5
 
 common:
@@ -100,6 +101,8 @@ loss_scaler:
 train:
   ckpt_save_dir: ./tmp_rec
   dataset_sink_mode: False
+  ema: True
+  ema_decay: 0.9999
   dataset:
     type: LMDBDataset
     dataset_root: path/to/data_lmdb_release/
@@ -107,6 +110,12 @@ train:
     label_file: null
     sample_ratio: 1.0
     shuffle: True
+    filter_max_len: True
+    filter_zero_text_image: True
+    extra_count_if_repeat: True
+    max_text_len: *max_text_len
+    character_dict_path: *character_dict_path
+    label_standandize: True
     transform_pipeline:
       - Decode:
       - SVTRGeometry:

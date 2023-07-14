@@ -27,23 +27,24 @@ The overall architecture of PSENet is presented in Figure 1. It consists of mult
 ### ICDAR2015
 <div align="center">
 
-| **Model** | **Context**     | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.** | **Throughput** | **Recipe**                    | **Download**                                                                                       |
-|-----------|-----------------|--------------|----------------|------------|---------------|-------------|--------------|----------------|-------------------------------|----------------------------------------------------------------------------------------------------|
-| PSENet    | D910Bx8-MS2.0-G | ResNet-152   | ImageNet       | 79.39%     | 84.91%        | 82.06%      | 5.0 s/epoch  | 190.9 img/s    | [yaml](pse_r152_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)
+| **Model** | **Context**     | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.** | **ms/step** | **Throughput** | **Recipe**                    | **Download**                                                                                      |
+|-----------|-----------------|--------------|----------------|------------|---------------|-------------|--------------|-------------|----------------|-------------------------------|---------------------------------------------------------------------------------------------------|
+| PSENet    | D910Bx8-MS2.0-G | ResNet-152   | ImageNet       | 79.39%     | 84.91%        | 82.06%      | 5.0 s/epoch  | 335.3       | 190.9 img/s    | [yaml](pse_r152_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)
+| PSENet    | D910x8-MS2.0-G  | ResNet-50    | ImageNet       | 76.75%     | 86.58%        | 81.37%      | 4.6 s/epoch  | 304.1       | 210.4 img/s    | [yaml](pse_r50_icdar15.yaml)  | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9-c9f670e2.mindir)
 </div>
 
 ### SCUT-CTW1500
 <div align="center">
 
-| **Model** | **Context**     | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.** | **Throughput** | **Recipe**                    | **Download**                                                                                          |
-|-----------|-----------------|--------------|----------------|------------|---------------|-------------|--------------|----------------|-------------------------------|-------------------------------------------------------------------------------------------------------|
-| PSENet    | D910Bx8-MS2.0-G | ResNet-152   | ImageNet       | 73.69%     | 74.38%        | 74.04%      | 4.9 s/epoch  | 195.3 img/s    | [yaml](pse_r152_ctw1500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ctw1500-58b1b1ff.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ctw1500-58b1b1ff-b95c7f85.mindir)
+| **Model** | **Context**     | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.** | **ms/step** | **Throughput** | **Recipe**                    | **Download**                                                                                          |
+|-----------|-----------------|--------------|----------------|------------|---------------|-------------|--------------|-------------|----------------|-------------------------------|-------------------------------------------------------------------------------------------------------|
+| PSENet    | D910Bx8-MS2.0-G | ResNet-152   | ImageNet       | 73.69%     | 74.38%        | 74.04%      | 4.9 s/epoch  | 327.7       | 195.3 img/s    | [yaml](pse_r152_ctw1500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ctw1500-58b1b1ff.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ctw1500-58b1b1ff-b95c7f85.mindir)
 </div>
 
 #### Notes：
 - Context：Training context denoted as {device}x{pieces}-{MS version}{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
 - The training time of PSENet is highly affected by data processing and varies on different machines.
-- On the ICDAR2015 dataset, the input_shape for exported MindIR in the link is `(1,3,1472,2624)`.
+- The `input_shapes` to the exported MindIR models trained on ICDAR2015 are `(1,3,1472,2624)` for ResNet-152 backbone and `(1,3,736,1280)` for ResNet-50 backbone.
 - On the SCUT-CTW1500 dataset, the input_shape for exported MindIR in the link is `(1,3,1024,1024)`.
 
 ## 3. Quick Start
