@@ -29,10 +29,10 @@ class RandomHorizontalFlip:
         return data
 ```
 
-2. The input / output dictionary contains data keys such as `image`, `polys`, etc. A transformation can modify / add new
+3. The input / output dictionary contains data keys such as `image`, `polys`, etc. A transformation can modify / add new
 values to the data dictionary, but should not delete keys (data) from it.
-3. Each transformation class must have a `self.output_columns` member. It is necessary for the pipeline data mapping.
-4. :warning: For better transformation pipeline efficiency, python and MindSpore transformations should be grouped together in the config files in such way that the number of groups they form is minimized.
+4. Each transformation class must have a `self.output_columns` member. It is necessary for the pipeline data mapping.
+5. :warning: For better transformation pipeline efficiency, python and MindSpore transformations should be grouped together in the config files in such way that the number of groups they form is minimized.
 That is, python operations should be followed by python operations and MindSpore operations by MindSpore operations. For example:
 
 ```yaml

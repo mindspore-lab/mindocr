@@ -17,6 +17,7 @@
 [📚使用教程](#使用教程) |
 [🎁模型列表](#模型列表) |
 [📰数据集列表](#数据集列表) |
+[❓常见问题](#常见问题) |
 [🎉更新日志](#更新日志)
 
 </div>
@@ -205,6 +206,16 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 </details>
 
 我们会在更多的数据集上进行模型训练和验证。该列表将持续更新。
+
+
+## 常见问题
+1. **在程序执行过程中，我看到以下警告: `Using shared memory queue, but rowsize is larger than allocated
+memory max_rowsize: X MB, current rowsize: X MB`. 我该怎么解决这个问题?**</br>
+此警告是因为在进程之间复制数据而分配的共享内存量不足。您需要通过将`train.loader`或`eval.loader`下（取决于您的流程需求）的`max_rowsize`设置为更大的值（默认值为64MB）来增加配置文件中分配的内存量。
+
+
+
+
 
 ## 重要信息
 
