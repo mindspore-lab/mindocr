@@ -1,15 +1,180 @@
-## Inference - Third-party Models List
+## Inference - Third-party Models
+### 1. Overview of Third-Party Inference
+```mermaid
+graph LR;
+    A[ThirdParty models] -- xx2onnx --> B[ONNX] -- converter_lite --> C[MindIR];
+    C --input --> D[infer.py] -- outputs --> eval_rec.py/eval_det.py;
+    H[images] --input --> D[infer.py];
+```
 
-MindOCR supports the inference of third-party models (PaddleOCR, MMOCR, etc.), and this document displays a list of
-adapted models. The performance test is based on Ascend310P, and some models have no test data set yet.
+### 2. Third-Party Model Inference Methods
 
-After downloading the model file, it needs to be converted to a model file supported by ACL/MindSpore Lite inference (OM
-or MindIR). Please refer to the [model conversion tutorial](convert_tutorial.md).
+#### 2.1 Text Detection
 
+Let's take `en_pp_det_dbnet_resnet50vd` in [appendix table](#31-text-detection) as an example to introduce the inference method:
 
+- Download the [weight](https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/det_r50_vd_db_v2.0_train.tar) in the appendix table and decompress it;
 
-### 1. Text detection
+- Since this model is a paddle training model, it needs to be converted to an inference model first (skip this step if it is already an inference model):
+```shell
+git clone https://github.com/PaddlePaddle/PaddleOCR.git
+cd Paddle OCR
+python tools/export_model.py \
+-c configs/det/det_r50_vd_db.yml \
+-o Global.pretrained_model=./det_r50_vd_db_v2.0_train/best_accuracy\
+Global.save_inference_dir=./det_db
+```
+After execution, the following will be generated：
+``` text
+det_db/
+├── inference.pdmodel
+├── inference.pdiparams
+├── inference.pdiparams.info
+```
 
+- Download and use the paddle2onnx tool (`pip install paddle2onnx`) to convert the inference model into an onnx file:
+```shell
+paddle2onnx \
+     --model_dir det_db \
+     --model_filename inference.pdmodel \
+     --params_filename inference.pdiparams\
+     --save_file det_db.onnx \
+     --opset_version 11 \
+     --input_shape_dict="{'x':[-1,3,-1,-1]}" \
+     --enable_onnx_checker True
+```
+
+The value of `--input_shape_dict` in the parameter can be viewed by opening the inference model through the [Netron](https://github.com/lutzroeder/netron) tool.
+
+The `det_db.onnx` file will be generated after the above command is executed;
+
+- Use converter_lite tool on Ascend310/310P to convert onnx files to mindir:
+
+Create `config.txt` and specify the model input shape. An example is as follows:
+```
+[ascend_context]
+input_format=NCHW
+input_shape=x:[1,3,736,1280]
+```
+Run the following command:
+```shell
+converter_lite\
+     --saveType=MINDIR \
+     --NoFusion=false \
+     --fmk=ONNX \
+     --device=Ascend\
+     --modelFile=det_db.onnx \
+     --outputFile=det_db_output \
+     --configFile=config.txt
+```
+After the above command is executed, the `det_db_output.mindir` file will be generated;
+> Learn more about [Model Conversion Tutorial](convert_tutorial.md)
+
+> Learn more about [converter_lite](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool.html)
+
+- Perform inference using `/deploy/py_infer/infer.py` codes and `det_db_output.mindir` model file:
+```shell
+python infer.py\
+     --input_images_dir=/path/to/ic15/ch4_test_images \
+     --det_model_path=/path/to/mindir/det_db_output.mindir\
+     --det_model_name_or_config=en_pp_det_dbnet_resnet50vd \
+     --res_save_dir=/path/to/dbnet_resnet50vd_results
+```
+After the execution is completed, the prediction file `det_results.txt` will be generated in the directory pointed to by the parameter `--res_save_dir`.
+
+When doing inference, you can use the `--vis_det_save_dir` parameter to visualize the results:
+<p align="center">
+<img src="https://user-images.githubusercontent.com/15178426/253499854-ff5517f6-e8d0-493c-bc9a-8e384b2ac47a.jpg" width=60% />
+</p>
+<p align="center">
+<em> Visualization of text detection results</em>
+</p>
+
+> Learn more about [infer.py](inference_tutorial.md#42-detail-of-inference-parameter) inference parameters
+- Evaluate the results using the following command:
+```shell
+python deploy/eval_utils/eval_det.py\
+--gt_path=/path/to/ic15/test_det_gt.txt\
+--pred_path=/path/to/dbnet_resnet50vd_results/det_results.txt
+```
+The result is: `{'recall': 0.8281174771304767, 'precision': 0.7716464782413638, 'f-score': 0.7988852763585693}`
+<br></br>
+#### 2.2 Text Recognition
+
+Let's take `en_pp_rec_OCRv3` in [appendix table](#32-text-recognition) as an example to introduce the inference method:
+
+- Download the weight file [weight](https://paddleocr.bj.bcebos.com/PP-OCRv3/english/en_PP-OCRv3_rec_infer.tar) in the appendix table and decompress it;
+
+- Since the model is a paddle inference model, directly proceed to the third step of paddle conversion to onnx (otherwise, the training model needs to be converted into an inference model, refer to the above text detection);
+
+- Download and use the paddle2onnx tool (`pip install paddle2onnx`) to convert the inference model into an onnx file:
+```shell
+paddle2onnx \
+     --model_dir en_PP-OCRv3_rec_infer \
+     --model_filename inference.pdmodel \
+     --params_filename inference.pdiparams\
+     --save_file en_PP-OCRv3_rec_infer.onnx \
+     --opset_version 11 \
+     --input_shape_dict="{'x':[-1,3,48,-1]}" \
+     --enable_onnx_checker True
+```
+The value of `--input_shape_dict` in the parameter can be viewed by opening the inference model through the [Netron](https://github.com/lutzroeder/netron) tool.
+
+The `en_PP-OCRv3_rec_infer.onnx` file will be generated after the above command is executed;
+
+- Use converter_lite tool on Ascend310/310P to convert onnx files to mindir:
+
+Create `config.txt` and specify the model input shape. An example is as follows:
+```
+[ascend_context]
+input_format=NCHW
+input_shape=x:[1,3,-1,-1]
+dynamic_dims=[48,520],[48,320],[48,384],[48,360],[48,394],[48,321],[48,336],[48,368],[48,328],[48,685],[48,347]
+```
+Run the following command:
+```shell
+converter_lite\
+     --saveType=MINDIR \
+     --NoFusion=false \
+     --fmk=ONNX \
+     --device=Ascend\
+     --modelFile=en_PP-OCRv3_rec_infer.onnx \
+     --outputFile=en_PP-OCRv3_rec_infer \
+     --configFile=config.txt
+```
+After the above command is executed, the `en_PP-OCRv3_rec_infer.mindir` file will be generated;
+> Learn more about [Model Conversion Tutorial](convert_tutorial.md)
+
+> Learn more about [converter_lite](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool.html)
+
+- Download the dictionary file [en_dict.txt](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/en_dict.txt) corresponding to the model, use `/deploy/py_infer/infer.py` code and `en_PP-OCRv3_rec_infer.mindir` file to perform inferencing:
+```shell
+python infer.py\
+     --input_images_dir=/path/to/mlt17_en \
+     --device_id=1 \
+     --parallel_num=2 \
+     --rec_model_path=/path/to/mindir/en_PP-OCRv3_rec_infer.mindir\
+     --rec_model_name_or_config=en_pp_rec_OCRv3 \
+     --character_dict_path=/path/to/en_dict.txt\
+     --res_save_dir=/path/to/en_rec_infer_results\
+     --save_log_dir=/path/to/en_rec_infer_logs
+```
+After the execution is completed, the prediction file `rec_results.txt` will be generated in the directory pointed to by the parameter `--res_save_dir`.
+> Learn more about [infer.py](inference_tutorial.md#42-detail-of-inference-parameter) inference parameters
+
+- Evaluate the results using the following command:
+```shell
+python deploy/eval_utils/eval_rec.py \
+--gt_path=/path/to/mlt17_en/english_gt.txt \
+--pred_path=/path/to/en_rec_infer_results/rec_results.txt
+```
+The result is: `{'acc': 0.7979344129562378, 'norm_edit_distance': 0.8859519958496094}`
+<br></br>
+
+### 3. Appendix - Third-Party Model Support List
+MindOCR supports the inference of third-party models (PaddleOCR, MMOCR, etc.), and this document displays a list of adapted models. The performance test is based on Ascend310P, and some models have no test data set yet.
+
+#### 3.1 Text Detection
 |            name             |  model  |  backbone   | dataset | F-score(%) |  FPS  |  source   |                                                                   config                                                                    |                                                                                download                                                                                 |                                                        reference                                                         |
 |:---------------------------:|:-------:|:-----------:|:-------:|:----------:|:-----:|:---------:|:-------------------------------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------:|
 |    ch_pp_server_det_v2.0    |  DBNet  | ResNet18_vd |  MLT17  |   46.22    | 21.65 | PaddleOCR |         [yaml](https://github.com/mindspore-lab/mindocr/tree/main/deploy/py_infer/src/configs/det/ppocr/ch_det_res18_db_v2.0.yaml)          |                                      [weight](https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_server_v2.0_det_infer.tar)                                       |   [ch_ppocr_server_v2.0_det](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/models_list_en.md)    |
@@ -36,7 +201,7 @@ python deploy/models_utils/onnx_optim/insert_pse_postprocess.py \
       --scale=1.0
 ```
 
-### 2. Text recognition
+#### 3.2 Text recognition
 
 |               name                |  model  |      backbone      |  dataset   | Acc(%) |  FPS   |  source   |                                                        dict file                                                         | config                                                                                                                                 | download                                                                                                                                                     | reference                                                                                                                 |
 |:---------------------------------:|:-------:|:------------------:|:----------:|:------:|:------:|:---------:|:------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------|
@@ -44,7 +209,7 @@ python deploy/models_utils/onnx_optim/insert_pse_postprocess.py \
 |          ch_pp_rec_OCRv3          |  SVTR   | MobileNetV1Enhance | MLT17 (ch) | 49.91  | 408.38 | PaddleOCR |      [ppocr_keys_v1.txt](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/ppocr_keys_v1.txt)       | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/deploy/py_infer/src/configs/rec/ppocr/ch_PP-OCRv3_rec_distillation.yaml)     | [weight](https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_rec_train.tar)                                                                         | [ch_PP-OCRv3_rec](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/models_list_en.md)                |
 |          ch_pp_rec_OCRv2          |  CRNN   | MobileNetV1Enhance | MLT17 (ch) | 44.59  | 203.34 | PaddleOCR |      [ppocr_keys_v1.txt](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/ppocr_keys_v1.txt)       | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/deploy/py_infer/src/configs/rec/ppocr/ch_PP-OCRv2_rec_distillation.yaml)     | [weight](https://paddleocr.bj.bcebos.com/PP-OCRv2/chinese/ch_PP-OCRv2_rec_infer.tar)                                                                         | [ch_PP-OCRv2_rec](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/models_list_en.md)                |
 |       ch_pp_mobile_rec_v2.0       |  CRNN   |    MobileNetV3     | MLT17 (ch) | 24.59  | 167.67 | PaddleOCR |      [ppocr_keys_v1.txt](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/ppocr_keys_v1.txt)       | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/deploy/py_infer/src/configs/rec/ppocr/rec_chinese_lite_train_v2.0.yaml)      | [weight](https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_rec_infer.tar)                                                                 | [ch_ppocr_mobile_v2.0_rec](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/models_list_en.md)       |
-|          en_pp_rec_OCRv3          |  SVTR   | MobileNetV1Enhance | MLT17 (en) | 79.64  | 917.01 | PaddleOCR |            [en_dict.txt](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/en_dict.txt)             | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/deploy/py_infer/src/configs/rec/ppocr/en_PP-OCRv3_rec.yaml)                  | [weight](https://paddleocr.bj.bcebos.com/PP-OCRv3/english/en_PP-OCRv3_rec_infer.tar)                                                                         | [en_PP-OCRv3_rec](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/models_list_en.md)                |
+|          en_pp_rec_OCRv3          |  SVTR   | MobileNetV1Enhance | MLT17 (en) | 79.79  | 917.01 | PaddleOCR |            [en_dict.txt](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/en_dict.txt)             | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/deploy/py_infer/src/configs/rec/ppocr/en_PP-OCRv3_rec.yaml)                  | [weight](https://paddleocr.bj.bcebos.com/PP-OCRv3/english/en_PP-OCRv3_rec_infer.tar)                                                                         | [en_PP-OCRv3_rec](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/models_list_en.md)                |
 | en_pp_mobile_rec_number_v2.0_slim |  CRNN   |    MobileNetV3     |     /      |   /    |   /    | PaddleOCR |            [en_dict.txt](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/en_dict.txt)             | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/deploy/py_infer/src/configs/rec/ppocr/rec_en_number_lite_train.yaml)         | [weight](https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/en_number_mobile_v2.0_rec_slim_infer.tar)                                                           | [en_number_mobile_slim_v2.0_rec](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/models_list_en.md) |
 |   en_pp_mobile_rec_number_v2.0    |  CRNN   |    MobileNetV3     |     /      |   /    |   /    | PaddleOCR |            [en_dict.txt](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/en_dict.txt)             | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/deploy/py_infer/src/configs/rec/ppocr/rec_en_number_lite_train.yaml)         | [weight](https://paddleocr.bj.bcebos.com/dygraph_v2.0/multilingual/en_number_mobile_v2.0_rec_infer.tar)                                                      | [en_number_mobile_v2.0_rec](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/models_list_en.md)      |
 |        korean_pp_rec_OCRv3        |  SVTR   | MobileNetV1Enhance |     /      |   /    |   /    | PaddleOCR |      [korean_dict.txt](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/dict/korean_dict.txt)      | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/deploy/py_infer/src/configs/rec/ppocr/korean_PP-OCRv3_rec.yaml)              | [weight](https://paddleocr.bj.bcebos.com/PP-OCRv3/multilingual/korean_PP-OCRv3_rec_infer.tar)                                                                | [korean_PP-OCRv3_rec](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc_en/models_list_en.md)            |
@@ -63,8 +228,7 @@ python deploy/models_utils/onnx_optim/insert_pse_postprocess.py \
 |      en_mm_rec_nrtr_resnet31      |  NRTR   |      ResNet31      |    IC15    | 67.26  | 32.63  |   MMOCR   |       [english_digits_symbols.txt](https://github.com/open-mmlab/mmocr/blob/main/dicts/english_digits_symbols.txt)       | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/deploy/py_infer/src/configs/rec/mmocr/nrtr_resnet31-1by8-1by4_6e_st_mj.yaml) | [weight](https://download.openmmlab.com/mmocr/textrecog/nrtr/nrtr_resnet31-1by8-1by4_6e_st_mj/nrtr_resnet31-1by8-1by4_6e_st_mj_20220916_103322-a6a2a123.pth) | [NRTR](https://github.com/open-mmlab/mmocr/blob/main/configs/textrecog/nrtr/README.md)                                    |
 |    en_mm_rec_satrn_shallowcnn     |  SATRN  |     ShallowCNN     |    IC15    | 73.52  | 32.14  |   MMOCR   |       [english_digits_symbols.txt](https://github.com/open-mmlab/mmocr/blob/main/dicts/english_digits_symbols.txt)       | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/deploy/py_infer/src/configs/rec/mmocr/satrn_shallow_5e_st_mj.yaml)           | [weight](https://download.openmmlab.com/mmocr/textrecog/satrn/satrn_shallow_5e_st_mj/satrn_shallow_5e_st_mj_20220915_152443-5fd04a4c.pth)                    | [SATRN](https://github.com/open-mmlab/mmocr/blob/main/configs/textrecog/satrn/README.md)                                  |
 
-
-### 3. Text angle classification
+#### 3.3 Text angle classification
 
 |         name          |    model    | dataset | Acc(%) | FPS |  source   |                                                    config                                                     |                                           download                                           |                                                      reference                                                      |
 |:---------------------:|:-----------:|:-------:|:------:|:---:|:---------:|:-------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------:|

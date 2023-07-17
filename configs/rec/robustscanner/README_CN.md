@@ -41,7 +41,7 @@ Table Format:
 
 |    **模型**     |    **环境配置**    | **骨干网络**  | **平均准确率** |       **训练时间**        | **FPS** | **ms/step** |                                                     **配置文件**                                                     |                                                                                                             **模型权重下载**                                                                                                              |
 |:-------------:|:--------------:|:---------:|:---------:|:---------------------:|:-------:|:-----------:|:----------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| RobustScanner | D910x4-MS2.0-G | ResNet-31 |  87.51%   |     22560 s/epoch     |   310   |     825     | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner/robustscanner_resnet31.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-72710b5f.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-72710b5f-72896d92.mindir) |
+| RobustScanner | D910x4-MS2.0-G | ResNet-31 |  87.86%   |     22560 s/epoch     |   310   |     825     | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner/robustscanner_resnet31.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37-158bde10.mindir) |
 </div>
 
 注：除了使用MJSynth（部分）和SynthText（部分）两个文字识别数据集外，还加入了SynthAdd数据，和部分真实数据，具体数据细节可以参考论文或[这里](#312-数据集下载)。
@@ -50,9 +50,9 @@ Table Format:
   <div align="center">
   <summary>在各个基准数据集上的准确率</summary>
 
-  | **模型** | **骨干网络** | **IIIT5k** | **SVT** | **IC13** | **IC15** | **SVTP** |**CUTE80** | **平均准确率** |
-  | :------: | :------: |:----------:|:-------:|:--------:|:--------:|:--------:| :------: |:---------:|
-  | RobustScanner  | ResNet-31 |   95.23%   | 89.64%  |  93.50%  |  74.48%  |  81.55%  | 87.85%  |  87.51%   |
+  | **模型** | **骨干网络** | **IIIT5k** | **SVT** | **IC13** | **IC15** | **SVTP** | **CUTE80** | **平均准确率** |
+  | :------: | :------: |:----------:|:-------:|:--------:|:--------:|:--------:|:----------:|:---------:|
+  | RobustScanner  | ResNet-31 |   95.50%   | 92.12%  |  94.29%  |  73.33%  |  82.33%  |   89.58%   |  87.86%   |
   </div>
 </details>
 
@@ -391,4 +391,4 @@ loss:
 
 ## 参考文献
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
-[1] Xiaoyu Yue, Zhanghui Kuang, Chenhao Lin, Hongbin Sun, Wayne Zhang. RobustScanner: Dynamically Enhancing Positional Clues for Robust Text Recognition. arXiv:2007.07542, ECCV 2020
+[1] Xiaoyu Yue, Zhanghui Kuang, Chenhao Lin, Hongbin Sun, Wayne Zhang. RobustScanner: Dynamically Enhancing Positional Clues for Robust Text Recognition. arXiv:2007.07542, ECCV'2020

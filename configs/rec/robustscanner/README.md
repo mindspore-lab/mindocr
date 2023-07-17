@@ -40,7 +40,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 |    **Model**     |    **Context**    | **Backbone**  | **Avg Accuracy** |       **Train T.**        | **FPS** | **ms/step** |                                                     **Recipe**                                                     |                                                                                                             **Download**                                                                                                              |
 |:-------------:|:--------------:|:---------:|:---------:|:---------------------:|:-------:|:-----------:|:----------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| RobustScanner | D910x4-MS2.0-G | ResNet-31 |  87.51%   |     22560 s/epoch     |   310   |     825     | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner/robustscanner_resnet31.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-72710b5f.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-72710b5f-72896d92.mindir) |
+| RobustScanner | D910x4-MS2.0-G | ResNet-31 |  87.86%   |     22560 s/epoch     |   310   |     825     | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner/robustscanner_resnet31.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37-158bde10.mindir) |
 </div>
 
 Note: In addition to using the MJSynth (partial) and SynthText (partial) text recognition datasets, RobustScanner is also trained with the SynthAdd dataset and some real datasets. The specific details of the data can be found in the paper or [here](#312-Dataset-Download).
@@ -49,9 +49,9 @@ Note: In addition to using the MJSynth (partial) and SynthText (partial) text re
   <div align="center">
   <summary>Detailed accuracy results for each benchmark dataset</summary>
 
-| **Model** | **Backbone** | **IIIT5k** | **SVT** | **IC13** | **IC15** | **SVTP** |**CUTE80** | **Average** |
-| :------: | :------: |:----------:|:-------:|:--------:|:--------:|:--------:| :------: |:---------:|
-| RobustScanner  | ResNet-31 |   95.23%   | 89.64%  |  93.50%  |  74.48%  |  81.55%  | 87.85%  |  87.51%   |
+| **Model** | **Backbone** | **IIIT5k** | **SVT** | **IC13** | **IC15** | **SVTP** | **CUTE80** | **Average** |
+| :------: | :------: |:----------:|:-------:|:--------:|:--------:|:--------:|:----------:|:-----------:|
+| RobustScanner  | ResNet-31 |   95.50%   | 92.12%  |  94.29%  |  73.33%  |  82.33%  |   89.58%   |   87.86%    |
   </div>
 </details>
 
@@ -386,4 +386,4 @@ loss:
 
 ## References
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
-[1] Xiaoyu Yue, Zhanghui Kuang, Chenhao Lin, Hongbin Sun, Wayne Zhang. RobustScanner: Dynamically Enhancing Positional Clues for Robust Text Recognition. arXiv:2007.07542, ECCV 2020
+[1] Xiaoyu Yue, Zhanghui Kuang, Chenhao Lin, Hongbin Sun, Wayne Zhang. RobustScanner: Dynamically Enhancing Positional Clues for Robust Text Recognition. arXiv:2007.07542, ECCV'2020

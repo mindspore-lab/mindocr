@@ -11,9 +11,12 @@ from .infer_base import InferBase
 class TextClassifier(InferBase):
     def __init__(self, args):
         super(TextClassifier, self).__init__(args)
-        self._bs_list = []
 
-    def init(self, warmup=False):
+    def _init_preprocess(self):
+        preprocess_ops = build_preprocess(self.args.cls_config_path)
+        self.preprocess_ops = functools.partial(preprocess_ops, target_size=self._hw_list[0])
+
+    def _init_model(self):
         self.model = Model(
             backend=self.args.backend, model_path=self.args.cls_model_path, device_id=self.args.device_id
         )
@@ -28,12 +31,13 @@ class TextClassifier(InferBase):
             batchsize, _, model_height, model_width = shape_info
             self._bs_list = [batchsize]
 
-        preprocess_ops = build_preprocess(self.args.cls_config_path)
-        self.preprocess_ops = functools.partial(preprocess_ops, target_size=(model_height, model_width))
+        self._hw_list = [(model_height, model_width)]
+
+    def _init_postprocess(self):
         self.postprocess_ops = build_postprocess(self.args.cls_config_path)
 
-        if warmup:
-            self.model.warmup()
+    def get_params(self):
+        return {"cls_batch_num": self._bs_list}
 
     def __call__(self, image: Union[np.ndarray, List[np.ndarray]]):
         images = [image] if isinstance(image, np.ndarray) else image

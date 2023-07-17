@@ -16,11 +16,11 @@ def safe_list_writer(save_dict, save_path):
     :return:
     """
     flags, modes = os.O_WRONLY | os.O_CREAT | os.O_APPEND, stat.S_IWUSR | stat.S_IRUSR | stat.S_IRGRP
-    with os.fdopen(os.open(save_path, flags, modes), "a") as f:
+    with os.fdopen(os.open(save_path, flags, modes), "w") as f:
         if not save_dict:
             f.write("")
-        for name, res in save_dict.items():
-            content = name + "\t" + json.dumps(res, ensure_ascii=False) + "\n"
+        for filename, res in save_dict.items():
+            content = os.path.basename(filename) + "\t" + json.dumps(res, ensure_ascii=False) + "\n"
             f.write(content)
 
 

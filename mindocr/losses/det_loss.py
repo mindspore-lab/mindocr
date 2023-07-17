@@ -1,7 +1,6 @@
 import logging
+from math import pi
 from typing import Tuple, Union
-
-import numpy as np
 
 import mindspore as ms
 import mindspore.common.dtype as mstype
@@ -176,7 +175,7 @@ class BalancedBCELoss(nn.LossBase):
         )
 
 
-class FCELoss(nn.Cell):
+class FCELoss(nn.LossBase):
     """The class for implementing FCENet loss
     FCENet(CVPR2021): Fourier Contour Embedding for Arbitrary-shaped
         Text Detection
@@ -197,6 +196,7 @@ class FCELoss(nn.Cell):
         # equation = "ak, kn-> an"
         # self.einsum = ops.Einsum(equation)
         self.threshold0 = ms.Tensor(0.5, ms.float32)
+        self.ohem_thresh = ms.Tensor(1.0, ms.float32)
         self.greater = ops.GreaterEqual()
         self.eps = ms.Tensor(1e-8, ms.float32)
 
@@ -213,14 +213,9 @@ class FCELoss(nn.Cell):
         #     gts[idx] = torch.from_numpy(np.stack(maps)).float().to(device)
 
         # losses = multi_apply(self.forward_single, preds, gts)
-        if p5_maps is None:
-            losses = [self.forward_single(preds_p3, p3_maps), self.forward_single(preds_p4, p4_maps)]
-        else:
-            losses = [
-                self.forward_single(preds_p3, p3_maps),
-                self.forward_single(preds_p4, p4_maps),
-                self.forward_single(preds_p5, p5_maps),
-            ]
+        losses = [self.forward_single(preds_p3, p3_maps), self.forward_single(preds_p4, p4_maps)]
+        if p5_maps is not None:
+            losses.append(self.forward_single(preds_p5, p5_maps))
 
         loss_tr = ms.Tensor(0.0, ms.float32)  # torch.tensor(0., device=device).float()
         loss_tcl = ms.Tensor(0.0, ms.float32)  # torch.tensor(0., device=device).float()
@@ -312,25 +307,33 @@ class FCELoss(nn.Cell):
 
         return loss_tr, loss_tcl, loss_reg_x, loss_reg_y
 
+    def _filter_negatives(self, loss: Tensor, n_neg: Tensor) -> Tensor:
+        negative_value, _ = self.sort_descending(loss)  # Top K
+        con_k = negative_value[n_neg - 1]
+        return (negative_value >= con_k).astype(negative_value.dtype)
+
     def ohem(self, predict, target, train_mask):
-        pos = ops.stop_gradient(((target * train_mask) > self.threshold0).astype(ms.float32))
-        neg = ops.stop_gradient((((1 - target) * train_mask) > self.threshold0).astype(ms.float32))
+        pos = ops.stop_gradient((target * train_mask).astype(ms.float32))
+        neg = ((1 - target) * train_mask).astype(ms.float32)
 
         n_pos = ops.stop_gradient(pos.sum())
-        n_neg = ops.stop_gradient(min(neg.sum(), self.ohem_ratio * n_pos).astype(ms.int32))
-        if n_pos < 1:
-            n_neg = ms.Tensor(100, ms.int32)
+        n_neg = ops.select(
+            n_pos < self.ohem_thresh,
+            ms.Tensor(100, ms.int32),
+            ops.minimum(neg.sum(), self.ohem_ratio * n_pos).astype(ms.int32),
+        )
+        n_neg = ops.stop_gradient(n_neg)
+
         loss = ops.cross_entropy(predict, target, reduction="none")
         loss_pos = (loss * pos).sum()
+
+        neg = ops.select(neg.sum() > n_neg, self._filter_negatives(loss, n_neg), neg)
+        neg = ops.stop_gradient(neg)
         loss_neg = loss * neg
-        if neg.sum() > n_neg:
-            negative_value, _ = self.sort_descending(loss_neg)  # Top K
-            con_k = negative_value[n_neg - 1]
-            con_mask = ops.stop_gradient((negative_value >= con_k).astype(negative_value.dtype))
-            loss_neg = negative_value * con_mask
+
         return (loss_pos + loss_neg.sum()) / (n_pos + n_neg.astype(ms.float32) + 1e-7)
 
-    def fourier2poly(self, real_maps, imag_maps):
+    def fourier2poly(self, real_maps: Tensor, imag_maps: Tensor) -> Tuple[Tensor, Tensor]:
         """Transform Fourier coefficient maps to polygon maps.
         Args:
             real_maps (tensor): A map composed of the real parts of the
@@ -344,34 +347,25 @@ class FCELoss(nn.Cell):
                 represented by n sample points (xn, yn), whose shape is (-1, n)
         """
 
-        # device = real_maps.device
+        k_vect = ms.ops.arange(-self.fourier_degree, self.fourier_degree + 1, dtype=ms.float16).view((-1, 1))
+        i_vect = ms.ops.arange(0, self.num_sample, dtype=ms.float16).view((1, -1))
 
-        # k_vect = torch.arange(
-        #     -self.fourier_degree,
-        #     self.fourier_degree + 1,
-        #     dtype=torch.float,
-        #     device=device).view(-1, 1)
-        # i_vect = torch.arange(
-        #     0, self.num_sample, dtype=torch.float, device=device).view(1, -1)
-        k_vect = ms.Tensor(np.arange(-self.fourier_degree, self.fourier_degree + 1, dtype="float32")).view((-1, 1))
-        i_vect = ms.Tensor(np.arange(0, self.num_sample, dtype="float32")).view((1, -1))
+        transform_matrix = 2 * pi / self.num_sample * ops.matmul(k_vect, i_vect).astype(ms.float32)
 
-        transform_matrix = 2 * np.pi / self.num_sample * ops.matmul(k_vect, i_vect)
+        real_maps = real_maps.half()
+        imag_maps = imag_maps.half()
+        cos = ops.cos(transform_matrix).half()
+        sin = ops.sin(transform_matrix).half()
 
-        # x1 = self.einsum((real_maps,ops.cos(transform_matrix)))
-        # x2 = self.einsum((imag_maps,ops.sin(transform_matrix)))
-        # y1 = self.einsum((real_maps,ops.sin(transform_matrix)))
-        # y2 = self.einsum((imag_maps,ops.cos(transform_matrix)))
-
-        x1 = ops.matmul(real_maps, ops.cos(transform_matrix))
-        x2 = ops.matmul(imag_maps, ops.sin(transform_matrix))
-        y1 = ops.matmul(real_maps, ops.sin(transform_matrix))
-        y2 = ops.matmul(imag_maps, ops.cos(transform_matrix))
+        x1 = ops.matmul(real_maps, cos)
+        x2 = ops.matmul(imag_maps, sin)
+        y1 = ops.matmul(real_maps, sin)
+        y2 = ops.matmul(imag_maps, cos)
 
         x_maps = x1 - x2
         y_maps = y1 + y2
 
-        return x_maps, y_maps
+        return x_maps.to(ms.float32), y_maps.to(ms.float32)
 
 
 class PSEDiceLoss(nn.Cell):

@@ -164,6 +164,7 @@ def build_dataset(
     is_main_device = device_id == 0
     _logger.info(
         f"Creating dataloader (training={is_train}) for device {device_id}. Number of data samples: {num_samples}"
+        f" per device ({num_samples * num_devices} total)."
     )
 
     if "refine_batch_size" in kwargs:
