@@ -26,7 +26,6 @@ MindOCR除了支持自身训练端导出模型的推理外，还支持第三方�
 ```shell
 python infer.py \
     --input_images_dir=/path/to/images \
-    --backend=lite \
     --det_model_path=/path/to/mindir/dbnet_resnet50.mindir \
     --det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
     --cls_model_path=/path/to/mindir/cls_mv3.mindir \
@@ -40,7 +39,7 @@ python infer.py \
 可视化图片存放在det_cls_rec中,如图所示：
 
 <p align="center">
-  <img src="https://github.com/heepengpeng/mindocr/assets/122354463/1e55b19a-af79-4882-a50a-3a6fc490300d" width=480 />
+  <img src="https://user-images.githubusercontent.com/15178426/253492222-b4df6b80-0da5-4902-9b8d-8058ea367a55.jpg" width=90% />
 </p>
 <p align="center">
   <em>文本检测识别结果可视化</em>
@@ -49,7 +48,7 @@ python infer.py \
 结果保存在det_cls_rec/pipeline_results.txt，格式如下：
 
 ```
-img_195.jpg	[{"transcription": "admission", "points": [[298.0, 295.0], [396.0, 309.0], [392.0, 331.0], [295.0, 317.0]]}, {...}]
+img_182.jpg	[{"transcription": "cocoa", "points": [[14.0, 284.0], [222.0, 274.0], [225.0, 325.0], [17.0, 335.0]]}, {...}]
 ```
 
 - 检测+识别
@@ -59,7 +58,6 @@ img_195.jpg	[{"transcription": "admission", "points": [[298.0, 295.0], [396.0, 3
 ```shell
 python infer.py \
     --input_images_dir=/path/to/images \
-    --backend=lite \
     --det_model_path=/path/to/mindir/dbnet_resnet50.mindir \
     --det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
     --rec_model_path=/path/to/mindir/crnn_resnet34.mindir \
@@ -71,7 +69,7 @@ python infer.py \
 可视化结果存放在det_rec中，如图所示：
 
 <p align="center">
-  <img src="https://github.com/heepengpeng/mindocr/assets/122354463/1e55b19a-af79-4882-a50a-3a6fc490300d" width=480 />
+  <img src="https://user-images.githubusercontent.com/15178426/253446379-65dc0ee7-7d2a-4680-b1f2-5822493d361a.jpg" width=90% />
 </p>
 <p align="center">
   <em>文本检测识别结果可视化</em>
@@ -80,7 +78,7 @@ python infer.py \
 识别结果保存在det_rec/pipeline_results.txt，格式如下：
 
 ```
-img_195.jpg	[{"transcription": "admission", "points": [[298.0, 295.0], [396.0, 309.0], [392.0, 331.0], [295.0, 317.0]]}, {...}]
+img_498.jpg	[{"transcription": "keep", "points": [[819.0, 71.0], [888.0, 67.0], [891.0, 104.0], [822.0, 108.0]]}, {...}]
 ```
 
 - 检测
@@ -90,7 +88,6 @@ img_195.jpg	[{"transcription": "admission", "points": [[298.0, 295.0], [396.0, 3
 ```shell
 python infer.py \
     --input_images_dir=/path/to/images \
-    --backend=lite \
     --det_model_path=/path/to/mindir/dbnet_resnet50.mindir \
     --det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
     --res_save_dir=det \
@@ -100,7 +97,7 @@ python infer.py \
 可视化结果存放在det中，如图所示：
 
 <p align="center">
-  <img src="https://github.com/heepengpeng/mindocr/assets/122354463/e7e708f7-7a69-4f3f-9234-bad909052e7a" width=480 />
+  <img src="https://user-images.githubusercontent.com/15178426/253494276-c941431c-0936-47f2-a0a9-75a2f048a1e0.jpg" width=60% />
 </p>
 <p align="center">
   <em>文本检测结果可视化</em>
@@ -109,7 +106,7 @@ python infer.py \
 检测结果保存在det/det_results.txt，格式如下：
 
 ```
-img_195.jpg	[[[298.0, 295.0], [396.0, 309.0], [392.0, 331.0], [295.0, 317.0]], [...]]
+img_108.jpg	[[[226.0, 442.0], [402.0, 416.0], [404.0, 433.0], [228.0, 459.0]], [...]]
 ```
 
 - 分类
@@ -120,7 +117,6 @@ img_195.jpg	[[[298.0, 295.0], [396.0, 309.0], [392.0, 331.0], [295.0, 317.0]], [
 # cls_mv3.mindir is converted from ppocr
 python infer.py \
     --input_images_dir=/path/to/images \
-    --backend=lite \
     --cls_model_path=/path/to/mindir/cls_mv3.mindir \
     --cls_model_name_or_config=ch_pp_mobile_cls_v2.0 \
     --res_save_dir=cls
