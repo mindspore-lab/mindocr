@@ -7,6 +7,16 @@ MindOCR inference supports Ascend310/Ascend310P devices, supports [MindSpore Lit
 inference backend, integrates text detection, angle classification, and text recognition, implements end-to-end OCR
 inference process, and optimizes inference performance using pipeline parallelism.
 
+The overall process of MindOCR Lite inference is as follows:
+
+```mermaid
+graph LR;
+    A[MindOCR models] -- export --> B[MindIR] -- converter_lite --> C[MindSpore Lite MindIR];
+    D[ThirdParty models] -- xx2onnx --> E[ONNX] -- converter_lite --> C;
+    C --input --> F[MindOCR Infer] -- outputs --> G[Evaluation];
+    H[images] --input --> F[MindOCR Infer];
+```
+
 ### 2. Environment
 
 Please refer to the [environment installation](environment.md) to configure the inference runtime environment for
@@ -219,7 +229,7 @@ Enter the inference directory：`cd deploy/cpp_infer`,then execute the compilati
 process is complete, an executable file named 'infer' will be generated in the 'dist' directory located in the current
 path.
 
-#### 4.1 Command example
+#### 5.1 Command example
 
 - detection + classification + recognition
 
@@ -298,7 +308,7 @@ word_1679.png  ["180", 0.6226]
 word_1189.png  ["0", 0.9360]
 ```
 
-#### 4.2 Detail of inference parameter
+#### 5.2 Detail of inference parameter
 
 - Basic settings
 
