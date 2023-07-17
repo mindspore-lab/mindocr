@@ -43,8 +43,20 @@ paddle2onnx \
      --input_shape_dict="{'x':[-1,3,-1,-1]}" \
      --enable_onnx_checker True
 ```
+A brief explanation of parameters for paddle2onnx is as follows:
+
+| Parameter | Description |
+|-----------|-------------|
+|--model_dir | Configures the directory path containing the Paddle model.|
+|--model_filename | **[Optional]** Configures the file name storing the network structure located under `--model_dir`.|
+|--params_filename | **[Optional]** Configures the file name storing the model parameters located under `--model_dir`.|
+|--save_file | Specifies the directory path for saving the converted model.|
+|--opset_version | **[Optional]** Configures the OpSet version for converting to ONNX. Multiple versions, such as 7~16, are currently supported, and the default is 9.|
+|--input_shape_dict | Specifies the shape of the input tensor for generating a dynamic ONNX model. The format is "{'x': [N, C, H, W]}", where -1 represents dynamic shape.|
+|--enable_onnx_checker| **[Optional]** Configures whether to check the correctness of the exported ONNX model. It is recommended to enable this switch, and the default is False.|
 
 The value of `--input_shape_dict` in the parameter can be viewed by opening the inference model through the [Netron](https://github.com/lutzroeder/netron) tool.
+> Learn more about [paddle2onnx](https://github.com/PaddlePaddle/Paddle2ONNX/tree/develop)
 
 The `det_db.onnx` file will be generated after the above command is executed;
 
@@ -56,6 +68,16 @@ Create `config.txt` and specify the model input shape. An example is as follows:
 input_format=NCHW
 input_shape=x:[1,3,736,1280]
 ```
+A brief explanation of the configuration file parameters is as follows:
+
+|     Parameter     | Attribute |                                       Function Description                                       | Data Type |                       Value Description                      |
+|:-----------------:|:---------:|:-------------------------------------------------------------------------------------------------:|:---------:|:-------------------------------------------------------------:|
+|   input_format    | Optional  |                                  Specify the format of the model input                                 |  String   |                   Optional values are "NCHW", "NHWC", "ND"                  |
+|    input_shape    | Optional  | Specify the shape of the model input. The input_name must be the input name in the original model, arranged in order of input, separated by ";" |  String   |            For example: "input1:[1,64,64,3];input2:[1,256,256,3]"            |
+|    dynamic_dims   | Optional  |                             Specify dynamic BatchSize and dynamic resolution parameters                             |  String   |                     For example: "dynamic_dims=[48,520],[48,320],[48,384]"                    |
+
+> Learn more about [Configuration File Parameters](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool_ascend.html)
+
 Run the following command:
 ```shell
 converter_lite\
@@ -68,9 +90,21 @@ converter_lite\
      --configFile=config.txt
 ```
 After the above command is executed, the `det_db_output.mindir` file will be generated;
-> Learn more about [Model Conversion Tutorial](convert_tutorial.md)
+
+A brief explanation of the converter_lite parameters is as follows:
+
+|         Parameter         | Required |                                Parameter Description                               |          Value Range         | Default |                                Remarks                                |
+|:-------------------------:|:--------:|:---------------------------------------------------------------------------------:|:-----------------------------:|:-------:|:--------------------------------------------------------------------:|
+|        fmk        |    Yes   |                                Input model format                                | MINDIR, CAFFE, TFLITE, TF, ONNX |    -    |                                     -                                    |
+|   saveType   |    No    |             Set the exported model to MINDIR or MS model format.              |           MINDIR, MINDIR_LITE           | MINDIR  | The cloud-side inference version can only infer models converted to MINDIR format |
+|  modelFile  |    Yes   |                                  Input model path                                 |                -                |    -    |                                     -                                    |
+| outputFile |    Yes   | Output model path. Do not add a suffix, ".mindir" suffix will be generated automatically. |                -                |    -    |                                     -                                    |
+| configFile |    No    |     1) Path to the quantization configuration file after training; 2) Path to the configuration file for extended functions |                -                |    -    |                                     -                                    |
+|     device     |    No    |             Set the target device for model conversion. Default is CPU.            |      Ascend, Ascend310, Ascend310P     |    -    |                                     -                                    |
 
 > Learn more about [converter_lite](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool.html)
+
+> Learn more about [Model Conversion Tutorial](convert_tutorial.md)
 
 - Perform inference using `/deploy/py_infer/infer.py` codes and `det_db_output.mindir` model file:
 ```shell
@@ -118,7 +152,10 @@ paddle2onnx \
      --input_shape_dict="{'x':[-1,3,48,-1]}" \
      --enable_onnx_checker True
 ```
+For a brief description of paddle2onnx parameters, see the text detection example above.
+
 The value of `--input_shape_dict` in the parameter can be viewed by opening the inference model through the [Netron](https://github.com/lutzroeder/netron) tool.
+> Learn more about [paddle2onnx](https://github.com/PaddlePaddle/Paddle2ONNX/tree/develop)
 
 The `en_PP-OCRv3_rec_infer.onnx` file will be generated after the above command is executed;
 
@@ -131,6 +168,10 @@ input_format=NCHW
 input_shape=x:[1,3,-1,-1]
 dynamic_dims=[48,520],[48,320],[48,384],[48,360],[48,394],[48,321],[48,336],[48,368],[48,328],[48,685],[48,347]
 ```
+For a brief description of the configuration parameters, see the text detection example above.
+
+> Learn more about [Configuration File Parameters](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool_ascend.html)
+
 Run the following command:
 ```shell
 converter_lite\
@@ -143,9 +184,11 @@ converter_lite\
      --configFile=config.txt
 ```
 After the above command is executed, the `en_PP-OCRv3_rec_infer.mindir` file will be generated;
-> Learn more about [Model Conversion Tutorial](convert_tutorial.md)
 
+For a brief description of the converter_lite parameters, see the text detection example above.
 > Learn more about [converter_lite](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool.html)
+
+> Learn more about [Model Conversion Tutorial](convert_tutorial.md)
 
 - Download the dictionary file [en_dict.txt](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/en_dict.txt) corresponding to the model, use `/deploy/py_infer/infer.py` code and `en_PP-OCRv3_rec_infer.mindir` file to perform inferencing:
 ```shell

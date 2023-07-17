@@ -19,6 +19,16 @@ graph LR;
 input_format=NCHW
 input_shape=x:[1,3,736,1280]
 ```
+配置文件参数简要说明如下：
+
+|     参数     | 属性 |                                          功能描述                                         | 参数类型 |                     取值说明                    |
+|:------------:|:----:|:-----------------------------------------------------------------------------------------:|:--------:|:-----------------------------------------------:|
+| input_format | 可选 |                                     指定模型输入format                                    |  String  |            可选有"NCHW"、"NHWC"、"ND"           |
+|  input_shape | 可选 | 指定模型输入Shape，input_name必须是转换前的网络模型中的输入名称，按输入次序排列，用；隔开 |  String  | 例如："input1:[1,64,64,3];input2:[1,256,256,3]" |
+| dynamic_dims | 可选 |                             指定动态BatchSize和动态分辨率参数                             |  String  | 例如："dynamic_dims=[48,520],[48,320],[48,384]" |
+
+> 了解更多[配置参数](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool_ascend.html)
+
 执行以下命令：
 ```shell
 converter_lite \
@@ -31,9 +41,21 @@ converter_lite \
     --configFile=config.txt
 ```
 上述命令执行完成后会生成`dbnet_resnet50.mindir`模型文件;
-> 了解更多[模型转换教程](convert_tutorial.md)
+
+converter_lite参数简要说明如下：
+
+|            参数           | 是否必选 |                            参数说明                            |             取值范围            | 默认值 |                       备注                       |
+|:-------------------------:|:--------:|:--------------------------------------------------------------:|:-------------------------------:|:------:|:------------------------------------------------:|
+|        fmk        |    是    |                       输入模型的原始格式                       | MINDIR、CAFFE、TFLITE、TF、ONNX |    -   |                         -                        |
+|   saveType   |    否    |              设定导出的模型为mindir模型或者ms模型              |       MINDIR、MINDIR_LITE       | MINDIR | 云侧推理版本只有设置为MINDIR转出的模型才可以推理 |
+|  modelFile  |    是    |                         输入模型的路径                         |                -                |    -   |                         -                        |
+| outputFile |    是    |        输出模型的路径，不需加后缀，可自动生成.mindir后缀       |                -                |    -   |                         -                        |
+| configFile |    否    | 1）可作为训练后量化配置文件路径；2）可作为扩展功能配置文件路径 |                -                |    -   |                         -                        |
+|     device     |    否    |   设置转换模型时的目标设备。若未设置，默认模型调用CPU后端推理  |  Ascend、Ascend310、Ascend310P  |    -   |                         -                        |
 
 > 了解更多[converter_lite](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)
+
+> 了解更多[模型转换教程](convert_tutorial.md)
 
 - 使用`/deploy/py_infer/infer.py`脚本和`dbnet_resnet50.mindir`文件执行推理：
 ```shell
@@ -74,6 +96,9 @@ python deploy/eval_utils/eval_det.py \
 input_format=NCHW
 input_shape=x:[1,3,32,100]
 ```
+配置参数简要说明请见上述文本检测样例。
+> 了解更多[配置参数](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool_ascend.html)
+
 执行以下命令：
 ```shell
 converter_lite \
@@ -86,9 +111,11 @@ converter_lite \
     --configFile=config.txt
 ```
 上述命令执行完成后会生成`crnn_resnet34vd.mindir`模型文件；
-> 了解更多[模型转换教程](convert_tutorial.md)
 
+converter_lite参数简要说明请见上述文本检测样例。
 > 了解更多[converter_lite](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)
+
+> 了解更多[模型转换教程](convert_tutorial.md)
 
 - 使用`/deploy/py_infer/infer.py`脚本和`crnn_resnet34vd.mindir`文件执行推理：
 ```shell
@@ -125,8 +152,8 @@ MindOCR推理支持训练端ckpt导出的模型，本文档展示了已适配的
 | [EAST](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/east)     | ResNet-50   | en      | IC15   | 86.86  | 6.72  | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/east/east_r50_icdar15.yaml)        | [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359-5f05cd42.mindir)              |
 | [EAST](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/east)     | MobileNetV3   | en      | IC15   | 75.32  | 26.77  | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/east/east_mobilenetv3_icdar15.yaml)        | [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1-5bf242c5.mindir)              |
 | [PSENet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) | ResNet-152  | en      | IC15   | 82.50  | 2.31  | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_r152_icdar15.yaml)      | [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)         |
-| [PSENet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) | ResNet-50  | en      | IC15   | 81.37  | 1.00  | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_r50_icdar15.yaml)      | [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9-c9f670e2.mindir)         |
-| [PSENet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) | MobileNetV3  | en      | IC15   | 68.41  | 1.06  | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_mv3_icdar15.yaml)      | [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907-3de07064.mindir)         |
+| [PSENet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) | ResNet-50  | en      | IC15   | 81.37  | 1.00  | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_r50_icdar15.yaml)      | [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9-cfd2ee6c.mindir)         |
+| [PSENet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) | MobileNetV3  | en      | IC15   | 70.56  | 1.06  | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_mv3_icdar15.yaml)      | [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907-da7cfe09.mindir)         |
 
 #### 3.2 文本识别
 

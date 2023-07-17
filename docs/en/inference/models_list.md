@@ -1,5 +1,5 @@
 ## Inference - MindOCR Models
-### 1. Overview of Third-Party Inference
+### 1. Overview of MindOCR Inference
 ```mermaid
 graph LR;
     A[ckpt] -- export.py --> B[MindIR] -- converter_lite --> C[MindSpore Lite MindIR];
@@ -7,7 +7,7 @@ graph LR;
     H[images] --input --> D[infer.py];
 ```
 
-### 2. Third-Party Model Inference Methods
+### 2. MindOCR Inference Methods
 
 #### 2.1 Text Detection
 Let's take `DBNet ResNet-50 en` in the [appendix table](#31-text-detection) as an example to introduce the inference method:
@@ -20,6 +20,16 @@ Create `config.txt` and specify the model input shape:
 input_format=NCHW
 input_shape=x:[1,3,736,1280]
 ```
+A brief explanation of the configuration file parameters is as follows:
+
+|     Parameter     | Attribute |                                       Function Description                                       | Data Type |                       Value Description                      |
+|:-----------------:|:---------:|:-------------------------------------------------------------------------------------------------:|:---------:|:-------------------------------------------------------------:|
+|   input_format    | Optional  |                                  Specify the format of the model input                                 |  String   |                   Optional values are "NCHW", "NHWC", "ND"                  |
+|    input_shape    | Optional  | Specify the shape of the model input. The input_name must be the input name in the original model, arranged in order of input, separated by ";" |  String   |            For example: "input1:[1,64,64,3];input2:[1,256,256,3]"            |
+|    dynamic_dims   | Optional  |                             Specify dynamic BatchSize and dynamic resolution parameters                             |  String   |                     For example: "dynamic_dims=[48,520],[48,320],[48,384]"                    |
+
+> Learn more about [Configuration File Parameters](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool_ascend.html)
+
 Run the following command:
 ```shell
 converter_lite \
@@ -32,9 +42,21 @@ converter_lite \
      --configFile=config.txt
 ```
 After the above command is executed, the `dbnet_resnet50.mindir` model file will be generated;
-> Learn more about [Model Conversion Tutorial](convert_tutorial.md)
 
-> Learn more about [converter_lite](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)
+A brief explanation of the converter_lite parameters is as follows:
+
+|         Parameter         | Required |                                Parameter Description                               |          Value Range         | Default |                                Remarks                                |
+|:-------------------------:|:--------:|:---------------------------------------------------------------------------------:|:-----------------------------:|:-------:|:--------------------------------------------------------------------:|
+|        fmk        |    Yes   |                                Input model format                                | MINDIR, CAFFE, TFLITE, TF, ONNX |    -    |                                     -                                    |
+|   saveType   |    No    |             Set the exported model to MINDIR or MS model format.              |           MINDIR, MINDIR_LITE           | MINDIR  | The cloud-side inference version can only infer models converted to MINDIR format |
+|  modelFile  |    Yes   |                                  Input model path                                 |                -                |    -    |                                     -                                    |
+| outputFile |    Yes   | Output model path. Do not add a suffix, ".mindir" suffix will be generated automatically. |                -                |    -    |                                     -                                    |
+| configFile |    No    |     1) Path to the quantization configuration file after training; 2) Path to the configuration file for extended functions |                -                |    -    |                                     -                                    |
+|     device     |    No    |             Set the target device for model conversion. Default is CPU.            |      Ascend, Ascend310, Ascend310P     |    -    |                                     -                                    |
+
+> Learn more about [converter_lite](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool.html)
+
+> Learn more about [Model Conversion Tutorial](convert_tutorial.md)
 
 - Perform inference using `/deploy/py_infer/infer.py` codes and `dbnet_resnet50.mindir` file:
 ```shell
@@ -76,6 +98,10 @@ Create `config.txt` and specify the model input shape:
 input_format=NCHW
 input_shape=x:[1,3,32,100]
 ```
+For a brief description of the configuration parameters, see the text detection example above.
+
+> Learn more about [Configuration File Parameters](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool_ascend.html)
+
 Run the following command:
 ```shell
 converter_lite \
@@ -88,9 +114,11 @@ converter_lite \
      --configFile=config.txt
 ```
 After the above command is executed, the `crnn_resnet34vd.mindir` model file will be generated;
-> Learn more about [Model Conversion Tutorial](convert_tutorial.md)
 
-> Learn more about [converter_lite](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)
+For a brief description of the converter_lite parameters, see the text detection example above.
+> Learn more about [converter_lite](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool.html)
+
+> Learn more about [Model Conversion Tutorial](convert_tutorial.md)
 
 - Perform inference using `/deploy/py_infer/infer.py` codes and `crnn_resnet34vd.mindir` file:
 ```shell
@@ -126,8 +154,8 @@ MindOCR inference supports exported models from trained ckpt file, and this docu
 | [EAST](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/east)     | ResNet-50   | en       | IC15         | 86.86   | 6.72   | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/east/east_r50_icdar15.yaml)                   | [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359-5f05cd42.mindir)               |
 | [EAST](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/east)     | MobileNetV3   | en      | IC15   | 75.32  | 26.77  | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/east/east_mobilenetv3_icdar15.yaml)        | [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1-5bf242c5.mindir)              |
 | [PSENet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) | ResNet-152  | en      | IC15   | 82.50  | 2.31  | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_r152_icdar15.yaml)      | [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)         |
-| [PSENet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) | ResNet-50  | en      | IC15   | 81.37  | 1.00  | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_r50_icdar15.yaml)      | [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9-c9f670e2.mindir)         |
-| [PSENet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) | MobileNetV3  | en      | IC15   | 68.41  | 1.06  | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_mv3_icdar15.yaml)      | [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907-3de07064.mindir)         |
+| [PSENet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) | ResNet-50  | en      | IC15   | 81.37  | 1.00  | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_r50_icdar15.yaml)      | [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9-cfd2ee6c.mindir)         |
+| [PSENet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) | MobileNetV3  | en      | IC15   | 70.56  | 1.06  | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_mv3_icdar15.yaml)      | [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907-da7cfe09.mindir)         |
 
 #### 3.2 Text recognition
 
