@@ -20,6 +20,7 @@ all_yamls = [
     "configs/det/dbnet/db_r50_icdar15.yaml",
     "configs/rec/crnn/crnn_resnet34.yaml",
     "configs/rec/crnn/crnn_vgg7.yaml",
+    "configs/rec/master/master_resnet31.yaml",
     "configs/cls/mobilenetv3/cls_mv3.yaml",
 ]
 print("All config yamls: ", all_yamls)
