@@ -39,10 +39,10 @@ According to our experiments, the training (following the steps in [Model Traini
 
 <div align="center">
 
-| **Model** | **Context**  | **Backbone** | **Train Dataset** | **Model Params** | **Batch size per card** | **Graph train 8P (s/epoch)** | **Graph train 8P (ms/step)** | **Graph train 8P (FPS)** | **Avg Eval Accuracy** | **Recipe** | **Download** |
+| **Model** | **Context**  | **Backbone** | **Train Dataset** | **Model Params** | **Batch size per card** | **Graph train (s/epoch)** | **Graph train (ms/step)** | **Graph train (FPS)** | **Avg Eval Accuracy** | **Recipe** | **Download** |
 | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
 | CRNN      | D910x8-MS1.8-G | VGG7 | MJ+ST | 8.72 M | 16 |  2488.82 | 22.06 | 5802.71 | 82.03%  | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)  | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-573dbd61.mindir)   |
-| CRNN      | D910x8-MS1.8-G | ResNet34_vd | MJ+ST | 24.48 M | 64 |  2157.18 | 76.48 | 6694.84 | 84.45% | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-eb10a0c9.mindir) |
+| CRNN      | D910x4-MS2.0-G | ResNet34_vd | MJ+ST | 24.48 M | 64 | 5516.80 | 97.80 | 2617.82 | 84.45% | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-eb10a0c9.mindir) |
 </div>
 
 - Detailed accuracy results for each benchmark dataset (IC03, IC13, IC15, IIIT, SVT, SVTP, CUTE):

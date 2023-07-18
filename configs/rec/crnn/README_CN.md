@@ -39,10 +39,10 @@ Table Format:
 
 <div align="center">
 
-| **模型** | **环境配置** | **骨干网络** | **训练集** | **参数量** | **单卡批量** | **图模式8卡训练 (s/epoch)** | **图模式8卡训练 (ms/step)** | **图模式8卡训练 (FPS)** | **平均评估精度** | **配置文件** | **模型权重下载** |
+| **模型** | **环境配置** | **骨干网络** | **训练集** | **参数量** | **单卡批量** | **图模式训练 (s/epoch)** | **图模式训练 (ms/step)** | **图模式训练 (FPS)** | **平均评估精度** | **配置文件** | **模型权重下载** |
 | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
 | CRNN      | D910x8-MS1.8-G | VGG7 | MJ+ST | 8.72 M | 16 |  2488.82 | 22.06 | 5802.71 | 82.03%  | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-573dbd61.mindir) |
-| CRNN      | D910x8-MS1.8-G | ResNet34_vd | MJ+ST | 24.48 M | 64 |  2157.18 | 76.48 | 6694.84 | 84.45% | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-eb10a0c9.mindir) |
+| CRNN      | D910x4-MS2.0-G | ResNet34_vd | MJ+ST | 24.48 M | 64 | 5516.80 | 97.80 | 2617.82 | 84.45% | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-eb10a0c9.mindir) |
 </div>
 
 - 在各个基准数据集（IC03，IC13，IC15，IIIT，SVT，SVTP，CUTE）上的准确率：
