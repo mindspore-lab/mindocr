@@ -43,7 +43,7 @@ def vis_bbox_text(image, box_list, text_list, font_path):
         if os.path.isfile(_font_path):
             font_path = _font_path
 
-    image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    image = Image.fromarray(image)
     h, w = image.height, image.width
     img_left = image.copy()
     img_right = np.ones((h, w, 3), dtype=np.uint8) * 255
@@ -60,16 +60,16 @@ def vis_bbox_text(image, box_list, text_list, font_path):
         cv2.polylines(img_right_text, [pts], True, color, 1)
         img_right = cv2.bitwise_and(img_right, img_right_text)
     img_left = Image.blend(image, img_left, 0.5)
-    img_show = Image.new(mode="RGB", size=(w * 2, h), color=(255, 255, 255))
+    img_show = Image.new(mode="RGB", size=(w * 2, h), color=(255, 255, 255))  # RGB or BGR doesn't matter
     img_show.paste(img_left, (0, 0, w, h))
     img_show.paste(Image.fromarray(img_right), (w, 0, w * 2, h))
-    return np.array(img_show)
+    return np.array(img_show)  # RGB or BGR is the same as input image
 
 
 def draw_box_txt_fine(img_size, box, txt, font_path):
     box_height = int(math.sqrt((box[0][0] - box[3][0]) ** 2 + (box[0][1] - box[3][1]) ** 2))
     box_width = int(math.sqrt((box[0][0] - box[1][0]) ** 2 + (box[0][1] - box[1][1]) ** 2))
-    img_text = Image.new("RGB", (box_width, box_height), (255, 255, 255))
+    img_text = Image.new("RGB", (box_width, box_height), (255, 255, 255))  # RGB or BGR doesn't matter
     if box_height > 2 * box_width and box_height > 30:
         draw_text = ImageDraw.Draw(img_text)
         if txt:
@@ -89,7 +89,7 @@ def draw_box_txt_fine(img_size, box, txt, font_path):
     img_right_text = cv2.warpPerspective(
         img_text, M, img_size, flags=cv2.INTER_NEAREST, borderMode=cv2.BORDER_CONSTANT, borderValue=(255, 255, 255)
     )
-    return img_right_text
+    return img_right_text  # RGB or BGR is the same as input image
 
 
 def create_font(txt, sz, font_path):
