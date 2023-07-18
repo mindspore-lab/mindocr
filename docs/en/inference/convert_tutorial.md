@@ -1,17 +1,31 @@
 ## Inference - Model Conversion Tutorial
 
+MindOCR supports model inference for models trained using MindOCR and converted from third-party toolboxes(PaddelOCR and mmOCR).
 ### 1. MindOCR models
 
 The inference of MindOCR models supports [MindSpore Lite](https://www.mindspore.cn/lite) backend.
 
 ```mermaid
 graph LR;
-    ckpt --> |export| MindIR --> |"converter_lite(offline conversion)"| o[MindIR];
+    A[MindOCR models] -- export --> B[MindIR] -- converter_lite --> C[MindSpore Lite MindIR];
 ```
 
 #### 1.1 Model Export
 
-Before inference, it is necessary to [export](https://github.com/mindspore-lab/mindocr/blob/main/configs/README.md) the trained ckpt to a MindIR file, which stores the model structure and weight parameters.
+Before inference, it is necessary to export the trained ckpt to a [MindIR](https://www.mindspore.cn/docs/en/master/index.html) file. Please run `tools/export.py`.
+
+``` shell
+# Export mindir of model `dbnet_resnet50` by downloading online ckpt
+python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280
+
+# Export mindir of model `dbnet_resnet50` by loading local ckpt
+python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt
+
+# Export mindir of model whose architecture is defined by crnn_resnet34.yaml with local checkpoint
+python tools/export.py --model_name configs/rec/crnn/crnn_resnet34.yaml --local_ckpt_path ~/.mindspore/models/crnn_resnet34-83f37f07.ckpt --data_shape 32 100
+
+For more usage, run `python tools/export.py -h`.
+```
 
 Some models provide download links for MIndIR export files, as shown in [Model List](models_list.md). You can jump to the corresponding model introduction page for download.
 
@@ -107,15 +121,15 @@ If not set, defaults to `enforce_fp16`.
 
 ### 2. PaddleOCR models
 
-The PaddleOCR models support two inference backends: [ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html) and [MindSpore Lite](https://www.mindspore.cn/lite),
-corresponding to the OM model and MindIR model, respectively.
+The PaddleOCR models support two inference backends: [MindSpore Lite](https://www.hiascend.com/document/detail/en/CANNCommunityEdition/600alphaX/developmenttools/devtool/atlasamctacl_16_0004.html),
+corresponding to the MindSpore Lite MindIR model and OM model, respectively.
 
 
 ```mermaid
 graph LR;
-    in1[trained model] -- export --> in2[inference model] -- paddle2onnx --> ONNX;
+    in1[PaddleOCR trained model] -- export --> in2[PaddleOCR inference model] -- paddle2onnx --> ONNX;
+    ONNX -- converter_lite --> o2(MindSpore Lite MindIR);
     ONNX -- atc --> o1(OM);
-    ONNX -- converter_lite --> o2(MindIR);
 ```
 
 Two formats of Paddle models are used here, the training model and the inference model. The differences are as follows:
@@ -166,13 +180,34 @@ paddle2onnx \
 The `input_shape_dict` in the parameter can generally be viewed by opening the inference model using the [Netron](https://github.com/lutzroeder/netron),
 or found in the code in [tools/export_model. py](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/tools/export_model.py) above.
 
-#### 2.3 ONNX -> OM
+#### 2.3 ONNX -> MindIR
+
+The `converter_lite` script can be used to convert the ONNX into a MindSpore Lite MindIR. For detailed usage tutorials,
+please refer to [Offline Conversion of Inference Models](https://www.mindspore.cn/lite/docs/en/r2.0/use/cloud_infer/converter_tool.html)。
+
+The conversion command is as follows:
+
+```shell
+converter_lite \
+    --saveType=MINDIR \
+    --NoFusion=false \
+    --fmk=ONNX \
+    --device=Ascend \
+    --modelFile=det_db.onnx \
+    --outputFile=det_db_output \
+    --configFile=config.txt
+```
+
+The conversion process is same as for [MindOCR models](#1-mindocr-models),
+except that `--fmk` needs to specify that the input is the ONNX, which will not be repeated here.
+
+#### 2.4 ONNX -> OM
 
 The ONNX model can be converted into an OM model by ATC tools.
 
 Ascend Tensor Compiler (ATC) is a model conversion tool built upon the heterogeneous computing architecture CANN. It is designed to convert models of open-source frameworks into .om offline models supported by Ascend AI Processor. A detailed tutorial on the tool can be found in [ATC Instructions](https://www.hiascend.com/document/detail/en/CANNCommunityEdition/600alphaX/infacldevg/atctool/atctool_0001.html).
 
-##### 2.3.1 Model Shape Setting
+##### 2.4.1 Model Shape Setting
 
 The exported ONNX in the example has an input shape of (-1, 3, -1, -1).
 
@@ -236,7 +271,7 @@ In order to simplify the model conversion process, we have developed an automati
 
 If the exported model is a static shape version, it cannot support dynamic image size and batch size conversion. It is necessary to ensure that the exported model is a dynamic shape version.
 
-##### 2.3.2 Model Precision Mode Setting
+##### 2.4.2 Model Precision Mode Setting
 
 For the precision of model inference, it is necessary to set it in `atc` when converting the model.
 Please refer to the [Command-Line Options](https://www.hiascend.com/document/detail/en/CANNCommunityEdition/600alphaX/infacldevg/atctool/atctool_0041.html). Optional values include `force_fp16`, `force_fp32`, `allow_fp32_to_fp16`, `must_keep_origin_dtype`, `allow_mix_precision`, etc.
@@ -255,27 +290,6 @@ atc --model=det_db.onnx \
 
 If not set, defaults to `force_fp16`.
 
-#### 2.4 ONNX -> MindIR
-
-The `converter_lite` can be used to convert the ONNX into a MindIR. For detailed usage tutorials,
-please refer to [Offline Conversion of Inference Models](https://www.mindspore.cn/lite/docs/en/r2.0/use/cloud_infer/converter_tool.html)。
-
-The conversion command is as follows:
-
-```shell
-converter_lite \
-    --saveType=MINDIR \
-    --NoFusion=false \
-    --fmk=ONNX \
-    --device=Ascend \
-    --modelFile=det_db.onnx \
-    --outputFile=det_db_output \
-    --configFile=config.txt
-```
-
-The conversion process is completely the same as the [MindOCR models](#1-mindocr-models),
-except that `--fmk` needs to specify that the input is the ONNX, which will not be repeated here.
-
 ### 3. MMOCR models
 
 MMOCR uses Pytorch, and its model files typically have a pth format suffix. You need to first export it to ONNX format
@@ -284,9 +298,9 @@ and then convert to an OM/MindIR format file supported by
 
 ```mermaid
 graph LR;
-    pth -- export -->  ONNX;
+    MMOCR_pth -- export -->  ONNX;
+    ONNX -- converter_lite --> o2(MindSpore Lite MindIR);
     ONNX -- atc --> o1(OM);
-    ONNX -- converter_lite --> o2(MindIR);
 ```
 
 #### 3.1 MMOCR model -> ONNX
@@ -298,10 +312,10 @@ For parameter `deploy_cfg`, you need to select the `*_onnxruntime_dynamic.py` fi
 [mmdeploy/configs/mmocr](https://github.com/open-mmlab/mmdeploy/tree/main/configs/mmocr) to export as a dynamic shape
 ONNX model.
 
-#### 3.2 ONNX -> OM
+#### 3.2 ONNX -> MindIR
 
-Please refer to [ONNX -> OM](#23-onnx---om) in the PaddleOCR section above.
+Please refer to [ONNX -> MindSpore Lite MindIR](#23-onnx---mindir) in the PaddleOCR section above.
 
-#### 3.3 ONNX -> MindIR
+#### 3.3 ONNX -> OM
 
-Please refer to [ONNX -> MIndIR](#24-onnx---mindir) in the PaddleOCR section above.
+Please refer to [ONNX -> OM](#24-onnx---om) in the PaddleOCR section above.
