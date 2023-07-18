@@ -27,7 +27,7 @@ def _create_combs():
         None,
         False,
     )
-    for task in ["det", "rec"]:
+    for task in ["det"]:
         for val_while_train in [False, True]:
             combs.add((task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy, ema))
     """
@@ -43,7 +43,7 @@ def _create_combs():
             combs.add((task, val_while_train, gradient_accumulation_steps, clip_grad, grouping_strategy, ema))
     """
 
-    combs.add(("rec", True, 2, True, "filter_norm_and_bias", True))
+    # combs.add(("rec", True, 2, True, "filter_norm_and_bias", True))
 
     print(combs)
     return list(combs)
