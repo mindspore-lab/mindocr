@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple
 
 import numpy as np
 
@@ -127,13 +127,14 @@ class MasterDecoder(nn.Cell):
         return output
 
     def construct(
-        self, inputs: Tensor, targets: Optional[Tensor] = None
+        self, inputs: Tensor, targets: Optional[Tuple[Tensor, ...]] = None
     ) -> Tensor:
         N = inputs.shape[0]
         num_steps = self.batch_max_length + 1  # for <STOP> symbol
 
         if targets is not None:
-            # training branch
+            # training
+            targets = targets[0]
             targets = targets[:, :-1]
             target_mask = self._generate_target_mask(targets)
             logits = self._decode(inputs, targets, target_mask=target_mask)
