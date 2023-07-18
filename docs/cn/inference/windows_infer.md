@@ -1,0 +1,29 @@
+## Windows C++推理
+### 环境配置
+1. 下载[GCC](https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/7.3.0/threads-posix/seh/x86_64-7.3.0-release-posix-seh-rt_v5-rev0.7z/download)并解压；
+2. 将```mingw64/bin```加入到环境变量Path里；
+3. 下载[CMake](https://github.com/Kitware/CMake/releases/download/v3.18.3/cmake-3.18.3-win64-x64.msi)安装，在安装过程中注意勾选Add Path for the current user，将cmake添加到Path环境变量；
+4. 下载[MindSpore Lite](https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.0.0/MindSpore/lite/release/windows/mindspore-lite-2.0.0-win-x64.zip)并解压；
+5. 下载[opencv-mingw预编译3.4.8 x64版本](https://github.com/huihut/OpenCV-MinGW-Build/archive/refs/tags/OpenCV-3.4.8-x64.zip)，并解压；
+6. 将OpenCV解压后的```x64/mingw/bin```路径加入到环境变量Path里；
+6. 下载[MindOCR代码](https://codeload.github.com/liangxhao/mindocr/zip/refs/heads/cpp_infer)并解压；
+7. 下载[polyclipping](https://udomain.dl.sourceforge.net/project/polyclipping/clipper_ver6.4.2.zip)并解压，将```cpp```目录下的```clipper.cpp```和```clipper.hpp```文件拷贝到MindOCR代码目录```deploy/cpp_infer_ddl/src/data_process/postprocess```里；
+8. 下载[数据集](https://download.mindspore.cn/toolkits/mindocr/windows/ic15.zip)，[字典文件](https://download.mindspore.cn/toolkits/mindocr/windows/ic15_dict.txt)，[文本检测模型](https://download.mindspore.cn/toolkits/mindocr/windows/det_r50_vd_db_v2.0_cpu.ms)，[文本识别模型](https://download.mindspore.cn/toolkits/mindocr/windows/rec_r34_vd_none_bilstm_ctc_v2.0_rm_softmax_ins_argmax_cpu.ms)
+
+
+### 推理方法
+1. 进入MindOCR代码目录```deploy/cpp_infer_ddl/src/```使用```build.bat```(直接打开build.bat)
+
+**注意：需要修改```build.bat```文件里的MindSpore_lite路径```LITE_HOME```和OpenCV路径```OPENCV_DIR```**
+
+等待编译完成后，在```deploy/cpp_infer_ddl/src/dist```目录下生成```infer.exe```文件；
+
+2. build完成后使用```deploy/cpp_infer_ddl/src/infer.bat```进行推理，注意修改infer.bat里的以下参数：
+```shell
+LITE_HOME
+OPENCV_DIR
+--input_images_dir
+--det_model_path
+--rec_model_path
+--character_dict_path
+```
