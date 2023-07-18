@@ -60,6 +60,8 @@ def update_config_for_CI(
         config["train"]["gradient_accumulation_steps"] = gradient_accumulation_steps
         config["train"]["clip_grad"] = clip_grad
         config["train"]["ema"] = ema
+        if task == "rec":
+            config["train"]["dataset"]["type"] = "RecDataset"
 
         config["train"]["dataset"]["dataset_root"] = "data/Canidae/"
         config["train"]["dataset"]["data_dir"] = "train/dogs"
@@ -69,22 +71,24 @@ def update_config_for_CI(
         ] = 0.1  # TODO: 120 training samples in total, don't be larger than batchsize after sampling
         config["train"]["loader"]["num_workers"] = 1  # github server only support 2 workers at most
         # if config['train']['loader']['batch_size'] > 120:
-        config["train"]["loader"]["batch_size"] = 2  # to save memory
+        config["train"]["loader"]["batch_size"] = 1  # to save memory
         config["train"]["loader"]["max_rowsize"] = 16  # to save memory
         config["train"]["loader"]["prefetch_size"] = 2  # to save memory
         if "common" in config:
-            config["common"]["batch_size"] = 2
+            config["common"]["batch_size"] = 1
         if "batch_size" in config["loss"]:
-            config["loss"]["batch_size"] = 2
+            config["loss"]["batch_size"] = 1
 
+        if task == "rec":
+            config["eval"]["dataset"]["type"] = "RecDataset"
         config["eval"]["dataset"]["dataset_root"] = "data/Canidae/"
         config["eval"]["dataset"]["data_dir"] = "val/dogs"
         config["eval"]["dataset"]["label_file"] = f"val/{task}_gt.txt"
         config["eval"]["dataset"]["sample_ratio"] = 0.1
         config["eval"]["loader"]["num_workers"] = 1  # github server only support 2 workers at most
         config["eval"]["loader"]["batch_size"] = 1
-        config["eval"]["loader"]["max_rowsize"] = 16  # to save memory
-        config["eval"]["loader"]["prefetch_size"] = 2  # to save memory
+        config["eval"]["loader"]["max_rowsize"] = 4  # to save memory
+        config["eval"]["loader"]["prefetch_size"] = 1  # to save memory
 
         config["eval"]["ckpt_load_path"] = os.path.join(config["train"]["ckpt_save_dir"], "best.ckpt")
 

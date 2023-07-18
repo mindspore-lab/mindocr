@@ -369,7 +369,7 @@ class SVTRGeometry(object):
 
 
 class SVTRRecAug(object):
-    def __init__(self, aug_type=0, geometry_p=0.5, deterioration_p=0.25, colorjitter_p=0.25):
+    def __init__(self, aug_type=0, geometry_p=0.5, deterioration_p=0.25, colorjitter_p=0.25, **kwargs):
         self.transforms = Compose(
             [
                 SVTRGeometry(

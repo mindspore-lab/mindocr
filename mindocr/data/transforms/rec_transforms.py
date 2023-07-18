@@ -672,7 +672,9 @@ class ClsLabelEncode(object):
 class SARLabelEncode(object):
     """Convert between text-label and text-index"""
 
-    def __init__(self, max_text_len, character_dict_path=None, use_space_char=False, lower=False, is_training=True):
+    def __init__(
+        self, max_text_len, character_dict_path=None, use_space_char=False, lower=False, is_training=True, **kwargs
+    ):
         self.max_text_len = max_text_len
         self.beg_str = "sos"
         self.end_str = "eos"
