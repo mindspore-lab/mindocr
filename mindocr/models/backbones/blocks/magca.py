@@ -102,7 +102,7 @@ class MultiAspectGCAttention(nn.Cell):
 
             # scale variance
             if self.att_scale and self.headers > 1:
-                context_mask = context_mask / ops.sqrt(ops.cast(self.single_header_inplanes, x.dtype))
+                context_mask = context_mask / ops.sqrt(self.single_header_inplanes)
 
             # [N*headers, 1, H * W]
             context_mask = self.softmax(context_mask)
