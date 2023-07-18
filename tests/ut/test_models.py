@@ -18,11 +18,11 @@ print("Registered models: ", all_model_names)
 
 # yaml path and mode (0: graph, 1: pynative)
 all_yamls = [
-    ("configs/det/dbnet/db_r50_icdar15.yaml", [0, 1]),
-    ("configs/rec/crnn/crnn_resnet34.yaml", [0, 1]),
-    ("configs/rec/crnn/crnn_vgg7.yaml", [0, 1]),
+    ("configs/det/dbnet/db_r50_icdar15.yaml", [1]),
+    ("configs/rec/crnn/crnn_resnet34.yaml", [1]),
+    ("configs/rec/crnn/crnn_vgg7.yaml", [1]),
     ("configs/rec/master/master_resnet31.yaml", [0]),
-    ("configs/cls/mobilenetv3/cls_mv3.yaml", [0, 1]),
+    ("configs/cls/mobilenetv3/cls_mv3.yaml", [1]),
 ]
 print("All config yamls: ", all_yamls)
 
