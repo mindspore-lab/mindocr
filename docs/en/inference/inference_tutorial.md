@@ -223,7 +223,27 @@ Notes：
 
 ### 5. Inference (C++)
 
-Currently, only the Chinese DBNet, CRNN, and SVTR models in the PP-OCR series are supported.
+Currently, supported models are:
+
+Paddle PP-OCR server 2.0 models:
+
+| Model Name          | Download Link                                  |
+| ------------------- | ---------------------------------------------- |
+| Paddle PP-OCR server 2.0 DBNet   | [Download Link](https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_server_v2.0_det_infer.tar) |
+| Paddle PP-OCR server 2.0 Cls   | [Download Link](https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_cls_infer.tar) |
+| Paddle PP-OCR server 2.0 CRNN   | [Download Link](https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_server_v2.0_rec_infer.tar) |
+
+Paddle PP-OCR 3.0 models:
+
+| Model Name          | Download Link                                  |
+| ------------------- | ---------------------------------------------- |
+| Paddle PP-OCR3.0 DBNet   | [Download Link](https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_det_infer.tar) |
+| Paddle PP-OCR3.0 Cls   | [Download Link](https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_cls_infer.tar) |
+| Paddle PP-OCR3.0 SVTR   | [Download Link](https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_rec_infer.tar) |
+
+Dictionary file for recognition model can be downloaded from: [ppocr_keys_v1.txt](https://raw.githubusercontent.com/PaddlePaddle/PaddleOCR/release/2.5/ppocr/utils/ppocr_keys_v1.txt)
+
+To convert the models to MindIR or OM format, you can refer to the [Inference - Model Conversion Tutorial](https://github.com/mindspore-lab/mindocr/blob/main/docs/en/inference/convert_tutorial.md#2-paddleocr-models).
 
 Enter the inference directory：`cd deploy/cpp_infer`,then execute the compilation script `bash build.sh`. Once the build
 process is complete, an executable file named 'infer' will be generated in the 'dist' directory located in the current

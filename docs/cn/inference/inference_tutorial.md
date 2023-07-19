@@ -214,7 +214,27 @@ word_1814.png  "cathay"
 
 ### 5. 推理 (C++)
 
-目前暂时只支持pp-ocr系列的中文DBNET、CRNN、SVTR模型。
+目前支持的模型有：
+
+Paddle PP-OCR server 2.0模型:
+
+| 名称               | 下载链接              |
+| ----------------- | ---------------  |
+| Paddle PP-OCR server 2.0 DBNet      | [下载链接](https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_server_v2.0_det_infer.tar)|
+| Paddle PP-OCR server 2.0 Cls      | [下载链接](https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_cls_infer.tar)|
+| Paddle PP-OCR server 2.0 CRNN      |[下载链接](https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_server_v2.0_rec_infer.tar)|
+
+Paddle PP-OCR 3.0模型:
+
+| 名称               | 下载链接              |
+| ----------------- | ---------------  |
+| Paddle PP-OCR3.0 DBNet      | https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_det_infer.tar|
+| Paddle PP-OCR3.0 Cls      | https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_cls_infer.tar|
+| Paddle PP-OCR3.0 SVTR     | https://paddleocr.bj.bcebos.com/PP-OCRv3/chinese/ch_PP-OCRv3_rec_infer.tar|
+
+识别模型字典文件下载地址：[ppocr_keys_v1.txt](https://raw.githubusercontent.com/PaddlePaddle/PaddleOCR/release/2.5/ppocr/utils/ppocr_keys_v1.txt)
+
+需要将模型转化为MindIR模型或者OM模型，转换教程见[推理 - 模型转换教程](https://github.com/mindspore-lab/mindocr/blob/main/docs/cn/inference/convert_tutorial.md#2-paddleocr%E6%A8%A1%E5%9E%8B)。
 
 进入到MindOCR推理测目录下 `cd deploy/cpp_infer`,执行编译脚本 `bash build.sh`, 构建完成之后在当前路径dist目录下生成可执行文件infer。
 
