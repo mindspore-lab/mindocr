@@ -18,35 +18,38 @@
 <img width="551" alt="WechatIMG93" src="https://github.com/VictorHe-1/DDPM/assets/80800595/cffb644d-2bad-46dd-92c7-24d190759e88"></div>
 
 8. 打开[下载页面](https://download.mindspore.cn/toolkits/mindocr/windows/)：
-<img width="1100" alt="f0" src="https://github.com/VictorHe-1/DDPM/assets/80800595/8b748e18-d1b5-4023-9875-c8f9ef44036e">
+<div align=center>
+<img width=80% alt="f0" src="https://github.com/VictorHe-1/DDPM/assets/80800595/8b748e18-d1b5-4023-9875-c8f9ef44036e"></div>
 
-根据需要下载数据集ic15.zip，纯英文OCR识别请下载```en```目录下的所有文件，中英文混合识别请下载```ch```目录下的所有文件。
-
-
+下载数据集[ic15.zip](https://download.mindspore.cn/toolkits/mindocr/windows/ic15.zip)，[文本检测模型](https://download.mindspore.cn/toolkits/mindocr/windows/ch/ch_ppocr_server_v2.0_det_infer_cpu.ms)，[文本识别模型](https://download.mindspore.cn/toolkits/mindocr/windows/ch/ch_ppocr_server_v2.0_rec_infer_argmax_cpu.ms)以及[字典文件](https://download.mindspore.cn/toolkits/mindocr/windows/ch/ppocr_keys_v1.txt)。
+<br></br>
 
 ### 推理方法
+1. 进入MindOCR代码目录```deploy/cpp_infer_ddl/src/```，修改```build.bat```中的MindSpore Lite路径以及OpenCV路径，示例如下：
+```text
+set LITE_HOME=D:\mindocr_windows\mindspore-lite-2.0.0-win-x64
+set OPENCV_DIR=D:\mindocr_windows\OpenCV-MinGW-Build-OpenCV-3.4.8-x64
+```
+**注意：在修改MindSpore_lite路径```LITE_HOME```和OpenCV路径```OPENCV_DIR```时，需要写成上述样例的反斜杠```\```写法。**
 
-1. 进入MindOCR代码目录```deploy/cpp_infer_ddl/src/```使用```build.bat```(直接打开build.bat)
+2. 运行```build.bat```文件（双击打开或者命令行里输入```build.bat```并回车），等待编译完成后，在```deploy/cpp_infer_ddl/src/dist```目录下会生成```infer.exe```文件；
 
-**注意：需要修改```build.bat```文件里的MindSpore_lite路径```LITE_HOME```和OpenCV路径```OPENCV_DIR```，其中```LITE_HOME```和```OPENCV_DIR```在配置路径时，需要写成反斜杠```\```写法，如```LITE_HOME=D:\mindocr_windows\mindspore-lite-2.0.0-win-x64```**
+3. build完成后使用```deploy/cpp_infer_ddl/src/infer.bat```进行推理，注意修改infer.bat里的以下参数：
+```text
+LITE_HOME=D:/mindocr_windows/mindspore-lite-2.0.0-win-x64 # mindspore lite路径
 
-等待编译完成后，在```deploy/cpp_infer_ddl/src/dist```目录下生成```infer.exe```文件；
+OPENCV_DIR=D:/mindocr_windows/OpenCV-MinGW-Build-OpenCV-3.4.8-x64 # OpenCV路径
 
-2. build完成后使用```deploy/cpp_infer_ddl/src/infer.bat```进行推理，注意修改infer.bat里的以下参数：
-```shell
-LITE_HOME
-OPENCV_DIR
---input_images_dir
---det_model_path
---rec_model_path
---character_dict_path
+--input_images_dir D:\ic15\det\test\ch4_test_images # 测试图片目录
+--det_model_path D:\models\ch_ppocr_server_v2.0_det_infer_cpu.ms # 文本检测模型目录
+--rec_model_path D:\models\ch_ppocr_server_v2.0_rec_infer_argmax_cpu.ms # 文本识别模型目录
+--character_dict_path D:\dict\ic15_dict.txt # 字典文件目录
 ```
 
-**注意: ```LITE_HOME```和```OPENCV_DIR```需要设置成正斜杠```/```写法，如```LITE_HOME=D:/mindspore-lite-2.0.0-win-x64```，infer.exe里面的参数—input_images_dir需要设置成反斜杠```\```,如```--input_images_dir D:\ic15\det\test\ch4_test_images```**。
+**注意: ```LITE_HOME```和```OPENCV_DIR```需要设置成正斜杠```/```写法，infer.exe里面的路径参数都需要设置成反斜杠```\```，与如上样例保持一致**。
 
-3. 在```deploy/cpp_infer_ddl/src/```目录中，打开cmd终端，使用以下命令执行推理:
+4. 在```deploy/cpp_infer_ddl/src/```目录中，打开cmd终端，使用以下命令执行推理:
 ```shell
 infer.bat
 ```
-
-4. 推理结果存在```deploy/cpp_infer_ddl/src/dist/det_rec```目录下。
+5. 推理结果存在```deploy/cpp_infer_ddl/src/dist/det_rec```目录下；
