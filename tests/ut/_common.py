@@ -76,9 +76,9 @@ def update_config_for_CI(
         config["train"]["loader"]["max_rowsize"] = 4  # to save memory
         config["train"]["loader"]["prefetch_size"] = 1  # to save memory
         if "common" in config:
-            config["common"]["batch_size"] = 1
+            config["common"]["batch_size"] = config["train"]["loader"]["batch_size"]
         if "batch_size" in config["loss"]:
-            config["loss"]["batch_size"] = 1
+            config["loss"]["batch_size"] = config["train"]["loader"]["batch_size"]
 
         config["eval"]["dataset"]["mindrecord"] = False
         config["eval"]["dataset"]["dataset_root"] = "data/Canidae/"
