@@ -36,6 +36,8 @@ MindOCR是一个基于[MindSpore](https://www.mindspore.cn/en) 框架开发的OC
 
 ## 安装教程
 
+<details close markdown>
+
 #### MindSpore相关环境准备
 
 MindOCR基于MindSpore AI框架（支持CPU/GPU/NPU）开发，并适配以下框架版本。安装方式请参见下方的安装链接。
@@ -73,6 +75,8 @@ pip install mindocr
 ```
 
 >由于此项目正在积极开发中，从PyPI安装的版本目前已过期，我们将很快更新，敬请期待。
+
+</details>
 
 ## 快速开始
 
@@ -127,7 +131,7 @@ python tools/eval.py \
 ## 使用教程
 
 - 数据集
-    - [数据集准备](tools/dataset_converters/README_CN.md)
+    - [数据集准备](docs/cn/datasets/converters.md)
     - [数据增强策略](docs/cn/tutorials/transform_tutorial.md)
 - 模型训练
     - [Yaml配置文件](docs/cn/tutorials/yaml_configuration.md)
@@ -177,7 +181,7 @@ python tools/eval.py \
 MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支持不同格式的OCR数据集，支持用户自定义的数据集。
 当前已在模型训练评估中验证过的公开OCR数据集如下。
 
-<details open markdown>
+<details close markdown>
 <summary>通用OCR数据集</summary>
 
 - [Born-Digital Images](https://rrc.cvc.uab.es/?ch=1) [[download](docs/cn/datasets/borndigital.md)]

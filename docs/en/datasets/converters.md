@@ -105,4 +105,3 @@ python tools/dataset_converters/convert.py \
     --label_dir /path/to/SynthText_gt.mat \
     --output_path ST_full
 ```
-```
