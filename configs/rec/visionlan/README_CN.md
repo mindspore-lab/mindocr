@@ -66,18 +66,18 @@
 
 ### 3.2数据集准备
 
-* 训练集
+**训练集**
 
 VisionLAN的作者使用了两个合成文本数据集进行训练：SynthText（800k）和MJSynth。请按照[原始VisionLAN repository](https://github.com/wangyuxin87/VisionLAN)的说明进行操作，下载这两个LMDB数据集。
 
 下载`SynthText.zip`和`MJSynth.zip`后，请解压缩并将它们放置在`./datasets/train`目录下。训练集数据总共包括 14,200,701 个样本。更多关于训练集的信息如下:
 
-> [SynText](http://www.robots.ox.ac.uk/~vgg/data/scenetext/): 25GB, 6,976,115 samples<br>
-[MJSynth](http://www.robots.ox.ac.uk/~vgg/data/text/): 21GB, 7,224,586 samples
+- [SynText](http://www.robots.ox.ac.uk/~vgg/data/scenetext/): 25GB, 6,976,115 samples
+- [MJSynth](http://www.robots.ox.ac.uk/~vgg/data/text/): 21GB, 7,224,586 samples
 
 
 
-* 验证集
+**验证集**
 
 VisionLAN的作者使用了六个真实文本数据集进行评估：IIIT5K Words（IIIT5K_3000）、ICDAR 2013（IC13_857）、Street View Text（SVT）、ICDAR 2015（IC15_1811）、Street View Text-Perspective（SVTP）、CUTE80（CUTE）。
 
@@ -85,18 +85,18 @@ VisionLAN的作者使用了六个真实文本数据集进行评估：IIIT5K Word
 
 下载`evaluation.zip`后，请解压缩并将其放置在`./datasets`目录下。在 `./datasets/evaluation`路径下，一共有7个文件夹:
 
-> [IIIT5K](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html): 50M, 3000 samples<br>
-[IC13](http://rrc.cvc.uab.es/?ch=2): 72M, 857 samples<br>
-[SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset): 2.4M, 647 samples<br>
-[IC15](http://rrc.cvc.uab.es/?ch=4): 21M, 1811 samples<br>
-[SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf): 1.8M, 645 samples<br>
-[CUTE](http://cs-chan.com/downloads_CUTE80_dataset.html): 8.8M, 288 samples<br>
-Sumof6benchmarks: 155M, 7248 samples
+- [IIIT5K](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html): 50M, 3000 samples<br>
+- [IC13](http://rrc.cvc.uab.es/?ch=2): 72M, 857 samples<br>
+- [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset): 2.4M, 647 samples<br>
+- [IC15](http://rrc.cvc.uab.es/?ch=4): 21M, 1811 samples<br>
+- [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf): 1.8M, 645 samples<br>
+- [CUTE](http://cs-chan.com/downloads_CUTE80_dataset.html): 8.8M, 288 samples<br>
+- Sumof6benchmarks: 155M, 7248 samples
 
 
 训练中，我们只用到了 `./datasets/evaluation/Sumof6benchmarks` 作为验证集。 用户可以选择将 `./datasets/evaluation` 下其他无关的文件夹删除。
 
-* 测试集
+**测试集**
 
 我们选择用10个公开数据集来测试模型精度。用户可以从[这里](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (ref: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here))下载测试集。测试中我们只需要用到 `evaluation.zip`。
 
@@ -104,16 +104,15 @@ Sumof6benchmarks: 155M, 7248 samples
 
 测试集总共包含 12,067 个样本。详细信息如下：
 
-> [CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html): 8.8 MB, 288 samples<br>
-[IC03_860](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions): 36 MB, 860 samples<br>
-[IC03_867](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions): 4.9 MB, 867 samples<br>
-[IC13_857](http://rrc.cvc.uab.es/?ch=2): 72 MB, 857 samples<br>
-[IC13_1015](http://rrc.cvc.uab.es/?ch=2): 77 MB, 1015 samples<br>
-[IC15_1811](http://rrc.cvc.uab.es/?ch=4): 21 MB, 1811 samples<br>
-[IC15_2077](http://rrc.cvc.uab.es/?ch=4): 25 MB, 2077 samples<br>
-[IIIT5k_3000](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html): 50 MB, 3000 samples<br>
-[SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset): 2.4 MB, 647 samples<br>
-[SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf): 1.8 MB, 645 samples
+- [CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html): 8.8 MB, 288 samples<br>
+- [IC03_867](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions): 4.9 MB, 867 samples<br>
+- [IC13_857](http://rrc.cvc.uab.es/?ch=2): 72 MB, 857 samples<br>
+- [IC13_1015](http://rrc.cvc.uab.es/?ch=2): 77 MB, 1015 samples<br>
+- [IC15_1811](http://rrc.cvc.uab.es/?ch=4): 21 MB, 1811 samples<br>
+- [IC15_2077](http://rrc.cvc.uab.es/?ch=4): 25 MB, 2077 samples<br>
+- [IIIT5k_3000](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html): 50 MB, 3000 samples<br>
+- [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset): 2.4 MB, 647 samples<br>
+- [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf): 1.8 MB, 645 samples
 
 
 准备好的数据集文件结构应如下所示：
