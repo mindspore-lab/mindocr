@@ -129,6 +129,7 @@ converter_lite \
 > 了解更多[模型转换教程](convert_tutorial.md)
 
 - 使用`/deploy/py_infer/infer.py`脚本和`dbnet_resnet50.mindir`文件执行推理：
+
 ```shell
 python infer.py \
     --input_images_dir=/path/to/ic15/ch4_test_images \
@@ -149,6 +150,7 @@ python infer.py \
 > 了解更多[infer.py](inference_tutorial.md#42-详细推理参数解释)推理参数
 
 - 使用以下命令评估结果：
+
 ```shell
 python deploy/eval_utils/eval_det.py \
 		--gt_path=/path/to/ic15/test_det_gt.txt \
@@ -156,9 +158,12 @@ python deploy/eval_utils/eval_det.py \
 ```
 结果为: `{'recall': 0.8348579682233991, 'precision': 0.8657014478282576, 'f-score': 0.85}`
 <br></br>
+
 #### 3.2 文本识别
 下面以[模型表格](#12-文本识别)中的`CRNN ResNet34_vd en`为例介绍推理方法：
+
 - 下载模型表格中的[mindir文件](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-eb10a0c9.mindir)；
+
 - 在Ascend310/310P上使用converter_lite工具将下载的文件转换为MindSpore Lite可使用的mindir：
 
 创建`config.txt`并指定模型输入shape：
@@ -188,6 +193,7 @@ converter_lite参数简要说明请见上述文本检测样例。
 > 了解更多[模型转换教程](convert_tutorial.md)
 
 - 使用`/deploy/py_infer/infer.py`脚本和`crnn_resnet34vd.mindir`文件执行推理：
+
 ```shell
 python infer.py \
     --input_images_dir=/path/to/ic15/ch4_test_word_images \
@@ -197,7 +203,9 @@ python infer.py \
 ```
 执行完成后，在参数`--res_save_dir`所指目录下生成预测文件`rec_results.txt`。
 > 了解更多[infer.py](inference_tutorial.md#42-详细推理参数解释)推理参数
+
 - 使用以下命令评估结果：
+
 ```shell
 python deploy/eval_utils/eval_rec.py \
 		--gt_path=/path/to/ic15/rec_gt.txt \

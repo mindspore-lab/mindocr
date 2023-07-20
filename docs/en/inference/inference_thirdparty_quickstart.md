@@ -16,6 +16,7 @@ Let's take `en_pp_det_dbnet_resnet50vd` in [appendix table](#31-text-detection) 
 - Download the [weight](https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/det_r50_vd_db_v2.0_train.tar) in the appendix table and decompress it;
 
 - Since this model is a paddle training model, it needs to be converted to an inference model first (skip this step if it is already an inference model):
+
 ```shell
 git clone https://github.com/PaddlePaddle/PaddleOCR.git
 cd Paddle OCR
@@ -33,6 +34,7 @@ det_db/
 ```
 
 - Download and use the paddle2onnx tool (`pip install paddle2onnx`) to convert the inference model into an onnx file:
+
 ```shell
 paddle2onnx \
      --model_dir det_db \
@@ -107,6 +109,7 @@ A brief explanation of the converter_lite parameters is as follows:
 > Learn more about [Model Conversion Tutorial](convert_tutorial.md)
 
 - Perform inference using `/deploy/py_infer/infer.py` codes and `det_db_output.mindir` model file:
+
 ```shell
 python infer.py\
      --input_images_dir=/path/to/ic15/ch4_test_images \
@@ -125,7 +128,9 @@ When doing inference, you can use the `--vis_det_save_dir` parameter to visualiz
 </p>
 
 > Learn more about [infer.py](inference_tutorial.md#42-detail-of-inference-parameter) inference parameters
+
 - Evaluate the results using the following command:
+
 ```shell
 python deploy/eval_utils/eval_det.py\
 --gt_path=/path/to/ic15/test_det_gt.txt\
@@ -142,6 +147,7 @@ Let's take `en_pp_rec_OCRv3` in [appendix table](#32-text-recognition) as an exa
 - Since the model is a paddle inference model, directly proceed to the third step of paddle conversion to onnx (otherwise, the training model needs to be converted into an inference model, refer to the above text detection);
 
 - Download and use the paddle2onnx tool (`pip install paddle2onnx`) to convert the inference model into an onnx file:
+
 ```shell
 paddle2onnx \
      --model_dir en_PP-OCRv3_rec_infer \
@@ -191,6 +197,7 @@ For a brief description of the converter_lite parameters, see the text detection
 > Learn more about [Model Conversion Tutorial](convert_tutorial.md)
 
 - Download the dictionary file [en_dict.txt](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/en_dict.txt) corresponding to the model, use `/deploy/py_infer/infer.py` code and `en_PP-OCRv3_rec_infer.mindir` file to perform inferencing:
+
 ```shell
 python infer.py\
      --input_images_dir=/path/to/mlt17_en \
@@ -206,6 +213,7 @@ After the execution is completed, the prediction file `rec_results.txt` will be 
 > Learn more about [infer.py](inference_tutorial.md#42-detail-of-inference-parameter) inference parameters
 
 - Evaluate the results using the following command:
+
 ```shell
 python deploy/eval_utils/eval_rec.py \
 --gt_path=/path/to/mlt17_en/english_gt.txt \

@@ -9,9 +9,13 @@ graph LR;
 
 ### 2. 第三方模型推理方法
 #### 2.1 文本检测
+
 下面以[附录表格](#31-文本检测)中的`en_pp_det_dbnet_resnet50vd`为例介绍推理方法：
+
 - 下载附录表格中的权重文件[weight](https://paddleocr.bj.bcebos.com/dygraph_v2.0/en/det_r50_vd_db_v2.0_train.tar)并解压；
+
 - 由于该模型为paddle训练模型，需要先转换为推理模型（已为推理模型则跳过此步）：
+
 ```shell
 git clone https://github.com/PaddlePaddle/PaddleOCR.git
 cd PaddleOCR
@@ -29,6 +33,7 @@ det_db/
 ```
 
 - 下载并使用paddle2onnx工具(`pip install paddle2onnx`)，将推理模型转换成onnx文件：
+
 ```shell
 paddle2onnx \
     --model_dir det_db \
@@ -55,6 +60,7 @@ paddle2onnx参数简要说明如下：
 > 了解更多[paddle2onnx](https://github.com/PaddlePaddle/Paddle2ONNX/tree/develop)
 
 上述命令执行完成后会生成`det_db.onnx`文件;
+
 - 在Ascend310/310P上使用converter_lite工具将onnx文件转换为mindir：
 
 创建`config.txt`并指定模型输入shape，一个示例如下：
@@ -105,6 +111,7 @@ converter_lite参数简要说明如下：
 
 
 - 使用`/deploy/py_infer/infer.py`脚本和`det_db_output.mindir`文件执行推理：
+
 ```shell
 python infer.py \
     --input_images_dir=/path/to/ic15/ch4_test_images \
@@ -133,10 +140,15 @@ python deploy/eval_utils/eval_det.py \
 结果为: `{'recall': 0.8281174771304767, 'precision': 0.7716464782413638, 'f-score': 0.7988852763585693}`
 <br></br>
 #### 2.2 文本识别
+
 下面以[附录表格](#32-文本识别)中的`en_pp_rec_OCRv3`为例介绍推理方法：
+
 - 下载附录表格中的权重文件[weight](https://paddleocr.bj.bcebos.com/PP-OCRv3/english/en_PP-OCRv3_rec_infer.tar)并解压；
+
 - 由于该模型为paddle推理模型，直接进行第三步paddle转onnx（否则需要将训练模型转换为推理模型，参考上述文本检测）；
+
 - 下载并使用paddle2onnx工具(`pip install paddle2onnx`)，将推理模型转换成onnx文件：
+
 ```shell
 paddle2onnx \
     --model_dir en_PP-OCRv3_rec_infer \
@@ -155,6 +167,7 @@ paddle2onnx参数简要说明请见上述文本检测样例。
 参数中`--input_shape_dict`的值，可以通过[Netron](https://github.com/lutzroeder/netron)工具打开推理模型查看。
 
 上述命令执行完成后会生成`en_PP-OCRv3_rec_infer.onnx`文件;
+
 - 在Ascend310/310P上使用converter_lite工具将onnx文件转换为mindir：
 
 创建`config.txt`并指定模型输入shape，一个示例如下：
@@ -186,6 +199,7 @@ converter_lite参数简要说明请见上述文本检测样例。
 > 了解更多[模型转换教程](convert_tutorial.md)
 
 - 下载模型对应的字典文件[en_dict.txt](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/en_dict.txt)，使用`/deploy/py_infer/infer.py`脚本和`en_PP-OCRv3_rec_infer.mindir`文件执行推理：
+
 ```shell
 python infer.py \
     --input_images_dir=/path/to/mlt17_en \
@@ -196,7 +210,9 @@ python infer.py \
 ```
 执行完成后，在参数`--res_save_dir`所指目录下生成预测文件`rec_results.txt`。
 > 了解更多[infer.py](inference_tutorial.md#42-详细推理参数解释)推理参数
+
 - 使用以下命令评估结果：
+
 ```shell
 python deploy/eval_utils/eval_rec.py \
 		--gt_path=/path/to/mlt17_en/english_gt.txt \
