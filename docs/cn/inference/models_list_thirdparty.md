@@ -39,7 +39,20 @@ paddle2onnx \
     --input_shape_dict="{'x':[-1,3,-1,-1]}" \
     --enable_onnx_checker True
 ```
+paddle2onnx参数简要说明如下：
+
+| 参数 |参数说明 |
+|----------|--------------|
+|--model_dir | 配置包含Paddle模型的目录路径|
+|--model_filename |**[可选]** 配置位于 `--model_dir` 下存储网络结构的文件名|
+|--params_filename |**[可选]** 配置位于 `--model_dir` 下存储模型参数的文件名称|
+|--save_file | 指定转换后的模型保存目录路径 |
+|--opset_version | **[可选]** 配置转换为ONNX的OpSet版本，目前支持 7~16 等多个版本，默认为 9 |
+|--input_shape_dict | 输入Tensor的形状，用于生成动态ONNX模型，格式为 "{'x':[N,C,H,W]}"，-1表示动态shape |
+|--enable_onnx_checker| **[可选]**  配置是否检查导出为 ONNX 模型的正确性， 建议打开此开关， 默认为 False|
+
 参数中`--input_shape_dict`的值，可以通过[Netron](https://github.com/lutzroeder/netron)工具打开推理模型查看。
+> 了解更多[paddle2onnx](https://github.com/PaddlePaddle/Paddle2ONNX/tree/develop)
 
 上述命令执行完成后会生成`det_db.onnx`文件;
 - 在Ascend310/310P上使用converter_lite工具将onnx文件转换为mindir：
@@ -50,6 +63,16 @@ paddle2onnx \
 input_format=NCHW
 input_shape=x:[1,3,736,1280]
 ```
+配置文件参数简要说明如下：
+
+|     参数     | 属性 |                                          功能描述                                         | 参数类型 |                     取值说明                    |
+|:------------:|:----:|:-----------------------------------------------------------------------------------------:|:--------:|:-----------------------------------------------:|
+| input_format | 可选 |                                     指定模型输入format                                    |  String  |            可选有"NCHW"、"NHWC"、"ND"           |
+|  input_shape | 可选 | 指定模型输入Shape，input_name必须是转换前的网络模型中的输入名称，按输入次序排列，用；隔开 |  String  | 例如："input1:[1,64,64,3];input2:[1,256,256,3]" |
+| dynamic_dims | 可选 |                             指定动态BatchSize和动态分辨率参数                             |  String  | 例如："dynamic_dims=[48,520],[48,320],[48,384]" |
+
+> 了解更多[配置参数](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool_ascend.html)
+
 执行以下命令：
 ```shell
 converter_lite \
@@ -62,9 +85,24 @@ converter_lite \
     --configFile=config.txt
 ```
 上述命令执行完成后会生成`det_db_output.mindir`模型文件;
-> 了解更多[模型转换教程](convert_tutorial.md)
+
+converter_lite参数简要说明如下：
+
+|            参数           | 是否必选 |                            参数说明                            |             取值范围            | 默认值 |                       备注                       |
+|:-------------------------:|:--------:|:--------------------------------------------------------------:|:-------------------------------:|:------:|:------------------------------------------------:|
+|        fmk        |    是    |                       输入模型的原始格式                       | MINDIR、CAFFE、TFLITE、TF、ONNX |    -   |                         -                        |
+|   saveType   |    否    |              设定导出的模型为mindir模型或者ms模型              |       MINDIR、MINDIR_LITE       | MINDIR | 云侧推理版本只有设置为MINDIR转出的模型才可以推理 |
+|  modelFile  |    是    |                         输入模型的路径                         |                -                |    -   |                         -                        |
+| outputFile |    是    |        输出模型的路径，不需加后缀，可自动生成.mindir后缀       |                -                |    -   |                         -                        |
+| configFile |    否    | 1）可作为训练后量化配置文件路径；2）可作为扩展功能配置文件路径 |                -                |    -   |                         -                        |
+|     device     |    否    |   设置转换模型时的目标设备。若未设置，默认模型调用CPU后端推理  |  Ascend、Ascend310、Ascend310P  |    -   |                         -                        |
+
 
 > 了解更多[converter_lite](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)
+
+> 了解更多[模型转换教程](convert_tutorial.md)
+
+
 
 - 使用`/deploy/py_infer/infer.py`脚本和`det_db_output.mindir`文件执行推理：
 ```shell
@@ -109,6 +147,11 @@ paddle2onnx \
     --input_shape_dict="{'x':[-1,3,48,-1]}" \
     --enable_onnx_checker True
 ```
+paddle2onnx参数简要说明请见上述文本检测样例。
+
+参数中`--input_shape_dict`的值，可以通过[Netron](https://github.com/lutzroeder/netron)工具打开推理模型查看。
+> 了解更多[paddle2onnx](https://github.com/PaddlePaddle/Paddle2ONNX/tree/develop)
+
 参数中`--input_shape_dict`的值，可以通过[Netron](https://github.com/lutzroeder/netron)工具打开推理模型查看。
 
 上述命令执行完成后会生成`en_PP-OCRv3_rec_infer.onnx`文件;
@@ -121,6 +164,9 @@ input_format=NCHW
 input_shape=x:[1,3,-1,-1]
 dynamic_dims=[48,520],[48,320],[48,384],[48,360],[48,394],[48,321],[48,336],[48,368],[48,328],[48,685],[48,347]
 ```
+配置参数简要说明请见上述文本检测样例。
+> 了解更多[配置参数](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool_ascend.html)
+
 执行以下命令：
 ```shell
 converter_lite \
@@ -133,9 +179,11 @@ converter_lite \
     --configFile=config.txt
 ```
 上述命令执行完成后会生成`en_PP-OCRv3_rec_infer.mindir`模型文件；
-> 了解更多[模型转换教程](convert_tutorial.md)
 
+converter_lite参数简要说明请见上述文本检测样例。
 > 了解更多[converter_lite](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)
+
+> 了解更多[模型转换教程](convert_tutorial.md)
 
 - 下载模型对应的字典文件[en_dict.txt](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/ppocr/utils/en_dict.txt)，使用`/deploy/py_infer/infer.py`脚本和`en_PP-OCRv3_rec_infer.mindir`文件执行推理：
 ```shell
