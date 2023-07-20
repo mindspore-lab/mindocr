@@ -85,7 +85,7 @@ train:
   ema_decay: 0.9999
   clip_norm: 20.0
   ckpt_save_dir: './tmp_visionlan/LF_2'
-  dataset_sink_mode: False
+  dataset_sink_mode: True
   pred_cast_fp32: False
   dataset:
     type: LMDBDataset
@@ -93,30 +93,36 @@ train:
     data_dir: train
     # label_file: # not required when using LMDBDataset
     sample_ratio: 1.0
-    shuffle: True
+    shuffle: False
     filter_max_len: True
     max_text_len: *max_text_len
     transform_pipeline:
-      - DecodeImage:
-          img_mode: BGR
-          to_float32: False
+      - Decode:
       - VisionLANLabelEncode:
           max_text_len: *max_text_len
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
           blank_at_last: *blank_at_last
           lower: *lower
-      - SVTRRecAug:
+      - SVTRGeometry:
           aug_type: 0
+          degrees: 45
+          translate: [0.0, 0.0]
+          p: 0.5
+      - SVTRDeterioration:
+          variance: 20
+          degrees: 6
+          factor: 4
+          p: 0.25
+      - CVColorJitter:
+          p: 0.25
       - SVTRRecResizeImg:
           image_shape: [64, 256] # H, W
           padding: False
-      - NormalizeImage:
-          bgr_to_rgb: True
-          is_hwc: True
+      - Normalize:
           mean: [127.0, 127.0, 127.0]
           std: [127.0, 127.0, 127.0]
-      - ToCHWImage:
+      - HWC2CHW:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
     output_columns: ['image', 'label', 'label_res', 'label_sub', 'label_id', 'length']
     net_input_column_index: [0, 4] # input indices for network forward func in output_columns
@@ -140,9 +146,7 @@ eval:
     sample_ratio: 1.0
     shuffle: False
     transform_pipeline:
-      - DecodeImage:
-          img_mode: BGR
-          to_float32: False
+      - Decode:
       - VisionLANLabelEncode:
           max_text_len: *max_text_len
           character_dict_path: *character_dict_path
@@ -152,12 +156,10 @@ eval:
       - SVTRRecResizeImg:
           image_shape: [64, 256] # H, W
           padding: False
-      - NormalizeImage:  # different from paddle (paddle wrongly normalize BGR image with RGB mean/std from ImageNet for det, and simple rescale to [-1, 1] in rec.
-          bgr_to_rgb: True
-          is_hwc: True
+      - Normalize:
           mean: [127.0, 127.0, 127.0]
           std: [127.0, 127.0, 127.0]
-      - ToCHWImage:
+      - HWC2CHW:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
     output_columns: ['image', 'text_padded', 'length']
     net_input_column_index: [0] # input indices for network forward func in output_columns

@@ -168,6 +168,7 @@ class VisionLANLabelEncode(RecCTCLabelEncode):
             not blank_at_last
         ), "VisionLAN applies the blank token at the beginning of the dictionary, so the blank_at_last should be False"
         self.max_text_len = self.max_text_len + 1  # since VisionLAN predicts EOS, increaset the max_text_len by 1
+        self.output_columns = ["label", "label_id", "length", "text_padded", "label_res", "label_sub"]
 
     def __call__(self, data):
         """
@@ -186,6 +187,9 @@ class VisionLANLabelEncode(RecCTCLabelEncode):
             text_padded ->  text string padded to fixed length, to solved the dynamic shape
                                     issue in dataloader.
         """
+        if isinstance(data["label"], np.ndarray):
+            data["label"] = data["label"].item()
+
         text = data["label"]  # original string
         # 1. randomly select a character to be occluded, save its index to label_id
         len_str = len(text)
