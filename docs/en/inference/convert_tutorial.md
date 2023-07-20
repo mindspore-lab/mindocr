@@ -27,7 +27,7 @@ python tools/export.py --model_name configs/rec/crnn/crnn_resnet34.yaml --local_
 For more usage, run `python tools/export.py -h`.
 ```
 
-Some models provide download links for MIndIR export files, as shown in [Model List](models_list.md). You can jump to the corresponding model introduction page for download.
+Some models provide download links for MIndIR export files, as shown in [Model List](inference_quickstart.md). You can jump to the corresponding model introduction page for download.
 
 #### 1.2 Model Conversion
 

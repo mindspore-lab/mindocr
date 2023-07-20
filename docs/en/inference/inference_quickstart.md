@@ -130,6 +130,7 @@ After the above command is executed, the `dbnet_resnet50.mindir` model file will
 > Learn more about [Model Conversion Tutorial](convert_tutorial.md)
 
 - Perform inference using `/deploy/py_infer/infer.py` codes and `dbnet_resnet50.mindir` file:
+
 ```shell
 python infer.py \
      --input_images_dir=/path/to/ic15/ch4_test_images \
@@ -150,6 +151,7 @@ When doing inference, you can use the `--vis_det_save_dir` parameter to visualiz
 > Learn more about [infer.py](inference_tutorial.md#42-detail-of-inference-parameter) inference parameters
 
 - Evaluate the results with the following command:
+
 ```shell
 python deploy/eval_utils/eval_det.py \
      --gt_path=/path/to/ic15/test_det_gt.txt \
@@ -160,7 +162,9 @@ The result is: `{'recall': 0.8348579682233991, 'precision': 0.8657014478282576, 
 
 #### 3.2 Text Recognition
 Let's take `CRNN ResNet34_vd en` in the [model support list](#12-text-recognition) as an example to introduce the inference method:
+
 - Download the [mindir file](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-eb10a0c9.mindir) in the model support list;
+
 - Use the converter_lite tool on Ascend310/310P to convert the downloaded file to mindir that can be used by MindSpore Lite:
 
 Create `config.txt` and specify the model input shape:
@@ -192,6 +196,7 @@ For a brief description of the converter_lite parameters, see the text detection
 > Learn more about [Model Conversion Tutorial](convert_tutorial.md)
 
 - Perform inference using `/deploy/py_infer/infer.py` codes and `crnn_resnet34vd.mindir` file:
+
 ```shell
 python infer.py \
      --input_images_dir=/path/to/ic15/ch4_test_word_images \
@@ -201,7 +206,9 @@ python infer.py \
 ```
 After the execution is completed, the prediction file `rec_results.txt` will be generated in the directory pointed to by the parameter `--res_save_dir`.
 > Learn more about [infer.py](inference_tutorial.md#42-detail-of-inference-parameter) inference parameters
+
 - Evaluate the results with the following command:
+
 ```shell
 python deploy/eval_utils/eval_rec.py \
      --gt_path=/path/to/ic15/rec_gt.txt \

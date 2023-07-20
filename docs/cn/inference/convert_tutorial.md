@@ -28,7 +28,7 @@ python tools/export.py --model_name configs/rec/crnn/crnn_resnet34.yaml --local_
 更多参数使用详情，请执行 `python tools/export.py -h`.
 ```
 
-部分模型提供了MIndIR导出文件的下载链接，见[模型列表](models_list.md)，可跳转到对应模型的介绍页面进行下载。
+部分模型提供了MIndIR导出文件的下载链接，见[模型列表](inference_quickstart.md)，可跳转到对应模型的介绍页面进行下载。
 
 #### 1.2 模型转换
 
