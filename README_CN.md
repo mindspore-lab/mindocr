@@ -180,7 +180,7 @@ python tools/eval.py \
 关于以上模型的具体训练方法和结果，请参见[configs](./configs)下各模型子目录的readme文档。
 
 关于[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)模型推理的支持列表，
-请参见[MindOCR自研模型推理支持列表](docs/cn/inference/inference_quickstart.md#3-附录-mindocr模型支持列表) 和 [第三方模型推理支持列表](docs/cn/inference/inference_thirdparty_quickstart.md#3-附录-第三方模型支持列表)（如PaddleOCR、MMOCR等）。
+请参见[MindOCR自研模型推理支持列表](docs/cn/inference/inference_quickstart.md) 和 [第三方模型推理支持列表](docs/cn/inference/inference_thirdparty_quickstart.md)（如PaddleOCR、MMOCR等）。
 
 ## 数据集列表
 

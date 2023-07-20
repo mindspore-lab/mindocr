@@ -187,7 +187,7 @@ Please refer to [MindOCR Models Inference - Quick Start](docs/en/inference/infer
 
 For the detailed performance of the trained models, please refer to [configs](./configs).
 
-For details of MindSpore Lite and ACL inference models support, please refer to [MindOCR Models Support List](docs/en/inference/inference_quickstart.md#3-appendix---mindocr-model-support-list) and [Third-party Models Support List](docs/en/inference/inference_thirdparty_quickstart.md#3-appendix---third-party-model-support-list) (PaddleOCR, MMOCR, etc.).
+For details of MindSpore Lite and ACL inference models support, please refer to [MindOCR Models Support List](docs/en/inference/inference_quickstart.md) and [Third-party Models Support List](docs/en/inference/inference_thirdparty_quickstart.md) (PaddleOCR, MMOCR, etc.).
 
 ## Dataset List
 
