@@ -189,7 +189,7 @@ class VisionLANPostProcess(RecCTCLabelDecode):
 
     def __call__(self, preds, *args, **kwargs):
         if isinstance(preds, Tensor):  # eval mode
-            text_pre = preds.numpy()  # (max_len, b, 37)) before the softmax function
+            text_pre = preds.asnumpy()  # (max_len, b, 37)) before the softmax function
             b = text_pre.shape[1]
             lenText = self.max_text_length
             nsteps = self.max_text_length
