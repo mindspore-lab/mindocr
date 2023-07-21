@@ -162,7 +162,7 @@ class TextRecognizer(object):
                 data = self.preprocess(img_or_path_list[j])
                 img_batch.append(data["image"])
                 if do_visualize:
-                    fn = os.path.basename(data.get("img_path", f"crop_{j}.png")).split(".")[0]
+                    fn = os.path.basename(data.get("img_path", f"crop_{j}.png")).rsplit(".", 1)[0]
                     show_imgs(
                         [data["image"]],
                         title=fn + "_rec_preprocessed",
