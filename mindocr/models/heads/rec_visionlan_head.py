@@ -380,7 +380,7 @@ class VisionLANHead(nn.Cell):
     def construct(self, features, targets=None):
         # MLM + VRM
         if self.training:
-            label_pos = targets
+            label_pos = targets[0]  # targets is a list of inputs to the head
             text_pre, test_rem, text_mas, mask_map = self.MLM_VRM(features,
                                                                   label_pos,
                                                                   self.training_step,
