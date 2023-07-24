@@ -37,7 +37,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 | **Model** | **Context** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
 | :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |
-| Master-Resnet31  | D910x8-MS1.10-G | 90.20%  | 3721 s/epoch   | 4632  | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/master/master_resnet31.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31-7565c75f.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31_ascend-7565c75f-65015efe.mindir) |
+| Master-Resnet31  | D910x4-MS1.10-G | 90.37%  | 6356 s/epoch   | 2741  | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/master/master_resnet31.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31-e7bfbc97.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31_ascend-e7bfbc97-b724ed55.mindir) |
 </div>
 
 <details open markdown>
@@ -46,12 +46,12 @@ According to our experiments, the evaluation results on public benchmark dataset
 
   | **Model** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
   | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-  | Master-ResNet31| 95.81% | 95.73%  | 96.97% | 95.57% | 81.83% | 78.29% | 96.33% | 90.57% | 82.33% | 88.54% | 90.20% |
+  | Master-ResNet31| 95.58% | 95.15%  | 96.85% | 95.17% | 81.94% | 78.48% | 95.56% | 90.88% | 84.19% | 89.93% | 90.37% |
   </div>
 </details>
 
 **Notes:**
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x8-MS1.10-G is for training on 8 pieces of Ascend 910 NPU using graph mode based on Minspore version 1.10.
+- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x4-MS1.10-G is for training on 4 pieces of Ascend 910 NPU using graph mode based on Minspore version 1.10.
 - To reproduce the result on other contexts, please ensure the global batch size is the same.
 - The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#312-dataset-download) section.
 - The input Shapes of MindIR of MASTER is (1, 3, 48, 160).
@@ -310,7 +310,7 @@ It is easy to reproduce the reported results with the pre-defined training recip
 
 ```shell
 # distributed training on multiple GPU/Ascend devices
-mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/master/master_resnet31.yaml
+mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/master/master_resnet31.yaml
 ```
 
 
