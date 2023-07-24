@@ -18,13 +18,14 @@ from .svtr_transform import *
 __all__ = ["create_transforms"]
 
 
-def _mindocr_transforms(_transforms: List[Callable], input_cols: List[str]) -> Callable:
+def _mindocr_transforms(_transforms: List[Callable], input_cols: List[str], output_cols: List[str]) -> Callable:
     """
     Pack together custom MindOCR transforms into a dictionary, perform transforms, and unpack back to a tuple for
     increased performance with MindSpore data pipeline.
     Args:
         _transforms: list of MindOCR transforms to apply to an input.
         input_cols: input column names for the transforms.
+        output_cols: output column names for the transforms.
 
     Returns:
         callable function that applies custom MindOCR transforms.
@@ -35,8 +36,12 @@ def _mindocr_transforms(_transforms: List[Callable], input_cols: List[str]) -> C
         for transform in _transforms:
             transformed = transform(transformed)
 
-        # TODO: ensure order of the values
-        return tuple(transformed.values())  # Unpack the dictionary and return the data tuple only
+        # ensure order of the values to be consistent with output_cols
+        assert all(
+            [key in transformed for key in output_cols]
+        ), f"At least one key in {output_cols} does not exist \
+            in the transformed dictionary after {_transforms}."
+        return tuple([transformed[key] for key in output_cols])  # Unpack the dictionary and return the data tuple only
 
     return run_transforms
 
@@ -117,7 +122,9 @@ def create_transforms(
     for transform in _transforms:
         ms_op = transform.pop("MS_operation")
         if not ms_op:
-            transform["operations"] = _mindocr_transforms(transform["operations"], transform["input_columns"])
+            transform["operations"] = _mindocr_transforms(
+                transform["operations"], transform["input_columns"], transform["output_columns"]
+            )
 
         wrapped_transforms.append(transform)
 
