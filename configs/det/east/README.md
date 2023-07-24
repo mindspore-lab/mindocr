@@ -35,10 +35,10 @@ After determining the location and size of the text region, EAST further classif
 ### ICDAR2015
 <div align="center">
 
-| **Model**           | **Context**       | **Backbone**    | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.** | **per step time** | **Throughput** | **Recipe**                            | Download                                                                                                     |
-|------------------|----------------|-------------|------------|------------|---------------|-------------|--------------|-----------------|----------------|---------------------------------------|------------------------------------------------------------------------------------------------------------|
-| EAST             | D910x8-MS1.9-G | ResNet-50   | ImageNet   | 82.23%     | 87.68%        | 84.87%      | 1.6 s/epoch  | 256 ms/step |  625 img/s    | [yaml](east_r50_icdar15.yaml)         | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359-5f05cd42.mindir) |
-| EAST             | D910x8-MS1.9-G | MobileNetV3   | ImageNet   | 73.47%     | 77.27%        | 75.32%      | 0.79 s/epoch | 138 ms/step | 1185 img/s     | [yaml](east_mobilenetv3_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1-5bf242c5.mindir) |
+| **Model** | **Context**     | **Backbone** | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.** | **per step time** | **Throughput** | **Recipe**                            | Download                                                                                      |
+|-----------|-----------------|--------------|----------------|------------|---------------|-------------|--------------|-------------------|----------------|---------------------------------------|-----------------------------------------------------------------------------------------------|
+| EAST      | D910Bx8-MS2.0-G | ResNet-50    | ImageNet       | 82.23%     | 87.68%        | 84.87%      | 1.5 s/epoch  | 254 ms/step       | 631 img/s      | [yaml](east_r50_icdar15.yaml)         | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359-5f05cd42.mindir) |
+| EAST      | D910Bx8-MS2.0-G | MobileNetV3  | ImageNet       | 73.47%     | 77.27%        | 75.32%      | 0.73 s/epoch | 122 ms/step       | 1311 img/s     | [yaml](east_mobilenetv3_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1-5bf242c5.mindir) |
 
 </div>
 

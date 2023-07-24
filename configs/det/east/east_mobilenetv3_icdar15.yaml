@@ -95,7 +95,8 @@ train:
     shuffle: True
     batch_size: 20
     drop_remainder: True
-    num_workers: 8
+    num_workers: 20
+    num_workers_dataset: 10
 
 eval:
   ckpt_load_path: 'tmp_det/best.ckpt'
@@ -111,7 +112,7 @@ eval:
       - DetLabelEncode:
       - DetResize:
           target_size: [720, 1280]
-          force_divisable: False
+          force_divisible: False
       - Normalize:
           mean: *mean
           std: *std
@@ -125,4 +126,4 @@ eval:
     shuffle: False
     batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
     drop_remainder: False
-    num_workers: 1
+    num_workers: 5
