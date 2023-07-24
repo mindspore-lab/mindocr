@@ -66,7 +66,10 @@ class MasterDecoder(nn.Cell):
         )
         self.position = PositionalEncoding(in_channels, dropout)
         self.stacks = stacks
-        self.dropout = nn.Dropout(keep_prob=1 - dropout)
+        if is_ms_version_2():
+            self.dropout = nn.Dropout(p=dropout)
+        else:
+            self.dropout = nn.Dropout(keep_prob=1 - dropout)
         self.layer_norm = nn.LayerNorm([in_channels], epsilon=1e-6)
         self.embedding = nn.Embedding(out_channels, in_channels)
         self.sqrt_model_size = np.sqrt(in_channels)
@@ -133,7 +136,7 @@ class MasterDecoder(nn.Cell):
         num_steps = self.batch_max_length + 1  # for <STOP> symbol
 
         if targets is not None:
-            # training
+            # training branch
             targets = targets[0]
             targets = targets[:, :-1]
             target_mask = self._generate_target_mask(targets)

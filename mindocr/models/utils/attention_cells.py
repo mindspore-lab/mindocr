@@ -7,6 +7,8 @@ import mindspore.nn as nn
 import mindspore.ops as ops
 from mindspore import Tensor
 
+from ...utils.misc import is_ms_version_2
+
 __all__ = ["MultiHeadAttention", "PositionwiseFeedForward", "PositionalEncoding"]
 
 
@@ -23,7 +25,10 @@ class MultiHeadAttention(nn.Cell):
         self.h = multi_attention_heads
         self.linears = nn.CellList([nn.Dense(dimensions, dimensions) for _ in range(4)])
         self.attention = None
-        self.dropout = nn.Dropout(keep_prob=1 - dropout)
+        if is_ms_version_2():
+            self.dropout = nn.Dropout(p=dropout)
+        else:
+            self.dropout = nn.Dropout(keep_prob=1 - dropout)
 
         self.matmul = ops.BatchMatMul()
 
@@ -31,21 +36,16 @@ class MultiHeadAttention(nn.Cell):
         self, query: Tensor, key: Tensor, value: Tensor, mask: Optional[Tensor] = None
     ) -> Tuple[Tensor, Tensor]:
 
-        d_k = value.shape[-1]
-        score = self.matmul(query, key.transpose(0, 1, 3, 2)) / ms.numpy.sqrt(
-            d_k
-        )  # (N, h, seq_len, seq_len)
-
-        # cast to fp32 to prevent overflow
-        score = ops.cast(score, ms.float32)
+        d_k = float(value.shape[-1])
+        d_k_sqrt = ops.cast(ms.numpy.sqrt(d_k), query.dtype)
+        score = self.matmul(query, key.transpose(0, 1, 3, 2)) / d_k_sqrt  # (N, h, seq_len, seq_len)
 
         if mask is not None:
             score = ops.masked_fill(
-                score, mask == 0, -1e9
+                score, mask == 0, -np.inf
             )  # score (N, h, seq_len, seq_len)
 
         p_attn = ops.softmax(score, axis=-1)
-        p_attn = ops.cast(p_attn, value.dtype)
         # (N, h, seq_len, d_v), (N, h, seq_len, seq_len)
         return self.matmul(p_attn, value), p_attn
 
@@ -90,7 +90,10 @@ class PositionwiseFeedForward(nn.Cell):
         super(PositionwiseFeedForward, self).__init__()
         self.w_1 = nn.Dense(dimensions, feed_forward_dimensions)
         self.w_2 = nn.Dense(feed_forward_dimensions, dimensions)
-        self.dropout = nn.Dropout(keep_prob=1 - dropout)
+        if is_ms_version_2():
+            self.dropout = nn.Dropout(p=dropout)
+        else:
+            self.dropout = nn.Dropout(keep_prob=1 - dropout)
 
     def construct(self, input_tensor: Tensor) -> Tensor:
         return self.w_2(self.dropout(ops.relu(self.w_1(input_tensor))))
@@ -101,7 +104,10 @@ class PositionalEncoding(nn.Cell):
         self, dimensions: int, dropout: float = 0.1, max_len: int = 5000
     ) -> None:
         super(PositionalEncoding, self).__init__()
-        self.dropout = nn.Dropout(keep_prob=1 - dropout)
+        if is_ms_version_2():
+            self.dropout = nn.Dropout(p=dropout)
+        else:
+            self.dropout = nn.Dropout(keep_prob=1 - dropout)
 
         # Compute the positional encodings once in log space.
         pe = np.zeros((max_len, dimensions), dtype=np.float32)
