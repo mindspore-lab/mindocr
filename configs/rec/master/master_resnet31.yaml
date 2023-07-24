@@ -55,8 +55,8 @@ loss:
 
 scheduler:
   scheduler: warmup_cosine_decay
-  min_lr: 0.00001
-  lr: 0.001
+  min_lr: 5.0e-6
+  lr: 5.0e-4
   num_epochs: 20
   warmup_epochs: 1
   decay_epochs: 19
@@ -113,7 +113,7 @@ train:
     batch_size: *batch_size
     drop_remainder: True
     max_rowsize: 12
-    num_workers: 2
+    num_workers: 1
 
 eval:
   ckpt_load_path: ./tmp_rec/best.ckpt
@@ -154,4 +154,4 @@ eval:
     batch_size: 64
     drop_remainder: False
     max_rowsize: 12
-    num_workers: 2
+    num_workers: 1

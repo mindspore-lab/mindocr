@@ -65,7 +65,7 @@ class TextSystem(object):
         assert isinstance(img_or_path, str) or isinstance(
             img_or_path, np.ndarray
         ), "Input must be string of path to the image or numpy array of the image rgb values."
-        fn = os.path.basename(img_or_path).split(".")[0] if isinstance(img_or_path, str) else "img"
+        fn = os.path.basename(img_or_path).rsplit(".", 1)[0] if isinstance(img_or_path, str) else "img"
 
         time_profile = {}
         start = time()

@@ -11,7 +11,7 @@ def _cfg(url="", input_size=(3, 32, 100), **kwargs):
 
 default_cfgs = {
     "master_resnet31": _cfg(
-        url="https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31-7565c75f.ckpt",
+        url="https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31-e7bfbc97.ckpt",
         input_size=(3, 48, 160),
     ),
 }

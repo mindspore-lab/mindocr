@@ -38,7 +38,7 @@ Table Format:
 
 | **模型** | **环境配置** | **平均准确率** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** |
 | :-----: | :-----:  | :-----: | :-----: | :-----: |:--------: | :-----: |
-| Master-Resnet31     | D910x4-MS1.10-G | 90.20%    | 3721 s/epoch        | 4632 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/master/master_resnet31.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31-7565c75f.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31_ascend-7565c75f-65015efe.mindir) |
+| Master-Resnet31     | D910x4-MS1.10-G | 90.37%    | 6356 s/epoch        | 2741 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/master/master_resnet31.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31-e7bfbc97.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31_ascend-e7bfbc97-b724ed55.mindir) |
 </div>
 
 <details open markdown>
@@ -47,12 +47,12 @@ Table Format:
 
   | **模型** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **平均准确率** |
   | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-  | Master-ResNet31| 95.81% | 95.73%  | 96.97% | 95.57% | 81.83% | 78.29% | 96.33% | 90.57% | 82.33% | 88.54% | 90.20% |
+  | Master-ResNet31| 95.58% | 95.15%  | 96.85% | 95.17% | 81.94% | 78.48% | 95.56% | 90.88% | 84.19% | 89.93% | 90.37% |
   </div>
 </details>
 
 **注意:**
-- 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。例如，D910x8-MS1.10-G 用于使用图形模式在8张昇腾910 NPU上依赖Mindspore1.10版本进行训练。
+- 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。例如，D910x8-MS1.10-G 用于使用图形模式在4张昇腾910 NPU上依赖Mindspore1.10版本进行训练。
 - 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
 - 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[数据集下载及使用](#312-数据集下载)章节。
 - Master的MindIR导出时的输入Shape均为(1, 3, 48, 160)。
@@ -309,7 +309,7 @@ eval:
 
 ```shell
 # 在多个 GPU/Ascend 设备上进行分布式训练
-mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/master/master_resnet31.yaml
+mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/master/master_resnet31.yaml
 ```
 
 

@@ -51,7 +51,7 @@ def export(name_or_config, data_shape, local_ckpt_path, save_dir):
             cfg = yaml.safe_load(f)
             model_cfg = cfg["model"]
             amp_level = cfg["system"].get("amp_level_infer", "O0")
-        name = os.path.basename(name_or_config).split(".")[0]
+        name = os.path.basename(name_or_config).rsplit(".", 1)[0]
         assert (
             local_ckpt_path
         ), "Checkpoint path must be specified if using YAML config file to define model architecture. \

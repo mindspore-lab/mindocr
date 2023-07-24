@@ -98,7 +98,7 @@ class TextDetector(object):
         """
         # preprocess
         data = self.preprocess(img_or_path)
-        fn = os.path.basename(data.get("img_path", "input.png")).split(".")[0]
+        fn = os.path.basename(data.get("img_path", "input.png")).rsplit(".", 1)[0]
         if do_visualize and self.visualize_preprocess:
             # show_imgs([data['image_ori']], is_bgr_img=False, title='det: '+ data['img_path'])
             # TODO: saving images increase inference time.
