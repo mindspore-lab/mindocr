@@ -60,6 +60,8 @@ def update_config_for_CI(
         config["train"]["gradient_accumulation_steps"] = gradient_accumulation_steps
         config["train"]["clip_grad"] = clip_grad
         config["train"]["ema"] = ema
+        if task == "rec":
+            config["train"]["dataset"]["type"] = "RecDataset"
 
         config["train"]["dataset"]["mindrecord"] = False
         config["train"]["dataset"]["dataset_root"] = "data/Canidae/"
@@ -80,6 +82,8 @@ def update_config_for_CI(
         if "batch_size" in config["loss"]:
             config["loss"]["batch_size"] = config["train"]["loader"]["batch_size"]
 
+        if task == "rec":
+            config["eval"]["dataset"]["type"] = "RecDataset"
         config["eval"]["dataset"]["mindrecord"] = False
         config["eval"]["dataset"]["dataset_root"] = "data/Canidae/"
         config["eval"]["dataset"]["data_dir"] = "val/dogs"

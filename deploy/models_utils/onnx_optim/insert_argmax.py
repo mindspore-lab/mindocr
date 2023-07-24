@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     model = onnx.load(args.model_path)
     graph = model.graph
-    node = graph.node
+    nodes = graph.node
     print(f"Input Channel of Net: {graph.input[0].type.tensor_type.shape.dim[1].dim_value}")
     print(f"Input Height of Net: {graph.input[0].type.tensor_type.shape.dim[2].dim_value}")
     result_path = os.path.dirname(args.model_path)
@@ -53,51 +53,52 @@ if __name__ == "__main__":
     img_c = graph.input[0].type.tensor_type.shape.dim[1].dim_value
     img_h = graph.input[0].type.tensor_type.shape.dim[2].dim_value
     img_h = 32 if img_h == -1 else img_h
+    img_w = graph.input[0].type.tensor_type.shape.dim[3].dim_value
+    img_w = 100 if (img_w == -1 or img_w == 0) else img_w
     output_name = "argmax_0.tmp_0"
     input_name = ""
     insert_index = 0
-    for i in range(len(node)):
-        if node[i].op_type == "Softmax":
-            input_name = node[i].output[0]
+    selected_node = None
+    argmax_exist = False
+    for i in range(len(nodes)):
+        if nodes[i].op_type == "Softmax":
+            input_name = nodes[i].input[0]
             insert_index = i
-        if node[i].op_type == "ArgMax":
-            raise ValueError(
-                "ArgMax Op found. The model already has ArgMax Op. Please check the type of model. Input "
-                "model type should be CRNN or SVTR."
-            )
-
-    if not input_name:
-        raise ValueError(
-            "Softmax Op not found. Please check the type of the model. Input model type should be CRNN or SVTR."
+            selected_node = nodes[i]
+        if nodes[i].op_type == "ArgMax":
+            argmax_exist = True
+    if selected_node:
+        model.graph.node.remove(selected_node)
+        basename = basename + "_rm_softmax"
+    if not argmax_exist:
+        axis = 2
+        keepdims = 0
+        argmax_operator = onnx.helper.make_node(
+            "ArgMax",
+            inputs=[input_name],
+            outputs=[output_name],
+            name="ArgMax_0",
+            axis=axis,
+            keepdims=keepdims,
         )
-    axis = 2
-    keepdims = 0
-    argmax_operator = onnx.helper.make_node(
-        "ArgMax",
-        inputs=[input_name],
-        outputs=[output_name],
-        name="ArgMax_0",
-        axis=axis,
-        keepdims=keepdims,
-    )
+        nodes.insert(insert_index, argmax_operator)
 
-    node.insert(insert_index, argmax_operator)
-    if len(model.opset_import) > 1:
-        del model.opset_import[1]
+        if len(model.opset_import) > 1:
+            del model.opset_import[1]
 
-    graph.output[0].type.tensor_type.elem_type = 7
-    graph.output[0].type.tensor_type.shape.dim[0].dim_value = -1
-    graph.output[0].type.tensor_type.shape.dim[1].dim_value = -1
-    graph.output[0].name = output_name
-    graph.output[0].type.tensor_type.shape.dim.pop()
-
-    save_name = basename + "_argmax" + ext
+        graph.output[0].type.tensor_type.elem_type = 7
+        graph.output[0].type.tensor_type.shape.dim[0].dim_value = -1
+        graph.output[0].type.tensor_type.shape.dim[1].dim_value = -1
+        graph.output[0].name = output_name
+        graph.output[0].type.tensor_type.shape.dim.pop()
+        basename = basename + "_ins_argmax"
+    save_name = basename + ext
     save_path = os.path.join(result_path, save_name)
     onnx.save(model, save_path)
 
     if args.check_output_onnx:
         np.random.seed(2022)
-        image = 255 * np.random.randn(74, 960, img_c)
+        image = 255 * np.random.randn(img_h, img_w, img_c)
         h, w = image.shape[:2]
         max_wh_ratio = w * 1.0 / h
 

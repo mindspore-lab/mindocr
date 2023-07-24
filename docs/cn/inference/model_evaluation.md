@@ -22,4 +22,4 @@ python deploy/eval_utils/eval_rec.py \
 
 请注意，character_dict_path是可选参数，默认字典仅支持数字和英文小写。
 
-在评估PaddleOCR或MMOCR系列模型时，请参照[第三方模型支持列表](models_list_thirdparty.md)使用对应字典。
+在评估PaddleOCR或MMOCR系列模型时，请参照[第三方模型支持列表](inference_thirdparty_quickstart.md)使用对应字典。

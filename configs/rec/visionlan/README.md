@@ -49,9 +49,9 @@ According to our experiments, the evaluation results on ten public benchmark dat
 
 <div align="center">
 
-| **Model** | **Context** | **Backbone**|  **Train Dataset** | **Model Params **|**Avg Accuracy** | **Train Time** | **FPS** | **Recipe** | **Download** |
-| :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |:--------: | :--------: |:----------: |
-| visionlan  | D910x4-MS2.0-G | resnet45 | MJ+ST| 42.2M | 90.61%  |  7718s/epoch   | 1,840 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_1.yaml) | [ckpt files](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_ckpts-7d6e9c04.tar.gz) |
+| **Model** | **Context** | **Backbone**|  **Train Dataset** | **Model Params**|**Avg Accuracy** | **Train Time** | **Per Step Time** | **FPS** | **Recipe** | **Download** |
+| :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |:--------: | :--------: |:--------: |:----------: |
+| visionlan  | D910x4-MS2.0-G | resnet45 | MJ+ST| 42.2M | 90.61%  |  7718 s/epoch  | 417 ms/step  | 1,840 img/s | [yaml(LF_1)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_1.yaml) [yaml(LF_2)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_2.yaml) [yaml(LA)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LA.yaml)| [ckpt files](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_ckpts-7d6e9c04.tar.gz) |
 
 </div>
 
@@ -83,35 +83,35 @@ Please refer to the [installation instruction](https://github.com/mindspore-lab/
 
 ### 3.2 Dataset preparation
 
-* Training sets
+**Training sets**
 
 The authors of VisionLAN used two synthetic text datasets for training: SynthText(800k) and MJSynth. Please follow the instructions of the [original VisionLAN repository](https://github.com/wangyuxin87/VisionLAN) to download the training sets.
 
 After download `SynthText.zip` and `MJSynth.zip`, please unzip and place them under `./datasets/train`. The training set contain 14,200,701 samples in total. More details are as follows:
 
 
-> [SynText](http://www.robots.ox.ac.uk/~vgg/data/scenetext/): 25GB, 6,976,115 samples<br>
-[MJSynth](http://www.robots.ox.ac.uk/~vgg/data/text/): 21GB, 7,224,586 samples
+- [SynText](http://www.robots.ox.ac.uk/~vgg/data/scenetext/): 25GB, 6,976,115 samples<br>
+- [MJSynth](http://www.robots.ox.ac.uk/~vgg/data/text/): 21GB, 7,224,586 samples
 
-* Validation sets
+**Validation sets**
 
 The authors of VisionLAN used six real text datasets for evaluation: IIIT5K Words (IIIT5K_3000) ICDAR 2013 (IC13_857), Street View Text (SVT), ICDAR 2015 (IC15), Street View Text-Perspective (SVTP), CUTE80 (CUTE). We used the sum of the six benchmarks as validation sets. Please follow the instructions of the [original VisionLAN repository](https://github.com/wangyuxin87/VisionLAN) to download the validation sets.
 
 After download `evaluation.zip`, please unzip this zip file, and place them under `./datasets`. Under `./datasets/evaluation`, there are seven folders:
 
 
-> [IIIT5K](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html): 50M, 3000 samples<br>
-[IC13](http://rrc.cvc.uab.es/?ch=2): 72M, 857 samples<br>
-[SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset): 2.4M, 647 samples<br>
-[IC15](http://rrc.cvc.uab.es/?ch=4): 21M, 1811 samples<br>
-[SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf): 1.8M, 645 samples<br>
-[CUTE](http://cs-chan.com/downloads_CUTE80_dataset.html): 8.8M, 288 samples<br>
-Sumof6benchmarks: 155M, 7248 samples
+- [IIIT5K](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html): 50M, 3000 samples<br>
+- [IC13](http://rrc.cvc.uab.es/?ch=2): 72M, 857 samples<br>
+- [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset): 2.4M, 647 samples<br>
+- [IC15](http://rrc.cvc.uab.es/?ch=4): 21M, 1811 samples<br>
+- [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf): 1.8M, 645 samples<br>
+- [CUTE](http://cs-chan.com/downloads_CUTE80_dataset.html): 8.8M, 288 samples<br>
+- Sumof6benchmarks: 155M, 7248 samples
 
 During training, we only used the data under `./datasets/evaluation/Sumof6benchmarks` as the validation sets. Users can delete the other folders `./datasets/evaluation` optionally.
 
 
-* Test Sets
+**Test Sets**
 
 We choose ten benchmarks as the test sets to evaluate the model's performance. Users can download the test sets from [here](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (ref: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here)). Only the `evaluation.zip` is required for testing.
 
@@ -120,16 +120,16 @@ After downloading the `evaluation.zip`, please unzip it, and rename the folder n
 The test sets contain 12,067 samples in total. The detailed information is as follows:
 
 
-> [CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html): 8.8 MB, 288 samples<br>
-[IC03_860](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions): 36 MB, 860 samples<br>
-[IC03_867](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions): 4.9 MB, 867 samples<br>
-[IC13_857](http://rrc.cvc.uab.es/?ch=2): 72 MB, 857 samples<br>
-[IC13_1015](http://rrc.cvc.uab.es/?ch=2): 77 MB, 1015 samples<br>
-[IC15_1811](http://rrc.cvc.uab.es/?ch=4): 21 MB, 1811 samples<br>
-[IC15_2077](http://rrc.cvc.uab.es/?ch=4): 25 MB, 2077 samples<br>
-[IIIT5k_3000](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html): 50 MB, 3000 samples<br>
-[SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset): 2.4 MB, 647 samples<br>
-[SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf): 1.8 MB, 645 samples
+- [CUTE80](http://cs-chan.com/downloads_CUTE80_dataset.html): 8.8 MB, 288 samples<br>
+- [IC03_860](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions): 36 MB, 860 samples<br>
+- [IC03_867](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions): 4.9 MB, 867 samples<br>
+- [IC13_857](http://rrc.cvc.uab.es/?ch=2): 72 MB, 857 samples<br>
+- [IC13_1015](http://rrc.cvc.uab.es/?ch=2): 77 MB, 1015 samples<br>
+- [IC15_1811](http://rrc.cvc.uab.es/?ch=4): 21 MB, 1811 samples<br>
+- [IC15_2077](http://rrc.cvc.uab.es/?ch=4): 25 MB, 2077 samples<br>
+- [IIIT5k_3000](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html): 50 MB, 3000 samples<br>
+- [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset): 2.4 MB, 647 samples<br>
+- [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf): 1.8 MB, 645 samples
 
 
 In the end of preparation, the file structure should be like:

@@ -81,7 +81,7 @@ pip install mindocr
 
 ## Quick Start
 
-### Text Detection and Recognition Demo
+### 1. Text Detection and Recognition Demo
 
 After installing MindOCR, we can run text detection and recognition on an arbitrary image easily as follows.
 
@@ -102,7 +102,7 @@ After running, the results will be saved in `./inference_results` by default. He
 
 We can see that all texts on the image are detected and recognized accurately. For more usage, please refer to the inference section in [tutorials](#tutorials).
 
-### Model Training and Evaluation - Quick Guideline
+### 2. Model Training and Evaluation - Quick Guideline
 
 It is easy to train your OCR model with the `tools/train.py` script, which supports both text detection and recognition model training.
 
@@ -134,6 +134,11 @@ python tools/eval.py \
 ```
 
 For more illustration and usage, please refer to the model training section in [Tutorials](#tutorials).
+
+### 3. Model Inference - Quick Guideline
+
+You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Third-party models** (PaddleOCR, MMOCR, etc.).
+Please refer to [MindOCR Models Inference - Quick Start](docs/en/inference/inference_quickstart.md) or [Third-party Models Inference - Quick Start](docs/en/inference/inference_thirdparty_quickstart.md).
 
 ## Tutorials
 
@@ -183,7 +188,7 @@ For more illustration and usage, please refer to the model training section in [
 
 For the detailed performance of the trained models, please refer to [configs](./configs).
 
-For detailed support for MindSpore Lite and ACL inference models, please refer to [MindOCR Models Support List](docs/en/inference/models_list.md#3-appendix---mindocr-model-support-list) and [Third-party Models Support List](docs/en/inference/models_list_thirdparty.md#3-appendix---third-party-model-support-list) (PaddleOCR, MMOCR, etc.).
+For details of MindSpore Lite and ACL inference models support, please refer to [MindOCR Models Support List](docs/en/inference/inference_quickstart.md) and [Third-party Models Support List](docs/en/inference/inference_thirdparty_quickstart.md) (PaddleOCR, MMOCR, etc.).
 
 ## Dataset List
 

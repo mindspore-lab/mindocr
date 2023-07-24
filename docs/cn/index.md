@@ -70,7 +70,7 @@ pip install mindocr
 
 ## 快速开始
 
-### 文字检测和识别示例
+### 1. 文字检测和识别示例
 
 安装完MindOCR后，我们就很方便地进行任意图像的文本检测和识别，如下。
 
@@ -90,7 +90,7 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 
 可以看到图像中的文字块均被检测出来并正确识别。更详细的用法介绍，请参考推理[教程](#_7)。
 
-### 模型训练与评估-快速指南
+### 2. 模型训练与评估-快速指南
 
 使用`tools/train.py`脚本可以很容易地训练OCR模型，该脚本可支持文本检测和识别模型训练。
 ```shell
@@ -117,6 +117,11 @@ python tools/eval.py \
 ```
 
 更多使用方法，请参考[使用教程](#_7)中的模型训练章节。
+
+### 3. 模型推理-快速指南
+
+你可以在MindOCR中使用MindSpore Lite对MindOCR自研模型或第三方模型（如PaddleOCR、MMOCR等）进行推理。
+请见[MindOCR自研模型推理-快速开始](inference/inference_quickstart.md)或[第三方模型推理-快速开始](inference/inference_thirdparty_quickstart.md)。
 
 ## 使用教程
 
@@ -164,7 +169,8 @@ python tools/eval.py \
 
 关于以上模型的具体训练方法和结果，请参见[configs](https://github.com/mindspore-lab/mindocr/blob/main/configs)下各模型子目录的readme文档。
 
-关于[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)模型推理的支持列表，请参见[MindOCR支持模型列表](inference/models_list.md) and [第三方模型推理支持列表](inference/models_list_thirdparty.md)（如PaddleOCR、MMOCR等）。
+关于[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)模型推理的支持列表，
+请参见[MindOCR支持模型列表](inference/inference_quickstart.md) 和 [第三方模型推理支持列表](inference/inference_thirdparty_quickstart.md)（如PaddleOCR、MMOCR等）。
 
 ## 数据集列表
 
