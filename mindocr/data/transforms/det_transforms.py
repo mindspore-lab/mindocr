@@ -122,7 +122,8 @@ class RandomCropWithBBox:
             data["image"], (*tuple((0, cs - ds) for cs, ds in zip(self._crop_size, data["image"].shape[:2])), (0, 0))
         )
 
-        data["polys"] = (data["polys"] - start[::-1]) * scale
+        if len(data["polys"]):
+            data["polys"] = (data["polys"] - start[::-1]) * scale
 
         return data
 
@@ -509,7 +510,7 @@ class DetResize:
         # For evaluation, we should not change the GT polygons.
         # The metric with input of GT polygons and predicted polygons must be computed in the original image space
         # for consistent comparison.
-        if "polys" in data and self.is_train:
+        if "polys" in data and len(data["polys"]) and self.is_train:
             data["polys"][:, :, 0] = data["polys"][:, :, 0] * scale_w
             data["polys"][:, :, 1] = data["polys"][:, :, 1] * scale_h
 
