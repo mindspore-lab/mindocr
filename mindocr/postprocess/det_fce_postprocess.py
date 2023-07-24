@@ -259,32 +259,33 @@ class FCEPostprocess(DetBasePostprocess):
     """
     FCEPostprocess class for post-processing the predictions of FCENet.
 
+
     Args:
-        scales (list): List of scale factors for different scales of FCENet predictions.
-        fourier_degree (int): Order of Fourier coefficients. Default is 5.
-        num_reconstr_points (int): Number of reconstructed points for boundaries. Default is 50.
-        decoding_type (str): Decoding type. Default is "fcenet".
-        score_thr (float): Confidence threshold for filtering boundaries. Default is 0.3.
-        nms_thr (float): IOU threshold for non-maximum suppression. Default is 0.1.
         alpha (float): Weight parameter for reconstruction loss. Default is 1.0.
         beta (float): Weight parameter for stability loss. Default is 1.0.
         box_type (str): Text representation type. Default is "poly".
-        rescale_fields: name of fields to scale back to the shape of the original image.
+        decoding_type (str): Decoding type. Default is "fcenet".
+        fourier_degree (int): Order of Fourier coefficients. Default is 5.
+        nms_thr (float): IOU threshold for non-maximum suppression. Default is 0.1.
+        num_reconstr_points (int): Number of reconstructed points for boundaries. Default is 50.
+        rescale_fields (List[str]): Name of fields to scale back to the shape of the original image.
+        score_thr (float): Confidence threshold for filtering boundaries. Default is 0.3.
+        scales (list): List of scale factors for different scales of FCENet predictions.
 
     """
 
     def __init__(
         self,
-        scales,
-        rescale_fields: List[str] = ["polys"],
-        fourier_degree=5,
-        num_reconstr_points=50,
-        decoding_type="fcenet",
-        score_thr=0.3,
-        nms_thr=0.1,
         alpha=1.0,
         beta=1.0,
         box_type="poly",
+        decoding_type="fcenet",
+        fourier_degree=5,
+        nms_thr=0.1,
+        num_reconstr_points=50,
+        rescale_fields: List[str] = ["polys"],
+        score_thr=0.3,
+        scales=[],
     ):
         super().__init__(rescale_fields, box_type)
 
