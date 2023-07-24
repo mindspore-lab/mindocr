@@ -206,7 +206,7 @@ class TextRecognizer(object):
         # visualize preprocess result
         if do_visualize:
             # show_imgs([data['image_ori']], is_bgr_img=False, title=f'origin_{i}')
-            fn = os.path.basename(data.get("img_path", f"crop_{crop_idx}.png")).split(".")[0]
+            fn = os.path.basename(data.get("img_path", f"crop_{crop_idx}.png")).rsplit(".", 1)[0]
             show_imgs(
                 [data["image"]],
                 title=fn + "_rec_preprocessed",
