@@ -55,8 +55,8 @@ loss:
 
 scheduler:
   scheduler: warmup_cosine_decay
-  min_lr: 0.000005
-  lr: 0.0005
+  min_lr: 5.0e-6
+  lr: 5.0e-4
   num_epochs: 20
   warmup_epochs: 1
   decay_epochs: 19

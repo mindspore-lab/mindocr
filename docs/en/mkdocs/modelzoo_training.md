@@ -19,11 +19,12 @@
 
 | model  |dataset |bs | cards | acc | ms/step | fps | amp | config |
 :-:     |   :-:   | :-: | :-: |  :-:   |  :-:    | :-:  |  :-: |  :-:    |
-| svtr_tiny          | IC03,13,15,IIIT,etc | 512 | 4 | 89.02 | 690 | 2968 | O2 |  [mindocr_svtr](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/svtr)   |
+| svtr_tiny          | IC03,13,15,IIIT,etc | 512 | 4 | 90.23 | 459 | 4560 | O2 |  [mindocr_svtr](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/svtr)   |
 | crnn_vgg7          | IC03,13,15,IIIT,etc | 16 | 8 | 82.03 | 22.06 | 5802.71 | O3 |  [mindocr_crnn](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/crnn)   |
 | crnn_resnet34_vd   | IC03,13,15,IIIT,etc | 64 | 8 | 84.45 | 76.48 | 6694.84 | O3 |  [mindocr_crnn](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/crnn)   |
 | rare_resnet34_vd   | IC03,13,15,IIIT,etc | 512 | 4 | 85.19 | 449 | 4561 | O2 |  [mindocr_rare](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/rare)   |
 | visionlan_resnet45| IC03,13,15,IIIT,etc | 192| 4 | 90.61 | 417 | 1840 | O2 | [mindocr_visionlan](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan) |
+| master_resnet31   | IC03,13,15,IIIT,etc | 512 | 4 | 90.37 | 747 | 2741 | O2 |  [mindocr_rare](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/master)   |
 | robustscanner_resnet31 | IC13,15,IIIT,SVT,etc | 256 | 4 | 87.86 |   825   |   310   | O0  |           [mindocr_robustscanner](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner)            |
 
 ### Text Direction Classification
