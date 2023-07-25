@@ -605,21 +605,15 @@ class FCENetTargets:
         image = results["image"]
         h, w, _ = image.shape
 
-        if "polygons" not in results:
-            results["polygons"] = [
-                results["polys"][i] for i in range(len(results["ignore_tags"])) if not results["ignore_tags"][i]
-            ]
-            results["ignore_polygons"] = [
-                results["polys"][i] for i in range(len(results["ignore_tags"])) if results["ignore_tags"][i]
-            ]
-
-        polygon_masks = results["polygons"]
-        polygon_masks_ignore = results["ignore_polygons"]
+        polygon_masks = [
+            results["polys"][i] for i in range(len(results["ignore_tags"])) if not results["ignore_tags"][i]
+        ]
+        polygon_masks_ignore = [
+            results["polys"][i] for i in range(len(results["ignore_tags"])) if results["ignore_tags"][i]
+        ]
 
         level_maps = self.generate_level_targets((h, w), polygon_masks, polygon_masks_ignore)
 
-        # results['mask_fields'].clear()  # rm gt_masks encoded by polygons
-        # import remote_pdb as pdb;pdb.set_trace()
         mapping = {"p3_maps": level_maps[0], "p4_maps": level_maps[1], "p5_maps": level_maps[2]}
         for key, value in mapping.items():
             results[key] = value
