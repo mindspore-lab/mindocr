@@ -185,8 +185,7 @@ class PSEFPN(nn.Cell):
         self.smooth_bn_p2 = _bn(out_channels)
         self.smooth_relu_p2 = nn.ReLU()
 
-        self._resize_bilinear = nn.ResizeBilinear()
-
+        self._resize_bilinear = ops.ResizeBilinearV2() if is_ms_version_2() else nn.ResizeBilinear()
         self.concat = ops.Concat(axis=1)
 
     def construct(self, features):
@@ -197,29 +196,37 @@ class PSEFPN(nn.Cell):
 
         c4 = self.reduce_conv_c4(c4)
         c4 = self.reduce_relu_c4(self.reduce_bn_c4(c4))
-        p4 = self._resize_bilinear(p5, scale_factor=2) + c4
+        p4 = self._resize_bilinear(p5, c4.shape[2:]) + c4
         p4 = self.smooth_conv_p4(p4)
         p4 = self.smooth_relu_p4(self.smooth_bn_p4(p4))
 
         c3 = self.reduce_conv_c3(c3)
         c3 = self.reduce_relu_c3(self.reduce_bn_c3(c3))
-        p3 = self._resize_bilinear(p4, scale_factor=2) + c3
+        p3 = self._resize_bilinear(p4, c3.shape[2:]) + c3
         p3 = self.smooth_conv_p3(p3)
         p3 = self.smooth_relu_p3(self.smooth_bn_p3(p3))
 
         c2 = self.reduce_conv_c2(c2)
         c2 = self.reduce_relu_c2(self.reduce_bn_c2(c2))
-        p2 = self._resize_bilinear(p3, scale_factor=2) + c2
+        p2 = self._resize_bilinear(p3, c2.shape[2:]) + c2
         p2 = self.smooth_conv_p2(p2)
         p2 = self.smooth_relu_p2(self.smooth_bn_p2(p2))
 
-        p3 = self._resize_bilinear(p3, scale_factor=2)
-        p4 = self._resize_bilinear(p4, scale_factor=4)
-        p5 = self._resize_bilinear(p5, scale_factor=8)
+        p3 = self._resize_bilinear(p3, p2.shape[2:])
+        p4 = self._resize_bilinear(p4, p2.shape[2:])
+        p5 = self._resize_bilinear(p5, p2.shape[2:])
 
         out = self.concat((p2, p3, p4, p5))
 
         return out
+
+
+def _resize_bilinear_unified(align_corners=True):
+    def resize_bilinear(input_image, size):
+        output = ops.ResizeBilinear(size, align_corners=align_corners)(input_image)
+        return output
+
+    return resize_bilinear
 
 
 class EASTFPN(nn.Cell):
@@ -227,7 +234,7 @@ class EASTFPN(nn.Cell):
         super(EASTFPN, self).__init__()
         self.in_channels = in_channels[::-1]  # self.in_channels: [2048, 1024, 512, 256]
         self.out_channels = out_channels
-        self.resize = ops.ResizeBilinearV2(True) if is_ms_version_2() else nn.ResizeBilinear()
+        self.resize = ops.ResizeBilinearV2(True) if is_ms_version_2() else _resize_bilinear_unified(True)
         self.conv1 = nn.Conv2d(self.in_channels[0] + self.in_channels[1], self.in_channels[0] // 4, 1, has_bias=True)
         self.bn1 = nn.BatchNorm2d(self.in_channels[0] // 4)
         self.relu1 = nn.ReLU()
