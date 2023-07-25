@@ -51,11 +51,11 @@ graph LR;
 As shown in the figure above, the inference process is divided into the following steps:
 
 1. Use ```tools/export.py``` to export the ckpt model to MindIR model;
-2. Download and configure the [converter_lite](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html) tool, and use the converter_lite tool to export the MindIR model to the MindSpore Lite version MindIR model;
-3. After preparing the MindIR model of the MindSpore Lite version and the input image, use ```deploy/py_infer/infer.py``` on Ascend310/310P to perform inference;
+2. Download and configure the [converter_tool](https://www.mindspore.cn/lite/docs/en/master/use/downloads.html) (i.e. converter_lite), and use the converter_lite tool to convert the MindIR to the MindSpore Lite MindIR;
+3. After preparing the MindSpore Lite MindIR and the input image, use ```deploy/py_infer/infer.py``` to perform inference;
 4. Depending on the type of model, use ```deploy/eval_utils/eval_det.py``` to evaluate the inference results of the text detection models, or use ```deploy/eval_utils/eval_rec.py``` for text recognition models.
 
-**Note: Only the first step can be completed on Ascend910/GPU/CPU, and step 2/3/4 must be executed on Ascend 310/310P.**
+**Note: Step 1 runs on Ascend910, GPU or CPU. Step 2, 3, 4 run on Ascend310 or 310P.**
 <br></br>
 
 ### 3. MindOCR Inference Methods
@@ -76,7 +76,7 @@ The ```--data_shape 736 1280``` parameter indicates that the size of the model i
 
 ```--local_ckpt_path /path/to/dbnet.ckpt``` parameter indicates that the model file to be exported is ```/path/to/dbnet.ckpt```
 
-- Use the converter_lite tool on Ascend310/310P to convert the downloaded file to mindir that can be used by MindSpore Lite:
+- Use the converter_lite tool on Ascend310/310P to convert the MindIR to MindSpore Lite MindIR:
 
 Create `config.txt` and specify the model input shape:
 ```
