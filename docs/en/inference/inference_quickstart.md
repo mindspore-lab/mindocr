@@ -63,8 +63,7 @@ As shown in the figure above, the inference process is divided into the followin
 #### 3.1 Text Detection
 
 Let's take `DBNet ResNet-50 en` in the [model support list](#11-text-detection) as an example to introduce the inference method:
-- Download the [ckpt file](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24.ckpt) in the model support list and use the following command to export as mindir
-, or directly download the exported [mindir file](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24-fbf95c82.mindir) from the model support list:
+- Download the [ckpt file](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24.ckpt) in the model support list and use the following command to export to MindIR, or directly download the exported [mindir file](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24-fbf95c82.mindir) from the model support list:
 ``` shell
 # Use the local ckpt file to export the MindIR of the `DBNet ResNet-50 en` model
 # For more parameter usage details, please execute `python tools/export.py -h`
@@ -76,7 +75,7 @@ The ```--data_shape 736 1280``` parameter indicates that the size of the model i
 
 ```--local_ckpt_path /path/to/dbnet.ckpt``` parameter indicates that the model file to be exported is ```/path/to/dbnet.ckpt```
 
-- Use the converter_lite tool on Ascend310/310P to convert the MindIR to MindSpore Lite MindIR:
+- Use the converter_lite tool on Ascend310 or 310P to convert the MindIR to MindSpore Lite MindIR:
 
 Create `config.txt` and specify the model input shape:
 ```
@@ -118,7 +117,7 @@ converter_lite \
 ```
 In the above command ```--fmk=MINDIR``` indicates that the original format of the input model is MindIR, and the ```--fmk``` parameter also supports ONNX, etc.;
 
-```--saveType=MINDIR``` indicates that the output model format is mindir format;
+```--saveType=MINDIR``` indicates that the output model format is MindIR format;
 
 ```--device=Ascend``` indicates that the target device when converting the model is Ascend, if not set, the default is CPU backend inferencing;
 
@@ -165,9 +164,9 @@ The result is: `{'recall': 0.8348579682233991, 'precision': 0.8657014478282576, 
 #### 3.2 Text Recognition
 Let's take `CRNN ResNet34_vd en` in the [model support list](#12-text-recognition) as an example to introduce the inference method:
 
-- Download the [mindir file](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-eb10a0c9.mindir) in the model support list;
+- Download the [MindIR file](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-eb10a0c9.mindir) in the model support list;
 
-- Use the converter_lite tool on Ascend310/310P to convert the downloaded file to mindir that can be used by MindSpore Lite:
+- Use the converter_lite tool on Ascend310 or 310P to convert the MindIR to MindSpore Lite MindIR:
 
 Create `config.txt` and specify the model input shape:
 ```
