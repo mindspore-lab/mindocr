@@ -52,7 +52,7 @@ graph LR;
 如上图所示，推理流程分为以下几步：
 
 1. 将MindOCR训练完成后的ckpt模型，使用```tools/export.py```导出成MindIR模型；
-2. 下载并配置[converter工具](https://www.mindspore.cn/lite/docs/zh-CN/master/use/downloads.html)（即converter_lite），使用converter_lite工具将MindIR模型导出成MindSpore Lite MindIR模型；
+2. 下载并配置[模型转换工具](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)（即**converter_lite**），使用converter_lite工具将MindIR模型导出成MindSpore Lite MindIR模型；
 3. 准备好MindSpore Lite MindIR模型和输入图片后，使用```deploy/py_infer/infer.py```进行推理；
 4. 根据模型种类不同，使用```deploy/eval_utils/eval_det.py```对文本检测类模型的推理结果进行评估，或者使用```deploy/eval_utils/eval_rec.py```对文本识别类模型的推理结果进行评估。
 
