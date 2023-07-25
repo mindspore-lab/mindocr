@@ -162,16 +162,18 @@ class CCPD_Converter:
                         ad += self.ads[int(i)]
                     lp_text = province + alphabet + ad
 
-                    label = [{
-                        "area": int(area),
-                        "h_tilt": h_tilt,
-                        "v_tilt": v_tilt,
-                        "bbox": bbox,
-                        "points": points,
-                        "transcription": lp_text,
-                        "brightness": int(brightness),
-                        "blurriness": int(blurriness),
-                    }]
+                    label = [
+                        {
+                            "area": int(area),
+                            "h_tilt": h_tilt,
+                            "v_tilt": v_tilt,
+                            "bbox": bbox,
+                            "points": points,
+                            "transcription": lp_text,
+                            "brightness": int(brightness),
+                            "blurriness": int(blurriness),
+                        }
+                    ]
 
                     img_path = img_path.name if self._relative else str(img_path)
                     out_file.write(img_path + "\t" + json.dumps(label, ensure_ascii=False) + "\n")
