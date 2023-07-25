@@ -51,7 +51,7 @@ graph LR;
 As shown in the figure above, the inference process is divided into the following steps:
 
 1. Use ```tools/export.py``` to export the ckpt model to MindIR model;
-2. Download and configure the [converter_tool](https://www.mindspore.cn/lite/docs/en/master/use/downloads.html) (i.e. converter_lite), and use the converter_lite tool to convert the MindIR to the MindSpore Lite MindIR;
+2. Download and configure the [model converter](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool.html) (i.e. **converter_lite**), and use the converter_lite tool to convert the MindIR to the MindSpore Lite MindIR;
 3. After preparing the MindSpore Lite MindIR and the input image, use ```deploy/py_infer/infer.py``` to perform inference;
 4. Depending on the type of model, use ```deploy/eval_utils/eval_det.py``` to evaluate the inference results of the text detection models, or use ```deploy/eval_utils/eval_rec.py``` for text recognition models.
 
