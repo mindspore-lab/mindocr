@@ -35,7 +35,7 @@ def cls_mobilenet_v3_small_100_model(pretrained=False, **kwargs):
             'pretrained': pretrained_backbone,  # backbone pretrained
         },
         "head": {
-            "name": 'ClsHead',
+            "name": 'MobileNetV3Head',
             "hidden_channels": 1024,
             "num_classes": 2,
         }
