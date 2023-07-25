@@ -515,7 +515,7 @@ class DetResize:
         # For evaluation, we should not change the GT polygons.
         # The metric with input of GT polygons and predicted polygons must be computed in the original image space
         # for consistent comparison.
-        if "polys" in data and len(data["polys"]) and self.is_train:
+        if "polys" in self.output_columns and len(data["polys"]) and self.is_train:
             data["polys"][:, :, 0] = data["polys"][:, :, 0] * scale_w
             data["polys"][:, :, 1] = data["polys"][:, :, 1] * scale_h
 
