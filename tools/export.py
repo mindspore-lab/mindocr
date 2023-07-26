@@ -12,17 +12,23 @@ Example:
     >>> # Export mindir of model `dbnet_resnet50` by downloading online ckpt
     >>> python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280
     >>> # Export mindir of model `dbnet_resnet50` by loading local ckpt
-    >>> python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt
+    >>> python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/dbnet.ckpt
     >>> # Export mindir of model whose architecture is defined by crnn_resnet34.yaml with local checkpoint
     >>> python tools/export.py --model_name configs/rec/crnn/crnn_resnet34.yaml \
         --local_ckpt_path ~/.mindspore/models/crnn_resnet34-83f37f07.ckpt --data_shape 32 100
+    >>> # Export mindir with dynamic input data shape. 
+          Dynamic input data shape of detection model: (-1,3,-1,-1)
+          Dynamic input data shape of recognition and classification model: (-1,3,32,-1)
+    >>> python tools/export.py --model_name configs/rec/crnn/crnn_resnet34.yaml --is_dynamic_shape True \
+        --model_type rec --local_ckpt_path path/to/crnn.ckpt
 
 Notes:
-    - Args `model_name` are required to be specified when running export.py.
-    - The `data_shape` is recommended to be the same as the rescaled data shape in evaluation to get the best inference
+    - Arg `model_name` is required to be specified when running export.py.
+    - Arg `data_shape` is recommended to be the same as the rescaled data shape in evaluation to get the best inference
         performance.
+    - When arg `is_dynamic_shape` is False (default value is False), arg `data_shape` is required to be specified.
+    - When arg `is_dynamic_shape` is True, arg `model_type` is required to be specified.
     - The online ckpt files are downloaded from https://download.mindspore.cn/toolkits/mindocr/.
-    - TODO: say sth about export dynamic shape
 """
 import argparse
 import logging
@@ -89,8 +95,11 @@ def export(name_or_config, data_shape, local_ckpt_path, save_dir, is_dynamic_sha
 
 
 def check_args(args):
+    if args.model_name.endswith(".yml") or args.model_name.endswith(".yaml"):
+        assert os.path.isfile(args.model_name), f"YAML config file '{args.model_name}' does not exist. Please check arg `model_name`."
+        assert args.local_ckpt_path is not None, "Local checkpoint path must be specified if using YAML config file to define model architecture. Please set arg `local_ckpt_path`."
     if args.local_ckpt_path and not os.path.isfile(args.local_ckpt_path):
-        raise ValueError(f"Local ckpt file {args.local_ckpt_path} does not exist. Please check arg `local_ckpt_path`.")
+        raise ValueError(f"Local ckpt file '{args.local_ckpt_path}' does not exist. Please check arg `local_ckpt_path`.")
     if args.save_dir:
         os.makedirs(args.save_dir, exist_ok=True)
     if args.is_dynamic_shape:
@@ -118,20 +127,19 @@ if __name__ == "__main__":
         "--model_type",
         type=str,
         choices=["det", "rec", "cls"],
-        help="Model type.",
+        help="Model type. Required when arg `is_dynamic_shape` is True.",
     )
     parser.add_argument(
         "--data_shape",
         type=int,
         nargs=2,
-        # required=True,
-        help="The data shape [H, W] for exporting mindir files. It is recommended to be the same as \
-            the rescaled data shape in evaluation to get the best inference performance.",
+        help="The data shape [H, W] for exporting mindir files. Required when arg `is_dynamic_shape` is False. \
+            It is recommended to be the same as the rescaled data shape in evaluation to get the best inference \
+            performance.",
     )
     parser.add_argument(
         "--local_ckpt_path",
         type=str,
-        default="",
         help="Path to a local checkpoint. If set, export mindir by loading local ckpt. \
             Otherwise, export mindir by downloading online ckpt.",
     )
