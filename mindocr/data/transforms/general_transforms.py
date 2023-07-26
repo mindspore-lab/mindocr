@@ -95,7 +95,7 @@ class RandomRotate:
 
             data["image"] = cv2.warpAffine(data["image"], mat, (w, h))
 
-            if "polys" in data and len(data["polys"]):
+            if "polys" in self.output_columns and len(data["polys"]):
                 data["polys"] = cv2.transform(data["polys"], mat)
 
         return data
@@ -116,7 +116,7 @@ class RandomHorizontalFlip:
         if random.random() < self._p:
             data["image"] = cv2.flip(data["image"], 1)
 
-            if "polys" in data and len(data["polys"]):
+            if "polys" in self.output_columns and len(data["polys"]):
                 mat = np.float32([[-1, 0, data["image"].shape[1] - 1], [0, 1, 0]])
                 data["polys"] = cv2.transform(data["polys"], mat)
                 # TODO: assign a new starting point located in the top left
