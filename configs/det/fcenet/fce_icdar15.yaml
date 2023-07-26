@@ -23,7 +23,7 @@ model:
 
 postprocess:
   name: FCEPostprocess
-  text_repr_type: 'quad'
+  box_type: 'quad'
   alpha: 1.2
   beta: 1.0
   scales: [ 8, 16, 32 ]
