@@ -17,7 +17,7 @@ all_yamls = [
     "configs/det/dbnet/db_r50_icdar15.yaml",
     "configs/det/dbnet/db++_r50_icdar15.yaml",
     "configs/rec/crnn/crnn_resnet34.yaml",
-    # "configs/rec/master/master_resnet31.yaml",
+    "configs/rec/master/master_resnet31.yaml",
     "configs/rec/rare/rare_resnet34.yaml",
     "configs/rec/svtr/svtr_tiny.yaml",
     "configs/rec/visionlan/visionlan_resnet45_LF_1.yaml",
