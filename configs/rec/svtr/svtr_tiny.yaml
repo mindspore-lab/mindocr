@@ -100,13 +100,13 @@ loss_scaler:
 
 train:
   ckpt_save_dir: ./tmp_rec
-  dataset_sink_mode: False
+  dataset_sink_mode: True
   ema: True
   ema_decay: 0.9999
   dataset:
     type: LMDBDataset
     dataset_root: path/to/data_lmdb_release/
-    data_dir: training/
+    data_dir: ["ST_full", "MJ"]
     label_file: null
     sample_ratio: 1.0
     shuffle: True
@@ -186,6 +186,6 @@ eval:
     batch_size: 64
     drop_remainder: False
     max_rowsize: 12
-    num_workers: 1
+    num_workers: 4
     num_workers_dataset: 1
     using_multiprocess_for_pipeline: False
