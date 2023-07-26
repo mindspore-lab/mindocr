@@ -34,7 +34,7 @@
 
 | **Model** | **Context** | **Backbone**|  **Train Dataset** | **Model Params**|**Avg Accuracy** | **Train Time** | **Per Step Time** | **FPS** | **Recipe** | **Download** |
 | :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |:--------: | :--------: |:--------: |:----------: |
-| visionlan  | D910x4-MS2.0-G | resnet45 | MJ+ST| 42.2M | 90.61%  |  7718s/epoch  | 417 ms/step  | 1,840 img/s | [yaml(LF_1)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_1.yaml) [yaml(LF_2)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_2.yaml) [yaml(LA)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LA.yaml)| [ckpt files](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_ckpts-7d6e9c04.tar.gz) |
+| visionlan  | D910x4-MS2.0-G | resnet45 | MJ+ST| 42.2M | 90.61%  |  7718s/epoch  | 417 ms/step  | 1,840 img/s | [yaml(LF_1)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_1.yaml) [yaml(LF_2)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_2.yaml) [yaml(LA)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LA.yaml)| [ckpt files](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_ckpts-7d6e9c04.tar.gz) \| [mindir(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-71b38d2d.mindir)|
 
 </div>
 
@@ -56,7 +56,7 @@
 - 训练数据集：`MJ+ST`代表两个合成数据集SynthText（800k）和MJSynth的组合。
 - 要在其他训练环境中重现结果，请确保全局批量大小相同。
 - 这些模型是从头开始训练的，没有任何预训练。有关训练和评估的更多数据集详细信息，请参阅[3.2数据集准备](#32数据集准备)部分。
-
+- VisionLAN的MindIR导出时的输入Shape均为(1, 3, 64, 256)。
 
 ## 3.快速入门
 
@@ -238,8 +238,90 @@ python tools/benchmarking/multi_dataset_eval.py --config $yaml_file --opt eval.d
 
 ## 4. 推理
 
-敬请期待...
+### 4.1 准备 MINDIR 文件
 
+请从上面的表格中中下载[MINDIR](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-71b38d2d.mindir)文件，或者您可以使用`tools/export.py`将任何检查点文件手动转换为 MINDIR 文件：
+```bash
+# 有关更多参数使用详细信息，请执行 `python tools/export.py -h`
+python tools/export.py --model_name visionlan_resnet45 --data_shape 64 256 --local_ckpt_path /path/to/visionlan-ckpt
+```
+
+此命令将在当前工作目录下保存一个`visionlan_resnet45.mindir`文件。
+
+### 4.2 Mindspore Lite Converter Tool
+
+如果您尚未下载 MindSpore Lite，请通过此[链接](https://www.mindspore.cn/lite/docs/en/master/use/downloads.html)进行下载。有关如何在 Linux 环境中使用 MindSpore Lite 的更多详细信息，请参阅[此文档](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool.html#linux-environment-usage-instructions)。
+
+`converter_lite`工具是`mindspore-lite-{version}-linux-x64/tools/converter/converter`下的可执行程序。使用`converter_lite`，我们可以将 `MindIR`文件转换为`MindSpore Lite MindIR`文件。
+
+首先，我们需要准备一个配置文件`config.txt`：
+```text
+[ascend_context]
+input_format=NCHW
+input_shape=args0:[1,3,64,256]
+```
+第一行`[ascend_context]`表示后续内容是`Ascend`后端的相关设置。通常，在创建配置文件时，必须添加此行以指示 Ascend 后端的相关设置内容；
+
+第二行`input_format=NCHW`表示模型的输入格式为`[batch_size, channel_num, Height, Width]`；
+
+第三行`input_shape=args0:[1,3,64,256]`表示模型输入的变量名为`args0`，`args0`的形状为`[1,3,64,256]`；如果使用其他模型或骨干网络，则形状的设置需要参考模型支持列表中的数据形状列；
+
+准备好`config.txt`后，我们可以运行以下命令：
+```bash
+converter_lite \
+     --saveType=MINDIR \
+     --NoFusion=false \
+     --fmk=MINDIR \
+     --device=Ascend \
+     --modelFile=path/to/mindir/file \
+     --outputFile=visionlan_resnet45_lite \
+     --configFile=config.txt
+```
+运行此命令将在当前工作目录下保存一个`visionlan_resnet45_lite.mindir`文件。这是我们可以在`Ascend310`或`310P`平台上进行推理的`MindSpore Lite MindIR`文件。您还可以通过更改`--outputFile`参数来定义不同的文件名。
+
+
+### 4.3 对图像文件夹进行推理
+
+以`SVT`测试集为例，数据集文件夹下的数据结构如下：
+```text
+svt_dataset
+├── test
+│   ├── 16_16_0_ORPHEUM.jpg
+│   ├── 12_13_4_STREET.jpg
+│   ├── 17_08_TOWN.jpg
+│   ├── ...
+└── test_gt.txt
+
+```
+我们使用以下命令对`visionlan_resnet45_lite.mindir`文件进行推理：
+```bash
+python deploy/py_infer/infer.py  \
+    --input_images_dir=/path/to/svt_dataset/test  \
+    --device_id=0  \
+    --parallel_num=1  \
+    --rec_model_path=/path/to/visionlan_resnet45_lite.mindir  \
+    --rec_model_name_or_config=configs/rec/visionlan/visionlan_resnet45_LA.yaml \
+    --res_save_dir=rec_svt
+```
+
+运行此命令将在当前工作目录下创建一个名为`rec_svt`的文件夹，并保存一个预测文件`rec_svt/rec_results.txt`。该文件中的一些预测示例如下所示：
+```text
+16_16_0_ORPHEUM.jpg "orpheum"
+12_13_4_STREET.jpg  "street"
+17_08_TOWN.jpg  "town"
+...
+```
+
+然后，我们可以使用以下命令计算预测准确率：
+```bash
+python deploy/eval_utils/eval_rec.py  \
+    --pred_path=rec_svt/rec_results.txt  \
+    --gt_path=/path/to/svt_dataset/test_gt.txt
+```
+评估结果如下所示：
+```text
+{'acc': 0.9227202534675598, 'norm_edit_distance': 0.9720136523246765}
+```
 
 ## 5. 引用文献
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->

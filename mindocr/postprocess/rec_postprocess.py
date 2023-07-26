@@ -188,40 +188,43 @@ class VisionLANPostProcess(RecCTCLabelDecode):
         ), "VisionLAN uses blank_at_last =  False, please check your configuration for VisionLANPostProcess"
 
     def __call__(self, preds, *args, **kwargs):
-        if isinstance(preds, Tensor):  # eval mode
-            text_pre = preds.asnumpy()  # (max_len, b, 37)) before the softmax function
-            b = text_pre.shape[1]
-            lenText = self.max_text_length
-            nsteps = self.max_text_length
-            out_res = np.zeros(shape=[lenText, b, self.num_classes])
-            out_length = np.zeros(shape=[b])
-            now_step = 0
-            for _ in range(nsteps):
-                if 0 in out_length and now_step < nsteps:
-                    tmp_result = text_pre[now_step, :, :]  # (b, 37)
-                    out_res[now_step] = tmp_result
-                    tmp_result = (-tmp_result).argsort(axis=1)[
-                        :, 0
-                    ]  # top1 result index at axis=1, 37 is the dictionary size
-                    for j in range(b):
-                        if out_length[j] == 0 and tmp_result[j] == 0:
-                            # for the jth sample, if the character with greatest probibility is <PAD>,
-                            # assign the now_step+1 to  out_length[j] as the prediction length
-                            out_length[j] = now_step + 1
-                    now_step += 1
-            for j in range(0, b):
-                if int(out_length[j]) == 0:
-                    out_length[j] = nsteps
-            start = 0
-            output = np.zeros((int(out_length.sum()), self.num_classes))
-            for i in range(0, b):
-                cur_length = int(out_length[i])
-                output[start : start + cur_length] = out_res[0:cur_length, i, :]
-                start += cur_length
-            net_out = output
-            length = out_length
-        else:  # do not call postprocess in train mode
+        if isinstance(preds, (list, tuple)) and len(preds) == 4:  # do not call postprocess in train mode
             raise ValueError("Do not call postprocess in train mode")
+
+        text_pre = preds.transpose((1, 0, 2))  # (max_len, b, 37)) before the softmax function
+        if not isinstance(text_pre, np.ndarray):
+            text_pre = text_pre.asnumpy()
+        b = text_pre.shape[1]
+        lenText = self.max_text_length
+        nsteps = self.max_text_length
+        out_res = np.zeros(shape=[lenText, b, self.num_classes])
+        out_length = np.zeros(shape=[b])
+        now_step = 0
+        for _ in range(nsteps):
+            if 0 in out_length and now_step < nsteps:
+                tmp_result = text_pre[now_step, :, :]  # (b, 37)
+                out_res[now_step] = tmp_result
+                tmp_result = (-tmp_result).argsort(axis=1)[
+                    :, 0
+                ]  # top1 result index at axis=1, 37 is the dictionary size
+                for j in range(b):
+                    if out_length[j] == 0 and tmp_result[j] == 0:
+                        # for the jth sample, if the character with greatest probibility is <PAD>,
+                        # assign the now_step+1 to  out_length[j] as the prediction length
+                        out_length[j] = now_step + 1
+                now_step += 1
+        for j in range(0, b):
+            if int(out_length[j]) == 0:
+                out_length[j] = nsteps
+        start = 0
+        output = np.zeros((int(out_length.sum()), self.num_classes))
+        for i in range(0, b):
+            cur_length = int(out_length[i])
+            output[start : start + cur_length] = out_res[0:cur_length, i, :]
+            start += cur_length
+        net_out = output
+        length = out_length
+
         texts = []
         raw_chars = []
         confs = []
