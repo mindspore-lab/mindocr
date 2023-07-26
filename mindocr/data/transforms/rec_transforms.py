@@ -399,10 +399,12 @@ class RecMasterLabelEncode:
         self.dict = {c: idx for idx, c in enumerate(char_list)}
 
         self.num_classes = len(self.dict)
+        self.output_columns = ["length", "text_seq", "text_length", "text_padded"]
 
     def __call__(self, data: Dict[str, Any]) -> str:
+        label = data["label"].item()
         char_indices = str2idx(
-            data["label"], self.dict, max_text_len=self.max_text_len, lower=self.lower, unknown_idx=self.unknown_idx
+            label, self.dict, max_text_len=self.max_text_len, lower=self.lower, unknown_idx=self.unknown_idx
         )
 
         if char_indices is None:
@@ -414,8 +416,8 @@ class RecMasterLabelEncode:
         )
         data["text_seq"] = np.array(char_indices, dtype=np.int32)
 
-        data["text_length"] = len(data["label"])
-        data["text_padded"] = data["label"] + " " * (self.max_text_len - len(data["label"]))
+        data["text_length"] = len(label)
+        data["text_padded"] = label + " " * (self.max_text_len - len(label))
         return data
 
 
