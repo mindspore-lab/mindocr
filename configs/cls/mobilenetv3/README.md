@@ -112,7 +112,7 @@ model:
     name: cls_mobilenet_v3_small_100
     pretrained: True
   head:
-    name: ClsHead
+    name: MobileNetV3Head
     out_channels: 1024  # arch=small 1024, arch=large 1280
     num_classes: *num_classes  # 2 or 4
 ```

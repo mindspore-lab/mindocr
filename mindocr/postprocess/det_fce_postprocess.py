@@ -1,3 +1,5 @@
+from typing import List
+
 import cv2
 import numpy as np
 from numpy.fft import ifft
@@ -202,15 +204,12 @@ def fcenet_decode(
     assert len(preds) == 2
     assert box_type in ["poly", "quad"]
 
-    # import pdb;pdb.set_trace()
     cls_pred = preds[0][0]
-    # tr_pred = F.softmax(cls_pred[0:2], axis=0).cpu().numpy()
-    # tcl_pred = F.softmax(cls_pred[2:], axis=0).cpu().numpy()
 
     tr_pred = cls_pred[0:2]
     tcl_pred = cls_pred[2:]
 
-    reg_pred = preds[1][0].transpose([1, 2, 0])  # .cpu().numpy()
+    reg_pred = preds[1][0].transpose([1, 2, 0])
     x_pred = reg_pred[:, :, : 2 * fourier_degree + 1]
     y_pred = reg_pred[:, :, 2 * fourier_degree + 1 :]
 
@@ -260,8 +259,9 @@ class FCEPostprocess(DetBasePostprocess):
     """
     FCEPostprocess class for post-processing the predictions of FCENet.
 
+
     Args:
-        rescale_fields (list): List of scale factors for different scales of FCENet predictions.
+        scales (list): List of scale factors for different scales of FCENet predictions.
         fourier_degree (int): Order of Fourier coefficients. Default is 5.
         num_reconstr_points (int): Number of reconstructed points for boundaries. Default is 50.
         decoding_type (str): Decoding type. Default is "fcenet".
@@ -270,12 +270,13 @@ class FCEPostprocess(DetBasePostprocess):
         alpha (float): Weight parameter for reconstruction loss. Default is 1.0.
         beta (float): Weight parameter for stability loss. Default is 1.0.
         box_type (str): Text representation type. Default is "poly".
+        rescale_fields: name of fields to scale back to the shape of the original image.
 
     """
 
     def __init__(
         self,
-        rescale_fields,
+        scales,
         fourier_degree=5,
         num_reconstr_points=50,
         decoding_type="fcenet",
@@ -284,8 +285,11 @@ class FCEPostprocess(DetBasePostprocess):
         alpha=1.0,
         beta=1.0,
         box_type="poly",
+        rescale_fields: List[str] = ["polys"],
     ):
-        self.rescale_fields = rescale_fields
+        super().__init__(rescale_fields, box_type)
+
+        self.scales = scales
         self.fourier_degree = fourier_degree
         self.num_reconstr_points = num_reconstr_points
         self.decoding_type = decoding_type
@@ -295,33 +299,25 @@ class FCEPostprocess(DetBasePostprocess):
         self.beta = beta
         self.box_type = box_type
 
-        # def __call__(self, preds, shape_list):
-        #     score_maps = preds['maps']
-        #     return self.get_boundary(score_maps, shape_list)
-
-    def __call__(self, preds, meta_info, **kwargs):
-        shape_list = meta_info[0].numpy()
+    def _postprocess(self, pred, **kwargs):
         score_maps = []
-        for value in preds:
+        for value in pred:
             value = value.asnumpy()
             cls_res = value[:, :4, :, :]
             reg_res = value[:, 4:, :, :]
             score_maps.append([cls_res, reg_res])
-        r = self.get_boundary(score_maps, shape_list)
-        return {"polys": [row[0] for row in r], "scores": [row[1] for row in r]}
+        polys, scores = self.get_boundary(score_maps, np.array([[0, 0, 1, 1]]))
+        return {"polys": polys, "scores": scores}
 
-    def resize_boundary(self, boundaries, scale_factor):
-        """Rescale boundaries via scale_factor.
-        Args:
-            boundaries (list[list[float]]): The boundary list. Each boundary
-            with size 2k+1 with k>=4.
-            scale_factor(ndarray): The scale factor of size (4,).
-        Returns:
-            boundaries (list[list[float]]): The scaled boundaries.
-        """
-        # assert check_argument.is_2dlist(boundaries)
-        # assert isinstance(scale_factor, np.ndarray)
-        # assert scale_factor.shape[0] == 4
+    def get_boundary(self, score_maps, shape_list):
+        assert len(score_maps) == len(self.scales)
+        boundaries = []
+        for idx, score_map in enumerate(score_maps):
+            scale = self.scales[idx]
+            boundaries = boundaries + self._get_boundary_single(score_map, scale)
+
+        # nms
+        boundaries = poly_nms(boundaries, self.nms_thr)
 
         boxes = []
         scores = []
@@ -329,33 +325,9 @@ class FCEPostprocess(DetBasePostprocess):
             sz = len(b)
             valid_boundary(b, True)
             scores.append(b[-1])
-            b = (
-                (np.array(b[: sz - 1]) * (np.tile(scale_factor[:2], int((sz - 1) / 2)).reshape(1, sz - 1)))
-                .flatten()
-                .tolist()
-            )
-            boxes.append(np.array(b).reshape([-1, 2]))
-
+            boundary = np.array(b[: sz - 1]).flatten().tolist()
+            boxes.append(np.array(boundary).reshape([-1, 2]))
         return np.array(boxes, dtype=np.float32), scores
-
-    def get_boundary(self, score_maps, shape_list):
-        assert len(score_maps) == len(self.rescale_fields)
-        # import pdb;pdb.set_trace()
-        boundaries = []
-        for idx, score_map in enumerate(score_maps):
-            scale = self.rescale_fields[idx]
-            boundaries = boundaries + self._get_boundary_single(score_map, scale)
-
-        # nms
-        boundaries = poly_nms(boundaries, self.nms_thr)
-
-        # if rescale:
-        # import pdb;pdb.set_trace()
-        boundaries, scores = self.resize_boundary(boundaries, (1 / shape_list[0, 2:]).tolist()[::-1])
-
-        # boxes_batch = [dict(points=boundaries, scores=scores)]
-        boxes_batch = [[boundaries, scores]]
-        return boxes_batch
 
     def _get_boundary_single(self, score_map, scale):
         assert len(score_map) == 2
