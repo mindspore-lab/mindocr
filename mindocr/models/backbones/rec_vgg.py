@@ -31,7 +31,20 @@ class Conv(nn.Cell):
 
 @register_backbone_class
 class RecVGG(nn.Cell):
-    """VGG Network structure"""
+    r'''RecVGG is the VGG Network structure for recognition backbone, \
+        based on [Very Deep Convolutional Networks for Large-Scale Image Recognition] \
+            (https://arxiv.org/abs/1409.1556) paper.
+
+    Args:
+        kwargs (dict): input args for the backbone.
+
+    Return:
+        nn.Cell for VGG backbone module.
+
+    Example:
+        >>> init a VGG network
+        >>> model = RecVGG()
+    '''
 
     def __init__(self, **kwargs):
         super().__init__()
@@ -67,6 +80,19 @@ class RecVGG(nn.Cell):
 
 @register_backbone
 def rec_vgg7(pretrained: bool = False, **kwargs):
+    r'''A predefined VGG-7 backbone customized for Recognition.
+
+    Args:
+        pretrained (bool): whether to use the pretrained backbone. Default: False.
+        kwargs (dict): input args for the backbone.
+
+    Return:
+        nn.Cell for VGG backbone module
+
+    .. note::
+        The default pretrained checkpoint for `rec_vgg7` backbone is still under development.
+    '''
+
     model = RecVGG(**kwargs)
 
     if pretrained is True:

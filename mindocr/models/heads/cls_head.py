@@ -4,7 +4,7 @@ from mindspore import Tensor
 from ..backbones.mindcv_models.layers.pooling import GlobalAvgPooling
 
 
-class ClsHead(nn.Cell):
+class MobileNetV3Head(nn.Cell):
     """
     Text direction classification head.
     """

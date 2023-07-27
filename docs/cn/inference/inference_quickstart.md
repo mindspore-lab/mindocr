@@ -12,9 +12,9 @@
 |                                                                                 | ResNet-50   | ch + en | 12个数据集 | 84.30  | 8.46  | (1,3,1152,2048) | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/dbnet/db++_r50_icdar15.yaml)       | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_ch_en_general-884ba5b9.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_ch_en_general-884ba5b9-b3f52398.mindir) |
 | [EAST](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/east)     | ResNet-50   | en      | IC15   | 86.86  | 6.72  | (1,3,720,1280) | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/east/east_r50_icdar15.yaml)        | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359-5f05cd42.mindir)              |
 |                                                                                 | MobileNetV3   | en      | IC15   | 75.32  | 26.77  | (1,3,720,1280) | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/east/east_mobilenetv3_icdar15.yaml)        | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1-5bf242c5.mindir)              |
-| [PSENet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) | ResNet-152  | en      | IC15   | 82.50  | 2.31  | (1,3,1472,2624) | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_r152_icdar15.yaml)      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)         |
-|                                                                                 | ResNet-50  | en      | IC15   | 81.37  | 1.00  | (1,3,736,1312) | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_r50_icdar15.yaml)      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9-cfd2ee6c.mindir)         |
-|                                                                                 | MobileNetV3  | en      | IC15   | 70.56  | 1.06  | (1,3,736,1312) | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_mv3_icdar15.yaml)      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907-da7cfe09.mindir)         |
+| [PSENet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) | ResNet-152  | en      | IC15   | 82.50  | 2.52  | (1,3,1472,2624) | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_r152_icdar15.yaml)      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)         |
+|                                                                                 | ResNet-50  | en      | IC15   | 81.37  | 10.16  | (1,3,736,1312) | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_r50_icdar15.yaml)      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9-cfd2ee6c.mindir)         |
+|                                                                                 | MobileNetV3  | en      | IC15   | 70.56  | 10.38  | (1,3,736,1312) | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_mv3_icdar15.yaml)      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907-da7cfe09.mindir)         |
 
 #### 1.2 文本识别
 
@@ -52,15 +52,17 @@ graph LR;
 如上图所示，推理流程分为以下几步：
 
 1. 将MindOCR训练完成后的ckpt模型，使用```tools/export.py```导出成MindIR模型；
-2. 下载并配置[converter_lite](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)工具，使用converter_lite工具将MindIR模型导出成MindSpore Lite版本的MindIR模型；
-3. 准备好MindSpore Lite版本的MindIR模型以及输入图片后，在Ascend310/310P上使用```deploy/py_infer/infer.py```进行推理；
+2. 下载并配置[模型转换工具](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)（即**converter_lite**），使用converter_lite工具将MindIR模型导出成MindSpore Lite MindIR模型；
+3. 准备好MindSpore Lite MindIR模型和输入图片后，使用```deploy/py_infer/infer.py```进行推理；
 4. 根据模型种类不同，使用```deploy/eval_utils/eval_det.py```对文本检测类模型的推理结果进行评估，或者使用```deploy/eval_utils/eval_rec.py```对文本识别类模型的推理结果进行评估。
+
+**注意：Step 1在Ascend910、GPU或CPU上执行。Step 2,3,4在Ascend310或310P上执行。**
 <br></br>
 ### 3. MindOCR推理方法
 #### 3.1 文本检测
 下面以[模型表格](#11-文本检测)中的`DBNet ResNet-50 en`为例介绍推理方法：
-- 下载模型表格中的[ckpt文件](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24.ckpt)并使用以下命令导出为mindir
-，或者直接从模型表格下载已经导出完成的[mindir文件](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24-fbf95c82.mindir):
+- 下载模型表格中的[ckpt文件](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24.ckpt)并使用以下命令导出为MindIR
+，或者直接从模型表格下载已经导出完成的[MindIR文件](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24-fbf95c82.mindir):
 ``` shell
 # 使用本地ckpt文件，导出`DBNet ResNet-50 en` 模型的MindIR
 # 更多参数使用详情，请执行 `python tools/export.py -h`
@@ -73,7 +75,7 @@ python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280 --local
 ```--local_ckpt_path /path/to/dbnet.ckpt```参数表明需要导出的模型文件为```/path/to/dbnet.ckpt```
 
 
-- 在Ascend310/310P上使用converter_lite工具将下载的文件转换为MindSpore Lite可使用的mindir：
+- 在Ascend310或310P上使用converter_lite工具将MindIR转换为MindSpore Lite MindIR：
 
 创建`config.txt`并指定模型输入shape：
 ```
@@ -113,7 +115,7 @@ converter_lite \
 ```
 上述命令中```--fmk=MINDIR```表明输入模型的原始格式为MindIR，同时```—fmk```参数还支持ONNX等；
 
-```--saveType=MINDIR```表明输出模型格式为mindir格式；
+```--saveType=MINDIR```表明输出模型格式为MindIR格式；
 
 ```--device=Ascend```表明转换模型时的目标设备为Ascend，若未设置则默认为CPU后端推理；
 
@@ -162,9 +164,9 @@ python deploy/eval_utils/eval_det.py \
 #### 3.2 文本识别
 下面以[模型表格](#12-文本识别)中的`CRNN ResNet34_vd en`为例介绍推理方法：
 
-- 下载模型表格中的[mindir文件](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-eb10a0c9.mindir)；
+- 下载模型表格中的[MindIR文件](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-eb10a0c9.mindir)；
 
-- 在Ascend310/310P上使用converter_lite工具将下载的文件转换为MindSpore Lite可使用的mindir：
+- 在Ascend310或310P上使用converter_lite工具将MindIR转换为MindSpore Lite MindIR：
 
 创建`config.txt`并指定模型输入shape：
 ```
