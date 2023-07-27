@@ -20,17 +20,7 @@ class FCEHead(Cell):
 
     Args:
         in_channels (int): The number of input channels.
-        scales (list[int]) : The scale of each layer.
         fourier_degree (int) : The maximum Fourier transform degree k.
-        num_sample (int) : The sampling points number of regression
-            loss. If it is too small, FCEnet tends to be overfitting.
-        score_thr (float) : The threshold to filter out the final
-            candidates.
-        nms_thr (float) : The threshold of nms.
-        alpha (float) : The parameter to calculate final scores. Score_{final}
-            = (Score_{text region} ^ alpha)
-            * (Score{text center region} ^ beta)
-        beta (float) :The parameter to calculate final scores.
     """
 
     def __init__(self, in_channels, fourier_degree=5, mode=False):
