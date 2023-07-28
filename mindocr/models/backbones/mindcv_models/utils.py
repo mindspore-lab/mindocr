@@ -72,13 +72,12 @@ def load_pretrained(model, default_cfg, num_classes=1000, in_channels=3, filter_
 
     try:
         param_dict = load_checkpoint(file_path)
-    except Exception:
-        _logger.error(
+    except Exception as e:
+        raise ValueError(
             f"Fails to load the checkpoint. Please check whether the checkpoint is downloaded successfully"
             f"as `{file_path}` and is not zero-byte. You may try to manually download the checkpoint "
             f"from {default_cfg['url']}"
-        )
-        param_dict = dict()
+        ) from e
 
     if auto_mapping:
         param_dict = auto_map(model, param_dict)
