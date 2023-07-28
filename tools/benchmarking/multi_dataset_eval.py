@@ -141,7 +141,7 @@ def main(cfg):
         f"\nStart evaluating..."
     )
 
-    for dirpath, dirnames, _ in os.walk(os.path.abspath(data_dir_root)):
+    for dirpath, dirnames, _ in os.walk(os.path.abspath(data_dir_root), followlinks=True):
         if not dirnames:
             dataset_config = copy.deepcopy(cfg.eval.dataset)
             dataset_config["data_dir"] = os.path.abspath(dirpath)

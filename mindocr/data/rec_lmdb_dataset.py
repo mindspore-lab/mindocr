@@ -212,7 +212,7 @@ class LMDBDataset(BaseDataset):
     def load_hierarchical_lmdb_dataset(self, data_dir, start_idx=0):
         lmdb_sets = {}
         dataset_idx = start_idx
-        for rootdir, dirs, _ in os.walk(data_dir + "/"):
+        for rootdir, dirs, _ in os.walk(data_dir + "/", followlinks=True):
             if not dirs:
                 try:
                     env = lmdb.Environment(
