@@ -8,7 +8,7 @@ eval:
       - DecodeImage: # load image
           img_mode: BGR
           channel_first: False
-      - ClsResizeNormForInfer:
+      - RecResizeNormForInfer:
           keep_ratio: True
           padding: True
           norm_before_pad: True

@@ -3,33 +3,57 @@ from typing import List
 
 import numpy as np
 
-from ....utils import check_valid_file
 from .model_base import ModelBase
 
 
 class LiteModel(ModelBase):
-    def __new__(cls, *args, **kwargs):
+    def __init__(self, model_path, device, device_id):
         from mindspore_lite.version import __version__
 
         if __version__ < "2.0":
-            return super(LiteModel, cls).__new__(_LiteModelV1)
+            raise ValueError(f"Only support mindspore lite >= 2.0, but got version {__version__}.")
+
+        super().__init__(model_path, device, device_id)
+
+    def _init_model(self):
+        global mslite
+        import mindspore_lite as mslite
+
+        context = mslite.Context()
+        context.target = [self.device.lower()]
+
+        if self.device.lower() == "ascend":
+            context.ascend.device_id = self.device_id
+        elif self.device.lower() == "gpu":
+            context.gpu.device_id = self.device_id
         else:
-            return super(LiteModel, cls).__new__(_LiteModelV2)
+            pass
 
-    def __init__(self, model_path, device_id):
-        super().__init__()
-        self.model_path = model_path
-        self.device_id = device_id
+        self.model = mslite.Model()
+        self.model.build_from_file(self.model_path, mslite.ModelType.MINDIR, context)
 
-        self._input_shape = None
-        check_valid_file(model_path)
-        self._init_model()
+        inputs = self.model.get_inputs()
+        self._input_num = len(inputs)
+        self._input_shape = [x.shape for x in inputs]  # shape before resize
+        self._input_dtype = [self.__dtype_to_nptype(x.dtype) for x in inputs]
 
-    @property
-    def input_shape(self):
-        return self._input_shape
+    def infer(self, inputs: List[np.ndarray]) -> List[np.ndarray]:
+        model_inputs = self.model.get_inputs()
+        inputs_shape = [list(input.shape) for input in inputs]
+        self.model.resize(model_inputs, inputs_shape)
+
+        for i, input in enumerate(inputs):
+            model_inputs[i].set_data_from_numpy(input)
+
+        model_outputs = self.model.predict(model_inputs)
+        outputs = [output.get_data_to_numpy().copy() for output in model_outputs]
+        return outputs
 
     def get_gear(self):
+        # Only support shape gear for Ascend device.
+        if self.device.lower() != "ascend":
+            return []
+
         gears = []
 
         # MSLite does not provide API to get gear value, so we parse it from origin file.
@@ -37,9 +61,18 @@ class LiteModel(ModelBase):
             content = f.read()
 
         matched = re.search(rb"_all_origin_gears_inputs.*?\xa0", content, flags=re.S)
+
+        # TODO: shape gear don't support for multi input
+        if self._input_num > 1 and matched:
+            raise ValueError(
+                f"Shape gear don‘t support model input_num > 1 currently, \
+                but got input_num = {self._input_num} for {self.model_path}!"
+            )
+
         if not matched:
             return gears
 
+        # TODO: only support NCHW format for shape gear
         matched_text = matched.group()
         shape_text = re.findall(rb"(?<=:4:)\d+,\d+,\d+,\d+", matched_text)
 
@@ -54,80 +87,20 @@ class LiteModel(ModelBase):
 
         return gears
 
+    def __dtype_to_nptype(self, type_):
+        DataType = mslite.DataType
 
-class _LiteModelV1(LiteModel):
-    def _init_model(self):
-        import mindspore_lite as mslite
-
-        ascend_device_info = mslite.AscendDeviceInfo(device_id=self.device_id)
-        context = mslite.Context()
-        context.append_device_info(ascend_device_info)
-
-        self.model = mslite.Model()
-        self.model.build_from_file(self.model_path, mslite.ModelType.MINDIR, context)
-
-        inputs = self.model.get_inputs()
-        input_num = len(inputs)
-        if input_num != 1:
-            raise ValueError(
-                f"Only support single input for model inference, but got {input_num} inputs for {self.model_path}."
-            )
-
-        if inputs[0].get_format() != mslite.Format.NCHW:
-            raise ValueError(
-                f"Model inference only support NCHW format, but got {inputs[0].format.name} for {self.model_path}."
-            )
-
-        self._input_shape = inputs[0].get_shape()  # shape before resize
-
-    def infer(self, inputs: List[np.ndarray]) -> List[np.ndarray]:
-        model_inputs = self.model.get_inputs()
-        inputs_shape = [list(input.shape) for input in inputs]
-        self.model.resize(model_inputs, inputs_shape)
-
-        for i, input in enumerate(inputs):
-            model_inputs[i].set_data_from_numpy(input)
-
-        model_outputs = self.model.get_outputs()
-        self.model.predict(model_inputs, model_outputs)
-
-        outputs = [output.get_data_to_numpy().copy() for output in model_outputs]
-        return outputs
-
-
-class _LiteModelV2(LiteModel):
-    def _init_model(self):
-        import mindspore_lite as mslite
-
-        context = mslite.Context()
-        context.target = ["ascend"]
-        context.ascend.device_id = self.device_id
-
-        self.model = mslite.Model()
-        self.model.build_from_file(self.model_path, mslite.ModelType.MINDIR, context)
-
-        inputs = self.model.get_inputs()
-        input_num = len(inputs)
-        if input_num != 1:
-            raise ValueError(
-                f"Only support single input for model inference, but got {input_num} inputs for {self.model_path}."
-            )
-
-        if inputs[0].format != mslite.Format.NCHW:
-            raise ValueError(
-                f"Model inference only support NCHW format, but got {inputs[0].format.name} for {self.model_path}."
-            )
-
-        self._input_shape = inputs[0].shape  # shape before resize
-
-    def infer(self, inputs: List[np.ndarray]) -> List[np.ndarray]:
-        model_inputs = self.model.get_inputs()
-        inputs_shape = [list(input.shape) for input in inputs]
-        self.model.resize(model_inputs, inputs_shape)
-
-        for i, input in enumerate(inputs):
-            model_inputs[i].set_data_from_numpy(input)
-
-        model_outputs = self.model.predict(model_inputs)
-        outputs = [output.get_data_to_numpy().copy() for output in model_outputs]
-        return outputs
+        return {
+            DataType.BOOL: np.bool_,
+            DataType.INT8: np.int8,
+            DataType.INT16: np.int16,
+            DataType.INT32: np.int32,
+            DataType.INT64: np.int64,
+            DataType.UINT8: np.uint8,
+            DataType.UINT16: np.uint16,
+            DataType.UINT32: np.uint32,
+            DataType.UINT64: np.uint64,
+            DataType.FLOAT16: np.float16,
+            DataType.FLOAT32: np.float32,
+            DataType.FLOAT64: np.float64,
+        }[type_]

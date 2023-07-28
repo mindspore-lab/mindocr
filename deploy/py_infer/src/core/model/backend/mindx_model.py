@@ -2,23 +2,21 @@ from typing import List
 
 import numpy as np
 
-from ....utils import check_valid_file, suppress_stdout
+from ....utils import suppress_stdout
 from .model_base import ModelBase
 
 
 class MindXModel(ModelBase):
-    def __init__(self, model_path, device_id):
-        super().__init__()
-        self.model_path = model_path
-        self.device_id = device_id
+    def __init__(self, model_path, device, device_id):
+        if device.lower() != "ascend":
+            raise ValueError(f"ACL inference only support Ascend device, but got {device}.")
 
-        check_valid_file(model_path)
-        self._init_model()
+        super().__init__(model_path, device, device_id)
 
     def _init_model(self):
-        global Tensor
+        global base, Tensor
         with suppress_stdout():
-            from mindx.sdk import Tensor, base, visionDataFormat
+            from mindx.sdk import Tensor, base
 
         base.mx_init()
 
@@ -26,11 +24,12 @@ class MindXModel(ModelBase):
         if not self.model:
             raise ValueError(f"The model file {self.model_path} load failed.")
 
-        if self.model.input_format != visionDataFormat.NCHW:
-            raise ValueError(
-                f"Model inference only support NCHW format, "
-                f"but got {self.model.input_format.name} for {self.model_path}."
-            )
+        # dynamic batch size/image size name: ascend_mbatch_shape_data
+        # dynamic aipp name: ascend_dynamic_aipp_data
+        # TODO: self._input_num remove dynamic aipp input_num 1.
+        self._input_num = self.model.input_num - 1 if self.model.model_gear() else self.model.input_num
+        self._input_shape = [self.model.input_shape(i) for i in range(self._input_num)]
+        self._input_dtype = [self.__dtype_to_nptype(self.model.input_dtype(i)) for i in range(self._input_num)]
 
     def infer(self, inputs: List[np.ndarray]):
         inputs = [Tensor(input) for input in inputs]
@@ -39,17 +38,21 @@ class MindXModel(ModelBase):
         outputs = [np.array(output) for output in outputs]
         return outputs
 
-    @property
-    def input_shape(self):
-        return self.model.input_shape(0)
-
     def get_gear(self):
         gears = self.model.model_gear()
+
+        # TODO: shape gear don't support for multi input
+        if self._input_num > 1 and gears:
+            raise ValueError(
+                f"Shape gear don‘t support model input_num > 1 currently, \
+                but got input_num = {self._input_num} for {self.model_path}!"
+            )
 
         # dynamic shape or static shape
         if not gears:
             return gears
 
+        # TODO: only support NCHW format for shape gear
         # dynamic_dims
         if len(gears[0]) == 4:
             return gears
@@ -65,3 +68,21 @@ class MindXModel(ModelBase):
             return [nc + gear for gear in gears]
 
         raise ValueError(f"Get gear value failed for {self.model_path}. Please Check ATC conversion process!")
+
+    def __dtype_to_nptype(self, type_):
+        dtype = base.dtype
+
+        return {
+            dtype.bool: np.bool_,
+            dtype.int8: np.int8,
+            dtype.int16: np.int16,
+            dtype.int32: np.int32,
+            dtype.int64: np.int64,
+            dtype.uint8: np.uint8,
+            dtype.uint16: np.uint16,
+            dtype.uint32: np.uint32,
+            dtype.uint64: np.uint64,
+            dtype.float16: np.float16,
+            dtype.float32: np.float32,
+            dtype.double: np.float64,
+        }[type_]

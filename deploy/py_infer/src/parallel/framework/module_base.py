@@ -1,3 +1,4 @@
+import os.path
 import time
 from abc import abstractmethod
 from ctypes import c_longdouble
@@ -61,9 +62,8 @@ class ModuleBase(object):
                 self.process(send_data)
             except Exception as error:
                 self.process(StopData(exception=True))
-                log.exception(
-                    f"ERROR occurred in {self.module_name} module for {', '.join(send_data.image_path)}: {error}."
-                )
+                image_path = [os.path.basename(filename) for filename in send_data.image_path]
+                log.exception(f"ERROR occurred in {self.module_name} module for {', '.join(image_path)}: {error}.")
 
             cost_time = time.time() - start_time
             self.process_cost.value += cost_time

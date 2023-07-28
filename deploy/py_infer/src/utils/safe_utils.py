@@ -134,3 +134,18 @@ def suppress_stdout():
 
     os.dup2(save_fds, 1)
     os.close(null_fds)
+
+
+@contextlib.contextmanager
+def suppress_stderr():
+    """
+    A context manager for doing a "deep suppression" of stderr.
+    """
+    null_fds = os.open(os.devnull, os.O_RDWR)
+    save_fds = os.dup(2)
+    os.dup2(null_fds, 2)
+
+    yield
+
+    os.dup2(save_fds, 2)
+    os.close(null_fds)

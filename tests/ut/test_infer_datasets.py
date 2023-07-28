@@ -21,10 +21,10 @@ def test_transforms_pipeline(task):
         target_size = (32, 100)
 
     preprocess_ops = build_preprocess(config_fp)
-    image = np.random.randint(0, 255, size=image_shape).astype(np.float32)
-    data = preprocess_ops(image, target_size=target_size)
+    image = np.random.randint(0, 255, size=image_shape).astype(np.uint8)
+    data = preprocess_ops([image], target_size=target_size)
 
-    assert data["image"].shape == (1, 3) + target_size
+    assert data["net_inputs"][0].shape == (1, 3) + target_size
 
     if task == "det":
         assert data["shape_list"].shape == (1, 4)
