@@ -108,6 +108,7 @@ train:
           lower: *lower
       - SVTRRecAug:
           aug_type: 0
+          deterioration_factor: null
       - SVTRRecResizeImg:
           image_shape: [64, 256] # H, W
           padding: False
