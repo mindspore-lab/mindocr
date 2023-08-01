@@ -6,8 +6,13 @@ from tqdm import tqdm
 
 class CCPD_Converter:
     """
-    Format annotation to standard form for CCPD2019 dataset.
+    Format annotation to standard form for CCPD2019 and CCPD-Green datasets.
     CCPD2019 is a dataset for license plate (lp) text detection and recognition.
+
+    CCPD2019 train, validation and test splits lists are located under `CCPD/splits` directory. These lists must be
+    supplied to the converter with the `label_path` argument. CCPD-Green data is already separated into different
+    folders and thus does not require `label_path` argument.
+
     The ground truths are embedded into the filenames of the images of the dataset, so there are no additional
     annotation file(s). Thus, the filenames follow a specific format:
 
@@ -130,8 +135,9 @@ class CCPD_Converter:
         ]
 
     def convert(self, task="det", image_dir=None, label_path=None, output_path=None):
-        label_path = Path(label_path)
-        assert label_path.exists(), f"{label_path} does not exist!"
+        if label_path:
+            label_path = Path(label_path)
+            assert label_path.exists(), f"{label_path} does not exist!"
 
         if task == "det":
             self._format_det_label(Path(image_dir), label_path, output_path)
@@ -139,41 +145,45 @@ class CCPD_Converter:
             raise ValueError("The CCPD dataset currently supports detection only!")
 
     def _format_det_label(self, image_dir: Path, label_path: Path, output_path: str):
-        with open(output_path, "w", encoding="utf-8") as out_file:
+        img_paths = []
+        if label_path:
             with open(label_path, "r") as f:
-                for line in tqdm(f.readlines()):
+                for line in f.readlines():
                     img_path = image_dir / line.strip()
                     assert img_path.exists(), f"Image {img_path} not found."
+                    img_paths.append(img_path)
+        else:
+            img_paths = list(image_dir.iterdir())
 
-                    area, tilt, bbox, vertices, lp, brightness, blurriness = img_path.stem.split("-")
-                    h_tilt, v_tilt = [int(x) for x in tilt.split("_")]
-                    bbox = [
-                        [int(x) for x in coordinates.split("&")] for coordinates in bbox.split("_")
-                    ]  # reshape (2, 2)
+        with open(output_path, "w", encoding="utf-8") as out_file:
+            for img_path in tqdm(img_paths):
+                area, tilt, bbox, vertices, lp, brightness, blurriness = img_path.stem.split("-")
+                h_tilt, v_tilt = [int(x) for x in tilt.split("_")]
+                bbox = [[int(x) for x in coordinates.split("&")] for coordinates in bbox.split("_")]  # reshape (2, 2)
 
-                    points = [
-                        [int(x) for x in coordinates.split("&")] for coordinates in vertices.split("_")
-                    ]  # reshape (N, 2)
+                points = [
+                    [int(x) for x in coordinates.split("&")] for coordinates in vertices.split("_")
+                ]  # reshape (N, 2)
 
-                    province = self.provinces[int(lp.split("_")[0])]
-                    alphabet = self.alphabets[int(lp.split("_")[1])]
-                    ad = ""
-                    for i in lp.split("_")[2:]:
-                        ad += self.ads[int(i)]
-                    lp_text = province + alphabet + ad
+                province = self.provinces[int(lp.split("_")[0])]
+                alphabet = self.alphabets[int(lp.split("_")[1])]
+                ad = ""
+                for i in lp.split("_")[2:]:
+                    ad += self.ads[int(i)]
+                lp_text = province + alphabet + ad
 
-                    label = [
-                        {
-                            "area": int(area),
-                            "h_tilt": h_tilt,
-                            "v_tilt": v_tilt,
-                            "bbox": bbox,
-                            "points": points,
-                            "transcription": lp_text,
-                            "brightness": int(brightness),
-                            "blurriness": int(blurriness),
-                        }
-                    ]
+                label = [
+                    {
+                        "area": int(area),
+                        "h_tilt": h_tilt,
+                        "v_tilt": v_tilt,
+                        "bbox": bbox,
+                        "points": points,
+                        "transcription": lp_text,
+                        "brightness": int(brightness),
+                        "blurriness": int(blurriness),
+                    }
+                ]
 
-                    img_path = img_path.name if self._relative else str(img_path)
-                    out_file.write(img_path + "\t" + json.dumps(label, ensure_ascii=False) + "\n")
+                img_path = img_path.name if self._relative else str(img_path)
+                out_file.write(img_path + "\t" + json.dumps(label, ensure_ascii=False) + "\n")
