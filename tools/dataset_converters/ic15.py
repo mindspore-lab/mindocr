@@ -51,9 +51,6 @@ class IC15_Converter:
                 img_path.exists()
             ), f"{img_path} not exist! Please check the input image_dir {image_dir} and names in {label_fp}"
 
-            if self._path_mode == "relative":
-                img_path = img_path.name
-
             label = []
             with open(label_fp, "r", encoding="utf-8-sig") as f:
                 for line in f.readlines():
@@ -68,6 +65,7 @@ class IC15_Converter:
 
                     label.append({"transcription": line[8], "points": points})
 
+            img_path = img_path.name if self._path_mode == "relative" else str(img_path)
             label = json.dumps(label, ensure_ascii=False)
             if self._to_mr:
                 with open(img_path, "rb") as f:
