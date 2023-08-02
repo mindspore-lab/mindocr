@@ -113,7 +113,7 @@ train:
       - SVTRDeterioration:
           variance: 20
           degrees: 6
-          factor: 4
+          factor: null
           p: 0.25
       - CVColorJitter:
           p: 0.25
