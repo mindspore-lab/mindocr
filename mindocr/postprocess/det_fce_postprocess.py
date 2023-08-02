@@ -307,7 +307,7 @@ class FCEPostprocess(DetBasePostprocess):
             reg_res = value[:, 4:, :, :]
             score_maps.append([cls_res, reg_res])
         polys, scores = self.get_boundary(score_maps, np.array([[0, 0, 1, 1]]))
-        return {"polys": polys, "scores": scores}
+        return {"polys": [polys], "scores": [scores]}
 
     def get_boundary(self, score_maps, shape_list):
         assert len(score_maps) == len(self.scales)
