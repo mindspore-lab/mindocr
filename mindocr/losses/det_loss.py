@@ -155,7 +155,9 @@ class BalancedBCELoss(nn.LossBase):
         pos_count = positive.sum(axis=(1, 2), keepdims=True).astype(ms.int32)
         neg_count = negative.sum(axis=(1, 2), keepdims=True).astype(ms.int32)
         neg_count = ops.minimum(neg_count, pos_count * self._negative_ratio).squeeze(axis=(1, 2))
-        neg_count = ops.maximum(neg_count, 10)  # in case when an image has no text instances
+        # in case when an image has no text instances (`pos_count` == 0), set `neg_count` to a small value
+        # to avoid a RuntimeError during `min_neg_score` calculation
+        neg_count = ops.maximum(neg_count, 10)
 
         loss = self._bce_loss(pred, gt, None)
 
