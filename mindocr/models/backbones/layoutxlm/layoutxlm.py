@@ -2,8 +2,8 @@ import copy
 import math
 
 import mindspore as ms
-from mindspore import Parameter, nn, ops
-from mindspore.common.initializer import Constant, initializer
+from mindspore import Parameter, Tensor, nn, ops
+from mindspore.common.initializer import Constant, XavierUniform, initializer
 
 from .configuration import (
     LAYOUTXLM_PRETRAINED_INIT_CONFIGURATION,
@@ -12,7 +12,7 @@ from .configuration import (
 )
 from .model_utils import PretrainedModel
 
-# from .visual_backbone import build_resnet_fpn_backbone, read_config
+from .visual_backbone import build_resnet_fpn_backbone, read_config
 
 
 def relative_position_bucket(relative_position, bidirectional=True, num_buckets=32, max_distance=128):
@@ -454,16 +454,548 @@ class LayoutXLMEncoder(nn.Cell):
         return hidden_states, hidden_save
 
 
+class LayoutXLMIntermediate(nn.Cell):
+    def __init__(self, config: LayoutXLMConfig):
+        super(LayoutXLMIntermediate, self).__init__()
+        self.dense = nn.Dense(config.hidden_size, config.intermediate_size)
+        if config.hidden_act == "gelu":
+            self.intermediate_act_fn = nn.GELU()
+        else:
+            assert False, "hidden_act is set as: {}, please check it..".format(config.hidden_act)
+
+    def construct(self, hidden_states):
+        hidden_states = self.dense(hidden_states)
+        hidden_states = self.intermediate_act_fn(hidden_states)
+        return hidden_states
+
+
+class LayoutXLMOutput(nn.Cell):
+    def __init__(self, config: LayoutXLMConfig):
+        super(LayoutXLMOutput, self).__init__()
+        self.dense = nn.Dense(config.intermediate_size, config.hidden_size)
+        self.LayerNorm = nn.LayerNorm(config.hidden_size, epsilon=config.layer_norm_eps)
+        self.dropout = nn.Dropout(p=config.hidden_dropout_prob)
+
+    def construct(self, hidden_states, input_tensor):
+        hidden_states = self.dense(hidden_states)
+        hidden_states = self.dropout(hidden_states)
+        hidden_states = self.LayerNorm(hidden_states + input_tensor)
+        return hidden_states
+
+
 class LayoutXLMLayer(nn.Cell):
-    pass
+    def __init__(self, config: LayoutXLMConfig):
+        super(LayoutXLMLayer, self).__init__()
+        # since chunk_size_feed_forward is 0 as default, no chunk is needed here.
+        self.seq_len_dim = 1
+        self.attention = LayoutXLMAttention(config)
+        self.add_cross_attention = False  # default as false
+        self.intermediate = LayoutXLMIntermediate(config)
+        self.output = LayoutXLMOutput(config)
+
+    def feed_forward_chunk(self, attention_output):
+        intermediate_output = self.intermediate(attention_output)
+        layer_output = self.output(intermediate_output, attention_output)
+        return layer_output
+
+    def construct(
+        self,
+        hidden_states,
+        attention_mask=None,
+        head_mask=None,
+        encoder_hidden_states=None,
+        encoder_attention_mask=None,
+        past_key_value=None,
+        output_attentions=False,
+        rel_pos=None,
+        rel_2d_pos=None,
+    ):
+        # decoder uni-directional self-attention cached key/values tuple is at positions 1,2
+        self_attn_past_key_value = past_key_value[:2] if past_key_value is not None else None
+        self_attention_outputs = self.attention(
+            hidden_states,
+            attention_mask,
+            head_mask,
+            output_attentions=output_attentions,
+            past_key_value=self_attn_past_key_value,
+            rel_pos=rel_pos,
+            rel_2d_pos=rel_2d_pos,
+        )
+        attention_output = self_attention_outputs[0]
+        layer_output = self.feed_forward_chunk(attention_output)
+
+        if output_attentions:
+            outputs = self_attention_outputs[1:]  # add self attentions if we output attention weights
+            outputs = [
+                layer_output,
+            ] + list(outputs)
+        else:
+            outputs = [layer_output]
+        return outputs
+
+
+class VisualBackbone(nn.Cell):
+    def __init__(self, config: LayoutXLMConfig):
+        super(VisualBackbone, self).__init__()
+        self.cfg = read_config()
+        self.backbone = build_resnet_fpn_backbone(self.cfg)
+
+        assert len(self.cfg.MODEL.PIXEL_MEAN) == len(self.cfg.MODEL.PIXEL_STD)
+        num_channels = len(self.cfg.MODEL.PIXEL_MEAN)
+        # self.register_buffer("pixel_mean", paddle.to_tensor(self.cfg.MODEL.PIXEL_MEAN).reshape([num_channels, 1, 1]))
+        # self.register_buffer("pixel_std", paddle.to_tensor(self.cfg.MODEL.PIXEL_STD).reshape([num_channels, 1, 1]))
+        self.pixel_mean = Parameter(Tensor(self.cfg.MODEL.PIXEL_MEAN).reshape([num_channels, 1, 1]),
+                                    name="pixel_mean", requires_grad=False)
+        self.pixel_std = Parameter(Tensor(self.cfg.MODEL.PIXEL_MEAN).reshape([num_channels, 1, 1]),
+                                   name="pixel_std", requires_grad=False)
+        self.out_feature_key = "p2"
+        # is_deterministic is disabled here.
+        self.pool = nn.AdaptiveAvgPool2d(config.image_feature_pool_shape[:2])
+        if len(config.image_feature_pool_shape) == 2:
+            config.image_feature_pool_shape.append(self.backbone.output_shape()[self.out_feature_key].channels)
+        assert self.backbone.output_shape()[self.out_feature_key].channels == config.image_feature_pool_shape[2]
+
+    def construct(self, images):
+        images_input = (Tensor(images) - self.pixel_mean) / self.pixel_std
+        features = self.backbone(images_input)
+        features = features[self.out_feature_key]
+        features = self.pool(features).flatten(start_axis=2).transpose([0, 2, 1])
+        return features
+
+
+class LayoutXLMModel(LayoutXLMPretrainedModel):
+    """
+    The bare LayoutXLM Model outputting raw hidden-states.
+
+    This model inherits from :class:`~paddlenlp.transformers.model_utils.PretrainedModel`.
+    Refer to the superclass documentation for the generic methods.
+
+    This model is also a Paddle `paddle.nn.Layer <https://www.paddlepaddle.org.cn/documentation
+    /docs/en/api/paddle/fluid/dygraph/layers/Layer_en.html>`__ subclass. Use it as a regular Paddle Layer
+    and refer to the Paddle documentation for all matter related to general usage and behavior.
+
+    Args:
+        vocab_size (`int`):
+            Vocabulary size of the XLNet model. Defines the number of different tokens that can
+            be represented by the `inputs_ids` passed when calling XLNetModel.
+        hidden_size (`int`, optional):
+            Dimensionality of the encoder layers and the pooler layer. Defaults to ``768``.
+        num_hidden_layers (`int`, optional):
+            Number of hidden layers in the Transformer encoder. Defaults to ``12``.
+        num_attention_heads (`int`, optional):
+            Number of attention heads for each attention layer in the Transformer encoder.
+            Defaults to ``12``.
+        intermediate_size (`int`, optional):
+            Dimensionality of the "intermediate" (often named feed-forward) layer in the Transformer encoder.
+            Defaults to ``3072``.
+        hidden_act (`str`, optional):
+            The non-linear activation function in the feed-forward layer.
+            ``"gelu"``, ``"relu"`` and any other paddle supported activation functions
+            are supported. Defaults to ``"gelu"``.
+        hidden_dropout_prob (`float`, optional):
+            The dropout probability for all fully connected layers in the embeddings and encoder.
+            Defaults to ``0.1``.
+        attention_probs_dropout_prob (`float`, optional):
+            The dropout probability for all fully connected layers in the pooler.
+            Defaults to ``0.1``.
+        initializer_range (`float`, optional):
+            The standard deviation of the truncated_normal_initializer for initializing all weight matrices.
+            Defaults to ``0.02``.
+    """
+
+    def __init__(self, config: LayoutXLMConfig):
+        super(LayoutXLMModel, self).__init__(config)
+        self.config = config
+        self.use_visual_backbone = config.use_visual_backbone
+        self.has_visual_segment_embedding = config.has_visual_segment_embedding
+        self.embeddings = LayoutXLMEmbeddings(config)
+
+        if self.use_visual_backbone is True:
+            self.visual = VisualBackbone(config)
+            self.visual.stop_gradient = True
+            self.visual_proj = nn.Dense(config.image_feature_pool_shape[-1], config.hidden_size)
+
+        if self.has_visual_segment_embedding:
+            self.visual_segment_embedding = Parameter(Tensor(
+                shape=[
+                    config.hidden_size,
+                ],
+                dtype=ms.float32)
+            )
+        self.visual_LayerNorm = nn.LayerNorm(config.hidden_size, epsilon=config.layer_norm_eps)
+        self.visual_dropout = nn.Dropout(p=config.hidden_dropout_prob)
+
+        self.encoder = LayoutXLMEncoder(config)
+        self.pooler = LayoutXLMPooler(config)
+
+    def _calc_text_embeddings(self, input_ids, bbox, position_ids, token_type_ids):
+        words_embeddings = self.embeddings.word_embeddings(input_ids)
+        position_embeddings = self.embeddings.position_embeddings(position_ids)
+        spatial_position_embeddings = self.embeddings._cal_spatial_position_embeddings(bbox)
+        token_type_embeddings = self.embeddings.token_type_embeddings(token_type_ids)
+        embeddings = words_embeddings + position_embeddings + spatial_position_embeddings + token_type_embeddings
+        embeddings = self.embeddings.LayerNorm(embeddings)
+        embeddings = self.embeddings.dropout(embeddings)
+        return embeddings
+
+    def _calc_visual_bbox(self, image_feature_pool_shape, bbox, visual_shape):
+        visual_bbox_x = (
+            ops.arange(
+                0,
+                1000 * (image_feature_pool_shape[1] + 1),
+                1000,
+                dtype=bbox.dtype,
+            )
+            // image_feature_pool_shape[1]
+        )
+        visual_bbox_y = (
+            ops.arange(
+                0,
+                1000 * (image_feature_pool_shape[0] + 1),
+                1000,
+                dtype=bbox.dtype,
+            )
+            // image_feature_pool_shape[0]
+        )
+
+        expand_shape = image_feature_pool_shape[0:2]
+        visual_bbox = ops.stack(
+            [
+                visual_bbox_x[:-1].expand(expand_shape),
+                visual_bbox_y[:-1].expand(expand_shape[::-1]).transpose([1, 0]),
+                visual_bbox_x[1:].expand(expand_shape),
+                visual_bbox_y[1:].expand(expand_shape[::-1]).transpose([1, 0]),
+            ],
+            axis=-1,
+        ).reshape([expand_shape[0] * expand_shape[1], bbox.shape[-1]])
+
+        visual_bbox = visual_bbox.expand([visual_shape[0], visual_bbox.shape[0], visual_bbox.shape[1]])
+        return visual_bbox
+
+    def _calc_img_embeddings(self, image, bbox, position_ids):
+        use_image_info = self.use_visual_backbone and image is not None
+        position_embeddings = self.embeddings.position_embeddings(position_ids)
+        spatial_position_embeddings = self.embeddings._cal_spatial_position_embeddings(bbox)
+        if use_image_info is True:
+            visual_embeddings = self.visual_proj(self.visual(image.astype(ms.float32)))
+            embeddings = visual_embeddings + position_embeddings + spatial_position_embeddings
+        else:
+            embeddings = position_embeddings + spatial_position_embeddings
+
+        if self.has_visual_segment_embedding:
+            embeddings += self.visual_segment_embedding
+        embeddings = self.visual_LayerNorm(embeddings)
+        embeddings = self.visual_dropout(embeddings)
+        return embeddings
+
+    def resize_position_embeddings(self, new_num_position_embeddings):
+        """
+        Resizes position embeddings of the model if `new_num_position_embeddings != config["max_position_embeddings"]`.
+
+        Arguments:
+            new_num_position_embeddings (`int`):
+                The number of new position embedding matrix. If position embeddings are learned, increasing the size
+                will add newly initialized vectors at the end, whereas reducing the size will remove vectors from the
+                end.
+        """
+        num_position_embeds_diff = new_num_position_embeddings - self.config.max_position_embeddings
+
+        # no resizing needs to be done if the length stays the same
+        if num_position_embeds_diff == 0:
+            return
+
+        # logger.info(f"Setting `config.max_position_embeddings={new_num_position_embeddings}`...")
+        self.config.max_position_embeddings = new_num_position_embeddings
+
+        old_position_embeddings_weight = self.embeddings.position_embeddings.weight
+
+        self.embeddings.position_embeddings = nn.Embedding(
+            self.config.max_position_embeddings, self.config.hidden_size
+        )
+
+        # with paddle.no_grad():  # no need, refer to https://mindspore.cn/docs/zh-CN/r2.1/migration_guide/typical_api_comparision.html?highlight=no_grad#torch.no_grad
+        if num_position_embeds_diff > 0:
+            self.embeddings.position_embeddings.weight[:-num_position_embeds_diff] = old_position_embeddings_weight
+        else:
+            self.embeddings.position_embeddings.weight = old_position_embeddings_weight[:num_position_embeds_diff]
+
+    def construct(
+        self,
+        input_ids=None,
+        bbox=None,
+        image=None,
+        token_type_ids=None,
+        position_ids=None,
+        attention_mask=None,
+        head_mask=None,
+        output_hidden_states=False,
+        output_attentions=False,
+    ):
+        input_shape = input_ids.shape
+        visual_shape = list(input_shape)
+        visual_shape[1] = self.config.image_feature_pool_shape[0] * self.config.image_feature_pool_shape[1]
+        visual_bbox = self._calc_visual_bbox(self.config.image_feature_pool_shape, bbox, visual_shape)
+
+        final_bbox = ops.concat([bbox, visual_bbox], axis=1)
+        if attention_mask is None:
+            attention_mask = ops.ones(input_shape)
+
+        if self.use_visual_backbone is True:
+            visual_attention_mask = ops.ones(visual_shape)
+        else:
+            visual_attention_mask = ops.zeros(visual_shape)
+
+        attention_mask = attention_mask.astype(visual_attention_mask.dtype)
+
+        final_attention_mask = ops.concat([attention_mask, visual_attention_mask], axis=1)
+
+        if token_type_ids is None:
+            token_type_ids = ops.zeros(input_shape, dtype=ms.int64)
+
+        if position_ids is None:
+            seq_length = input_shape[1]
+            position_ids = self.embeddings.position_ids[:, :seq_length]
+            position_ids = position_ids.expand(input_shape)
+
+        visual_position_ids = ops.arange(0, visual_shape[1]).expand([input_shape[0], visual_shape[1]])
+        final_position_ids = ops.concat([position_ids, visual_position_ids], axis=1)
+
+        if bbox is None:
+            bbox = ops.zeros(input_shape + [4])
+
+        text_layout_emb = self._calc_text_embeddings(
+            input_ids=input_ids,
+            bbox=bbox,
+            token_type_ids=token_type_ids,
+            position_ids=position_ids,
+        )
+
+        visual_emb = self._calc_img_embeddings(
+            image=image,
+            bbox=visual_bbox,
+            position_ids=visual_position_ids,
+        )
+        final_emb = ops.concat([text_layout_emb, visual_emb], axis=1)
+
+        extended_attention_mask = final_attention_mask.unsqueeze(1).unsqueeze(2)
+
+        extended_attention_mask = (1.0 - extended_attention_mask) * -10000.0
+
+        if head_mask is not None:
+            if head_mask.dim() == 1:
+                head_mask = head_mask.unsqueeze(0).unsqueeze(0).unsqueeze(-1).unsqueeze(-1)
+                head_mask = head_mask.broadcast_to((self.config.num_hidden_layers, -1, -1, -1, -1))  # TODO: ? refer to https://mindspore.cn/docs/zh-CN/r2.1/note/api_mapping/pytorch_diff/expand.html?highlight=expand
+            elif head_mask.dim() == 2:
+                head_mask = head_mask.unsqueeze(1).unsqueeze(-1).unsqueeze(-1)
+        else:
+            head_mask = [None] * self.config.num_hidden_layers
+
+        encoder_outputs = self.encoder(
+            final_emb,
+            extended_attention_mask,
+            bbox=final_bbox,
+            position_ids=final_position_ids,
+            head_mask=head_mask,
+            output_attentions=output_attentions,
+            output_hidden_states=output_hidden_states,
+        )
+        sequence_output = encoder_outputs[0]
+        pooled_output = self.pooler(sequence_output)
+        return sequence_output, pooled_output, encoder_outputs[1]
+
+
+class LayoutXLMForTokenClassification(LayoutXLMPretrainedModel):
+    def __init__(self, config: LayoutXLMConfig):
+        super(LayoutXLMForTokenClassification, self).__init__(config)
+        self.num_classes = config.num_labels
+        self.layoutxlm = LayoutXLMModel(config)
+        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        self.classifier = nn.Dense(config.hidden_size, self.num_classes)
+
+    def get_input_embeddings(self):
+        return self.layoutxlm.embeddings.word_embeddings
+
+    def resize_position_embeddings(self, new_num_position_embeddings):
+        """
+        Resizes position embeddings of the model if `new_num_position_embeddings != config["max_position_embeddings"]`.
+
+        Arguments:
+            new_num_position_embeddings (`int`):
+                The number of new position embedding matrix. If position embeddings are learned, increasing the size
+                will add newly initialized vectors at the end, whereas reducing the size will remove vectors from the
+                end.
+        """
+        self.layoutxlm.resize_position_embeddings(new_num_position_embeddings)
+
+    def construct(
+        self,
+        input_ids=None,
+        bbox=None,
+        image=None,
+        attention_mask=None,
+        token_type_ids=None,
+        position_ids=None,
+        head_mask=None,
+        labels=None,
+    ):
+        outputs = self.layoutxlm(
+            input_ids=input_ids,
+            bbox=bbox,
+            image=image,
+            attention_mask=attention_mask,
+            token_type_ids=token_type_ids,
+            position_ids=position_ids,
+            head_mask=head_mask,
+        )
+        seq_length = input_ids.shape[1]
+        # sequence out and image out
+        sequence_output = outputs[0][:, :seq_length]
+        sequence_output = self.dropout(p=sequence_output)
+        logits = self.classifier(sequence_output)
+
+        hidden_states = {
+            f"hidden_states_{idx}": outputs[2][f"{idx}_data"] for idx in range(self.layoutxlm.config.num_hidden_layers)
+        }
+        if self.training:
+            outputs = (logits, hidden_states)
+        else:
+            outputs = (logits,)
+
+        if labels is not None:
+            loss_fct = nn.CrossEntropyLoss()
+
+            if attention_mask is not None:
+                active_loss = (
+                    attention_mask.reshape(
+                        [
+                            -1,
+                        ]
+                    )
+                    == 1
+                )
+                active_logits = logits.reshape([-1, self.num_classes])[active_loss]
+                active_labels = labels.reshape(
+                    [
+                        -1,
+                    ]
+                )[active_loss]
+                loss = loss_fct(active_logits, active_labels)
+            else:
+                loss = loss_fct(
+                    logits.reshape([-1, self.num_classes]),
+                    labels.reshape(
+                        [
+                            -1,
+                        ]
+                    ),
+                )
+
+            outputs = (loss,) + outputs
+
+        return outputs
+
+
+class LayoutXLMPredictionHead(nn.Cell):
+    """
+    Bert Model with a `language modeling` head on top for CLM fine-tuning.
+    """
+
+    def __init__(self, hidden_size, vocab_size, activation, embedding_weights=None):
+        super(LayoutXLMPredictionHead, self).__init__()
+        self.transform = nn.Dense(hidden_size, hidden_size)
+        self.activation = getattr(nn, activation)  # TODO: nn.functional???
+        self.layer_norm = nn.LayerNorm(hidden_size)
+        self.decoder_weight = (Parameter(
+            initializer(XavierUniform(), shape=[vocab_size, hidden_size], dtype=self.transform.weight.dtype))  # TODO: XavierUniform() or XavierNormal()? refer to: https://www.paddlepaddle.org.cn/documentation/docs/zh/api/paddle/create_parameter_cn.html
+            if embedding_weights is None
+            else embedding_weights)
+        self.decoder_bias = Parameter(initializer(Constant(0.0), shape=[vocab_size], dtype=self.decoder_weight.dtype))
+        self.batchmatmul = ops.BatchMatMul(transpose_a=False, transpose_b=True)
+
+    def construct(self, hidden_states, masked_positions=None):
+        if masked_positions is not None:
+            hidden_states = ops.reshape(hidden_states, [-1, hidden_states.shape[-1]])
+            hidden_states = ops.gather(hidden_states, masked_positions, axis=0)
+        # gather masked tokens might be more quick
+        hidden_states = self.transform(hidden_states)
+        hidden_states = self.activation(hidden_states)
+        hidden_states = self.layer_norm(hidden_states)
+        hidden_states = self.batchmatmul(hidden_states, self.decoder_weight) + self.decoder_bias  # TODO: matmul or batchmatmul?
+        return hidden_states
+
+
+class LayoutXLMPretrainingHeads(nn.Cell):
+    def __init__(self, hidden_size, vocab_size, activation, embedding_weights=None):
+        super(LayoutXLMPretrainingHeads, self).__init__()
+        self.predictions = LayoutXLMPredictionHead(hidden_size, vocab_size, activation, embedding_weights)
+
+    def construct(self, sequence_output, masked_positions=None):
+        prediction_scores = self.predictions(sequence_output, masked_positions)
+        return prediction_scores
+
+
+class LayoutXLMForPretraining(LayoutXLMPretrainedModel):
+    def __init__(self, config: LayoutXLMConfig):
+        super(LayoutXLMForPretraining, self).__init__(config)
+        self.layoutxlm = LayoutXLMModel(config)
+        self.cls = LayoutXLMPretrainingHeads(
+            config.hidden_size,
+            config.vocab_size,
+            config.hidden_act,
+            embedding_weights=self.layoutxlm.embeddings.word_embeddings.weight,
+        )
+
+    def resize_position_embeddings(self, new_num_position_embeddings):
+        """
+        Resizes position embeddings of the model if `new_num_position_embeddings != config["max_position_embeddings"]`.
+
+        Arguments:
+            new_num_position_embeddings (`int`):
+                The number of new position embedding matrix. If position embeddings are learned, increasing the size
+                will add newly initialized vectors at the end, whereas reducing the size will remove vectors from the
+                end.
+        """
+        self.layoutxlm.resize_position_embeddings(new_num_position_embeddings)
+
+    def construct(
+        self,
+        input_ids=None,
+        bbox=None,
+        image=None,
+        attention_mask=None,
+        token_type_ids=None,
+        position_ids=None,
+        head_mask=None,
+        masked_positions=None,
+    ):
+        outputs = self.layoutxlm(
+            input_ids=input_ids,
+            bbox=bbox,
+            image=image,
+            attention_mask=attention_mask,
+            token_type_ids=token_type_ids,
+            position_ids=position_ids,
+            head_mask=head_mask,
+        )
+        sequence_output = outputs[0]
+        prediction_scores = self.cls(sequence_output, masked_positions)
+        return prediction_scores
 
 
 class BiaffineAttention(nn.Cell):
-    pass
+    """Implements a biaffine attention operator for binary relation classification."""
 
+    def __init__(self, in_features, out_features):
+        super(BiaffineAttention, self).__init__()
 
-class LayoutXLMModel(nn.Cell):
-    pass
+        self.in_features = in_features
+        self.out_features = out_features
+
+        self.bilinear = nn.BiDense(in_features, in_features, out_features, has_bias=False)
+        self.linear = nn.Dense(2 * in_features, out_features)
+
+    def construct(self, x_1, x_2):
+        return self.bilinear(x_1, x_2) + self.linear(ops.concat((x_1, x_2), axis=-1))
 
 
 class REDecoder(nn.Cell):
