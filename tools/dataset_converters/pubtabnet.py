@@ -38,4 +38,4 @@ class PUBTABNET_Converter:
                     out_file.write(json.dumps(line, ensure_ascii=False) + "\n")
                     processed = processed + 1
 
-        print(f"{processed} labels for {self._split} set is processed.")
+        print(f"{processed} labels for {self._split} set are processed.")
