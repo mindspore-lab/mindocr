@@ -1,0 +1,22 @@
+MODEL:
+  BACKBONE:
+    FREEZE_AT: 2
+    NAME: resnet101
+    PRETRAINED: True
+  FPN:
+    FUSE_TYPE: sum
+    IN_FEATURES:
+    - res2
+    - res3
+    - res4
+    - res5
+    NORM: ''
+    OUT_CHANNELS: 256
+  PIXEL_MEAN:
+  - 103.53
+  - 116.28
+  - 123.675
+  PIXEL_STD:
+  - 57.375
+  - 57.12
+  - 58.395
