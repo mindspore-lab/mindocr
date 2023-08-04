@@ -75,7 +75,7 @@ def update_config_for_CI(
         config["train"]["loader"]["num_workers_batch"] = 1
         # if config['train']['loader']['batch_size'] > 120:
         config["train"]["loader"]["batch_size"] = 1  # to save memory
-        config["train"]["loader"]["max_rowsize"] = 4  # to save memory
+        config["train"]["loader"]["max_rowsize"] = 1  # to save memory
         config["train"]["loader"]["prefetch_size"] = 1  # to save memory
         if "common" in config:
             config["common"]["batch_size"] = config["train"]["loader"]["batch_size"]
@@ -93,14 +93,14 @@ def update_config_for_CI(
         config["eval"]["loader"]["num_workers_dataset"] = 1
         config["eval"]["loader"]["num_workers_batch"] = 1
         config["eval"]["loader"]["batch_size"] = 1
-        config["eval"]["loader"]["max_rowsize"] = 4  # to save memory
+        config["eval"]["loader"]["max_rowsize"] = 1  # to save memory
         config["eval"]["loader"]["prefetch_size"] = 1  # to save memory
 
         config["eval"]["ckpt_load_path"] = os.path.join(config["train"]["ckpt_save_dir"], "best.ckpt")
 
-        config["scheduler"]["num_epochs"] = 2
+        config["scheduler"]["num_epochs"] = 1
         config["scheduler"]["warmup_epochs"] = 1
-        config["scheduler"]["decay_epochs"] = 1
+        config["scheduler"]["decay_epochs"] = 0
 
         dummpy_config_fp = os.path.join("tests/st", os.path.basename(config_fp.replace(".yaml", "_dummpy.yaml")))
         with open(dummpy_config_fp, "w") as f:
