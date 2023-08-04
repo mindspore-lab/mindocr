@@ -67,7 +67,7 @@ loss_scaler:
 
 train:
   ckpt_save_dir: "./tmp_rec"
-  dataset_sink_mode: False
+  dataset_sink_mode: True
   dataset:
     type: LMDBDataset
     dataset_root: path/to/data_lmdb_release/
@@ -100,7 +100,7 @@ train:
     batch_size: *batch_size
     drop_remainder: True
     max_rowsize: 12
-    num_workers: 1
+    num_workers: 4
     num_workers_dataset: 1
     using_multiprocess_for_pipeline: False
 
@@ -137,6 +137,6 @@ eval:
     batch_size: 64
     drop_remainder: False
     max_rowsize: 12
-    num_workers: 1
+    num_workers: 4
     num_workers_dataset: 1
     using_multiprocess_for_pipeline: False
