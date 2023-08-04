@@ -120,6 +120,8 @@ train:
       - Decode:
       - SVTRGeometry:
           aug_type: 0
+          degrees: 45
+          translate: [0.0, 0.0]
           p: 0.5
       - SVTRDeterioration:
           variance: 20
