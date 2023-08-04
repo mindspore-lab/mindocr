@@ -118,7 +118,7 @@ if __name__ == "__main__":
         "-l",
         "--label_dir",
         type=str,
-        default="./ic15/det/annotation/",
+        default="",
         help="Directory of the labels (if many), or path to the label file (if one) of the dataset",
     )
     parser.add_argument(

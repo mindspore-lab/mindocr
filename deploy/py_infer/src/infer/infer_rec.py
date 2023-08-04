@@ -17,34 +17,40 @@ class TextRecognizer(InferBase):
         self.shape_type = None
 
     def __get_shape_for_single_model(self, filename):
-        model = Model(backend=self.args.backend, model_path=filename, device_id=self.args.device_id)
-        shape_type, shape_info = model.get_shape_info()
+        model = Model(
+            backend=self.args.backend, device=self.args.device, model_path=filename, device_id=self.args.device_id
+        )
+        shape_type, shape_value = model.get_shape_details()
+
+        # Only support NCHW format for inputs[0].
+        # If multi input, the target_size may be invalid.
+        shape_value = shape_value[0]
 
         self.shape_type = shape_type
 
         if shape_type == ShapeType.STATIC_SHAPE:
-            n, _, h, w = shape_info
+            n, _, h, w = shape_value
             self._hw_list = [(h, w)]
             self._bs_list = [n]
             self.model[n] = model
         elif shape_type == ShapeType.DYNAMIC_IMAGESIZE:
-            n, _, hw_list = shape_info
+            n, _, hw_list = shape_value
             self._hw_list = list(hw_list)
             self._bs_list.append(n)
             self.model[n] = model
         elif shape_type == ShapeType.DYNAMIC_BATCHSIZE:
-            n_list, _, h, w = shape_info
+            n_list, _, h, w = shape_value
             self._hw_list = [(h, w)]
             self._bs_list = list(n_list)
             for n in n_list:
                 self.model[n] = model
         else:  # dynamic shape
-            n, _, h, w = shape_info
+            n, _, h, w = shape_value
             self._hw_list = [(h, w)]
             self._bs_list = [n]
             self.model[n] = model
 
-        return shape_info
+        return shape_value
 
     def __get_resized_hw(self, image_list):
         if self.shape_type != ShapeType.DYNAMIC_SHAPE:
@@ -126,11 +132,12 @@ class TextRecognizer(InferBase):
         return split_bs, split_data
 
     def model_infer(self, data: Dict) -> List[np.ndarray]:
-        input_data = data["image"]
-        bs, *_ = input_data.shape
+        net_inputs = data["net_inputs"]
+        bs, *_ = net_inputs[0].shape
         n = bs if bs in self._bs_list else -1
-        return self.model[n].infer([input_data])
+        return self.model[n].infer(net_inputs)
 
-    def postprocess(self, pred, batch=None):
+    def postprocess(self, pred: List[np.ndarray], batch=None):
         pred = gear_utils.get_batch_from_padding(pred, batch)
-        return self.postprocess_ops(tuple(pred))
+        pred = pred[0] if len(pred) == 1 else tuple(pred)
+        return self.postprocess_ops(pred)

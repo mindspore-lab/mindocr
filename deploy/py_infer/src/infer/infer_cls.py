@@ -18,20 +18,28 @@ class TextClassifier(InferBase):
 
     def _init_model(self):
         self.model = Model(
-            backend=self.args.backend, model_path=self.args.cls_model_path, device_id=self.args.device_id
+            backend=self.args.backend,
+            device=self.args.device,
+            model_path=self.args.cls_model_path,
+            device_id=self.args.device_id,
         )
-        shape_type, shape_info = self.model.get_shape_info()
+
+        shape_type, shape_value = self.model.get_shape_details()
 
         if shape_type not in (ShapeType.DYNAMIC_BATCHSIZE, ShapeType.STATIC_SHAPE):
             raise ValueError("Input shape must be static shape or dynamic batch_size for classification model.")
 
+        # Only support NCHW format for net_inputs[0].
+        # If multi input, the target_size may be invalid.
+        shape_value = shape_value[0]
+
         if shape_type == ShapeType.DYNAMIC_BATCHSIZE:
-            self._bs_list, _, model_height, model_width = shape_info
+            self._bs_list, _, h, w = shape_value
         else:
-            batchsize, _, model_height, model_width = shape_info
+            batchsize, _, h, w = shape_value
             self._bs_list = [batchsize]
 
-        self._hw_list = [(model_height, model_width)]
+        self._hw_list = [(h, w)]
 
     def _init_postprocess(self):
         self.postprocess_ops = build_postprocess(self.args.cls_config_path)
@@ -70,8 +78,10 @@ class TextClassifier(InferBase):
         return split_bs, split_data
 
     def model_infer(self, data: Dict) -> List[np.ndarray]:
-        return self.model.infer([data["image"]])  # model infer for single input
+        return self.model.infer(data["net_inputs"])
 
-    def postprocess(self, pred, batch=None) -> List:
+    def postprocess(self, pred: List[np.ndarray], batch=None) -> Dict[str, List]:
         pred = gear_utils.get_batch_from_padding(pred, batch)
-        return self.postprocess_ops(tuple(pred))  # [(label, score), ...]
+        pred = pred[0] if len(pred) == 1 else tuple(pred)
+        results = self.postprocess_ops(pred)  # {"angles": angles, "scores": scores}
+        return results

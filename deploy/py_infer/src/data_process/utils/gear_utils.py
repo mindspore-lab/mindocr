@@ -34,19 +34,23 @@ def get_matched_gear_bs(image_num: int, bs_list: list):
     return batch_list
 
 
-def padding_to_batch(input: Union[np.ndarray, Dict], bs: int):
-    image = input["image"] if isinstance(input, dict) else input
+def padding_to_batch(data: Dict, bs: int):
+    """
+    padding the batch size of data["net_inputs"] to bs
+    """
 
-    sample_size, channel, height, width = image.shape
-    output = image
-    if bs - sample_size:
-        zeros = np.zeros((bs - sample_size, channel, height, width)).astype(image.dtype)
-        output = np.concatenate((image, zeros))
+    def _padding_to_batch_np(x: np.ndarray, bs) -> np.ndarray:
+        sample_size, *other_shape = x.shape
+        y = x
+        if bs - sample_size:
+            zeros = np.zeros((bs - sample_size, *other_shape)).astype(x.dtype)
+            y = np.concatenate((x, zeros))
+        return y
 
-    if isinstance(input, dict):
-        output = {**input, "image": output}
+    net_inputs = data["net_inputs"]
+    data["net_inputs"] = [_padding_to_batch_np(x, bs) for x in net_inputs]
 
-    return output
+    return data
 
 
 def get_batch_from_padding(input: Union[np.ndarray, List], batch: int):

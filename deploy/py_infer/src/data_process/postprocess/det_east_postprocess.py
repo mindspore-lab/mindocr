@@ -11,6 +11,8 @@ sys.path.insert(0, mindocr_path)
 
 from mindocr.postprocess import det_east_postprocess  # noqa
 
+__all__ = ["EASTPostprocess"]
+
 
 class EASTPostprocess(det_east_postprocess.EASTPostprocess):
     """

@@ -17,19 +17,24 @@ class TextDetector(InferBase):
     def _init_model(self):
         self.model = Model(
             backend=self.args.backend,
+            device=self.args.device,
             model_path=self.args.det_model_path,
             device_id=self.args.device_id,
         )
 
-        shape_type, shape_info = self.model.get_shape_info()
+        shape_type, shape_value = self.model.get_shape_details()
 
         if shape_type not in (ShapeType.DYNAMIC_IMAGESIZE, ShapeType.STATIC_SHAPE):
             raise ValueError("Input shape must be static shape or dynamic image_size for detection model.")
 
+        # Only support NCHW format for net_inputs[0].
+        # If multi input, the target_size may be invalid.
+        shape_value = shape_value[0]
+
         if shape_type == ShapeType.DYNAMIC_IMAGESIZE:
-            batchsize, _, hw_list = shape_info
+            batchsize, _, hw_list = shape_value
         else:
-            batchsize, _, h, w = shape_info
+            batchsize, _, h, w = shape_value
             hw_list = [(h, w)]
 
         if batchsize != 1:
@@ -53,12 +58,12 @@ class TextDetector(InferBase):
 
     def preprocess(self, image: np.ndarray) -> Dict:
         target_size = gear_utils.get_matched_gear_hw(cv_utils.get_hw_of_img(image), self._hw_list)
-        return self.preprocess_ops(image, target_size=target_size)
+        return self.preprocess_ops([image], target_size=target_size)
 
     def model_infer(self, data: Dict) -> List[np.ndarray]:
-        return self.model.infer([data["image"]])  # model infer for single input
+        return self.model.infer(data["net_inputs"])
 
-    def postprocess(self, pred, shape_list: np.ndarray) -> List[np.ndarray]:
+    def postprocess(self, pred: List[np.ndarray], shape_list: np.ndarray) -> List[np.ndarray]:
         polys = self.postprocess_ops(tuple(pred), shape_list)["polys"][0]  # {'polys': [img0_polys, ...], ...}
         polys = [np.array(x) for x in polys]
         return polys  # [poly(points_num, 2), ...], bs=1

@@ -44,6 +44,7 @@ class DetResize(det_transforms.DetResize):
 
 
 class DetResizeNormForInfer(object):
+    # adapted to mmocr
     def __init__(
         self,
         keep_ratio=True,

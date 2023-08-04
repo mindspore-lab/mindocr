@@ -263,7 +263,12 @@ if __name__ == "__main__":
 
         import moxing as mox
 
-        from tools.modelarts_adapter.modelarts import get_device_id, sync_data, update_config_value_by_key
+        from tools.modelarts_adapter.modelarts import (
+            download_ckpt,
+            get_device_id,
+            sync_data,
+            update_config_value_by_key,
+        )
 
         dataset_root = "/cache/data/"
         # download dataset from server to local on device 0, other devices will wait until data sync finished.
@@ -295,6 +300,13 @@ if __name__ == "__main__":
         if config.common.character_dict_path:
             new_dict_path = os.path.join(root_dir, config.common.character_dict_path)
             update_config_value_by_key(config, "character_dict_path", new_dict_path)
+
+        # download the pretrained checkpoint if it exists
+        if args.pretrain_url:
+            ckpt_root = "/cache/ckpt/"
+            pretrain_url = literal_eval(args.pretrain_url)
+            download_ckpt(pretrain_url[0]["model_url"], ckpt_root)
+            config.model.pretrained = os.path.join(ckpt_root, os.path.basename(pretrain_url[0]["model_url"]))
 
     # main train and eval
     main(config)
