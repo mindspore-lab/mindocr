@@ -3,7 +3,6 @@ Create and run transformations from a config or predefined transformation pipeli
 """
 from typing import Callable, List
 
-# FIXME: make sure our transform names don't overlap with MS
 import mindspore.dataset.vision as ms_vision
 
 from .det_east_transforms import *
@@ -76,7 +75,24 @@ def create_transforms(
         if global_config is not None:
             param.update(global_config)
 
-        if hasattr(ms_vision, trans_name):  # if MS built-in transform
+        try:    # if MindOCR transform
+            transform = eval(trans_name)(**param)
+            output_columns.extend([oc for oc in transform.output_columns if oc not in output_columns])
+
+            if _transforms and not _transforms[-1]["MS_operation"]:
+                _transforms[-1]["operations"].append(transform)
+                _transforms[-1]["output_columns"] = output_columns
+            else:
+                _transforms.append(
+                    {
+                        "operations": [transform],
+                        "input_columns": input_columns,
+                        "output_columns": output_columns.copy(),
+                        "MS_operation": False,
+                    }
+                )
+
+        except NameError:   # if MS built-in transform
             op_in_cols = param.pop("input_columns", ["image"])
             op_out_cols = param.pop("output_columns", ["image"])
             output_columns.extend([oc for oc in op_out_cols if oc not in output_columns])
@@ -91,23 +107,6 @@ def create_transforms(
                         "input_columns": op_in_cols,
                         "output_columns": op_out_cols,
                         "MS_operation": True,
-                    }
-                )
-
-        else:  # MindOCR transform
-            transform = eval(trans_name)(**param)
-            output_columns.extend([oc for oc in transform.output_columns if oc not in output_columns])
-
-            if _transforms and not _transforms[-1]["MS_operation"]:
-                _transforms[-1]["operations"].append(transform)
-                _transforms[-1]["output_columns"] = output_columns
-            else:
-                _transforms.append(
-                    {
-                        "operations": [transform],
-                        "input_columns": input_columns,
-                        "output_columns": output_columns.copy(),
-                        "MS_operation": False,
                     }
                 )
 
