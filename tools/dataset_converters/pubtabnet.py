@@ -20,6 +20,8 @@ class PUBTABNET_Converter:
 
         if task == "table":
             self._format_table_label(Path(image_dir), label_path, output_path)
+        else:
+            raise NotImplementedError(f"PUBTABNET does not support task {task}.")
 
     def _format_table_label(self, image_dir: Path, label_path: Path, output_path: str):
         processed = 0
