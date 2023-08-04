@@ -302,7 +302,8 @@ class FCEPostprocess(DetBasePostprocess):
     def _postprocess(self, pred, **kwargs):
         score_maps = []
         for value in pred:
-            value = value.asnumpy()
+            if not isinstance(value, Tensor):
+                value = value.asnumpy()
             cls_res = value[:, :4, :, :]
             reg_res = value[:, 4:, :, :]
             score_maps.append([cls_res, reg_res])
