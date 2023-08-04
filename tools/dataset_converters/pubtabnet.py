@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 
-class PUBTAB_Converter:
+class PUBTABNET_Converter:
     """
     Format annotations into standard form for pubtabnet dataset.
     """
@@ -14,7 +14,7 @@ class PUBTAB_Converter:
             raise ValueError("It is required to specify the `split` argument for the pubtabnet dataset converter.")
         self._split = kwargs["split"]
 
-    def convert(self, task="tab", image_dir=None, label_path=None, output_path=None):
+    def convert(self, task="table", image_dir=None, label_path=None, output_path=None):
         label_path = Path(label_path)
         assert label_path.exists(), f"{label_path} does not exist!"
 
@@ -38,4 +38,4 @@ class PUBTAB_Converter:
                     out_file.write(json.dumps(line, ensure_ascii=False) + "\n")
                     processed = processed + 1
 
-        print(f"Processed {processed} images.")
+        print(f"{processed} labels for {self._split} set is processed.")

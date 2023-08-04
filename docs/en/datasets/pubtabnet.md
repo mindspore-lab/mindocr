@@ -33,7 +33,7 @@ To prepare the annotation for Table Recognition, run the following commands:
 
 ```bash
 python tools/dataset_converters/convert.py \
-    --dataset_name pubtab --task table \
+    --dataset_name pubtabnet --task table \
     --image_dir path/to/pubtabnet/train/ \
     --label_dir path/to/pubtabnet/PubTabNet_2.0.0.jsonl \
     --output_path path/to/pubtabnet/pubtab_train.jsonl \
@@ -44,7 +44,7 @@ python tools/dataset_converters/convert.py \
 
 ```bash
 python tools/dataset_converters/convert.py \
-    --dataset_name pubtab --task table \
+    --dataset_name pubtabnet --task table \
     --image_dir path/to/pubtabnet/val/ \
     --label_dir path/to/pubtabnet/PubTabNet_2.0.0.jsonl \
     --output_path path/to/pubtabnet/pubtab_val.jsonl \
