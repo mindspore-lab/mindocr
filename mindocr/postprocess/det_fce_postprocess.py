@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 from numpy.fft import ifft
 from shapely.geometry import Polygon
-
+from mindspore import Tensor
 from .det_base_postprocess import DetBasePostprocess
 
 __all__ = ["FCEPostprocess"]
