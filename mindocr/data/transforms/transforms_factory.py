@@ -75,7 +75,7 @@ def create_transforms(
         if global_config is not None:
             param.update(global_config)
 
-        try:    # if MindOCR transform
+        try:  # check if it is a MindOCR transform first
             transform = eval(trans_name)(**param)
             output_columns.extend([oc for oc in transform.output_columns if oc not in output_columns])
 
@@ -92,7 +92,7 @@ def create_transforms(
                     }
                 )
 
-        except NameError:   # if MS built-in transform
+        except NameError:  # if MS built-in transform
             op_in_cols = param.pop("input_columns", ["image"])
             op_out_cols = param.pop("output_columns", ["image"])
             output_columns.extend([oc for oc in op_out_cols if oc not in output_columns])
