@@ -3,11 +3,13 @@ transform for text recognition tasks.
 """
 import logging
 import math
-from random import sample
+from random import random, sample
 from typing import Any, Dict, List, Optional
 
 import cv2
 import numpy as np
+
+from .mindcv_transform.auto_augment import rand_augment_transform
 
 __all__ = [
     "RecCTCLabelEncode",
@@ -21,6 +23,9 @@ __all__ = [
     "ClsLabelEncode",
     "SARLabelEncode",
     "RobustScannerRecResizeImg",
+    "RecCTCAttnMultiLabelEncode",
+    "RecConAug",
+    "RandAugment",
 ]
 _logger = logging.getLogger(__name__)
 
@@ -315,6 +320,28 @@ class RecAttnLabelEncode:
         data["text_length"] = len(data["label"])
         data["text_padded"] = data["label"] + " " * (self.max_text_len - len(data["label"]))
         return data
+
+
+class RecCTCAttnMultiLabelEncode:
+    def __init__(
+        self,
+        max_text_len: int = 25,
+        character_dict_path: Optional[str] = None,
+        use_space_char: bool = False,
+        blank_at_last: bool = True,
+        lower: bool = False,
+        **kwargs,
+    ) -> None:
+        self.ctc_encoder = RecCTCLabelEncode(
+            max_text_len, character_dict_path, use_space_char, blank_at_last=blank_at_last, lower=lower
+        )
+        self.attn_encoder = RecAttnLabelEncode(max_text_len, character_dict_path, use_space_char, lower=lower)
+
+    def __call__(self, data: Dict[str, Any]) -> str:
+        ctc_encoded_data = self.ctc_encoder(data.copy())
+        attn_encoded_data = self.attn_encoder(data.copy())
+        ctc_encoded_data["attn_text_seq"] = attn_encoded_data["text_seq"]
+        return ctc_encoded_data
 
 
 class RecMasterLabelEncode:
@@ -821,3 +848,54 @@ def resize_norm_img_sar(img, image_shape, width_downsample_ratio=0.25):
     pad_shape = padding_im.shape
 
     return padding_im, resize_shape, pad_shape, valid_ratio
+
+
+class RecConAug:
+    def __init__(
+        self, prob=0.5, image_shape=(32, 128), max_text_length=31, ext_data_num=1, insert_space=False, **kwargs
+    ):
+        self.ext_data_num = ext_data_num
+        self.prob = prob
+        self.max_text_length = max_text_length
+        self.image_shape = image_shape
+        self.max_wh_ratio = self.image_shape[1] / self.image_shape[0]
+        self.insert_space = insert_space
+
+    def merge_ext_data(self, data, ext_data):
+        ori_w = round(data["image"].shape[1] / data["image"].shape[0] * self.image_shape[0])
+        ext_w = round(ext_data["image"].shape[1] / ext_data["image"].shape[0] * self.image_shape[0])
+        data["image"] = cv2.resize(data["image"], (ori_w, self.image_shape[0]))
+        ext_data["image"] = cv2.resize(ext_data["image"], (ext_w, self.image_shape[0]))
+        data["image"] = np.concatenate([data["image"], ext_data["image"]], axis=1)
+        if self.insert_space:
+            data["label"] = data["label"] + " " + ext_data["label"]
+        else:
+            data["label"] += ext_data["label"]
+        return data
+
+    def __call__(self, data):
+        if random() > self.prob:
+            return data
+        for ext_data in data["ext_data"]:
+            if len(data["label"]) + len(ext_data["label"]) > self.max_text_length:
+                break
+            concat_ratio = (
+                data["image"].shape[1] / data["image"].shape[0]
+                + ext_data["image"].shape[1] / ext_data["image"].shape[0]
+            )
+            if concat_ratio > self.max_wh_ratio:
+                break
+            data = self.merge_ext_data(data, ext_data)
+        return data
+
+
+class RandAugment:
+    def __init__(self, config, prob=0.5) -> None:
+        self.random_aug = rand_augment_transform(config, dict())
+        self.prob = prob
+
+    def __call__(self, data):
+        if random() > self.prob:
+            return data
+        data["image"] = self.random_aug(data["image"])
+        return data

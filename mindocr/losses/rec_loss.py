@@ -1,10 +1,12 @@
+from typing import Tuple
+
 import numpy as np
 
 import mindspore as ms
 from mindspore import Tensor, nn, ops
 from mindspore.nn.loss.loss import LossBase
 
-__all__ = ["CTCLoss", "AttentionLoss", "VisionLANLoss"]
+__all__ = ["CTCLoss", "AttentionLoss", "VisionLANLoss", "CTCAttnMultiLoss"]
 
 
 class CTCLoss(LossBase):
@@ -174,3 +176,27 @@ class SARLoss(LossBase):
         targets = ops.reshape(label, (-1,))
         loss = self.loss_func(inputs, targets)
         return loss
+
+
+class CTCAttnMultiLoss(LossBase):
+    def __init__(
+        self,
+        pred_seq_len: int = 26,
+        max_label_len: int = 25,
+        batch_size: int = 32,
+        reduction: str = "mean",
+        ignore_index: int = 0,
+        ctc_weight: float = 1.0,
+        attn_weight: float = 1.0,
+    ) -> None:
+        super().__init__()
+        self.ctc_criterion = CTCLoss(pred_seq_len, max_label_len, batch_size, reduction)
+        self.attn_criterion = AttentionLoss(reduction, ignore_index)
+        self.ctc_weight = ctc_weight
+        self.attn_weight = attn_weight
+
+    def construct(self, logits: Tuple[Tensor, Tensor], ctc_labels: Tensor, attn_labels: Tensor) -> Tensor:
+        ctc_logits, attn_logits = logits
+        ctc_loss = self.ctc_criterion(ctc_logits, ctc_labels)
+        attn_loss = self.attn_criterion(attn_logits, attn_labels)
+        return ctc_loss * self.ctc_weight + attn_loss * self.attn_weight

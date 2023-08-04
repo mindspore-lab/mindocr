@@ -159,7 +159,7 @@ eval:
     shuffle: False
     transform_pipeline:
       - DecodeImage:
-          img_mode: BGR
+          img_mode: RGB
           to_float32: False
       - RecCTCLabelEncode:
           max_text_len: *max_text_len
@@ -170,7 +170,6 @@ eval:
           image_shape: [64, 256]
           padding: False
       - NormalizeImage:
-          bgr_to_rgb: True
           is_hwc: True
           mean: [127.0, 127.0, 127.0]
           std: [127.0, 127.0, 127.0]

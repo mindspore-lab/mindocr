@@ -105,6 +105,8 @@ class LMDBDataset(BaseDataset):
         else:
             raise ValueError("No transform pipeline is specified!")
 
+        self.exp_op_transform_idx = kwargs.get("ext_op_transform_idx", 1)
+
         self.prefetch(output_columns)
 
     def prefetch(self, output_columns):
@@ -115,6 +117,7 @@ class LMDBDataset(BaseDataset):
         file_idx = int(file_idx)
         sample_info = self.get_lmdb_sample_info(self.lmdb_sets[lmdb_idx]["txn"], file_idx)
         _data = {"img_lmdb": sample_info[0], "label": sample_info[1]}
+        _data["ext_data"] = self.get_ext_data(0)
         _data = run_transforms(_data, transforms=self.transforms)
         _available_keys = list(_data.keys())
 
@@ -249,6 +252,26 @@ class LMDBDataset(BaseDataset):
 
         return data_idx_order_list
 
+    def get_ext_data(self, idx):
+        ext_data_num = 0
+        for op in self.transforms:
+            if hasattr(op, "ext_data_num"):
+                ext_data_num = op.ext_data_num
+                break
+        load_data_ops = self.transforms[: self.exp_op_transform_idx]
+
+        ext_data = list()
+        bound = len(self) // 8
+        while len(ext_data) < ext_data_num:
+            low = max(0, idx - bound)
+            high = min(len(self), idx + bound)
+            lmdb_idx, file_idx = self.data_idx_order_list[np.random.randint(low, high)]
+            sample_info = self.get_lmdb_sample_info(self.lmdb_sets[int(lmdb_idx)]["txn"], int(file_idx))
+            data = {"img_lmdb": sample_info[0], "label": sample_info[1]}
+            data = run_transforms(data, transforms=load_data_ops)
+            ext_data.append(data)
+        return ext_data
+
     def get_lmdb_sample_info(self, txn, idx, label_only=False):
         label_key = "label-%09d".encode() % idx
         label = txn.get(label_key)
@@ -277,6 +300,7 @@ class LMDBDataset(BaseDataset):
 
         data = {"img_lmdb": sample_info[0], "label": sample_info[1]}
 
+        data["ext_data"] = self.get_ext_data(idx)
         # perform transformation on data
         try:
             data = run_transforms(data, transforms=self.transforms)

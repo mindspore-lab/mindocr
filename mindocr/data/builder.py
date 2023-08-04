@@ -4,6 +4,7 @@ import os
 
 import mindspore as ms
 
+from .collate_fn import SSLRotateCollate
 from .det_dataset import DetDataset, SynthTextDataset
 from .predict_dataset import PredictDataset
 from .rec_dataset import RecDataset
@@ -185,15 +186,20 @@ def build_dataset(
             )
             drop_remainder = False
 
+    per_batch_map_fn = None
+    collate_config = dataset_config.pop("collate_fn", None)
+    if collate_config:
+        collate_fn = list(collate_config.keys())[0]
+        collate_fn_kwargs = list(collate_config.values())[0]
+        per_batch_map_fn = eval(collate_fn)(**collate_fn_kwargs)
+
     dataloader = ds.batch(
         batch_size,
         drop_remainder=drop_remainder,
         num_parallel_workers=min(
             num_workers, 2
         ),  # set small workers for lite computation. TODO: increase for batch-wise mapping
-        # input_columns=input_columns,
-        # output_columns=batch_column,
-        # per_batch_map=per_batch_map, # uncommet to use inner-batch transformation
+        per_batch_map=per_batch_map_fn,
     )
 
     return dataloader

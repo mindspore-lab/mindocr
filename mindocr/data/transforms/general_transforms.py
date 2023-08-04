@@ -126,7 +126,13 @@ class ToCHWImage:
         img = data["image"]
         if isinstance(img, Image.Image):
             img = np.array(img)
-        data["image"] = img.transpose((2, 0, 1))
+
+        if len(img.shape) == 3:
+            data["image"] = img.transpose((2, 0, 1))
+        elif len(img.shape) == 4:
+            data["image"] = img.transpose((0, 3, 1, 2))
+        else:
+            raise ValueError("Unsupported input dimension.")
         return data
 
 

@@ -6,14 +6,16 @@ supported_heads = [
     'CTCHead',
     'PSEHead',
     'AttentionHead',
+    "ClsHead",
     'MobileNetV3Head',
     'FCEHead',
     'MasterDecoder',
     'RobustScannerHead',
     'VisionLANHead',
     'ABINetHead',
+    'CTCAttnMultiHead'
 ]
-from .cls_head import MobileNetV3Head
+from .cls_head import ClsHead, MobileNetV3Head
 from .conv_head import ConvHead
 from .det_db_head import DBHead
 from .det_east_head import EASTHead
@@ -24,6 +26,7 @@ from .det_pse_head import PSEHead
 from .rec_attn_head import AttentionHead
 from .rec_ctc_head import CTCHead
 from .rec_master_decoder import MasterDecoder
+from .rec_multi_head import CTCAttnMultiHead
 from .rec_robustscanner_head import RobustScannerHead
 from .rec_visionlan_head import VisionLANHead
 

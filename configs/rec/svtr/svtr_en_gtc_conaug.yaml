@@ -10,32 +10,32 @@ system:
   ckpt_max_keep: 5
 
 common:
-  character_dict_path: &character_dict_path mindocr/utils/dict/ch_dict.txt
-  num_classes: &num_classes 6624 # num_chars_in_dict + 1
-  max_text_len: &max_text_len 40
-  use_space_char: &use_space_char False
-  batch_size: &batch_size 256
+  character_dict_path: &character_dict_path mindocr/utils/dict/en_dict.txt
+  num_classes: &num_classes 97 # num_chars_in_dict + 3
+  max_text_len: &max_text_len 63
+  use_space_char: &use_space_char True
+  batch_size: &batch_size 512
 
 model:
   type: rec
   transform: null
   backbone:
-    name: SVTRNet
+    name: SVTRGTCGuided
     pretrained: False
-    img_size: [32, 320]
-    out_channels: 96
+    img_size: [32, 256]
+    out_channels: 192
     patch_merging: Conv
     embed_dim: [64, 128, 256]
     depth: [3, 6, 3]
     num_heads: [2, 4, 8]
     mixer:
       [
-        "Local",
-        "Local",
-        "Local",
-        "Local",
-        "Local",
-        "Local",
+        "Conv",
+        "Conv",
+        "Conv",
+        "Conv",
+        "Conv",
+        "Conv",
         "Global",
         "Global",
         "Global",
@@ -43,14 +43,20 @@ model:
         "Global",
         "Global",
       ]
-    local_mixer: [[7, 11], [7, 11], [7, 11]]
+    local_mixer: [[5, 5], [5, 5], [5, 5]]
     last_stage: True
     prenorm: False
+    use_pos_embed: False
+    use_length_scale: True
+    length_scale_base: 256
   neck:
     name: Img2Seq
+    select_inds: [1, 3]
   head:
-    name: CTCHead
+    name: CTCAttnMultiHead
+    hidden_size: 256
     out_channels: *num_classes
+    batch_max_length: *max_text_len
 
 postprocess:
   name: RecCTCLabelDecode
@@ -60,24 +66,25 @@ postprocess:
 metric:
   name: RecMetric
   main_indicator: acc
-  lower: False
   character_dict_path: *character_dict_path
-  ignore_space: True
-  print_flag: False
+  lower: True
+  filter_ood: False
+  ignore_symbol: True
 
 loss:
-  name: CTCLoss
-  pred_seq_len: 80 # 320 / 4
-  max_label_len: *max_text_len # this value should be smaller than pre_seq_len
+  name: CTCAttnMultiLoss
+  max_label_len: *max_text_len
+  pred_seq_len: 64 # 256 / 4
   batch_size: *batch_size
+  ctc_weight: 0.1
 
 scheduler:
   scheduler: warmup_cosine_decay
   min_lr: 0.00001
   lr: 0.001
-  num_epochs: 60
-  warmup_epochs: 6
-  decay_epochs: 54
+  num_epochs: 20
+  warmup_epochs: 2
+  decay_epochs: 18
 
 optimizer:
   opt: adamw
@@ -93,49 +100,56 @@ loss_scaler:
 
 train:
   ckpt_save_dir: ./tmp_rec
-  dataset_sink_mode: False
+  dataset_sink_mode: True
   clip_grad: True
-  clip_norm: 0.1
+  clip_norm: 5.
+  exp_op_transform_idx: 1
   dataset:
     type: LMDBDataset
     dataset_root: path/to/data_lmdb_release/
-    data_dir: training/
+    data_dir: train_single/
     label_file: null
     sample_ratio: 1.0
     shuffle: True
     filter_max_len: True
+    filter_zero_text_image: True
+    extra_count_if_repeat: True
     max_text_len: *max_text_len
+    character_dict_path: *character_dict_path
+    label_standandize: True
     transform_pipeline:
       - DecodeImage:
-          img_mode: BGR
+          img_mode: RGB
           to_float32: False
-      - RecCTCLabelEncode:
+      - RecConAug:
+          prob: 0.5
+          ext_data_num: 2
+          image_shape: [32, 256]
+          max_text_len: *max_text_len
+          insert_space: True
+      - RecCTCAttnMultiLabelEncode:
           max_text_len: *max_text_len
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
           lower: False
-      - Rotate90IfVertical:
-          threshold: 2.0
-          direction: counterclockwise
       - SVTRRecResizeImg:
-          image_shape: [32, 320]
+          image_shape: [32, 256]
           padding: True
       - NormalizeImage:
-          bgr_to_rgb: True
           is_hwc: True
           mean: [127.0, 127.0, 127.0]
           std: [127.0, 127.0, 127.0]
       - ToCHWImage:
-    output_columns: ["image", "text_seq"]
-    net_input_column_index: [0]
-    label_column_index: [1]
+    output_columns: ["image", "text_seq", "attn_text_seq"]
+    net_input_column_index: [0, 2]
+    label_column_index: [1, 2]
 
   loader:
     shuffle: True
     batch_size: *batch_size
     drop_remainder: True
     max_rowsize: 12
-    num_workers: 1
+    num_workers: 4
 
 eval:
   ckpt_load_path: ./tmp_rec/best.ckpt
@@ -143,7 +157,7 @@ eval:
   dataset:
     type: LMDBDataset
     dataset_root: path/to/data_lmdb_release/
-    data_dir: validation/
+    data_dir: val/
     label_file: null
     sample_ratio: 1.0
     shuffle: False
@@ -156,11 +170,8 @@ eval:
           character_dict_path: *character_dict_path
           use_space_char: *use_space_char
           lower: False
-      - Rotate90IfVertical:
-          threshold: 2.0
-          direction: counterclockwise
       - SVTRRecResizeImg:
-          image_shape: [32, 320] # H, W
+          image_shape: [32, 256]
           padding: True
       - NormalizeImage:
           is_hwc: True
@@ -173,7 +184,7 @@ eval:
 
   loader:
     shuffle: False
-    batch_size: 64
+    batch_size: 512
     drop_remainder: False
     max_rowsize: 12
-    num_workers: 1
+    num_workers: 4

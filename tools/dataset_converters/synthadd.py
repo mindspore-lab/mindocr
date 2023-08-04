@@ -33,4 +33,4 @@ class SYNTHADD_Converter:
                     images.append(image_path)
                     labels.append(label)
 
-        create_lmdb_dataset(images, labels, output_path)
+        create_lmdb_dataset(images=images, labels=labels, output_path=output_path)

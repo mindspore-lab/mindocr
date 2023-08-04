@@ -172,4 +172,4 @@ class SYNTHTEXT_Converter:
         labels = iter(itertools.chain(*labels))
 
         print("Creating the LMDB dataset.")
-        create_lmdb_dataset(images, labels, output_path=output_path)
+        create_lmdb_dataset(images=images, labels=labels, output_path=output_path)

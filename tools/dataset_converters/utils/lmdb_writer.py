@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, Iterable, Union
+from typing import Any, Dict, Iterable, Optional, Tuple, Union
 
 import lmdb
 import numpy as np
@@ -13,14 +13,23 @@ def write_cache(env: lmdb.Environment, cache: Dict[str, Any]):
 
 
 def create_lmdb_dataset(
-    images: Iterable[Union[str, np.ndarray, bytes]], labels: Iterable[str], output_path: str = "./lmdb_out"
+    images: Optional[Iterable[Union[str, np.ndarray, bytes]]] = None,
+    labels: Optional[Iterable[str]] = None,
+    records: Optional[Iterable[Tuple[Any, str]]] = None,
+    output_path: str = "./lmdb_out",
 ):
     """Create the LMDB dataset with the given img_paths and labels"""
     os.makedirs(output_path, exist_ok=True)
     env = lmdb.Environment(output_path, map_size=1099511627776)
     cache = {}
 
-    for i, (image, label) in tqdm(enumerate(zip(images, labels)), total=len(images), desc="Creating LMDB"):
+    if images is not None and labels is not None:
+        if records is not None:
+            raise ValueError("`records` must be None if `images` and `labesl` are given.")
+        records = zip(images, labels)
+
+    num_samples = 0
+    for i, (image, label) in tqdm(enumerate(records), desc="Creating LMDB"):
         imageKey = "image-%09d".encode() % (i + 1)
         labelKey = "label-%09d".encode() % (i + 1)
 
@@ -40,7 +49,8 @@ def create_lmdb_dataset(
             write_cache(env, cache)
             cache = {}
 
-    num_samples = len(images)
+        num_samples += 1
+
     cache["num-samples".encode()] = str(num_samples).encode()
     write_cache(env, cache)
     print(f"Created dataset with {num_samples} samples.")
