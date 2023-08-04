@@ -6,14 +6,25 @@ from typing import List
 import numpy as np
 import yaml
 
+import mindspore.dataset.vision as ms_vision
+
 from . import adapted_preprocess
 
 mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../.."))
 sys.path.insert(0, mindocr_path)
 
-from mindocr.data.transforms import transforms_factory as mindocr_preprocess  # noqa
+from mindocr.data.transforms import transforms_factory as mindocr_preprocess
 
 __all__ = ["build_preprocess"]
+
+
+class MSWrapper:
+    def __init__(self, transform, **params):
+        self._transform = transform(**params)
+
+    def __call__(self, data: dict) -> dict:
+        data["image"] = self._transform(data["image"])
+        return data
 
 
 class Preprocessor:
@@ -21,9 +32,7 @@ class Preprocessor:
         self._input_columns = input_columns
         self._other_columns = ["shape_list"]  # for det
 
-        self._ops_list = []
-        for ops, params in tasks.items():
-            self._ops_list.append(ops(**params))
+        self._ops_list = tasks
 
         self._to_batch_columns = self._input_columns + self._other_columns
 
@@ -67,25 +76,33 @@ def parse_preprocess_from_yaml(config_path):
 
     dataset_cfg: dict = cfg["eval"]["dataset"]
     transform_pipeline = dataset_cfg["transform_pipeline"]
-    infer_transform_pipeline = OrderedDict()
+    infer_transform_pipeline = []
 
     for node in transform_pipeline:
         node_name, node_params = list(node.items())[0]
+        node_params = node_params or {}
 
         # Skip nodes with 'Label' in name
         if "Label" in node_name:
             continue
+        if node_name == "Decode":
+            node_name = "DecodeImage"
 
-        # prioritize loading postprocess from module adapted_preprocess
-        if hasattr(adapted_preprocess, node_name):
-            node_instance = getattr(adapted_preprocess, node_name)
-        elif hasattr(mindocr_preprocess, node_name):
-            node_instance = getattr(mindocr_preprocess, node_name)
+        if hasattr(ms_vision, node_name):  # Wrap MS built-in transforms
+            node_instance = MSWrapper
+            node_params["transform"] = getattr(ms_vision, node_name)
         else:
-            raise ValueError(f"The preprocess '{node_name}' is not supported yet.")
+            node_params["polygons"] = False  # turn off polygons processing for all transformations
 
-        node_cls_params = node_params if node_params else {}
-        infer_transform_pipeline[node_instance] = node_cls_params
+            # prioritize loading postprocess from module adapted_preprocess
+            if hasattr(adapted_preprocess, node_name):
+                node_instance = getattr(adapted_preprocess, node_name)
+            elif hasattr(mindocr_preprocess, node_name):
+                node_instance = getattr(mindocr_preprocess, node_name)
+            else:
+                raise ValueError(f"The preprocess '{node_name}' is not supported yet.")
+
+        infer_transform_pipeline.append(node_instance(**node_params))
 
     if "output_columns" in dataset_cfg and "net_input_column_index" in dataset_cfg:
         output_columns = dataset_cfg["output_columns"]

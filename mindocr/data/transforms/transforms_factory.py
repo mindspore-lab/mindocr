@@ -4,7 +4,7 @@ Create and run transformations from a config or predefined transformation pipeli
 from typing import Callable, List
 
 # FIXME: make sure our transform names don't overlap with MS
-from mindspore.dataset.vision import *
+import mindspore.dataset.vision as ms_vision
 
 from .det_east_transforms import *
 from .det_fce_transforms import *
@@ -75,16 +75,13 @@ def create_transforms(
         param = {} if transform_config[trans_name] is None else transform_config[trans_name]
         if global_config is not None:
             param.update(global_config)
-        # TODO: assert undefined transform class
 
-        transform = eval(trans_name)
-
-        if issubclass(transform, transforms.TensorOperation):  # if MS built-in transform
+        if hasattr(ms_vision, trans_name):  # if MS built-in transform
             op_in_cols = param.pop("input_columns", ["image"])
             op_out_cols = param.pop("output_columns", ["image"])
             output_columns.extend([oc for oc in op_out_cols if oc not in output_columns])
 
-            transform = transform(**param)  # NOQA
+            transform = getattr(ms_vision, trans_name)(**param)
             if _transforms and _transforms[-1]["MS_operation"]:
                 _transforms[-1]["operations"].append(transform)  # NOQA
             else:
@@ -98,7 +95,7 @@ def create_transforms(
                 )
 
         else:  # MindOCR transform
-            transform = transform(**param)
+            transform = eval(trans_name)(**param)
             output_columns.extend([oc for oc in transform.output_columns if oc not in output_columns])
 
             if _transforms and not _transforms[-1]["MS_operation"]:
