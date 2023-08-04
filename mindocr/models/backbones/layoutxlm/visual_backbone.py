@@ -1,5 +1,9 @@
 import math
-from typing import List, Type, Union
+from dataclasses import dataclass
+from typing import List, Optional, Type, Union
+
+import numpy as np
+import yaml
 
 from mindspore import Tensor, nn, ops
 
@@ -8,7 +12,17 @@ from ..mindcv_models.utils import load_pretrained
 
 
 def read_config():
-    pass
+    with open('visual_backbone.yaml', 'r') as file:
+        data = yaml.safe_load(file)
+    return data
+
+
+@dataclass
+class ShapeSpec:
+    channels: Optional[int] = None
+    height: Optional[int] = None
+    width: Optional[int] = None
+    stride: Optional[int] = None
 
 
 class LayoutResNet(ResNet):
@@ -19,16 +33,28 @@ class LayoutResNet(ResNet):
                  out_features: List[str],
                  **kwargs):
         super().__init__(block, layers, num_classes, **kwargs)
-        # del self.pool, self.classifier
-        # self.out_channels = [ch * block.expansion for ch in [64, 128, 256, 512]]
         self._out_features = out_features
+        curr_stride = self.conv1.stride
+        self._out_feature_strides = {"stem": curr_stride}
+        self._out_feature_channels = {"stem": self.conv1.out_channels}
+
         self.num_classes = num_classes
         self.stem = nn.SequentialCell([self.conv1, self.bn1, self.relu, self.max_pool])
         self.stage_names = ['res2', 'res3', 'res4', 'res5']
         self.stages = [self.layer1, self.layer2, self.layer3, self.layer4]
+        for name, stage in zip(self.stage_names, self.stages):
+            self._out_feature_strides[name] = curr_stride = int(
+                curr_stride * np.prod([k.stride for k in stage])
+            )
+            self._out_feature_channels[name] = stage[-1].out_channels
 
     def output_shape(self):
-        pass
+        return {
+            name: ShapeSpec(
+                channels=self._out_feature_channels[name], stride=self._out_feature_strides[name]
+            )
+            for name in self._out_features
+        }
 
     def construct(self, x: Tensor) -> dict:
         outputs = {}
@@ -70,8 +96,8 @@ def layout_resnet101(pretrained: bool = True, **kwargs) -> LayoutResNet:
 
 # ResNet101 - layoutxlm-base
 def build_resnet_backbone(cfg):
-    # need to implement output_shape()
-    pass
+    if cfg.MODEL.BACKBONE.NAME == "resnet101":
+        return layout_resnet101(cfg.MODEL.BACKBONE.PRETRAINED)
 
 
 def build_resnet_fpn_backbone(cfg):
@@ -152,6 +178,14 @@ class FPN(nn.Cell):
     @property
     def padding_constraints(self):
         return {"square_size": self._square_pad}
+
+    def output_shape(self):
+        return {
+            name: ShapeSpec(
+                channels=self._out_feature_channels[name], stride=self._out_feature_strides[name]
+            )
+            for name in self._out_features
+        }
 
     def construct(self, x):
         bottom_up_features = self.bottom_up(x)
