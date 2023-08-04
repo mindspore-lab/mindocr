@@ -70,7 +70,7 @@ class Preprocessor:
         return {"net_inputs": net_inputs, **other_params}
 
 
-def parse_preprocess_from_yaml(config_path):
+def parse_preprocess_from_yaml(config_path, support_gear=False):
     with open(config_path) as fp:
         cfg = yaml.safe_load(fp)
 
@@ -94,8 +94,10 @@ def parse_preprocess_from_yaml(config_path):
         else:
             node_params["polygons"] = False  # turn off polygons processing for all transformations
 
-            # prioritize loading postprocess from module adapted_preprocess
-            if hasattr(adapted_preprocess, node_name):
+            load_adapted_ops = support_gear or node_name not in adapted_preprocess.gear_supported_list
+
+            # adapted_preprocess > mindocr_preprocess
+            if hasattr(adapted_preprocess, node_name) and load_adapted_ops:
                 node_instance = getattr(adapted_preprocess, node_name)
             elif hasattr(mindocr_preprocess, node_name):
                 node_instance = getattr(mindocr_preprocess, node_name)
@@ -114,7 +116,7 @@ def parse_preprocess_from_yaml(config_path):
     return infer_transform_pipeline, input_columns
 
 
-def build_preprocess(config_path):
-    tasks, input_columns = parse_preprocess_from_yaml(config_path)
+def build_preprocess(config_path, support_gear=False):
+    tasks, input_columns = parse_preprocess_from_yaml(config_path, support_gear)
     processor = Preprocessor(tasks, input_columns)
     return processor
