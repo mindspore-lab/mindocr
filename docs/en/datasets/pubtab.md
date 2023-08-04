@@ -2,11 +2,9 @@
 
 ## Data Downloading
 
-[Official Website](https://developer.ibm.com/exchanges/data/all/pubtabnet/)
+PubTabNet dataset [Official Website](https://developer.ibm.com/exchanges/data/all/pubtabnet/) | [Download Link](https://dax-cdn.cdn.appdomain.cloud/dax-pubtabnet/2.0.0/pubtabnet.tar.gz)
 
-The PubTabNet images dataset and the annotations (in JSONL format) can be downloaded from this [link](https://developer.ibm.com/exchanges/data/all/pubtabnet/).
-
-After downloading the images and annotations, unzip the files, after which the directory structure should be like as follows (ignoring the archive files):
+Download the images and annotations, unzip the files. The directory structure should be:
 
 ```txt
 pubtabnet
@@ -29,7 +27,9 @@ pubtabnet
 
 ### For Table Recognition Task
 
-To prepare the data for Table Recognition, you can run the following commands:
+To prepare the annotation for Table Recognition, run the following commands:
+
+- Split the annotation for training set:
 
 ```bash
 python tools/dataset_converters/convert.py \
@@ -40,6 +40,8 @@ python tools/dataset_converters/convert.py \
     --split train
 ```
 
+- Split the annotation for validation set:
+
 ```bash
 python tools/dataset_converters/convert.py \
     --dataset_name pubtab --task table \
@@ -49,6 +51,8 @@ python tools/dataset_converters/convert.py \
     --split val
 ```
 
-The generated standard annotation file `pubtab_train.jsonl` and`pubtab_val.jsonl` will now be placed under the folder `pubtabnet/`.
+- Note: the annotation for testing set is not provided
+
+Then, the generated standard annotation file `pubtab_train.jsonl` and `pubtab_val.jsonl` will be placed under the folder `pubtabnet/`.
 
 [Back to dataset converters](converters.md)
