@@ -33,7 +33,8 @@ params_dict = model.state_dict()
 ms_params = []
 for name, value in params_dict.items():
     each_param = dict()
-    each_param[param_name_map[name]] = ms.Tensor(value.numpy())
+    each_param["name"] = param_name_map[name]
+    each_param["data"] = ms.Tensor(value.numpy())
     ms_params.append(each_param)
 
 ms.save_checkpoint(ms_params, "layoutxlm-base.ckpt")
