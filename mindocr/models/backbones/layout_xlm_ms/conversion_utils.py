@@ -19,7 +19,8 @@ def unset_proxy():
 
 
 # load param_map json
-param_name_map = json.load("param_map.json")
+with open("param_map.json", "r") as json_file:
+    param_name_map = json.load(json_file)
 
 # use proxy if you needed
 set_proxy()
