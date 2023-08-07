@@ -8,6 +8,8 @@ from mindspore.common.initializer import Constant, initializer
 
 from .visual_backbone import build_resnet_fpn_backbone, read_config
 
+# from visual_backbone import build_resnet_fpn_backbone, read_config
+
 
 class VisualBackbone(nn.Cell):
     def __init__(self, config):
@@ -19,15 +21,15 @@ class VisualBackbone(nn.Cell):
         num_channels = len(self.cfg.MODEL.PIXEL_MEAN)
 
         self.pixel_mean = Parameter(
-            ms.Tensor(self.cfg.MODEL.PIXEL_MEAN).broadcast_to((num_channels, 1, 1)),
+            ms.Tensor(self.cfg.MODEL.PIXEL_MEAN).reshape((num_channels, 1, 1)),
             name="pixel_mean", requires_grad=False)
         self.pixel_std = Parameter(
-            ms.Tensor(self.cfg.MODEL.PIXEL_STD).broadcast_to((num_channels, 1, 1)),
+            ms.Tensor(self.cfg.MODEL.PIXEL_STD).reshape((num_channels, 1, 1)),
             name="pixel_std", requires_grad=False)
 
         self.out_feature_key = "p2"
         # is_deterministic is disabled here.
-        self.pool = nn.AdaptiveAvgPool2d(config.image_feature_pool_shape[:2])  # (7,7)
+        self.pool = nn.AdaptiveAvgPool2d(tuple(config.image_feature_pool_shape[:2]))  # (7,7)
         if len(config.image_feature_pool_shape) == 2:
             config.image_feature_pool_shape.append(self.backbone.output_shape()[self.out_feature_key].channels)
         assert self.backbone.output_shape()[self.out_feature_key].channels == config.image_feature_pool_shape[2]
@@ -82,23 +84,29 @@ class LayoutXLMEmbeddings(nn.Cell):
         self.w_position_embeddings = nn.Embedding(config.max_2d_position_embeddings, config.shape_size)
         self.token_type_embeddings = nn.Embedding(config.type_vocab_size, config.hidden_size)
 
-        self.LayerNorm = nn.LayerNorm(config.hidden_size, epsilon=config.layer_norm_eps)
+        self.LayerNorm = nn.LayerNorm((config.hidden_size,), epsilon=config.layer_norm_eps)
         self.dropout = nn.Dropout(p=config.hidden_dropout_prob)
         self.position_ids = Parameter(
             ms.Tensor(np.arange(0, config.max_position_embeddings)).broadcast_to((1, -1)),
             name="position_ids", requires_grad=False)
 
     def _cal_spatial_position_embeddings(self, bbox):
+        bbox_numpy = bbox.numpy()
+        bbox_0 = ms.Tensor(bbox_numpy[:, :, 0])
+        bbox_1 = ms.Tensor(bbox_numpy[:, :, 1])
+        bbox_2 = ms.Tensor(bbox_numpy[:, :, 2])
+        bbox_3 = ms.Tensor(bbox_numpy[:, :, 3])
         try:
-            left_position_embeddings = self.x_position_embeddings(bbox[:, :, 0])
-            upper_position_embeddings = self.y_position_embeddings(bbox[:, :, 1])
-            right_position_embeddings = self.x_position_embeddings(bbox[:, :, 2])
-            lower_position_embeddings = self.y_position_embeddings(bbox[:, :, 3])
+
+            left_position_embeddings = self.x_position_embeddings(bbox_0)
+            upper_position_embeddings = self.y_position_embeddings(bbox_1)
+            right_position_embeddings = self.x_position_embeddings(bbox_2)
+            lower_position_embeddings = self.y_position_embeddings(bbox_3)
         except IndexError as e:
             raise IndexError("The :obj:`bbox`coordinate values should be within 0-1000 range.") from e
 
-        h_position_embeddings = self.h_position_embeddings(bbox[:, :, 3] - bbox[:, :, 1])
-        w_position_embeddings = self.w_position_embeddings(bbox[:, :, 2] - bbox[:, :, 0])
+        h_position_embeddings = self.h_position_embeddings(bbox_3 - bbox_1)
+        w_position_embeddings = self.w_position_embeddings(bbox_2 - bbox_0)
 
         spatial_position_embeddings = ops.concat(
             (
@@ -235,7 +243,7 @@ class LayoutXLMSelfAttention(nn.Cell):
             attention_scores += rel_pos
         if self.has_spatial_attention_bias:
             attention_scores += rel_2d_pos
-        bool_attention_mask = attention_mask.astype(ms.bool)  # ms.int32 or ms.bool
+        bool_attention_mask = attention_mask.bool()  # ms.int32 or ms.bool
         bool_attention_mask = ops.stop_gradient(bool_attention_mask)
         attention_scores_shape = ops.shape(attention_scores)
         attention_scores = ops.where(
@@ -263,7 +271,7 @@ class LayoutXLMSelfOutput(nn.Cell):
     def __init__(self, config):
         super(LayoutXLMSelfOutput, self).__init__()
         self.dense = nn.Dense(config.hidden_size, config.hidden_size)
-        self.LayerNorm = nn.LayerNorm(config.hidden_size, epsilon=config.layer_norm_eps)
+        self.LayerNorm = nn.LayerNorm((config.hidden_size,), epsilon=config.layer_norm_eps)
         self.dropout = nn.Dropout(p=config.hidden_dropout_prob)
 
     def construct(self, hidden_states, input_tensor):
@@ -333,7 +341,7 @@ class LayoutXLMOutput(nn.Cell):
     def __init__(self, config):
         super(LayoutXLMOutput, self).__init__()
         self.dense = nn.Dense(config.intermediate_size, config.hidden_size)
-        self.LayerNorm = nn.LayerNorm(config.hidden_size, epsilon=config.layer_norm_eps)
+        self.LayerNorm = nn.LayerNorm((config.hidden_size,), epsilon=config.layer_norm_eps)
         self.dropout = nn.Dropout(config.hidden_dropout_prob)
 
     def construct(self, hidden_states, input_tensor):
@@ -511,15 +519,13 @@ class LayoutXLMPooler(nn.Cell):
         super(LayoutXLMPooler, self).__init__()
         self.dense = nn.Dense(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
-        self.with_pool = config.with_pool
 
-    def forward(self, hidden_states):
+    def construct(self, hidden_states):
         # We "pool" the model by simply taking the hidden state corresponding
         # to the first token.
         first_token_tensor = hidden_states[:, 0]
         pooled_output = self.dense(first_token_tensor)
-        if self.with_pool == "tanh":
-            pooled_output = self.activation(pooled_output)
+        pooled_output = self.activation(pooled_output)
         return pooled_output
 
 
@@ -531,10 +537,10 @@ class LayoutXLMModel(nn.Cell):
         self.embeddings = LayoutXLMEmbeddings(config)
 
         self.visual = VisualBackbone(config)
-        self.visual_proj = nn.Dense(config.image_feat_dim, config.hidden_size)
+        self.visual_proj = nn.Dense(config.image_feature_pool_shape[-1], config.hidden_size)
         if self.has_visual_segment_embedding:
-            self.has_visual_segment_embedding = Parameter(nn.Embedding(1, config.hidden_size).embedding_table[0])
-        self.visual_LayerNorm = nn.LayerNorm(config.hidden_size, epsilon=config.layer_norm_eps)
+            self.visual_segment_embedding = Parameter(nn.Embedding(1, config.hidden_size).embedding_table[0])
+        self.visual_LayerNorm = nn.LayerNorm((config.hidden_size,), epsilon=config.layer_norm_eps)
         self.visual_dropout = nn.Dropout(p=config.hidden_dropout_prob)
 
         self.encoder = LayoutXLMEncoder(config)
@@ -588,8 +594,8 @@ class LayoutXLMModel(nn.Cell):
             dtype=bbox.dtype,
         )
         )
-
         expand_shape = image_feature_pool_shape[0:2]
+        expand_shape = tuple(expand_shape)
         visual_bbox = ops.stack(
             [
                 visual_bbox_x[:-1].broadcast_to(expand_shape),
@@ -599,7 +605,6 @@ class LayoutXLMModel(nn.Cell):
             ],
             axis=-1,
         ).reshape((expand_shape[0] * expand_shape[1], ops.shape(bbox)[-1]))
-
         visual_bbox = visual_bbox.broadcast_to((visual_shape[0], visual_bbox.shape[0], visual_bbox.shape[1]))
         return visual_bbox
 
@@ -607,9 +612,9 @@ class LayoutXLMModel(nn.Cell):
         if input_ids is not None and inputs_embeds is not None:
             raise ValueError("You cannot specify both input_ids and inputs_embeds at the same time")
         elif input_ids is not None:
-            return input_ids.shape()
+            return input_ids.shape
         elif inputs_embeds is not None:
-            return inputs_embeds.shape()[:-1]
+            return inputs_embeds.shape[:-1]
         else:
             raise ValueError("You have to specify either input_ids or inputs_embeds")
 
@@ -653,7 +658,6 @@ class LayoutXLMModel(nn.Cell):
 
         if bbox is None:
             bbox = ops.zeros(input_shape + [4])
-
         text_layout_emb = self._calc_text_embeddings(
             input_ids=input_ids,
             bbox=bbox,
@@ -696,23 +700,12 @@ class LayoutXLMModel(nn.Cell):
 
 
 if __name__ == "__main__":
-    from .configuration import LayoutXLMPretrainedConfig
+    from configuration import LayoutXLMPretrainedConfig
+    from test_utils import prepare_input
+
     config = LayoutXLMPretrainedConfig()
     model = LayoutXLMModel(config)
 
-    input_ids = ms.Tensor([[1, 2, 3]])
-    image = ms.Tensor(np.random.rand(10, 512).astype(np.float32))
-
-    # input_ids = ms.Tensor([[1, 2, 3, 4, 5]])
-    # bbox = ms.Tensor([[[0, 0, 10, 10], [0, 0, 20, 20], [0, 0, 30, 30], [0, 0, 40, 40], [0, 0, 50, 50]]])
-    # token_type_ids = ms.Tensor([[0, 0, 1, 1, 1]])
-    # position_ids = ms.Tensor([[0, 1, 2, 3, 4]])
-
-    fake_input = {
-        "bbox": ms.Tensor(np.random.rand(1, 3, 4).astype(np.float32)),
-        "input_ids": input_ids,
-        "image": image
-    }
-
+    fake_input = prepare_input()
     sequence_output, pooled_output, hidden_states = model(**fake_input)
     print(sequence_output.shape)

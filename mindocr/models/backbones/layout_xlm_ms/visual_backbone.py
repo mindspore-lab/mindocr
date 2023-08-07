@@ -10,10 +10,34 @@ from mindspore import Tensor, nn, ops
 from ..mindcv_models.resnet import BasicBlock, Bottleneck, ResNet, default_cfgs
 from ..mindcv_models.utils import load_pretrained
 
+# import sys
+# sys.path.append('..')
+# from mindcv_models.resnet import BasicBlock, Bottleneck, ResNet, default_cfgs
+# from mindcv_models.utils import load_pretrained
+
+
+class DotDict(dict):
+    def __init__(self, dct):
+        super(DotDict, self).__init__()
+        for key, value in dct.items():
+            if isinstance(value, dict):
+                value = DotDict(value)
+            self[key] = value
+
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except KeyError:
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{key}'")
+
+    def __setattr__(self, key, value):
+        self[key] = value
+
 
 def read_config():
     with open('visual_backbone.yaml', 'r') as file:
         data = yaml.safe_load(file)
+        data = DotDict(data)
     return data
 
 
@@ -25,6 +49,14 @@ class ShapeSpec:
     stride: Optional[int] = None
 
 
+def get_stride_of_block(block):
+    return block.conv2.stride[0]
+
+
+def get_out_channel_of_block(block):
+    return block.conv3.out_channels
+
+
 class LayoutResNet(ResNet):
     def __init__(self,
                  block: Type[Union[BasicBlock, Bottleneck]],
@@ -34,7 +66,7 @@ class LayoutResNet(ResNet):
                  **kwargs):
         super().__init__(block, layers, num_classes, **kwargs)
         self._out_features = out_features
-        curr_stride = self.conv1.stride
+        curr_stride = 4
         self._out_feature_strides = {"stem": curr_stride}
         self._out_feature_channels = {"stem": self.conv1.out_channels}
 
@@ -44,9 +76,9 @@ class LayoutResNet(ResNet):
         self.stages = [self.layer1, self.layer2, self.layer3, self.layer4]
         for name, stage in zip(self.stage_names, self.stages):
             self._out_feature_strides[name] = curr_stride = int(
-                curr_stride * np.prod([k.stride for k in stage])
+                curr_stride * np.prod([get_stride_of_block(each_block) for each_block in stage])
             )
-            self._out_feature_channels[name] = stage[-1].out_channels
+            self._out_feature_channels[name] = get_out_channel_of_block(stage[-1])
 
     def output_shape(self):
         return {
@@ -74,7 +106,7 @@ class LayoutResNet(ResNet):
         return outputs
 
 
-def layout_resnet101(pretrained: bool = True, **kwargs) -> LayoutResNet:
+def layout_resnet101(pretrained, num_classes, out_features, **kwargs):
     """
     A predefined ResNet-101 for Text Detection.
 
@@ -85,7 +117,7 @@ def layout_resnet101(pretrained: bool = True, **kwargs) -> LayoutResNet:
     Returns:
         LayoutResNet: ResNet model.
     """
-    model = LayoutResNet(BasicBlock, [3, 4, 23, 3], **kwargs)
+    model = LayoutResNet(Bottleneck, [3, 4, 23, 3], num_classes, out_features, **kwargs)
 
     if pretrained:
         default_cfg = default_cfgs['resnet101']
@@ -97,7 +129,8 @@ def layout_resnet101(pretrained: bool = True, **kwargs) -> LayoutResNet:
 # ResNet101 - layoutxlm-base
 def build_resnet_backbone(cfg):
     if cfg.MODEL.BACKBONE.NAME == "resnet101":
-        return layout_resnet101(cfg.MODEL.BACKBONE.PRETRAINED)
+        return layout_resnet101(cfg.MODEL.BACKBONE.PRETRAINED, cfg.MODEL.BACKBONE.NUM_CLASSES,
+                                cfg.MODEL.BACKBONE.OUT_FEATURES)
 
 
 def build_resnet_fpn_backbone(cfg):
@@ -147,7 +180,8 @@ class FPN(nn.Cell):
         use_bias = norm == ""
         for idx, in_channels in enumerate(in_channels_per_feature):
             lateral_conv = nn.Conv2d(in_channels, out_channels, kernel_size=1, has_bias=use_bias)
-            output_conv = nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1, has_bias=use_bias)
+            output_conv = nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1, has_bias=use_bias,
+                                    pad_mode='pad')
             stage = int(math.log2(strides[idx]))
             lateral_convs.append(lateral_conv)
             output_convs.append(output_conv)
@@ -198,7 +232,7 @@ class FPN(nn.Cell):
             if idx > 0:
                 features = self.in_features[-idx - 1]
                 features = bottom_up_features[features]
-                old_shape = list(prev_features.shape)
+                old_shape = list(prev_features.shape)[2:]
                 new_size = tuple([2 * i for i in old_shape])
                 top_down_features = self._interpolate(prev_features, size=new_size, mode="nearest")
                 lateral_features = lateral_conv(features)
@@ -206,7 +240,6 @@ class FPN(nn.Cell):
                 if self._fuse_type == "avg":
                     prev_features /= 2
                 results.insert(0, output_conv(prev_features))
-
         if self.top_block is not None:
             if self.top_block.in_feature in bottom_up_features:
                 top_block_in_feature = bottom_up_features[self.top_block.in_feature]
