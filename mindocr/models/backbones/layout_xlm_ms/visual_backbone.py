@@ -186,8 +186,8 @@ class FPN(nn.Cell):
             lateral_convs.append(lateral_conv)
             output_convs.append(output_conv)
 
-        self.lateral_convs = lateral_convs[::-1]
-        self.output_convs = output_convs[::-1]
+        self.lateral_convs = nn.SequentialCell(lateral_convs[::-1])
+        self.output_convs = nn.SequentialCell(output_convs[::-1])
 
         self.top_block = top_block
         self.in_features = tuple(in_features)
