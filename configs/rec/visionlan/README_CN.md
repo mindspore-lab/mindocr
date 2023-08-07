@@ -34,7 +34,7 @@
 
 | **Model** | **Context** | **Backbone**|  **Train Dataset** | **Model Params**|**Avg Accuracy** | **Train Time** | **Per Step Time** | **FPS** | **Recipe** | **Download** |
 | :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |:--------: | :--------: |:--------: |:----------: |
-| visionlan  | D910x4-MS2.0-G | resnet45 | MJ+ST| 42.2M | 90.61%  |  7718s/epoch  | 417 ms/step  | 1,840 img/s | [yaml(LF_1)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_1.yaml) [yaml(LF_2)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_2.yaml) [yaml(LA)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LA.yaml)| [ckpt files](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_ckpts-7d6e9c04.tar.gz) \| [mindir(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-71b38d2d.mindir)|
+| visionlan  | D910x4-MS2.0-G | resnet45 | MJ+ST| 42.2M | 90.61%  |  7718s/epoch  | 417 ms/step  | 1,840 img/s | [yaml(LF_1)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_1.yaml) [yaml(LF_2)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_2.yaml) [yaml(LA)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LA.yaml)| [ckpt files](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_ckpts-7d6e9c04.tar.gz) \| [mindir(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e-71b38d2d.mindir)|
 
 </div>
 
@@ -240,7 +240,7 @@ python tools/benchmarking/multi_dataset_eval.py --config $yaml_file --opt eval.d
 
 ### 4.1 准备 MINDIR 文件
 
-请从上面的表格中中下载[MINDIR](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-71b38d2d.mindir)文件，或者您可以使用`tools/export.py`将任何检查点文件手动转换为 MINDIR 文件：
+请从上面的表格中中下载[MINDIR](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e-71b38d2d.mindir)文件，或者您可以使用`tools/export.py`将任何检查点文件手动转换为 MINDIR 文件：
 ```bash
 # 有关更多参数使用详细信息，请执行 `python tools/export.py -h`
 python tools/export.py --model_name visionlan_resnet45 --data_shape 64 256 --local_ckpt_path /path/to/visionlan-ckpt
