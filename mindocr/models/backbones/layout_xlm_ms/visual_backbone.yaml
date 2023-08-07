@@ -3,6 +3,12 @@ MODEL:
     FREEZE_AT: 2
     NAME: resnet101
     PRETRAINED: True
+    NUM_CLASSES: 1000
+    OUT_FEATURES:
+      - res2
+      - res3
+      - res4
+      - res5
   FPN:
     FUSE_TYPE: sum
     IN_FEATURES:
