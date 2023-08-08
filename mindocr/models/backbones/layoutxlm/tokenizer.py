@@ -18,8 +18,8 @@ from typing import List, Optional
 
 import sentencepiece as spm
 
-from .. import AddedToken, PretrainedTokenizer
-from ..tokenizer_utils import _is_control, _is_punctuation, _is_whitespace
+from .tokenizer_utils_base import AddedToken
+from .tokenizer_utils import _is_control, _is_punctuation, _is_whitespace, PretrainedTokenizer
 
 SPIECE_UNDERLINE = "▁"
 
