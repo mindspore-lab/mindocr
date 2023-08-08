@@ -3,7 +3,7 @@ import math
 import numpy as np
 
 import mindspore as ms
-from mindspore import Parameter, nn, ops
+from mindspore import Parameter, load_checkpoint, load_param_into_net, nn, ops
 from mindspore.common.initializer import Constant, initializer
 
 from .visual_backbone import build_resnet_fpn_backbone, read_config
@@ -573,6 +573,38 @@ class LayoutXLMModel(nn.Cell):
         embeddings = self.visual_dropout(embeddings)
         return embeddings
 
+    def resize_position_embeddings(self, new_num_position_embeddings):
+        """
+        Resizes position embeddings of the model if `new_num_position_embeddings != config["max_position_embeddings"]`.
+
+        Arguments:
+            new_num_position_embeddings (`int`):
+                The number of new position embedding matrix. If position embeddings are learned, increasing the size
+                will add newly initialized vectors at the end, whereas reducing the size will remove vectors from the
+                end.
+        """
+        num_position_embeds_diff = new_num_position_embeddings - self.config.max_position_embeddings
+
+        # no resizing needs to be done if the length stays the same
+        if num_position_embeds_diff == 0:
+            return
+
+        # logger.info(f"Setting `config.max_position_embeddings={new_num_position_embeddings}`...")
+        self.config.max_position_embeddings = new_num_position_embeddings
+
+        old_position_embeddings_weight = self.embeddings.position_embeddings.embedding_table
+
+        self.embeddings.position_embeddings = nn.Embedding(
+            self.config.max_position_embeddings, self.config.hidden_size
+        )
+
+        if num_position_embeds_diff > 0:
+            self.embeddings.position_embeddings.embedding_table[:-num_position_embeds_diff] = \
+                old_position_embeddings_weight
+        else:
+            self.embeddings.position_embeddings.embedding_table = \
+                old_position_embeddings_weight[:num_position_embeds_diff]
+
     def _calc_visual_bbox(self, image_feature_pool_shape, bbox, visual_shape):
         visual_bbox_x = (ms.Tensor(
             np.arange(
@@ -699,13 +731,202 @@ class LayoutXLMModel(nn.Cell):
         return sequence_output, pooled_output, encoder_outputs[1]
 
 
-if __name__ == "__main__":
-    from configuration import LayoutXLMPretrainedConfig
-    from test_utils import prepare_input
+class LayoutXLMForTokenClassification(nn.Cell):
+    def __init__(self, config):
+        super(LayoutXLMForTokenClassification, self).__init__()
+        self.num_classes = config.num_labels
+        self.layoutxlm = LayoutXLMModel(config)
+        self.dropout = nn.Dropout(p=config.hidden_dropout_prob)
+        self.classifier = nn.Dense(config.hidden_size, self.num_classes)
 
+    def get_input_embeddings(self):
+        return self.layoutxlm.embeddings.word_embeddings
+
+    def resize_position_embeddings(self, new_num_position_embeddings):
+        """
+        Resizes position embeddings of the model if `new_num_position_embeddings != config["max_position_embeddings"]`.
+
+        Arguments:
+            new_num_position_embeddings (`int`):
+                The number of new position embedding matrix. If position embeddings are learned, increasing the size
+                will add newly initialized vectors at the end, whereas reducing the size will remove vectors from the
+                end.
+        """
+        self.layoutxlm.resize_position_embeddings(new_num_position_embeddings)
+
+    def construct(
+            self,
+            input_ids=None,
+            bbox=None,
+            image=None,
+            attention_mask=None,
+            token_type_ids=None,
+            position_ids=None,
+            head_mask=None,
+            labels=None,
+    ):
+        outputs = self.layoutxlm(
+            input_ids=input_ids,
+            bbox=bbox,
+            image=image,
+            attention_mask=attention_mask,
+            token_type_ids=token_type_ids,
+            position_ids=position_ids,
+            head_mask=head_mask,
+        )
+        seq_length = input_ids.shape[1]
+        # sequence out and image out
+        sequence_output = outputs[0][:, :seq_length]
+        sequence_output = self.dropout(sequence_output)
+        logits = self.classifier(sequence_output)
+
+        hidden_states = {
+            f"hidden_states_{idx}": outputs[2][f"{idx}_data"] for idx in range(self.layoutxlm.config.num_hidden_layers)
+        }
+        if self.training:
+            outputs = (logits, hidden_states)
+        else:
+            outputs = (logits,)
+
+        if labels is not None:
+            loss_fct = nn.CrossEntropyLoss()
+
+            if attention_mask is not None:
+                active_loss = (
+                        attention_mask.reshape((-1,)) == 1
+                )
+                active_logits = logits.reshape((-1, self.num_classes))[active_loss]
+                active_labels = labels.reshape(
+                    (
+                        -1,
+                    )
+                )[active_loss]
+                active_labels = active_labels.astype(ms.int32)  # nn.CrossEntropy only support int32
+                loss = loss_fct(active_logits, active_labels)
+            else:
+                loss = loss_fct(
+                    logits.reshape((-1, self.num_classes)),
+                    labels.reshape(
+                        (
+                            -1,
+                        )
+                    ),
+                )
+
+            outputs = (loss,) + outputs
+
+        return outputs
+
+
+class NLPBaseModel(nn.Cell):
+    def __init__(self,
+                 base_model_class,
+                 model_class,
+                 mode="base",
+                 type="ser",
+                 pretrained=True,
+                 checkpoints=None,
+                 **kwargs):
+        super(NLPBaseModel, self).__init__()
+        pretrained_model_dict = {
+            LayoutXLMModel: {
+                "base": "./layoutxlm-base-e5255349.ckpt",  # TODO:download link
+            }
+        }
+        if checkpoints is not None:  # load the trained model
+            config = LayoutXLMPretrainedConfig()
+            params = load_checkpoint(checkpoints)
+            model = model_class(config)
+            load_param_into_net(model, params)
+            self.model = model
+        else:  # load the pretrained-model
+            pretrained_model_link = pretrained_model_dict[base_model_class][
+                mode]
+            if pretrained is True:
+                config = LayoutXLMPretrainedConfig()
+                params = load_checkpoint(pretrained_model_link)
+                base_model = base_model_class(config)
+                load_param_into_net(base_model, params)
+            if type == "ser":
+                self.model = model_class(
+                    base_model, num_classes=kwargs["num_classes"], dropout=None)
+            else:
+                self.model = model_class(base_model, dropout=None)
+        self.out_channels = 1
+        self.use_visual_backbone = True
+
+
+class LayoutXLMForSer(NLPBaseModel):
+    def __init__(self,
+                 num_classes,
+                 pretrained=True,
+                 checkpoints=None,
+                 mode="base",
+                 **kwargs):
+        super(LayoutXLMForSer, self).__init__(
+            LayoutXLMModel,
+            LayoutXLMForTokenClassification,
+            mode,
+            "ser",
+            pretrained,
+            checkpoints,
+            num_classes=num_classes)
+        if hasattr(self.model.layoutxlm, "use_visual_backbone"
+                   ) and self.model.layoutxlm.use_visual_backbone is False:
+            self.use_visual_backbone = False
+
+    def construct(self, x):
+        if self.use_visual_backbone is True:
+            image = x[4]
+        else:
+            image = None
+        x = self.model(
+            input_ids=x[0],
+            bbox=x[1],
+            attention_mask=x[2],
+            token_type_ids=x[3],
+            image=image,
+            position_ids=None,
+            head_mask=None,
+            labels=None)
+        if self.training:
+            res = {"backbone_out": x[0]}
+            res.update(x[1])
+            return res
+        else:
+            return x
+
+
+def get_layoutxlm_model_params():
     config = LayoutXLMPretrainedConfig()
     model = LayoutXLMModel(config)
+    params_dict = model.parameters_dict()
+    params_str = ""
+    for key, value in params_dict.items():
+        params_str += key
+        params_str += "\n"
+    with open("param.txt", "w") as f:
+        f.write(params_str)
 
-    fake_input = prepare_input()
-    sequence_output, pooled_output, hidden_states = model(**fake_input)
-    print(sequence_output.shape)
+
+if __name__ == "__main__":
+    from configuration import LayoutXLMPretrainedConfig
+    from test_utils import test_layoutxlm_model, test_token_classification
+
+    config = LayoutXLMPretrainedConfig()
+    test_case = "LayoutXLM"
+
+    if test_case == "LayoutXLM":
+        model = LayoutXLMModel(config)
+        test_layoutxlm_model(model)
+    elif test_case == "LayoutXLM-pretrained":
+        model = LayoutXLMModel(config)
+        params = load_checkpoint("./layoutxlm-base.ckpt")
+        load_param_into_net(model, params)
+        test_layoutxlm_model(model)
+    elif test_case == "TokenClassification":
+        config.num_labels = 3
+        model = LayoutXLMForTokenClassification(config)
+        test_token_classification(model)
+    elif test_case == "LayoutXLMSer":
+        pass
