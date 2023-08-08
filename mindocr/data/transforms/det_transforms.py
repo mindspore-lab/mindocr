@@ -233,12 +233,16 @@ class BorderMap:
         shrink_ratio: polygon shrink ratio (same as in ShrinkBinaryMap) which is used to calculate width of the border.
         thresh_min: minimum value for the border map (normalized map).
         thresh_max: maximum value for the border map (normalized map).
+        (experimental) fast: boolean to use new border map implementation
     """
 
-    def __init__(self, shrink_ratio: float = 0.4, thresh_min: float = 0.3, thresh_max: float = 0.7, **kwargs):
+    def __init__(
+        self, shrink_ratio: float = 0.4, thresh_min: float = 0.3, thresh_max: float = 0.7, fast: bool = False, **kwargs
+    ):
         self._thresh_min = thresh_min
         self._thresh_max = thresh_max
         self._dist_coef = 1 - shrink_ratio**2
+        self.fast = fast
 
     def __call__(self, data: dict) -> dict:
         border = np.zeros(data["image"].shape[:2], dtype=np.float32)
@@ -246,7 +250,10 @@ class BorderMap:
 
         for i in range(len(data["polys"])):
             if not data["ignore_tags"][i]:
-                self._draw_border(data["polys"][i], border, mask=mask)
+                if self.fast:
+                    self._draw_border_fast(data["polys"][i], border, mask=mask)
+                else:
+                    self._draw_border(data["polys"][i], border, mask=mask)
         border = border * (self._thresh_max - self._thresh_min) + self._thresh_min
 
         data["thresh_map"] = border
@@ -282,6 +289,49 @@ class BorderMap:
             ],
             border[min_valid[1] : max_valid[1] + 1, min_valid[0] : max_valid[0] + 1],
         )
+
+    def _draw_border_fast(self, np_poly: np.ndarray, border: np.ndarray, mask: np.ndarray):
+        # draw mask
+        poly = Polygon(np_poly)
+        distance = self._dist_coef * poly.area / poly.length
+        padded_polygon = np.array(expand_poly(np_poly, distance)[0], dtype=np.int32)
+        cv2.fillPoly(mask, [padded_polygon], 1.0)
+
+        # draw border
+        poly_border = np.zeros(border.shape[:2], dtype=np.float32)  # empty image to draw border on
+
+        pad_width = round(distance)
+        poly_border = np.pad(
+            poly_border, pad_width, mode="constant"
+        )  # pad image to account for polygons at the edges of image
+
+        thickness = round(distance * 2) - 1
+        cv2.polylines(
+            poly_border, [np.array(np_poly, dtype=np.int32) + pad_width], True, 1.0, thickness
+        )  # draw white polygon on black image
+
+        distance_map = np.clip(
+            cv2.distanceTransform((poly_border * 255).astype(np.uint8), cv2.DIST_C, cv2.DIST_MASK_3) / (thickness // 2),
+            0,
+            1,
+        )  # calculate distance from foreground to closest background
+
+        distance_map = distance_map[
+            pad_width : poly_border.shape[0] - pad_width, pad_width : poly_border.shape[1] - pad_width
+        ]  # un-pad the image
+
+        min_vals, max_vals = np.min(padded_polygon, axis=0) - thickness, np.max(padded_polygon, axis=0) + thickness
+
+        min_valid = np.clip(min_vals, 0, np.array(border.shape[::-1]) - 1)  # shape reverse order: w, h
+        max_valid = np.clip(max_vals, 0, np.array(border.shape[::-1]) - 1)
+
+        border[min_valid[1] : max_valid[1] + 1, min_valid[0] : max_valid[0] + 1] = np.fmax(
+            distance_map[
+                min_valid[1] : max_valid[1] + 1,
+                min_valid[0] : max_valid[0] + 1,
+            ],
+            border[min_valid[1] : max_valid[1] + 1, min_valid[0] : max_valid[0] + 1],
+        )  # draw the distance map on the combined border map
 
     @staticmethod
     def _distance(xs: np.ndarray, ys: np.ndarray, point_1: np.ndarray, point_2: np.ndarray) -> np.ndarray:
