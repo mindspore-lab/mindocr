@@ -100,9 +100,9 @@ def prepare_input():
     type_vocab_size = 16
     use_input_mask = True
     use_token_type_ids = True
-    # num_labels = 3
+    num_labels = 3
     # type_sequence_label_size = 2
-    # use_labels = True
+    use_labels = True
 
     input_ids = ids_tensor((batch_size, seq_length), vocab_size)
     bbox = ids_tensor((batch_size, seq_length, 4), range_bbox)
@@ -129,10 +129,10 @@ def prepare_input():
         token_type_ids = ids_tensor((batch_size, seq_length), type_vocab_size)
 
     # sequence_labels = None
-    # token_labels = None
-    # if use_labels:
-    #     sequence_labels = ids_tensor((batch_size,), type_sequence_label_size)
-    #     token_labels = ids_tensor((batch_size, seq_length), num_labels)
+    token_labels = None
+    if use_labels:
+        # sequence_labels = ids_tensor((batch_size,), type_sequence_label_size)
+        token_labels = ids_tensor((batch_size, seq_length), num_labels)
 
     fake_input = {
         "bbox": bbox,
@@ -141,4 +141,24 @@ def prepare_input():
         "attention_mask": input_mask,
         "token_type_ids": token_type_ids
     }
-    return fake_input
+    fake_input_token_classification = {
+        "bbox": bbox,
+        "input_ids": input_ids,
+        "image": image,
+        "attention_mask": input_mask,
+        "token_type_ids": token_type_ids,
+        "labels": token_labels
+    }
+    return fake_input, fake_input_token_classification
+
+
+def test_layoutxlm_model(model):
+    fake_input, _ = prepare_input()
+    sequence_output, pooled_output, hidden_states = model(**fake_input)
+    print(sequence_output.shape)
+
+
+def test_token_classification(model):
+    _, fake_input = prepare_input()
+    outputs = model(**fake_input)
+    print(outputs.shape)
