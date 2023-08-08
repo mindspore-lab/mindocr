@@ -1,19 +1,12 @@
 import math
-from dataclasses import dataclass
-from typing import List, Optional, Type, Union
 
-import numpy as np
 import yaml
 
-from mindspore import Tensor, nn, ops
+from mindspore import nn, ops
 
-from ..mindcv_models.resnet import BasicBlock, Bottleneck, ResNet, default_cfgs
-from ..mindcv_models.utils import load_pretrained
+from .resnet import ShapeSpec, build_resnet_backbone
 
-# import sys
-# sys.path.append('..')
-# from mindcv_models.resnet import BasicBlock, Bottleneck, ResNet, default_cfgs
-# from mindcv_models.utils import load_pretrained
+# from resnet import ResNet, ShapeSpec, build_resnet_backbone
 
 
 class DotDict(dict):
@@ -39,98 +32,6 @@ def read_config():
         data = yaml.safe_load(file)
         data = DotDict(data)
     return data
-
-
-@dataclass
-class ShapeSpec:
-    channels: Optional[int] = None
-    height: Optional[int] = None
-    width: Optional[int] = None
-    stride: Optional[int] = None
-
-
-def get_stride_of_block(block):
-    return block.conv2.stride[0]
-
-
-def get_out_channel_of_block(block):
-    return block.conv3.out_channels
-
-
-class LayoutResNet(ResNet):
-    def __init__(self,
-                 block: Type[Union[BasicBlock, Bottleneck]],
-                 layers: List[int],
-                 num_classes: int,
-                 out_features: List[str],
-                 **kwargs):
-        super().__init__(block, layers, num_classes, **kwargs)
-        self._out_features = out_features
-        curr_stride = 4
-        self._out_feature_strides = {"stem": curr_stride}
-        self._out_feature_channels = {"stem": self.conv1.out_channels}
-
-        self.num_classes = num_classes
-        self.stem = nn.SequentialCell([self.conv1, self.bn1, self.relu, self.max_pool])
-        self.stage_names = ['res2', 'res3', 'res4', 'res5']
-        self.stages = [self.layer1, self.layer2, self.layer3, self.layer4]
-        for name, stage in zip(self.stage_names, self.stages):
-            self._out_feature_strides[name] = curr_stride = int(
-                curr_stride * np.prod([get_stride_of_block(each_block) for each_block in stage])
-            )
-            self._out_feature_channels[name] = get_out_channel_of_block(stage[-1])
-
-    def output_shape(self):
-        return {
-            name: ShapeSpec(
-                channels=self._out_feature_channels[name], stride=self._out_feature_strides[name]
-            )
-            for name in self._out_features
-        }
-
-    def construct(self, x: Tensor) -> dict:
-        outputs = {}
-        x = self.stem(x)
-        if "stem" in self._out_features:
-            outputs["stem"] = x
-        for name, stage in zip(self.stage_names, self.stages):
-            x = stage(x)
-            if name in self._out_features:
-                outputs[name] = x
-        if self.num_classes is not None:
-            x = self.pool(x)
-            x = self.classifier(x)
-            if 'linear' in self._out_features:
-                outputs['linear'] = x
-
-        return outputs
-
-
-def layout_resnet101(pretrained, num_classes, out_features, **kwargs):
-    """
-    A predefined ResNet-101 for Text Detection.
-
-    Args:
-        pretrained: whether to load weights pretrained on ImageNet. Default: True.
-        **kwargs: additional parameters to pass to ResNet.
-
-    Returns:
-        LayoutResNet: ResNet model.
-    """
-    model = LayoutResNet(Bottleneck, [3, 4, 23, 3], num_classes, out_features, **kwargs)
-
-    if pretrained:
-        default_cfg = default_cfgs['resnet101']
-        load_pretrained(model, default_cfg)
-
-    return model
-
-
-# ResNet101 - layoutxlm-base
-def build_resnet_backbone(cfg):
-    if cfg.MODEL.BACKBONE.NAME == "resnet101":
-        return layout_resnet101(cfg.MODEL.BACKBONE.PRETRAINED, cfg.MODEL.BACKBONE.NUM_CLASSES,
-                                cfg.MODEL.BACKBONE.OUT_FEATURES)
 
 
 def build_resnet_fpn_backbone(cfg):
