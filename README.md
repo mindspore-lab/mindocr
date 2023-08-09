@@ -53,14 +53,6 @@ MindOCR is compatible with the following framework versions. For details and ins
 ```shell
 pip install -r requirements.txt
 ```
-**Tips:**
-
-- If scikit_image cannot be imported, please set environment variable `$LD_PRELOAD`
-as follows, (related [opencv issue](https://github.com/opencv/opencv/issues/14884))
-
-    ```shell
-    export LD_PRELOAD=path/to/scikit_image.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
-    ```
 
 #### Install from Source (recommend)
 ```shell
@@ -164,7 +156,7 @@ Please refer to [MindOCR Models Inference - Quick Start](docs/en/inference/infer
 <details open markdown>
 <summary>Text Detection</summary>
 
-- [x] [DBNet](configs/det/dbnet/README.md) (AAAI'2020)
+- [x] [DBNet](configs/det/dbnet) (AAAI'2020)
 - [x] [DBNet++](configs/det/dbnet/README.md) (TPAMI'2022)
 - [x] [PSENet](configs/det/psenet/README.md) (CVPR'2019)
 - [x] [EAST](configs/det/east/README.md)(CVPR'2017)
@@ -181,7 +173,7 @@ Please refer to [MindOCR Models Inference - Quick Start](docs/en/inference/infer
 - [x] [MASTER](configs/rec/master/README.md) (PR'2019)
 - [x] [VISIONLAN](configs/rec/visionlan/README.md) (ICCV'2021)
 - [x] [RobustScanner](configs/rec/robustscanner/README.md) (ECCV'2020)
-- [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
+- [x] [ABINet](configs/rec/abinet/README.md) (CVPR'2021)
 
 </details>
 
@@ -255,7 +247,7 @@ which can be enabled by add "shape_list" to the `eval.dataset.output_columns` li
     - [CRNN-Seq2Seq](configs/rec/rare) for text recognition
     - DBNet pretrained on SynthText is now available: [checkpoint url](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)
 2. Add more benchmark datasets and their results
-    - [SynthText](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c), [MSRA-TD500](docs/en/datasets/td500.md), [CTW1500](docs/en/datasets/ctw1500.md)
+    - [SynthText](docs/en/datasets/synthtext.md), [MSRA-TD500](docs/en/datasets/td500.md), [CTW1500](docs/en/datasets/ctw1500.md)
     - More benchmark results for DBNet are reported [here](configs/det/dbnet/README.md).
 3. Add checkpoint manager for saving top-k checkpoints and improve log.
 4. Python inference code refactored.
