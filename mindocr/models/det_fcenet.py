@@ -34,7 +34,7 @@ def fcenet_resnet50(pretrained=False, **kwargs):
         },
         "neck": {
             "name": 'FCEFPN',
-            "out_channel": 256,
+            "out_channels": 256,
         },
         "head": {
             "name": 'FCEHead',

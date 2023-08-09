@@ -139,7 +139,7 @@ model:
     pretrained: True    # 是否使用ImageNet数据集上的预训练权重
   neck:
     name: FCEFPN        # FCENet的特征金字塔网络
-    out_channel: 256
+    out_channels: 256
   head:
     name: FCEHead
     scales: [ 8, 16, 32 ]

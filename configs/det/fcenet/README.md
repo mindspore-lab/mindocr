@@ -132,7 +132,7 @@ model:
     pretrained: True    # Whether to use weights pretrained on ImageNet
   neck:
     name: FCEFPN        # FPN part of the FCENet
-    out_channel: 256
+    out_channels: 256
   head:
     name: FCEHead
     scales: [ 8, 16, 32 ]
