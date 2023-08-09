@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 from numpy.fft import ifft
 from shapely.geometry import Polygon
-
+from mindspore import Tensor
 from .det_base_postprocess import DetBasePostprocess
 
 __all__ = ["FCEPostprocess"]
@@ -302,7 +302,8 @@ class FCEPostprocess(DetBasePostprocess):
     def _postprocess(self, pred, **kwargs):
         score_maps = []
         for value in pred:
-            value = value.asnumpy()
+            if not isinstance(value, Tensor):
+                value = value.asnumpy()
             cls_res = value[:, :4, :, :]
             reg_res = value[:, 4:, :, :]
             score_maps.append([cls_res, reg_res])

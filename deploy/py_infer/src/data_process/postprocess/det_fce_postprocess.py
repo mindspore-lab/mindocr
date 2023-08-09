@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 from numpy.fft import ifft
 
-from mindspore import Tensor, context, ops
+from mindspore import Tensor, ops
 
 from ..utils import mask_utils, polygon_utils
 
@@ -15,6 +15,8 @@ mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..
 sys.path.insert(0, mindocr_path)
 
 from mindocr.postprocess.det_base_postprocess import DetBasePostprocess  # noqa
+
+__all__ = ["FCEPostprocess"]
 
 
 class FCEPostprocess(DetBasePostprocess):
@@ -39,8 +41,6 @@ class FCEPostprocess(DetBasePostprocess):
         self.score_thr = score_thr
         self.nms_thr = nms_thr
         self.box_type = box_type
-
-        context.set_context(device_target="CPU")
 
     def _postprocess(self, pred: Tuple, **kwargs) -> dict:
         batch_pred = self._split_results_from_list(pred)

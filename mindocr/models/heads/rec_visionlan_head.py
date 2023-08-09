@@ -341,8 +341,7 @@ class MLM_VRM(nn.Cell):
             f_sub = 0
             contextual_feature = self.SequenceModeling(input, src_mask=None)
             C = self.Prediction(contextual_feature, f_res, f_sub, is_train=False, use_mlm=False)
-            C = C.transpose((1, 0, 2))  # (max_len, b, 37))
-            return C
+            return C   # (b, max_len, 37))
 
 
 class VisionLANHead(nn.Cell):

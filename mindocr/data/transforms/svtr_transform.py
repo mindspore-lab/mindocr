@@ -369,7 +369,9 @@ class SVTRGeometry(object):
 
 
 class SVTRRecAug(object):
-    def __init__(self, aug_type=0, geometry_p=0.5, deterioration_p=0.25, colorjitter_p=0.25, **kwargs):
+    def __init__(
+        self, aug_type=0, geometry_p=0.5, deterioration_p=0.25, deterioration_factor=4, colorjitter_p=0.25, **kwargs
+    ):
         self.transforms = Compose(
             [
                 SVTRGeometry(
@@ -381,7 +383,7 @@ class SVTRRecAug(object):
                     distortion=0.5,
                     p=geometry_p,
                 ),
-                SVTRDeterioration(variance=20, degrees=6, factor=4, p=deterioration_p),
+                SVTRDeterioration(variance=20, degrees=6, factor=deterioration_factor, p=deterioration_p),
                 CVColorJitter(
                     brightness=0.5,
                     contrast=0.5,

@@ -2,7 +2,9 @@
 
 ## Data Downloading
 
-The CCPD can be downloaded from this [link](https://github.com/detectRecog/CCPD) using either the Google or BaiduYun drive links. This dataset is divided into 3 sets: train, val, test. Labels for each set can be found under the `splits` directory of the dataset.
+The CCPD can be downloaded from this [link](https://github.com/detectRecog/CCPD) using either the Google or BaiduYun drive links.
+This dataset is divided into 3 sets: train, val, test. Labels for each set can be found under the `splits` directory of the dataset.
+<ins>CCPD-Green</ins> dataset is already separated into different folders and thus does not require labels.
 
 The annotations for each image are embedded into the filename of the image. The format is described on their official website [here](https://github.com/detectRecog/CCPD#dataset-annotations).
 
@@ -36,6 +38,8 @@ python tools/dataset_converters/convert.py \
     --label_dir path/to/CCPD2019/splits/train.txt \
     --output_path path/to/CCPD2019/det_gt.txt
 ```
+
+> `label_dir` is not required for CCPD-Green dataset.
 
 The generated standard annotation file `det_gt.txt` will now be placed under the folder `CCPD2019/`.
 

@@ -51,7 +51,7 @@ According to our experiments, the evaluation results on ten public benchmark dat
 
 | **Model** | **Context** | **Backbone**|  **Train Dataset** | **Model Params**|**Avg Accuracy** | **Train Time** | **Per Step Time** | **FPS** | **Recipe** | **Download** |
 | :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |:--------: | :--------: |:--------: |:----------: |
-| visionlan  | D910x4-MS2.0-G | resnet45 | MJ+ST| 42.2M | 90.61%  |  7718 s/epoch  | 417 ms/step  | 1,840 img/s | [yaml(LF_1)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_1.yaml) [yaml(LF_2)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_2.yaml) [yaml(LA)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LA.yaml)| [ckpt files](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_ckpts-7d6e9c04.tar.gz) |
+| visionlan  | D910x4-MS2.0-G | resnet45 | MJ+ST| 42.2M | 90.61%  |  7718 s/epoch  | 417 ms/step  | 1,840 img/s | [yaml(LF_1)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_1.yaml) [yaml(LF_2)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_2.yaml) [yaml(LA)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LA.yaml)| [ckpt files](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_ckpts-7d6e9c04.tar.gz) \| [mindir(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-71b38d2d.mindir)|
 
 </div>
 
@@ -73,6 +73,7 @@ According to our experiments, the evaluation results on ten public benchmark dat
 - Train datasets: MJ+ST stands for the combination of two synthetic datasets, SynthText(800k) and MJSynth.
 - To reproduce the result on other contexts, please ensure the global batch size is the same.
 - The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [3.2 Dataset preparation](#32-dataset-preparation) section.
+- The input Shape of MindIR of VisionLAN is (1, 3, 64, 256).
 
 
 ## 3. Quick Start
@@ -256,7 +257,98 @@ python tools/benchmarking/multi_dataset_eval.py --config $yaml_file --opt eval.d
 
 ## 4. Inference
 
-Coming Soon...
+### 4.1 Prepare MINDIR file
+
+Please download the [MINDIR](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-71b38d2d.mindir) file from the table above, or you can use `tools/export.py` to manually convert any checkpoint file into a MINDIR file:
+```bash
+# For more parameter usage details, please execute `python tools/export.py -h`
+python tools/export.py --model_name visionlan_resnet45 --data_shape 64 256 --local_ckpt_path /path/to/visionlan-ckpt
+```
+
+This command will save a `visionlan_resnet45.mindir` under the current working directory.
+
+> Learn more about [Model Export](https://github.com/mindspore-lab/mindocr/blob/main/docs/en/inference/convert_tutorial.md#11-model-export).
+
+### 4.2 Mindspore Lite Converter Tool
+
+If you haven't downloaded MindSpore Lite, please download it via this [link](https://www.mindspore.cn/lite/docs/en/master/use/downloads.html). More details on how to use MindSpore Lite in Linux Environment refer to [this document](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool.html#linux-environment-usage-instructions).
+
+`converter_lite` tool is an executable program under `mindspore-lite-{version}-linux-x64/tools/converter/converter`. Using `converter_lite`, we can convert the MindIR file to MindSpore Lite MindIR file.
+
+First, we need to prepare a configuration file `config.txt`:
+```text
+[ascend_context]
+input_format=NCHW
+input_shape=args0:[1,3,64,256]
+```
+The first line `[ascend_context]` indicates that the subsequent content is the relevant setting of the Ascend backend. Usually, when creating a configuration file, this line must be added to indicate the relevant setting content of the Ascend backend;
+
+The second line `input_format=NCHW` indicates that the input format of the model is [batch_size, channel_num, Height, Width];
+
+The third line `input_shape=args0:[1,3,64,256]` means that the variable name of the model input is `args0`, and the shape of `args0` is `[1,3,64,256]`; If other models or backbones are used, the setting of shape needs to refer to the data shape column in the model support list;
+
+After preparing `config.txt`, we can run the following command:
+
+```bash
+converter_lite \
+     --saveType=MINDIR \
+     --NoFusion=false \
+     --fmk=MINDIR \
+     --device=Ascend \
+     --modelFile=path/to/mindir/file \
+     --outputFile=visionlan_resnet45_lite \
+     --configFile=config.txt
+```
+
+Running this command will save a `visionlan_resnet45_lite.mindir` under the current working directory. This is the MindSpore Lite MindIR file that we can run inference with on the Ascend310 or 310P platform. You can also define a different file name by changing the `--outputFile` argument.
+
+> Learn more about [Model Conversion](https://github.com/mindspore-lab/mindocr/blob/main/docs/en/inference/convert_tutorial.md#12-model-conversion).
+
+### 4.3 Inference on A Folder of Images
+
+Taking `SVT` test set as an example, the data structure under the dataset folder is:
+
+```text
+svt_dataset
+├── test
+│   ├── 16_16_0_ORPHEUM.jpg
+│   ├── 12_13_4_STREET.jpg
+│   ├── 17_08_TOWN.jpg
+│   ├── ...
+└── test_gt.txt
+```
+
+
+We run inference with the `visionlan_resnet45_lite.mindir` file with the command below:
+
+```bash
+python deploy/py_infer/infer.py  \
+    --input_images_dir=/path/to/svt_dataset/test  \
+    --device_id=0  \
+    --parallel_num=1  \
+    --rec_model_path=/path/to/visionlan_resnet45_lite.mindir  \
+    --rec_model_name_or_config=configs/rec/visionlan/visionlan_resnet45_LA.yaml \
+    --res_save_dir=rec_svt
+```
+Running this command will create a folder `rec_svt` under the current working directory, and save a prediction file `rec_svt/rec_results.txt`. Some examples of prediction in this file are shown below:
+```text
+16_16_0_ORPHEUM.jpg "orpheum"
+12_13_4_STREET.jpg  "street"
+17_08_TOWN.jpg  "town"
+...
+```
+
+Then, we can compute the prediction accuracy using:
+
+```bash
+python deploy/eval_utils/eval_rec.py  \
+    --pred_path=rec_svt/rec_results.txt  \
+    --gt_path=/path/to/svt_dataset/test_gt.txt
+```
+The evaluation results are shown below:
+```text
+{'acc': 0.9227202534675598, 'norm_edit_distance': 0.9720136523246765}
+```
 
 
 ## 5. References
