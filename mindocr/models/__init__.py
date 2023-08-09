@@ -4,6 +4,7 @@ from .builder import *
 from .cls_mv3 import *
 from .det_dbnet import *
 from .det_east import *
+from .det_fcenet import *
 from .det_psenet import *
 from .rec_abinet import *
 from .rec_crnn import *

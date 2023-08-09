@@ -38,8 +38,7 @@ def fcenet_resnet50(pretrained=False, **kwargs):
         },
         "head": {
             "name": 'FCEHead',
-            "scales": [8, 16, 32],
-            "alpha": 1.2,
+            "fourier_degree": 5,
         }
     }
     model = FCENet(model_config)

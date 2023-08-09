@@ -85,26 +85,26 @@ def _bn(channels, momentum=0.1):
 
 class FCEFPN(nn.Cell):
 
-    def __init__(self, in_channels, out_channel):
+    def __init__(self, in_channels, out_channels):
         in_channels = in_channels[1:]
         super(FCEFPN, self).__init__()
 
-        self.reduce_conv_c3 = self.Xavier_conv(in_channels[0], out_channel, kernel_size=1, has_bias=True)
+        self.reduce_conv_c3 = self.Xavier_conv(in_channels[0], out_channels, kernel_size=1, has_bias=True)
 
-        self.reduce_conv_c4 = self.Xavier_conv(in_channels[1], out_channel, kernel_size=1, has_bias=True)
+        self.reduce_conv_c4 = self.Xavier_conv(in_channels[1], out_channels, kernel_size=1, has_bias=True)
 
-        self.reduce_conv_c5 = self.Xavier_conv(in_channels[2], out_channel, kernel_size=1, has_bias=True)
+        self.reduce_conv_c5 = self.Xavier_conv(in_channels[2], out_channels, kernel_size=1, has_bias=True)
 
-        self.smooth_conv_p5 = self.Xavier_conv(out_channel, out_channel, kernel_size=3, padding=1, pad_mode='pad',
+        self.smooth_conv_p5 = self.Xavier_conv(out_channels, out_channels, kernel_size=3, padding=1, pad_mode='pad',
                                                has_bias=True)
 
-        self.smooth_conv_p4 = self.Xavier_conv(out_channel, out_channel, kernel_size=3, padding=1, pad_mode='pad',
+        self.smooth_conv_p4 = self.Xavier_conv(out_channels, out_channels, kernel_size=3, padding=1, pad_mode='pad',
                                                has_bias=True)
 
-        self.smooth_conv_p3 = self.Xavier_conv(out_channel, out_channel, kernel_size=3, padding=1, pad_mode='pad',
+        self.smooth_conv_p3 = self.Xavier_conv(out_channels, out_channels, kernel_size=3, padding=1, pad_mode='pad',
                                                has_bias=True)
 
-        self.out_channels = out_channel
+        self.out_channels = out_channels
 
     def construct(self, features):
         _, c3, c4, c5 = features

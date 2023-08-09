@@ -20,20 +20,10 @@ class FCEHead(Cell):
 
     Args:
         in_channels (int): The number of input channels.
-        scales (list[int]) : The scale of each layer.
         fourier_degree (int) : The maximum Fourier transform degree k.
-        num_sample (int) : The sampling points number of regression
-            loss. If it is too small, FCEnet tends to be overfitting.
-        score_thr (float) : The threshold to filter out the final
-            candidates.
-        nms_thr (float) : The threshold of nms.
-        alpha (float) : The parameter to calculate final scores. Score_{final}
-            = (Score_{text region} ^ alpha)
-            * (Score{text center region} ^ beta)
-        beta (float) :The parameter to calculate final scores.
     """
 
-    def __init__(self, in_channels, fourier_degree=5, mode=False):
+    def __init__(self, in_channels, fourier_degree=5):
         super(FCEHead, self).__init__()
         assert isinstance(in_channels, int)
 
@@ -43,7 +33,6 @@ class FCEHead(Cell):
         self.out_channels_cls = 4
         self.out_channels_reg = (2 * self.fourier_degree + 1) * 2
         self.softmax = nn.Softmax(axis=1)
-        self.training = mode
 
         self.out_conv_cls = _conv(self.in_channels, self.out_channels_cls, kernel_size=3, padding=1, pad_mode='pad',
                                   has_bias=True)
