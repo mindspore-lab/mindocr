@@ -1,12 +1,10 @@
-import math
 import os
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple
 
 import numpy as np
 
 from ..core import Model, ShapeType
 from ..data_process import build_postprocess, build_preprocess, cv_utils, gear_utils
-from ..utils import safe_div
 from .infer_base import InferBase
 
 
@@ -14,86 +12,70 @@ class TextRecognizer(InferBase):
     def __init__(self, args):
         super(TextRecognizer, self).__init__(args)
         self.model: Dict[int, Model] = {}
-        self.shape_type = None
 
-    def __get_shape_for_single_model(self, filename):
+    def __load_model(self, filename):
         model = Model(
             backend=self.args.backend, device=self.args.device, model_path=filename, device_id=self.args.device_id
         )
         shape_type, shape_value = model.get_shape_details()
 
-        # Only support NCHW format for inputs[0].
-        # If multi input, the target_size may be invalid.
+        # Only check inputs[0] currently
         shape_value = shape_value[0]
 
-        self.shape_type = shape_type
-
-        if shape_type == ShapeType.STATIC_SHAPE:
-            n, _, h, w = shape_value
-            self._hw_list = [(h, w)]
-            self._bs_list = [n]
-            self.model[n] = model
-        elif shape_type == ShapeType.DYNAMIC_IMAGESIZE:
-            n, _, hw_list = shape_value
-            self._hw_list = list(hw_list)
-            self._bs_list.append(n)
-            self.model[n] = model
-        elif shape_type == ShapeType.DYNAMIC_BATCHSIZE:
-            n_list, _, h, w = shape_value
-            self._hw_list = [(h, w)]
-            self._bs_list = list(n_list)
-            for n in n_list:
-                self.model[n] = model
-        else:  # dynamic shape
-            n, _, h, w = shape_value
-            self._hw_list = [(h, w)]
-            self._bs_list = [n]
-            self.model[n] = model
-
-        return shape_value
-
-    def __get_resized_hw(self, image_list):
-        if self.shape_type != ShapeType.DYNAMIC_SHAPE:
-            resized_hw_list = [
-                gear_utils.get_matched_gear_hw(cv_utils.get_hw_of_img(image), self._hw_list) for image in image_list
-            ]
-            max_h, max_w = max(resized_hw_list, key=lambda x: x[0] * x[1])
+        # check batch_size
+        # assuming that the first dim is batch size
+        batch_size = shape_value[0]
+        if not isinstance(batch_size, (tuple, list)):
+            self.model[batch_size] = model
+            batch_size = [batch_size]
         else:
-            model_h, model_w = self._hw_list[0]
-            hw_list = [cv_utils.get_hw_of_img(image) for image in image_list]
-            max_h = model_h if model_h > 0 else math.ceil(safe_div(max([h for h, _ in hw_list]), 32)) * 32
-            max_w = model_w if model_w > 0 else math.ceil(safe_div(max([w for _, w in hw_list]), 32)) * 32
+            for n in batch_size:
+                self.model[n] = model
 
-        return max_h, max_w
+        # check h/w
+        if shape_type == ShapeType.DYNAMIC_SHAPE:
+            # without any checks, and assuming that h/w is dynamic
+            # if not, may throw exceptions in model_infer for un-matched h/w
+            hw_list = []
+        elif shape_type == ShapeType.DYNAMIC_IMAGESIZE:  # Only NCHW
+            *_, hw_list = shape_value
+        else:  # static shape or dynamic batch size
+            if len(shape_value) == 4:  # only NCHW
+                *_, h, w = shape_value
+                hw_list = [(h, w)]
+            else:
+                hw_list = []  # without any checks
+
+        self._bs_list += tuple(batch_size)
+        self._hw_list += tuple(hw_list)
+
+        return shape_type, shape_value
 
     def _init_preprocess(self):
-        self.preprocess_ops = build_preprocess(self.args.rec_config_path)
+        self.preprocess_ops = build_preprocess(self.args.rec_config_path, support_gear=self.requires_gear_hw)
 
     def _init_model(self):
         model_path = self.args.rec_model_path
 
         if os.path.isfile(model_path):
-            self.__get_shape_for_single_model(model_path)
+            self.__load_model(model_path)
 
         if os.path.isdir(model_path):
             chw_list = []
+            info = (
+                "If --rec_model_path is folder, every model in the folder must be dynamic image_size when converting "
+                "model, they must have same candidate image_size list and different batch_size. For example: "
+                "NCHW format, model1_shape = (1,3,-1,-1) and model2_shape = (8,3,-1,-1), batch_size has different "
+                "values of 1 and 8, and '--dynamic_dims' for image_size must have same value for every "
+                "model when converting to the mindspore lite MindIR model or OM model."
+            )
             for path in os.listdir(model_path):
-                shape = self.__get_shape_for_single_model(os.path.join(model_path, path))
-                if self.shape_type in (ShapeType.STATIC_SHAPE, ShapeType.DYNAMIC_BATCHSIZE, ShapeType.DYNAMIC_SHAPE):
-                    raise ValueError(
-                        f"rec_model_dir must be a file when use static, dynamic shape or dynamic batch_size for "
-                        f"recognition model, but got rec_model_dir={model_path} is a dir."
-                    )
-                chw_list.append(str((shape[2:])))
-
+                shape_type, shape_value = self.__load_model(os.path.join(model_path, path))
+                chw_list.append(str((shape_value[2:])))  # [[c,h,w], ...]
+                if shape_type != ShapeType.DYNAMIC_IMAGESIZE:
+                    raise ValueError(info + f" But found that {path} is not a dynamic image_size model.")
             if len(set(chw_list)) != 1 or len(set(self._bs_list)) != len(self._bs_list):
-                raise ValueError(
-                    f"Input shape must have same image_size and different batch_size when use the combination of "
-                    f"dynamic batch_size and image_size for recognition model. "
-                    f"Please check every model file in {model_path}."
-                )
-
-        self._bs_list.sort()
+                raise ValueError(info + f" Please check every model file in {model_path}.")
 
     def _init_postprocess(self):
         params = {"character_dict_path": self.args.character_dict_path}
@@ -102,8 +84,7 @@ class TextRecognizer(InferBase):
     def get_params(self):
         return {"rec_batch_num": self._bs_list}
 
-    def __call__(self, image: Union[np.ndarray, List[np.ndarray]]):
-        images = [image] if isinstance(image, np.ndarray) else image
+    def __call__(self, images: List[np.ndarray]) -> List:
         split_bs, split_data = self.preprocess(images)
         split_pred = [self.model_infer(data) for data in split_data]
         outputs = []
@@ -112,19 +93,27 @@ class TextRecognizer(InferBase):
             outputs.extend(output)
 
         # TODO: merge outputs from different dynamic batch_size
-        return outputs[0] if isinstance(image, np.ndarray) else outputs
+        return outputs
 
     def preprocess(self, image: List[np.ndarray]) -> Tuple[List[int], List[Dict]]:
         num_image = len(image)
-        batch_list = gear_utils.get_matched_gear_bs(num_image, self._bs_list) if self._bs_list[0] > 0 else [num_image]
+        batch_list = gear_utils.get_matched_gear_bs(num_image, self._bs_list)
         start_index = 0
         split_bs = []
         split_data = []
         for batch in batch_list:
             upper_bound = min(start_index + batch, num_image)
             split_input = image[start_index:upper_bound]
-            split_output = self.preprocess_ops(split_input, target_size=self.__get_resized_hw(split_input))
-            split_output = gear_utils.padding_to_batch(split_output, batch)
+
+            if self.requires_gear_hw:
+                target_size = self._get_batch_matched_hw(cv_utils.get_batch_hw_of_img(split_input))
+                split_output = self.preprocess_ops(split_input, target_size=target_size)
+            else:
+                split_output = self.preprocess_ops(split_input)
+
+            if self.requires_gear_bs:
+                split_output = gear_utils.padding_to_batch(split_output, batch)
+
             split_bs.append(upper_bound - start_index)
             split_data.append(split_output)
             start_index += batch
@@ -134,7 +123,7 @@ class TextRecognizer(InferBase):
     def model_infer(self, data: Dict) -> List[np.ndarray]:
         net_inputs = data["net_inputs"]
         bs, *_ = net_inputs[0].shape
-        n = bs if bs in self._bs_list else -1
+        n = bs if bs in self.model else -1
         return self.model[n].infer(net_inputs)
 
     def postprocess(self, pred: List[np.ndarray], batch=None):

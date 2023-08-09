@@ -51,10 +51,16 @@ def get_args():
     parser.add_argument(
         "--cls_model_name_or_config", type=str, required=False, help="Classification model name or config file path."
     )
+    parser.add_argument(
+        "--cls_batch_num", type=int, default=6, required=False, help="Batch size for classification model."
+    )
 
     parser.add_argument("--rec_model_path", type=str, required=False, help="Recognition model file path or directory.")
     parser.add_argument(
         "--rec_model_name_or_config", type=str, required=False, help="Recognition model name or config file path."
+    )
+    parser.add_argument(
+        "--rec_batch_num", type=int, default=6, required=False, help="Batch size for recognition model."
     )
     parser.add_argument(
         "--character_dict_path", type=str, required=False, help="Character dict file path for recognition models."
@@ -197,6 +203,15 @@ def check_and_update_args(args):
             if os.path.isdir(path) and not os.listdir(path):
                 raise ValueError(f"{name} got a dir of {path}, but it is empty.")
 
+    need_check_positive = {
+        "parallel_num": args.parallel_num,
+        "rec_batch_num": args.rec_batch_num,
+        "cls_batch_num": args.cls_batch_num,
+    }
+    for name, value in need_check_positive.items():
+        if value < 1:
+            raise ValueError(f"{name} must be positive, but got {value}.")
+
     need_check_dir_not_same = {
         "input_images_dir": args.input_images_dir,
         "crop_save_dir": args.crop_save_dir,
@@ -212,7 +227,7 @@ def check_and_update_args(args):
 
 def init_save_dir(args):
     if args.res_save_dir:
-        save_path_init(args.res_save_dir)
+        save_path_init(args.res_save_dir, exist_ok=True)
     if args.crop_save_dir:
         save_path_init(args.crop_save_dir)
     if args.vis_pipeline_save_dir:
