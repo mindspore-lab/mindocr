@@ -5,6 +5,7 @@ import os
 import mindspore as ms
 
 from .det_dataset import DetDataset, SynthTextDataset
+from .layout_dataset import KieDataset
 from .predict_dataset import PredictDataset
 from .rec_dataset import RecDataset
 from .rec_lmdb_dataset import LMDBDataset
@@ -19,6 +20,7 @@ supported_dataset_types = [
     "LMDBDataset",
     "SynthTextDataset",
     "PredictDataset",
+    "KieDataset",
 ]
 
 
