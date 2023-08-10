@@ -91,7 +91,7 @@ The authors of VisionLAN used two synthetic text datasets for training: SynthTex
 After download `SynthText.zip` and `MJSynth.zip`, please unzip and place them under `./datasets/train`. The training set contain 14,200,701 samples in total. More details are as follows:
 
 
-- [SynText](http://www.robots.ox.ac.uk/~vgg/data/scenetext/): 25GB, 6,976,115 samples<br>
+- [SynText](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c): 25GB, 6,976,115 samples<br>
 - [MJSynth](http://www.robots.ox.ac.uk/~vgg/data/text/): 21GB, 7,224,586 samples
 
 **Validation sets**

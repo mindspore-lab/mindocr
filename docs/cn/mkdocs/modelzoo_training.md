@@ -4,7 +4,7 @@
 
 | model  |dataset |bs | cards | F-score | ms/step | fps | amp | config |
 :-:     |   :-:   | :-: | :-: |  :-:   |  :-:    | :-:  |  :-: |  :-:    |
-| dbnet_mobilenetv3  | icdar2015  | 10 | 1 | 77.23 | 100 | 100 | O0 | [mindocr_dbnet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/dbnet)  |
+| dbnet_mobilenetv3  | icdar2015  | 10 | 1 | 77.28 | 100 | 100 | O0 | [mindocr_dbnet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/dbnet)  |
 | dbnet_resnet18     | icdar2015  | 20 | 1 | 81.73 | 186 | 108 | O0 | [mindocr_dbnet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/dbnet)  |
 | dbnet_resnet50     | icdar2015  | 10 | 1 | 85.05 | 133 | 75.2 | O0 | [mindocr_dbnet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/dbnet)  |
 | dbnet++_resnet50   | icdar2015  | 32 | 1 | 86.74 | 571 | 56 | O0 | [mindocr_dbnet++](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/dbnet)  |

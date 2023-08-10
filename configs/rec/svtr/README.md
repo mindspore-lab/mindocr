@@ -70,7 +70,7 @@ Please refer to the [installation instruction](https://github.com/mindspore-lab/
 ##### 3.1.2.1 MJSynth, validation and evaluation dataset
 Part of the lmdb dataset for training and evaluation can be downloaded from [here](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (ref: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here)). There're several zip files:
 - `data_lmdb_release.zip` contains the datasets including training data, validation data and evaluation data.
-    - `training/` contains two datasets: [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/). *Here we use **MJSynth only**.*
+    - `training/` contains two datasets: [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and [SynthText (ST)](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c). *Here we use **MJSynth only**.*
     - `validation/` is the union of the training sets of [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), and [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset).
     - `evaluation/` contains several benchmarking datasets, which are [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset), [IC03](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions), [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf), and [CUTE](http://cs-chan.com/downloads_CUTE80_dataset.html).
 - `validation.zip`: same as the validation/ within data_lmdb_release.zip
@@ -78,7 +78,7 @@ Part of the lmdb dataset for training and evaluation can be downloaded from [her
 
 ##### 3.1.2.2 SynthText dataset
 
-For `SynthText`, we do not use the given LMDB dataset in `data_lmdb_release.zip`, since it only contains part of the cropped images. Please download the raw dataset from <https://www.robots.ox.ac.uk/~vgg/data/scenetext/> and prepare the LMDB dataset using the following command
+For `SynthText`, we do not use the given LMDB dataset in `data_lmdb_release.zip`, since it only contains part of the cropped images. Please download the raw dataset from [here](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c) and prepare the LMDB dataset using the following command
 
 ```bash
 python tools/dataset_converters/convert.py \
@@ -136,7 +136,7 @@ Here we used the datasets under `training/` folders for training, and the union 
   - Train: 21.2 GB, 7224586 samples
   - Valid: 2.36 GB, 802731 samples
   - Test: 2.61 GB, 891924 samples
-- [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)
+- [SynthText (ST)](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c)
   - Train: 17.0 GB, 7266529 samples
 
 **Validation:**
