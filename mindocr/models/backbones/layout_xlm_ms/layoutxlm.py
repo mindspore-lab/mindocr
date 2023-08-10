@@ -1,3 +1,4 @@
+import copy
 import math
 
 import numpy as np
@@ -6,9 +7,13 @@ import mindspore as ms
 from mindspore import Parameter, load_checkpoint, load_param_into_net, nn, ops
 from mindspore.common.initializer import Constant, initializer
 
+from .._registry import register_backbone, register_backbone_class
 from .visual_backbone import build_resnet_fpn_backbone, read_config
 
 # from visual_backbone import build_resnet_fpn_backbone, read_config
+# import sys
+# sys.path.append("..")
+# from _registry import register_backbone, register_backbone_class
 
 
 class VisualBackbone(nn.Cell):
@@ -732,12 +737,29 @@ class LayoutXLMModel(nn.Cell):
 
 
 class LayoutXLMForTokenClassification(nn.Cell):
-    def __init__(self, config):
+    def __init__(self, layoutxlm, num_classes=2, dropout=None):
         super(LayoutXLMForTokenClassification, self).__init__()
-        self.num_classes = config.num_labels
-        self.layoutxlm = LayoutXLMModel(config)
-        self.dropout = nn.Dropout(p=config.hidden_dropout_prob)
-        self.classifier = nn.Dense(config.hidden_size, self.num_classes)
+        self.num_classes = num_classes
+        if isinstance(layoutxlm, dict):
+            self.layoutxlm = LayoutXLMModel(**layoutxlm)
+        else:
+            self.layoutxlm = layoutxlm
+        dropout_prob = dropout if dropout is not None else self.layoutxlm.config.hidden_dropout_prob
+        self.dropout = nn.Dropout(p=dropout_prob)
+        self.classifier = nn.Dense(self.layoutxlm.config.hidden_size, num_classes)
+        self._init_weights(self.classifier)
+
+    @staticmethod
+    def _init_weights(layer):
+        """Initialize the weights"""
+        if isinstance(layer, nn.Dense):
+            layer.weight.set_data(ops.normal(
+                shape=layer.weight.shape,
+                mean=0.0,
+                stddev=0.02
+            ))
+            if layer.bias is not None:
+                layer.bias.set_data(ops.zeros(size=layer.bias.shape))
 
     def get_input_embeddings(self):
         return self.layoutxlm.embeddings.word_embeddings
@@ -818,6 +840,216 @@ class LayoutXLMForTokenClassification(nn.Cell):
         return outputs
 
 
+class BiaffineAttention(nn.Cell):
+    """Implements a biaffine attention operator for binary relation classification."""
+
+    def __init__(self, in_features, out_features):
+        super(BiaffineAttention, self).__init__()
+
+        self.in_features = in_features
+        self.out_features = out_features
+
+        self.bilinear = nn.BiDense(in_features, in_features, out_features, has_bias=False)
+        self.linear = nn.Dense(2 * in_features, out_features)
+
+    def construct(self, x_1, x_2):
+        return self.bilinear(x_1, x_2) + self.linear(ops.concat((x_1, x_2), axis=-1))
+
+
+class REDecoder(nn.Cell):
+    def __init__(self, hidden_size=768, hidden_dropout_prob=0.1):
+        super(REDecoder, self).__init__()
+        self.entity_emb = nn.Embedding(3, hidden_size)
+        projection = nn.SequentialCell(
+            nn.Dense(hidden_size * 2, hidden_size),
+            nn.ReLU(),
+            nn.Dropout(p=hidden_dropout_prob),
+            nn.Dense(hidden_size, hidden_size // 2),
+            nn.ReLU(),
+            nn.Dropout(p=hidden_dropout_prob),
+        )
+        self.ffnn_head = copy.deepcopy(projection)
+        self.ffnn_tail = copy.deepcopy(projection)
+        self.rel_classifier = BiaffineAttention(hidden_size // 2, 2)
+        self.loss_fct = nn.CrossEntropyLoss()
+
+    def build_relation(self, relations, entities):
+        batch_size, max_seq_len = ops.shape(entities)[:2]
+        new_relations = ops.full(
+            size=[batch_size, max_seq_len * max_seq_len, 3], fill_value=-1, dtype=relations.dtype
+        )
+        for b in range(batch_size):
+            if entities[b, 0, 0] <= 2:
+                entitie_new = ops.full(size=[512, 3], fill_value=-1, dtype=entities.dtype)
+                entitie_new[0, :] = 2
+                entitie_new[1:3, 0] = 0  # start
+                entitie_new[1:3, 1] = 1  # end
+                entitie_new[1:3, 2] = 0  # label
+                entities[b] = entitie_new
+            entitie_label = entities[b, 1: entities[b, 0, 2] + 1, 2]
+            all_possible_relations1 = ops.arange(0, entities[b, 0, 2], dtype=entities.dtype)
+            all_possible_relations1 = all_possible_relations1[entitie_label == 1]
+            all_possible_relations2 = ops.arange(0, entities[b, 0, 2], dtype=entities.dtype)
+            all_possible_relations2 = all_possible_relations2[entitie_label == 2]
+
+            all_possible_relations = ops.stack(
+                ops.meshgrid(all_possible_relations1, all_possible_relations2), axis=2
+            ).reshape((-1, 2))
+            if len(all_possible_relations) == 0:
+                all_possible_relations = ops.full_like(all_possible_relations, fill_value=-1, dtype=entities.dtype)
+                all_possible_relations[0, 0] = 0
+                all_possible_relations[0, 1] = 1
+
+            relation_head = relations[b, 1: relations[b, 0, 0] + 1, 0]
+            relation_tail = relations[b, 1: relations[b, 0, 1] + 1, 1]
+            positive_relations = ops.stack([relation_head, relation_tail], axis=1)
+
+            all_possible_relations_repeat = all_possible_relations.unsqueeze(dim=1).tile(
+                (1, len(positive_relations), 1)
+            )
+            positive_relations_repeat = positive_relations.unsqueeze(dim=0).tile((len(all_possible_relations), 1, 1))
+            mask = ops.all(all_possible_relations_repeat == positive_relations_repeat, axis=2)
+            negative_mask = ops.any(mask, axis=1) is False
+            negative_relations = all_possible_relations[negative_mask]
+
+            positive_mask = ops.any(mask, axis=0) is True
+            positive_relations = positive_relations[positive_mask]
+            if negative_mask.sum() > 0:
+                reordered_relations = ops.concat([positive_relations, negative_relations])
+            else:
+                reordered_relations = positive_relations
+
+            relation_per_doc_label = ops.zeros((len(reordered_relations), 1), dtype=reordered_relations.dtype)
+            relation_per_doc_label[: len(positive_relations)] = 1
+            relation_per_doc = ops.concat([reordered_relations, relation_per_doc_label], axis=1)
+            assert len(relation_per_doc[:, 0]) != 0
+            new_relations[b, 0] = ms.Tensor(ops.shape(relation_per_doc)[0], dtype=new_relations.dtype)
+            new_relations[b, 1: len(relation_per_doc) + 1] = relation_per_doc
+            # new_relations.append(relation_per_doc)
+        return new_relations, entities
+
+    def get_predicted_relations(self, logits, relations, entities):
+        pred_relations = []
+        for i, pred_label in enumerate(logits.argmax(-1)):
+            if pred_label != 1:
+                continue
+            rel = ops.full(size=[7, 2], fill_value=-1, dtype=relations.dtype)
+            rel[0, 0] = relations[:, 0][i]
+            rel[1, 0] = entities[:, 0][relations[:, 0][i] + 1]
+            rel[1, 1] = entities[:, 1][relations[:, 0][i] + 1]
+            rel[2, 0] = entities[:, 2][relations[:, 0][i] + 1]
+            rel[3, 0] = relations[:, 1][i]
+            rel[4, 0] = entities[:, 0][relations[:, 1][i] + 1]
+            rel[4, 1] = entities[:, 1][relations[:, 1][i] + 1]
+            rel[5, 0] = entities[:, 2][relations[:, 1][i] + 1]
+            rel[6, 0] = 1
+            pred_relations.append(rel)
+        return pred_relations
+
+    def construct(self, hidden_states, entities, relations):
+        batch_size, max_length, _ = ops.shape(entities)
+        relations, entities = self.build_relation(relations, entities)
+        loss = 0
+        all_pred_relations = ops.full(
+            size=[batch_size, max_length * max_length, 7, 2], fill_value=-1, dtype=entities.dtype
+        )
+        for b in range(batch_size):
+            relation = relations[b, 1: relations[b, 0, 0] + 1]
+            head_entities = relation[:, 0]
+            tail_entities = relation[:, 1]
+            relation_labels = relation[:, 2]
+            entities_start_index = ms.Tensor(entities[b, 1: entities[b, 0, 0] + 1, 0])
+            entities_labels = ms.Tensor(entities[b, 1: entities[b, 0, 2] + 1, 2])
+            head_index = entities_start_index[head_entities]
+            head_label = entities_labels[head_entities]
+            head_label_repr = self.entity_emb(head_label)
+
+            tail_index = entities_start_index[tail_entities]
+            tail_label = entities_labels[tail_entities]
+            tail_label_repr = self.entity_emb(tail_label)
+
+            tmp_hidden_states = hidden_states[b][head_index]
+            if len(tmp_hidden_states.shape) == 1:
+                tmp_hidden_states = ops.unsqueeze(tmp_hidden_states, dim=0)
+            head_repr = ops.concat((tmp_hidden_states, head_label_repr), axis=-1)
+
+            tmp_hidden_states = hidden_states[b][tail_index]
+            if len(tmp_hidden_states.shape) == 1:
+                tmp_hidden_states = ops.unsqueeze(tmp_hidden_states, dim=0)
+            tail_repr = ops.concat((tmp_hidden_states, tail_label_repr), axis=-1)
+
+            heads = self.ffnn_head(head_repr)
+            tails = self.ffnn_tail(tail_repr)
+            logits = self.rel_classifier(heads, tails)
+            loss += self.loss_fct(logits, relation_labels)
+            pred_relations = self.get_predicted_relations(logits, relation, entities[b])
+            if len(pred_relations) > 0:
+                pred_relations = ops.stack(pred_relations)
+                all_pred_relations[b, 0, :, :] = ms.Tensor(ops.shape(pred_relations)[0], dtype=all_pred_relations.dtype)
+                all_pred_relations[b, 1: len(pred_relations) + 1, :, :] = pred_relations
+        return loss, all_pred_relations
+
+
+class LayoutXLMForRelationExtraction(nn.Cell):
+    def __init__(self, layoutxlm, hidden_size=768, hidden_dropout_prob=0.1, dropout=None):
+        super(LayoutXLMForRelationExtraction, self).__init__()
+        if isinstance(layoutxlm, dict):
+            self.layoutxlm = LayoutXLMModel(**layoutxlm)
+        else:
+            self.layoutxlm = layoutxlm
+
+        dropout_prob = dropout if dropout is not None else self.layoutxlm.config.hidden_dropout_prob
+
+        self.extractor = REDecoder(hidden_size, hidden_dropout_prob)
+
+        self.dropout = nn.Dropout(p=dropout_prob)
+
+    def resize_position_embeddings(self, new_num_position_embeddings):
+        """
+        Resizes position embeddings of the model if `new_num_position_embeddings != config["max_position_embeddings"]`.
+
+        Arguments:
+            new_num_position_embeddings (`int`):
+                The number of new position embedding matrix. If position embeddings are learned, increasing the size
+                will add newly initialized vectors at the end, whereas reducing the size will remove vectors from the
+                end.
+        """
+        self.layoutxlm.resize_position_embeddings(new_num_position_embeddings)
+
+    def construct(
+            self,
+            input_ids,
+            bbox,
+            image=None,
+            attention_mask=None,
+            entities=None,
+            relations=None,
+            token_type_ids=None,
+            position_ids=None,
+            head_mask=None,
+            labels=None,
+    ):
+        outputs = self.layoutxlm(
+            input_ids=input_ids,
+            bbox=bbox,
+            image=image,
+            attention_mask=attention_mask,
+            token_type_ids=token_type_ids,
+            position_ids=position_ids,
+            head_mask=head_mask,
+        )
+        seq_length = input_ids.shape[1]
+        sequence_output = outputs[0][:, :seq_length]
+
+        sequence_output = self.dropout(sequence_output)
+        loss, pred_relations = self.extractor(sequence_output, entities, relations)
+        hidden_states = [outputs[2][f"{idx}_data"] for idx in range(self.layoutxlm.config.num_hidden_layers)]
+        hidden_states = ops.stack(hidden_states, axis=1)
+
+        res = dict(loss=loss, pred_relations=pred_relations, hidden_states=hidden_states)
+        return res
+
+
 class NLPBaseModel(nn.Cell):
     def __init__(self,
                  base_model_class,
@@ -856,6 +1088,7 @@ class NLPBaseModel(nn.Cell):
         self.use_visual_backbone = True
 
 
+@register_backbone_class
 class LayoutXLMForSer(NLPBaseModel):
     def __init__(self,
                  num_classes,
@@ -897,6 +1130,62 @@ class LayoutXLMForSer(NLPBaseModel):
             return x
 
 
+@register_backbone_class
+class LayoutXLMForRe(NLPBaseModel):
+    def __init__(self, pretrained=True, checkpoints=None, mode="base",
+                 **kwargs):
+        super(LayoutXLMForRe, self).__init__(
+            LayoutXLMModel, LayoutXLMForRelationExtraction, mode, "re",
+            pretrained, checkpoints)
+        if hasattr(self.model.layoutxlm, "use_visual_backbone"
+                   ) and self.model.layoutxlm.use_visual_backbone is False:
+            self.use_visual_backbone = False
+
+    def forward(self, x):
+        if self.use_visual_backbone is True:
+            image = x[4]
+            entities = x[5]
+            relations = x[6]
+        else:
+            image = None
+            entities = x[4]
+            relations = x[5]
+        x = self.model(
+            input_ids=x[0],
+            bbox=x[1],
+            attention_mask=x[2],
+            token_type_ids=x[3],
+            image=image,
+            position_ids=None,
+            head_mask=None,
+            labels=None,
+            entities=entities,
+            relations=relations)
+        return x
+
+
+@register_backbone
+def layoutxlm_for_re(pretrained: bool = True, **kwargs) -> LayoutXLMForRe:
+    """
+    A predefined ResNet-18 for Text Detection.
+
+    Args:
+        pretrained: whether to load weights pretrained on ImageNet. Default: True.
+        **kwargs: additional parameters to pass to ResNet.
+
+    Returns:
+        DetResNet: ResNet model.
+    """
+    model = LayoutXLMForRe(pretrained, **kwargs)
+    return model
+
+
+@register_backbone
+def layoutxlm_for_ser(pretrained: bool = True, **kwargs) -> LayoutXLMForSer:
+    model = LayoutXLMForSer(pretrained, **kwargs)
+    return model
+
+
 def get_layoutxlm_model_params():
     config = LayoutXLMPretrainedConfig()
     model = LayoutXLMModel(config)
@@ -912,6 +1201,9 @@ def get_layoutxlm_model_params():
 if __name__ == "__main__":
     from configuration import LayoutXLMPretrainedConfig
     from test_utils import test_layoutxlm_model, test_token_classification
+
+    # model = LayoutXLMForSer(pretrained=True, checkpoints=None, num_classes=7)
+    # model = LayoutXLMForRe(pretrained=True, checkpoints=None)
 
     config = LayoutXLMPretrainedConfig()
     test_case = "LayoutXLM"
