@@ -156,7 +156,7 @@ Please refer to [MindOCR Models Inference - Quick Start](docs/en/inference/infer
 <details open markdown>
 <summary>Text Detection</summary>
 
-- [x] [DBNet](configs/det/dbnet) (AAAI'2020)
+- [x] [DBNet](configs/det/dbnet/README.md) (AAAI'2020)
 - [x] [DBNet++](configs/det/dbnet/README.md) (TPAMI'2022)
 - [x] [PSENet](configs/det/psenet/README.md) (CVPR'2019)
 - [x] [EAST](configs/det/east/README.md)(CVPR'2017)
