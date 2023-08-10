@@ -1,36 +1,19 @@
 import math
 
 import yaml
+from addict import Dict
 
 from mindspore import nn, ops
 
 from .resnet import ShapeSpec, build_resnet_backbone
 
-# from resnet import ResNet, ShapeSpec, build_resnet_backbone
-
-
-class DotDict(dict):
-    def __init__(self, dct):
-        super(DotDict, self).__init__()
-        for key, value in dct.items():
-            if isinstance(value, dict):
-                value = DotDict(value)
-            self[key] = value
-
-    def __getattr__(self, key):
-        try:
-            return self[key]
-        except KeyError:
-            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{key}'")
-
-    def __setattr__(self, key, value):
-        self[key] = value
+# from resnet import ShapeSpec, build_resnet_backbone
 
 
 def read_config():
     with open('visual_backbone.yaml', 'r') as file:
         data = yaml.safe_load(file)
-        data = DotDict(data)
+        data = Dict(data)
     return data
 
 
