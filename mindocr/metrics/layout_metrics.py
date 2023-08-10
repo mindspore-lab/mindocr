@@ -1,45 +1,63 @@
+import logging
+
 import numpy as np
 from seqeval.metrics import f1_score, precision_score, recall_score
 
+from mindspore import nn
+
+from ..utils.misc import AllReduce
+
 __all__ = ["VQASerTokenMetric", "VQAReTokenMetric"]
+_logger = logging.getLogger(__name__)
 
 
-class VQASerTokenMetric(object):
-    def __init__(self, main_indicator="hmean", **kwargs):
-        self.main_indicator = main_indicator
-        self.reset()
+class VQASerTokenMetric(nn.Metric):
+    def __init__(self, device_num: int = 1, **kwargs):
+        super().__init__()
+        self.clear()
+        self.device_num = device_num
+        self.all_reduce = AllReduce(reduce="sum") if device_num > 1 else None
+        self.metric_names = ["precision", "recall", "hmean"]
 
-    def __call__(self, preds, batch, **kwargs):
-        preds, labels = preds
+    def update(self, output_batch, gt):
+        preds, gt = output_batch
         self.pred_list.extend(preds)
-        self.gt_list.extend(labels)
+        self.gt_list.extend(gt)
 
-    def get_metric(self):
+    def eval(self):
+        gt_list = self.gt_list
+        pred_list = self.pred_list
+        if self.all_reduce:
+            gt_list = self.all_reduce(self.gt_list)
+            pred_list = self.all_reduce(self.pred_list)
+
         metrics = {
-            "precision": precision_score(self.gt_list, self.pred_list),
-            "recall": recall_score(self.gt_list, self.pred_list),
-            "hmean": f1_score(self.gt_list, self.pred_list),
+            "precision": precision_score(gt_list, pred_list),
+            "recall": recall_score(gt_list, pred_list),
+            "hmean": f1_score(gt_list, pred_list),
         }
-        self.reset()
         return metrics
 
-    def reset(self):
+    def clear(self):
         self.pred_list = []
         self.gt_list = []
 
 
-class VQAReTokenMetric:
-    def __init__(self, main_indicator="hmean", **kwargs):
-        self.main_indicator = main_indicator
-        self.reset()
+class VQAReTokenMetric(nn.Metric):
+    def __init__(self, device_num: int = 1, **kwargs):
+        super().__init__()
+        self.clear()
+        self.device_num = device_num
+        self.all_reduce = AllReduce(reduce="sum") if device_num > 1 else None
+        self.metric_names = ["precision", "recall", "hmean"]
 
-    def __call__(self, preds, batch, **kwargs):
-        pred_relations, relations, entities = preds
+    def update(self, *inputs):
+        pred_relations, relations, entities = inputs
         self.pred_relations_list.extend(pred_relations)
         self.relations_list.extend(relations)
         self.entities_list.extend(entities)
 
-    def get_metric(self):
+    def eval(self):
         gt_relations = []
         for b in range(len(self.relations_list)):
             rel_sent = []
@@ -69,10 +87,9 @@ class VQAReTokenMetric:
             "recall": re_metrics["ALL"]["r"],
             "hmean": re_metrics["ALL"]["f1"],
         }
-        self.reset()
         return metrics
 
-    def reset(self):
+    def clear(self):
         self.pred_relations_list = []
         self.relations_list = []
         self.entities_list = []
@@ -116,10 +133,14 @@ class VQAReTokenMetric:
                 elif mode == "boundaries":
                     pred_rels = {(rel["head"], rel["tail"]) for rel in pred_sent if rel["type"] == rel_type}
                     gt_rels = {(rel["head"], rel["tail"]) for rel in gt_sent if rel["type"] == rel_type}
-
-                scores[rel_type]["tp"] += len(pred_rels & gt_rels)
-                scores[rel_type]["fp"] += len(pred_rels - gt_rels)
-                scores[rel_type]["fn"] += len(gt_rels - pred_rels)
+                if self.all_reduce:
+                    scores[rel_type]["tp"] += self.all_reduce(len(pred_rels & gt_rels))
+                    scores[rel_type]["fp"] += self.all_reduce(len(pred_rels - gt_rels))
+                    scores[rel_type]["fn"] += self.all_reduce(len(gt_rels - pred_rels))
+                else:
+                    scores[rel_type]["tp"] += len(pred_rels & gt_rels)
+                    scores[rel_type]["fp"] += len(pred_rels - gt_rels)
+                    scores[rel_type]["fn"] += len(gt_rels - pred_rels)
 
         # Compute per entity Precision / Recall / F1
         for rel_type in scores.keys():

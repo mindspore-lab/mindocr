@@ -1,5 +1,5 @@
 system:
-  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  mode: 1 # 0 for graph mode, 1 for pynative mode in MindSpore
   distribute: False
   amp_level: 'O0'
   seed: 42
@@ -63,10 +63,8 @@ train:
           return_attention_mask: True
       - VQASerTokenChunk:
           max_seq_len: *max_seq_len
-      - DetResize:
-          target_size: [ 800, 800 ]
-          keep_ratio: True
-          padding: True
+      - LayoutResize:
+          size: [ 224, 224 ]
       - NormalizeImage:
           bgr_to_rgb: False
           is_hwc: True
@@ -76,12 +74,12 @@ train:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visualize
     output_columns: [ 'input_ids', 'bbox','attention_mask','token_type_ids', 'image', 'labels' ]
     net_input_column_index: [ 0, 1, 2, 3, 4 ] # input indices for network forward func in output_columns
-    label_column_index: [ 5 ] # input indices marked as label
+    label_column_index: [ 2, 5 ] # input indices marked as label
 
   loader:
     shuffle: True
     batch_size: 8
-    drop_remainder: False
+    drop_remainder: True
     num_workers: 8
 
 eval:
@@ -107,10 +105,8 @@ eval:
           return_attention_mask: True
       - VQASerTokenChunk:
           max_seq_len: *max_seq_len
-      - DetResize:
-          target_size: [ 224, 224 ]
-          keep_ratio: True
-          padding: True
+      - LayoutResize:
+          size: [ 224, 224 ]
       - NormalizeImage:
           bgr_to_rgb: False
           is_hwc: True
@@ -120,7 +116,7 @@ eval:
     #  the order of the dataloader list, matching the network input and the labels for evaluation
     output_columns: [ 'input_ids', 'bbox', 'attention_mask','token_type_ids','image', 'labels' ]
     net_input_column_index: [ 0, 1, 2, 3, 4 ] # input indices for network forward func in output_columns
-    label_column_index: [ 5 ] # input indices marked as label
+    label_column_index: [ 2, 5 ] # input indices marked as label
   #    num_keys_of_labels: 2 # num labels
 
   loader:

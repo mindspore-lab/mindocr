@@ -8,6 +8,7 @@ from mindspore import Parameter, load_checkpoint, load_param_into_net, nn, ops
 from mindspore.common.initializer import Constant, initializer
 
 from .._registry import register_backbone, register_backbone_class
+from .configuration import LayoutXLMPretrainedConfig
 from .visual_backbone import build_resnet_fpn_backbone, read_config
 
 # from visual_backbone import build_resnet_fpn_backbone, read_config
@@ -1141,7 +1142,7 @@ class LayoutXLMForRe(NLPBaseModel):
                    ) and self.model.layoutxlm.use_visual_backbone is False:
             self.use_visual_backbone = False
 
-    def forward(self, x):
+    def construct(self, x):
         if self.use_visual_backbone is True:
             image = x[4]
             entities = x[5]
@@ -1182,7 +1183,7 @@ def layoutxlm_for_re(pretrained: bool = True, **kwargs) -> LayoutXLMForRe:
 
 @register_backbone
 def layoutxlm_for_ser(pretrained: bool = True, **kwargs) -> LayoutXLMForSer:
-    model = LayoutXLMForSer(pretrained, **kwargs)
+    model = LayoutXLMForSer(pretrained=pretrained, **kwargs)
     return model
 
 
@@ -1199,7 +1200,6 @@ def get_layoutxlm_model_params():
 
 
 if __name__ == "__main__":
-    from configuration import LayoutXLMPretrainedConfig
     from test_utils import test_layoutxlm_model, test_token_classification
 
     # model = LayoutXLMForSer(pretrained=True, checkpoints=None, num_classes=7)
