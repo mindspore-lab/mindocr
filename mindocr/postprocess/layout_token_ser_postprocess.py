@@ -4,6 +4,8 @@ import mindspore as ms
 
 from mindocr.utils.utility import load_vqa_bio_label_maps
 
+__all__ = ["VQASerTokenLayoutLMPostProcess"]
+
 
 class VQASerTokenLayoutLMPostProcess:
     """Convert between text-label and text-index"""
@@ -29,14 +31,14 @@ class VQASerTokenLayoutLMPostProcess:
             else:
                 self.id2label_map_for_show[val] = key
 
-    def __call__(self, preds, batch=None, *args, **kwargs):
+    def __call__(self, preds, labels=None, **kwargs):
         if isinstance(preds, tuple):
             preds = preds[0]
         if isinstance(preds, ms.Tensor):
             preds = preds.numpy()
 
-        if batch is not None:
-            return self._metric(preds, batch[5])
+        if labels is not None:
+            return self._metric(preds, labels[1].numpy())
         else:
             return self._infer(preds, **kwargs)
 

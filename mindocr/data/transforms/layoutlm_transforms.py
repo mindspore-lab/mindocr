@@ -2,6 +2,7 @@ import copy
 import json
 from collections import defaultdict
 
+import cv2
 import numpy as np
 
 from mindspore import nn
@@ -21,6 +22,36 @@ def order_by_tbyx(ocr_info):
             else:
                 break
     return res
+
+
+class LayoutResize:
+    def __init__(self, size=(640, 640), **kwargs):
+        self.size = size
+
+    def resize_image(self, img):
+        resize_h, resize_w = self.size
+        ori_h, ori_w = img.shape[:2]  # (h, w, c)
+        ratio_h = float(resize_h) / ori_h
+        ratio_w = float(resize_w) / ori_w
+        img = cv2.resize(img, (int(resize_w), int(resize_h)))
+        return img, [ratio_h, ratio_w]
+
+    def __call__(self, data):
+        img = data["image"]
+        if "polys" in data:
+            text_polys = data["polys"]
+
+        img_resize, [ratio_h, ratio_w] = self.resize_image(img)
+        if "polys" in data:
+            new_boxes = []
+            for box in text_polys:
+                new_box = []
+                for cord in box:
+                    new_box.append([cord[0] * ratio_w, cord[1] * ratio_h])
+                new_boxes.append(new_box)
+            data["polys"] = np.array(new_boxes, dtype=np.float32)
+        data["image"] = img_resize
+        return data
 
 
 class VQATokenLabelEncode:

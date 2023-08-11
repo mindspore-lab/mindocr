@@ -1,4 +1,5 @@
 import math
+import os
 
 import yaml
 from addict import Dict
@@ -11,7 +12,8 @@ from .resnet import ShapeSpec, build_resnet_backbone
 
 
 def read_config():
-    with open('visual_backbone.yaml', 'r') as file:
+    curr_dir = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(curr_dir, 'visual_backbone.yaml'), 'r') as file:
         data = yaml.safe_load(file)
         data = Dict(data)
     return data

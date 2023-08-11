@@ -57,7 +57,11 @@ class BaseModel(nn.Cell):
             self.model_name = f'{backbone_name}_{neck_name}_{head_name}'
 
     def construct(self, *args):
-        x = args[0]
+        if self.type == "kie":
+            x = args
+        else:
+            x = args[0]
+
         if self.transform is not None:
             x = self.transform(x)
 

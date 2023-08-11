@@ -29,6 +29,8 @@ supported_postprocess = (
     + cls_postprocess.__all__
     # + rec_abinet_postprocess.__all__
     + det_fce_postprocess.__all__
+    + layout_token_re_postprocess.__all__
+    + layout_token_ser_postprocess.__all__
 )
 
 

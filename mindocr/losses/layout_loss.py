@@ -1,3 +1,4 @@
+import mindspore as ms
 from mindspore import nn, ops
 
 __all__ = ["VQASerTokenLayoutLMLoss", "LossFromOutput"]
@@ -11,15 +12,14 @@ class VQASerTokenLayoutLMLoss(nn.LossBase):
         self.ignore_index = self.loss_class.ignore_index
         self.key = key
 
-    def construct(self, predicts, batch):
+    def construct(self, predicts, attention_mask, labels):
         if isinstance(predicts, dict) and self.key is not None:
             predicts = predicts[self.key]
-        labels = batch[5]
-        attention_mask = batch[2]
         if attention_mask is not None:
             active_loss = attention_mask.reshape((-1,)) == 1
             active_output = predicts.reshape((-1, self.num_classes))[active_loss]
             active_label = labels.reshape((-1,))[active_loss]
+            active_label = active_label.astype(ms.int32)
             loss = self.loss_class(active_output, active_label)
         else:
             loss = self.loss_class(predicts.reshape((-1, self.num_classes)), labels.reshape((-1,)))

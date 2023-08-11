@@ -1,5 +1,7 @@
 import mindspore as ms
 
+__all__ = ["VQAReTokenLayoutLMPostProcess"]
+
 
 class VQAReTokenLayoutLMPostProcess:
     """Convert between text-label and text-index"""
