@@ -103,7 +103,6 @@ train:
   dataset_sink_mode: True
   clip_grad: True
   clip_norm: 5.
-  exp_op_transform_idx: 1
   dataset:
     type: LMDBDataset
     dataset_root: path/to/data_lmdb_release/
@@ -117,6 +116,7 @@ train:
     max_text_len: *max_text_len
     character_dict_path: *character_dict_path
     label_standandize: True
+    exp_op_transform_idx: 1
     transform_pipeline:
       - DecodeImage:
           img_mode: RGB
