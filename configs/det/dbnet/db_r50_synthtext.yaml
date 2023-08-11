@@ -60,7 +60,6 @@ train:
     label_file: SynthText/gt_processed.mat
     sample_ratio: 1.0
     transform_pipeline:
-      - Decode:
       - RandomHorizontalFlip:
           p: 0.5
       - RandomRotate:

@@ -74,7 +74,6 @@ train:
     label_file: TD500_TR400/train_gt_labels.txt
     sample_ratio: 1.0
     transform_pipeline:
-      - Decode:
       - DetLabelEncode:
       - RandomHorizontalFlip:
           p: 0.5
@@ -126,7 +125,6 @@ eval:
     label_file: MSRA-TD500/test_det_gt.txt
     sample_ratio: 1.0
     transform_pipeline:
-      - Decode:
       - DetLabelEncode:
       - DetResize:  # ScalePadImage
           target_size: [ 800, 800] # h, w
