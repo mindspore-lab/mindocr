@@ -318,9 +318,9 @@ MindOCR推理支持Ascend310/Ascend310P设备，支持[MindSpore Lite](https://w
 
 根据训练好的dbnet checkpoint文件，用户可以使用以下命令导出MindIR：
 ```Shell
-python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
 # 或者
-python tools/export.py --model_name configs/det/dbnet/db_r50_icdar15.yaml --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config configs/det/dbnet/db_r50_icdar15.yaml --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
 ```
 
 `data_shape`是MindIR文件的模型输入图片的高度和宽度。当用户使用其他的模型时，`data_shape`可能会改变。
