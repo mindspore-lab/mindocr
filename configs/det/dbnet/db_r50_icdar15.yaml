@@ -67,13 +67,12 @@ train:
   dataset_sink_mode: True
   dataset:
     type: DetDataset
-    mindrecord: True
+    mindrecord: False
     dataset_root: /data/ocr_datasets
     data_dir: ic15/det/MR/train
     label_file: ''
     sample_ratio: 1.0
     transform_pipeline:
-      - Decode:
       - DetLabelEncode:
       - RandomHorizontalFlip:
           p: 0.5
@@ -120,13 +119,12 @@ eval:
   dataset_sink_mode: False
   dataset:
     type: DetDataset
-    mindrecord: True
+    mindrecord: False
     dataset_root: /data/ocr_datasets
     data_dir: ic15/det/MR/test
     label_file: ''
     sample_ratio: 1.0
     transform_pipeline:
-      - Decode:
       - DetLabelEncode:
       - DetResize:  # GridResize 32
           target_size: [ 736, 1280 ]
