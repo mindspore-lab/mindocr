@@ -168,7 +168,9 @@ class LMDBDataset(BaseDataset):
     ) -> np.ndarray:
         _logger.info("Start filtering the idx list which has zero text...")
         if character_dict_path is None:
-            char_list = [c for c in "0123456789abcdefghijklmnopqrstuvwxyz"]
+            char_list = list("0123456789abcdefghijklmnopqrstuvwxyz")
+            # in case when lower=True, we don't want to filter out the original upper case characters
+            char_list = list(char_list) + [x.upper() for x in char_list]
         else:
             char_list = []
             with open(character_dict_path, "r") as f:
@@ -176,7 +178,6 @@ class LMDBDataset(BaseDataset):
                     c = line.rstrip("\n\r")
                     char_list.append(c)
 
-        char_list = [x.lower() for x in char_list] + [x.upper() for x in char_list]
         char_list = set(char_list)
 
         new_idx_list = list()
