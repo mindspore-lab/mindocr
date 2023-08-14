@@ -34,7 +34,7 @@ To prepare the data for text detection, you can run the following commands:
 ```bash
 python tools/dataset_converters/convert.py \
     --dataset_name ccpd --task det \
-    --image_dir path/to/CCPD2019/ccpd_base/ \
+    --image_dir path/to/CCPD2019/ \
     --label_dir path/to/CCPD2019/splits/train.txt \
     --output_path path/to/CCPD2019/det_gt.txt
 ```
