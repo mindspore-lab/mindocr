@@ -1,6 +1,6 @@
 lmdb
 pyclipper
-shapely
+shapely~=1.8.0
 addict
 matplotlib
 addict
