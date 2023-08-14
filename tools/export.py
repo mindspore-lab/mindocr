@@ -12,7 +12,8 @@ Example:
     >>> # Export mindir of model `dbnet_resnet50` by downloading online ckpt
     >>> python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 1280
     >>> # Export mindir of model `dbnet_resnet50` by loading local ckpt
-    >>> python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/dbnet.ckpt
+    >>> python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 1280 \
+        --local_ckpt_path /path/to/dbnet.ckpt
     >>> # Export mindir of model whose architecture is defined by crnn_resnet34.yaml with local checkpoint
     >>> python tools/export.py --model_name_or_config configs/rec/crnn/crnn_resnet34.yaml \
         --local_ckpt_path ~/.mindspore/models/crnn_resnet34-83f37f07.ckpt --data_shape 32 100
@@ -117,6 +118,17 @@ def check_args(args):
         ), "You are exporting mindir with static data shape. Please set arg `data_shape`."
 
 
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ("yes", "true", "1"):
+        return True
+    elif v.lower() in ("no", "false", "0"):
+        return False
+    else:
+        raise argparse.ArgumentTypeError("Boolean value expected.")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Convert model checkpoint to mindir format.")
     parser.add_argument(
@@ -128,7 +140,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--is_dynamic_shape",
-        type=bool,
+        type=str2bool,
         default=False,
         help="Whether the export data shape is dynamic or static.",
     )
