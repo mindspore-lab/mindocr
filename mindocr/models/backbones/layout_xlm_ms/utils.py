@@ -92,9 +92,6 @@ class InitTrackerMeta(type(Cell)):
 
         return __impl__
 
-    def __setattr__(self, name, value):
-        return super(InitTrackerMeta, self).__setattr__(name, value)
-
 
 def resolve_cache_dir(pretrained_model_name_or_path: str, from_hf_hub: bool, cache_dir: Optional[str] = None) -> str:
     """resolve cache dir for PretrainedModel and PretrainedConfig

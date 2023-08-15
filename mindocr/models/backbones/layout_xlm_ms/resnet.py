@@ -1,9 +1,11 @@
+import math
 from dataclasses import dataclass
 from typing import Optional
 
+import mindspore as ms
 import numpy as np
-
 from mindspore import nn
+from mindspore.common.initializer import initializer, HeUniform
 
 
 @dataclass
@@ -185,19 +187,31 @@ class BottleneckBlock(nn.Cell):
         )
         self.bn1 = nn.BatchNorm2d(bottleneck_channels)
 
-        self.conv2 = nn.Conv2d(
+        self.conv2_group = nn.Conv2d(
             bottleneck_channels,
+            int(bottleneck_channels / num_groups),
+            kernel_size=1,
+            stride=(1, 1),
+            padding=0,
+            has_bias=False,
+            group=1,
+            dilation=1,
+            pad_mode='pad',
+            weight_init=ms.Tensor(initializer(HeUniform(math.sqrt(5)),
+                                              [int(bottleneck_channels / num_groups), bottleneck_channels, 1, 1]))
+        )
+        self.conv2 = nn.Conv2d(
+            int(bottleneck_channels / num_groups),
             bottleneck_channels,
             kernel_size=3,
             stride=stride_3x3,
             padding=1 * dilation,
             has_bias=False,
-            group=num_groups,
+            group=1,
             dilation=dilation,
             pad_mode='pad'
         )
         self.bn2 = norm(bottleneck_channels)
-
         self.conv3 = nn.Conv2d(
             bottleneck_channels,
             out_channels,
@@ -212,6 +226,7 @@ class BottleneckBlock(nn.Cell):
         out = self.bn1(out)
         out = self.relu(out)
 
+        out = self.conv2_group(out)
         out = self.conv2(out)
         out = self.bn2(out)
         out = self.relu(out)
@@ -305,7 +320,6 @@ class ResNet(nn.Cell):
         Returns:
             dict[str->Tensor]: names and the corresponding features
         """
-        assert x.dim() == 4, f"ResNet takes an input of shape (N, C, H, W). Got {x.shape} instead!"
         outputs = {}
         x = self.stem(x)
         if "stem" in self._out_features:

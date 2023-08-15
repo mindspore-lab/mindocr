@@ -5,11 +5,8 @@ import yaml
 from addict import Dict
 
 from mindspore import nn, ops
-
+import mindspore as ms
 from .resnet import ShapeSpec, build_resnet_backbone
-
-# from resnet import ShapeSpec, build_resnet_backbone
-
 
 def read_config():
     curr_dir = os.path.dirname(os.path.abspath(__file__))
@@ -72,8 +69,8 @@ class FPN(nn.Cell):
             lateral_convs.append(lateral_conv)
             output_convs.append(output_conv)
 
-        self.lateral_convs = nn.SequentialCell(lateral_convs[::-1])
-        self.output_convs = nn.SequentialCell(output_convs[::-1])
+        self.lateral_convs = nn.CellList(lateral_convs[::-1])
+        self.output_convs = nn.CellList(output_convs[::-1])
 
         self.top_block = top_block
         self.in_features = tuple(in_features)
@@ -89,7 +86,6 @@ class FPN(nn.Cell):
         self._size_divisibility = strides[-1]
         self._square_pad = square_pad
         self._fuse_type = fuse_type
-        self._interpolate = ops.interpolate
 
     @property
     def size_divisibility(self):
@@ -111,7 +107,8 @@ class FPN(nn.Cell):
         bottom_up_features = self.bottom_up(x)
 
         results = []
-        prev_features = self.lateral_convs[0](bottom_up_features[self.in_features[-1]])
+        bottom_up_feature = bottom_up_features.get(self.in_features[-1])
+        prev_features = self.lateral_convs[0](bottom_up_feature)
         results.append(self.output_convs[0](prev_features))
 
         for idx, (lateral_conv, output_conv) in enumerate(zip(self.lateral_convs, self.output_convs)):
@@ -120,7 +117,7 @@ class FPN(nn.Cell):
                 features = bottom_up_features[features]
                 old_shape = list(prev_features.shape)[2:]
                 new_size = tuple([2 * i for i in old_shape])
-                top_down_features = self._interpolate(prev_features, size=new_size, mode="nearest")
+                top_down_features = ops.ResizeNearestNeighbor(size=new_size)(prev_features)
                 lateral_features = lateral_conv(features)
                 prev_features = lateral_features + top_down_features
                 if self._fuse_type == "avg":
@@ -131,8 +128,8 @@ class FPN(nn.Cell):
                 top_block_in_feature = bottom_up_features[self.top_block.in_feature]
             else:
                 top_block_in_feature = results[self._out_features.index(self.top_block.in_feature)]
-            results.extend(self.top_block(top_block_in_feature))
+            results.extend(self.top_block(top_block_in_feature.astype(ms.float16)))
 
         assert len(self._out_features) == len(results)
 
-        return {f: res for f, res in zip(self._out_features, results)}
+        return tuple([(f, res) for f, res in zip(self._out_features, results)])

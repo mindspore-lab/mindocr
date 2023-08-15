@@ -1,5 +1,5 @@
 system:
-  mode: 1 # 0 for graph mode, 1 for pynative mode in MindSpore
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
   distribute: False
   amp_level: 'O0'
   seed: 42
@@ -18,7 +18,7 @@ model:
 
 postprocess:
   name: VQASerTokenLayoutLMPostProcess
-  class_path: &class_path train_data/xfund/class_list.txt
+  class_path: &class_path train_data/xfund/class_list_xfun.txt
 
 metric:
   name: VQASerTokenMetric
@@ -43,12 +43,12 @@ optimizer:
 
 train:
   ckpt_save_dir: './tmp_kie'
-  dataset_sink_mode: True
+  dataset_sink_mode: False
   dataset:
     type: KieDataset
     dataset_root: train_data
-    data_dir: xfund/zh_train
-    label_file: xfund/train.json
+    data_dir: xfund/zh_train/image
+    label_file: xfund/zh_train/train.json
     sample_ratio: 1.0
     transform_pipeline:
       - DecodeImage:
@@ -83,13 +83,13 @@ train:
     num_workers: 8
 
 eval:
-  ckpt_load_path: './best.ckpt'
+  ckpt_load_path: './tmp_kie/best.ckpt'
   dataset_sink_mode: False
   dataset:
     type: KieDataset
     dataset_root: train_data
-    data_dir: xfund/zh_val
-    label_file: xfund/val.json
+    data_dir: xfund/zh_val/image
+    label_file: xfund/zh_val/val.json
     sample_ratio: 1.0
     shuffle: False
     transform_pipeline:

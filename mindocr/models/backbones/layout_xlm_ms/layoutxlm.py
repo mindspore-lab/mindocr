@@ -1,5 +1,6 @@
 import copy
 import math
+import os
 
 import numpy as np
 
@@ -11,10 +12,7 @@ from .._registry import register_backbone, register_backbone_class
 from .configuration import LayoutXLMPretrainedConfig
 from .visual_backbone import build_resnet_fpn_backbone, read_config
 
-# from visual_backbone import build_resnet_fpn_backbone, read_config
-# import sys
-# sys.path.append("..")
-# from _registry import register_backbone, register_backbone_class
+os.environ["MS_DEV_JIT_SYNTAX_LEVEL"] = "0"
 
 
 class VisualBackbone(nn.Cell):
@@ -34,17 +32,21 @@ class VisualBackbone(nn.Cell):
             name="pixel_std", requires_grad=False)
 
         self.out_feature_key = "p2"
-        # is_deterministic is disabled here.
-        self.pool = nn.AdaptiveAvgPool2d(tuple(config.image_feature_pool_shape[:2]))  # (7,7)
+        self.pool_shape = tuple(config.image_feature_pool_shape[:2])  # (7,7)
         if len(config.image_feature_pool_shape) == 2:
             config.image_feature_pool_shape.append(self.backbone.output_shape()[self.out_feature_key].channels)
         assert self.backbone.output_shape()[self.out_feature_key].channels == config.image_feature_pool_shape[2]
 
     def construct(self, images):
-        images_input = (ms.Tensor(images) - self.pixel_mean) / self.pixel_std
+        images_input = (images - self.pixel_mean) / self.pixel_std
         features = self.backbone(images_input)
-        features = features[self.out_feature_key]
-        features = self.pool(features).flatten(start_dim=2).transpose((0, 2, 1))
+        for item in features:
+            if item[0] == self.out_feature_key:
+                features = item[1]
+        channel = features.shape[1]
+        weight = ms.Tensor(np.ones([channel, channel, 1, 1]), dtype=ms.float32)
+        features = ops.conv2d(features, weight, stride=self.pool_shape[0] + 1).flatten(
+            start_dim=2).transpose((0, 2, 1))
         return features
 
 
@@ -63,8 +65,8 @@ def relative_position_bucket(relative_position, bidirectional=True, num_buckets=
 
     # The other half of the buckets are for logarithmically bigger bins in positions up to max_distance
     val_if_large = max_exact + (
-            ops.log(n.astype(ms.float32) / max_exact)
-            / math.log(max_distance / max_exact)
+            ops.log(n.astype(ms.float32) / max_exact) \
+            / math.log(max_distance / max_exact) \
             * (num_buckets - max_exact)
     ).astype(ms.int64)
 
@@ -97,19 +99,14 @@ class LayoutXLMEmbeddings(nn.Cell):
             name="position_ids", requires_grad=False)
 
     def _cal_spatial_position_embeddings(self, bbox):
-        bbox_numpy = bbox.numpy()
-        bbox_0 = ms.Tensor(bbox_numpy[:, :, 0])
-        bbox_1 = ms.Tensor(bbox_numpy[:, :, 1])
-        bbox_2 = ms.Tensor(bbox_numpy[:, :, 2])
-        bbox_3 = ms.Tensor(bbox_numpy[:, :, 3])
-        try:
-
-            left_position_embeddings = self.x_position_embeddings(bbox_0)
-            upper_position_embeddings = self.y_position_embeddings(bbox_1)
-            right_position_embeddings = self.x_position_embeddings(bbox_2)
-            lower_position_embeddings = self.y_position_embeddings(bbox_3)
-        except IndexError as e:
-            raise IndexError("The :obj:`bbox`coordinate values should be within 0-1000 range.") from e
+        bbox_0 = bbox[:, :, 0]
+        bbox_1 = bbox[:, :, 1]
+        bbox_2 = bbox[:, :, 2]
+        bbox_3 = bbox[:, :, 3]
+        left_position_embeddings = self.x_position_embeddings(bbox_0)
+        upper_position_embeddings = self.y_position_embeddings(bbox_1)
+        right_position_embeddings = self.x_position_embeddings(bbox_2)
+        lower_position_embeddings = self.y_position_embeddings(bbox_3)
 
         h_position_embeddings = self.h_position_embeddings(bbox_3 - bbox_1)
         w_position_embeddings = self.w_position_embeddings(bbox_2 - bbox_0)
@@ -181,6 +178,7 @@ class LayoutXLMSelfAttention(nn.Cell):
         self.num_attention_heads = config.num_attention_heads
         self.attention_head_size = int(config.hidden_size / config.num_attention_heads)
         self.all_head_size = self.num_attention_heads * self.attention_head_size
+        self.attention_head_size_sqrt = math.sqrt(self.attention_head_size)
 
         self.has_relative_attention_bias = config.has_relative_attention_bias
         self.has_spatial_attention_bias = config.has_spatial_attention_bias
@@ -198,7 +196,7 @@ class LayoutXLMSelfAttention(nn.Cell):
             self.key = nn.Dense(config.hidden_size, self.all_head_size)
             self.value = nn.Dense(config.hidden_size, self.all_head_size)
 
-        self.dropout = nn.Dropout(config.attention_probs_dropout_prob)
+        self.dropout = nn.Dropout(p=config.attention_probs_dropout_prob)
 
     def transpose_for_scores(self, x):
         new_x_shape = list(x.shape[:-1]) + [self.num_attention_heads, self.attention_head_size]
@@ -242,9 +240,10 @@ class LayoutXLMSelfAttention(nn.Cell):
         key_layer = self.transpose_for_scores(k)
         value_layer = self.transpose_for_scores(v)
 
-        query_layer = query_layer / math.sqrt(self.attention_head_size)
+        query_layer = query_layer / self.attention_head_size_sqrt
         # [BSZ, NAT, L, L]
-        attention_scores = ops.matmul(query_layer, key_layer.transpose((0, 1, 3, 2)))
+        attention_scores = ops.matmul(query_layer.astype(ms.float16),
+                                      key_layer.transpose((0, 1, 3, 2)).astype(ms.float16)).astype(ms.float32)
         if self.has_relative_attention_bias:
             attention_scores += rel_pos
         if self.has_spatial_attention_bias:
@@ -260,8 +259,10 @@ class LayoutXLMSelfAttention(nn.Cell):
         attention_probs = ops.softmax(attention_scores, axis=-1)
         # This is actually dropping out entire tokens to attend to, which might
         # seem a bit unusual, but is taken from the original Transformer paper.
-        attention_probs = self.dropout(attention_probs)
-        context_layer = ops.matmul(attention_probs, value_layer)
+        # attention_probs = self.dropout(attention_probs)
+        context_layer = ops.matmul(attention_probs.astype(ms.float16), value_layer.astype(ms.float16)).astype(
+            ms.float32)
+
         context_layer = context_layer.transpose((0, 2, 1, 3))
         new_context_layer_shape = list(context_layer.shape[:-2]) + [self.all_head_size]
         context_layer = context_layer.reshape(new_context_layer_shape)
@@ -290,7 +291,7 @@ class LayoutXLMSelfOutput(nn.Cell):
 class LayoutXLMAttention(nn.Cell):
     def __init__(self, config):
         super(LayoutXLMAttention, self).__init__()
-        self.self = LayoutXLMSelfAttention(config)
+        self.self_attention = LayoutXLMSelfAttention(config)
         self.output = LayoutXLMSelfOutput(config)
 
     def construct(
@@ -306,7 +307,7 @@ class LayoutXLMAttention(nn.Cell):
             rel_2d_pos=None,
     ):
 
-        self_outputs = self.self(
+        self_outputs = self.self_attention(
             hidden_states,
             attention_mask,
             head_mask,
@@ -348,7 +349,7 @@ class LayoutXLMOutput(nn.Cell):
         super(LayoutXLMOutput, self).__init__()
         self.dense = nn.Dense(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm((config.hidden_size,), epsilon=config.layer_norm_eps)
-        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        self.dropout = nn.Dropout(p=config.hidden_dropout_prob)
 
     def construct(self, hidden_states, input_tensor):
         hidden_states = self.dense(hidden_states)
@@ -388,10 +389,12 @@ class LayoutXLMLayer(nn.Cell):
         self_attn_past_key_value = past_key_value[:2] if past_key_value is not None else None
         self_attention_outputs = self.attention(
             hidden_states,
-            attention_mask,
-            head_mask,
-            output_attentions=output_attentions,
+            attention_mask=attention_mask,
+            head_mask=head_mask,
+            encoder_hidden_states=encoder_hidden_states,
+            encoder_attention_mask=encoder_attention_mask,
             past_key_value=self_attn_past_key_value,
+            output_attentions=output_attentions,
             rel_pos=rel_pos,
             rel_2d_pos=rel_2d_pos,
         )
@@ -421,14 +424,17 @@ class LayoutXLMEncoder(nn.Cell):
             self.rel_pos_bins = config.rel_pos_bins
             self.max_rel_pos = config.max_rel_pos
             self.rel_pos_onehot_size = config.rel_pos_bins
-            self.rel_pos_bias = nn.Dense(self.rel_pos_onehot_size, config.num_attention_heads, has_bias=False)
+            self.rel_pos_bias = nn.Dense(self.rel_pos_onehot_size, config.num_attention_heads, has_bias=False).to_float(
+                ms.float16)
 
         if self.has_spatial_attention_bias:
             self.max_rel_2d_pos = config.max_rel_2d_pos
             self.rel_2d_pos_bins = config.rel_2d_pos_bins
             self.rel_2d_pos_onehot_size = config.rel_2d_pos_bins
-            self.rel_pos_x_bias = nn.Dense(self.rel_2d_pos_onehot_size, config.num_attention_heads, has_bias=False)
-            self.rel_pos_y_bias = nn.Dense(self.rel_2d_pos_onehot_size, config.num_attention_heads, has_bias=False)
+            self.rel_pos_x_bias = nn.Dense(self.rel_2d_pos_onehot_size, config.num_attention_heads,
+                                           has_bias=False)
+            self.rel_pos_y_bias = nn.Dense(self.rel_2d_pos_onehot_size, config.num_attention_heads,
+                                           has_bias=False)
 
     def _cal_1d_pos_emb(self, hidden_states, position_ids):
         rel_pos_mat = position_ids.unsqueeze(-2) - position_ids.unsqueeze(-1)
@@ -495,12 +501,10 @@ class LayoutXLMEncoder(nn.Cell):
             if output_hidden_states:
                 all_hidden_states = all_hidden_states + (hidden_states,)
 
-            layer_head_mask = head_mask[i] if head_mask is not None else None
-            past_key_value = past_key_values[i] if past_key_values is not None else None
-
+            layer_head_mask = None
+            past_key_value = None
             # gradient_checkpointing is set as False here so we remove some codes here
             hidden_save["input_attention_mask"] = attention_mask
-            hidden_save["input_layer_head_mask"] = layer_head_mask
             layer_outputs = layer_module(
                 hidden_states,
                 attention_mask,
@@ -551,6 +555,11 @@ class LayoutXLMModel(nn.Cell):
 
         self.encoder = LayoutXLMEncoder(config)
         self.pooler = LayoutXLMPooler(config)
+        self.image_feature_pool_shape_size = config.image_feature_pool_shape[0] * config.image_feature_pool_shape[1]
+        self.image_feature_pool_shape = config.image_feature_pool_shape
+        self.num_hidden_layers = config.num_hidden_layers
+        self.max_position_embeddings = config.max_position_embeddings
+        self.hidden_size = config.hidden_size
 
     def get_input_embeddings(self):
         return self.embeddings.word_embeddings
@@ -589,19 +598,18 @@ class LayoutXLMModel(nn.Cell):
                 will add newly initialized vectors at the end, whereas reducing the size will remove vectors from the
                 end.
         """
-        num_position_embeds_diff = new_num_position_embeddings - self.config.max_position_embeddings
+        num_position_embeds_diff = new_num_position_embeddings - self.max_position_embeddings
 
         # no resizing needs to be done if the length stays the same
         if num_position_embeds_diff == 0:
             return
 
-        # logger.info(f"Setting `config.max_position_embeddings={new_num_position_embeddings}`...")
-        self.config.max_position_embeddings = new_num_position_embeddings
+        self.max_position_embeddings = new_num_position_embeddings
 
         old_position_embeddings_weight = self.embeddings.position_embeddings.embedding_table
 
         self.embeddings.position_embeddings = nn.Embedding(
-            self.config.max_position_embeddings, self.config.hidden_size
+            self.max_position_embeddings, self.hidden_size
         )
 
         if num_position_embeds_diff > 0:
@@ -617,9 +625,8 @@ class LayoutXLMModel(nn.Cell):
                 0,
                 1000 * (image_feature_pool_shape[1] + 1),
                 1000,
-            )
-            // image_feature_pool_shape[1],
-            dtype=bbox.dtype
+            ) // image_feature_pool_shape[1],
+            dtype=ms.int64
         )
         )
         visual_bbox_y = (ms.Tensor(
@@ -627,9 +634,8 @@ class LayoutXLMModel(nn.Cell):
                 0,
                 1000 * (image_feature_pool_shape[0] + 1),
                 1000,
-            )
-            // image_feature_pool_shape[0],
-            dtype=bbox.dtype,
+            ) // image_feature_pool_shape[0],
+            dtype=ms.int64,
         )
         )
         expand_shape = image_feature_pool_shape[0:2]
@@ -671,8 +677,8 @@ class LayoutXLMModel(nn.Cell):
     ):
         input_shape = self._get_input_shape(input_ids, inputs_embeds)
         visual_shape = list(input_shape)
-        visual_shape[1] = self.config.image_feature_pool_shape[0] * self.config.image_feature_pool_shape[1]
-        visual_bbox = self._calc_visual_bbox(self.config.image_feature_pool_shape, bbox, visual_shape)
+        visual_shape[1] = self.image_feature_pool_shape_size
+        visual_bbox = self._calc_visual_bbox(self.image_feature_pool_shape, bbox, visual_shape)
 
         final_bbox = ops.concat([bbox, visual_bbox], axis=1)
         if attention_mask is None:
@@ -717,11 +723,11 @@ class LayoutXLMModel(nn.Cell):
         if head_mask is not None:
             if head_mask.dim() == 1:
                 head_mask = head_mask.unsqueeze(0).unsqueeze(0).unsqueeze(-1).unsqueeze(-1)
-                head_mask = head_mask.broadcast_to((self.config.num_hidden_layers, -1, -1, -1, -1))
+                head_mask = head_mask.broadcast_to((self.num_hidden_layers, -1, -1, -1, -1))
             elif head_mask.dim() == 2:
                 head_mask = head_mask.unsqueeze(1).unsqueeze(-1).unsqueeze(-1)
         else:
-            head_mask = [None] * self.config.num_hidden_layers
+            head_mask = [None] * self.num_hidden_layers
 
         encoder_outputs = self.encoder(
             final_emb,
@@ -803,9 +809,11 @@ class LayoutXLMForTokenClassification(nn.Cell):
         sequence_output = self.dropout(sequence_output)
         logits = self.classifier(sequence_output)
 
-        hidden_states = {
-            f"hidden_states_{idx}": outputs[2][f"{idx}_data"] for idx in range(self.layoutxlm.config.num_hidden_layers)
-        }
+        hidden_states_list = []
+        for idx in range(self.layoutxlm.num_hidden_layers):
+            hidden_states_list.append((f"hidden_states_{idx}", outputs[2][f"{idx}_data"]))
+
+        hidden_states = tuple(hidden_states_list)
         if self.training:
             outputs = (logits, hidden_states)
         else:
@@ -824,7 +832,7 @@ class LayoutXLMForTokenClassification(nn.Cell):
                         -1,
                     )
                 )[active_loss]
-                active_labels = active_labels.astype(ms.int32)  # nn.CrossEntropy only support int32
+                active_labels = active_labels.astype(ms.float32)
                 loss = loss_fct(active_logits, active_labels)
             else:
                 loss = loss_fct(
@@ -835,9 +843,7 @@ class LayoutXLMForTokenClassification(nn.Cell):
                         )
                     ),
                 )
-
             outputs = (loss,) + outputs
-
         return outputs
 
 
@@ -1044,7 +1050,7 @@ class LayoutXLMForRelationExtraction(nn.Cell):
 
         sequence_output = self.dropout(sequence_output)
         loss, pred_relations = self.extractor(sequence_output, entities, relations)
-        hidden_states = [outputs[2][f"{idx}_data"] for idx in range(self.layoutxlm.config.num_hidden_layers)]
+        hidden_states = [outputs[2][f"{idx}_data"] for idx in range(self.layoutxlm.num_hidden_layers)]
         hidden_states = ops.stack(hidden_states, axis=1)
 
         res = dict(loss=loss, pred_relations=pred_relations, hidden_states=hidden_states)
@@ -1075,10 +1081,10 @@ class NLPBaseModel(nn.Cell):
         else:  # load the pretrained-model
             pretrained_model_link = pretrained_model_dict[base_model_class][
                 mode]
+            config = LayoutXLMPretrainedConfig()
+            base_model = base_model_class(config)
             if pretrained is True:
-                config = LayoutXLMPretrainedConfig()
                 params = load_checkpoint(pretrained_model_link)
-                base_model = base_model_class(config)
                 load_param_into_net(base_model, params)
             if type == "ser":
                 self.model = model_class(
@@ -1125,7 +1131,6 @@ class LayoutXLMForSer(NLPBaseModel):
             labels=None)
         if self.training:
             res = {"backbone_out": x[0]}
-            res.update(x[1])
             return res
         else:
             return x
