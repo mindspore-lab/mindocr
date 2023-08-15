@@ -262,7 +262,7 @@ python tools/benchmarking/multi_dataset_eval.py --config $yaml_file --opt eval.d
 Please download the [MINDIR](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e-71b38d2d.mindir) file from the table above, or you can use `tools/export.py` to manually convert any checkpoint file into a MINDIR file:
 ```bash
 # For more parameter usage details, please execute `python tools/export.py -h`
-python tools/export.py --model_name visionlan_resnet45 --data_shape 64 256 --local_ckpt_path /path/to/visionlan-ckpt
+python tools/export.py --model_name_or_config visionlan_resnet45 --data_shape 64 256 --local_ckpt_path /path/to/visionlan-ckpt
 ```
 
 This command will save a `visionlan_resnet45.mindir` under the current working directory.

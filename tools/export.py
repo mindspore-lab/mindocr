@@ -2,7 +2,7 @@
 Export ckpt files to mindir files for inference.
 
 Args:
-    model_name (str): Name of the model to be converted, or the path to the model YAML config file
+    model_name_or_config (str): Name of the model to be converted, or the path to the model YAML config file
     data_shape (int): The data shape [H, W] for exporting mindir files.
     local_ckpt_path (str): Path to a local checkpoint. If set, export mindir by loading local ckpt.
         Otherwise, export mindir by downloading online ckpt.
@@ -10,20 +10,21 @@ Args:
 
 Example:
     >>> # Export mindir of model `dbnet_resnet50` by downloading online ckpt
-    >>> python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280
+    >>> python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 1280
     >>> # Export mindir of model `dbnet_resnet50` by loading local ckpt
-    >>> python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/dbnet.ckpt
+    >>> python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 1280 \
+        --local_ckpt_path /path/to/dbnet.ckpt
     >>> # Export mindir of model whose architecture is defined by crnn_resnet34.yaml with local checkpoint
-    >>> python tools/export.py --model_name configs/rec/crnn/crnn_resnet34.yaml \
+    >>> python tools/export.py --model_name_or_config configs/rec/crnn/crnn_resnet34.yaml \
         --local_ckpt_path ~/.mindspore/models/crnn_resnet34-83f37f07.ckpt --data_shape 32 100
     >>> # Export mindir with dynamic input data shape.
           Dynamic input data shape of detection model: (-1,3,-1,-1)
           Dynamic input data shape of recognition and classification model: (-1,3,32,-1)
-    >>> python tools/export.py --model_name configs/rec/crnn/crnn_resnet34.yaml --is_dynamic_shape True \
+    >>> python tools/export.py --model_name_or_config configs/rec/crnn/crnn_resnet34.yaml --is_dynamic_shape True \
         --model_type rec --local_ckpt_path path/to/crnn.ckpt
 
 Notes:
-    - Arg `model_name` is required to be specified when running export.py.
+    - Arg `model_name_or_config` is required to be specified when running export.py.
     - Arg `data_shape` is recommended to be the same as the rescaled data shape in evaluation to get the best inference
         performance.
     - When arg `is_dynamic_shape` is False (default value is False), arg `data_shape` is required to be specified.
@@ -49,19 +50,19 @@ from mindocr.utils.logger import set_logger
 logger = logging.getLogger("mindocr.export")
 
 
-def export(name_or_config, data_shape, local_ckpt_path, save_dir, is_dynamic_shape, model_type):
+def export(model_name_or_config, data_shape, local_ckpt_path, save_dir, is_dynamic_shape, model_type, **kwargs):
     ms.set_context(mode=ms.GRAPH_MODE)  # , device_target="Ascend")
     set_logger(name="mindocr")
 
-    if name_or_config.endswith(".yml") or name_or_config.endswith(".yaml"):
-        with open(name_or_config, "r") as f:
+    if model_name_or_config.endswith(".yml") or model_name_or_config.endswith(".yaml"):
+        with open(model_name_or_config, "r") as f:
             cfg = yaml.safe_load(f)
             model_cfg = cfg["model"]
             amp_level = cfg["system"].get("amp_level_infer", "O0")
-        name = os.path.basename(name_or_config).rsplit(".", 1)[0]
+        name = os.path.basename(model_name_or_config).rsplit(".", 1)[0]
     else:
-        model_cfg = name_or_config
-        name = name_or_config
+        model_cfg = model_name_or_config
+        name = model_name_or_config
         amp_level = "O0"
 
     if local_ckpt_path:
@@ -93,10 +94,10 @@ def export(name_or_config, data_shape, local_ckpt_path, save_dir, is_dynamic_sha
 
 
 def check_args(args):
-    if args.model_name.endswith(".yml") or args.model_name.endswith(".yaml"):
+    if args.model_name_or_config.endswith(".yml") or args.model_name_or_config.endswith(".yaml"):
         assert os.path.isfile(
-            args.model_name
-        ), f"YAML config file '{args.model_name}' does not exist. Please check arg `model_name`."
+            args.model_name_or_config
+        ), f"YAML config file '{args.model_name_or_config}' does not exist. Please check arg `model_name_or_config`."
         assert (
             args.local_ckpt_path is not None
         ), "Local checkpoint path must be specified if using YAML config file to define model architecture. \
@@ -117,10 +118,21 @@ def check_args(args):
         ), "You are exporting mindir with static data shape. Please set arg `data_shape`."
 
 
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ("yes", "true", "1"):
+        return True
+    elif v.lower() in ("no", "false", "0"):
+        return False
+    else:
+        raise argparse.ArgumentTypeError("Boolean value expected.")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Convert model checkpoint to mindir format.")
     parser.add_argument(
-        "--model_name",
+        "--model_name_or_config",
         type=str,
         required=True,
         help=f"Name of the model to be converted or the path to model YAML config file. \
@@ -128,7 +140,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--is_dynamic_shape",
-        type=bool,
+        type=str2bool,
         default=False,
         help="Whether the export data shape is dynamic or static.",
     )
@@ -156,6 +168,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     check_args(args)
-    export(
-        args.model_name, args.data_shape, args.local_ckpt_path, args.save_dir, args.is_dynamic_shape, args.model_type
-    )
+    export(**vars(args))

@@ -17,13 +17,13 @@ graph LR;
 
 ``` shell
 # 在线下载模型参数，导出`dbnet_resnet50` 模型的MindIR
-python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280
+python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 1280
 
 # 使用本地ckpt文件，导出`dbnet_resnet50` 模型的MindIR
-python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt
+python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt
 
 # 使用本地ckpt文件和参数yaml文件，导出`dbnet_resnet50` 模型的MindIR
-python tools/export.py --model_name configs/rec/crnn/crnn_resnet34.yaml --local_ckpt_path ~/.mindspore/models/crnn_resnet34-83f37f07.ckpt --data_shape 32 100
+python tools/export.py --model_name_or_config configs/rec/crnn/crnn_resnet34.yaml --local_ckpt_path ~/.mindspore/models/crnn_resnet34-83f37f07.ckpt --data_shape 32 100
 
 更多参数使用详情，请执行 `python tools/export.py -h`.
 ```

@@ -396,9 +396,9 @@ mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/crnn/
 请先[下载](#2-评估结果)已导出的MindIR文件，或者参考[模型导出](../../README.md)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
 
 ```shell
-python tools/export.py --model_name crnn_resnet34 --data_shape 32 100 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config crnn_resnet34 --data_shape 32 100 --local_ckpt_path /path/to/local_ckpt.ckpt
 # or
-python tools/export.py --model_name configs/rec/crnn/crnn_resnet34.yaml --data_shape 32 100 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config configs/rec/crnn/crnn_resnet34.yaml --data_shape 32 100 --local_ckpt_path /path/to/local_ckpt.ckpt
 ```
 
 其中，`data_shape`是导出MindIR时的模型输入Shape的height和width，下载链接中MindIR对应的shape值见[注释](#2-评估结果)。

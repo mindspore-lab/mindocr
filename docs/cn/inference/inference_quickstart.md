@@ -68,9 +68,9 @@ graph LR;
 ``` shell
 # 使用本地ckpt文件，导出`DBNet ResNet-50 en` 模型的MindIR
 # 更多参数使用详情，请执行 `python tools/export.py -h`
-python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/dbnet.ckpt
+python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/dbnet.ckpt
 ```
-上述命令中```--model_name```为MindOCR中的模型名称或传入yaml目录(例如```--model_name configs/rec/crnn/crnn_resnet34.yaml```)；
+上述命令中```--model_name_or_config```为MindOCR中的模型名称或传入yaml目录(例如```--model_name_or_config configs/rec/crnn/crnn_resnet34.yaml```)；
 
 ```--data_shape 736 1280```参数表明模型输入图片的大小为[736, 1280]，每个MindOCR模型都对应着一个固定导出data shape，详细请见模型支持列表中的**data shape**列；
 

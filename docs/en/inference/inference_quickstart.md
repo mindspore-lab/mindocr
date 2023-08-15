@@ -70,9 +70,9 @@ Let's take `DBNet ResNet-50 en` in the [model support list](#11-text-detection) 
 ``` shell
 # Use the local ckpt file to export the MindIR of the `DBNet ResNet-50 en` model
 # For more parameter usage details, please execute `python tools/export.py -h`
-python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/dbnet.ckpt
+python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/dbnet.ckpt
 ```
-In the above command, ```--model_name``` is the model name in MindOCR or we can pass the yaml directory to it (for example ```--model_name configs/rec/crnn/crnn_resnet34.yaml```);
+In the above command, ```--model_name_or_config``` is the model name in MindOCR or we can pass the yaml directory to it (for example ```--model_name_or_config configs/rec/crnn/crnn_resnet34.yaml```);
 
 The ```--data_shape 736 1280``` parameter indicates that the size of the model input image is [736, 1280], and each MindOCR model corresponds to a fixed export data shape. For details, see **data shape** in the model support list;
 
