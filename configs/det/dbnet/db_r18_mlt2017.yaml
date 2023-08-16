@@ -133,6 +133,9 @@ eval:
       - DecodeImage:
           img_mode: RGB
           to_float32: False
+          # img_144.jpg, img_150.jpg, img_153.jpg ~ img_161.jpg, img_169.jpg, img_173.jpg, img_174.jpg, img_176.jpg
+          # have not matching orientation with the gt labels
+          ignore_orientation: True
       - DetLabelEncode:
       - DetResize:
           target_size: [ 1152, 2048 ] # h, w

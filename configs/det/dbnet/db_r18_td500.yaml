@@ -134,6 +134,7 @@ eval:
       - DecodeImage:
           img_mode: RGB
           to_float32: False
+          ignore_orientation: True  # IMG_2120.JPG & IMG_2177.JPG have not matching orientation with the gt labels
       - DetLabelEncode:
       - DetResize:  #ScalePadImage
           target_size: [ 800, 800 ] # h, w

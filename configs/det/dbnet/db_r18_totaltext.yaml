@@ -134,6 +134,7 @@ eval:
       - DecodeImage:
           img_mode: RGB
           to_float32: False
+          ignore_orientation: True  # img651.jpg has not matching orientation with the gt labels
       - DetLabelEncode:
       - DetResize:
           target_size: [ 1152, 2048 ] # h, w
