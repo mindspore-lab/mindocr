@@ -73,6 +73,7 @@ train:
     label_file: ctw1500/train_det_gt.txt
     sample_ratio: 1.0
     transform_pipeline:
+      - Decode:
       - DetLabelEncode:
       - RandomHorizontalFlip:
           p: 0.5
@@ -120,6 +121,7 @@ eval:
     label_file: ctw1500/test_det_gt.txt
     sample_ratio: 1.0
     transform_pipeline:
+      - Decode:
       - DetLabelEncode:
       - DetResize:
           target_size: [ 1024, 1024 ] # h, w

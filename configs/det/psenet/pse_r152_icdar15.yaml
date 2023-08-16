@@ -65,6 +65,7 @@ train:
     label_file: ic15/train_det_gt.txt
     sample_ratio: 1.0
     transform_pipeline:
+      - Decode:
       - DetLabelEncode:
       - RandomScale:
           scale_range: [ 0.5, 3.0 ]
@@ -110,6 +111,7 @@ eval:
     label_file: ic15/det/test/det_gt.txt
     sample_ratio: 1.0
     transform_pipeline:
+      - Decode:
       - DetLabelEncode:
       - DetResize:
           limit_side_len: 736 # 736 1472

@@ -3,7 +3,6 @@ import os
 import random
 from typing import List, Union
 
-import cv2
 import numpy as np
 from scipy.io import loadmat
 
@@ -69,7 +68,7 @@ class DetDataset(BaseDataset):
         self.output_columns = ["image", "label"]
 
     def __getitem__(self, index):
-        image = cv2.cvtColor(cv2.imread(self.data_list[index]["img_path"]), cv2.COLOR_BGR2RGB)
+        image = np.fromfile(self.data_list[index]["img_path"], np.uint8)
         return image, self.data_list[index]["label"]
 
     def load_data_list(

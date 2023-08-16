@@ -66,6 +66,7 @@ train:
     label_file: ic15/det/train/det_gt.txt
     sample_ratio: 1.0
     transform_pipeline:
+      - Decode:
       - DetLabelEncode:
       - EASTProcessTrain:
           scale: 0.25
@@ -101,6 +102,7 @@ eval:
     label_file: ic15/det/test/det_gt.txt
     sample_ratio: 1.0
     transform_pipeline:
+      - Decode:
       - DetLabelEncode:
       - DetResize:
           target_size: [720, 1280]
