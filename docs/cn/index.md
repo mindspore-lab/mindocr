@@ -46,12 +46,6 @@ pip install -r requirements.txt
 ```
 **提示:**
 
-- 如果无法导入sckit_image，请设置环境变量`$LD_PRELOAD`，如下所示([相关opencv issue](https://github.com/opencv/opencv/issues/14884))：
-
-    ```shell
-    export LD_PRELOAD=path/to/scikit_image.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
-    ```
-
 #### 通过源文件安装（推荐）
 
 ```shell
@@ -164,7 +158,7 @@ python tools/eval.py \
 - [x] [MASTER](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/master/README_CN.md) (PR'2019)
 - [x] [VISIONLAN](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/README_CN.md) (ICCV'2021)
 - [x] [RobustScanner](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner/README_CN.md) (ECCV'2020)
-- [ ] [ABINet](https://arxiv.org/abs/2103.06495) (CVPR'2021) [coming soon]
+- [x] [ABINet](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/abinet/README_CN.md) (CVPR'2021)
 </details>
 
 关于以上模型的具体训练方法和结果，请参见[configs](https://github.com/mindspore-lab/mindocr/blob/main/configs)下各模型子目录的readme文档。
@@ -228,7 +222,7 @@ MindOCR提供了[数据格式转换工具](datasets/converters.md) ，以支持�
     - 文本识别[CRNN-Seq2Seq](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare)
     - 在SynthText数据集上预训练的[DBNet](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)
 2. 添加更多基准数据集及其结果
-    - [SynthText](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c), [MSRA-TD500](datasets/td500.md), [CTW1500](datasets/ctw1500.md)
+    - [SynthText](datasets/synthtext.md), [MSRA-TD500](datasets/td500.md), [CTW1500](datasets/ctw1500.md)
     - DBNet的更多基准结果可以[在此找到](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README_CN.md).
 3. 添加用于保存前k个checkpoint的checkpoint manager并改进日志。
 4. Python推理代码重构。

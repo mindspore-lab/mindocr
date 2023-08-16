@@ -49,7 +49,7 @@ class DetectionIoUEvaluator:
         gt_polys, gt_ignore = [], []
         for sample in gt:
             poly = Polygon(sample["polys"])
-            if poly.is_valid and poly.is_simple:
+            if poly.is_valid:
                 if not sample["ignore"]:
                     gt_polys.append(poly)
                 else:
@@ -59,7 +59,7 @@ class DetectionIoUEvaluator:
         det_polys, det_ignore = [], []
         for pred in preds:
             poly = Polygon(pred)
-            if poly.is_valid and poly.is_simple:
+            if poly.is_valid:
                 poly_area = poly.area
                 if gt_ignore and poly_area > 0:
                     for ignore_poly in gt_ignore:

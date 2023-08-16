@@ -68,7 +68,7 @@ Table Format:
 ##### 3.1.2.1 MJSynth, 验证集和测试集
 部分LMDB格式的训练及验证数据集可以从[这里](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (出处: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here))下载。连接中的文件包含多个压缩文件，其中:
 - `data_lmdb_release.zip` 包含了了部分数据集，有训练集(training/），验证集(validation/)以及测试集(evaluation)。
-    - `training.zip` 包括两个数据集，分别是 [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) 和 [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)。 这里我们只使用**MJSynth**。
+    - `training.zip` 包括两个数据集，分别是 [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) 和 [SynthText (ST)](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c)。 这里我们只使用**MJSynth**。
     - `validation.zip` 是多个单独数据集的训练集的一个合集，包括[IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), 和 [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset)。
     - `evaluation.zip` 包含多个基准评估数据集，有[IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset), [IC03](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions), [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf)和 [CUTE](http://cs-chan.com/downloads_CUTE80_dataset.html)
 - `validation.zip`: 与 data_lmdb_release.zip 中的validation/ 一样。
@@ -76,7 +76,7 @@ Table Format:
 
 ##### 3.1.2.2 SynthText dataset
 
-我们不使用`data_lmdb_release.zip`提供的`SynthText`数据, 因为它只包含部分切割下来的图片。请从<https://www.robots.ox.ac.uk/~vgg/data/scenetext/>下载原始数据, 并使用以下命令转换成LMDB格式
+我们不使用`data_lmdb_release.zip`提供的`SynthText`数据, 因为它只包含部分切割下来的图片。请从[此处](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c)下载原始数据, 并使用以下命令转换成LMDB格式
 
 ```bash
 python tools/dataset_converters/convert.py \
@@ -90,7 +90,7 @@ python tools/dataset_converters/convert.py \
 
 ##### 3.1.2.3 SynthAdd dataset
 
-另外请从<https://pan.baidu.com/s/1uV0LtoNmcxbO-0YA7Ch4dg>（密码：627x）下载**SynthAdd**训练集. 这个训练集是由<https://arxiv.org/abs/1811.00751>提出。请使用以下命令转换成LMDB格式
+另外请从[此处](https://pan.baidu.com/s/1uV0LtoNmcxbO-0YA7Ch4dg)（密码：627x）下载**SynthAdd**训练集. 这个训练集是由<https://arxiv.org/abs/1811.00751>提出。请使用以下命令转换成LMDB格式
 
 ```bash
 python tools/dataset_converters/convert.py \
@@ -151,7 +151,7 @@ data_lmdb_release/
   - Train: 21.2 GB, 7224586 samples
   - Valid: 2.36 GB, 802731 samples
   - Test: 2.61 GB, 891924 samples
-- [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)
+- [SynthText (ST)](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c)
   - 17.0 GB, 7266529 samples
 - [SynthAdd (SynthAdd)](https://arxiv.org/abs/1811.00751)
   - 2.7 GB, 1216889 samples
@@ -369,9 +369,9 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 请先[下载](#2-评估结果)已导出的MindIR文件，或者参考[模型导出](../../README.md)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
 
 ```shell
-python tools/export.py --model_name master_resnet31 --data_shape 48 160 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config master_resnet31 --data_shape 48 160 --local_ckpt_path /path/to/local_ckpt.ckpt
 # or
-python tools/export.py --model_name configs/rec/master/master_resnet31.yaml --data_shape 48 160 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config configs/rec/master/master_resnet31.yaml --data_shape 48 160 --local_ckpt_path /path/to/local_ckpt.ckpt
 ```
 
 其中，`data_shape`是导出MindIR时的模型输入Shape的height和width，下载链接中MindIR对应的shape值见[注释](#2-评估结果)。

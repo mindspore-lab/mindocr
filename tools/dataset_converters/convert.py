@@ -33,6 +33,7 @@ from ic19_art import IC19_ART_Converter
 from lsvt import LSVT_Converter
 from mlt2017_9 import MLT2017_Converter, MLT2019_Converter
 from mtwi2018 import MTWI2018_Converter
+from pubtabnet import PUBTABNET_Converter
 from rctw17 import RCTW17_Converter
 from rects import RECTS_Converter
 from sroie import SROIE_Converter
@@ -67,6 +68,7 @@ supported_datasets = [
     "rects",
     "ic19_art",
     "cocotext",
+    "pubtabnet",
 ]
 
 
@@ -109,7 +111,7 @@ if __name__ == "__main__":
         "--task",
         type=str,
         default="det",
-        help="Target task, text detection or recognition, valid choices: det, rec, rec_lmdb",
+        help="Target task, text detection or recognition, valid choices: det, rec, rec_lmdb, table",
     )
     parser.add_argument(
         "-i", "--image_dir", type=str, default="./ic15/det/images/", help="Directory to the images of the dataset"

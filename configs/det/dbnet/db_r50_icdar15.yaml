@@ -65,6 +65,7 @@ loss_scaler:
 train:
   ckpt_save_dir: './tmp_det'
   dataset_sink_mode: True
+  gradient_accumulation_steps: 2
   dataset:
     type: DetDataset
     mindrecord: True

@@ -34,7 +34,7 @@
 
 | **Model** | **Context** | **Backbone**|  **Train Dataset** | **Model Params**|**Avg Accuracy** | **Train Time** | **Per Step Time** | **FPS** | **Recipe** | **Download** |
 | :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |:--------: | :--------: |:--------: |:----------: |
-| visionlan  | D910x4-MS2.0-G | resnet45 | MJ+ST| 42.2M | 90.61%  |  7718s/epoch  | 417 ms/step  | 1,840 img/s | [yaml(LF_1)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_1.yaml) [yaml(LF_2)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_2.yaml) [yaml(LA)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LA.yaml)| [ckpt files](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_ckpts-7d6e9c04.tar.gz) \| [mindir(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-71b38d2d.mindir)|
+| visionlan  | D910x4-MS2.0-G | resnet45 | MJ+ST| 42.2M | 90.61%  |  7718s/epoch  | 417 ms/step  | 1,840 img/s | [yaml(LF_1)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_1.yaml) [yaml(LF_2)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_2.yaml) [yaml(LA)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LA.yaml)| [ckpt files](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_ckpts-7d6e9c04.tar.gz) \| [mindir(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e-71b38d2d.mindir)|
 
 </div>
 
@@ -72,7 +72,7 @@ VisionLAN的作者使用了两个合成文本数据集进行训练：SynthText�
 
 下载`SynthText.zip`和`MJSynth.zip`后，请解压缩并将它们放置在`./datasets/train`目录下。训练集数据总共包括 14,200,701 个样本。更多关于训练集的信息如下:
 
-- [SynText](http://www.robots.ox.ac.uk/~vgg/data/scenetext/): 25GB, 6,976,115 samples
+- [SynText](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c): 25GB, 6,976,115 samples
 - [MJSynth](http://www.robots.ox.ac.uk/~vgg/data/text/): 21GB, 7,224,586 samples
 
 
@@ -240,10 +240,10 @@ python tools/benchmarking/multi_dataset_eval.py --config $yaml_file --opt eval.d
 
 ### 4.1 准备 MINDIR 文件
 
-请从上面的表格中中下载[MINDIR](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-71b38d2d.mindir)文件，或者您可以使用`tools/export.py`将任何检查点文件手动转换为 MINDIR 文件：
+请从上面的表格中中下载[MINDIR](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e-71b38d2d.mindir)文件，或者您可以使用`tools/export.py`将任何检查点文件手动转换为 MINDIR 文件：
 ```bash
 # 有关更多参数使用详细信息，请执行 `python tools/export.py -h`
-python tools/export.py --model_name visionlan_resnet45 --data_shape 64 256 --local_ckpt_path /path/to/visionlan-ckpt
+python tools/export.py --model_name_or_config visionlan_resnet45 --data_shape 64 256 --local_ckpt_path /path/to/visionlan-ckpt
 ```
 
 此命令将在当前工作目录下保存一个`visionlan_resnet45.mindir`文件。
