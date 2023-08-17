@@ -15,6 +15,7 @@
 | [PSENet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) | ResNet-152  | en      | IC15   | 82.50  | 2.52  | (1,3,1472,2624) | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_r152_icdar15.yaml)      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)         |
 |                                                                                 | ResNet-50  | en      | IC15   | 81.37  | 10.16  | (1,3,736,1312) | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_r50_icdar15.yaml)      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9-cfd2ee6c.mindir)         |
 |                                                                                 | MobileNetV3  | en      | IC15   | 70.56  | 10.38  | (1,3,736,1312) | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_mv3_icdar15.yaml)      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907-da7cfe09.mindir)         |
+| [FCENet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/fcenet) | ResNet50 | en | IC15 | 78.94 | 14.59 | (1,3,736,1280) | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/fcenet/fce_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/fcenet/fcenet_resnet50-43857f7f.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/fcenet/fcenet_resnet50-43857f7f-dad7dfcc.mindir) |
 
 #### 1.2 Text recognition
 
@@ -26,8 +27,8 @@
 | [SVTR](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/svtr) | Tiny        | Default                                                                                          | IC15  | 79.92 | 338.04 | (1,3,64,256)  | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml)    | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3-86ece8c8.mindir)    |
 | [Rare](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/rare) | ResNet34_vd | Default                                                                                          | IC15  | 69.47 | 273.23 | (1,3,32,100) | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34.yaml)    | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ascend-309dc63e-b96c2a4b.mindir)    |
 |                                                                             | ResNet34_vd | [ch_dict.txt](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/utils/dict/ch_dict.txt) | /     | /      | /      | (1,3,32,320) | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-5f3023e2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch_ascend-5f3023e2-11f0d554.mindir) |
-| [RobustScanner](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/robustscanner) | ResNet-31 | [en_dict90.txt](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/utils/dict/en_dict90.txt) | IC15 | 73.71 | 22.30 | (1, 3, 48, 160) | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner/robustscanner_resnet31.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37-158bde10.mindir) |
-| [VisionLAN](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/visionlan) | ResNet-45 | Default |  IC15 |  80.07  |  321.37 | (1, 3, 64, 256) | [yaml(LA)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LA.yaml) | [ckpt(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e.ckpt) \| [mindir(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e-71b38d2d.mindir) |
+| [RobustScanner](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/robustscanner) | ResNet-31 | [en_dict90.txt](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/utils/dict/en_dict90.txt) | IC15 | 73.71 | 22.30 | (1,3,48,160) | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner/robustscanner_resnet31.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37-158bde10.mindir) |
+| [VisionLAN](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/visionlan) | ResNet-45 | Default |  IC15 |  80.07  |  321.37 | (1,3,64,256) | [yaml(LA)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LA.yaml) | [ckpt(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e.ckpt) \| [mindir(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e-71b38d2d.mindir) |
 
 <br></br>
 ### 2. Overview of MindOCR Inference
@@ -80,49 +81,22 @@ The ```--data_shape 736 1280``` parameter indicates that the size of the model i
 
 - Use the converter_lite tool on Ascend310 or 310P to convert the MindIR to MindSpore Lite MindIR:
 
-Create `config.txt` and specify the model input shape:
-```
-[ascend_context]
-input_format=NCHW
-input_shape=x:[1,3,736,1280]
-```
-
-The first line ```[ascend_context]``` indicates that the subsequent content is the relevant setting of the Ascend backend. Usually, when creating a configuration file, this line must be added to indicate the relevant setting content of the Ascend backend;
-
-The second line ```input_format=NCHW``` indicates that the input format of the model is ```[batch_size, channel_num, Height, Width]```;
-
-The third line ```input_shape=x:[1,3,736,1280]``` means that the variable name of the model input is ```x```, and the shape of ```x``` is ```[1,3,736,1280]```; If other models or backbones are used, the setting of shape needs to refer to the **data shape** column in the model support list;
-
-It should be noted that the variable name ```x``` depends on the input variable name when the ckpt model is exported to MindIR. In the current tool codes ```tools/export.py```, the key export code is as follows:
-```python
-ms.export(net, x, file_name=output_path, file_format="MINDIR")
-```
-The second parameter of the function ```ms.export``` represents the input variable of the model, and its variable name is ```x```, so the name used in configuration here is also ```x```;
-
-If the key export code in the above ```tools/export.py``` is changed to
-```python
-ms.export(net, y, file_name=output_path, file_format="MINDIR")
-```
-Then the configuration on the third line needs to be changed to ```input_shape=y:[1,3,736,1280]```.
-
-> Learn more about [Configuration File Parameters](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool_ascend.html)
-
 Run the following command:
 ```shell
 converter_lite \
      --saveType=MINDIR \
-     --NoFusion=false \
      --fmk=MINDIR \
-     --device=Ascend \
+     --optimize=ascend_oriented \
      --modelFile=dbnet_resnet50-c3a4aa24-fbf95c82.mindir \
-     --outputFile=dbnet_resnet50 \
-     --configFile=config.txt
+     --outputFile=dbnet_resnet50
 ```
-In the above command ```--fmk=MINDIR``` indicates that the original format of the input model is MindIR, and the ```--fmk``` parameter also supports ONNX, etc.;
+In the above command:
+
+```--fmk=MINDIR``` indicates that the original format of the input model is MindIR, and the ```--fmk``` parameter also supports ONNX, etc.;
 
 ```--saveType=MINDIR``` indicates that the output model format is MindIR format;
 
-```--device=Ascend``` indicates that the target device when converting the model is Ascend, if not set, the default is CPU backend inferencing;
+```--optimize=ascend_oriented``` indicates that optimize for Ascend devices;
 
 ```--modelFile=dbnet_resnet50-c3a4aa24-fbf95c82.mindir``` indicates that the current model path to be converted is ```dbnet_resnet50-c3a4aa24-fbf95c82.mindir```;
 
@@ -171,26 +145,14 @@ Let's take `CRNN ResNet34_vd en` in the [model support list](#12-text-recognitio
 
 - Use the converter_lite tool on Ascend310 or 310P to convert the MindIR to MindSpore Lite MindIR:
 
-Create `config.txt` and specify the model input shape:
-```
-[ascend_context]
-input_format=NCHW
-input_shape=x:[1,3,32,100]
-```
-For a brief description of the configuration parameters, see the text detection example above.
-
-> Learn more about [Configuration File Parameters](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool_ascend.html)
-
 Run the following command:
 ```shell
 converter_lite \
      --saveType=MINDIR \
-     --NoFusion=false \
      --fmk=MINDIR \
-     --device=Ascend \
+     --optimize=ascend_oriented \
      --modelFile=crnn_resnet34-83f37f07-eb10a0c9.mindir \
-     --outputFile=crnn_resnet34vd \
-     --configFile=config.txt
+     --outputFile=crnn_resnet34vd
 ```
 After the above command is executed, the `crnn_resnet34vd.mindir` model file will be generated;
 

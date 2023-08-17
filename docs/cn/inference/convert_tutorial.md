@@ -41,9 +41,8 @@ python tools/export.py --model_name_or_config configs/rec/crnn/crnn_resnet34.yam
 ```shell
 converter_lite \
     --saveType=MINDIR \
-    --NoFusion=false \
     --fmk=MINDIR \
-    --device=Ascend \
+    --optimize=ascend_oriented \
     --modelFile=input.mindir \
     --outputFile=output \
     --configFile=config.txt
@@ -190,9 +189,8 @@ paddle2onnx \
 ```shell
 converter_lite \
     --saveType=MINDIR \
-    --NoFusion=false \
     --fmk=ONNX \
-    --device=Ascend \
+    --optimize=ascend_oriented \
     --modelFile=det_db.onnx \
     --outputFile=det_db_output \
     --configFile=config.txt

@@ -45,7 +45,7 @@ PSENet的整体架构图如图1所示，包含以下阶段:
 #### 注释：
 - 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。
 - PSENet的训练时长受数据处理部分超参和不同运行环境的影响非常大。
-- 在ICDAR15数据集上，以resnet152为backbone的MindIR导出时的输入Shape为`(1,3,1472,2624)` ，以resnet50为backbone的MindIR导出时的输入Shape为`(1,3,736,1280)`。
+- 在ICDAR15数据集上，以ResNet-152为backbone的MindIR导出时的输入Shape为`(1,3,1472,2624)` ，以ResNet-50或MobileNetV3为backbone的MindIR导出时的输入Shape为`(1,3,736,1312)`。
 - 在SCUT-CTW1500数据集上，MindIR导出时的输入Shape为`(1,3,1024,1024)` 。
 
 ## 3. 快速上手
@@ -204,8 +204,7 @@ python tools/export.py --model_name_or_config configs/det/psenet/pse_r152_icdar1
 
 - 模型转换
 
-请参考[模型转换](../../../docs/cn/inference/convert_tutorial.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换，
-其中`configFile`文件中的`input_shape`需要填写模型导出时shape，如上述的(1,3,1472,2624)，格式为NCHW。
+请参考[模型转换](../../../docs/cn/inference/convert_tutorial.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换。
 
 - 执行推理
 
@@ -216,11 +215,8 @@ python tools/export.py --model_name_or_config configs/det/psenet/pse_r152_icdar1
 ```shell
 python infer.py \
     --input_images_dir=/your_path_to/test_images \
-    --device=Ascend \
-    --device_id=0 \
     --det_model_path=your_path_to/output.mindir \
     --det_model_name_or_config=../../configs/det/psenet/pse_r152_icdar15.yaml \
-    --backend=lite \
     --res_save_dir=results_dir
 ```
 

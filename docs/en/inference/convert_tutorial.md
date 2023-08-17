@@ -40,9 +40,8 @@ Assuming the input model is input.mindir and the output model after `converter_l
 ```shell
 converter_lite \
     --saveType=MINDIR \
-    --NoFusion=false \
     --fmk=MINDIR \
-    --device=Ascend \
+    --optimize=ascend_oriented \
     --modelFile=input.mindir \
     --outputFile=output \
     --configFile=config.txt
@@ -190,9 +189,8 @@ The conversion command is as follows:
 ```shell
 converter_lite \
     --saveType=MINDIR \
-    --NoFusion=false \
     --fmk=ONNX \
-    --device=Ascend \
+    --optimize=ascend_oriented \
     --modelFile=det_db.onnx \
     --outputFile=det_db_output \
     --configFile=config.txt

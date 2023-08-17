@@ -25,6 +25,7 @@ class Postprocessor:
 
         # if check device failed, set device_target="CPU"
         if get_device_status() == 1:
+            # FIXME: set_context may be invalid sometimes, it's best to patch to XXXPostprocess.__init__
             ms.set_context(device_target="CPU")
 
     def __call__(self, *args, **kwargs):
@@ -61,11 +62,18 @@ def parse_postprocess_from_yaml(config_path):
 
     postprocess_name = postprocess_params["name"]
 
-    # prioritize loading postprocess from module adapted_postprocess
-    if hasattr(adapted_postprocess, postprocess_name):
-        postprocess = getattr(adapted_postprocess, postprocess_name)
-    elif hasattr(mindocr_postprocess, postprocess_name):
+    # Mark 'from_ppocr' or 'from_mmocr' for some conflict postprocess
+    must_load_adapted = False
+    marked_list = ["from_ppocr", "from_mmocr"]
+    for marked in marked_list:
+        must_load_adapted = must_load_adapted or postprocess_params.get(marked, False)
+        postprocess_params.pop(marked, None)
+
+    # mindocr_postprocess > adapted_postprocess
+    if (not must_load_adapted) and hasattr(mindocr_postprocess, postprocess_name):
         postprocess = getattr(mindocr_postprocess, postprocess_name)
+    elif hasattr(adapted_postprocess, postprocess_name):
+        postprocess = getattr(adapted_postprocess, postprocess_name)
     else:
         raise ValueError(f"The postprocess '{postprocess_name}' is not supported yet.")
 

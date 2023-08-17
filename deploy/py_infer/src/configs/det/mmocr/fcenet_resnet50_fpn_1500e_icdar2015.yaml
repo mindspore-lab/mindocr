@@ -6,6 +6,7 @@ postprocess:
   alpha: 1.2
   beta: 1.0
   score_thr: 0.3
+  from_mmocr: True
 
 
 eval:

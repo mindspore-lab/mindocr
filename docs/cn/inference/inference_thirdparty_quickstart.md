@@ -144,9 +144,8 @@ input_shape=x:[1,3,736,1280]
 ```shell
 converter_lite \
     --saveType=MINDIR \
-    --NoFusion=false \
     --fmk=ONNX \
-    --device=Ascend \
+    --optimize=ascend_oriented \
     --modelFile=det_db.onnx \
     --outputFile=det_db_output \
     --configFile=config.txt
@@ -162,7 +161,7 @@ converter_lite参数简要说明如下：
 |  modelFile  |    是    |                         输入模型的路径                         |                -                |    -   |                         -                        |
 | outputFile |    是    |        输出模型的路径，不需加后缀，可自动生成.mindir后缀       |                -                |    -   |                         -                        |
 | configFile |    否    | 1）可作为训练后量化配置文件路径；2）可作为扩展功能配置文件路径 |                -                |    -   |                         -                        |
-|     device     |    否    |   设置转换模型时的目标设备。若未设置，默认模型调用CPU后端推理  |  Ascend、Ascend310、Ascend310P  |    -   |                         -                        |
+|  optimize  |    否    |   设置针对设备的模型优化类型。若未设置，则不做优化  |  none、general、gpu_oriented、ascend_oriented  |    -   |                         -                        |
 
 
 > 了解更多[converter_lite](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)
@@ -245,9 +244,8 @@ dynamic_dims=[48,520],[48,320],[48,384],[48,360],[48,394],[48,321],[48,336],[48,
 ```shell
 converter_lite \
     --saveType=MINDIR \
-    --NoFusion=false \
     --fmk=ONNX \
-    --device=Ascend \
+    --optimize=ascend_oriented \
     --modelFile=en_PP-OCRv3_rec_infer.onnx \
     --outputFile=en_PP-OCRv3_rec_infer \
     --configFile=config.txt

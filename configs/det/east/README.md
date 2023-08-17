@@ -175,8 +175,7 @@ Please refer to [Environment Installation](../../../docs/en/inference/environmen
 - Model Conversion
 
 Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#1-mindocr-models),
-and use the `converter_lite` tool for offline conversion of the MindIR file, where the `input_shape` in `configFile` needs to be filled in with the value from MindIR export,
-as mentioned above (1, 3, 720, 1280), and the format is NCHW.
+and use the `converter_lite` tool for offline conversion of the MindIR file.
 
 - Inference
 
@@ -185,11 +184,8 @@ Assuming that you obtain output.mindir after model conversion, go to the `deploy
 ```shell
 python infer.py \
     --input_images_dir=/your_path_to/test_images \
-    --device=Ascend \
-    --device_id=0 \
     --det_model_path=your_path_to/output.mindir \
     --det_model_name_or_config=../../configs/det/east/east_r50_icdar15.yaml \
-    --backend=lite \
     --res_save_dir=results_dir
 ```
 

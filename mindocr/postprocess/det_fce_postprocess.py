@@ -5,6 +5,8 @@ import numpy as np
 from numpy.fft import ifft
 from shapely.geometry import Polygon
 
+from mindspore import Tensor
+
 from .det_base_postprocess import DetBasePostprocess
 
 __all__ = ["FCEPostprocess"]
@@ -302,12 +304,13 @@ class FCEPostprocess(DetBasePostprocess):
     def _postprocess(self, pred, **kwargs):
         score_maps = []
         for value in pred:
-            value = value.asnumpy()
+            if isinstance(value, Tensor):
+                value = value.asnumpy()
             cls_res = value[:, :4, :, :]
             reg_res = value[:, 4:, :, :]
             score_maps.append([cls_res, reg_res])
         polys, scores = self.get_boundary(score_maps, np.array([[0, 0, 1, 1]]))
-        return {"polys": polys, "scores": scores}
+        return {"polys": [polys], "scores": [scores]}
 
     def get_boundary(self, score_maps, shape_list):
         assert len(score_maps) == len(self.scales)
