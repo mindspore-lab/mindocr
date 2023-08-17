@@ -395,8 +395,7 @@ python tools/export.py --model_name_or_config configs/rec/svtr/svtr_tiny.yaml --
 
 **3. 模型转换**
 
-请参考[模型转换](../../../docs/cn/inference/convert_tutorial.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换，
-其中`configFile`文件中的`input_shape`需要填写模型导出时shape，如上述的(1, 3, 64, 256)，格式为NCHW。
+请参考[模型转换](../../../docs/cn/inference/convert_tutorial.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换。
 
 **4. 执行推理**
 
@@ -405,11 +404,8 @@ python tools/export.py --model_name_or_config configs/rec/svtr/svtr_tiny.yaml --
 ```shell
 python infer.py \
     --input_images_dir=/your_path_to/test_images \
-    --device=Ascend \
-    --device_id=0 \
     --rec_model_path=your_path_to/output.mindir \
     --rec_model_name_or_config=../../configs/rec/svtr/svtr_tiny.yaml \
-    --backend=lite \
     --res_save_dir=results_dir
 ```
 

@@ -15,6 +15,7 @@
 | [PSENet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) | ResNet-152  | en      | IC15   | 82.50  | 2.52  | (1,3,1472,2624) | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_r152_icdar15.yaml)      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)         |
 |                                                                                 | ResNet-50  | en      | IC15   | 81.37  | 10.16  | (1,3,736,1312) | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_r50_icdar15.yaml)      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9-cfd2ee6c.mindir)         |
 |                                                                                 | MobileNetV3  | en      | IC15   | 70.56  | 10.38  | (1,3,736,1312) | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet/pse_mv3_icdar15.yaml)      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907-da7cfe09.mindir)         |
+| [FCENet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/fcenet) | ResNet50 | en | IC15 | 78.94 | 14.59 | (1,3,736,1280) | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/fcenet/fce_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/fcenet/fcenet_resnet50-43857f7f.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/fcenet/fcenet_resnet50-43857f7f-dad7dfcc.mindir) |
 
 #### 1.2 文本识别
 
@@ -26,8 +27,8 @@
 | [SVTR](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/svtr) | Tiny        | Default                                                                                          | IC15  | 79.92 | 338.04 | (1,3,64,256)  | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml)    | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3-86ece8c8.mindir)    |
 | [Rare](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/rare) | ResNet34_vd | Default                                                                                          | IC15  | 69.47 | 273.23 | (1,3,32,100) | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34.yaml)    | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ascend-309dc63e-b96c2a4b.mindir)    |
 |                                                                             | ResNet34_vd | [ch_dict.txt](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/utils/dict/ch_dict.txt) | /     | /      | /      | (1,3,32,320) | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-5f3023e2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch_ascend-5f3023e2-11f0d554.mindir) |
-| [RobustScanner](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/robustscanner) | ResNet-31 | [en_dict90.txt](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/utils/dict/en_dict90.txt) | IC15 | 73.71 | 22.30 | (1, 3, 48, 160) | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner/robustscanner_resnet31.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37-158bde10.mindir) |
-| [VisionLAN](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/visionlan) | ResNet-45 | Default |  IC15 |  80.07  |  321.37 | (1, 3, 64, 256) | [yaml(LA)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LA.yaml) | [ckpt(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e.ckpt) \| [mindir(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e-71b38d2d.mindir) |
+| [RobustScanner](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/robustscanner) | ResNet-31 | [en_dict90.txt](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/utils/dict/en_dict90.txt) | IC15 | 73.71 | 22.30 | (1,3,48,160) | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner/robustscanner_resnet31.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37-158bde10.mindir) |
+| [VisionLAN](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/visionlan) | ResNet-45 | Default |  IC15 |  80.07  |  321.37 | (1,3,64,256) | [yaml(LA)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LA.yaml) | [ckpt(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e.ckpt) \| [mindir(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e-71b38d2d.mindir) |
 
 <br></br>
 ### 2. MindOCR推理流程
@@ -76,50 +77,24 @@ python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 12
 
 ```--local_ckpt_path /path/to/dbnet.ckpt```参数表明需要导出的模型文件为```/path/to/dbnet.ckpt```
 
-
 - 在Ascend310或310P上使用converter_lite工具将MindIR转换为MindSpore Lite MindIR：
-
-创建`config.txt`并指定模型输入shape：
-```
-[ascend_context]
-input_format=NCHW
-input_shape=x:[1,3,736,1280]
-```
-第一行```[ascend_context]```表明后续内容为Ascend后端的相关设置，通常在创建配置文件时，必须要加上该行指明Ascend后端的相关设置内容；
-
-第二行```input_format=NCHW```表明模型的输入格式为```[batch_size, channel_num, Height, Width]```；
-
-第三行```input_shape=x:[1,3,736,1280]```，其含义为模型输入的变量名为```x```，并且```x```的shape为```[1,3,736,1280]```；若使用其他模型或骨干网络，shape的设置需要参考模型支持列表中的**data shape**列；
-
-需要注意的是该变量名```x```取决于ckpt模型导出为MindIR时的输入变量名，在当前的工具代码```tools/export.py```中，关键导出代码如下：
-```python
-ms.export(net, x, file_name=output_path, file_format="MINDIR")
-```
-```ms.export```函数的第二个参数代表模型的输入变量，其变量名为```x```，因此这里配置时采用的名称也为```x```；
-
-若将上述```tools/export.py```中的关键导出代码改为
-```python
-ms.export(net, y, file_name=output_path, file_format="MINDIR")
-```
-则第三行配置需要改成```input_shape=y:[1,3,736,1280]```。
-
-> 了解更多[配置参数](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool_ascend.html)
 
 执行以下命令：
 ```shell
 converter_lite \
     --saveType=MINDIR \
     --fmk=MINDIR \
-    --device=Ascend \
+    --optimize=ascend_oriented \
     --modelFile=dbnet_resnet50-c3a4aa24-fbf95c82.mindir \
-    --outputFile=dbnet_resnet50 \
-    --configFile=config.txt
+    --outputFile=dbnet_resnet50
 ```
-上述命令中```--fmk=MINDIR```表明输入模型的原始格式为MindIR，同时```—fmk```参数还支持ONNX等；
+上述命令中：
+
+```--fmk=MINDIR```表明输入模型的原始格式为MindIR，同时```—fmk```参数还支持ONNX等；
 
 ```--saveType=MINDIR```表明输出模型格式为MindIR格式；
 
-```--device=Ascend```表明转换模型时的目标设备为Ascend，若未设置则默认为CPU后端推理；
+```--optimize=ascend_oriented```表明针对Ascend设备做优化；
 
 ```--modelFile=dbnet_resnet50-c3a4aa24-fbf95c82.mindir```表明当前需要转换的模型路径为```dbnet_resnet50-c3a4aa24-fbf95c82.mindir```；
 
@@ -170,24 +145,14 @@ python deploy/eval_utils/eval_det.py \
 
 - 在Ascend310或310P上使用converter_lite工具将MindIR转换为MindSpore Lite MindIR：
 
-创建`config.txt`并指定模型输入shape：
-```
-[ascend_context]
-input_format=NCHW
-input_shape=x:[1,3,32,100]
-```
-配置参数简要说明请见上述文本检测样例。
-> 了解更多[配置参数](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool_ascend.html)
-
 执行以下命令：
 ```shell
 converter_lite \
     --saveType=MINDIR \
     --fmk=MINDIR \
-    --device=Ascend \
+    --optimize=ascend_oriented \
     --modelFile=crnn_resnet34-83f37f07-eb10a0c9.mindir \
-    --outputFile=crnn_resnet34vd \
-    --configFile=config.txt
+    --outputFile=crnn_resnet34vd
 ```
 上述命令执行完成后会生成`crnn_resnet34vd.mindir`模型文件；
 

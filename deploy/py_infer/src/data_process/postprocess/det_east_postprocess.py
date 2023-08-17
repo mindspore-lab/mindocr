@@ -9,12 +9,12 @@ import numpy as np
 mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../.."))
 sys.path.insert(0, mindocr_path)
 
-from mindocr.postprocess import det_east_postprocess  # noqa
+from mindocr.postprocess.det_base_postprocess import DetBasePostprocess  # noqa
 
 __all__ = ["EASTPostprocess"]
 
 
-class EASTPostprocess(det_east_postprocess.EASTPostprocess):
+class EASTPostprocess(DetBasePostprocess):
     """
     The post process for EAST, adapted to paddleocr.
     """
@@ -25,26 +25,15 @@ class EASTPostprocess(det_east_postprocess.EASTPostprocess):
         nms_thresh=0.2,
         box_type="quad",
         rescale_fields=["polys"],
-        # for paddleocr east postprocess
         cover_thresh=0.1,
-        from_ppocr=False,
-        **kwargs
     ):
-        super().__init__(score_thresh, nms_thresh, box_type, rescale_fields)
+        super().__init__(box_type=box_type, rescale_fields=rescale_fields)
+        self._score_thresh = score_thresh
+        self._nms_thresh = nms_thresh
+        self._cover_thresh = cover_thresh
+        assert box_type == "quad"
 
-        if from_ppocr:
-            self._cover_thresh = cover_thresh
-            assert box_type == "quad"
-
-        self._from_ppocr = from_ppocr
-
-    def _postprocess(self, pred, **kwargs):
-        if not self._from_ppocr:
-            return super()._postprocess(pred)
-        else:
-            return self._postprocess_ppocr(pred)
-
-    def _postprocess_ppocr(self, pred: tuple):
+    def _postprocess(self, pred: tuple, **kwargs):
         geo_list = pred[0]
         score_list = pred[1]
 

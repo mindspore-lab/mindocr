@@ -45,7 +45,7 @@ The overall architecture of PSENet is presented in Figure 1. It consists of mult
 #### Notes：
 - Context：Training context denoted as {device}x{pieces}-{MS version}{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
 - The training time of PSENet is highly affected by data processing and varies on different machines.
-- The `input_shapes` to the exported MindIR models trained on ICDAR2015 are `(1,3,1472,2624)` for ResNet-152 backbone and `(1,3,736,1280)` for ResNet-50 backbone.
+- The `input_shapes` to the exported MindIR models trained on ICDAR2015 are `(1,3,1472,2624)` for ResNet-152 backbone and `(1,3,736,1312)` for ResNet-50 or MobileNetV3 backbone.
 - On the SCUT-CTW1500 dataset, the input_shape for exported MindIR in the link is `(1,3,1024,1024)`.
 
 ## 3. Quick Start
@@ -205,8 +205,7 @@ Please refer to [Environment Installation](../../../docs/en/inference/environmen
 - Model Conversion
 
 Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#1-mindocr-models),
-and use the `converter_lite` tool for offline conversion of the MindIR file, where the `input_shape` in `configFile` needs to be filled in with the value from MindIR export,
-as mentioned above (1, 3, 1472, 2624), and the format is NCHW.
+and use the `converter_lite` tool for offline conversion of the MindIR file.
 
 - Inference
 
@@ -217,11 +216,8 @@ Assuming that you obtain output.mindir after model conversion, go to the `deploy
 ```shell
 python infer.py \
     --input_images_dir=/your_path_to/test_images \
-    --device=Ascend \
-    --device_id=0 \
     --det_model_path=your_path_to/output.mindir \
     --det_model_name_or_config=../../configs/det/psenet/pse_r152_icdar15.yaml \
-    --backend=lite \
     --res_save_dir=results_dir
 ```
 

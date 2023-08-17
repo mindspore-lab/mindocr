@@ -147,9 +147,8 @@ Run the following command:
 ```shell
 converter_lite\
      --saveType=MINDIR \
-     --NoFusion=false \
      --fmk=ONNX \
-     --device=Ascend\
+     --optimize=ascend_oriented \
      --modelFile=det_db.onnx \
      --outputFile=det_db_output \
      --configFile=config.txt
@@ -165,7 +164,8 @@ A brief explanation of the converter_lite parameters is as follows:
 |  modelFile  |    Yes   |                                  Input model path                                 |                -                |    -    |                                     -                                    |
 | outputFile |    Yes   | Output model path. Do not add a suffix, ".mindir" suffix will be generated automatically. |                -                |    -    |                                     -                                    |
 | configFile |    No    |     1) Path to the quantization configuration file after training; 2) Path to the configuration file for extended functions |                -                |    -    |                                     -                                    |
-|     device     |    No    |             Set the target device for model conversion. Default is CPU.            |      Ascend, Ascend310, Ascend310P     |    -    |                                     -                                    |
+|  optimize     |    No    |   Set the model optimization type for the device. Default is none.            |      none、general、gpu_oriented、ascend_oriented     |    -    |                                     -                                    |
+
 
 > Learn more about [converter_lite](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool.html)
 
@@ -245,9 +245,8 @@ Run the following command:
 ```shell
 converter_lite\
      --saveType=MINDIR \
-     --NoFusion=false \
      --fmk=ONNX \
-     --device=Ascend\
+     --optimize=ascend_oriented\
      --modelFile=en_PP-OCRv3_rec_infer.onnx \
      --outputFile=en_PP-OCRv3_rec_infer \
      --configFile=config.txt

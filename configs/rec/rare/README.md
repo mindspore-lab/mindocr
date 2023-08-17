@@ -383,8 +383,7 @@ Please refer to [Environment Installation](../../../docs/en/inference/environmen
 **3. Model Conversion**
 
 Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#1-mindocr-models),
-and use the `converter_lite` tool for offline conversion of the MindIR file, where the `input_shape` in `configFile` needs to be filled in with the value from MindIR export,
-as mentioned above (1, 3, 32, 100), and the format is NCHW.
+and use the `converter_lite` tool for offline conversion of the MindIR file.
 
 **4. Inference**
 
@@ -393,11 +392,8 @@ Assuming that you obtain output.mindir after model conversion, go to the `deploy
 ```shell
 python infer.py \
     --input_images_dir=/your_path_to/test_images \
-    --device=Ascend \
-    --device_id=0 \
     --rec_model_path=your_path_to/output.mindir \
     --rec_model_name_or_config=../../configs/rec/rare/rare_resnet34.yaml \
-    --backend=lite \
     --res_save_dir=results_dir
 ```
 
