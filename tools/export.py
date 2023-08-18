@@ -77,8 +77,12 @@ def export(model_name_or_config, data_shape, local_ckpt_path, save_dir, is_dynam
     if is_dynamic_shape:
         if model_type == "det":
             x = ms.Tensor(shape=[None, 3, None, None], dtype=ms.float32)
+        elif model_type == "rec":
+            h_map = {"master_resnet31": 48}
+            h = h_map.get(name, 32)
+            x = ms.Tensor(shape=[None, 3, h, None], dtype=ms.float32)
         else:
-            x = ms.Tensor(shape=[None, 3, 32, None], dtype=ms.float32)
+            x = ms.Tensor(shape=[None, 3, 48, 192], dtype=ms.float32)
     else:
         h, w = data_shape
         bs, c = 1, 3
