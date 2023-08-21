@@ -3,12 +3,18 @@ import numpy as np
 
 import mindspore as ms
 from mindspore import ops
-from mindspore.common.api import ms_function
 from mindspore.common.initializer import initializer
 from mindspore.common.parameter import Parameter
 from mindspore.common.tensor import Tensor
 from mindspore.nn.optim import Optimizer
 from mindspore.nn.optim.optimizer import opt_init_args_register
+
+from ..utils.misc import is_ms_version_2
+
+if is_ms_version_2():
+    from mindspore import jit
+else:
+    from mindspore import ms_function as jit
 
 
 def _check_param_value(beta1, beta2, eps, prim_name):
@@ -58,7 +64,7 @@ class NAdam(Optimizer):
         self.mu_schedule = Parameter(initializer(1, [1], ms.float32), name="mu_schedule")
         self.beta2_power = Parameter(initializer(1, [1], ms.float32), name="beta2_power")
 
-    @ms_function
+    @jit
     def construct(self, gradients):
         lr = self.get_lr()
         params = self.parameters

@@ -2,9 +2,15 @@
 import mindspore as ms
 from mindspore import ops
 from mindspore.common import dtype as mstype
-from mindspore.common.api import ms_function
 from mindspore.common.tensor import Tensor
 from mindspore.nn.optim.optimizer import Optimizer, opt_init_args_register
+
+from ..utils.misc import is_ms_version_2
+
+if is_ms_version_2():
+    from mindspore import jit
+else:
+    from mindspore import ms_function as jit
 
 _adan_opt = ops.MultitypeFuncGraph("adan_opt")
 
@@ -145,7 +151,7 @@ class Adan(Optimizer):
 
         self.weight_decay = Tensor(weight_decay, mstype.float32)
 
-    @ms_function
+    @jit
     def construct(self, gradients):
         params = self._parameters
         moment1 = self.moment1

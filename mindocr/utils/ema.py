@@ -39,7 +39,6 @@ class EMA(nn.Cell):
         self.updates = F.depend(self.updates, success)
         return self.updates
 
-    # @ms_function
     def swap_before_eval(self):
         # net -> swap
         success = self.map(ops.assign, self.swap_cache, self.net_weight)
@@ -47,7 +46,6 @@ class EMA(nn.Cell):
         success = F.depend(success, self.map(ops.assign, self.net_weight, self.ema_weight))
         return success
 
-    # @ms_function
     def swap_after_eval(self):
         # swap -> net
         success = self.map(ops.assign, self.net_weight, self.swap_cache)
