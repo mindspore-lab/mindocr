@@ -40,7 +40,7 @@ metric:
   main_indicator: f-score
 
 loss:
-  name: L1BalancedCELoss
+  name: DBLoss
   eps: 1.0e-6
   l1_scale: 10
   bce_scale: 5
@@ -137,8 +137,6 @@ eval:
           img_mode: RGB
           to_float32: False
       - DetLabelEncode:
-      #- ScalePadImage:
-      #    target_size: [ 1152, 2048 ] # h, w
       - DetResize:
           target_size: [ 1152, 2048]
           keep_ratio: True

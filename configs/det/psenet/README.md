@@ -27,23 +27,25 @@ The overall architecture of PSENet is presented in Figure 1. It consists of mult
 ### ICDAR2015
 <div align="center">
 
-| **Model**              | **Context**       | **Backbone**      | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.**     | **Throughput**   | **Recipe**                            | **Download**                                                                                                                                                                                                |
-|---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-----------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 79.39%     | 84.91%        | 82.06%      | 138 s/epoch   | 7.57 img/s | [yaml](pse_r152_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)
+| **Model**              | **Context**       | **Backbone**      | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.**     | **ms/step**  | **Throughput**   | **Recipe**                            | **Download**                                                                                                                                                                                                |
+|---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-------------|-----------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 79.39%     | 84.91%        | 82.06%      | 11.544 s/epoch   |769.6| 83.16 img/s | [yaml](pse_r152_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)
+| PSENet               | D910x8-MS2.0-G | ResNet-50   | ImageNet   | 76.75%     | 86.58%        | 81.37%      | 4.562 s/epoch   |304.138| 210.43 img/s | [yaml](pse_r50_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9-cfd2ee6c.mindir)
+| PSENet               | D910x8-MS2.0-G | MobileNetV3   | ImageNet   | 73.52%     | 67.84%        | 70.56%      | 2.604 s/epoch   |173.604| 368.66 img/s | [yaml](pse_mv3_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907-da7cfe09.mindir)
 </div>
 
 ### SCUT-CTW1500
 <div align="center">
 
-| **Model**              | **Context**       | **Backbone**      | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.**     | **Throughput**   | **Recipe**                            | **Download**                                                                                                                                                                                                |
-|---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-----------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 73.69%     | 74.38%        | 74.04%      | 67 s/epoch   | 14.33 img/s | [yaml](pse_r152_ctw1500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ctw1500-58b1b1ff.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ctw1500-58b1b1ff-b95c7f85.mindir)
+| **Model**              | **Context**       | **Backbone**      | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.**     | **ms/step**  | **Throughput**   | **Recipe**                            | **Download**                                                                                                                                                                                                |
+|---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-------------|-----------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 73.69%     | 74.38%        | 74.04%      | 67 s/epoch   |4466.67| 14.33 img/s | [yaml](pse_r152_ctw1500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ctw1500-58b1b1ff.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ctw1500-58b1b1ff-b95c7f85.mindir)
 </div>
 
 #### Notes：
 - Context：Training context denoted as {device}x{pieces}-{MS version}{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
 - The training time of PSENet is highly affected by data processing and varies on different machines.
-- On the ICDAR2015 dataset, the input_shape for exported MindIR in the link is `(1,3,1472,2624)`.
+- The `input_shapes` to the exported MindIR models trained on ICDAR2015 are `(1,3,1472,2624)` for ResNet-152 backbone and `(1,3,736,1312)` for ResNet-50 or MobileNetV3 backbone.
 - On the SCUT-CTW1500 dataset, the input_shape for exported MindIR in the link is `(1,3,1024,1024)`.
 
 ## 3. Quick Start
@@ -189,9 +191,9 @@ Please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/infe
 Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../README.md) tutorial and use the following command to export the trained ckpt model to  MindIR file:
 
 ```shell
-python tools/export.py --model_name psenet_resnet152 --data_shape 1472 2624 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config psenet_resnet152 --data_shape 1472 2624 --local_ckpt_path /path/to/local_ckpt.ckpt
 # or
-python tools/export.py --model_name configs/det/psenet/pse_r152_icdar15.yaml --data_shape 1472 2624 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config configs/det/psenet/pse_r152_icdar15.yaml --data_shape 1472 2624 --local_ckpt_path /path/to/local_ckpt.ckpt
 ```
 
 The `data_shape` is the model input shape of height and width for MindIR file. The shape value of MindIR in the download link can be found in [Notes](#notes).
@@ -203,8 +205,7 @@ Please refer to [Environment Installation](../../../docs/en/inference/environmen
 - Model Conversion
 
 Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#1-mindocr-models),
-and use the `converter_lite` tool for offline conversion of the MindIR file, where the `input_shape` in `configFile` needs to be filled in with the value from MindIR export,
-as mentioned above (1, 3, 1472, 2624), and the format is NCHW.
+and use the `converter_lite` tool for offline conversion of the MindIR file.
 
 - Inference
 
@@ -215,11 +216,8 @@ Assuming that you obtain output.mindir after model conversion, go to the `deploy
 ```shell
 python infer.py \
     --input_images_dir=/your_path_to/test_images \
-    --device=Ascend \
-    --device_id=0 \
     --det_model_path=your_path_to/output.mindir \
     --det_model_name_or_config=../../configs/det/psenet/pse_r152_icdar15.yaml \
-    --backend=lite \
     --res_save_dir=results_dir
 ```
 

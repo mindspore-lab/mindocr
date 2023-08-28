@@ -51,9 +51,9 @@ MindOCR中的FCENet网络在ICDAR 2015数据集上训练。训练结果如下：
 ### ICDAR2015
 <div align="center">
 
-| **模型**              | **环境配置**       | **骨干网络**      | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间**     | **吞吐量**   | **配置文件**                            | **模型权重下载**                                                                                                                                                                                                |
-|---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-----------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| FCENet               | D910x4-MS2.0-F | ResNet50   | ImageNet       | 81.51%     | 86.90%        | 84.12%      | 33 s/epoch   | 7 img/s      | [yaml](fce_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/fcenet/fcenet_resnet50-43857f7f.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/fcenet/fcenet_resnet50-43857f7f-5e765611.mindir) |
+| **模型**              | **环境配置**       | **骨干网络**      | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间**     | **吞吐量**   | **单步训练时间** | **配置文件**                            | **模型权重下载**                                                                                                                                                                                                |
+|---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-----------|------------------|-------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| FCENet               | D910x4-MS2.0-F | ResNet50   | ImageNet       | 81.51%     | 86.90%        | 84.12%      | 95.59 s/epoch   | 10.36 img/s      | 2978.65 ms/step | [yaml](fce_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/fcenet/fcenet_resnet50-43857f7f.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/fcenet/fcenet_resnet50-43857f7f-dad7dfcc.mindir) |
 
 </div>
 
@@ -139,7 +139,7 @@ model:
     pretrained: True    # 是否使用ImageNet数据集上的预训练权重
   neck:
     name: FCEFPN        # FCENet的特征金字塔网络
-    out_channel: 256
+    out_channels: 256
   head:
     name: FCEHead
     scales: [ 8, 16, 32 ]
@@ -188,9 +188,9 @@ python tools/eval.py --config configs/det/fcenet/fce_icdar15.yaml
 请先[下载](#2-实验结果)已导出的MindIR文件，或者参考[模型导出](../../README.md)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
 
 ```shell
-python tools/export.py --model_name fcenet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config fcenet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
 # or
-python tools/export.py --model_name configs/det/fcenet/db_r50_icdar15.yaml --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config configs/det/fcenet/fce_icdar15.yaml --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
 ```
 
 其中，`data_shape`是导出MindIR时的模型输入Shape的height和width，下载链接中MindIR对应的shape值见[ICDAR2015注释](#ICDAR2015)。
@@ -201,8 +201,7 @@ python tools/export.py --model_name configs/det/fcenet/db_r50_icdar15.yaml --dat
 
 - 模型转换
 
-请参考[模型转换](../../../docs/cn/inference/convert_tutorial_cn.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换，
-其中`configFile`文件中的`input_shape`需要填写模型导出时shape，如上述的(1,3,736,1280)，格式为NCHW。
+请参考[模型转换](../../../docs/cn/inference/convert_tutorial_cn.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换。
 
 - 执行推理
 
@@ -211,11 +210,8 @@ python tools/export.py --model_name configs/det/fcenet/db_r50_icdar15.yaml --dat
 ```shell
 python infer.py \
     --input_images_dir=/your_path_to/test_images \
-    --device=Ascend \
-    --device_id=0 \
     --det_model_path=your_path_to/output.mindir \
     --det_model_name_or_config=../../configs/det/fcenet/fce_icdar15.yaml \
-    --backend=lite \
     --res_save_dir=results_dir
 ```
 

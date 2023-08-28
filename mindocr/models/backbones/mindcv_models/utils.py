@@ -3,6 +3,7 @@ Some utils while building models
 """
 import collections.abc
 import difflib
+import logging
 import os
 from copy import deepcopy
 from itertools import repeat
@@ -10,11 +11,9 @@ from typing import List, Optional
 
 from mindspore import load_checkpoint, load_param_into_net
 
-from mindocr.utils.logger import Logger
-
 from .download import DownLoad, get_default_download_root
 
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 def get_checkpoint_download_root():
@@ -73,13 +72,12 @@ def load_pretrained(model, default_cfg, num_classes=1000, in_channels=3, filter_
 
     try:
         param_dict = load_checkpoint(file_path)
-    except Exception:
-        _logger.error(
+    except Exception as e:
+        raise ValueError(
             f"Fails to load the checkpoint. Please check whether the checkpoint is downloaded successfully"
             f"as `{file_path}` and is not zero-byte. You may try to manually download the checkpoint "
             f"from {default_cfg['url']}"
-        )
-        param_dict = dict()
+        ) from e
 
     if auto_mapping:
         param_dict = auto_map(model, param_dict)

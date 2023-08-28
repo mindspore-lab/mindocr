@@ -51,10 +51,16 @@ def get_args():
     parser.add_argument(
         "--cls_model_name_or_config", type=str, required=False, help="Classification model name or config file path."
     )
+    parser.add_argument(
+        "--cls_batch_num", type=int, default=6, required=False, help="Batch size for classification model."
+    )
 
     parser.add_argument("--rec_model_path", type=str, required=False, help="Recognition model file path or directory.")
     parser.add_argument(
         "--rec_model_name_or_config", type=str, required=False, help="Recognition model name or config file path."
+    )
+    parser.add_argument(
+        "--rec_batch_num", type=int, default=6, required=False, help="Batch size for recognition model."
     )
     parser.add_argument(
         "--character_dict_path", type=str, required=False, help="Character dict file path for recognition models."
@@ -122,9 +128,6 @@ def update_task_info(args):
     task_order = (det, cls, rec)
     if task_order in task_map:
         setattr(args, "task_type", task_map[task_order])
-        setattr(args, "save_vis_det_save_dir", bool(args.vis_det_save_dir))
-        setattr(args, "save_vis_pipeline_save_dir", bool(args.vis_pipeline_save_dir))
-        setattr(args, "save_crop_res_dir", bool(args.crop_save_dir))
     else:
         unsupported_task_map = {
             (False, False, False): "empty",
@@ -163,9 +166,6 @@ def check_and_update_args(args):
     if args.rec_model_path and not args.rec_model_name_or_config:
         raise ValueError("rec_model_name_or_config can't be emtpy when set rec_model_path for recognition.")
 
-    if args.parallel_num < 1 or args.parallel_num > 4:
-        raise ValueError(f"parallel_num must between [1,4], current: {args.parallel_num}.")
-
     if args.crop_save_dir and args.task_type not in (TaskType.DET_REC, TaskType.DET_CLS_REC):
         raise ValueError("det_model_path and rec_model_path can't be empty when set crop_save_dir.")
 
@@ -203,6 +203,15 @@ def check_and_update_args(args):
             if os.path.isdir(path) and not os.listdir(path):
                 raise ValueError(f"{name} got a dir of {path}, but it is empty.")
 
+    need_check_positive = {
+        "parallel_num": args.parallel_num,
+        "rec_batch_num": args.rec_batch_num,
+        "cls_batch_num": args.cls_batch_num,
+    }
+    for name, value in need_check_positive.items():
+        if value < 1:
+            raise ValueError(f"{name} must be positive, but got {value}.")
+
     need_check_dir_not_same = {
         "input_images_dir": args.input_images_dir,
         "crop_save_dir": args.crop_save_dir,
@@ -218,12 +227,12 @@ def check_and_update_args(args):
 
 def init_save_dir(args):
     if args.res_save_dir:
-        save_path_init(args.res_save_dir)
-    if args.save_crop_res_dir:
+        save_path_init(args.res_save_dir, exist_ok=True)
+    if args.crop_save_dir:
         save_path_init(args.crop_save_dir)
-    if args.save_vis_pipeline_save_dir:
+    if args.vis_pipeline_save_dir:
         save_path_init(args.vis_pipeline_save_dir)
-    if args.save_vis_det_save_dir:
+    if args.vis_det_save_dir:
         save_path_init(args.vis_det_save_dir)
     if args.save_log_dir:
         save_path_init(args.save_log_dir, exist_ok=True)

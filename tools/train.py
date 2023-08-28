@@ -1,6 +1,7 @@
 """
 Model training
 """
+import logging
 import os
 import shutil
 import sys
@@ -28,11 +29,13 @@ from mindocr.scheduler import create_scheduler
 from mindocr.utils.callbacks import EvalSaveCallback
 from mindocr.utils.checkpoint import resume_train_network
 from mindocr.utils.ema import EMA
-from mindocr.utils.logger import get_logger
+from mindocr.utils.logger import set_logger
 from mindocr.utils.loss_scaler import get_loss_scales
 from mindocr.utils.model_wrapper import NetWithLossWrapper
 from mindocr.utils.seed import set_seed
 from mindocr.utils.train_step_wrapper import TrainOneStepWrapper
+
+logger = logging.getLogger("mindocr.train")
 
 
 def main(cfg):
@@ -48,28 +51,38 @@ def main(cfg):
             gradients_mean=True,
             # parameter_broadcast=True,
         )
+        # create logger, only rank0 log will be output to the screen
+        set_logger(
+            name="mindocr",
+            output_dir=cfg.train.ckpt_save_dir,
+            rank=rank_id,
+            log_level=eval(cfg.system.get("log_level", "logging.INFO")),
+        )
     else:
         device_num = None
         rank_id = None
+
+        # create logger, only rank0 log will be output to the screen
+        set_logger(
+            name="mindocr",
+            output_dir=cfg.train.ckpt_save_dir,
+            rank=0,
+            log_level=eval(cfg.system.get("log_level", "logging.INFO")),
+        )
         if "DEVICE_ID" in os.environ:
-            print(
-                f"INFO: Standalone training. Device id: {os.environ.get('DEVICE_ID')}, "
+            logger.info(
+                f"Standalone training. Device id: {os.environ.get('DEVICE_ID')}, "
                 f"specified by environment variable 'DEVICE_ID'."
             )
         else:
             device_id = cfg.system.get("device_id", 0)
             ms.set_context(device_id=device_id)
-            print(
-                f"INFO: Standalone training. Device id: {device_id}, "
+            logger.info(
+                f"Standalone training. Device id: {device_id}, "
                 f"specified by system.device_id in yaml config file or is default value 0."
             )
 
     set_seed(cfg.system.seed)
-
-    is_main_device = rank_id in [None, 0]
-
-    # create logger, only rank0 log will be output to the screen
-    logger = get_logger(log_dir=cfg.train.ckpt_save_dir, rank=rank_id)
 
     # create dataset
     loader_train = build_dataset(
@@ -89,12 +102,14 @@ def main(cfg):
             num_shards=device_num,
             shard_id=rank_id,
             is_train=False,
-            refine_batch_size=True,
+            refine_batch_size=cfg.system.get("refine_batch_size", "True"),
         )
 
     # create model
     amp_level = cfg.system.get("amp_level", "O0")
     network = build_model(cfg.model, ckpt_load_path=cfg.model.pop("pretrained", None), amp_level=amp_level)
+    num_params = sum([param.size for param in network.get_parameters()])
+    num_trainable_params = sum([param.size for param in network.trainable_params()])
 
     # create loss
     loss_fn = build_loss(cfg.loss.pop("name"), **cfg["loss"])
@@ -163,10 +178,9 @@ def main(cfg):
         loader_eval,
         postprocessor=postprocessor,
         metrics=[metric],
-        pred_cast_fp32=(amp_level != "O0"),
+        pred_cast_fp32=cfg.eval.pop("pred_cast_fp32", amp_level != "O0"),
         rank_id=rank_id,
         device_num=device_num,
-        logger=logger,
         batch_size=cfg.train.loader.batch_size,
         ckpt_save_dir=cfg.train.ckpt_save_dir,
         main_indicator=cfg.metric.main_indicator,
@@ -183,6 +197,11 @@ def main(cfg):
         start_epoch=start_epoch,
     )
 
+    # save args used for training
+    if rank_id in [None, 0]:
+        with open(os.path.join(cfg.train.ckpt_save_dir, "args.yaml"), "w") as f:
+            yaml.safe_dump(cfg.to_dict(), stream=f, default_flow_style=False, sort_keys=False)
+
     # log
     num_devices = device_num if device_num is not None else 1
     global_batch_size = cfg.train.loader.batch_size * num_devices * gradient_accumulation_steps
@@ -196,6 +215,8 @@ def main(cfg):
         f"\n{info_seg}\n"
         f"Distribute: {cfg.system.distribute}\n"
         f"Model: {model_name}\n"
+        f"Total number of parameters: {num_params}\n"
+        f"Total number of trainable parameters: {num_trainable_params}\n"
         f"Data root: {cfg.train.dataset.dataset_root}\n"
         f"Optimizer: {cfg.optimizer.opt}\n"
         f"Weight decay: {cfg.optimizer.weight_decay} \n"
@@ -216,12 +237,6 @@ def main(cfg):
         f"{info_seg}\n"
         f"\nStart training... (The first epoch takes longer, please wait...)\n"
     )
-
-    # save args used for training
-    if is_main_device:
-        with open(os.path.join(cfg.train.ckpt_save_dir, "args.yaml"), "w") as f:
-            args_text = yaml.safe_dump(cfg.to_dict(), default_flow_style=False, sort_keys=False)
-            f.write(args_text)
 
     # training
     model = ms.Model(train_net)
@@ -248,7 +263,12 @@ if __name__ == "__main__":
 
         import moxing as mox
 
-        from tools.modelarts_adapter.modelarts import get_device_id, sync_data, update_config_value_by_key
+        from tools.modelarts_adapter.modelarts import (
+            download_ckpt,
+            get_device_id,
+            sync_data,
+            update_config_value_by_key,
+        )
 
         dataset_root = "/cache/data/"
         # download dataset from server to local on device 0, other devices will wait until data sync finished.
@@ -280,6 +300,13 @@ if __name__ == "__main__":
         if config.common.character_dict_path:
             new_dict_path = os.path.join(root_dir, config.common.character_dict_path)
             update_config_value_by_key(config, "character_dict_path", new_dict_path)
+
+        # download the pretrained checkpoint if it exists
+        if args.pretrain_url:
+            ckpt_root = "/cache/ckpt/"
+            pretrain_url = literal_eval(args.pretrain_url)
+            download_ckpt(pretrain_url[0]["model_url"], ckpt_root)
+            config.model.pretrained = os.path.join(ckpt_root, os.path.basename(pretrain_url[0]["model_url"]))
 
     # main train and eval
     main(config)

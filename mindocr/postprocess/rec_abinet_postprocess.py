@@ -49,11 +49,9 @@ class ABINetLabelDecode(object):
             texts (List[Tuple]): list of string
 
         """
-        output = preds
-        output = self._get_output(output)
-        logits, pt_lengths = output[0], output[1]
+        logits = preds
         pt_text, pt_scores, pt_lengths_ = self.decode(logits)
-        assert (pt_lengths == pt_lengths_).all(), f"{pt_lengths} != {pt_lengths_} for {pt_text}"
+        # assert (pt_lengths == pt_lengths_).all(), f"{pt_lengths} != {pt_lengths_} for {pt_text}"
 
         # last_output = self._update_output(output, {'pt_text':pt_text, 'pt_scores':pt_scores})
         pt_text = [self.charset.trim(t) for t in pt_text]
@@ -64,7 +62,7 @@ class ABINetLabelDecode(object):
             for res in last_output:
                 for i in range(len(res)):
                     if len(res) == 3:
-                        if res[i][3] == "alignment":
+                        if res[i]["name"] == "alignment":
                             output = res[i]
         else:
             output = last_output

@@ -1,15 +1,21 @@
+import logging
 import os
+import unicodedata
 from typing import Any, List, Optional
 
 import lmdb
 import numpy as np
-
-from ..utils.logger import Logger
+import re
+import six
+import warnings
+import random
+import PIL
+# from ..utils.logger import Logger
 from .base_dataset import BaseDataset
 from .transforms.transforms_factory import create_transforms, run_transforms
 
 __all__ = ["LMDBDataset"]
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 class LMDBDataset(BaseDataset):
@@ -26,7 +32,18 @@ class LMDBDataset(BaseDataset):
         output_columns (list): optional, indicates the keys in data dict that are expected to output for dataloader.
             if None, all data keys will be used for return.
         filter_max_len (bool): Filter the records where the label is longer than the `max_text_len`.
-        max_text_len (int): The maximum text length the dataloader expected.
+        extra_count_if_repeat (bool): Count extra length if there is a consectutive pair of same characters,
+            e.g., length of "aa" = 3, length of "aab" = 4. It is usually used in CTC alignment, prevent the situation
+            if the input has not enough space for the target during alignment.
+        max_text_len (int): The maximum text length the dataloader expected. Default: None.
+        filter_zero_text_image (bool): Filter the recods where the label does not have any valid character.
+            Default: False.
+        character_dict_path (str): The path of the character dictionary. It is used to determine if there is any valid
+            character in the label. If it is not provided, then `0123456789abcdefghijklmnopqrstuvwxyz` will be used.
+            Default: None.
+        label_standandize (bool): Apply label standardization (NFKD). default: False.
+        random_choice_if_none (bool): Random choose another data if the result returned from data transform is none.
+            Default: False.
 
     Returns:
         data (tuple): Depending on the transform pipeline, __get_item__ returns a tuple for the specified data item.
@@ -53,12 +70,20 @@ class LMDBDataset(BaseDataset):
         transform_pipeline: Optional[List[dict]] = None,
         output_columns: Optional[List[str]] = None,
         filter_max_len: bool = False,
+        extra_count_if_repeat: bool = False,
         max_text_len: Optional[int] = None,
+        filter_zero_text_image: bool = False,
+        character_dict_path: Optional[str] = None,
+        label_standandize: bool = False,
+        random_choice_if_none: bool = False,
         **kwargs: Any,
     ):
         self.data_dir = data_dir
         self.filter_max_len = filter_max_len
         self.max_text_len = max_text_len
+        self.label_standandize = label_standandize
+        self.extra_count_if_repeat = extra_count_if_repeat
+        self.random_choice_if_none = random_choice_if_none
 
         shuffle = shuffle if shuffle is not None else is_train
 
@@ -71,7 +96,13 @@ class LMDBDataset(BaseDataset):
         if filter_max_len:
             if max_text_len is None:
                 raise ValueError("`max_text_len` must be provided when `filter_max_len` is True.")
-            self.data_idx_order_list = self.filter_idx_list(self.data_idx_order_list)
+            self.data_idx_order_list = self.filter_idx_list_exceeds_max_length(self.data_idx_order_list)
+
+        # filter zero text image
+        if filter_zero_text_image:
+            self.data_idx_order_list = self.filter_idx_list_with_zero_text(
+                self.data_idx_order_list, character_dict_path
+            )
 
         # create transform
         if transform_pipeline is not None:
@@ -105,16 +136,61 @@ class LMDBDataset(BaseDataset):
                         "Please check the name or the completeness transformation pipeline."
                     )
 
-    def filter_idx_list(self, idx_list: np.ndarray) -> np.ndarray:
-        _logger.info("Start filtering the idx list...")
+    @staticmethod
+    def count_extra_len_if_repeated(label: str) -> int:
+        if len(label) < 2:
+            return len(label)
+        num = 1
+        for i in range(1, len(label)):
+            if label[i] == label[i - 1]:
+                num += 2
+            else:
+                num += 1
+        return num
+
+    def filter_idx_list_exceeds_max_length(self, idx_list: np.ndarray) -> np.ndarray:
+        _logger.info("Start filtering the idx list which exceeds max length...")
         new_idx_list = list()
         for lmdb_idx, file_idx in idx_list:
             label = self.get_lmdb_sample_info(self.lmdb_sets[int(lmdb_idx)]["txn"], int(file_idx), label_only=True)
-            if len(label) > self.max_text_len:
+            if self.extra_count_if_repeat:
+                label_length = self.count_extra_len_if_repeated(label)
+            else:
+                label_length = len(label)
+
+            if label_length > self.max_text_len:
                 _logger.warning(
-                    f"skip the label with length ({len(label)}), "
-                    f"which is longer than than max length ({self.max_text_len})."
+                    f"skip the label with length ({label_length}), "
+                    f"which is longer than the max length ({self.max_text_len})."
                 )
+                continue
+            new_idx_list.append((lmdb_idx, file_idx))
+        new_idx_list = np.array(new_idx_list)
+        return new_idx_list
+
+    def filter_idx_list_with_zero_text(
+        self, idx_list: np.ndarray, character_dict_path: Optional[str] = None
+    ) -> np.ndarray:
+        _logger.info("Start filtering the idx list which has zero text...")
+        if character_dict_path is None:
+            char_list = list("0123456789abcdefghijklmnopqrstuvwxyz")
+            # in case when lower=True, we don't want to filter out the original upper case characters
+            char_list = list(char_list) + [x.upper() for x in char_list]
+        else:
+            char_list = []
+            with open(character_dict_path, "r") as f:
+                for line in f:
+                    c = line.rstrip("\n\r")
+                    char_list.append(c)
+
+        char_list = set(char_list)
+
+        new_idx_list = list()
+        for lmdb_idx, file_idx in idx_list:
+            label = self.get_lmdb_sample_info(self.lmdb_sets[int(lmdb_idx)]["txn"], int(file_idx), label_only=True)
+
+            if len(set(label).intersection(char_list)) == 0:
+                _logger.warning(f"skip the label `{label}`, " f"which does not contain any valid character.")
                 continue
             new_idx_list.append((lmdb_idx, file_idx))
         new_idx_list = np.array(new_idx_list)
@@ -186,6 +262,9 @@ class LMDBDataset(BaseDataset):
             raise ValueError(f"Cannot find key {label_key}")
         label = label.decode("utf-8")
 
+        if self.label_standandize:
+            label = unicodedata.normalize("NFKD", label)
+
         if label_only:
             return label
 
@@ -194,16 +273,64 @@ class LMDBDataset(BaseDataset):
         return imgbuf, label
 
     def __getitem__(self, idx):
+
         lmdb_idx, file_idx = self.data_idx_order_list[idx]
+
         sample_info = self.get_lmdb_sample_info(self.lmdb_sets[int(lmdb_idx)]["txn"], int(file_idx))
+
+        if sample_info is None and self.random_choice_if_none:
+            _logger.warning("sample_info is None, randomly choose another data.")
+            random_idx = np.random.randint(self.__len__())
+            return self.__getitem__(random_idx)
 
         data = {"img_lmdb": sample_info[0], "label": sample_info[1]}
 
+        img_lmdb = data["img_lmdb"]
+        label = data["label"]
+        label = label.encode("utf-8")
+        label = str(label, "utf-8")
+        try:
+            label = re.sub("[^0-9a-zA-Z]+", "", label)
+            if len(label) > 25 or len(label) <= 0:
+                return self._next_image(idx)
+            label = label[:25]
+            buf = six.BytesIO()
+            buf.write(img_lmdb)
+            buf.seek(0)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", UserWarning)
+                image = PIL.Image.open(buf).convert("RGB")
+            if not _check_image(image, pixels=6):
+                return self._next_image(idx)
+        except Exception:
+            return self._next_image(idx)
+
         # perform transformation on data
-        data = run_transforms(data, transforms=self.transforms)
+        try:
+            data = run_transforms(data, transforms=self.transforms)
+        except Exception as e:
+            if self.random_choice_if_none:
+                _logger.warning("data is None after transforms, randomly choose another data.")
+                random_idx = np.random.randint(self.__len__())
+                return self.__getitem__(random_idx)
+            else:
+                _logger.warning(f"Error occurred during preprocess.\n {e}")
+                raise e
+
         output_tuple = tuple(data[k] for k in self.output_columns)
 
         return output_tuple
 
     def __len__(self):
         return self.data_idx_order_list.shape[0]
+
+    def _next_image(self, index):
+        next_index = random.randint(0, self.data_idx_order_list.shape[0] - 1)
+        # print("next_index:",next_index,"len:",self.lmdb_sets[index]['num_samples'] - 1)
+        return self.__getitem__(idx=next_index)
+
+def _check_image(x, pixels=6):
+    if x.size[0] <= pixels or x.size[1] <= pixels:
+        return False
+    else:
+        return True

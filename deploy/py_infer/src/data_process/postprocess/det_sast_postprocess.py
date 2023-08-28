@@ -11,6 +11,8 @@ sys.path.insert(0, mindocr_path)
 
 from mindocr.postprocess import det_base_postprocess  # noqa
 
+__all__ = ["SASTPostprocess"]
+
 
 class SASTPostprocess(det_base_postprocess.DetBasePostprocess):
     """

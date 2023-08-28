@@ -1,8 +1,8 @@
 import numpy as np
-
+import math
 import mindspore as ms
 from mindspore import nn
-
+import copy
 from ..utils.abinet_layers import ABINetBlock, PositionalEncoding
 from ..utils.abinet_layers import TransformerDecoder as ms_TransformerDecoder
 from ..utils.abinet_layers import _default_tfmer_cfg
@@ -20,8 +20,8 @@ class ABINetHead(nn.Cell):
         self.language = BCNLanguage(self.batchsize)
         self.max_length = 26  # additional stop token
 
-    def construct(self, nout):
-        v_res = nout
+    def construct(self, v_res):
+        # v_res = nout
         a_res = v_res
         all_l_res = []
         all_a_res = []
@@ -36,7 +36,38 @@ class ABINetHead(nn.Cell):
             all_l_res.append(l_res)
             a_res = self.alignment(l_res["feature"], v_res["feature"])
             all_a_res.append(a_res)
+            
+        if not self.training:
+            return a_res["logits"]
+        
         return all_a_res, all_l_res, v_res
+
+def _calculate_fan_in_and_fan_out(shape):
+    """
+    calculate fan_in and fan_out
+
+    Args:
+        shape (tuple): input shape.
+
+    Returns:
+        Tuple, a tuple with two elements, the first element is `n_in` and the second element is `n_out`.
+    """
+    dimensions = len(shape)
+    if dimensions < 2:
+        raise ValueError("'fan_in' and 'fan_out' can not be computed for tensor with fewer than"
+                         " 2 dimensions, but got dimensions {}.".format(dimensions))
+    if dimensions == 2:  # Linear
+        fan_in = shape[1]
+        fan_out = shape[0]
+    else:
+        num_input_fmaps = shape[1]
+        num_output_fmaps = shape[0]
+        receptive_field_size = 1
+        for i in range(2, dimensions):
+            receptive_field_size *= shape[i]
+        fan_in = num_input_fmaps * receptive_field_size
+        fan_out = num_output_fmaps * receptive_field_size
+    return fan_in, fan_out
 
 
 class BaseAlignment(ABINetBlock):
@@ -47,12 +78,25 @@ class BaseAlignment(ABINetBlock):
         self.loss_weight = 1.0
         self.max_length = 26  # additional stop token
         self.w_att = nn.Dense(
-            2 * d_model, d_model, weight_init='uniform', bias_init='uniform'
+            2 * d_model, d_model, weight_init='HeUniform', bias_init='uniform'
         )
         self.cls = nn.Dense(
             d_model,
-            self.charset.num_classes, weight_init='uniform', bias_init='uniform'
+            self.charset.num_classes, weight_init='HeUniform', bias_init='uniform'
         )
+        for _, cell in self.cells_and_names():
+            if isinstance(cell, nn.Dense):
+                print("Dense Init HeUniform")
+                cell.weight.set_data(ms.common.initializer.initializer(
+                    ms.common.initializer.HeUniform(negative_slope=math.sqrt(5), mode="fan_in",
+                                                    nonlinearity="leaky_relu"),
+                    cell.weight.shape, cell.weight.dtype))
+                weight = cell.weight
+                fan_in, _ = _calculate_fan_in_and_fan_out(weight.shape)
+                bound = 1 / math.sqrt(int(fan_in))
+
+                cell.bias.set_data(ms.common.initializer.initializer(ms.common.initializer.Uniform(scale=bound),
+                                                                     cell.bias.shape, cell.bias.dtype))
 
     def construct(self, l_feature, v_feature):
 
@@ -153,8 +197,8 @@ class BCNLanguage(ABINetBlock):
             lengths: (N,)
         """
         # if self.detach: tokens = tokens.detach()
-
-        embed = self.proj(tokens)  # (N, T, E)
+        tokens1 = ms.ops.stop_gradient(tokens)
+        embed = self.proj(tokens1)  # (N, T, E)
         embed = embed.transpose(1, 0, 2)
         embed = self.token_encoder(embed)  # (T, N, E)
         embed = embed.transpose(1, 0, 2)

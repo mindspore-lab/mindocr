@@ -2,6 +2,7 @@
 transforms for text detection tasks.
 """
 import json
+import logging
 import math
 import random
 import warnings
@@ -11,8 +12,6 @@ import cv2
 import numpy as np
 import pyclipper
 from shapely.geometry import Polygon, box
-
-from mindocr.utils.logger import Logger
 
 __all__ = [
     "DetLabelEncode",
@@ -24,10 +23,8 @@ __all__ = [
     "RandomCropWithBBox",
     "RandomCropWithMask",
     "DetResize",
-    "GridResize",
-    "ScalePadImage",
 ]
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 class DetLabelEncode:
@@ -79,8 +76,7 @@ class DetLabelEncode:
                 txt_tags.append(True)
             else:
                 txt_tags.append(False)
-        if len(boxes) == 0:
-            return None
+
         boxes = self.expand_points_num(boxes)
         boxes = np.array(boxes, dtype=np.float32)
         txt_tags = np.array(txt_tags, dtype=np.bool)
@@ -126,7 +122,8 @@ class RandomCropWithBBox:
             data["image"], (*tuple((0, cs - ds) for cs, ds in zip(self._crop_size, data["image"].shape[:2])), (0, 0))
         )
 
-        data["polys"] = (data["polys"] - start[::-1]) * scale
+        if len(data["polys"]):
+            data["polys"] = (data["polys"] - start[::-1]) * scale
 
         return data
 
@@ -381,9 +378,7 @@ class DetResize:
     Note:
         1. The default choices limit_type=min, with large `limit_side_len` are recommended for inference in detection
         for better accuracy,
-        2. If target_size set, keep_ratio=True, limit_type=null, padding=True, this transform works the same as
-        ScalePadImage,
-        3. If inference speed is the first priority to guarantee, you can set limit_type=max with a small
+        2. If inference speed is the first priority to guarantee, you can set limit_type=max with a small
         `limit_side_len` like 960.
     """
 
@@ -515,7 +510,7 @@ class DetResize:
         # For evaluation, we should not change the GT polygons.
         # The metric with input of GT polygons and predicted polygons must be computed in the original image space
         # for consistent comparison.
-        if "polys" in data and self.is_train:
+        if "polys" in data and len(data["polys"]) and self.is_train:
             data["polys"][:, :, 0] = data["polys"][:, :, 0] * scale_w
             data["polys"][:, :, 1] = data["polys"][:, :, 1] * scale_h
 
@@ -527,45 +522,6 @@ class DetResize:
             data["shape_list"][3] = data["shape_list"][3] * scale_h
 
         return data
-
-
-class GridResize(DetResize):
-    """
-    Resize image to make it divisible by a specified factor exactly.
-    Resize polygons correspondingly, if provided.
-
-    Args:
-        factor: by which an image should be divisible.
-    """
-
-    def __init__(self, factor: int = 32, **kwargs):
-        super().__init__(
-            target_size=None,
-            keep_ratio=False,
-            padding=False,
-            limit_type=None,
-            force_divisable=True,
-            divisor=factor,
-        )
-
-
-class ScalePadImage(DetResize):
-    """
-    Scale image and polys by the shorter side, then pad to the target_size.
-    input image format: hwc
-
-    Args:
-        target_size: [H, W] of the output image.
-    """
-
-    def __init__(self, target_size: list, **kwargs):
-        super().__init__(
-            target_size=target_size,
-            keep_ratio=True,
-            padding=True,
-            limit_type=None,
-            force_divisable=False,
-        )
 
 
 def expand_poly(poly, distance: float, joint_type=pyclipper.JT_ROUND) -> List[list]:

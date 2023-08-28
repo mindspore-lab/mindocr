@@ -1,10 +1,11 @@
 import os
+from typing import List, Tuple
 
 import cv2
 import numpy as np
 
 
-def get_hw_of_img(image: np.array):
+def get_hw_of_img(image: np.ndarray):
     """
     get the hw of hwc image
     """
@@ -18,6 +19,10 @@ def get_hw_of_img(image: np.array):
         raise TypeError("image is not a image of color/gray")
 
     return height, width
+
+
+def get_batch_hw_of_img(images: List[np.ndarray]) -> Tuple:
+    return tuple(get_hw_of_img(img) for img in images)
 
 
 def crop_box_from_image(image, box):

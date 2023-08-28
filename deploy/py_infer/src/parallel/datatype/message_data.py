@@ -2,11 +2,6 @@ from dataclasses import dataclass
 
 
 @dataclass
-class StartSign:
-    start: bool = True
-
-
-@dataclass
 class StopSign:
     stop: bool = True
 

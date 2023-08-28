@@ -1,12 +1,12 @@
 """
 transform for text recognition tasks.
 """
-
 import copy
+import logging
 import random
 import re
 import warnings
-
+import mindspore as ms
 import cv2
 import numpy as np
 import PIL
@@ -14,8 +14,6 @@ import six
 from PIL import Image
 
 import mindspore.dataset as ds
-
-from mindocr.utils.logger import Logger
 
 from ...models.utils.abinet_layers import CharsetMapper, onehot
 from .svtr_transform import (
@@ -28,8 +26,7 @@ from .svtr_transform import (
     CVRescale,
 )
 
-_logger = Logger("mindocr")
-
+_logger = logging.getLogger(__name__)
 __all__ = ["ABINetTransforms", "ABINetRecAug", "ABINetEval", "ABINetEvalTransforms"]
 
 
@@ -105,12 +102,14 @@ class ABINetRecAug(object):
         self.toTensor = ds.vision.ToTensor()
         self.w = 128
         self.h = 32
+        self.op = ms.dataset.vision.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], is_hwc=False)
 
     def __call__(self, data):
         img = data["image"]
         img = self.transforms(img)
         img = cv2.resize(img, (self.w, self.h))
         img = self.toTensor(img)
+        img = self.op(img)
         data["image"] = img
         return data
 
@@ -174,11 +173,13 @@ class ABINetEval(object):
         self.toTensor = ds.vision.ToTensor()
         self.w = 128
         self.h = 32
+        self.op = ms.dataset.vision.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], is_hwc=False)
 
     def __call__(self, data):
         img = data["image"]
         img = cv2.resize(img, (self.w, self.h))
         img = self.toTensor(img)
+        # img = self.op(img)
         data["image"] = img
         length = data["length"]
         length = int(length)
@@ -210,7 +211,7 @@ class CVDeterioration(object):
         self.p = p
         transforms = []
         if var is not None:
-            transforms.append(CVGaussianNoise(var=var))
+            transforms.append(CVGaussianNoise(variance=var))
         if degrees is not None:
             transforms.append(CVMotionBlur(degrees=degrees))
         if factor is not None:

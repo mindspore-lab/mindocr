@@ -10,7 +10,7 @@ from mindocr import build_model, list_models
 from tools.export import export
 
 
-@pytest.mark.parametrize("model_name", ["dbnet_resnet50", "crnn_resnet34", "rare_resnet34"])
+@pytest.mark.parametrize("model_name", ["dbnet_resnet50", "crnn_resnet34", "rare_resnet34", "visionlan_resnet45"])
 def test_mindir_infer(model_name):
     ms.set_context(mode=ms.GRAPH_MODE)
 
@@ -20,10 +20,12 @@ def test_mindir_infer(model_name):
 
     if task == "rec":
         c, h, w = 3, 32, 100
+        if "visionlan" in model_name:
+            c, h, w = 3, 64, 256
     else:
         c, h, w = 3, 736, 1280
 
-    export(model_name, [h, w], local_ckpt_path="", save_dir="")
+    export(model_name, [h, w], local_ckpt_path="", save_dir="", is_dynamic_shape=False, model_type=task)
 
     fn = f"{model_name}.mindir"
     graph = ms.load(fn)

@@ -40,15 +40,20 @@ USAGE:
 """
 
 import copy
+import logging
 import os
 import sys
-
+import mindspore as ms
+ms.set_context(device_id=0)
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../..")))
 
 import argparse
 
-import yaml
+from tools.arg_parser import parse_args_and_config
+
+args, config = parse_args_and_config()
+
 from addict import Dict
 
 import mindspore as ms
@@ -59,14 +64,15 @@ from mindocr.metrics import build_metric
 from mindocr.models import build_model
 from mindocr.postprocess import build_postprocess
 from mindocr.utils.callbacks import Evaluator
-from mindocr.utils.logger import Logger
+from mindocr.utils.logger import set_logger
 
-_logger = Logger("mindocr")
+logger = logging.getLogger("mindocr")
 
 
 def main(cfg):
     # env init
     ms.set_context(mode=cfg.system.mode)
+    set_logger(name="mindocr")
     if cfg.system.distribute:
         init()
         device_num = get_group_size()
@@ -86,7 +92,6 @@ def main(cfg):
             )
         else:
             device_id = cfg.system.get("device_id", 0)
-            ms.set_context(device_id=device_id)
             print(
                 f"INFO: Standalone evaluation. Device id: {device_id}, "
                 f"specified by system.device_id in yaml config file or is default value 0."
@@ -98,10 +103,12 @@ def main(cfg):
     cfg.model.backbone.pretrained = False
     amp_level = cfg.system.get("amp_level_infer", "O0")
     network = build_model(cfg.model, ckpt_load_path=cfg.eval.ckpt_load_path, amp_level=amp_level)
+    num_params = sum([param.size for param in network.get_parameters()])
+    num_trainable_params = sum([param.size for param in network.trainable_params()])
     network.set_train(False)
 
     if not cfg.system.amp_level_infer and cfg.system.amp_level != "O0":
-        _logger.info("Evaluation will run in full-precision(fp32)")
+        logger.info("Evaluation will run in full-precision(fp32)")
 
     # postprocess, metric
     postprocessor = build_postprocess(cfg.postprocess)
@@ -116,10 +123,28 @@ def main(cfg):
     results = []
     acc_summary = {}
     reload_data = False
-    for dirpath, dirnames, _ in os.walk(data_dir_root + "/"):
+
+    info_seg = "=" * 40
+    model_name = (
+        cfg.model.name
+        if "name" in cfg.model
+        else f"{cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}"
+    )
+
+    logger.info(
+        f"\n{info_seg}\n"
+        f"Model: {model_name}\n"
+        f"Total number of parameters: {num_params}\n"
+        f"Total number of trainable parameters: {num_trainable_params}\n"
+        f"AMP level: {amp_level}\n"
+        f"{info_seg}\n"
+        f"\nStart evaluating..."
+    )
+
+    for dirpath, dirnames, _ in os.walk(os.path.abspath(data_dir_root)):
         if not dirnames:
             dataset_config = copy.deepcopy(cfg.eval.dataset)
-            dataset_config["data_dir"] = dirpath
+            dataset_config["data_dir"] = os.path.abspath(dirpath)
             # dataloader
             # load dataset
             loader_eval = build_dataset(
@@ -157,17 +182,17 @@ def main(cfg):
                 )
 
             # log
-            _logger.info("=" * 40)
-            _logger.info(f"Num batches: {num_batches}")
+            logger.info("=" * 40)
+            logger.info(f"Num batches: {num_batches}")
             if "name" in cfg.model:
-                _logger.info(f"Model: {cfg.model.name}")
+                logger.info(f"Model: {cfg.model.name}")
             else:
-                _logger.info(f"Model: {cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}")
-            _logger.info("=" * 40)
+                logger.info(f"Model: {cfg.model.backbone.name}-{cfg.model.neck.name}-{cfg.model.head.name}")
+            logger.info("=" * 40)
 
             measures = net_evaluator.eval()
             if is_main_device:
-                _logger.info(f"Performance: {measures}")
+                logger.info(f"Performance: {measures}")
 
             results.append(measures)
             acc_summary[dirpath] = measures
@@ -185,9 +210,8 @@ def main(cfg):
 
     acc_summary["Average"] = avg_dict
 
-    _logger.info(f"Average score: {avg_dict}")
-
-    _logger.info(f"Summary: {acc_summary}")
+    logger.info(f"Average score: {avg_dict}")
+    logger.info(f"Summary: {acc_summary}")
 
 
 def parse_args():
@@ -201,13 +225,5 @@ def parse_args():
 
 
 if __name__ == "__main__":
-    # argpaser
-    args = parse_args()
-    yaml_fp = args.config
-    with open(yaml_fp) as fp:
-        config = yaml.safe_load(fp)
     config = Dict(config)
-
-    # print(config)
-
     main(config)

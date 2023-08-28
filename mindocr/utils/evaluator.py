@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from tqdm import tqdm
@@ -6,10 +7,8 @@ import mindspore as ms
 from mindspore.common import dtype as mstype
 from mindspore.ops import functional as F
 
-from .logger import Logger
-
 __all__ = ["Evaluator"]
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 class Evaluator:

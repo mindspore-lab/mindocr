@@ -1,16 +1,16 @@
+import logging
 import multiprocessing
 import os
 
 import mindspore as ms
 
-from ..utils.logger import Logger
 from .det_dataset import DetDataset, SynthTextDataset
 from .predict_dataset import PredictDataset
 from .rec_dataset import RecDataset
 from .rec_lmdb_dataset import LMDBDataset
 
 __all__ = ["build_dataset"]
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 supported_dataset_types = [
     "BaseDataset",
@@ -164,10 +164,11 @@ def build_dataset(
     is_main_device = device_id == 0
     _logger.info(
         f"Creating dataloader (training={is_train}) for device {device_id}. Number of data samples: {num_samples}"
+        f" per device ({num_samples * num_devices} total)."
     )
 
-    if "refine_batch_size" in kwargs:
-        batch_size = _check_batch_size(num_samples, batch_size, refine=kwargs["refine_batch_size"])
+    # if "refine_batch_size" in kwargs:
+    #     batch_size = _check_batch_size(num_samples, batch_size, refine=kwargs["refine_batch_size"])
 
     drop_remainder = loader_config.get("drop_remainder", is_train)
     if is_train and drop_remainder is False and is_main_device:
@@ -177,12 +178,12 @@ def build_dataset(
         )
 
     if not is_train:
-        if drop_remainder and is_main_device:
+        # if drop_remainder and is_main_device:
             _logger.warning(
                 "`drop_remainder` is forced to be False for evaluation "
                 "to include the last batch for accurate evaluation."
             )
-            drop_remainder = False
+            drop_remainder = loader_config.get("drop_remainder", False)
 
     dataloader = ds.batch(
         batch_size,

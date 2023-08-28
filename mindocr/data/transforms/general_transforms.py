@@ -157,11 +157,19 @@ class RandomScale:
     Randomly scales an image and its polygons in a predefined scale range.
     Args:
         scale_range: (min, max) scale range.
+        size_limits: (min_side_len, max_side_len) size limits. Default: None.
         p: probability of the augmentation being applied to an image.
     """
 
-    def __init__(self, scale_range: Union[tuple, list], p: float = 0.5, **kwargs):
-        self._range = scale_range
+    def __init__(
+        self,
+        scale_range: Union[tuple, list],
+        size_limits: Union[tuple, list] = None,
+        p: float = 0.5,
+        **kwargs,
+    ):
+        self._range = sorted(scale_range)
+        self._size_limits = sorted(size_limits) if size_limits else []
         self._p = p
         assert kwargs.get("is_train", True), ValueError("RandomScale augmentation must be used for training only")
 
@@ -175,7 +183,14 @@ class RandomScale:
             (polys)
         """
         if random.random() < self._p:
-            scale = np.random.uniform(*self._range)
+            if self._size_limits:
+                size = data["image"].shape[:2]
+                min_scale = max(self._size_limits[0] / size[0], self._size_limits[0] / size[1], self._range[0])
+                max_scale = min(self._size_limits[1] / size[0], self._size_limits[1] / size[1], self._range[1])
+                scale = np.random.uniform(min_scale, max_scale)
+            else:
+                scale = np.random.uniform(*self._range)
+
             data["image"] = cv2.resize(data["image"], dsize=None, fx=scale, fy=scale)
             if "polys" in data:
                 data["polys"] *= scale
@@ -234,7 +249,7 @@ class RandomRotate:
 
             data["image"] = cv2.warpAffine(data["image"], mat, (w, h))
 
-            if "polys" in data:
+            if "polys" in data and len(data["polys"]):
                 data["polys"] = cv2.transform(data["polys"], mat)
 
         return data
@@ -254,7 +269,7 @@ class RandomHorizontalFlip:
         if random.random() < self._p:
             data["image"] = cv2.flip(data["image"], 1)
 
-            if "polys" in data:
+            if "polys" in data and len(data["polys"]):
                 mat = np.float32([[-1, 0, data["image"].shape[1] - 1], [0, 1, 0]])
                 data["polys"] = cv2.transform(data["polys"], mat)
                 # TODO: assign a new starting point located in the top left

@@ -1,13 +1,16 @@
 """Metric for accuracy evaluation."""
+import logging
 import re
 
 from rapidfuzz.distance import Levenshtein
 
 import mindspore as ms
-import mindspore.ops as ops
-from mindspore import ms_function, nn
+from mindspore import nn
+
+from ..utils.misc import AllReduce
 
 __all__ = ["RecMetric"]
+_logger = logging.getLogger(__name__)
 
 
 class RecMetric(nn.Metric):
@@ -36,7 +39,7 @@ class RecMetric(nn.Metric):
         ignore_symbol=False,
         print_flag=False,
         device_num=1,
-        **kwargs
+        **kwargs,
     ):
         super().__init__()
         self.clear()
@@ -47,7 +50,7 @@ class RecMetric(nn.Metric):
         self.print_flag = print_flag
 
         self.device_num = device_num
-        self.all_reduce = None if device_num == 1 else ops.AllReduce()
+        self.all_reduce = AllReduce(reduce="sum") if device_num > 1 else None
         self.metric_names = ["acc", "norm_edit_distance"]
 
         if self.ignore_symbol:
@@ -91,7 +94,6 @@ class RecMetric(nn.Metric):
         preds, gt = inputs
         pred_texts = preds["texts"]
         # pred_confs = preds['confs']
-        # print('pred: ', pred_texts, len(pred_texts))
 
         # remove padded chars in GT
         if isinstance(gt, tuple) or isinstance(gt, list):
@@ -108,11 +110,7 @@ class RecMetric(nn.Metric):
             if isinstance(gt_texts, ms.Tensor):
                 gt_texts = gt_texts.asnumpy()
 
-        # print('2: ', gt_texts)
         for pred, label in zip(pred_texts, gt_texts):
-            # print('pred', pred, 'END')
-            # print('label ', label, 'END')
-
             if self.ignore_space:
                 pred = pred.replace(" ", "")
                 label = label.replace(" ", "")
@@ -130,7 +128,7 @@ class RecMetric(nn.Metric):
                 pred = self.valid_symbol.sub("", pred)
 
             if self.print_flag:
-                print(pred, " :: ", label)
+                _logger.info(f"{pred} :: {label}")
 
             edit_distance = Levenshtein.normalized_distance(pred, label)
             self._norm_edit_dis += edit_distance
@@ -139,21 +137,16 @@ class RecMetric(nn.Metric):
 
             self._total_num += 1
 
-    @ms_function
-    def all_reduce_fun(self, x):
-        res = self.all_reduce(x)
-        return res
-
     def eval(self):
         if self._total_num == 0:
             raise RuntimeError("Accuary can not be calculated, because the number of samples is 0.")
-        print("correct num: ", self._correct_num, ", total num: ", self._total_num)
+        _logger.info(f"correct num: {self._correct_num}, total num: {self._total_num}")
 
         if self.all_reduce:
             # sum over all devices
-            correct_num = self.all_reduce_fun(self._correct_num)
-            norm_edit_dis = self.all_reduce_fun(self._norm_edit_dis)
-            total_num = self.all_reduce_fun(self._total_num)
+            correct_num = self.all_reduce(self._correct_num)
+            norm_edit_dis = self.all_reduce(self._norm_edit_dis)
+            total_num = self.all_reduce(self._total_num)
         else:
             correct_num = self._correct_num
             norm_edit_dis = self._norm_edit_dis

@@ -9,8 +9,8 @@ nav:
 #  - Installation: installation.md
   - Model Zoo:
     - 1. Training: mkdocs/modelzoo_training.md
-    - 2. Inference - MindOCR Models List: inference/models_list.md
-    - 3. Inference - Third-party Models List: inference/models_list_thirdparty.md
+    - 2. Inference - MindOCR Models: inference/inference_quickstart.md
+    - 3. Inference - Third-party Models: inference/inference_thirdparty_quickstart.md
   - Tutorials:
     - 1. Datasets:
         - Dataset Preparation: datasets/converters.md

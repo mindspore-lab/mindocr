@@ -37,7 +37,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 | **Model** | **Context** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
 | :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |
-| ABINet      | D910x8-MS1.9-G | 92.53%    | 22993 s/epoch       | 86 | [yaml](abinet_resnet45_en.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en-41e4bbd0.ckpt)
+| ABINet      | D910x8-MS1.9-G | 91.35%    | 22993 s/epoch       | 628.11 | [yaml](abinet_resnet45_en.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en-7efa1184.ckpt)
 </div>
 
 <details open>
@@ -46,7 +46,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 
   | **Model**  | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
   | :------:  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-  | ABINet  | 95.81% | 96.08% | 97.32% | 95.47% | 86.31% | 82.52% | 96.37% | 93.82%| 89.61% | 92.01% | 92.53% |
+  | ABINet  | 96.22% | 95.83% | 96.48% | 94.90% | 84.38% | 80.56% | 95.83% | 92.36%| 87.33% | 89.58% | 91.35% |
   </div>
 </details>
 
@@ -278,15 +278,8 @@ python tools/eval.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
 
 **Notes:**
-- Context for val_while_train: Since mindspore.nn.transformer requires a fixed batchsize when defined, when choosing val_while_train=True, it is necessary to ensure that the batchsize of the validation set is the same as that of the model. So line 92 in tools/train.py
-```
-refine_batch_size=True
-```
-should be changed to
-```
-refine_batch_size=False
-```
-- Meanwhile, line 179-185 in minocr.data.builder.py
+- Context for val_while_train: Since mindspore.nn.transformer requires a fixed batchsize when defined, when choosing val_while_train=True, it is necessary to ensure that the batchsize of the validation set is the same as that of the model. 
+- So, line 179-185 in minocr.data.builder.py
 ```
 if not is_train:
     if drop_remainder and is_main_device:

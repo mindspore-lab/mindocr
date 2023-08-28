@@ -215,7 +215,7 @@ metric:
   main_indicator: f-score
 
 loss:
-  name: L1BalancedCELoss
+  name: DBLoss
   eps: 1.0e-6
   l1_scale: 10
   bce_scale: 5
@@ -234,7 +234,7 @@ optimizer:
   momentum: 0.9
   weight_decay: 1.0e-4
 ```
-它使用 `SGD` 优化器（在 `mindocr/optim/optim.factory.py` 中）和 `polynomial_decay`（在 `mindocr/scheduler/scheduler_factory.py` 中）作为学习率调整策略。损失函数是 `L1BalancedCELoss`（在 `mindocr/losses/det_loss.py` 中），评估指标是 `DetMetric`（在 `mindocr/metrics/det_metrics.py` 中）。
+它使用 `SGD` 优化器（在 `mindocr/optim/optim.factory.py` 中）和 `polynomial_decay`（在 `mindocr/scheduler/scheduler_factory.py` 中）作为学习率调整策略。损失函数是 `DBLoss`（在 `mindocr/losses/det_loss.py` 中），评估指标是 `DetMetric`（在 `mindocr/metrics/det_metrics.py` 中）。
 
 ## 3. 模型训练, 测试和推理
 
@@ -318,9 +318,9 @@ MindOCR推理支持Ascend310/Ascend310P设备，支持[MindSpore Lite](https://w
 
 根据训练好的dbnet checkpoint文件，用户可以使用以下命令导出MindIR：
 ```Shell
-python tools/export.py --model_name dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
 # 或者
-python tools/export.py --model_name configs/det/dbnet/db_r50_icdar15.yaml --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config configs/det/dbnet/db_r50_icdar15.yaml --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
 ```
 
 `data_shape`是MindIR文件的模型输入图片的高度和宽度。当用户使用其他的模型时，`data_shape`可能会改变。

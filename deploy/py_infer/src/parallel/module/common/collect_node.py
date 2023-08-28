@@ -35,26 +35,29 @@ class CollectNode(ModuleBase):
     def init_self_args(self):
         super().init_self_args()
 
-    def stop_handle(self, input_data):
+    def _collect_stop(self, input_data):
         self.image_total.value = input_data.image_total
 
-    def single_image_save(self, image_name, image):
-        if self.args.save_crop_res_dir:
-            filename = os.path.join(self.args.crop_save_dir, os.path.splitext(image_name)[0])
+    def _vis_results(self, image_name, image):
+        if self.args.crop_save_dir:
+            basename = os.path.basename(image_name)
+            filename = os.path.join(self.args.crop_save_dir, os.path.splitext(basename)[0])
             box_list = [np.array(x["points"]).reshape(-1, 2) for x in self.image_pipeline_res[image_name]]
             crop_list = visual_utils.vis_crop(image, box_list)
             for i, crop in enumerate(crop_list):
                 cv_utils.img_write(filename + "_crop_" + str(i) + ".jpg", crop)
 
-        if self.args.save_vis_pipeline_save_dir:
-            filename = os.path.join(self.args.vis_pipeline_save_dir, os.path.splitext(image_name)[0])
+        if self.args.vis_pipeline_save_dir:
+            basename = os.path.basename(image_name)
+            filename = os.path.join(self.args.vis_pipeline_save_dir, os.path.splitext(basename)[0])
             box_list = [np.array(x["points"]).reshape(-1, 2) for x in self.image_pipeline_res[image_name]]
             text_list = [x["transcription"] for x in self.image_pipeline_res[image_name]]
             box_text = visual_utils.vis_bbox_text(image, box_list, text_list, font_path=self.args.vis_font_path)
             cv_utils.img_write(filename + ".jpg", box_text)
 
-        if self.args.save_vis_det_save_dir:
-            filename = os.path.join(self.args.vis_det_save_dir, os.path.splitext(image_name)[0])
+        if self.args.vis_det_save_dir:
+            basename = os.path.basename(image_name)
+            filename = os.path.join(self.args.vis_det_save_dir, os.path.splitext(basename)[0])
             box_list = [np.array(x).reshape(-1, 2) for x in self.image_pipeline_res[image_name]]
             box_line = visual_utils.vis_bbox(image, box_list, [255, 255, 0], 2)
             cv_utils.img_write(filename + ".jpg", box_line)
@@ -66,40 +69,50 @@ class CollectNode(ModuleBase):
         safe_list_writer(self.image_pipeline_res, save_filename)
         log.info(f"save infer result to {save_filename} successfully")
 
-    def result_handle(self, input_data):
+    def _collect_results(self, input_data: ProcessData):
         if self.task_type in (TaskType.DET_REC, TaskType.DET_CLS_REC):
+            image_path = input_data.image_path[0]  # bs=1
             for result in input_data.infer_result:
-                self.image_pipeline_res[input_data.image_name].append(
-                    {"transcription": result[-1], "points": result[:-1]}
-                )
+                self.image_pipeline_res[image_path].append({"transcription": result[-1], "points": result[:-1]})
             if not input_data.infer_result:
-                self.image_pipeline_res[input_data.image_name] = []
+                self.image_pipeline_res[image_path] = []
         elif self.task_type == TaskType.DET:
-            self.image_pipeline_res[input_data.image_name].extend(input_data.infer_result)
+            image_path = input_data.image_path[0]  # bs=1
+            self.image_pipeline_res[image_path] = input_data.infer_result
         elif self.task_type in (TaskType.REC, TaskType.CLS):
-            self.image_pipeline_res[input_data.image_name] = input_data.infer_result
+            for image_path, infer_result in zip(input_data.image_path, input_data.infer_result):
+                self.image_pipeline_res[image_path] = infer_result
         else:
             raise NotImplementedError("Task type do not support.")
 
-        if input_data.image_id in self.image_sub_remaining:
-            self.image_sub_remaining[input_data.image_id] -= input_data.sub_image_size
-            if not self.image_sub_remaining[input_data.image_id]:
-                self.image_sub_remaining.pop(input_data.image_id)
+        self._update_remaining(input_data)
+
+    def _update_remaining(self, input_data: ProcessData):
+        if self.task_type in (TaskType.DET_REC, TaskType.DET_CLS_REC):  # with sub image
+            for idx, image_path in enumerate(input_data.image_path):
+                if image_path in self.image_sub_remaining:
+                    self.image_sub_remaining[image_path] -= input_data.sub_image_size
+                    if not self.image_sub_remaining[image_path]:
+                        self.image_sub_remaining.pop(image_path)
+                        self.infer_size += 1
+                        self._vis_results(image_path, input_data.frame[idx]) if input_data.frame else ...
+                else:
+                    remaining = input_data.sub_image_total - input_data.sub_image_size
+                    if remaining:
+                        self.image_sub_remaining[image_path] = remaining
+                    else:
+                        self.infer_size += 1
+                        self._vis_results(image_path, input_data.frame[idx]) if input_data.frame else ...
+        else:  # without sub image
+            for idx, image_path in enumerate(input_data.image_path):
                 self.infer_size += 1
-                self.single_image_save(input_data.image_name, input_data.frame)
-        else:
-            remaining = input_data.sub_image_total - input_data.sub_image_size
-            if remaining:
-                self.image_sub_remaining[input_data.image_id] = remaining
-            else:
-                self.infer_size += 1
-                self.single_image_save(input_data.image_name, input_data.frame)
+                self._vis_results(image_path, input_data.frame[idx]) if input_data.frame else ...
 
     def process(self, input_data):
         if isinstance(input_data, ProcessData):
-            self.result_handle(input_data)
+            self._collect_results(input_data)
         elif isinstance(input_data, StopData):
-            self.stop_handle(input_data)
+            self._collect_stop(input_data)
             if input_data.exception:
                 self.send_to_next_module("stop")
         else:

@@ -1,14 +1,13 @@
+import logging
 import os
 from typing import Callable, Dict, Optional
 
 from mindspore import load_checkpoint, load_param_into_net
 
-from mindocr.utils.logger import Logger
-
 from ..backbones.mindcv_models.utils import auto_map, download_pretrained
 
 __all__ = ["load_model", "drop_inconsistent_shape_parameters"]
-_logger = Logger("mindocr")
+_logger = logging.getLogger(__name__)
 
 
 def drop_inconsistent_shape_parameters(model, param_dict):

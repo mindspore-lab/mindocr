@@ -1,5 +1,5 @@
 from collections import defaultdict, namedtuple
-from multiprocessing import Process, Queue
+from multiprocessing import Manager, Process, Queue
 
 from ...utils import log
 from ..datatype.module_data import ModuleInitArgs, ModulesInfo
@@ -22,6 +22,7 @@ class ModuleManager:
         self.queue_list = []
         self.pipeline_queue_map = defaultdict(lambda: defaultdict(list))
         self.task_queue = task_queue
+        self.module_params = Manager().dict()
 
     @staticmethod
     def stop_module(module):
@@ -106,7 +107,7 @@ class ModuleManager:
                     self.process_list.append(
                         Process(
                             target=module.process_handler,
-                            args=(self.stop_manager, input_queue, output_queue),
+                            args=(self.stop_manager, self.module_params, input_queue, output_queue),
                             daemon=True,
                         )
                     )

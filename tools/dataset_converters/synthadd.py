@@ -5,7 +5,7 @@ from tools.dataset_converters.utils.lmdb_writer import create_lmdb_dataset
 
 
 class SYNTHADD_Converter:
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
         self._image_dir = None
 
     def convert(self, task="rec_lmdb", image_dir=None, label_path=None, output_path=None):

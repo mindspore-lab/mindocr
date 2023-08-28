@@ -11,12 +11,7 @@ sys.path.insert(0, mindocr_path)
 
 from mindocr.data.transforms import rec_transforms  # noqa
 
-__all__ = [
-    "SVTRRecResizeImg",
-    "RecResizeNormForInfer",
-    "RecResizeNormForViTSTR",
-    "RecResizeNormForMMOCR",
-]
+__all__ = ["SVTRRecResizeImg", "RecResizeNormForInfer", "RecResizeNormForViTSTR", "RecResizeNormForMMOCR"]
 
 
 class SVTRRecResizeImg(rec_transforms.SVTRRecResizeImg):

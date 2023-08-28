@@ -36,7 +36,7 @@ Table Format:
 
 | **Model** | **Context** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
 | :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |
-| ABINet      | D910x8-MS1.9-G | 92.53%    | 22993 s/epoch       | 86 | [yaml](abinet_resnet45_en.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en-41e4bbd0.ckpt)
+| ABINet      | D910x8-MS2.1-G | 91.35%    | 14,867 s/epoch       | 133.00 | [yaml](abinet_resnet45_en.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en-7efa1184.ckpt)
 </div>
 
 <details open>
@@ -45,7 +45,7 @@ Table Format:
 
   | **Model**  | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
   | :------:  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-  | ABINet  | 95.81% | 96.08% | 97.32% | 95.47% | 86.31% | 82.52% | 96.37% | 93.82%| 89.61% | 92.01% | 92.53% |
+  | ABINet  | 96.22% | 95.83% | 96.48% | 94.90% | 84.38% | 80.56% | 95.83% | 92.36%| 87.33% | 89.58% | 91.35% |
   </div>
 </details>
 
@@ -292,15 +292,8 @@ python tools/eval.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
 
 **注意:**
-- 由于mindspore.nn.transformer在定义时需要固定的批处理大小，因此在选择val_while_train=True时，有必要确保验证集的批处理大小与模型的批处理大小相同。 所以tools/train.py中的第92行
-```
-refine_batch_size=True
-```
-应该被改为
-```
-refine_batch_size=False
-```
-- 同时， minocr.data.builder.py中的第179-185行
+- 由于mindspore.nn.transformer在定义时需要固定的批处理大小，因此在选择val_while_train=True时，有必要确保验证集的批处理大小与模型的批处理大小相同。 
+- 所以， minocr.data.builder.py中的第179-185行
 ```
 if not is_train:
     if drop_remainder and is_main_device:

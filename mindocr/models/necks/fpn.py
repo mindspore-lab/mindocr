@@ -3,6 +3,7 @@ from typing import List, Tuple
 from mindspore import Tensor, nn, ops
 from mindspore.common.initializer import TruncatedNormal, XavierUniform
 
+from ...utils.misc import is_ms_version_2
 from .asf import AdaptiveScaleFusion
 
 
@@ -84,26 +85,26 @@ def _bn(channels, momentum=0.1):
 
 class FCEFPN(nn.Cell):
 
-    def __init__(self, in_channels, out_channel):
+    def __init__(self, in_channels, out_channels):
         in_channels = in_channels[1:]
         super(FCEFPN, self).__init__()
 
-        self.reduce_conv_c3 = self.Xavier_conv(in_channels[0], out_channel, kernel_size=1, has_bias=True)
+        self.reduce_conv_c3 = self.Xavier_conv(in_channels[0], out_channels, kernel_size=1, has_bias=True)
 
-        self.reduce_conv_c4 = self.Xavier_conv(in_channels[1], out_channel, kernel_size=1, has_bias=True)
+        self.reduce_conv_c4 = self.Xavier_conv(in_channels[1], out_channels, kernel_size=1, has_bias=True)
 
-        self.reduce_conv_c5 = self.Xavier_conv(in_channels[2], out_channel, kernel_size=1, has_bias=True)
+        self.reduce_conv_c5 = self.Xavier_conv(in_channels[2], out_channels, kernel_size=1, has_bias=True)
 
-        self.smooth_conv_p5 = self.Xavier_conv(out_channel, out_channel, kernel_size=3, padding=1, pad_mode='pad',
+        self.smooth_conv_p5 = self.Xavier_conv(out_channels, out_channels, kernel_size=3, padding=1, pad_mode='pad',
                                                has_bias=True)
 
-        self.smooth_conv_p4 = self.Xavier_conv(out_channel, out_channel, kernel_size=3, padding=1, pad_mode='pad',
+        self.smooth_conv_p4 = self.Xavier_conv(out_channels, out_channels, kernel_size=3, padding=1, pad_mode='pad',
                                                has_bias=True)
 
-        self.smooth_conv_p3 = self.Xavier_conv(out_channel, out_channel, kernel_size=3, padding=1, pad_mode='pad',
+        self.smooth_conv_p3 = self.Xavier_conv(out_channels, out_channels, kernel_size=3, padding=1, pad_mode='pad',
                                                has_bias=True)
 
-        self.out_channels = out_channel
+        self.out_channels = out_channels
 
     def construct(self, features):
         _, c3, c4, c5 = features
@@ -184,8 +185,7 @@ class PSEFPN(nn.Cell):
         self.smooth_bn_p2 = _bn(out_channels)
         self.smooth_relu_p2 = nn.ReLU()
 
-        self._resize_bilinear = nn.ResizeBilinear()
-
+        self._resize_bilinear = ops.ResizeBilinearV2() if is_ms_version_2() else nn.ResizeBilinear()
         self.concat = ops.Concat(axis=1)
 
     def construct(self, features):
@@ -196,29 +196,37 @@ class PSEFPN(nn.Cell):
 
         c4 = self.reduce_conv_c4(c4)
         c4 = self.reduce_relu_c4(self.reduce_bn_c4(c4))
-        p4 = self._resize_bilinear(p5, scale_factor=2) + c4
+        p4 = self._resize_bilinear(p5, c4.shape[2:]) + c4
         p4 = self.smooth_conv_p4(p4)
         p4 = self.smooth_relu_p4(self.smooth_bn_p4(p4))
 
         c3 = self.reduce_conv_c3(c3)
         c3 = self.reduce_relu_c3(self.reduce_bn_c3(c3))
-        p3 = self._resize_bilinear(p4, scale_factor=2) + c3
+        p3 = self._resize_bilinear(p4, c3.shape[2:]) + c3
         p3 = self.smooth_conv_p3(p3)
         p3 = self.smooth_relu_p3(self.smooth_bn_p3(p3))
 
         c2 = self.reduce_conv_c2(c2)
         c2 = self.reduce_relu_c2(self.reduce_bn_c2(c2))
-        p2 = self._resize_bilinear(p3, scale_factor=2) + c2
+        p2 = self._resize_bilinear(p3, c2.shape[2:]) + c2
         p2 = self.smooth_conv_p2(p2)
         p2 = self.smooth_relu_p2(self.smooth_bn_p2(p2))
 
-        p3 = self._resize_bilinear(p3, scale_factor=2)
-        p4 = self._resize_bilinear(p4, scale_factor=4)
-        p5 = self._resize_bilinear(p5, scale_factor=8)
+        p3 = self._resize_bilinear(p3, p2.shape[2:])
+        p4 = self._resize_bilinear(p4, p2.shape[2:])
+        p5 = self._resize_bilinear(p5, p2.shape[2:])
 
         out = self.concat((p2, p3, p4, p5))
 
         return out
+
+
+def _resize_bilinear_unified(align_corners=True):
+    def resize_bilinear(input_image, size):
+        output = ops.ResizeBilinear(size, align_corners=align_corners)(input_image)
+        return output
+
+    return resize_bilinear
 
 
 class EASTFPN(nn.Cell):
@@ -226,6 +234,7 @@ class EASTFPN(nn.Cell):
         super(EASTFPN, self).__init__()
         self.in_channels = in_channels[::-1]  # self.in_channels: [2048, 1024, 512, 256]
         self.out_channels = out_channels
+        self.resize = ops.ResizeBilinearV2(True) if is_ms_version_2() else _resize_bilinear_unified(True)
         self.conv1 = nn.Conv2d(self.in_channels[0] + self.in_channels[1], self.in_channels[0] // 4, 1, has_bias=True)
         self.bn1 = nn.BatchNorm2d(self.in_channels[0] // 4)
         self.relu1 = nn.ReLU()
@@ -280,17 +289,17 @@ class EASTFPN(nn.Cell):
     def construct(self, features):
         f1, f2, f3, f4 = features
 
-        out = ops.ResizeBilinear(f3.shape[2:], True)(f4)
+        out = self.resize(f4, f3.shape[2:])
         out = self.concat((out, f3))
         out = self.relu1(self.bn1(self.conv1(out)))
         out = self.relu2(self.bn2(self.conv2(out)))
 
-        out = ops.ResizeBilinear(f2.shape[2:], True)(out)
+        out = self.resize(out, f2.shape[2:])
         out = self.concat((out, f2))
         out = self.relu3(self.bn3(self.conv3(out)))
         out = self.relu4(self.bn4(self.conv4(out)))
 
-        out = ops.ResizeBilinear(f1.shape[2:], True)(out)
+        out = self.resize(out, f1.shape[2:])
         out = self.concat((out, f1))
         out = self.relu5(self.bn5(self.conv5(out)))
         out = self.relu6(self.bn6(self.conv6(out)))

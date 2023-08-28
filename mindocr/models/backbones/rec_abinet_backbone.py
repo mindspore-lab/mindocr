@@ -61,7 +61,7 @@ class BaseVision(ABINetBlock):
         self.cls = nn.Dense(
             self.out_channels,
             self.charset.num_classes,
-            weight_init="uniform",
+            weight_init="HeUniform",
             bias_init="uniform",
         )
 

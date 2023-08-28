@@ -10,6 +10,7 @@ from .det_resnet import *
 from .rec_abinet_backbone import *
 from .rec_master import *
 from .rec_resnet import *
+from .rec_resnet45 import *
 from .rec_svtr import *
 from .rec_vgg import *
 

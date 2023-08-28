@@ -35,9 +35,10 @@ After determining the location and size of the text region, EAST further classif
 ### ICDAR2015
 <div align="center">
 
-| **Model**           | **Context**       | **Backbone**    | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.**    | **Throughput**   | **Recipe**                   | Download                                                                                                     |
-|------------------|----------------|-------------|------------|------------|---------------|-------------|-------------|-----------|----------------------------|------------------------------------------------------------------------------------------------------------|
-| EAST             | D910x8-MS1.9-G | ResNet-50   | ImageNet   | 82.23%     | 87.68%        | 84.87%      | 1.6 s/epoch | 625 img/s | [yaml](east_r50_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359-5f05cd42.mindir) |
+| **Model**           | **Context**       | **Backbone**    | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.** | **per step time** | **Throughput** | **Recipe**                            | Download                                                                                                     |
+|------------------|----------------|-------------|------------|------------|---------------|-------------|--------------|-----------------|----------------|---------------------------------------|------------------------------------------------------------------------------------------------------------|
+| EAST             | D910x8-MS1.9-G | ResNet-50   | ImageNet   | 82.23%     | 87.68%        | 84.87%      | 1.6 s/epoch  | 256 ms/step |  625 img/s    | [yaml](east_r50_icdar15.yaml)         | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359-5f05cd42.mindir) |
+| EAST             | D910x8-MS1.9-G | MobileNetV3   | ImageNet   | 73.47%     | 77.27%        | 75.32%      | 0.79 s/epoch | 138 ms/step | 1185 img/s     | [yaml](east_mobilenetv3_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1-5bf242c5.mindir) |
 
 </div>
 
@@ -160,9 +161,9 @@ Please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/infe
 Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../README.md) tutorial and use the following command to export the trained ckpt model to  MindIR file:
 
 ``` shell
-python tools/export.py --model_name east_resnet50 --data_shape 720 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config east_resnet50 --data_shape 720 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
 # or
-python tools/export.py --model_name configs/det/east/east_r50_icdar15.yaml --data_shape 720 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config configs/det/east/east_r50_icdar15.yaml --data_shape 720 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
 ```
 
 The `data_shape` is the model input shape of height and width for MindIR file. The shape value of MindIR in the download link can be found in [Notes](#notes).
@@ -174,8 +175,7 @@ Please refer to [Environment Installation](../../../docs/en/inference/environmen
 - Model Conversion
 
 Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#1-mindocr-models),
-and use the `converter_lite` tool for offline conversion of the MindIR file, where the `input_shape` in `configFile` needs to be filled in with the value from MindIR export,
-as mentioned above (1, 3, 720, 1280), and the format is NCHW.
+and use the `converter_lite` tool for offline conversion of the MindIR file.
 
 - Inference
 
@@ -184,11 +184,8 @@ Assuming that you obtain output.mindir after model conversion, go to the `deploy
 ```shell
 python infer.py \
     --input_images_dir=/your_path_to/test_images \
-    --device=Ascend \
-    --device_id=0 \
     --det_model_path=your_path_to/output.mindir \
     --det_model_name_or_config=../../configs/det/east/east_r50_icdar15.yaml \
-    --backend=lite \
     --res_save_dir=results_dir
 ```
 

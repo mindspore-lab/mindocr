@@ -49,9 +49,9 @@ The FCENet in MindOCR is trained on ICDAR 2015 dataset. The training results are
 
 <div align="center">
 
-| **Model**              | **Context**       | **Backbone**      | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.**     | **Throughput**   | **Recipe**                            | **Download**                                                                                                                                                                                                |
-|---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-----------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| FCENet               | D910x4-MS2.0-F | ResNet50   | ImageNet       |  81.51%     | 86.90%        | 84.12%     | 33 s/epoch   | 7 img/s      | [yaml](fce_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/fcenet/fcenet_resnet50-43857f7f.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/fcenet/fcenet_resnet50-43857f7f-5e765611.mindir) |
+| **Model**              | **Context**       | **Backbone**      | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.**     | **Throughput**   | Train Step T.| **Recipe**                            | **Download**                                                                                                                                                                                                |
+|---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-----------|----------------------|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| FCENet               | D910x4-MS2.0-F | ResNet50   | ImageNet       |  81.51%     | 86.90%        | 84.12%     | 95.59 s/epoch   | 10.36   img/s      | 2978.65 ms/step | [yaml](fce_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/fcenet/fcenet_resnet50-43857f7f.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/fcenet/fcenet_resnet50-43857f7f-dad7dfcc.mindir) |
 
 </div>
 
@@ -132,7 +132,7 @@ model:
     pretrained: True    # Whether to use weights pretrained on ImageNet
   neck:
     name: FCEFPN        # FPN part of the FCENet
-    out_channel: 256
+    out_channels: 256
   head:
     name: FCEHead
     scales: [ 8, 16, 32 ]
@@ -181,9 +181,9 @@ Please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/infe
 Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../README.md) tutorial and use the following command to export the trained ckpt model to  MindIR file:
 
 ```shell
-python tools/export.py --model_name fcenet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config fcenet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
 # or
-python tools/export.py --model_name configs/det/fcenet/fce_icdar15.yaml --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config configs/det/fcenet/fce_icdar15.yaml --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
 ```
 
 The `data_shape` is the model input shape of height and width for MindIR file. The shape value of MindIR in the download link can be found in [ICDAR2015 Notes](#ICDAR2015).
@@ -195,8 +195,7 @@ Please refer to [Environment Installation](../../../docs/en/inference/environmen
 - Model Conversion
 
 Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial_en.md#1-mindocr-models),
-and use the `converter_lite` tool for offline conversion of the MindIR file, where the `input_shape` in `configFile` needs to be filled in with the value from MindIR export,
-as mentioned above (1, 3, 736, 1280), and the format is NCHW.
+and use the `converter_lite` tool for offline conversion of the MindIR file.
 
 - Inference
 
@@ -205,11 +204,8 @@ Assuming that you obtain output.mindir after model conversion, go to the `deploy
 ```shell
 python infer.py \
     --input_images_dir=/your_path_to/test_images \
-    --device=Ascend \
-    --device_id=0 \
     --det_model_path=your_path_to/output.mindir \
     --det_model_name_or_config=../../configs/det/fcenet/fce_icdar15.yaml \
-    --backend=lite \
     --res_save_dir=results_dir
 ```
 

@@ -1,34 +1,34 @@
 import math
 
 import numpy as np
-
+# from mindspore.nn import TransformerDecoderLayer
 import mindspore as ms
 import mindspore.common.dtype as mstype
 from mindspore import log as logger
 from mindspore import nn
-from mindspore._checkparam import Validator
+from mindspore import _checkparam as Validator
 from mindspore.common.parameter import Parameter
 from mindspore.common.tensor import Tensor
 from mindspore.context import ParallelMode
 from mindspore.log import _LogActionOnce
 from mindspore.nn.cell import Cell
-from mindspore.nn.transformer.layers import (
+from mindformers.modules.layers import LayerNorm as _LayerNorm
+from mindformers.modules.layers import (
     _args_type_validator_check,
     _check_input_dtype,
     _check_past_none_input_none,
     _check_shape_equal,
-    _LayerNorm,
     _valid_type_checks,
     _valid_value_checks,
 )
-from mindspore.nn.transformer.moe import MoE, _check_moe_config, default_moe_config
-from mindspore.nn.transformer.op_parallel_config import (
+from mindformers.modules.transformer.moe import MoE, _check_moe_config, default_moe_config
+from mindformers.modules.transformer.op_parallel_config import (
     MoEParallelConfig,
     OpParallelConfig,
     _check_config,
     default_dpmp_config,
 )
-from mindspore.nn.transformer.transformer import (
+from mindformers.modules.transformer.transformer import (
     FeedForward,
     MultiHeadAttention,
     TransformerOpParallelConfig,
@@ -100,7 +100,8 @@ class CharsetMapper(object):
 
     def _read_charset(self):
         charset = {}
-        charset = {idx: c for idx, c in enumerate("░abcdefghijklmnopqrstuvwxyz1234567890")}
+        charset_list = "░abcdefghijklmnopqrstuvwxyz1234567890"
+        charset = {idx: c for idx, c in enumerate(charset_list)}
         self.null_label = 0
         charset[self.null_label] = self.null_char
         return charset
@@ -276,7 +277,7 @@ class PositionAttention(nn.Cell):
             in_channels, dropout=1.0, max_len=max_length
         )
         self.project = nn.Dense(
-            in_channels, in_channels, weight_init="uniform", bias_init="uniform"
+            in_channels, in_channels, weight_init="HeUniform", bias_init="uniform"
         )
 
     def construct(self, x):
@@ -340,7 +341,7 @@ class PositionalEncoding(nn.Cell):
         self.pe = ms.Parameter(pe, name="pe1", requires_grad=False)
 
     def construct(self, x):
-        w, _ = x.shape
+        w, _, = x.shape
         x = x + self.pe[:w, :]
 
         return self.dropout(x)

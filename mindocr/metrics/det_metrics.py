@@ -4,8 +4,9 @@ import numpy as np
 from shapely.geometry import Polygon
 
 import mindspore as ms
-import mindspore.ops as ops
-from mindspore import Tensor, ms_function, nn
+from mindspore import Tensor, nn
+
+from ..utils.misc import AllReduce
 
 __all__ = ["DetMetric"]
 
@@ -48,7 +49,7 @@ class DetectionIoUEvaluator:
         gt_polys, gt_ignore = [], []
         for sample in gt:
             poly = Polygon(sample["polys"])
-            if poly.is_valid and poly.is_simple:
+            if poly.is_valid:
                 if not sample["ignore"]:
                     gt_polys.append(poly)
                 else:
@@ -58,7 +59,7 @@ class DetectionIoUEvaluator:
         det_polys, det_ignore = [], []
         for pred in preds:
             poly = Polygon(pred)
-            if poly.is_valid and poly.is_simple:
+            if poly.is_valid:
                 poly_area = poly.area
                 if gt_ignore and poly_area > 0:
                     for ignore_poly in gt_ignore:
@@ -107,7 +108,7 @@ class DetMetric(nn.Metric):
         self._evaluator = DetectionIoUEvaluator()
         self._gt_labels, self._det_labels = [], []
         self.device_num = device_num
-        self.all_reduce = None if device_num == 1 else ops.AllReduce()
+        self.all_reduce = AllReduce(reduce="sum") if device_num > 1 else None
         self.metric_names = ["recall", "precision", "f-score"]
 
     def clear(self):
@@ -136,11 +137,6 @@ class DetMetric(nn.Metric):
             self._gt_labels.append(gt_label)
             self._det_labels.append(det_label)
 
-    @ms_function
-    def all_reduce_fun(self, x):
-        res = self.all_reduce(x)
-        return res
-
     def cal_matrix(self, det_lst, gt_lst):
         tp = np.sum((gt_lst == 1) * (det_lst == 1))
         fn = np.sum((gt_lst == 1) * (det_lst == 0))
@@ -160,9 +156,9 @@ class DetMetric(nn.Metric):
 
         tp, fp, fn = self.cal_matrix(self._det_labels, self._gt_labels)
         if self.all_reduce:
-            tp = float(self.all_reduce_fun(Tensor(tp, ms.float32)).asnumpy())
-            fp = float(self.all_reduce_fun(Tensor(fp, ms.float32)).asnumpy())
-            fn = float(self.all_reduce_fun(Tensor(fn, ms.float32)).asnumpy())
+            tp = float(self.all_reduce(Tensor(tp, ms.float32)).asnumpy())
+            fp = float(self.all_reduce(Tensor(fp, ms.float32)).asnumpy())
+            fn = float(self.all_reduce(Tensor(fn, ms.float32)).asnumpy())
 
         recall = _safe_divide(tp, (tp + fn))
         precision = _safe_divide(tp, (tp + fp))

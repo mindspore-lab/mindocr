@@ -27,23 +27,25 @@ PSENet的整体架构图如图1所示，包含以下阶段:
 ### ICDAR2015
 <div align="center">
 
-| **模型**              | **环境配置**       | **骨干网络**      | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间**     | **吞吐量**   | **配置文件**                            | **模型权重下载**                                                                                                                                                                                                |
-|---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-----------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 79.39%     | 84.91%        | 82.06%      | 138 s/epoch   | 7.57 img/s | [yaml](pse_r152_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)
+| **模型**              | **环境配置**       | **骨干网络**      | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间**     | **ms/step**  | **吞吐量**   | **配置文件**                            | **模型权重下载**                                                                                                                                                                                                |
+|---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-----------|---------------------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 79.39%     | 84.91%        | 82.06%      | 11.544 s/epoch   |769.6| 83.16 img/s | [yaml](pse_r152_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)
+| PSENet               | D910x8-MS2.0-G | ResNet-50   | ImageNet   | 76.75%     | 86.58%        | 81.37%      | 4.562 s/epoch   |304.138| 210.43 img/s | [yaml](pse_r50_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9-cfd2ee6c.mindir)
+| PSENet               | D910x8-MS2.0-G | MobileNetV3   | ImageNet   | 73.52%     | 67.84%        | 70.56%      | 2.604 s/epoch   |173.604| 368.66 img/s | [yaml](pse_mv3_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907-da7cfe09.mindir)
 </div>
 
 ### SCUT-CTW1500
 <div align="center">
 
-| **模型**              | **环境配置**       | **骨干网络**      | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间**     | **吞吐量**   | **配置文件**                            | **模型权重下载**                                                                                                                                                                                                |
-|---------------------|----------------|---------------|------------|------------|---------------|-------------|--------------|-----------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 73.69%     | 74.38%        | 74.04%      | 67 s/epoch   | 14.33 img/s | [yaml](pse_r152_ctw1500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ctw1500-58b1b1ff.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ctw1500-58b1b1ff-b95c7f85.mindir)
+| **模型**              | **环境配置**       | **骨干网络**      | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间**     | **ms/step**  | **吞吐量**   | **配置文件**                            | **模型权重下载**                                                                                                                                                                                                |
+|---------------------|----------------|---------------|------------|------------|---------------|-------------|-------------|--------------|-----------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| PSENet               | D910x8-MS2.0-G | ResNet-152   | ImageNet   | 73.69%     | 74.38%        | 74.04%      | 67 s/epoch   | 4466.67   | 14.33 img/s | [yaml](pse_r152_ctw1500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ctw1500-58b1b1ff.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ctw1500-58b1b1ff-b95c7f85.mindir)
 </div>
 
 #### 注释：
 - 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。
 - PSENet的训练时长受数据处理部分超参和不同运行环境的影响非常大。
-- 在ICDAR15数据集上，MindIR导出时的输入Shape为`(1,3,1472,2624)` 。
+- 在ICDAR15数据集上，以ResNet-152为backbone的MindIR导出时的输入Shape为`(1,3,1472,2624)` ，以ResNet-50或MobileNetV3为backbone的MindIR导出时的输入Shape为`(1,3,736,1312)`。
 - 在SCUT-CTW1500数据集上，MindIR导出时的输入Shape为`(1,3,1024,1024)` 。
 
 ## 3. 快速上手
@@ -189,9 +191,9 @@ python tools/eval.py --config configs/det/psenet/pse_r152_icdar15.yaml
 请先[下载](#2-实验结果)已导出的MindIR文件，或者参考[模型导出](../../README.md)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
 
 ```shell
-python tools/export.py --model_name psenet_resnet152 --data_shape 1472 2624 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config psenet_resnet152 --data_shape 1472 2624 --local_ckpt_path /path/to/local_ckpt.ckpt
 # or
-python tools/export.py --model_name configs/det/psenet/pse_r152_icdar15.yaml --data_shape 1472 2624 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config configs/det/psenet/pse_r152_icdar15.yaml --data_shape 1472 2624 --local_ckpt_path /path/to/local_ckpt.ckpt
 ```
 
 其中，`data_shape`是导出MindIR时的模型输入Shape的height和width，下载链接中MindIR对应的shape值见[注释](#注释)。
@@ -202,8 +204,7 @@ python tools/export.py --model_name configs/det/psenet/pse_r152_icdar15.yaml --d
 
 - 模型转换
 
-请参考[模型转换](../../../docs/cn/inference/convert_tutorial.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换，
-其中`configFile`文件中的`input_shape`需要填写模型导出时shape，如上述的(1,3,1472,2624)，格式为NCHW。
+请参考[模型转换](../../../docs/cn/inference/convert_tutorial.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换。
 
 - 执行推理
 
@@ -214,11 +215,8 @@ python tools/export.py --model_name configs/det/psenet/pse_r152_icdar15.yaml --d
 ```shell
 python infer.py \
     --input_images_dir=/your_path_to/test_images \
-    --device=Ascend \
-    --device_id=0 \
     --det_model_path=your_path_to/output.mindir \
     --det_model_name_or_config=../../configs/det/psenet/pse_r152_icdar15.yaml \
-    --backend=lite \
     --res_save_dir=results_dir
 ```
 

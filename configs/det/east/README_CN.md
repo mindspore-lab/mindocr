@@ -32,10 +32,10 @@ EAST的整体架构图如图1所示，包含以下阶段:
 ### ICDAR2015
 <div align="center">
 
-| **模型**           | **环境配置**       | **骨干网络**    | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间**    | **吞吐量**   | **配置文件**                   | 模型权重下载                                                                                                     |
-|------------------|----------------|-------------|------------|------------|---------------|-------------|-------------|-----------|----------------------------|------------------------------------------------------------------------------------------------------------|
-| EAST             | D910x8-MS1.9-G | ResNet-50   | ImageNet   | 82.23%     | 87.68%        | 84.87%      | 1.6 s/epoch | 625 img/s | [yaml](east_r50_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359-5f05cd42.mindir) |
-
+| **模型**           | **环境配置**       | **骨干网络**    | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间**    | **每步耗时**    | **吞吐量**    | **配置文件**                   | 模型权重下载                                                                                                     |
+|------------------|----------------|-------------|------------|------------|---------------|-------------|-------------|-------------|------------|----------------------------|------------------------------------------------------------------------------------------------------------|
+| EAST             | D910x8-MS1.9-G | ResNet-50   | ImageNet   | 82.23%     | 87.68%        | 84.87%      | 1.6 s/epoch | 256 ms/step | 625 img/s  | [yaml](east_r50_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359-5f05cd42.mindir) |
+| EAST             | D910x8-MS1.9-G | MobileNetV3   | ImageNet   | 73.47%     | 77.27%        | 75.32%      | 0.79 s/epoch | 138 ms/step | 1185 img/s | [yaml](east_mobilenetv3_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1-5bf242c5.mindir) |
 
 </div>
 
@@ -156,9 +156,9 @@ python tools/eval.py --config configs/det/east/east_r50_icdar15.yaml
 请先[下载](#2-实验结果)已导出的MindIR文件，或者参考[模型导出](../../README.md)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
 
 ``` shell
-python tools/export.py --model_name east_resnet50 --data_shape 720 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config east_resnet50 --data_shape 720 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
 # or
-python tools/export.py --model_name configs/det/east/east_r50_icdar15.yaml --data_shape 720 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config configs/det/east/east_r50_icdar15.yaml --data_shape 720 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
 ```
 
 其中，`data_shape`是导出MindIR时的模型输入Shape的height和width，下载链接中MindIR对应的shape值见[注释](#注释)。
@@ -169,8 +169,8 @@ python tools/export.py --model_name configs/det/east/east_r50_icdar15.yaml --dat
 
 - 模型转换
 
-请参考[模型转换](../../../docs/cn/inference/convert_tutorial.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换，
-其中`configFile`文件中的`input_shape`需要填写模型导出时shape，如上述的(1, 3, 720, 1280)，格式为NCHW。
+请参考[模型转换](../../../docs/cn/inference/convert_tutorial.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换。
+
 
 - 执行推理
 
@@ -179,11 +179,8 @@ python tools/export.py --model_name configs/det/east/east_r50_icdar15.yaml --dat
 ```shell
 python infer.py \
     --input_images_dir=/your_path_to/test_images \
-    --device=Ascend \
-    --device_id=0 \
     --det_model_path=your_path_to/output.mindir \
     --det_model_name_or_config=../../configs/det/east/east_r50_icdar15.yaml \
-    --backend=lite \
     --res_save_dir=results_dir
 ```
 

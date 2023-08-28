@@ -37,7 +37,7 @@ metric:
   main_indicator: f-score
 
 loss:
-  name: L1BalancedCELoss
+  name: DBLoss
   eps: 1.0e-6
   l1_scale: 10
   bce_scale: 5
@@ -134,6 +134,7 @@ eval:
       - DecodeImage:
           img_mode: RGB
           to_float32: False
+          ignore_orientation: True  # img651.jpg has not matching orientation with the gt labels
       - DetLabelEncode:
       - DetResize:
           target_size: [ 1152, 2048 ] # h, w

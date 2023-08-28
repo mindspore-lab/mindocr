@@ -18,10 +18,15 @@ class AttentionHead(nn.Cell):
         hidden_size: int = 256,
         batch_max_length: int = 25,
     ) -> None:
-        """
-        Inputs:
-            inputs: shape [W, BS, 2*C]
-            label: shape [BS, W]
+        """Attention head, based on
+        `"Robust text recognizer with Automatic REctification"
+        <https://arxiv.org/abs/1603.03915/>`_.
+
+        Args:
+            in_channels: Number of input channels.
+            out_channels: Number of the output channels.
+            hidden_size: Hidden size in the attention cell. Default: 256.
+            batch_max_length: The maximum length of the output. Default: 25.
         """
         super().__init__()
         self.in_channels = in_channels
@@ -43,7 +48,7 @@ class AttentionHead(nn.Cell):
         input_one_hot = ops.one_hot(input_char, onehot_dim, self.one, self.zero)
         return input_one_hot
 
-    def construct(self, inputs: Tensor, targets: Optional[Tensor] = None) -> Tensor:
+    def construct(self, inputs: Tensor, targets: Optional[Tuple[Tensor, ...]] = None) -> Tensor:
         # convert the inputs from [W, BS, C] to [BS, W, C]
         inputs = ops.transpose(inputs, (1, 0, 2))
         N = inputs.shape[0]
@@ -53,6 +58,7 @@ class AttentionHead(nn.Cell):
 
         if targets is not None:
             # training branch
+            targets = targets[0]
             output_hiddens = list()
             for i in range(num_steps):
                 char_onehots = self._char_to_onehot(targets[:, i], self.num_classes)

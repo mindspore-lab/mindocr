@@ -1,19 +1,34 @@
 ## 推理 - 模型转换教程
 
+MindOCR支持MindOCR训练模型以及三方模型(PaddelOCR和mmOCR)的推理。
+
 ### 1. MindOCR模型
 
 MindOCR模型的推理使用[MindSpore Lite](https://www.mindspore.cn/lite)后端。
 
 ```mermaid
 graph LR;
-    ckpt --> |export| MindIR --> |"converter_lite(离线转换)"| o[MindIR];
+    A[MindOCR models] -- export --> B[MindIR] -- converter_lite --> C[MindSpore Lite MindIR];
 ```
 
 #### 1.1 模型导出
 
-在推理之前，需要先把训练端的ckpt文件[导出](https://github.com/mindspore-lab/mindocr/blob/main/configs/README.md)为MindIR文件，它保存了模型的结构和权重参数。
+在推理之前，需要先把训练端的ckpt文件导出为MindIR文件，请执行`tools/export.py`：
 
-部分模型提供了MIndIR导出文件的下载链接，见[模型列表](models_list.md)，可跳转到对应模型的介绍页面进行下载。
+``` shell
+# 在线下载模型参数，导出`dbnet_resnet50` 模型的MindIR
+python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 1280
+
+# 使用本地ckpt文件，导出`dbnet_resnet50` 模型的MindIR
+python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt
+
+# 使用本地ckpt文件和参数yaml文件，导出`dbnet_resnet50` 模型的MindIR
+python tools/export.py --model_name_or_config configs/rec/crnn/crnn_resnet34.yaml --local_ckpt_path ~/.mindspore/models/crnn_resnet34-83f37f07.ckpt --data_shape 32 100
+
+更多参数使用详情，请执行 `python tools/export.py -h`.
+```
+
+部分模型提供了MIndIR导出文件的下载链接，见[模型列表](inference_quickstart.md)，可跳转到对应模型的介绍页面进行下载。
 
 #### 1.2 模型转换
 
@@ -26,9 +41,8 @@ graph LR;
 ```shell
 converter_lite \
     --saveType=MINDIR \
-    --NoFusion=false \
     --fmk=MINDIR \
-    --device=Ascend \
+    --optimize=ascend_oriented \
     --modelFile=input.mindir \
     --outputFile=output \
     --configFile=config.txt
@@ -109,14 +123,14 @@ precision_mode=enforce_fp32
 
 ### 2. PaddleOCR模型
 
-PaddleOCR模型的推理可以使用[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)和[MindSpore Lite](https://www.mindspore.cn/lite)两种后端，分别对应OM模型和MindIR模型。
+PaddleOCR模型的推理可以使用[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)两种后端，分别对应MindSpore Lite MindIR模型和OM模型。
 
 
 ```mermaid
 graph LR;
-    训练模型 -- export --> 推理模型 -- paddle2onnx --> ONNX;
+    PaddleOCR训练模型 -- export --> PaddleOCR推理模型 -- paddle2onnx --> ONNX;
+    ONNX -- converter_lite --> o2(MindSpore Lite MindIR);
     ONNX -- atc --> o1(OM);
-    ONNX -- converter_lite --> o2(MindIR);
 ```
 
 涉及到2种格式的Paddle模型，训练模型和推理模型，区别如下：
@@ -166,13 +180,31 @@ paddle2onnx \
 
 参数中input_shape_dict的值，一般可以通过[Netron](https://github.com/lutzroeder/netron)工具打开推理模型查看，或者在上述[tools/export_model.py](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/tools/export_model.py)的代码中找到。
 
-#### 2.3 ONNX -> OM
+#### 2.3 ONNX -> MindIR
+
+使用converter_lite工具可以将ONNX模型转换为MindSpore Lite MindIR模型。工具的详细教程见[MindSpore Lite云侧推理离线模型转换](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)。
+
+转换命令如下：
+
+```shell
+converter_lite \
+    --saveType=MINDIR \
+    --fmk=ONNX \
+    --optimize=ascend_oriented \
+    --modelFile=det_db.onnx \
+    --outputFile=det_db_output \
+    --configFile=config.txt
+```
+
+转换流程和[MindOCR模型](#1-mindocr模型)完全相同，仅有区别是`--fmk`需指定输入是ONNX模型，这里不再赘述。
+
+#### 2.4 ONNX -> OM
 
 使用ATC工具可以将ONNX模型转换为OM模型。
 
 昇腾张量编译器（Ascend Tensor Compiler，简称ATC）是异构计算架构CANN体系下的模型转换工具，它可以将开源框架的网络模型转换为昇腾AI处理器支持的.om格式离线模型，详细教程见[ATC模型转换](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/atctool/atctool_000001.html)。
 
-##### 2.3.1 模型Shape配置
+##### 2.4.1 模型Shape配置
 
 上述示例中导出的ONNX模型输入Shape为(-1, 3,-1,-1)。
 
@@ -232,7 +264,7 @@ atc --model=det_db.onnx \
 
 如果导出的模型是静态Shape版的，则无法分档，需确保导出动态Shape版的模型。
 
-##### 2.3.2 模型精度模式配置
+##### 2.4.2 模型精度模式配置
 
 对于模型推理的精度，需要在转换模型时通过`ATC`设置。
 
@@ -253,25 +285,6 @@ atc --model=det_db.onnx \
 
 如不设置，默认为`force_fp16`。
 
-#### 2.4 ONNX -> MindIR
-
-使用converter_lite工具可以将ONNX模型转换为MindIR模型。工具的详细教程见[MindSpore Lite云侧推理离线模型转换](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)。
-
-转换命令如下：
-
-```shell
-converter_lite \
-    --saveType=MINDIR \
-    --NoFusion=false \
-    --fmk=ONNX \
-    --device=Ascend \
-    --modelFile=det_db.onnx \
-    --outputFile=det_db_output \
-    --configFile=config.txt
-```
-
-转换流程和[MindOCR模型](#1-mindocr模型)完全相同，仅有区别是`--fmk`需指定输入是ONNX模型，这里不再赘述。
-
 ### 3. MMOCR模型
 
 MMOCR使用Pytorch，其模型文件一般是pth格式。
@@ -280,9 +293,9 @@ MMOCR使用Pytorch，其模型文件一般是pth格式。
 
 ```mermaid
 graph LR;
-    pth -- export -->  ONNX;
+    MMOCR_pth -- export -->  ONNX;
+    ONNX -- converter_lite --> o2(MindSpore Lite MindIR);
     ONNX -- atc --> o1(OM);
-    ONNX -- converter_lite --> o2(MindIR);
 ```
 
 #### 3.1 MMOCR模型 -> ONNX
@@ -291,10 +304,10 @@ graph LR;
 
 对于参数`deploy_cfg`需选择目录[mmdeploy/configs/mmocr](https://github.com/open-mmlab/mmdeploy/tree/main/configs/mmocr)下的`*_onnxruntime_dynamic.py`文件，从而导出为动态Shape版ONNX模型。
 
-#### 3.2 ONNX -> OM
+#### 3.2 ONNX -> MindIR
 
-请参考上文PaddleOCR小节的[ONNX -> OM](#23-onnx---om)。
+请参考上文PaddleOCR小节的[ONNX -> MIndIR](#23-onnx---mindir)。
 
-#### 3.3 ONNX -> MindIR
+#### 3.3 ONNX -> OM
 
-请参考上文PaddleOCR小节的[ONNX -> MIndIR](#24-onnx---mindir)。
+请参考上文PaddleOCR小节的[ONNX -> OM](#24-onnx---om)。

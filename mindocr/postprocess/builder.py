@@ -1,4 +1,4 @@
-from . import (
+from . import (  # rec_abinet_postprocess,
     cls_postprocess,
     det_db_postprocess,
     det_east_postprocess,

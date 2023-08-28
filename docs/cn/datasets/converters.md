@@ -2,7 +2,32 @@
 
 您也可以参考 [`convert_datasets.sh`](https://github.com/mindspore-lab/mindocr/blob/main/tools/convert_datasets.sh)。这是将给定目录下所有数据集的标注文件转换为通用格式的Shell 脚本。
 
-要下载OCR数据集并进行格式转换，您可以参考 [Chinese text recognition](chinese_text_recognition.md), [CTW1500](ctw1500.md), [ICDAR2015](icdar2015.md), [MLT2017](mlt2017.md), [SVT](svt.md), [Syntext 150k](syntext150k.md), [TD500](td500.md), [Total Text](totaltext.md), [SynthText](synthtext.md) 的说明。
+<details open markdown>
+<summary>要下载OCR数据集并将其转换为所需的数据格式，请参阅以下介绍。</summary>
+
+- [Born-Digital Images](borndigital.md)
+- [CASIA-10K](casia10k.md)
+- [CCPD](ccpd.md)
+- [Chinese text recognition](chinese_text_recognition.md)
+- [COCO-Text](cocotext.md)
+- [CTW](ctw.md)
+- [ICDAR2015](icdar2015.md)
+- [ICDAR2019 ArT](ic19_art.md)
+- [LSVT](lsvt.md)
+- [MLT2017](mlt2017.md)
+- [MSRA-TD500](td500.md)
+- [MTWI-2018](mtwi2018.md)
+- [RCTW-17](rctw17.md)
+- [ReCTS](rects.md)
+- [SCUT-CTW1500](ctw1500.md)
+- [SROIE](sroie.md)
+- [SVT](svt.md)
+- [SynText150k](syntext150k.md)
+- [SynthText](synthtext.md)
+- [TextOCR](textocr.md)
+- [Total-Text](totaltext.md)
+
+</details>
 
 ## 文本检测/端到端文本检测
 

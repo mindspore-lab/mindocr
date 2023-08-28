@@ -38,7 +38,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 | **Model** | **Context** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
 | :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |
-| SVTR-Tiny      | D910x4-MS1.10-G | 89.02%    | 4866 s/epoch       | 2968 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-8542b3bb-5cf5a130.mindir) |
+| SVTR-Tiny      | D910x4-MS1.10-G | 90.23%    | 3638 s/epoch       | 4560 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3-86ece8c8.mindir) |
 </div>
 
 <details open markdown>
@@ -47,7 +47,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 
   | **Model** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
   | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-  | SVTR-Tiny  | 95.58% | 95.39% | 94.75% | 93.60% | 82.88% | 76.99% | 91.03% | 90.11% | 84.81% | 85.07% | 89.02% |
+  | SVTR-Tiny  | 95.70% | 95.50% | 95.33% | 93.99% | 83.60% | 79.83% | 94.70% | 91.96% | 85.58% | 86.11% | 90.23% |
   </div>
 </details>
 
@@ -65,17 +65,34 @@ According to our experiments, the evaluation results on public benchmark dataset
 #### 3.1.1 Installation
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
-#### 3.1.2 Dataset Download
-Please download lmdb dataset for traininig and evaluation from  [here](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (ref: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here)). There're several zip files:
-- `data_lmdb_release.zip` contains the **entire** datasets including training data, validation data and evaluation data.
-    - `training/` contains two datasets: [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)
+#### 3.1.2 Dataset Preparation
+
+##### 3.1.2.1 MJSynth, validation and evaluation dataset
+Part of the lmdb dataset for training and evaluation can be downloaded from [here](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (ref: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here)). There're several zip files:
+- `data_lmdb_release.zip` contains the datasets including training data, validation data and evaluation data.
+    - `training/` contains two datasets: [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and [SynthText (ST)](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c). *Here we use **MJSynth only**.*
     - `validation/` is the union of the training sets of [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), and [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset).
     - `evaluation/` contains several benchmarking datasets, which are [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset), [IC03](http://www.iapr-tc11.org/mediawiki/index.php/ICDAR_2003_Robust_Reading_Competitions), [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf), and [CUTE](http://cs-chan.com/downloads_CUTE80_dataset.html).
 - `validation.zip`: same as the validation/ within data_lmdb_release.zip
 - `evaluation.zip`: same as the evaluation/ within data_lmdb_release.zip
 
+##### 3.1.2.2 SynthText dataset
 
-Unzip the `data_lmdb_release.zip`, the data structure should be like
+For `SynthText`, we do not use the given LMDB dataset in `data_lmdb_release.zip`, since it only contains part of the cropped images. Please download the raw dataset from [here](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c) and prepare the LMDB dataset using the following command
+
+```bash
+python tools/dataset_converters/convert.py \
+    --dataset_name synthtext \
+    --task rec_lmdb \
+    --image_dir path_to_SynthText \
+    --label_dir path_to_SynthText_gt.mat \
+    --output_path ST_full
+```
+the `ST_full` contained the full cropped images of SynthText in LMDB data format. Please replace the `ST` folder with the `ST_full` folder.
+
+#### 3.1.3 Dataset Usage
+
+Finally, the data structure should like this.
 
 ``` text
 data_lmdb_release/
@@ -104,7 +121,7 @@ data_lmdb_release/
 │   │   └── MJ_valid
 │   │       ├── data.mdb
 │   │       └── lock.mdb
-│   └── ST
+│   └── ST_full
 │       ├── data.mdb
 │       └── lock.mdb
 └── validation
@@ -112,17 +129,15 @@ data_lmdb_release/
     └── lock.mdb
 ```
 
-#### 3.1.3 Dataset Usage
-
 Here we used the datasets under `training/` folders for training, and the union dataset `validation/` for validation. After training, we used the datasets under `evaluation/` to evaluate model accuracy.
 
-**Training:** (total 14,442,049 samples)
+**Training:** (total 16,185,770 samples)
 - [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/)
   - Train: 21.2 GB, 7224586 samples
   - Valid: 2.36 GB, 802731 samples
   - Test: 2.61 GB, 891924 samples
-- [SynthText (ST)](http://www.robots.ox.ac.uk/~vgg/data/scenetext/)
-  - Train: 16.0 GB, 5522808 samples
+- [SynthText (ST)](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c)
+  - Train: 17.0 GB, 7266529 samples
 
 **Validation:**
 - Valid: 138 MB, 6992 samples
@@ -370,9 +385,9 @@ To inference with MindSpot Lite on Ascend 310, please refer to the tutorial [Min
 Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../README.md) tutorial and use the following command to export the trained ckpt model to  MindIR file:
 
 ```shell
-python tools/export.py --model_name svtr_tiny --data_shape 64 256 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config svtr_tiny --data_shape 64 256 --local_ckpt_path /path/to/local_ckpt.ckpt
 # or
-python tools/export.py --model_name configs/rec/svtr/svtr_tiny.yaml --data_shape 64 256 --local_ckpt_path /path/to/local_ckpt.ckpt
+python tools/export.py --model_name_or_config configs/rec/svtr/svtr_tiny.yaml --data_shape 64 256 --local_ckpt_path /path/to/local_ckpt.ckpt
 ```
 
 The `data_shape` is the model input shape of height and width for MindIR file. The shape value of MindIR in the download link can be found in [Notes](#2-results) under results table.
@@ -385,8 +400,7 @@ Please refer to [Environment Installation](../../../docs/en/inference/environmen
 **3. Model Conversion**
 
 Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#1-mindocr-models),
-and use the `converter_lite` tool for offline conversion of the MindIR file, where the `input_shape` in `configFile` needs to be filled in with the value from MindIR export,
-as mentioned above (1, 3, 64, 256), and the format is NCHW.
+and use the `converter_lite` tool for offline conversion of the MindIR file.
 
 **4. Inference**
 
@@ -395,11 +409,8 @@ Assuming that you obtain output.mindir after model conversion, go to the `deploy
 ```shell
 python infer.py \
     --input_images_dir=/your_path_to/test_images \
-    --device=Ascend \
-    --device_id=0 \
     --rec_model_path=your_path_to/output.mindir \
     --rec_model_name_or_config=../../configs/rec/svtr/svtr_tiny.yaml \
-    --backend=lite \
     --res_save_dir=results_dir
 ```
 

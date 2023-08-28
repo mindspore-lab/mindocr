@@ -1,12 +1,40 @@
 import cv2
 import numpy as np
 
-import mindspore as ms
-from mindspore import Tensor, nn
+from mindspore import Tensor
 
 from .det_base_postprocess import DetBasePostprocess
 
 __all__ = ["PSEPostprocess"]
+
+
+def _resize_4d_array(pred, scale_factor):
+    """
+    Resize a 4D numpy array using bilinear interpolation in the H and W dimensions.
+    :param pred: A 4D numpy array of shape (N, C, H, W).
+    :param scale_factor: An integer value representing the scale factor applied to H and W.
+    :return: A 4D numpy array of shape (N, C, H', W'), where H' and W' are scaled versions of H and W.
+    """
+    N, C, H, W = pred.shape
+    scaled_H = H * scale_factor
+    scaled_W = W * scale_factor
+
+    # warning: C*N should not exceed 512
+    # according to: https://stackoverflow.com/a/65160547/6380135
+    pred_3d = np.transpose(pred, axes=(2, 3, 1, 0)).reshape((H, W, C * N))
+
+    resize_3d = cv2.resize(pred_3d, (scaled_W, scaled_H), interpolation=cv2.INTER_LINEAR)
+
+    resized_pred = np.transpose(resize_3d.reshape((scaled_H, scaled_W, C, N)), axes=(3, 2, 0, 1))
+
+    return resized_pred
+
+
+def _sigmoid_3d_array(x):
+    # Compute the sigmoid of the 3D array
+    sigmoid_3d = 1 / (1 + np.exp(-x))
+
+    return sigmoid_3d
 
 
 class PSEPostprocess(DetBasePostprocess):
@@ -47,8 +75,6 @@ class PSEPostprocess(DetBasePostprocess):
         self._min_area = min_area
         self._box_type = box_type
         self._scale = scale
-        self._interpolate = nn.ResizeBilinear()
-        self._sigmoid = nn.Sigmoid()
         if rescale_fields is None:
             rescale_fields = []
         self._rescale_fields = rescale_fields
@@ -70,16 +96,12 @@ class PSEPostprocess(DetBasePostprocess):
             if not isinstance(pred, Tensor):
                 pred = Tensor(pred)
 
-            pred = self._interpolate(pred, scale_factor=4 // self._scale)
-            score = self._sigmoid(pred[:, 0, :, :])
-
-            kernels = (pred > self._binary_thresh).astype(ms.float32)
+            pred = _resize_4d_array(pred.asnumpy(), scale_factor=4 // self._scale)
+            score = _sigmoid_3d_array(pred[:, 0, :, :])
+            kernels = (pred > self._binary_thresh).astype(np.float32)
             text_mask = kernels[:, :1, :, :]
-            text_mask = text_mask.astype(ms.int8)
+            kernels = (kernels * text_mask).astype(np.uint8)
 
-            kernels[:, 1:, :, :] = kernels[:, 1:, :, :] * text_mask
-            score = score.asnumpy()
-            kernels = kernels.asnumpy().astype(np.uint8)
         poly_list, score_list = [], []
         for batch_idx in range(score.shape[0]):
             boxes, scores = self._boxes_from_bitmap(score[batch_idx], kernels[batch_idx])
