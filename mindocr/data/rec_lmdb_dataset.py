@@ -10,7 +10,7 @@ import six
 import warnings
 import random
 import PIL
-# from ..utils.logger import Logger
+
 from .base_dataset import BaseDataset
 from .transforms.transforms_factory import create_transforms, run_transforms
 
