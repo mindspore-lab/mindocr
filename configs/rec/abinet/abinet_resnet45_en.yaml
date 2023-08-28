@@ -1,7 +1,7 @@
 system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
   distribute: True
-  amp_level: 'O0' # O0  # amp_level: 'O0'
+  amp_level: 'O0' 
   seed: 42
   log_interval: 100
   val_while_train: True
@@ -79,6 +79,10 @@ train:
       - ABINetRecAug:
     # #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
     output_columns: ['image','label','length','label_for_mask'] #'img_path']
+    filter_max_len: True
+    max_text_len: 25
+    filter_zero_text_image: True
+    check_rec_image: True
 
   loader:
       shuffle: True # TODO: tbc

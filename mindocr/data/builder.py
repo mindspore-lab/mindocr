@@ -167,8 +167,9 @@ def build_dataset(
         f" per device ({num_samples * num_devices} total)."
     )
 
-    # if "refine_batch_size" in kwargs:
-    #     batch_size = _check_batch_size(num_samples, batch_size, refine=kwargs["refine_batch_size"])
+    if "refine_batch_size" in kwargs:
+        if kwargs["refine_batch_size"]:
+            batch_size = _check_batch_size(num_samples, batch_size, refine=kwargs["refine_batch_size"])
 
     drop_remainder = loader_config.get("drop_remainder", is_train)
     if is_train and drop_remainder is False and is_main_device:
@@ -178,7 +179,7 @@ def build_dataset(
         )
 
     if not is_train:
-        # if drop_remainder and is_main_device:
+        if drop_remainder and is_main_device:
             _logger.warning(
                 "`drop_remainder` is forced to be False for evaluation "
                 "to include the last batch for accurate evaluation."

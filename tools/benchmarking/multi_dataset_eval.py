@@ -43,8 +43,7 @@ import copy
 import logging
 import os
 import sys
-import mindspore as ms
-ms.set_context(device_id=0)
+
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../..")))
 
@@ -92,6 +91,7 @@ def main(cfg):
             )
         else:
             device_id = cfg.system.get("device_id", 0)
+            ms.set_context(device_id=device_id)
             print(
                 f"INFO: Standalone evaluation. Device id: {device_id}, "
                 f"specified by system.device_id in yaml config file or is default value 0."
@@ -153,7 +153,7 @@ def main(cfg):
                 num_shards=device_num,
                 shard_id=rank_id,
                 is_train=False,
-                refine_batch_size=True,
+                refine_batch_size=cfg.system.get("refine_batch_size", True),
             )
 
             num_batches = loader_eval.get_dataset_size()

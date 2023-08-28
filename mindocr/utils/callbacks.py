@@ -6,7 +6,6 @@ from typing import List, Tuple
 import mindspore as ms
 from mindspore import save_checkpoint
 from mindspore.train.callback._callback import Callback, _handle_loss
-from packaging import version
 from .checkpoint import CheckpointManager
 from .evaluator import Evaluator
 from .misc import AllReduce, AverageMeter, fetch_optimizer_lr

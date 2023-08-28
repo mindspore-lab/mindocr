@@ -5,8 +5,6 @@ import logging
 import os
 import sys
 
-import mindspore as ms
-ms.set_context(device_id=6)
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "..")))
 

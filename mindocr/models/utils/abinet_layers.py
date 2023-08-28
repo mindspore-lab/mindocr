@@ -1,7 +1,7 @@
 import math
 
 import numpy as np
-# from mindspore.nn import TransformerDecoderLayer
+
 import mindspore as ms
 import mindspore.common.dtype as mstype
 from mindspore import log as logger

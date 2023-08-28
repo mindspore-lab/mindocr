@@ -102,7 +102,7 @@ def main(cfg):
             num_shards=device_num,
             shard_id=rank_id,
             is_train=False,
-            refine_batch_size=cfg.system.get("refine_batch_size", "True"),
+            refine_batch_size=cfg.system.get("refine_batch_size", True),
         )
 
     # create model
