@@ -6,13 +6,14 @@ import logging
 import random
 import re
 import warnings
-import mindspore as ms
+
 import cv2
 import numpy as np
 import PIL
 import six
 from PIL import Image
 
+import mindspore as ms
 import mindspore.dataset as ds
 
 from ...models.utils.abinet_layers import CharsetMapper, onehot

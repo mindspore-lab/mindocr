@@ -1,8 +1,10 @@
-import numpy as np
 import math
+
+import numpy as np
+
 import mindspore as ms
 from mindspore import nn
-import copy
+
 from ..utils.abinet_layers import ABINetBlock, PositionalEncoding
 from ..utils.abinet_layers import TransformerDecoder as ms_TransformerDecoder
 from ..utils.abinet_layers import _default_tfmer_cfg
@@ -36,11 +38,12 @@ class ABINetHead(nn.Cell):
             all_l_res.append(l_res)
             a_res = self.alignment(l_res["feature"], v_res["feature"])
             all_a_res.append(a_res)
-            
+
         if not self.training:
             return a_res["logits"]
-        
+
         return all_a_res, all_l_res, v_res
+
 
 def _calculate_fan_in_and_fan_out(shape):
     """

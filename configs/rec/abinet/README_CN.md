@@ -292,7 +292,7 @@ python tools/eval.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
 
 **注意:**
-- 由于mindspore.nn.transformer在定义时需要固定的批处理大小，因此在选择val_while_train=True时，有必要确保验证集的批处理大小与模型的批处理大小相同。 
+- 由于mindspore.nn.transformer在定义时需要固定的批处理大小，因此在选择val_while_train=True时，有必要确保验证集的批处理大小与模型的批处理大小相同。
 - 所以， minocr.data.builder.py中的第179-185行
 ```
 if not is_train:

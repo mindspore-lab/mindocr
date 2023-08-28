@@ -1,17 +1,6 @@
 import math
 
 import numpy as np
-
-import mindspore as ms
-import mindspore.common.dtype as mstype
-from mindspore import log as logger
-from mindspore import nn
-from mindspore import _checkparam as Validator
-from mindspore.common.parameter import Parameter
-from mindspore.common.tensor import Tensor
-from mindspore.context import ParallelMode
-from mindspore.log import _LogActionOnce
-from mindspore.nn.cell import Cell
 from mindformers.modules.layers import LayerNorm as _LayerNorm
 from mindformers.modules.layers import (
     _args_type_validator_check,
@@ -35,6 +24,17 @@ from mindformers.modules.transformer.transformer import (
     _get_lambda_func,
     default_transformer_config,
 )
+
+import mindspore as ms
+import mindspore.common.dtype as mstype
+from mindspore import _checkparam as Validator
+from mindspore import log as logger
+from mindspore import nn
+from mindspore.common.parameter import Parameter
+from mindspore.common.tensor import Tensor
+from mindspore.context import ParallelMode
+from mindspore.log import _LogActionOnce
+from mindspore.nn.cell import Cell
 from mindspore.ops import functional as F
 from mindspore.ops import operations as P
 from mindspore.parallel._utils import _get_parallel_mode, _is_sharding_propagation

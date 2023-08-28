@@ -1,15 +1,15 @@
 import logging
 import os
+import random
+import re
 import unicodedata
+import warnings
 from typing import Any, List, Optional
 
 import lmdb
 import numpy as np
-import re
-import six
-import warnings
-import random
 import PIL
+import six
 
 from .base_dataset import BaseDataset
 from .transforms.transforms_factory import create_transforms, run_transforms
@@ -275,7 +275,6 @@ class LMDBDataset(BaseDataset):
         return imgbuf, label
 
     def __getitem__(self, idx):
-
         lmdb_idx, file_idx = self.data_idx_order_list[idx]
 
         sample_info = self.get_lmdb_sample_info(self.lmdb_sets[int(lmdb_idx)]["txn"], int(file_idx))
@@ -314,7 +313,7 @@ class LMDBDataset(BaseDataset):
         next_index = random.randint(0, self.data_idx_order_list.shape[0] - 1)
         # print("next_index:",next_index,"len:",self.lmdb_sets[index]['num_samples'] - 1)
         return self.__getitem__(idx=next_index)
-    
+
     def _check_rec_image(self, data):
         img_lmdb = data["img_lmdb"]
         label = data["label"]
@@ -332,7 +331,7 @@ class LMDBDataset(BaseDataset):
                 return True
         except Exception:
             return True
-        
+
         return False
 
 
