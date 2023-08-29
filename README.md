@@ -43,7 +43,7 @@ MindOCR is an open-source toolbox for OCR development and application based on [
 MindOCR is built on MindSpore AI framework, which supports CPU/GPU/NPU devices.
 MindOCR is compatible with the following framework versions. For details and installation guideline, please refer to the installation links shown below.
 
-- mindspore >= 1.9  [[install](https://www.mindspore.cn/install)]
+- mindspore >= 1.9 (ABINet requires mindspore >= 2.0) [[install](https://www.mindspore.cn/install)]
 - python >= 3.7
 - openmpi 4.0.3 (for distributed training/evaluation)  [[install](https://www.open-mpi.org/software/ompi/v4.0/)]
 - mindspore lite (for inference)  [[install](docs/en/inference/environment.md)]

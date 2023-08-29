@@ -35,7 +35,7 @@ jobs:
         pip install -r requirements/dev.txt
         # MindSpore must be installed following the instruction from official web, but not from pypi.
         # That's why we exclude mindspore from requirements.txt. Does this work?
-        pip install "mindspore>=1.9"
+        pip install "mindspore>=1.9, <=2.1"
     - name: Lint with pre-commit
       uses: pre-commit/action@v3.0.0
     - name: Check_Cpplint
