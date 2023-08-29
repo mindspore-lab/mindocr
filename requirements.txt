@@ -15,3 +15,4 @@ packaging
 Cython
 lanms>=1.0.2
 mindformers>=0.3.0
+requests>=2.31.0
