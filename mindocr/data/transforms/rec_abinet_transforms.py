@@ -40,6 +40,7 @@ class ABINetTransforms(object):
 
     def __init__(
         self,
+        **kwargs,
     ):
         # ABINet_Transforms
         self.case_sensitive = False
@@ -85,7 +86,7 @@ class ABINetTransforms(object):
 
 
 class ABINetRecAug(object):
-    def __init__(self, width=128, height=32):
+    def __init__(self, width=128, height=32, **kwargs):
         self.transforms = ds.transforms.Compose(
             [
                 CVGeometry(
@@ -131,6 +132,7 @@ class ABINetEvalTransforms(object):
 
     def __init__(
         self,
+        **kwargs,
     ):
         # ABINet_Transforms
         self.case_sensitive = False
@@ -170,7 +172,7 @@ class ABINetEvalTransforms(object):
 
 
 class ABINetEval(object):
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.toTensor = ds.vision.ToTensor()
         self.w = 128
         self.h = 32
@@ -188,7 +190,7 @@ class ABINetEval(object):
 
 
 class CVGeometry(object):
-    def __init__(self, degrees=15, translate=(0.3, 0.3), scale=(0.5, 2.0), shear=(45, 15), distortion=0.5, p=0.5):
+    def __init__(self, degrees=15, translate=(0.3, 0.3), scale=(0.5, 2.0), shear=(45, 15), distortion=0.5, p=0.5, **kwargs):
         self.p = p
         type_p = random.random()
         if type_p < 0.33:
@@ -207,7 +209,7 @@ class CVGeometry(object):
 
 
 class CVDeterioration(object):
-    def __init__(self, var, degrees, factor, p=0.5):
+    def __init__(self, var, degrees, factor, p=0.5, **kwargs):
         self.p = p
         transforms = []
         if var is not None:
