@@ -85,7 +85,7 @@ class ABINetTransforms(object):
 
 
 class ABINetRecAug(object):
-    def __init__(self):
+    def __init__(self, width=128, height=32):
         self.transforms = ds.transforms.Compose(
             [
                 CVGeometry(
@@ -101,8 +101,8 @@ class ABINetRecAug(object):
             ]
         )
         self.toTensor = ds.vision.ToTensor()
-        self.w = 128
-        self.h = 32
+        self.w = width
+        self.h = height
         self.op = ms.dataset.vision.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], is_hwc=False)
 
     def __call__(self, data):
@@ -180,7 +180,6 @@ class ABINetEval(object):
         img = data["image"]
         img = cv2.resize(img, (self.w, self.h))
         img = self.toTensor(img)
-        # img = self.op(img)
         data["image"] = img
         length = data["length"]
         length = int(length)

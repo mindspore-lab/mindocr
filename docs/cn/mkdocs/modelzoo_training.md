@@ -26,6 +26,7 @@
 | visionlan_resnet45| IC03,13,15,IIIT,etc | 192| 4 | 90.61 | 417 | 1840 | O2 | [mindocr_visionlan](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan) |
 | master_resnet31   | IC03,13,15,IIIT,etc | 512 | 4 | 90.37 | 747 | 2741 | O2 |  [mindocr_master](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/master)   |
 | robustscanner_resnet31 | IC13,15,IIIT,SVT,etc | 256 | 4 | 87.86 |   825   |   310   | O0  |           [mindocr_robustscanner](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner)            |
+| abinet_resnet45   | IC03,13,15,IIIT,etc | 768 | 8 | 91.35 | 718 | 628.11 | O0 |  [mindocr_abinet](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/abinet)   |
 
 ### 文本方向分类
 
