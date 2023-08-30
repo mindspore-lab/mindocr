@@ -618,7 +618,7 @@ class TransformerEncoderLayer(Cell):
             )
 
     def construct(self, x, input_mask, init_reset=True, batch_valid_length=None):
-        self._check_input(x, input_mask, init_reset, batch_valid_length)
+        # self._check_input(x, input_mask, init_reset, batch_valid_length)
         x_shape = F.shape(x)
         x = F.reshape(x, (-1, x_shape[-1]))
 

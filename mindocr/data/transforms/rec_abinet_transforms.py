@@ -52,7 +52,6 @@ class ABINetTransforms(object):
                 img = f.read()
         elif "img_lmdb" in data:
             img = data["img_lmdb"]
-        # img_lmdb = data["img_lmdb"]
         label = data["label"]
         label = label.encode("utf-8")
         label = str(label, "utf-8")
@@ -149,7 +148,6 @@ class ABINetEvalTransforms(object):
                 img = f.read()
         elif "img_lmdb" in data:
             img = data["img_lmdb"]
-        # img_lmdb = data["img_lmdb"]
         label = data["label"]
         label = label.encode("utf-8")
         label = str(label, "utf-8")
