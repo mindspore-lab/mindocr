@@ -51,7 +51,6 @@ class ABINetLabelDecode(object):
         """
         logits = preds
         pt_text, pt_scores, pt_lengths_ = self.decode(logits)
-        
         pt_text = [self.charset.trim(t) for t in pt_text]
         return {"texts": pt_text}
 
