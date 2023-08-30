@@ -190,7 +190,9 @@ class ABINetEval(object):
 
 
 class CVGeometry(object):
-    def __init__(self, degrees=15, translate=(0.3, 0.3), scale=(0.5, 2.0), shear=(45, 15), distortion=0.5, p=0.5, **kwargs):
+    def __init__(
+        self, degrees=15, translate=(0.3, 0.3), scale=(0.5, 2.0), shear=(45, 15), distortion=0.5, p=0.5, **kwargs
+    ):
         self.p = p
         type_p = random.random()
         if type_p < 0.33:
