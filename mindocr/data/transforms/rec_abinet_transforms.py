@@ -47,7 +47,12 @@ class ABINetTransforms(object):
         self.charset = CharsetMapper(max_length=26)
 
     def __call__(self, data: dict):
-        img_lmdb = data["img_lmdb"]
+        if "img_path" in data:
+            with open(data["img_path"], "rb") as f:
+                img = f.read()
+        elif "img_lmdb" in data:
+            img = data["img_lmdb"]
+        # img_lmdb = data["img_lmdb"]
         label = data["label"]
         label = label.encode("utf-8")
         label = str(label, "utf-8")
@@ -58,7 +63,7 @@ class ABINetTransforms(object):
                 _logger.warning(string_false2)
             label = label[:25]
             buf = six.BytesIO()
-            buf.write(img_lmdb)
+            buf.write(img)
             buf.seek(0)
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", UserWarning)
@@ -139,7 +144,12 @@ class ABINetEvalTransforms(object):
         self.charset = CharsetMapper(max_length=26)
 
     def __call__(self, data: dict):
-        img_lmdb = data["img_lmdb"]
+        if "img_path" in data:
+            with open(data["img_path"], "rb") as f:
+                img = f.read()
+        elif "img_lmdb" in data:
+            img = data["img_lmdb"]
+        # img_lmdb = data["img_lmdb"]
         label = data["label"]
         label = label.encode("utf-8")
         label = str(label, "utf-8")
@@ -150,7 +160,7 @@ class ABINetEvalTransforms(object):
                 _logger.warning(string_false2)
             label = label[:25]
             buf = six.BytesIO()
-            buf.write(img_lmdb)
+            buf.write(img)
             buf.seek(0)
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", UserWarning)
