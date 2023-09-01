@@ -81,10 +81,10 @@ def update_config_for_CI(
 
         if "model" in config:
             if "backbone" in config["model"]:
-                if "batch_size" in config["model"]["backbone"]:
+                if "batchsize" in config["model"]["backbone"]:
                     config["model"]["backbone"]["batchsize"] = 1
             if "head" in config["model"]:
-                if "batch_size" in config["model"]["head"]:
+                if "batchsize" in config["model"]["head"]:
                     config["model"]["head"]["batchsize"] = 1
 
         if task == "rec":
