@@ -78,7 +78,7 @@ def update_config_for_CI(
             config["common"]["batch_size"] = 1
         if "batch_size" in config["loss"]:
             config["loss"]["batch_size"] = 1
-        
+
         if "model" in config:
             if "backbone" in config["model"]:
                 if "batch_size" in config["model"]["backbone"]:
