@@ -233,12 +233,18 @@ class BorderMap:
         shrink_ratio: polygon shrink ratio (same as in ShrinkBinaryMap) which is used to calculate width of the border.
         thresh_min: minimum value for the border map (normalized map).
         thresh_max: maximum value for the border map (normalized map).
+        fast: (experimental) use OpenCV to calculate border maps. Use it only if the number of polygon vertices in your
+              dataset is high (e.g. ReST). May produce incorrect maps, for more information see
+              https://github.com/mindspore-lab/mindocr/pull/569
     """
 
-    def __init__(self, shrink_ratio: float = 0.4, thresh_min: float = 0.3, thresh_max: float = 0.7, **kwargs):
+    def __init__(
+        self, shrink_ratio: float = 0.4, thresh_min: float = 0.3, thresh_max: float = 0.7, fast: bool = False, **kwargs
+    ):
         self._thresh_min = thresh_min
         self._thresh_max = thresh_max
         self._dist_coef = 1 - shrink_ratio**2
+        self._fast = fast
 
     def __call__(self, data: dict) -> dict:
         border = np.zeros(data["image"].shape[:2], dtype=np.float32)
@@ -265,18 +271,34 @@ class BorderMap:
         width, height = max_vals - min_vals + 1
         np_poly = np_poly - min_vals
 
-        xs = np.broadcast_to(np.linspace(0, width - 1, num=width).reshape(1, width), (height, width))
-        ys = np.broadcast_to(np.linspace(0, height - 1, num=height).reshape(height, 1), (height, width))
+        if self._fast:
+            distance_map = np.zeros((height, width), dtype=np.uint8)
+            # fast approach requires extra padding
+            pad_width = round(distance)
+            distance_map = np.pad(distance_map, pad_width, mode="constant")
 
-        distance_map = [self._distance(xs, ys, p1, p2) for p1, p2 in zip(np_poly, np.roll(np_poly, 1, axis=0))]
-        distance_map = np.clip(np.array(distance_map, dtype=np.float32) / distance, 0, 1).min(axis=0)  # NOQA
+            # draw a polygon (foreground) on black image (background)
+            thickness = round(distance * 2) - 1
+            cv2.polylines(distance_map, [np_poly.round().astype(dtype=np.int32) + pad_width], True, 1, thickness)
+
+            # calculate distance from foreground pixels to the closest background pixels
+            distance_map = np.clip(
+                cv2.distanceTransform(distance_map, cv2.DIST_C, cv2.DIST_MASK_3) / (thickness // 2), 0, 1
+            )
+            distance_map = distance_map[pad_width:-pad_width, pad_width:-pad_width]  # reverse padding
+        else:
+            xs = np.broadcast_to(np.linspace(0, width - 1, num=width).reshape(1, width), (height, width))
+            ys = np.broadcast_to(np.linspace(0, height - 1, num=height).reshape(height, 1), (height, width))
+
+            distance_map = [self._distance(xs, ys, p1, p2) for p1, p2 in zip(np_poly, np.roll(np_poly, 1, axis=0))]
+            distance_map = np.clip(np.array(distance_map, dtype=np.float32) / distance, 0, 1).min(axis=0)  # NOQA
+            distance_map = 1 - distance_map  # inverse distance map
 
         min_valid = np.clip(min_vals, 0, np.array(border.shape[::-1]) - 1)  # shape reverse order: w, h
         max_valid = np.clip(max_vals, 0, np.array(border.shape[::-1]) - 1)
 
         border[min_valid[1] : max_valid[1] + 1, min_valid[0] : max_valid[0] + 1] = np.fmax(
-            1
-            - distance_map[
+            distance_map[
                 min_valid[1] - min_vals[1] : max_valid[1] - max_vals[1] + height,
                 min_valid[0] - min_vals[0] : max_valid[0] - max_vals[0] + width,
             ],
