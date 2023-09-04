@@ -42,7 +42,7 @@ MindOCR是一个基于[MindSpore](https://www.mindspore.cn/en) 框架开发的OC
 
 MindOCR基于MindSpore AI框架（支持CPU/GPU/NPU）开发，并适配以下框架版本。安装方式请参见下方的安装链接。
 
-- mindspore >= 1.9  [[安装](https://www.mindspore.cn/install)]
+- mindspore >= 1.9 (ABINet 需要 mindspore >= 2.0) [[安装](https://www.mindspore.cn/install)]
 - python >= 3.7
 - openmpi 4.0.3 (for distributed training/evaluation)  [[安装](https://www.open-mpi.org/software/ompi/v4.0/)]
 - mindspore lite (for inference)  [[安装](docs/cn/inference/environment.md)]

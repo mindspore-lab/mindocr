@@ -79,6 +79,14 @@ def update_config_for_CI(
         if "batch_size" in config["loss"]:
             config["loss"]["batch_size"] = 1
 
+        if "model" in config:
+            if "backbone" in config["model"]:
+                if "batchsize" in config["model"]["backbone"]:
+                    config["model"]["backbone"]["batchsize"] = 1
+            if "head" in config["model"]:
+                if "batchsize" in config["model"]["head"]:
+                    config["model"]["head"]["batchsize"] = 1
+
         if task == "rec":
             config["eval"]["dataset"]["type"] = "RecDataset"
         config["eval"]["dataset"]["dataset_root"] = "data/Canidae/"

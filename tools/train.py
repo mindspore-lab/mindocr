@@ -102,7 +102,7 @@ def main(cfg):
             num_shards=device_num,
             shard_id=rank_id,
             is_train=False,
-            refine_batch_size=True,
+            refine_batch_size=cfg.system.get("refine_batch_size", True),
         )
 
     # create model
@@ -178,7 +178,7 @@ def main(cfg):
         loader_eval,
         postprocessor=postprocessor,
         metrics=[metric],
-        pred_cast_fp32=(amp_level != "O0"),
+        pred_cast_fp32=cfg.eval.pop("pred_cast_fp32", amp_level != "O0"),
         rank_id=rank_id,
         device_num=device_num,
         batch_size=cfg.train.loader.batch_size,

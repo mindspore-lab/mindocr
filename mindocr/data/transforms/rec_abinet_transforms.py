@@ -13,6 +13,7 @@ import PIL
 import six
 from PIL import Image
 
+import mindspore as ms
 import mindspore.dataset as ds
 
 from ...models.utils.abinet_layers import CharsetMapper, onehot
@@ -39,13 +40,18 @@ class ABINetTransforms(object):
 
     def __init__(
         self,
+        **kwargs,
     ):
         # ABINet_Transforms
         self.case_sensitive = False
         self.charset = CharsetMapper(max_length=26)
 
     def __call__(self, data: dict):
-        img_lmdb = data["img_lmdb"]
+        if "img_path" in data:
+            with open(data["img_path"], "rb") as f:
+                img = f.read()
+        elif "img_lmdb" in data:
+            img = data["img_lmdb"]
         label = data["label"]
         label = label.encode("utf-8")
         label = str(label, "utf-8")
@@ -56,7 +62,7 @@ class ABINetTransforms(object):
                 _logger.warning(string_false2)
             label = label[:25]
             buf = six.BytesIO()
-            buf.write(img_lmdb)
+            buf.write(img)
             buf.seek(0)
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", UserWarning)
@@ -84,7 +90,7 @@ class ABINetTransforms(object):
 
 
 class ABINetRecAug(object):
-    def __init__(self):
+    def __init__(self, width=128, height=32, **kwargs):
         self.transforms = ds.transforms.Compose(
             [
                 CVGeometry(
@@ -100,14 +106,16 @@ class ABINetRecAug(object):
             ]
         )
         self.toTensor = ds.vision.ToTensor()
-        self.w = 128
-        self.h = 32
+        self.w = width
+        self.h = height
+        self.op = ms.dataset.vision.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], is_hwc=False)
 
     def __call__(self, data):
         img = data["image"]
         img = self.transforms(img)
         img = cv2.resize(img, (self.w, self.h))
         img = self.toTensor(img)
+        img = self.op(img)
         data["image"] = img
         return data
 
@@ -128,13 +136,18 @@ class ABINetEvalTransforms(object):
 
     def __init__(
         self,
+        **kwargs,
     ):
         # ABINet_Transforms
         self.case_sensitive = False
         self.charset = CharsetMapper(max_length=26)
 
     def __call__(self, data: dict):
-        img_lmdb = data["img_lmdb"]
+        if "img_path" in data:
+            with open(data["img_path"], "rb") as f:
+                img = f.read()
+        elif "img_lmdb" in data:
+            img = data["img_lmdb"]
         label = data["label"]
         label = label.encode("utf-8")
         label = str(label, "utf-8")
@@ -145,7 +158,7 @@ class ABINetEvalTransforms(object):
                 _logger.warning(string_false2)
             label = label[:25]
             buf = six.BytesIO()
-            buf.write(img_lmdb)
+            buf.write(img)
             buf.seek(0)
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", UserWarning)
@@ -167,10 +180,11 @@ class ABINetEvalTransforms(object):
 
 
 class ABINetEval(object):
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.toTensor = ds.vision.ToTensor()
         self.w = 128
         self.h = 32
+        self.op = ms.dataset.vision.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], is_hwc=False)
 
     def __call__(self, data):
         img = data["image"]
@@ -184,7 +198,9 @@ class ABINetEval(object):
 
 
 class CVGeometry(object):
-    def __init__(self, degrees=15, translate=(0.3, 0.3), scale=(0.5, 2.0), shear=(45, 15), distortion=0.5, p=0.5):
+    def __init__(
+        self, degrees=15, translate=(0.3, 0.3), scale=(0.5, 2.0), shear=(45, 15), distortion=0.5, p=0.5, **kwargs
+    ):
         self.p = p
         type_p = random.random()
         if type_p < 0.33:
@@ -203,11 +219,11 @@ class CVGeometry(object):
 
 
 class CVDeterioration(object):
-    def __init__(self, var, degrees, factor, p=0.5):
+    def __init__(self, var, degrees, factor, p=0.5, **kwargs):
         self.p = p
         transforms = []
         if var is not None:
-            transforms.append(CVGaussianNoise(var=var))
+            transforms.append(CVGaussianNoise(variance=var))
         if degrees is not None:
             transforms.append(CVMotionBlur(degrees=degrees))
         if factor is not None:

@@ -168,7 +168,8 @@ def build_dataset(
     )
 
     if "refine_batch_size" in kwargs:
-        batch_size = _check_batch_size(num_samples, batch_size, refine=kwargs["refine_batch_size"])
+        if kwargs["refine_batch_size"]:
+            batch_size = _check_batch_size(num_samples, batch_size, refine=kwargs["refine_batch_size"])
 
     drop_remainder = loader_config.get("drop_remainder", is_train)
     if is_train and drop_remainder is False and is_main_device:
@@ -183,7 +184,7 @@ def build_dataset(
                 "`drop_remainder` is forced to be False for evaluation "
                 "to include the last batch for accurate evaluation."
             )
-            drop_remainder = False
+            drop_remainder = loader_config.get("drop_remainder", False)
 
     dataloader = ds.batch(
         batch_size,

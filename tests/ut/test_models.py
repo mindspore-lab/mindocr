@@ -22,6 +22,7 @@ all_yamls = [
     "configs/rec/svtr/svtr_tiny.yaml",
     "configs/rec/visionlan/visionlan_resnet45_LF_1.yaml",
     "configs/cls/mobilenetv3/cls_mv3.yaml",
+    "configs/rec/abinet/abinet_resnet45_en.yaml",
 ]
 print("All config yamls: ", all_yamls)
 

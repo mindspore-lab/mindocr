@@ -1,4 +1,4 @@
-# from ._registry import register_model
+from ._registry import register_model
 from .backbones.mindcv_models.utils import load_pretrained
 from .base_model import BaseModel
 
@@ -22,7 +22,7 @@ class ABINetModel(BaseModel):
         BaseModel.__init__(self, config)
 
 
-# @register_model
+@register_model
 def abinet(pretrained=False, **kwargs):
     model_config = {
         "backbone": {"name": "abinet_backbone", "pretrained": False},

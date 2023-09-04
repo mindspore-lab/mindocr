@@ -1,10 +1,15 @@
 import logging
 import os
+import random
+import re
 import unicodedata
+import warnings
 from typing import Any, List, Optional
 
 import lmdb
 import numpy as np
+import PIL
+import six
 
 from .base_dataset import BaseDataset
 from .transforms.transforms_factory import create_transforms, run_transforms
@@ -71,6 +76,7 @@ class LMDBDataset(BaseDataset):
         character_dict_path: Optional[str] = None,
         label_standandize: bool = False,
         random_choice_if_none: bool = False,
+        check_rec_image: bool = False,
         **kwargs: Any,
     ):
         self.data_dir = data_dir
@@ -79,6 +85,7 @@ class LMDBDataset(BaseDataset):
         self.label_standandize = label_standandize
         self.extra_count_if_repeat = extra_count_if_repeat
         self.random_choice_if_none = random_choice_if_none
+        self.check_rec_image = check_rec_image
 
         shuffle = shuffle if shuffle is not None else is_train
 
@@ -269,6 +276,7 @@ class LMDBDataset(BaseDataset):
 
     def __getitem__(self, idx):
         lmdb_idx, file_idx = self.data_idx_order_list[idx]
+
         sample_info = self.get_lmdb_sample_info(self.lmdb_sets[int(lmdb_idx)]["txn"], int(file_idx))
 
         if sample_info is None and self.random_choice_if_none:
@@ -277,6 +285,10 @@ class LMDBDataset(BaseDataset):
             return self.__getitem__(random_idx)
 
         data = {"img_lmdb": sample_info[0], "label": sample_info[1]}
+
+        if self.check_rec_image:
+            if self._check_rec_image(data):
+                return self._next_image(idx)
 
         # perform transformation on data
         try:
@@ -296,3 +308,35 @@ class LMDBDataset(BaseDataset):
 
     def __len__(self):
         return self.data_idx_order_list.shape[0]
+
+    def _next_image(self, index):
+        next_index = random.randint(0, self.data_idx_order_list.shape[0] - 1)
+        # print("next_index:",next_index,"len:",self.lmdb_sets[index]['num_samples'] - 1)
+        return self.__getitem__(idx=next_index)
+
+    def _check_rec_image(self, data):
+        img_lmdb = data["img_lmdb"]
+        label = data["label"]
+        label = label.encode("utf-8")
+        label = str(label, "utf-8")
+        try:
+            label = re.sub("[^0-9a-zA-Z]+", "", label)
+            buf = six.BytesIO()
+            buf.write(img_lmdb)
+            buf.seek(0)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", UserWarning)
+                image = PIL.Image.open(buf).convert("RGB")
+            if not _check_image(image, pixels=6):
+                return True
+        except Exception:
+            return True
+
+        return False
+
+
+def _check_image(x, pixels=6):
+    if x.size[0] <= pixels or x.size[1] <= pixels:
+        return False
+    else:
+        return True
