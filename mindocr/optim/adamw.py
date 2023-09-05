@@ -10,6 +10,13 @@ from mindspore.common.tensor import Tensor
 from mindspore.nn.optim import Optimizer
 from mindspore.nn.optim.optimizer import opt_init_args_register
 
+from ..utils.misc import is_ms_version_2
+
+if is_ms_version_2():
+    from mindspore import jit
+else:
+    from mindspore import ms_function as jit
+
 
 def _check_param_value(beta1, beta2, eps, prim_name):
     """Check the type of inputs."""
@@ -164,6 +171,7 @@ class AdamW(Optimizer):
         self.reciprocal_scale = Tensor(1.0 / loss_scale, ms.float32)
         self.clip = clip
 
+    @jit
     def construct(self, gradients):
         lr = self.get_lr()
         gradients = scale_grad(gradients, self.reciprocal_scale)

@@ -2,10 +2,17 @@
 import mindspore as ms
 import mindspore.context as context
 from mindspore import Parameter, Tensor, nn, ops
-from mindspore.common import RowTensor
+from mindspore.common import RowTensor, mutable
 from mindspore.ops import composite as C
 from mindspore.ops import functional as F
 from mindspore.ops import operations as P
+
+from ..utils.misc import is_ms_version_2
+
+if is_ms_version_2():
+    from mindspore import jit
+else:
+    from mindspore import ms_function as jit
 
 _grad_scale = C.MultitypeFuncGraph("grad_scale")
 reciprocal = P.Reciprocal()
@@ -85,6 +92,11 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
         self.map = ops.Map()
         self.partial = ops.Partial()
 
+    @jit
+    def down_scale_grads(self, scaling_sens, grads):
+        grads = self.hyper_map(F.partial(_grad_scale, scaling_sens * self.grad_accu_steps), grads)
+        return grads
+
     def construct(self, *inputs):
         # compute loss
         weights = self.weights
@@ -104,7 +116,8 @@ class TrainOneStepWrapper(nn.TrainOneStepWithLossScaleCell):
 
         # 2. down-scale gradients by loss_scale. grads = grads / scaling_sense  / grad_accu_steps
         # also divide gradients by accumulation steps to avoid taking mean of  the accumulated gradients later
-        grads = self.hyper_map(F.partial(_grad_scale, scaling_sens * self.grad_accu_steps), grads)
+        grads = mutable(grads)
+        grads = self.down_scale_grads(scaling_sens, grads)
 
         # 3. check gradient overflow
         if not self.is_cpu_device:

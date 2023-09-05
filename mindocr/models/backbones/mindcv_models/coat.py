@@ -10,13 +10,19 @@ import mindspore
 import mindspore.common.initializer as init
 import mindspore.nn as nn
 import mindspore.ops as ops
-from mindspore import Tensor, ms_function
+from mindspore import Tensor
 from mindspore.numpy import split
 
+from ....utils.misc import is_ms_version_2
 from .layers.drop_path import DropPath
 from .layers.identity import Identity
 from .registry import register_model
 from .utils import load_pretrained
+
+if is_ms_version_2():
+    from mindspore import jit
+else:
+    from mindspore import ms_function as jit
 
 __all__ = [
     "coat_tiny",
@@ -118,7 +124,7 @@ class ConvRelPosEnc(nn.Cell):
         self.idx1 = self.channel_splits[0]
         self.idx2 = self.channel_splits[0] + self.channel_splits[1]
 
-    @ms_function
+    @jit
     def construct(self, q, v, size) -> Tensor:
 
         B, h, N, Ch = q.shape
