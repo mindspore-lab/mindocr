@@ -1,6 +1,20 @@
 import math
-
 import numpy as np
+
+import mindspore as ms
+import mindspore.common.dtype as mstype
+from mindspore import _checkparam as Validator
+from mindspore import log as logger
+from mindspore import nn
+from mindspore.common.parameter import Parameter
+from mindspore.common.tensor import Tensor
+from mindspore.context import ParallelMode
+from mindspore.log import _LogActionOnce
+from mindspore.nn.cell import Cell
+from mindspore.ops import functional as F
+from mindspore.ops import operations as P
+from mindspore.parallel._utils import _get_parallel_mode, _is_sharding_propagation
+
 from mindformers.modules.layers import LayerNorm as _LayerNorm
 from mindformers.modules.layers import (
     _args_type_validator_check,
@@ -25,19 +39,8 @@ from mindformers.modules.transformer.transformer import (
     default_transformer_config,
 )
 
-import mindspore as ms
-import mindspore.common.dtype as mstype
-from mindspore import _checkparam as Validator
-from mindspore import log as logger
-from mindspore import nn
-from mindspore.common.parameter import Parameter
-from mindspore.common.tensor import Tensor
-from mindspore.context import ParallelMode
-from mindspore.log import _LogActionOnce
-from mindspore.nn.cell import Cell
-from mindspore.ops import functional as F
-from mindspore.ops import operations as P
-from mindspore.parallel._utils import _get_parallel_mode, _is_sharding_propagation
+from ...data.transforms.rec_abinet_transforms import CharsetMapper
+
 
 _default_tfmer_cfg = dict(
     d_model=512, nhead=8, d_inner=2048, dropout=0.1, activation="relu"  # 1024
@@ -86,96 +89,6 @@ class ABINetBlock(nn.Cell):
         mask = expand_dims(mask, 0)
         # mask = mask.float().masked_fill(mask == 1, float('-inf'))
         return mask
-
-
-class CharsetMapper(object):
-
-    def __init__(self, max_length=30, null_char="\u2591"):
-
-        self.null_char = null_char
-        self.max_length = max_length
-        self.label_to_char = self._read_charset()
-        self.char_to_label = dict(map(reversed, self.label_to_char.items()))
-        self.num_classes = len(self.label_to_char)
-
-    def _read_charset(self):
-        charset = {}
-        charset_list = "░abcdefghijklmnopqrstuvwxyz1234567890"
-        charset = {idx: c for idx, c in enumerate(charset_list)}
-        self.null_label = 0
-        charset[self.null_label] = self.null_char
-        return charset
-
-    def trim(self, text):
-        assert isinstance(text, str)
-        return text.replace(self.null_char, "")
-
-    def get_text(self, labels, length=None, padding=True, trim=False):
-        """Returns a string corresponding to a sequence of character ids."""
-        length = length if length else self.max_length
-        labels = [int(a) if isinstance(a, ms.Tensor) else int(a) for a in labels]
-        if padding:
-            labels = labels + [self.null_label] * (length - len(labels))
-        text = "".join([self.label_to_char[label] for label in labels])
-        if trim:
-            text = self.trim(text)
-        return text
-
-    def get_labels(self, text, length=None, padding=True, case_sensitive=False):
-        """Returns the labels of the corresponding text."""
-        length = length if length else self.max_length
-        if padding:
-            text = text + self.null_char * (length - len(text))
-        if not case_sensitive:
-            text = text.lower()
-        labels = [self.char_to_label[char] for char in text]
-        return labels
-
-    def pad_labels(self, labels, length=None):
-        length = length if length else self.max_length
-        return labels + [self.null_label] * (length - len(labels))
-
-    @property
-    def digits(self):
-        return "0123456789"
-
-    @property
-    def digit_labels(self):
-        return self.get_labels(self.digits, padding=False)
-
-    @property
-    def alphabets(self):
-        all_chars = list(self.char_to_label.keys())
-        valid_chars = []
-        for c in all_chars:
-            if c in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ":
-                valid_chars.append(c)
-        return "".join(valid_chars)
-
-    @property
-    def alphabet_labels(self):
-        return self.get_labels(self.alphabets, padding=False)
-
-
-def onehot(label, depth, device=None):
-
-    label_shape = 26
-
-    onehot_output = np.zeros((label_shape, depth))
-
-    label_expand = np.expand_dims(label, -1)
-    label_expand = np.expand_dims(label_expand, -1)
-    label_expand_onehot = np.zeros((26, 37))
-    a = 0
-    for i in label_expand:
-        i = int(i)
-        label_expand_onehot[a][i] = 1
-        a = a + 1
-
-    label_expand_onehot = label_expand_onehot
-    onehot_output = label_expand_onehot + onehot_output
-
-    return onehot_output
 
 
 def encoder_layer(in_c, out_c, k=3, s=2, p=1):

@@ -7,7 +7,7 @@ import numpy as np
 import mindspore as ms
 from mindspore import Tensor
 
-from ..models.utils.abinet_layers import CharsetMapper
+from ..data.transforms.rec_abinet_transforms import CharsetMapper
 
 __all__ = ["ABINetLabelDecode"]
 

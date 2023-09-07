@@ -1,4 +1,8 @@
 __all__ = ['build_head']
+
+import logging
+
+
 supported_heads = [
     'ConvHead',
     'DBHead',
@@ -13,19 +17,8 @@ supported_heads = [
     'VisionLANHead',
     'ABINetHead',
 ]
-from .cls_head import MobileNetV3Head
-from .conv_head import ConvHead
-from .det_db_head import DBHead
-from .det_east_head import EASTHead
-from .det_fce_head import FCEHead
-from .det_pse_head import PSEHead
-from .rec_abinet_head import ABINetHead
-from .rec_attn_head import AttentionHead
-from .rec_ctc_head import CTCHead
-from .rec_master_decoder import MasterDecoder
-from .rec_robustscanner_head import RobustScannerHead
-from .rec_visionlan_head import VisionLANHead
 
+_logger = logging.getLogger(__name__)
 
 def build_head(head_name, **kwargs):
     """
@@ -49,6 +42,32 @@ def build_head(head_name, **kwargs):
         >>> head = build_head(**config)
         >>> print(head)
     """
-    assert head_name in supported_heads, f'Invalid head {head_name}. Supported heads are {supported_heads}'
+    if head_name not in supported_heads:
+        _logger.error(f'Invalid head {head_name}. Supported heads are {supported_heads}')
+        exit(1)
+    if head_name == 'ConvHead':
+        from .conv_head import ConvHead
+    if head_name == 'DBHead':
+        from .det_db_head import DBHead
+    if head_name == 'EASTHead':
+        from .det_east_head import EASTHead
+    if head_name == 'CTCHead':
+        from .rec_ctc_head import CTCHead
+    if head_name == 'PSEHead':
+        from .det_pse_head import PSEHead
+    if head_name == 'AttentionHead':
+        from .rec_attn_head import AttentionHead
+    if head_name == 'MobileNetV3Head':
+        from .cls_head import MobileNetV3Head
+    if head_name == 'FCEHead':
+        from .det_fce_head import FCEHead
+    if head_name == 'MasterDecoder':
+        from .rec_master_decoder import MasterDecoder
+    if head_name == 'RobustScannerHead':
+        from .rec_robustscanner_head import RobustScannerHead
+    if head_name == 'VisionLANHead':
+        from .rec_visionlan_head import VisionLANHead
+    if head_name == 'ABINetHead':
+        from .rec_abinet_head import ABINetHead
     head = eval(head_name)(**kwargs)
     return head
