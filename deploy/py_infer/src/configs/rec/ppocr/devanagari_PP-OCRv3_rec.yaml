@@ -3,6 +3,7 @@ postprocess:
   use_space_char: True
   use_redundant_space_char: True
   blank_at_last: False
+  from_ppocr: True
 
 eval:
   dataset:
