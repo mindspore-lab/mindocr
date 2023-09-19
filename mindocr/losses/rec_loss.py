@@ -49,11 +49,12 @@ class CTCLoss(LossBase):
         Returns:
             loss value (Tensor)
         """
-        logit = pred
+        dtype = pred.dtype
+        logit = pred.astype(ms.float32)
         label_values = ops.reshape(label, (-1,))
 
         loss, _ = self.ctc_loss(logit, self.label_indices, label_values, self.sequence_length)
-        loss = self.get_loss(loss)
+        loss = self.get_loss(loss.astype(dtype))
         return loss
 
 
