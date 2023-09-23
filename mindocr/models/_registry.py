@@ -49,7 +49,6 @@ def list_models(filter='', module='', pretrained=False, exclude_filters=''):
         all_models = list(_module_to_models[module])
     else:
         all_models = _model_entrypoints.keys()
-
     if filter:
         models = []
         include_filters = filter if isinstance(filter, (tuple, list)) else [filter]

@@ -120,6 +120,6 @@ class PositionalEncoding(nn.Cell):
 
     def construct(self, input_tensor: Tensor) -> Tensor:
         input_tensor = (
-            input_tensor + self.pe[:, : input_tensor.shape[1]]
+                input_tensor + self.pe[:, : ops.dyn_shape(input_tensor)[1]]
         )  # pe 1 5000 512
         return self.dropout(input_tensor)

@@ -11,11 +11,14 @@ supported_losses = [
     "FCELoss",
     "SARLoss",
     "VisionLANLoss",
+    "VQASerTokenLayoutLMLoss",
+    "LossFromOutput",
 ]
 
 from .abinet_loss import ABINetLoss
 from .cls_loss import CrossEntropySmooth
 from .det_loss import DBLoss, EASTLoss, FCELoss, PSEDiceLoss
+from .layout_loss import LossFromOutput, VQASerTokenLayoutLMLoss
 from .rec_loss import AttentionLoss, CTCLoss, SARLoss, VisionLANLoss
 
 

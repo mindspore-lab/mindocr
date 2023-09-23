@@ -80,6 +80,7 @@ class MultiAspectGCAttention(nn.Cell):
                 nn.ReLU(),
                 nn.Conv2d(self.planes, self.inplanes, kernel_size=1, has_bias=True),
             )
+        self.matmul = ops.BatchMatMul()
 
     def spatial_pool(self, x: Tensor) -> Tensor:
         N, _, H, W = x.shape
@@ -110,7 +111,7 @@ class MultiAspectGCAttention(nn.Cell):
             # [N*headers, 1, H * W, 1]
             context_mask = ops.expand_dims(context_mask, -1)
             # [N*headers, 1, C', 1] = [N*headers, 1, C', H * W] * [N*headers, 1, H * W, 1]
-            context = ops.matmul(input_x, context_mask)
+            context = self.matmul(input_x, context_mask)
 
             # [N, headers * C', 1, 1]
             context = context.reshape(

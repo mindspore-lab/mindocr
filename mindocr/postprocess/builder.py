@@ -6,6 +6,8 @@ from . import (  # rec_abinet_postprocess,
     det_pse_postprocess,
     rec_abinet_postprocess,
     rec_postprocess,
+    layout_token_re_postprocess,
+    layout_token_ser_postprocess
 )
 from .cls_postprocess import *
 from .det_db_postprocess import *
@@ -14,17 +16,21 @@ from .det_fce_postprocess import *
 from .det_pse_postprocess import *
 from .rec_abinet_postprocess import *
 from .rec_postprocess import *
+from .layout_token_re_postprocess import *
+from .layout_token_ser_postprocess import *
 
 __all__ = ["build_postprocess"]
 
 supported_postprocess = (
-    det_db_postprocess.__all__
-    + det_pse_postprocess.__all__
-    + det_east_postprocess.__all__
-    + rec_postprocess.__all__
-    + cls_postprocess.__all__
-    + rec_abinet_postprocess.__all__
-    + det_fce_postprocess.__all__
+        det_db_postprocess.__all__
+        + det_pse_postprocess.__all__
+        + det_east_postprocess.__all__
+        + rec_postprocess.__all__
+        + cls_postprocess.__all__
+        + rec_abinet_postprocess.__all__
+        + det_fce_postprocess.__all__
+        + layout_token_re_postprocess.__all__
+        + layout_token_ser_postprocess.__all__
 )
 
 

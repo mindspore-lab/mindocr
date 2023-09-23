@@ -146,15 +146,16 @@ class VisionLANLoss(LossBase):
 class AttentionLoss(LossBase):
     def __init__(self, reduction: str = "mean", ignore_index: int = 0) -> None:
         super().__init__()
+        self.reduction = reduction
         # ignore <GO> symbol, assume it is placed at 0th index
-        self.criterion = nn.CrossEntropyLoss(reduction=reduction, ignore_index=ignore_index)
+        self.ignore_index = ignore_index
 
     def construct(self, logits: Tensor, labels: Tensor) -> Tensor:
         labels = labels[:, 1:]  # without <GO> symbol
         num_classes = logits.shape[-1]
         logits = ops.reshape(logits, (-1, num_classes))
         labels = ops.reshape(labels, (-1,))
-        return self.criterion(logits, labels)
+        return ops.cross_entropy(logits, labels, reduction=self.reduction, ignore_index=self.ignore_index)
 
 
 class SARLoss(LossBase):
