@@ -2,8 +2,8 @@
 Text recognition inference
 
 Example:
-    $ python tools/infer/text/predict_rec.py  --image_dir {path_to_img} --rec_algorithm CRNN
-    $ python tools/infer/text/predict_rec.py  --image_dir {path_to_img} --rec_algorithm CRNN_CH
+    $ python tools/infer/text/predict_rec.py  --image_dir {img_dir_or_img_path} --rec_algorithm CRNN
+    $ python tools/infer/text/predict_rec.py  --image_dir {img_dir_or_img_path} --rec_algorithm CRNN_CH
 """
 import logging
 import os
@@ -247,14 +247,13 @@ def save_rec_res(rec_res_all, img_paths, include_score=False, save_path="./rec_r
     lines = []
     for i, rec_res in enumerate(rec_res_all):
         if include_score:
-            img_pred = os.path.basename(img_paths[i]) + "\t" + rec_res[0] + "\t" + rec_res[1] + "\n"
+            img_pred = os.path.basename(img_paths[i]) + "\t" + rec_res[0] + "\t" + str(rec_res[1]) + "\n"
         else:
             img_pred = os.path.basename(img_paths[i]) + "\t" + rec_res[0] + "\n"
         lines.append(img_pred)
 
     with open(save_path, "w") as f:
         f.writelines(lines)
-        f.close()
 
     return lines
 

@@ -2,10 +2,12 @@
 Text detection and recognition inference
 
 Example:
-    $ python tools/infer/text/predict_system.py --image_dir {path_to_img_file} --det_algorithm DB++ \
+    $ python tools/infer/text/predict_system.py --image_dir {img_dir_or_img_path} --det_algorithm DB++ \
       --rec_algorithm CRNN
-    $ python tools/infer/text/predict_system.py --image_dir {path_to_img_dir} --det_algorithm DB++ \
+    $ python tools/infer/text/predict_system.py --image_dir {img_dir_or_img_path} --det_algorithm DB++ \
       --rec_algorithm CRNN_CH
+    $ python tools/infer/text/predict_system.py --image_dir {img_dir_or_img_path} --det_algorithm DB++ \
+      --cls_algorithm MV3 --rec_algorithm CRNN_CH --visualize_output True
 """
 
 import json
@@ -18,6 +20,7 @@ from typing import Union
 import cv2
 import numpy as np
 from config import parse_args
+from predict_cls import DirectionClassifier
 from predict_det import TextDetector
 from predict_rec import TextRecognizer
 from utils import crop_text_region, get_image_paths
@@ -37,7 +40,10 @@ class TextSystem(object):
     def __init__(self, args):
         self.text_detect = TextDetector(args)
         self.text_recognize = TextRecognizer(args)
+        if args.cls_algorithm:
+            self.direction_classify = DirectionClassifier(args)
 
+        self.cls_algorithm = args.cls_algorithm
         self.box_type = args.det_box_type
         self.drop_score = args.drop_score
         self.save_crop_res = args.save_crop_res
@@ -50,7 +56,7 @@ class TextSystem(object):
 
     def __call__(self, img_or_path: Union[str, np.ndarray], do_visualize=True):
         """
-        Detect and recognize texts in an image
+        Detect, (classify direction) and recognize texts in an image
 
         Args:
             img_or_path (str or np.ndarray): path to image or image rgb values as a numpy array
@@ -86,6 +92,13 @@ class TextSystem(object):
             if self.save_crop_res:
                 cv2.imwrite(os.path.join(self.crop_res_save_dir, f"{fn}_crop_{i}.jpg"), cropped_img)
         # show_imgs(crops, is_bgr_img=False)
+
+        # classify the text direction of cropped images
+        if self.cls_algorithm:
+            cls_start = time()
+            _, crops = self.direction_classify(crops)
+            time_profile["cls"] = time() - cls_start
+            _logger.info(f"\nCls time: {time_profile['cls']}")
 
         # recognize cropped images
         rs = time()
@@ -174,7 +187,7 @@ def main():
             text_spot(img_paths[0], do_visualize=False)
 
     # run
-    tot_time = {}  # {'det': 0, 'rec': 0, 'all': 0}
+    tot_time = {}  # {'det': 0, 'rec': 0, 'cls': 0, 'all': 0}
     boxes_all, text_scores_all = [], []
     for i, img_path in enumerate(img_paths):
         logger.info(f"\nINFO: Infering [{i+1}/{len(img_paths)}]: {img_path}")

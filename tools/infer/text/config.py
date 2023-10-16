@@ -37,6 +37,7 @@ def create_parser():
     # parser.add_argument("--gpu_id", type=int, default=0)
 
     parser.add_argument("--det_model_config", type=str, help="path to det model yaml config")  # added
+    parser.add_argument("--cls_model_config", type=str, help="path to cls model yaml config")  # added
     parser.add_argument("--rec_model_config", type=str, help="path to rec model yaml config")  # added
 
     # params for text detector
@@ -89,6 +90,39 @@ def create_parser():
     parser.add_argument("--max_batch_size", type=int, default=10)
     parser.add_argument("--use_dilation", type=str2bool, default=False)
     parser.add_argument("--det_db_score_mode", type=str, default="fast")
+
+    # params for text direction classification
+    parser.add_argument(
+        "--cls_model_dir",
+        type=str,
+        help="directory containing the text direction classification model checkpoint best.ckpt, "
+        "or path to a specific checkpoint file.",
+    )  # determine the network weights
+    parser.add_argument(
+        "--cls_batch_mode",
+        type=str2bool,
+        default=True,
+        help="Whether to run text direction classification inference in batch-mode, "
+        "which is faster but may degrade the accraucy due to padding or resizing to the same shape.",
+    )  # added
+    parser.add_argument("--cls_batch_num", type=int, default=8)
+    parser.add_argument("--cls_algorithm", type=str, choices=["MV3"])
+    parser.add_argument(
+        "--cls_rotate_thre",
+        type=float,
+        default=0.9,
+        help="Rotate the image when text direction classification score is larger than this threshold.",
+    )
+    parser.add_argument(
+        "--cls_image_shape",
+        type=str,
+        default="3, 48, 192",
+        help="C, H, W for taget image shape. max_wh_ratio=W/H will be used to control the maximum width "
+        "after 'aspect-ratio-kept' resizing. Set W larger for longer text.",
+    )
+    parser.add_argument(
+        "--cls_label_list", type=str, nargs="+", default=["0", "180"], choices=[["0", "180"], ["0", "90", "180", "270"]]
+    )
 
     # params for text recognizer
     parser.add_argument(
