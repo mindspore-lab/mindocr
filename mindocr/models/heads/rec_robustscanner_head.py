@@ -77,15 +77,17 @@ class DotProductAttentionLayer(nn.Cell):
         # reshape to (n, c, h, w)
         logits = logits.view((n, c, h, w))
         if valid_width_masks is not None:
+            logits = ops.split(logits, 1, axis=0)
+            logits_list = []
             for i, valid_width_mask in enumerate(valid_width_masks):
-                logits_i = logits[i]  # (c, h, w)
+                logits_i = logits[i].squeeze(0)  # (c, h, w)
                 logits_i = logits_i.view((-1, w))  # (c*h, w)
                 ch = c * h
                 valid_width_mask = valid_width_mask.repeat(ch, axis=0)  # (c*h, w)
                 valid_width_mask = ops.cast(valid_width_mask, ms.bool_)
                 logits_i = ops.select(valid_width_mask, logits_i, float('-inf'))  # (c*h, w)
-                logits[i] = logits_i.view((c, h, w))  # (c, h, w)
-
+                logits_list.append(logits_i.view((c, h, w)))  # (c, h, w)
+            logits = ops.concat(logits_list, axis=0)
         # reshape to (n, c, h, w)
         logits = logits.view((n, c, t))
 
