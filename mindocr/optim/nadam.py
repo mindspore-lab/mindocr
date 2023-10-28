@@ -2,7 +2,7 @@
 import numpy as np
 
 import mindspore as ms
-from mindspore import ops
+from mindspore import ops, version
 from mindspore.common.initializer import initializer
 from mindspore.common.parameter import Parameter
 from mindspore.common.tensor import Tensor
@@ -67,6 +67,8 @@ class NAdam(Optimizer):
     @jit
     def construct(self, gradients):
         lr = self.get_lr()
+        if version.__version__ >= "2.2":
+            self.assignadd(self.global_step, self.global_step_increase_tensor)
         params = self.parameters
         step = self.global_step + _scaler_one
         gradients = self.decay_weight(gradients)

@@ -149,7 +149,7 @@ class CCPD_Converter:
         if label_path:
             with open(label_path, "r") as f:
                 for line in f.readlines():
-                    img_path = image_dir / line.strip()
+                    img_path = image_dir / line.strip().split("/")[1]
                     assert img_path.exists(), f"Image {img_path} not found."
                     img_paths.append(img_path)
         else:
