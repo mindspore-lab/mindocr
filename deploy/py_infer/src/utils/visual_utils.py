@@ -69,14 +69,15 @@ def vis_bbox_text(image, box_list, text_list, font_path):
 def draw_box_txt_fine(img_size, box, txt, font_path):
     box_height = int(math.sqrt((box[0][0] - box[3][0]) ** 2 + (box[0][1] - box[3][1]) ** 2))
     box_width = int(math.sqrt((box[0][0] - box[1][0]) ** 2 + (box[0][1] - box[1][1]) ** 2))
-    img_text = Image.new("RGB", (box_width, box_height), (255, 255, 255))  # RGB or BGR doesn't matter
     if box_height > 2 * box_width and box_height > 30:
+        img_text = Image.new("RGB", (box_height, box_width), (255, 255, 255))  # RGB or BGR doesn't matter
         draw_text = ImageDraw.Draw(img_text)
         if txt:
             font = create_font(txt, (box_height, box_width), font_path)
             draw_text.text([0, 0], txt, fill=(0, 0, 0), font=font)
         img_text = img_text.transpose(Image.ROTATE_270)
     else:
+        img_text = Image.new("RGB", (box_width, box_height), (255, 255, 255))  # RGB or BGR doesn't matter
         draw_text = ImageDraw.Draw(img_text)
         if txt:
             font = create_font(txt, (box_width, box_height), font_path)
