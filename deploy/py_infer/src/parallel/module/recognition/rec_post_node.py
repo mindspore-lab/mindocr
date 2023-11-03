@@ -27,8 +27,10 @@ class RecPostNode(ModuleBase):
             input_data.infer_result = output["texts"]
         else:
             texts = output["texts"]
-            for result, text in zip(input_data.infer_result, texts):
+            confs = output["confs"]
+            for result, text, conf in zip(input_data.infer_result, texts, confs):
                 result.append(text)
+                result.append(conf)
 
         input_data.data = None
 

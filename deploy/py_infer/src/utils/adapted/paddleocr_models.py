@@ -4,6 +4,7 @@ PADDLEOCR_CONFIG_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), 
 
 # fmt: off
 PADDLEOCR_MODELS = {
+    "ch_pp_det_OCRv4": "det/ppocr/ch_PP-OCRv4_det_cml.yaml",                         # ch_PP-OCRv4_det
     "ch_pp_server_det_v2.0": "det/ppocr/ch_det_res18_db_v2.0.yaml",                  # ch_ppocr_server_v2.0_det
     "ch_pp_det_OCRv3": "det/ppocr/ch_PP-OCRv3_det_cml.yaml",                         # ch_PP-OCRv3_det
     "ch_pp_server_rec_v2.0": "rec/ppocr/rec_chinese_common_train_v2.0.yaml",         # ch_ppocr_server_v2.0_rec

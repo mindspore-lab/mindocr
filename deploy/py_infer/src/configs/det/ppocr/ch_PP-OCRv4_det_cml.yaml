@@ -4,7 +4,12 @@ postprocess:
   box_thresh: 0.6
   max_candidates: 1000
   expand_ratio: 1.5
-
+  if_merge_longedge_bbox: True
+  merge_inter_area_thres: 300
+  merge_ratio: 1.3
+  merge_angle_theta: 10
+  if_sort_bbox: True
+  sort_bbox_y_delta: 10
 
 eval:
   dataset:
