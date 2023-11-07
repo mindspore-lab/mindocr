@@ -107,6 +107,10 @@ def main(cfg):
 
     # create model
     amp_level = cfg.system.get("amp_level", "O0")
+    if ms.get_context("device_target") == "GPU" and cfg.system.val_while_train and amp_level == "O3":
+        logger.warning("Model evaluation does not support amp_level O3 on GPU currently. \
+                        The program has switched to amp_level O2 automatically.")
+        amp_level = "O2"
     network = build_model(cfg.model, ckpt_load_path=cfg.model.pop("pretrained", None), amp_level=amp_level)
     num_params = sum([param.size for param in network.get_parameters()])
     num_trainable_params = sum([param.size for param in network.trainable_params()])
