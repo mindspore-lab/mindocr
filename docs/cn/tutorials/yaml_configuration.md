@@ -24,7 +24,7 @@
 | mode | MindSpore运行模式(静态图/动态图) | 0 | 0 / 1 | 0: 表示在GRAPH_MODE模式中运行; 1: PYNATIVE_MODE模式 |
 | distribute | 是否开启并行训练 | True | True / False | \ |
 | device_id | 指定单卡训练时的卡id | 7 | 机器可用的卡的id | 该参数仅在distribute=False（单卡训练）和环境变量DEVICE_ID未设置时生效。单卡训练时，如该参数和环境变量DEVICE_ID均未设置，则默认使用0卡。 |
-| amp_level | 混合精度模式 | O0 | O0/O1/O2/O3 | 'O0' - 不变化。<br> 'O1' - 将白名单内的Cell和运算转为float16精度，其余部分保持float32精度。<br> 'O2' - 将黑名单内的Cell和运算保持float32精度，其余部分转为float16精度。<br> 'O3' - 将网络全部转为float16精度。|
+| amp_level | 混合精度模式 | O0 | O0/O1/O2/O3 | 'O0' - 不变化。<br> 'O1' - 将白名单内的Cell和运算转为float16精度，其余部分保持float32精度。<br> 'O2' - 将黑名单内的Cell和运算保持float32精度，其余部分转为float16精度。<br> 'O3' - 将网络全部转为float16精度。<br> 注意：GPU平台上的模型推理或评估暂不支持'O3'模式，如设置为'O3'模式，程序会自动将其转为'O2'模式。|
 | seed | 随机种子 | 42 | Integer | \ |
 | ckpt_save_policy | 模型权重保存策略 | top_k | "top_k" 或 "latest_k" | "top_k"表示保存前k个评估指标分数最高的checkpoint；"latest_k"表示保存最新的k个checkpoint。 `k`的数值通过`ckpt_max_keep`参数定义 |
 | ckpt_max_keep | 最多保存的checkpoint数量 | 5 | Integer | \ |
