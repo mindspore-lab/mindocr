@@ -418,11 +418,11 @@ Remove the `lanms` item from `requirements.txt`, and run `pip install -r require
   >>> print(ops.add(x, y))
   Traceback (most recent call last):
     File "<stdin>", line 1, in <module>
-    File "/root/miniconda3/envs/zhqtest/lib/python3.7/site-packages/mindspore/common/_stub_tensor.py", line 49, in fun
+    File "/root/miniconda3/envs/py37/lib/python3.7/site-packages/mindspore/common/_stub_tensor.py", line 49, in fun
       return method(*arg, **kwargs)
-    File "/root/miniconda3/envs/zhqtest/lib/python3.7/site-packages/mindspore/common/tensor.py", line 493, in __str__
+    File "/root/miniconda3/envs/py37/lib/python3.7/site-packages/mindspore/common/tensor.py", line 493, in __str__
       return str(self.asnumpy())
-    File "/root/miniconda3/envs/zhqtest/lib/python3.7/site-packages/mindspore/common/tensor.py", line 964, in asnumpy
+    File "/root/miniconda3/envs/py37/lib/python3.7/site-packages/mindspore/common/tensor.py", line 964, in asnumpy
       return Tensor_.asnumpy(self)
   RuntimeError: The device address type is wrong: type name in address:CPU, type name in context:Ascend
   
