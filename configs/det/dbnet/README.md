@@ -71,6 +71,7 @@ The test set consists of 598 images manually selected from the above-mentioned d
 | DBNet     | D910x8-MS2.0-G | ResNet-50    | Chinese + English |           83.41%            | 256 img/s      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_ch_en_general-a5dbb141.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_ch_en_general-a5dbb141-912f0a90.mindir) |
 | DBNet++   | D910x4-MS2.0-G | ResNet-50    | Chinese + English |           84.30%            | 104 img/s      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_ch_en_general-884ba5b9.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_ch_en_general-884ba5b9-b3f52398.mindir) |
 </div>
+| DBNet++             | D910Bx1-MS2.2-G | ResNet-50     | SynthText  | 86.52%     | 86.44%        | 86.48%      | 12.7 s/epoch | 78.2 img/s  | [yaml](db++_r50_icdar15_910B.yaml)       | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_910B-35dc71f2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_910B-35dc71f2-e61a9c37.mindir)
 
 > The input_shape for exported DBNet MindIR and DBNet++ MindIR in the links are `(1,3,736,1280)` and `(1,3,1152,2048)`, respectively.
 
