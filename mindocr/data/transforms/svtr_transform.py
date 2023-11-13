@@ -1,14 +1,24 @@
 import math
 import numbers
 import random
+from typing import Callable, Iterable
 
 import cv2
 import numpy as np
 
-from mindspore.dataset.transforms import Compose
 from mindspore.dataset.vision import RandomColorAdjust
 
 __all__ = ["SVTRRecAug"]
+
+
+class Compose:
+    def __init__(self, funcs: Iterable[Callable]) -> None:
+        self.funcs = funcs
+
+    def __call__(self, x):
+        for fn in self.funcs:
+            x = fn(x)
+        return x
 
 
 def sample_asym(magnitude, size=None):
