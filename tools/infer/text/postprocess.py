@@ -14,14 +14,24 @@ class Postprocessor(object):
         # algo = algo.lower()
         if task == "det":
             if algo.startswith("DB"):
-                postproc_cfg = dict(
-                    name="DBPostprocess",
-                    box_type="quad",
-                    binary_thresh=0.3,
-                    box_thresh=0.6,
-                    max_candidates=1000,
-                    expand_ratio=1.5,
-                )
+                if algo == "DB_PPOCRv3":
+                    postproc_cfg = dict(
+                        name="DBPostprocess",
+                        box_type="quad",
+                        binary_thresh=0.3,
+                        box_thresh=0.9,
+                        max_candidates=1000,
+                        expand_ratio=1.5,
+                    )
+                else:
+                    postproc_cfg = dict(
+                        name="DBPostprocess",
+                        box_type="quad",
+                        binary_thresh=0.3,
+                        box_thresh=0.6,
+                        max_candidates=1000,
+                        expand_ratio=1.5,
+                    )
             elif algo.startswith("PSE"):
                 postproc_cfg = dict(
                     name="PSEPostprocess",

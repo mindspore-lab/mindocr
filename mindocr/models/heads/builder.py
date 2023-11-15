@@ -2,6 +2,7 @@ __all__ = ['build_head']
 supported_heads = [
     'ConvHead',
     'DBHead',
+    'DBHeadEnhance',
     'EASTHead',
     'CTCHead',
     'PSEHead',
@@ -15,7 +16,7 @@ supported_heads = [
 ]
 from .cls_head import MobileNetV3Head
 from .conv_head import ConvHead
-from .det_db_head import DBHead
+from .det_db_head import DBHead, DBHeadEnhance
 from .det_east_head import EASTHead
 from .det_fce_head import FCEHead
 from .det_pse_head import PSEHead

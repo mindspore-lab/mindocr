@@ -34,6 +34,7 @@ algo_to_model_name = {
     "DB": "dbnet_resnet50",
     "DB++": "dbnetpp_resnet50",
     "DB_MV3": "dbnet_mobilenetv3",
+    "DB_PPOCRv3": "dbnet_ppocrv3",
     "PSE": "psenet_resnet152",
 }
 logger = logging.getLogger("mindocr")
