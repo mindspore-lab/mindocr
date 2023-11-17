@@ -1,13 +1,14 @@
-'''backbone registry and list'''
+"""backbone registry and list"""
 import fnmatch
 
 __all__ = [
-    'list_backbones',
-    'is_backbone',
-    'backbone_entrypoint',
-    'list_backbone_classes',
-    'is_backbone_class',
-    'backbone_class_entrypoint',
+    "list_backbones",
+    "is_backbone",
+    "backbone_entrypoint",
+    "list_backbone_classes",
+    "is_backbone_class",
+    "backbone_class_entrypoint",
+    "register_backbone",
 ]
 
 _backbone_entrypoints = {}
@@ -19,7 +20,7 @@ def register_backbone(fn):
     # add backbone to __all__ in module
     backbone_name = fn.__name__
     '''
-    if hasattr(mod, '__all__'):
+    if hasattr(mod, "__all__"):
         mod.__all__.append(backbone_name)
     else:
         mod.__all__ = [backbone_name]

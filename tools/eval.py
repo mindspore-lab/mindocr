@@ -106,7 +106,7 @@ def main(cfg):
             allow_postprocess_rescale = False
             logger.warning(
                 "`shape_list` is NOT found in yaml config, which is used to rescale postprocessing result back to "
-                "orginal image space for detection. Please add it to `eval.dataset.output_columns` for a fair "
+                "original image space for detection. Please add it to `eval.dataset.output_columns` for a fair "
                 "evaluation. [CRITICAL!!!!!]"
             )
 
@@ -144,7 +144,6 @@ def main(cfg):
 
 
 if __name__ == "__main__":
-    # argpaser
     args, config = parse_args_and_config()
     config = Dict(config)
 

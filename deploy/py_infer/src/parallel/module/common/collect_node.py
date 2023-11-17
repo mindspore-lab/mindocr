@@ -17,6 +17,7 @@ RESULTS_SAVE_FILENAME = {
     TaskType.REC: "rec_results.txt",
     TaskType.DET_REC: "pipeline_results.txt",
     TaskType.DET_CLS_REC: "pipeline_results.txt",
+    TaskType.LAYOUT: "layout_results.txt",
 }
 
 
@@ -82,6 +83,13 @@ class CollectNode(ModuleBase):
         elif self.task_type in (TaskType.REC, TaskType.CLS):
             for image_path, infer_result in zip(input_data.image_path, input_data.infer_result):
                 self.image_pipeline_res[image_path] = infer_result
+        elif self.task_type == TaskType.LAYOUT:
+            for infer_result in input_data.infer_result:
+                image_path = infer_result.pop("image_id")
+                if image_path in self.image_pipeline_res:
+                    self.image_pipeline_res[image_path].append(infer_result)
+                else:
+                    self.image_pipeline_res[image_path] = [infer_result]
         else:
             raise NotImplementedError("Task type do not support.")
 

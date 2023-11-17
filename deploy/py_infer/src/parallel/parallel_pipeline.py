@@ -27,11 +27,11 @@ class ParallelPipeline:
         if not (os.path.isdir(images) or os.path.isfile(images)):
             raise ValueError("images must be a image path or dir.")
 
-        # det、det(+cls)+rec
+        # det, det(+cls)+rec
         batch_num = 1
 
-        # cls、rec
-        if self.args.task_type in (TaskType.CLS, TaskType.REC):
+        # cls, rec, layout
+        if self.args.task_type in (TaskType.CLS, TaskType.REC, TaskType.LAYOUT):
             for name, value in self.infer_params.items():
                 if name.endswith("_batch_num"):
                     batch_num = max(value)
@@ -41,7 +41,7 @@ class ParallelPipeline:
     def _send_batch_image(self, images, batch_num):
         if os.path.isdir(images):
             show_progressbar = not self.args.show_log
-            input_image_list = [os.path.join(images, path) for path in os.listdir(images)]
+            input_image_list = [os.path.join(images, path) for path in os.listdir(images) if not path.endswith(".txt")]
 
             images_num = len(input_image_list)
             for i in (

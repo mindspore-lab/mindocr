@@ -70,10 +70,14 @@ def parse_preprocess_from_yaml(config_path, support_gear=False):
     infer_transform_pipeline = OrderedDict()
 
     for node in transform_pipeline:
-        node_name, node_params = list(node.items())[0]
+        if "func_name" in node:
+            node_name = node.pop("func_name")
+            node_params = node
+        else:
+            node_name, node_params = list(node.items())[0]
 
         # Skip nodes with 'Label' in name
-        if "Label" in node_name:
+        if "Label" in node_name or "label" in node_name:
             continue
 
         load_adapted_ops = support_gear or (
@@ -91,12 +95,21 @@ def parse_preprocess_from_yaml(config_path, support_gear=False):
         node_cls_params = node_params if node_params else {}
         infer_transform_pipeline[node_instance] = node_cls_params
 
-    if "output_columns" in dataset_cfg and "net_input_column_index" in dataset_cfg:
+    input_columns = ["image"]
+    if "output_columns" in dataset_cfg:
         output_columns = dataset_cfg["output_columns"]
-        columns_index = dataset_cfg["net_input_column_index"]
-        input_columns = [output_columns[i] for i in columns_index]
-    else:
-        input_columns = ["image"]
+        if "net_input_column_index" in dataset_cfg:
+            columns_index = dataset_cfg["net_input_column_index"]
+            for i in columns_index:
+                output_column = output_columns[i]
+                if output_column not in input_columns:
+                    input_columns.append(output_column)
+        if "meta_data_column_index" in dataset_cfg:
+            columns_index = dataset_cfg["meta_data_column_index"]
+            for i in columns_index:
+                output_column = output_columns[i]
+                if output_column not in input_columns:
+                    input_columns.append(output_column)
 
     return infer_transform_pipeline, input_columns
 
