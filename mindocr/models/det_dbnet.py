@@ -2,7 +2,7 @@ from ._registry import register_model
 from .backbones.mindcv_models.utils import load_pretrained
 from .base_model import BaseModel
 
-__all__ = ['DBNet', 'dbnet_resnet50', 'dbnet_resnet18']
+__all__ = ['DBNet', 'dbnet_resnet50', 'dbnet_resnet18', 'dbnet_ppocrv3']
 
 
 def _cfg(url='', **kwargs):
@@ -21,7 +21,9 @@ default_cfgs = {
     'dbnet_resnet50': _cfg(
         url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_ch_en_general-a5dbb141.ckpt'),
     'dbnetpp_resnet50': _cfg(
-        url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_ch_en_general-884ba5b9.ckpt')
+        url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_ch_en_general-884ba5b9.ckpt'),
+    'dbnet_ppocrv3': _cfg(
+        url='https://download-mindspore.osinfra.cn/toolkits/mindocr/dbnet/dbnet_mobilenetv3_ppocrv3-70d6018f.ckpt')
 }
 
 
@@ -152,6 +154,38 @@ def dbnetpp_resnet50(pretrained=False, **kwargs):
     # load pretrained weights
     if pretrained:
         default_cfg = default_cfgs['dbnetpp_resnet50']
+        load_pretrained(model, default_cfg)
+
+    return model
+
+
+@register_model
+def dbnet_ppocrv3(pretrained=False, **kwargs):
+    model_config = {
+        "backbone": {
+            'name': 'det_mobilenet_v3_enhance',
+            'architecture': 'large',
+            'alpha': 0.5,
+            'disable_se': True,
+            'pretrained': False
+        },
+        "neck": {
+            "name": 'RSEFPN',
+            "out_channels": 96,
+            "shortcut": True,
+        },
+        "head": {
+            "name": 'DBHeadEnhance',
+            "k": 50,
+            "bias": False,
+            "adaptive": True
+        }
+    }
+    model = DBNet(model_config)
+
+    # load pretrained weights
+    if pretrained:
+        default_cfg = default_cfgs['dbnet_ppocrv3']
         load_pretrained(model, default_cfg)
 
     return model
