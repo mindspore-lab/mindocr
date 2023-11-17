@@ -28,7 +28,7 @@ DBNet的整体架构图如图1所示，包含以下阶段:
 
 ## 2. 权重转换
 
-如您已经有采用PaddleOCR训练好的PaddlePaddle模型，想在MindOCR下直接进行推理或进行微调续训，您可以对训练好的模型转换为MindSpore格式的ckpt文件。
+如您已经有采用PaddleOCR训练好的PaddlePaddle模型，想在MindOCR下直接进行推理或进行微调续训，您可以将训练好的模型转换为MindSpore格式的ckpt文件。
 
 运行param_converter.py脚本，输入需要进行转换的pdparams文件、权重名字对应关系json文件和ckpt输出路径，即可进行权重转换。
 
@@ -37,7 +37,7 @@ DBNet的整体架构图如图1所示，包含以下阶段:
 ```shell
 python tools/param_converter.py \
     -iuput_path path/to/paddleocr.pdparams \
-    -json_path configs/det/dbnet/db_mobilenetv3_ppocrv3_param_map.json
+    -json_path configs/det/dbnet/db_mobilenetv3_ppocrv3_param_map.json \
     -output_path path/to/output.ckpt
 ```
 

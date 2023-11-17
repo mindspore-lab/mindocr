@@ -35,6 +35,7 @@ algo_to_model_name = {
     "CRNN_CH": "crnn_resnet34_ch",
     "RARE_CH": "rare_resnet34_ch",
     "SVTR": "svtr_tiny",
+    "SVTR_PPOCRv3_CH": "svtr_ppocrv3_ch",
 }
 logger = logging.getLogger("mindocr")
 
