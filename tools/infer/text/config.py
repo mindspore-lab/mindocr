@@ -95,7 +95,7 @@ def create_parser():
         "--rec_algorithm",
         type=str,
         default="CRNN",
-        choices=["CRNN", "RARE", "CRNN_CH", "RARE_CH", "SVTR"],
+        choices=["CRNN", "RARE", "CRNN_CH", "RARE_CH", "SVTR", "SVTR_PPOCRv3_CH"],
         help="recognition algorithm",
     )
     parser.add_argument(

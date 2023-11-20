@@ -85,6 +85,7 @@ class Preprocessor(object):
                 "RARE": dict(target_height=32, target_width=100, padding=False, keep_ratio=False),
                 "RARE_CH": dict(target_height=32, target_width=320, padding=True, keep_ratio=True),
                 "SVTR": dict(target_height=64, target_width=256, padding=False, keep_ratio=False),
+                "SVTR_PPOCRv3_CH": dict(target_height=48, target_width=320, padding=True, keep_ratio=True),
             }
 
             # get hparam by combining default value, optimal value, and arg parser value. Prior: optimal value ->

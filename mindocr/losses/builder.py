@@ -12,12 +12,14 @@ supported_losses = [
     "SARLoss",
     "VisionLANLoss",
     "YOLOv8Loss",
+    "MultiLoss",
 ]
 
 from .abinet_loss import ABINetLoss
 from .cls_loss import CrossEntropySmooth
 from .det_loss import DBLoss, EASTLoss, FCELoss, PSEDiceLoss
 from .rec_loss import AttentionLoss, CTCLoss, SARLoss, VisionLANLoss
+from .rec_multi_loss import MultiLoss
 from .yolov8_loss import YOLOv8Loss
 
 
