@@ -5,13 +5,15 @@ from ...utils import log
 from .classification import ClsInferNode, ClsPreNode
 from .common import CollectNode, DecodeNode, HandoutNode
 from .detection import DetInferNode, DetPostNode, DetPreNode
+from .layout import LayoutInferNode, LayoutPostNode, LayoutPreNode
 from .recognition import RecInferNode, RecPostNode, RecPreNode
 
 DET_DESC = [("DetPreNode", 1), ("DetInferNode", 1), ("DetPostNode", 1)]
 REC_DESC = [("RecPreNode", 1), ("RecInferNode", 1), ("RecPostNode", 1)]
 CLS_DESC = [("ClsPreNode", 1), ("ClsInferNode", 1)]
+LAYOUT_DESC = [("LayoutPreNode", 1), ("LayoutInferNode", 1), ("LayoutPostNode", 1)]
 
-MODEL_DICT = {TaskType.DET: DET_DESC, TaskType.REC: REC_DESC, TaskType.CLS: CLS_DESC}
+MODEL_DICT = {TaskType.DET: DET_DESC, TaskType.REC: REC_DESC, TaskType.CLS: CLS_DESC, TaskType.LAYOUT: LAYOUT_DESC}
 
 
 def processor_initiator(classname):

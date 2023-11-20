@@ -21,7 +21,7 @@ _logger = logging.getLogger(__name__)
 # TODO: use class with __call__, to perform transformation
 def create_transforms(transform_pipeline: List, global_config: Dict = None):
     """
-    Create a squence of callable transforms.
+    Create a sequence of callable transforms.
 
     Args:
         transform_pipeline (List): list of callable instances or dicts where each key is a transformation class name,

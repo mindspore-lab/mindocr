@@ -66,6 +66,12 @@ def get_args():
         "--character_dict_path", type=str, required=False, help="Character dict file path for recognition models."
     )
 
+    parser.add_argument("--layout_model_path", type=str, required=False, help="Layout model file path or directory.")
+    parser.add_argument(
+        "--layout_model_name_or_config", type=str, required=False, help="Layout model name or config file path."
+    )
+    parser.add_argument("--layout_batch_num", type=int, default=1, required=False, help="Batch size for layout model.")
+
     parser.add_argument(
         "--res_save_dir",
         type=str,
@@ -116,23 +122,25 @@ def update_task_info(args):
     det = bool(args.det_model_path)
     cls = bool(args.cls_model_path)
     rec = bool(args.rec_model_path)
+    layout = bool(args.layout_model_path)
 
     task_map = {
-        (True, False, False): TaskType.DET,
-        (False, True, False): TaskType.CLS,
-        (False, False, True): TaskType.REC,
-        (True, False, True): TaskType.DET_REC,
-        (True, True, True): TaskType.DET_CLS_REC,
+        (True, False, False, False): TaskType.DET,
+        (False, True, False, False): TaskType.CLS,
+        (False, False, True, False): TaskType.REC,
+        (True, False, True, False): TaskType.DET_REC,
+        (True, True, True, False): TaskType.DET_CLS_REC,
+        (False, False, False, True): TaskType.LAYOUT,
     }
 
-    task_order = (det, cls, rec)
+    task_order = (det, cls, rec, layout)
     if task_order in task_map:
         setattr(args, "task_type", task_map[task_order])
     else:
         unsupported_task_map = {
-            (False, False, False): "empty",
-            (True, True, False): "det+cls",
-            (False, True, True): "cls+rec",
+            (False, False, False, False): "empty",
+            (True, True, False, False): "det+cls",
+            (False, True, True, False): "cls+rec",
         }
 
         raise ValueError(
@@ -146,6 +154,8 @@ def update_task_info(args):
         setattr(args, "cls_config_path", get_config_by_name_for_model(args.cls_model_name_or_config))
     if args.rec_model_name_or_config:
         setattr(args, "rec_config_path", get_config_by_name_for_model(args.rec_model_name_or_config))
+    if args.layout_model_name_or_config:
+        setattr(args, "layout_config_path", get_config_by_name_for_model(args.layout_model_name_or_config))
 
     return args
 
@@ -207,6 +217,7 @@ def check_and_update_args(args):
         "parallel_num": args.parallel_num,
         "rec_batch_num": args.rec_batch_num,
         "cls_batch_num": args.cls_batch_num,
+        "layout_batch_num": args.layout_batch_num,
     }
     for name, value in need_check_positive.items():
         if value < 1:
