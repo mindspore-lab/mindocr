@@ -1,11 +1,10 @@
 system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
-  distribute: False
+  distribute: True
   amp_level: 'O0'
   seed: 42
   log_interval: 10
   val_while_train: True
-#  val_start_epoch: 10
   drop_overflow_update: False
 
 model:
@@ -26,6 +25,7 @@ model:
     k: 50
     bias: False
     adaptive: True
+  pretrained: https://download-mindspore.osinfra.cn/toolkits/mindocr/dbnet/dbnet_mobilenetv3_ppocrv3-70d6018f.ckpt
 
 postprocess:
   name: DBPostprocess
@@ -119,8 +119,8 @@ train:
 
   loader:
     shuffle: True
-    batch_size: 10
-    drop_remainder: True
+    batch_size: 8
+    drop_remainder: False
     num_workers: 10
 
 eval:

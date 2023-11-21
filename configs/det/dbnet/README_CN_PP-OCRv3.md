@@ -380,7 +380,7 @@ model:
 
 ```yaml
 system:
-  distribute: False # During evaluation stage, set to False
+  distribute: False             # During evaluation stage, set to False
 ...
 eval:
   ckpt_load_path: path/to/model.ckpt
@@ -390,6 +390,19 @@ eval:
 
 ```shell
 python tools/eval.py --config configs/det/dbnet/db_mobilenetv3_ppocrv3.yaml
+```
+
+为了在准确率和召回率中取得更好的平衡，您可能需要根据您的需求自行调整后处理中`box_thresh`的阈值，即推理结果置信度低于`box_thresh`的检测框会被过滤掉
+```yaml
+...
+postprocess:
+  name: DBPostprocess
+  box_type: quad                # whether to output a polygon or a box
+  binary_thresh: 0.3            # binarization threshold
+  box_thresh: 0.9               # box score threshold 0.9           <--- 修改此处
+  max_candidates: 1000
+  expand_ratio: 1.5             # coefficient for expanding predictions
+...
 ```
 
 ### 3.4 模型推理
