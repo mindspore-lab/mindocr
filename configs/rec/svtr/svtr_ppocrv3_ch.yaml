@@ -39,6 +39,7 @@ model:
       - SARHead:
           enc_dim: 512
           max_text_length: *max_text_len
+  pretrained: https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_lcnet_ppocrv3-6c1d0085.ckpt
 
 postprocess:
   name: CTCLabelDecode
@@ -61,8 +62,8 @@ loss:
 
 scheduler:
   scheduler: warmup_cosine_decay
-  min_lr: 0.0000001
-  lr: 0.00001
+  min_lr: 0.000001
+  lr: 0.0001
   num_epochs: 500
   warmup_epochs: 0
   decay_epochs: 500
@@ -113,7 +114,7 @@ train:
   loader:
     shuffle: True
     batch_size: *batch_size
-    drop_remainder: True
+    drop_remainder: False
     max_rowsize: 12
     num_workers: 1
 
