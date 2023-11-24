@@ -1,0 +1,151 @@
+system:
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: True
+  amp_level: O2
+  amp_level_infer: O2 # running inference in O2 mode
+  seed: 42
+  log_interval: 10
+  val_while_train: True
+  drop_overflow_update: True
+  ckpt_max_keep: 5
+
+common:
+  character_dict_path: &character_dict_path mindocr/utils/dict/ch_dict.txt
+  num_classes: &num_classes 6624 # num_chars_in_dict + 1
+  max_text_len: &max_text_len 25
+  use_space_char: &use_space_char True
+  batch_size: &batch_size 128
+
+model:
+  type: rec
+  transform: null
+  backbone:
+    name: mobilenet_v1_enhance
+    scale: 0.5
+    last_conv_stride: [ 1, 2 ]
+    last_pool_type: avg
+    last_pool_kernel_size: [ 2, 2 ]
+    pretrained: False
+  head:
+    name: MultiHead
+    out_channels_list:
+      - CTCLabelDecode: 6625
+      - SARLabelDecode: 6627
+    head_list:
+      - CTCHead:
+          Neck:
+            name: svtr
+          out_channels: *num_classes
+      - SARHead:
+          enc_dim: 512
+          max_text_length: *max_text_len
+  pretrained: https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_lcnet_ppocrv3-6c1d0085.ckpt
+
+postprocess:
+  name: CTCLabelDecode
+  character_dict_path: *character_dict_path
+  use_space_char: *use_space_char
+
+metric:
+  name: RecMetric
+  main_indicator: acc
+  lower: False
+  character_dict_path: *character_dict_path
+  ignore_space: True
+  print_flag: False
+
+loss:
+  name: MultiLoss
+  loss_config_list:
+    - CTCLossForSVTR:
+    - SARLoss:
+
+scheduler:
+  scheduler: warmup_cosine_decay
+  min_lr: 0.000001
+  lr: 0.0001
+  num_epochs: 500
+  warmup_epochs: 0
+  decay_epochs: 500
+
+optimizer:
+  opt: Adam
+  beta1: 0.9
+  beta2: 0.999
+  weight_decay: 3.0e-05
+
+loss_scaler:
+  type: dynamic
+  loss_scale: 512
+  scale_factor: 2.0
+  scale_window: 1000
+
+train:
+  ema: True
+  ckpt_save_dir: ./tmp_rec
+  dataset_sink_mode: False
+  clip_grad: True
+  clip_norm: 0.1
+  dataset:
+    type: RecDataset
+    dataset_root: dir/to/data/
+    data_dir: training/
+    label_file: gt_training.txt
+    sample_ratio: 1.0
+    shuffle: True
+    extra_data_num: 2
+    filter_max_len: True
+    max_text_len: *max_text_len
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          to_float32: False
+      - RecAug:
+      - MultiLabelEncode:
+          character_dict_path: *character_dict_path
+          max_text_length: *max_text_len
+          use_space_char: *use_space_char
+      - RecResizeImgForSVTR:
+          image_shape: [3, 48, 320]
+    output_columns: ["image", "label_ctc", "label_sar", "text_length", "valid_ratio", "valid_width_mask"]
+    net_input_column_index: [0, 1, 2, 3, 4, 5]
+    label_column_index: [1, 2, 3, 4]
+
+  loader:
+    shuffle: True
+    batch_size: *batch_size
+    drop_remainder: False
+    max_rowsize: 12
+    num_workers: 1
+
+eval:
+  ckpt_load_path: ./tmp_rec/best.ckpt
+  dataset_sink_mode: False
+  dataset:
+    type: RecDataset
+    dataset_root: dir/to/data/
+    data_dir: validation/
+    label_file: gt_validation.txt
+    sample_ratio: 1.0
+    shuffle: False
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          to_float32: False
+      - MultiLabelEncode:
+          character_dict_path: *character_dict_path
+          max_text_length: *max_text_len
+          use_space_char: *use_space_char
+      - RecResizeImgForSVTR:
+          image_shape: [ 3, 48, 320 ]
+          width_downsample_ratio: 0.125
+    output_columns: ["image", "text_padded", "text_length"]
+    net_input_column_index: [ 0 ]
+    label_column_index: [ 1, 2 ]
+
+  loader:
+    shuffle: False
+    batch_size: 128
+    drop_remainder: False
+    max_rowsize: 12
+    num_workers: 1

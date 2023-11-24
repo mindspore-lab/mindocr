@@ -12,7 +12,7 @@ model:
   transform: null
   backbone:
     name: det_resnet18
-    pretrained: True
+    pretrained: False
   neck:
     name: DBFPN
     out_channels: 256

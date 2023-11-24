@@ -12,7 +12,7 @@ model:
   transform: null
   backbone:
     name: layoutxlm
-    pretrained: False
+    pretrained: True
     num_classes: &num_classes 7
     use_visual_backbone: False
     use_float16: True
@@ -21,7 +21,7 @@ model:
     num_classes: 7
     use_visual_backbone: True
     use_float16: True
-  pretrained: ser-vi-layoutxlm.ckpt
+  pretrained:
 
 postprocess:
   name: VQASerTokenLayoutLMPostProcess

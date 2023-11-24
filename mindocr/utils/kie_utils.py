@@ -5,6 +5,9 @@ from mindspore.ops import AllReduce
 
 
 def load_vqa_bio_label_maps(label_map_path):
+    """
+    load VQA bio label maps from file.
+    """
     with open(label_map_path, "r", encoding="utf-8") as fin:
         lines = fin.readlines()
     old_lines = [line.strip() for line in lines]
@@ -24,6 +27,10 @@ def load_vqa_bio_label_maps(label_map_path):
 
 
 class Synchronizer:
+    """
+    When using distributed training, ensure all devices are synchronized.
+    """
+
     def __init__(self, rank_size: int = 1):
         self.all_reduce = AllReduce()
         self.rank_size = rank_size

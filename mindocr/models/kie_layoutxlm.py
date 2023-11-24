@@ -49,3 +49,26 @@ def layoutxlm_ser(pretrained: bool = True, use_visual_backbone: bool = True, use
     model = KieNet(model_config)
 
     return model
+
+
+@register_model
+def vi_layoutxlm_ser(pretrained: bool = True, use_visual_backbone: bool = False, use_float16: bool = False, **kwargs):
+    model_config = {
+        "type": "kie",
+        "backbone": {
+            "name": "layoutxlm",
+            "pretrained": pretrained,  # backbone pretrained
+            "use_visual_backbone": use_visual_backbone,
+            "use_float16": use_float16,
+        },
+        "head": {
+            "name": "TokenClassificationHead",
+            "num_classes": 7,
+            "use_visual_backbone": use_visual_backbone,
+            "use_float16": use_float16,
+            "dropout_prod": None,
+        },
+    }
+    model = KieNet(model_config)
+
+    return model

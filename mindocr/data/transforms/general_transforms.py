@@ -60,7 +60,6 @@ class DecodeImage:
 
         if self.keep_ori:
             data["image_ori"] = img.copy()
-
         return data
 
 

@@ -8,10 +8,14 @@ import numpy as np
 from mindspore import nn
 
 from mindocr.models.backbones.layoutxlm import LayoutXLMTokenizer
-from mindocr.utils.utility import load_vqa_bio_label_maps
+from mindocr.utils.kie_utils import load_vqa_bio_label_maps
 
 
 class LayoutResize:
+    """
+    Resize for Layout
+    """
+
     def __init__(self, size=(640, 640), **kwargs):
         self.size = size
 

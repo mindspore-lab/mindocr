@@ -2,7 +2,7 @@ import numpy as np
 
 import mindspore as ms
 
-from mindocr.utils.utility import load_vqa_bio_label_maps
+from mindocr.utils.kie_utils import load_vqa_bio_label_maps
 
 __all__ = ["VQASerTokenLayoutLMPostProcess"]
 

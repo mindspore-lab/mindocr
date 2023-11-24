@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 from glob import glob
 
@@ -8,15 +7,17 @@ from seqeval.metrics import f1_score, precision_score, recall_score
 
 from mindspore import get_context, nn
 
+from mindocr.utils.kie_utils import Synchronizer
 from mindocr.utils.misc import AllReduce
-from mindocr.utils.utility import Synchronizer
 
-
-__all__ = ["VQASerTokenMetric","VQAReTokenMetric"]
-_logger = logging.getLogger(__name__)
+__all__ = ["VQASerTokenMetric", "VQAReTokenMetric"]
 
 
 class VQASerTokenMetric(nn.Metric):
+    """
+    Metric method for token classification.
+    """
+
     def __init__(self, device_num: int = 1, **kwargs):
         super().__init__()
         self.clear()
@@ -67,6 +68,10 @@ class VQASerTokenMetric(nn.Metric):
 
 
 class VQAReTokenMetric(nn.Metric):
+    """
+    Metric method for Token RE task.
+    """
+
     def __init__(self, device_num: int = 1, **kwargs):
         super().__init__()
         self.clear()

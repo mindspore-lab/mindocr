@@ -98,7 +98,7 @@ def build_dataset(
         >>>         },
         >>>     ],
         >>>     "output_columns": ['image', 'polys', 'ignore_tags'],
-        >>>     "net_input_column_index`": [0]
+        >>>     "net_input_column_index": [0],
         >>>     "label_column_index": [1, 2]
         >>> }
         >>> loader_config = dict(shuffle=True, batch_size=16, drop_remainder=False, num_workers=1)
@@ -150,12 +150,12 @@ def build_dataset(
         num_parallel_workers=num_workers,
         num_shards=num_shards,
         shard_id=shard_id,
-        python_multiprocessing=True,  # keep True to improve performace for heavy computation.
+        python_multiprocessing=True,  # keep True to improve performance for heavy computation.
         max_rowsize=max_rowsize,
         shuffle=loader_config["shuffle"],
     )
 
-    # 2. data mapping using mindata C lib (optional)
+    # 2. data mapping using minddata C lib (optional)
     # ds = ds.map(operations=transform_list, input_columns=['image', 'label'], num_parallel_workers=8,
     # python_multiprocessing=True)
 
@@ -198,7 +198,7 @@ def build_dataset(
         ),  # set small workers for lite computation. TODO: increase for batch-wise mapping
         # input_columns=input_columns,
         # output_columns=batch_column,
-        # per_batch_map=per_batch_map, # uncommet to use inner-batch transformation
+        # per_batch_map=per_batch_map, # uncomment to use inner-batch transformation
     )
 
     return dataloader
