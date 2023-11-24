@@ -4,9 +4,9 @@ __all__ = ['Select']
 
 
 class Select(nn.Cell):
-    '''
+    """
     select feature from the backbone output.
-    '''
+    """
     def __init__(self, in_channels, index=-1):
         super().__init__()
         self.index = index

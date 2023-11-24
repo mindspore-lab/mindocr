@@ -46,7 +46,7 @@ def create_parser():
         "--det_algorithm",
         type=str,
         default="DB++",
-        choices=["DB", "DB++", "DB_MV3", "PSE"],
+        choices=["DB", "DB++", "DB_MV3", "DB_PPOCRv3", "PSE"],
         help="detection algorithm.",
     )  # determine the network architecture
     parser.add_argument(
@@ -95,7 +95,7 @@ def create_parser():
         "--rec_algorithm",
         type=str,
         default="CRNN",
-        choices=["CRNN", "RARE", "CRNN_CH", "RARE_CH", "SVTR"],
+        choices=["CRNN", "RARE", "CRNN_CH", "RARE_CH", "SVTR", "SVTR_PPOCRv3_CH"],
         help="recognition algorithm",
     )
     parser.add_argument(

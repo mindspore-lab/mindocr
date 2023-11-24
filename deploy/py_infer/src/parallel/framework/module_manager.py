@@ -28,7 +28,8 @@ class ModuleManager:
     def stop_module(module):
         module.stop()
 
-    def init_module_instance(self, module_instance, instance_id, pipeline_name, module_name):
+    @staticmethod
+    def init_module_instance(module_instance, instance_id, pipeline_name, module_name):
         init_args = ModuleInitArgs(pipeline_name=pipeline_name, module_name=module_name, instance_id=instance_id)
         module_instance.assign_init_args(init_args)
 

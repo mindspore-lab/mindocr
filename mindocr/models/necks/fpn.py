@@ -4,6 +4,7 @@ from mindspore import Tensor, nn, ops
 from mindspore.common.initializer import TruncatedNormal, XavierUniform
 
 from ...utils.misc import is_ms_version_2
+from ..utils.attention_cells import SEModule
 from .asf import AdaptiveScaleFusion
 
 
@@ -306,3 +307,78 @@ class EASTFPN(nn.Cell):
 
         out = self.relu7(self.bn7(self.conv7(out)))
         return out
+
+
+class RSELayer(nn.Cell):
+    def __init__(self, in_channels, out_channels, kernel_size, shortcut=True):
+        super(RSELayer, self).__init__()
+        self.out_channels = out_channels
+        self.in_conv = nn.Conv2d(
+            in_channels=in_channels,
+            out_channels=self.out_channels,
+            kernel_size=kernel_size,
+            padding=int(kernel_size // 2),
+            pad_mode='pad',
+            weight_init='HeUniform')
+        self.se_block = SEModule(self.out_channels)
+        self.shortcut = shortcut
+
+    def construct(self, ins):
+        x = self.in_conv(ins)
+        if self.shortcut:
+            out = x + self.se_block(x)
+        else:
+            out = self.se_block(x)
+        return out
+
+
+class RSEFPN(nn.Cell):
+    def __init__(self, in_channels, out_channels, shortcut=True, **kwargs):
+        super(RSEFPN, self).__init__()
+        self.out_channels = out_channels
+        self.ins_conv = nn.CellList()
+        self.inp_conv = nn.CellList()
+
+        for i in range(len(in_channels)):
+            self.ins_conv.append(
+                RSELayer(
+                    in_channels[i],
+                    out_channels,
+                    kernel_size=1,
+                    shortcut=shortcut))
+            self.inp_conv.append(
+                RSELayer(
+                    out_channels,
+                    out_channels // 4,
+                    kernel_size=3,
+                    shortcut=shortcut))
+
+    def construct(self, x):
+        c2, c3, c4, c5 = x
+
+        in5 = self.ins_conv[3](c5)
+        in4 = self.ins_conv[2](c4)
+        in3 = self.ins_conv[1](c3)
+        in2 = self.ins_conv[0](c2)
+
+        out4 = in4 + ops.ResizeNearestNeighbor(
+            size=in4.shape[2:], align_corners=True)(in5)  # 1/16
+        out3 = in3 + ops.ResizeNearestNeighbor(
+            size=in3.shape[2:], align_corners=True)(out4)  # 1/8
+        out2 = in2 + ops.ResizeNearestNeighbor(
+            size=in2.shape[2:], align_corners=True)(out3)  # 1/4
+
+        p5 = self.inp_conv[3](in5)
+        p4 = self.inp_conv[2](out4)
+        p3 = self.inp_conv[1](out3)
+        p2 = self.inp_conv[0](out2)
+
+        p5 = ops.ResizeNearestNeighbor(
+            size=p2.shape[2:], align_corners=True)(p5)  # 1/16
+        p4 = ops.ResizeNearestNeighbor(
+            size=p2.shape[2:], align_corners=True)(p4)  # 1/8
+        p3 = ops.ResizeNearestNeighbor(
+            size=p2.shape[2:], align_corners=True)(p3)  # 1/4
+
+        fuse = ops.concat([p5, p4, p3, p2], axis=1)
+        return fuse

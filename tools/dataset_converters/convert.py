@@ -33,6 +33,7 @@ from ic19_art import IC19_ART_Converter
 from lsvt import LSVT_Converter
 from mlt2017_9 import MLT2017_Converter, MLT2019_Converter
 from mtwi2018 import MTWI2018_Converter
+from publaynet import PUBLAYNET_Converter
 from pubtabnet import PUBTABNET_Converter
 from rctw17 import RCTW17_Converter
 from rects import RECTS_Converter
@@ -69,6 +70,7 @@ supported_datasets = [
     "ic19_art",
     "cocotext",
     "pubtabnet",
+    "publaynet",
 ]
 
 

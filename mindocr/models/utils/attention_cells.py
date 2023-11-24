@@ -9,7 +9,7 @@ from mindspore import Tensor
 
 from ...utils.misc import is_ms_version_2
 
-__all__ = ["MultiHeadAttention", "PositionwiseFeedForward", "PositionalEncoding"]
+__all__ = ["MultiHeadAttention", "PositionwiseFeedForward", "PositionalEncoding", "SEModule"]
 
 
 class MultiHeadAttention(nn.Cell):
@@ -123,3 +123,32 @@ class PositionalEncoding(nn.Cell):
             input_tensor + self.pe[:, : input_tensor.shape[1]]
         )  # pe 1 5000 512
         return self.dropout(input_tensor)
+
+
+class SEModule(nn.Cell):
+    def __init__(self, in_channels, reduction=4):
+        super(SEModule, self).__init__()
+        self.conv1 = nn.Conv2d(
+            in_channels=in_channels,
+            out_channels=in_channels // reduction,
+            kernel_size=1,
+            stride=1,
+            padding=0,
+            has_bias=True)
+        self.conv2 = nn.Conv2d(
+            in_channels=in_channels // reduction,
+            out_channels=in_channels,
+            kernel_size=1,
+            stride=1,
+            padding=0,
+            has_bias=True)
+        self.relu = nn.ReLU()
+        self.h_sigmoid = nn.HSigmoid()
+
+    def construct(self, inputs):
+        outputs = ops.mean(inputs, axis=(-2, -1), keep_dims=True)  # equivalent to nn.AdaptiveAvgPool2d(1)
+        outputs = self.conv1(outputs)
+        outputs = self.relu(outputs)
+        outputs = self.conv2(outputs)
+        outputs = self.h_sigmoid(outputs)
+        return inputs * outputs

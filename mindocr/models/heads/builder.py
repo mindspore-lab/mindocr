@@ -2,6 +2,7 @@ __all__ = ['build_head']
 supported_heads = [
     'ConvHead',
     'DBHead',
+    'DBHeadEnhance',
     'EASTHead',
     'CTCHead',
     'PSEHead',
@@ -12,19 +13,25 @@ supported_heads = [
     'RobustScannerHead',
     'VisionLANHead',
     'ABINetHead',
+    "TokenClassificationHead",
+    'YOLOv8Head',
+    'MultiHead',
 ]
 from .cls_head import MobileNetV3Head
 from .conv_head import ConvHead
-from .det_db_head import DBHead
+from .det_db_head import DBHead, DBHeadEnhance
 from .det_east_head import EASTHead
 from .det_fce_head import FCEHead
 from .det_pse_head import PSEHead
+from .kie_tokenclassification_head import TokenClassificationHead
 from .rec_abinet_head import ABINetHead
 from .rec_attn_head import AttentionHead
 from .rec_ctc_head import CTCHead
 from .rec_master_decoder import MasterDecoder
+from .rec_multi_head import MultiHead
 from .rec_robustscanner_head import RobustScannerHead
 from .rec_visionlan_head import VisionLANHead
+from .yolov8_head import YOLOv8Head
 
 
 def build_head(head_name, **kwargs):
