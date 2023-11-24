@@ -1,6 +1,8 @@
 postprocess:
-  name: ClsPostprocess
-  label_list: [ '0','180' ]
+  name: RecCTCLabelDecode
+  use_space_char: True
+  blank_at_last: False
+
 
 eval:
   dataset:
@@ -16,5 +18,4 @@ eval:
           norm_before_pad: True
           mean: [ 127.5, 127.5, 127.5 ]
           std: [ 127.5, 127.5, 127.5 ]
-          is_hwc: True
       - ToCHWImage:
