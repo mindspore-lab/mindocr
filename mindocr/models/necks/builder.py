@@ -11,7 +11,7 @@ supported_necks = [
     'MasterEncoder',
     'RSEFPN',
     'YOLOv8Neck',
-    "Identity"
+    'Identity'
 ]
 from .fpn import DBFPN, EASTFPN, FCEFPN, FPN, PSEFPN, RSEFPN
 from .identity import Identity

@@ -110,10 +110,16 @@ def export(model_name_or_config, data_shape, local_ckpt_path, save_dir, is_dynam
     else:
         ms.export(net, inputs, file_name=output_path, file_format="MINDIR")
 
-    logger.info(
-        f"=> Finish exporting mindir file of {name} to {os.path.realpath(output_path)}."
-        f"The data shape (N, C, H, W) is {inputs}."
-    )
+    if model_type == "kie":
+        logger.info(
+            f"=> Finish exporting mindir file of {name} to {os.path.realpath(output_path)}."
+            f"The image shape (N, C, H, W) is {inputs[-1].shape}."
+        )
+    else:
+        logger.info(
+            f"=> Finish exporting mindir file of {name} to {os.path.realpath(output_path)}."
+            f"The data shape (N, C, H, W) is {inputs.shape}."
+        )
 
 
 def check_args(args):

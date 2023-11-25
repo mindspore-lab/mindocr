@@ -80,7 +80,6 @@ class VQAReTokenMetric(nn.Metric):
         self.metric_names = ["precision", "recall", "hmean"]
 
     def update(self, preds, gt):
-        # pred_relations, relations, entities = preds
         pred_relations = preds
         relations = gt[1]
         entities = gt[0]
