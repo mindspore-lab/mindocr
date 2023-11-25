@@ -97,9 +97,7 @@ def relative_position_bucket(
 
     # The other half of the buckets are for logarithmically bigger bins in positions up to max_distance
     val_if_large = max_exact + (
-        ops.log(n.astype(ms.float32) / max_exact)
-        / math.log(max_distance / max_exact)
-        * (num_buckets - max_exact)
+        ops.log(n.astype(ms.float32) / max_exact) / math.log(max_distance / max_exact) * (num_buckets - max_exact)
     ).astype(ms.int64)
 
     val_if_large = ops.minimum(

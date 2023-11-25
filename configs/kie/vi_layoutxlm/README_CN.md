@@ -75,12 +75,12 @@ TODO
 
 分别为：ZH(中文)、JA(日语)、ES(西班牙)、FR(法语)、IT(意大利)、DE(德语)、PT(葡萄牙)
 
-这里提供了经过预处理可以直接使用的[中文数据集](https://download.mindspore.cn/toolkits/mindocr/vi_layoutxlm/XFUND.tar)供大家下载。
+这里提供了经过预处理可以直接使用的[中文数据集](https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/XFUND.tar)供大家下载。
 
 ```bash
 mkdir train_data
 cd train_data
-wget https://download.mindspore.cn/toolkits/mindocr/vi_layoutxlm/XFUND.tar && tar -xf XFUND.tar
+wget https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/XFUND.tar && tar -xf XFUND.tar
 cd ..
 ```
 
