@@ -176,7 +176,7 @@ def main(cfg):
     if cfg.system.val_while_train:
         # postprocess network prediction
         postprocessor = build_postprocess(cfg.postprocess)
-        metric = build_metric(cfg.metric, device_num=device_num)
+        metric = build_metric(cfg.metric, device_num=device_num, save_dir=cfg.train.ckpt_save_dir)
 
     # build callbacks
     eval_cb = EvalSaveCallback(
