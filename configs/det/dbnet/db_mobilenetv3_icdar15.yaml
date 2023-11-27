@@ -143,7 +143,7 @@ eval:
       - DetResize:  # GridResize 32
           target_size: [ 736, 1280 ]
           keep_ratio: False
-          limit_type: None
+          limit_type: none
           divisor: 32
       - NormalizeImage:
           bgr_to_rgb: False

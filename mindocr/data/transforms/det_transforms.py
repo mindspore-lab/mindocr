@@ -375,12 +375,12 @@ class DetResize:
     Resize the image and text polygons (if any) for text detection
 
     Args:
-        target_size: target size [H, W] of the output image. If it is not None, `limit_type` will be forced to None and
-            side limit-based resizing will not make effect. Default: None.
+        target_size: target size [H, W] of the output image. If it is not None, `limit_type` will be forced to 'none'
+            and side limit-based resizing will not make effect. Default: None.
         keep_ratio: whether to keep aspect ratio. Default: True
         padding: whether to pad the image to the `target_size` after "keep-ratio" resizing. Only used when keep_ratio is
             True. Default False.
-        limit_type: it decides the resize method type. Option: 'min', 'max', None. Default: "min"
+        limit_type: it decides the resize method type. Option: 'min', 'max', 'none'. Default: "min"
             - 'min': images will be resized by limiting the minimum side length to `limit_side_len`, i.e.,
               any side of the image must be larger than or equal to `limit_side_len`. If the input image alreay fulfill
             this limitation, no scaling will be performed. If not, input image will be up-scaled with the ratio of
@@ -389,7 +389,7 @@ class DetResize:
               any side of the image must be smaller than or equal to `limit_side_len`. If the input image alreay fulfill
               this limitation, no scaling will be performed. If not, input image will be down-scaled with the ratio of
               (limit_side_len / longer side length)
-            -  None: No limitation. Images will be resized to `target_size` with or without `keep_ratio` and `padding`
+            -  'none': No limitation. Images will be resized to `target_size` with or without `keep_ratio` and `padding`
         limit_side_len: side len limitation.
         force_divisable: whether to force the image being resized to a size multiple of `divisor` (e.g. 32) in the end,
             which is suitable for some networks (e.g. dbnet-resnet50). Default: True.
@@ -417,7 +417,7 @@ class DetResize:
         **kwargs,
     ):
         if target_size is not None:
-            limit_type = None
+            limit_type = "none"
 
         self.target_size = target_size
         self.keep_ratio = keep_ratio
@@ -429,7 +429,7 @@ class DetResize:
         self.divisor = divisor
 
         self.is_train = kwargs.get("is_train", False)
-        assert target_size is None or limit_type is None, "Only one of limit_type and target_size should be provided."
+        assert target_size is None or limit_type == "none", "Only one of limit_type and target_size should be provided."
         if limit_type in ["min", "max"]:
             keep_ratio = True
             padding = False
@@ -437,7 +437,7 @@ class DetResize:
                 f"`limit_type` is {limit_type}. Image will be resized by limiting the {limit_type} "
                 f"side length to {limit_side_len}."
             )
-        elif not limit_type:
+        elif limit_type == "none":
             assert target_size is not None or force_divisable is not None, (
                 "One of `target_size` or `force_divisable` is required when limit_type is not set. "
                 "Please set at least one of them."
@@ -478,15 +478,17 @@ class DetResize:
         elif self.limit_type == "max":
             if max(h, w) > self.limit_side_len:  # downscale
                 scale_ratio = self.limit_side_len / float(max(h, w))
-        elif not self.limit_type:
+        elif self.limit_type == "none":
             if self.keep_ratio and self.target_size:
                 # scale the image until it fits in the target size at most. The left part could be filled by padding.
                 scale_ratio = min(tar_h / h, tar_w / w)
                 allow_padding = True
 
         if (self.limit_type in ["min", "max"]) or (self.target_size and self.keep_ratio):
-            resize_w = math.ceil(w * scale_ratio)
-            resize_h = math.ceil(h * scale_ratio)
+            resize_h = int(h * scale_ratio)
+            resize_w = int(w * scale_ratio)
+            resize_h = max(int(round(resize_h / 32) * 32), 32)
+            resize_w = max(int(round(resize_w / 32) * 32), 32)
             if self.target_size:
                 resize_w = min(resize_w, tar_w)
                 resize_h = min(resize_h, tar_h)

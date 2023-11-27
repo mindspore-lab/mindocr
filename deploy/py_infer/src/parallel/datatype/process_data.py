@@ -23,6 +23,9 @@ class ProcessData:
     # data for preprocess -> infer -> postprocess
     data: Union[np.ndarray, List[np.ndarray], Dict] = None
 
+    # confidence of the result from rec
+    score: float = field(default_factory=lambda: [])
+
 
 @dataclass
 class StopData:
