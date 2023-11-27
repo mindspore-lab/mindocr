@@ -385,7 +385,15 @@ python tools/eval.py --config configs/rec/svtr/svtr_ppocrv3_ch.yaml
 python tools/infer/text/predict_rec.py --image_dir {dir_to_your_image_data} --rec_algorithm SVTR_PPOCRv3_CH --rec_image_shape 3,48,320 --draw_img_save_dir inference_results
 ```
 
-结果会存放于`draw_img_save_dir/rec_results.txt`
+识别结果默认会存放于`./inference_results/rec_results.txt`
+
+如您想对图片进行串联推理，即先对图片进行文字检测，再对检测出的文字进行文字识别，您可以运行如下命令
+
+```shell
+python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_imgs} --det_algorithm DB_PPOCRv3 --rec_algorithm SVTR_PPOCRv3_CH --rec_image_shape 3,48,320 --draw_img_save_dir inference_results
+```
+检测、识别的结果默认存放于`./inference_results/system_result.txt`下，如您想对结果进行可视化，在命令中加入`--visualize_output True`即可
+
 
 ## 参考文献
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
