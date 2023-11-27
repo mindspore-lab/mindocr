@@ -43,13 +43,13 @@ def get_device_status():
 
     def _get_status():
         nonlocal status
-        status = ms.Tensor([0])[0:].asnumpy()[0]
-        return status
+        try:
+            status = ms.Tensor([0])[0:].asnumpy()[0]
+        except RuntimeError:
+            status = 1
 
     with suppress_stderr():
-        test_thread = threading.Thread(target=_get_status)
-        test_thread.start()
-        test_thread.join()
+        _get_status()
 
     return status
 

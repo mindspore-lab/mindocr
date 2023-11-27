@@ -15,7 +15,7 @@ eval:
       - DetResize:  #ScalePadImage
           keep_ratio: True
           padding: True
-          limit_type: None
+          limit_type: none
           force_divisable: False
       - NormalizeImage:
           mean: [ 123.675, 116.28 , 103.53 ]

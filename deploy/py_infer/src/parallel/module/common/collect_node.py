@@ -74,7 +74,8 @@ class CollectNode(ModuleBase):
         if self.task_type in (TaskType.DET_REC, TaskType.DET_CLS_REC):
             image_path = input_data.image_path[0]  # bs=1
             for result in input_data.infer_result:
-                self.image_pipeline_res[image_path].append({"transcription": result[-1], "points": result[:-1]})
+                if result[-1] > 0.5:
+                    self.image_pipeline_res[image_path].append({"transcription": result[-2], "points": result[:-2]})
             if not input_data.infer_result:
                 self.image_pipeline_res[image_path] = []
         elif self.task_type == TaskType.DET:
