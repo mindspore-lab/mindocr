@@ -29,7 +29,7 @@ class LayoutXLMTokenizer(PretrainedTokenizer):
     pretrained_resource_files_map = {
         "vocab_file": {
             "layoutxlm-base-uncased":
-                "https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/sentencepiece.bpe.model",
+                "https://download-mindspore.osinfra.cn/toolkits/mindocr/vi-layoutxlm/sentencepiece.bpe.model",
         }
     }
     pretrained_init_configuration = {
