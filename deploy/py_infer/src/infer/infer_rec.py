@@ -101,6 +101,14 @@ class TextRecognizer(InferBase):
         start_index = 0
         split_bs = []
         split_data = []
+        width_list = []
+        width_list_indices = []
+
+        if not self.requires_gear_hw:
+            for img in image:
+                width_list.append(img.shape[1] / float(img.shape[0]))
+            width_list_indices = np.argsort(np.array(width_list))
+
         for batch in batch_list:
             upper_bound = min(start_index + batch, num_image)
             split_input = image[start_index:upper_bound]
@@ -109,7 +117,13 @@ class TextRecognizer(InferBase):
                 target_size = self._get_batch_matched_hw(cv_utils.get_batch_hw_of_img(split_input))
                 split_output = self.preprocess_ops(split_input, target_size=target_size)
             else:
-                split_output = self.preprocess_ops(split_input)
+                img_h, img_w = 48, 320
+                max_wh_ratio = img_w / img_h
+                for index in range(start_index, upper_bound):
+                    h, w = image[width_list_indices[index]].shape[0:2]
+                    wh_ratio = w * 1.0 / h
+                    max_wh_ratio = max(max_wh_ratio, wh_ratio)
+                split_output = self.preprocess_ops(split_input, max_wh_ratio=max_wh_ratio)
 
             if self.requires_gear_bs:
                 split_output = gear_utils.padding_to_batch(split_output, batch)

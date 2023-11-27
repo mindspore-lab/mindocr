@@ -597,7 +597,10 @@ class RecResizeNormForInfer(object):
         # tar_h, tar_w = self.targt_shape
         resize_h = self.tar_h
 
-        max_wh_ratio = self.tar_w / float(self.tar_h)
+        if "max_wh_ratio" in data:
+            max_wh_ratio = data["max_wh_ratio"]
+        else:
+            max_wh_ratio = self.tar_w / float(self.tar_h)
 
         if not self.keep_ratio:
             assert self.tar_w is not None, "Must specify target_width if keep_ratio is False"
@@ -616,7 +619,7 @@ class RecResizeNormForInfer(object):
             resized_img = self.norm(resized_img)
 
         if self.padding and self.keep_ratio:
-            padded_img = np.zeros((self.tar_h, self.tar_w, 3), dtype=resized_img.dtype)
+            padded_img = np.zeros((self.tar_h, math.ceil(self.tar_h * max_wh_ratio), 3), dtype=resized_img.dtype)
             padded_img[:, :resize_w, :] = resized_img
             data["image"] = padded_img
         else:
