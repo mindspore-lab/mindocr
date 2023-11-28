@@ -36,6 +36,7 @@ class RecResizeNormForInfer(rec_transforms.RecResizeNormForInfer):
         norm_before_pad=False,
         mean=[127.0, 127.0, 127.0],
         std=[127.0, 127.0, 127.0],
+        divisor=None,
         **kwargs
     ):
         skipped = ("target_height", "target_width")
@@ -50,6 +51,7 @@ class RecResizeNormForInfer(rec_transforms.RecResizeNormForInfer):
             norm_before_pad=norm_before_pad,
             mean=mean,
             std=std,
+            divisor=divisor,
             **kwargs
         )
 
