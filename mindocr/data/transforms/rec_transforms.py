@@ -573,6 +573,7 @@ class RecResizeNormForInfer(object):
         norm_before_pad=False,
         mean=[127.0, 127.0, 127.0],
         std=[127.0, 127.0, 127.0],
+        divisor=None,
         **kwargs,
     ):
         self.keep_ratio = keep_ratio
@@ -584,8 +585,11 @@ class RecResizeNormForInfer(object):
         self.norm_before_pad = norm_before_pad
         self.mean = np.array(mean, dtype="float32")
         self.std = np.array(std, dtype="float32")
+        self.divisor = divisor
 
     def norm(self, img):
+        if self.divisor:
+            img = img / self.divisor
         return (img - self.mean) / self.std
 
     def __call__(self, data):
@@ -602,13 +606,14 @@ class RecResizeNormForInfer(object):
         else:
             max_wh_ratio = self.tar_w / float(self.tar_h)
 
+        img_w = int(resize_h * max_wh_ratio)
         if not self.keep_ratio:
             assert self.tar_w is not None, "Must specify target_width if keep_ratio is False"
             resize_w = self.tar_w  # if self.tar_w is not None else resized_h * self.max_wh_ratio
         else:
             src_wh_ratio = w / float(h)
-            resize_w = math.ceil(min(src_wh_ratio, max_wh_ratio) * resize_h)
-        resized_img = cv2.resize(img, (resize_w, resize_h), interpolation=self.interpolation)
+            resize_w = img_w if img_w < math.ceil(resize_h * src_wh_ratio) else int(math.ceil(resize_h * src_wh_ratio))
+        resized_img = cv2.resize(img, (resize_w, resize_h), interpolation=self.interpolation).astype("float32")
 
         # TODO: norm before padding
 
@@ -619,7 +624,7 @@ class RecResizeNormForInfer(object):
             resized_img = self.norm(resized_img)
 
         if self.padding and self.keep_ratio:
-            padded_img = np.zeros((self.tar_h, math.ceil(self.tar_h * max_wh_ratio), 3), dtype=resized_img.dtype)
+            padded_img = np.zeros((self.tar_h, img_w, 3), dtype=resized_img.dtype)
             padded_img[:, :resize_w, :] = resized_img
             data["image"] = padded_img
         else:
