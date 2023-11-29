@@ -41,6 +41,13 @@ def get_args():
     parser.add_argument(
         "--precision_mode", type=str, default=None, choices=["fp16", "fp32"], required=False, help="Precision mode."
     )
+    parser.add_argument(
+        "--node_fetch_interval",
+        type=float,
+        default=0,
+        required=False,
+        help="Interval(seconds) that each node fetch data from queue.",
+    )
 
     parser.add_argument("--det_model_path", type=str, required=False, help="Detection model file path.")
     parser.add_argument(
