@@ -50,6 +50,7 @@ class ModuleBase(object):
             if stop_manager.full():
                 break
             if self.input_queue.empty():
+                time.sleep(self.args.node_fetch_interval)
                 continue
             else:
                 data = self.input_queue.get(block=True)
