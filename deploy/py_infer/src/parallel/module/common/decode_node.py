@@ -15,6 +15,9 @@ class DecodeNode(ModuleBase):
             self.send_to_next_module(input_data)
             return
 
-        input_data.frame = [cv_utils.img_read(image_path) for image_path in input_data.image_path]
-
-        self.send_to_next_module(input_data)
+        # input contains np.ndarray, not need read again
+        if len(input_data.frame) == len(input_data.image_path) and len(input_data.frame) > 0:
+            self.send_to_next_module(input_data)
+        else:
+            input_data.frame = [cv_utils.img_read(image_path) for image_path in input_data.image_path]
+            self.send_to_next_module(input_data)

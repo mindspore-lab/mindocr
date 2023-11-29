@@ -11,7 +11,9 @@ from src.parallel import ParallelPipeline  # noqa
 def main():
     args = infer_args.get_args()
     parallel_pipeline = ParallelPipeline(args)
+    parallel_pipeline.start_pipeline()
     parallel_pipeline.infer_for_images(args.input_images_dir)
+    parallel_pipeline.stop_pipeline()
 
 
 if __name__ == "__main__":

@@ -58,3 +58,10 @@ def img_read(path: str):
 def img_write(path: str, img: np.ndarray):
     filename = os.path.abspath(path)
     cv2.imencode(os.path.splitext(filename)[1], img)[1].tofile(filename)
+
+def check_type_in_container(input_data, t):
+    for data in input_data:
+        if not isinstance(data, t):
+            return False
+    else:
+        return True
