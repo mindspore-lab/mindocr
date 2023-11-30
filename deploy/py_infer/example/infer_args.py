@@ -3,18 +3,20 @@ import itertools
 import os
 import sys
 
-mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"))
+mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
 sys.path.insert(0, mindocr_path)
 
-from deploy.py_infer.src.infer_args import str2bool, setup_logger, update_task_info, init_save_dir  # noqa
-from deploy.py_infer.src.infer import TaskType
+from deploy.py_infer.src.infer import TaskType  # noqa
+from deploy.py_infer.src.infer_args import setup_logger, str2bool  # noqa
+from deploy.py_infer.src.utils import get_config_by_name_for_model, save_path_init  # noqa
+
 
 def get_args():
     """
     command line parameters for inference
     """
     parser = argparse.ArgumentParser(description="Arguments for inference.")
-    
+
     parser.add_argument(
         "--backend",
         type=str.lower,
@@ -34,6 +36,13 @@ def get_args():
     )
     parser.add_argument(
         "--precision_mode", type=str, default=None, choices=["fp16", "fp32"], required=False, help="Precision mode."
+    )
+    parser.add_argument(
+        "--node_fetch_interval",
+        type=float,
+        default=0,
+        required=False,
+        help="Interval(seconds) that each node fetch data from queue.",
     )
 
     parser.add_argument("--det_model_path", type=str, required=False, help="Detection model file path.")
@@ -59,6 +68,11 @@ def get_args():
     parser.add_argument(
         "--character_dict_path", type=str, required=False, help="Character dict file path for recognition models."
     )
+    parser.add_argument("--layout_model_path", type=str, required=False, help="Layout model file path or directory.")
+    parser.add_argument(
+        "--layout_model_name_or_config", type=str, required=False, help="Layout model name or config file path."
+    )
+    parser.add_argument("--layout_batch_num", type=int, default=1, required=False, help="Batch size for layout model.")
 
     parser.add_argument(
         "--res_save_dir",
@@ -101,6 +115,52 @@ def get_args():
     init_save_dir(args)
 
     return args
+
+
+def update_task_info(args):
+    """
+    add internal parameters according to different task type
+    """
+    det = bool(args.det_model_path)
+    cls = bool(args.cls_model_path)
+    rec = bool(args.rec_model_path)
+    layout = bool(args.layout_model_path)
+
+    task_map = {
+        (True, False, False, False): TaskType.DET,
+        (False, True, False, False): TaskType.CLS,
+        (False, False, True, False): TaskType.REC,
+        (True, False, True, False): TaskType.DET_REC,
+        (True, True, True, False): TaskType.DET_CLS_REC,
+        (False, False, False, True): TaskType.LAYOUT,
+    }
+
+    task_order = (det, cls, rec, layout)
+    if task_order in task_map:
+        setattr(args, "task_type", task_map[task_order])
+    else:
+        unsupported_task_map = {
+            (False, False, False, False): "empty",
+            (True, True, False, False): "det+cls",
+            (False, True, True, False): "cls+rec",
+        }
+
+        raise ValueError(
+            f"Only support det, cls, rec, det+rec and det+cls+rec, but got {unsupported_task_map[task_order]}. "
+            f"Please check model_path!"
+        )
+
+    if args.det_model_name_or_config:
+        setattr(args, "det_config_path", get_config_by_name_for_model(args.det_model_name_or_config))
+    if args.cls_model_name_or_config:
+        setattr(args, "cls_config_path", get_config_by_name_for_model(args.cls_model_name_or_config))
+    if args.rec_model_name_or_config:
+        setattr(args, "rec_config_path", get_config_by_name_for_model(args.rec_model_name_or_config))
+    if args.layout_model_name_or_config:
+        setattr(args, "layout_config_path", get_config_by_name_for_model(args.layout_model_name_or_config))
+
+    return args
+
 
 def check_and_update_args(args):
     """
@@ -156,6 +216,7 @@ def check_and_update_args(args):
         "parallel_num": args.parallel_num,
         "rec_batch_num": args.rec_batch_num,
         "cls_batch_num": args.cls_batch_num,
+        "layout_batch_num": args.layout_batch_num,
     }
     for name, value in need_check_positive.items():
         if value < 1:
@@ -172,3 +233,18 @@ def check_and_update_args(args):
             raise ValueError(f"{name1} and {name2} can't be same path.")
 
     return args
+
+
+def init_save_dir(args):
+    if args.res_save_dir:
+        save_path_init(args.res_save_dir, exist_ok=True)
+    if args.crop_save_dir:
+        save_path_init(args.crop_save_dir)
+    if args.vis_pipeline_save_dir:
+        save_path_init(args.vis_pipeline_save_dir)
+    if args.vis_det_save_dir:
+        save_path_init(args.vis_det_save_dir)
+    if args.save_log_dir:
+        save_path_init(args.save_log_dir, exist_ok=True)
+    if args.input_array_save_dir:
+        save_path_init(args.input_array_save_dir, exist_ok=True)

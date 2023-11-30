@@ -1,13 +1,12 @@
 import argparse
-import numpy as np
 import os
 
+import numpy as np
 import tqdm
 
-from ..infer import TaskType
 from ..data_process.utils import cv_utils
+from ..infer import TaskType
 from .framework import ParallelPipelineManager
-from .datatype import StopSign
 
 
 class ParallelPipeline:
@@ -38,7 +37,7 @@ class ParallelPipeline:
         batch_num = 1
 
         # cls, rec, layout
-        if self.args.task_type in (TaskType.CLS, TaskType.REC):
+        if self.args.task_type in (TaskType.CLS, TaskType.REC, TaskType.LAYOUT):
             for name, value in self.infer_params.items():
                 if name.endswith("_batch_num"):
                     batch_num = max(value)
@@ -49,7 +48,6 @@ class ParallelPipeline:
         if os.path.isdir(images):
             show_progressbar = not self.args.show_log
             input_image_list = [os.path.join(images, path) for path in os.listdir(images) if not path.endswith(".txt")]
-
             images_num = len(input_image_list)
             for i in (
                 tqdm.tqdm(range(images_num), desc="send image to pipeline") if show_progressbar else range(images_num)
@@ -71,24 +69,21 @@ class ParallelPipeline:
             if len(images) == 0:
                 return
             if not cv_utils.check_type_in_container(images, np.ndarray):
-                ValueError(f"unknown input data, images should be np.ndarray, or tuple&list contain np.ndarray")
-            # cls、rec
+                ValueError("unknown input data, images should be np.ndarray, or tuple&list contain np.ndarray")
+            # cls, rec, layout
             batch_num = 1
-            if self.args.task_type in (TaskType.CLS, TaskType.REC):
+            if self.args.task_type in (TaskType.CLS, TaskType.REC, TaskType.LAYOUT):
                 for name, value in self.infer_params.items():
                     if name.endswith("_batch_num"):
                         batch_num = max(value)
             self._send_batch_array(images, batch_num)
         else:
             raise ValueError(f"unknown input data: {type(images)}")
-            
 
     def _send_batch_array(self, images, batch_num):
         show_progressbar = not self.args.show_log
         images_num = len(images)
-        for i in (
-            tqdm.tqdm(range(images_num), desc="send image to pipeline") if show_progressbar else range(images_num)
-        ):
+        for i in tqdm.tqdm(range(images_num), desc="send image to pipeline") if show_progressbar else range(images_num):
             if i % batch_num == 0:
                 batch_images = images[i : i + batch_num]
                 self.input_queue.put(batch_images, block=True)

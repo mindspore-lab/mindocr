@@ -18,6 +18,8 @@ class DetPreNode(ModuleBase):
         if input_data.skip:
             self.send_to_next_module(input_data)
             return
+        if len(input_data.frame) == 0:
+            return
 
         image = input_data.frame[0]  # bs = 1 for det
         data = self.text_detector.preprocess(image)
