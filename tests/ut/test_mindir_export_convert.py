@@ -58,21 +58,27 @@ class BaseTestConvertModel(metaclass=ABCMeta):
         converted_model_path = os.path.join(self.save_path, model + f'_{info}')
         command = f"{self.convert_tool} --fmk=MINDIR --modelFile={mindir_path} --outputFile={converted_model_path} --optimize=ascend_oriented --configFile={self.config_file}"
         print(f"\033[34mConvert Command\033[0m: {command}")
+        self.log_handle.write(f"Convert Command: {command}")
         ret = subprocess.call(command.split(), stdout=self.log_handle, stderr=self.log_handle)
         if ret == 0:
             print(f"\033[32mConvert Success\033[0m: {converted_model_path}.mindir")
+            self.log_handle.write(f"Convert Success: {converted_model_path}.mindir")
         else:
             print("\033[31mConvert Failed \033[0m")
+            self.log_handle.write(f"Convert Failed")
         return ret
 
     def infer_static_shape_ascend(self, converted_model_path, data_shape):
         command = f"{self.benchmark_tool} --modelFile={converted_model_path} --device=Ascend --inputShapes={data_shape} --loopCount=100 --warmUpLoopCount=10"
         print(f"\033[34mBenchmark Command\033[0m: {command}")
+        self.log_handle.write(f"Benchmark Command: {command}")
         ret = subprocess.call(command.split(), stdout=self.log_handle, stderr=self.log_handle)
         if ret == 0:
             print("\033[32mInfer Static Shape Success \033[0m")
+            self.log_handle.write("Infer Static Shape Success")
         else:
             print("\033[31mInfer Static Shape Failed \033[0m")
+            self.log_handle.write("Infer Static Shape Failed")
         return ret
 
     def infer_dynamic_shape_ascend(self, converted_model_path, data_shape_list):
@@ -80,11 +86,14 @@ class BaseTestConvertModel(metaclass=ABCMeta):
         for data_shape in data_shape_list:
             command = f"{self.benchmark_tool} --modelFile={converted_model_path} --device=Ascend --inputShapes={data_shape} --loopCount=100 --warmUpLoopCount=10"
             print(f"\033[34mBenchmark Command\033[0m: {command}")
+            self.log_handle.write(f"Benchmark Command: {command}")
             ret = subprocess.call(command.split(), stdout=self.log_handle, stderr=self.log_handle)
             if ret == 0:
                 print("\033[32mInfer Dynamic Shape Success \033[0m")
+                self.log_handle.write("Infer Dynamic Shape Success")
             else:
                 print("\033[31mInfer Dynamic Shape Failed \033[0m")
+                self.log_handle.write("Infer Dynamic Shape Failed")
             rets.append(ret)
         return rets
 
@@ -225,13 +234,16 @@ class BaseTestExportModel(metaclass=ABCMeta):
         exported_model_path = os.path.join(self.save_path, 'model.mindir')
         command = f"bash ../../tools/export_tool.sh -c={model} -d={self.save_path} -D={is_dynamic} -H={data_shape_h_w[0]} " + \
             f"-W={data_shape_h_w[1]} -T={model_type}"
+        self.log_handle.write(f"Export Command: {command}")
         print(f"\033[34mExport Command\033[0m: {command}")
         ret = subprocess.call(command.split(), stdout=self.log_handle, stderr=self.log_handle)
         
         if ret == 0:
-            print(f"\033[32mConvert Success\033[0m: {exported_model_path}")
+            print(f"\033[32mExport Success\033[0m: {exported_model_path}")
+            self.log_handle.write(f"Export Success: {exported_model_path}")
         else:
-            print("\033[31mConvert Failed \033[0m")
+            print("\033[31mExport Failed \033[0m")
+            self.log_handle.write("Export Failed")
         return ret
 
     def run(self):
