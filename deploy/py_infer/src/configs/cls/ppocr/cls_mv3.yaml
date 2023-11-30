@@ -9,10 +9,13 @@ eval:
           img_mode: BGR
           channel_first: False
       - RecResizeNormForInfer:
+          target_height: 48
+          target_width: 320
           keep_ratio: True
           padding: True
           norm_before_pad: True
-          mean: [ 127.5, 127.5, 127.5 ]
-          std: [ 127.5, 127.5, 127.5 ]
+          mean: [ 0.5, 0.5, 0.5 ]
+          std: [ 0.5, 0.5, 0.5 ]
+          divisor: 255
           is_hwc: True
       - ToCHWImage:

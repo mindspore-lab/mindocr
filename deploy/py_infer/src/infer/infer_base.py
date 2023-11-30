@@ -38,6 +38,7 @@ class InferBase(metaclass=ABCMeta):
                     "TextDetector": 1,
                     "TextClassifier": self.args.cls_batch_num,
                     "TextRecognizer": self.args.rec_batch_num,
+                    "LayoutPredictor": self.args.layout_batch_num,
                 }
                 self._bs_list = (batch_size_map[self.__class__.__name__],)
 

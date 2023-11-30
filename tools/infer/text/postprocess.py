@@ -14,14 +14,24 @@ class Postprocessor(object):
         # algo = algo.lower()
         if task == "det":
             if algo.startswith("DB"):
-                postproc_cfg = dict(
-                    name="DBPostprocess",
-                    box_type="quad",
-                    binary_thresh=0.3,
-                    box_thresh=0.6,
-                    max_candidates=1000,
-                    expand_ratio=1.5,
-                )
+                if algo == "DB_PPOCRv3":
+                    postproc_cfg = dict(
+                        name="DBPostprocess",
+                        box_type="quad",
+                        binary_thresh=0.3,
+                        box_thresh=0.9,
+                        max_candidates=1000,
+                        expand_ratio=1.5,
+                    )
+                else:
+                    postproc_cfg = dict(
+                        name="DBPostprocess",
+                        box_type="quad",
+                        binary_thresh=0.3,
+                        box_thresh=0.6,
+                        max_candidates=1000,
+                        expand_ratio=1.5,
+                    )
             elif algo.startswith("PSE"):
                 postproc_cfg = dict(
                     name="PSEPostprocess",
@@ -39,12 +49,19 @@ class Postprocessor(object):
             # TODO: update character_dict_path and use_space_char after CRNN trained using en_dict.txt released
             if algo.startswith("CRNN") or algo.startswith("SVTR"):
                 # TODO: allow users to input char dict path
-                dict_path = "mindocr/utils/dict/ch_dict.txt" if algo == "CRNN_CH" else None
-                postproc_cfg = dict(
-                    name="RecCTCLabelDecode",
-                    character_dict_path=dict_path,
-                    use_space_char=False,
-                )
+                dict_path = "mindocr/utils/dict/ch_dict.txt" if algo in ["CRNN_CH", "SVTR_PPOCRv3_CH"] else None
+                if algo == "SVTR_PPOCRv3_CH":
+                    postproc_cfg = dict(
+                        name="CTCLabelDecode",
+                        character_dict_path=dict_path,
+                        use_space_char=True,
+                    )
+                else:
+                    postproc_cfg = dict(
+                        name="RecCTCLabelDecode",
+                        character_dict_path=dict_path,
+                        use_space_char=False,
+                    )
             elif algo.startswith("RARE"):
                 dict_path = "mindocr/utils/dict/ch_dict.txt" if algo == "RARE_CH" else None
                 postproc_cfg = dict(

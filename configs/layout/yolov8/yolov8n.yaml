@@ -1,0 +1,153 @@
+system:
+  mode: 0  # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: &distribute True
+  amp_level: O0
+  amp_level_infer: O0
+  seed: 230118
+  log_interval: 100
+  val_while_train: False
+  drop_overflow_update: False
+  ckpt_max_keep: 100
+  device_id: 0
+
+common:
+  num_classes: &num_classes 5
+  batch_size: &batch_size 16
+  stride: &stride [ 8, 16, 32, 64 ]
+  reg_max: &reg_max 16
+  sync_bn: *distribute
+  annotations_path: &annotations_path publaynet/val.json
+
+model:
+  type: layout
+  transform: null
+  pretrained: null
+  resume: False
+  backbone:
+    name: yolov8_backbone
+    depth_multiple: 0.33  # scales module repeats
+    width_multiple: 0.25  # scales convolution channels
+    max_channels: 1024
+    nc: *num_classes
+    stride: *stride
+    reg_max: *reg_max
+    sync_bn: *distribute
+    out_channels: [ 64, 128, 192, 256 ]
+
+  neck:
+    name: YOLOv8Neck
+    index: [ 20, 23, 26, 29 ]
+
+  head:
+    name: YOLOv8Head
+    nc: *num_classes
+    reg_max: *reg_max
+    stride: *stride
+    sync_bn: *distribute
+
+postprocess:
+  name: YOLOv8Postprocess
+  conf_thres: 0.001
+  iou_thres: 0.7
+  conf_free: True
+  multi_label: True
+  time_limit: 60.0
+
+metric:
+  name: YOLOv8Metric
+  annotations_path: *annotations_path
+
+loss:
+  name: YOLOv8Loss
+  box: 7.5  # box loss gain
+  cls: 0.5  # cls loss gain
+  dfl: 1.5  # dfl loss gain
+  reg_max: *reg_max
+  stride: *stride
+  nc: *num_classes
+
+scheduler:
+  scheduler: warmup_cosine_decay
+  min_lr: 0.0001
+  lr: 0.001
+  num_epochs: 500
+  warmup_epochs: 0
+  decay_epochs: 500
+
+optimizer:
+  opt: adamw
+  filter_bias_and_bn: false
+  momentum: 0.9
+  weight_decay: 1.0e-4
+
+loss_scaler:
+  type: static
+  loss_scale: 1024.0
+  scale_factor: 2.0
+  scale_window: 1000
+
+train:
+  ckpt_save_dir: tmp_layout
+  dataset_sink_mode: False
+  clip_grad: True
+  clip_norm: 0.1
+  dataset:
+    type: PublayNetDataset
+    dataset_path: publaynet/train.txt
+    img_size: 800
+    transform_pipeline:
+      - func_name: letterbox
+        scaleup: False
+      - func_name: label_norm
+        xyxy2xywh_: True
+      - func_name: label_pad
+        padding_size: 160
+        padding_value: -1
+      - func_name: image_norm
+        scale: 255.
+      - func_name: image_transpose
+        bgr2rgb: True
+        hwc2chw: True
+    batch_size: *batch_size
+    stride: 64
+    net_input_column_index: [ 0 ]  # input indices for network forward func in output_columns
+    label_column_index: [ 1 ]  # input indices marked as label
+  loader:
+    shuffle: True
+    batch_size: *batch_size
+    drop_remainder: True
+    max_rowsize: 12
+    num_workers: 8
+
+eval:
+  ckpt_load_path: tmp_layout/best.ckpt
+  dataset_sink_mode: False
+  dataset:
+    type: PublayNetDataset
+    dataset_path: publaynet/val.txt
+    annotations_path: *annotations_path
+    img_size: 800
+    transform_pipeline:
+      - func_name: letterbox
+        scaleup: False
+      - func_name: label_norm
+        xyxy2xywh_: True
+      - func_name: label_pad
+        padding_size: 160
+        padding_value: -1
+      - func_name: image_norm
+        scale: 255.
+      - func_name: image_transpose
+        bgr2rgb: True
+        hwc2chw: True
+    batch_size: &refine_batch_size 13
+    stride: 64
+    output_columns: ['image', 'labels', 'image_ids', 'hw_ori', 'hw_scale', 'pad']
+    net_input_column_index: [ 0 ]  # input indices for network forward func in output_columns
+    meta_data_column_index: [ 2, 3, 4, 5 ]  # input indices marked as label
+  loader:
+    shuffle: False
+    batch_size: *refine_batch_size
+    drop_remainder: False
+    max_rowsize: 12
+    num_workers: 8

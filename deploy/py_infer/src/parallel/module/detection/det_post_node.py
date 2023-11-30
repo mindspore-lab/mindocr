@@ -1,3 +1,5 @@
+import numpy as np
+
 from ....data_process.utils import cv_utils
 from ....infer import TaskType, TextDetector
 from ...framework import ModuleBase
@@ -34,8 +36,8 @@ class DetPostNode(ModuleBase):
 
             image = input_data.frame[0]  # bs=1 for det
             sub_image_list = []
-            for box in boxes:
-                sub_image = cv_utils.crop_box_from_image(image, box)
+            for box in infer_res_list:
+                sub_image = cv_utils.crop_box_from_image(image, np.array(box))
                 sub_image_list.append(sub_image)
             input_data.sub_image_list = sub_image_list
 

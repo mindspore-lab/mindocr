@@ -1,0 +1,30 @@
+postprocess:
+  name: DBV4Postprocess
+  binary_thresh: 0.3
+  box_thresh: 0.6
+  max_candidates: 1000
+  expand_ratio: 1.5
+  if_merge_longedge_bbox: True
+  merge_inter_area_thres: 300
+  merge_ratio: 1.3
+  merge_angle_theta: 10
+  if_sort_bbox: True
+  sort_bbox_y_delta: 10
+
+eval:
+  dataset:
+    transform_pipeline:
+      - DecodeImage: # load image
+          img_mode: BGR
+          channel_first: False
+      - DetResize:  #ScalePadImage
+          keep_ratio: True
+          padding: True
+          limit_type: max
+          limit_side_len: 960
+          force_divisable: False
+      - NormalizeImage:
+          mean: [ 123.675, 116.28 , 103.53 ]
+          std: [ 58.395, 57.12 , 57.375 ]
+          is_hwc: True
+      - ToCHWImage:

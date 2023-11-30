@@ -2,7 +2,7 @@ from ._registry import register_model
 from .backbones.mindcv_models.utils import load_pretrained
 from .base_model import BaseModel
 
-__all__ = ["SVTR", "svtr_tiny", "svtr_tiny_ch"]
+__all__ = ["SVTR", "svtr_tiny", "svtr_tiny_ch", "svtr_ppocrv3_ch"]
 
 
 def _cfg(url="", input_size=(3, 32, 100), **kwargs):
@@ -17,6 +17,10 @@ default_cfgs = {
     "svtr_tiny_ch": _cfg(
         url="https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4.ckpt",
         input_size=(3, 32, 320),
+    ),
+    "svtr_ppocrv3_ch": _cfg(
+        url="https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_lcnet_ppocrv3-6c1d0085.ckpt",
+        input_size=(3, 48, 320),
     )
 }
 
@@ -124,6 +128,50 @@ def svtr_tiny_ch(pretrained=False, **kwargs):
     # load pretrained weights
     if pretrained:
         default_cfg = default_cfgs["svtr_tiny_ch"]
+        load_pretrained(model, default_cfg)
+
+    return model
+
+
+@register_model
+def svtr_ppocrv3_ch(pretrained=False, **kwargs):
+    model_config = {
+        "backbone": {
+            "name": "mobilenet_v1_enhance",
+            "scale": 0.5,
+            "last_conv_stride": [1, 2],
+            "last_pool_type": "avg",
+            "last_pool_kernel_size": [2, 2],
+            "pretrained": False,
+        },
+        "head": {
+            "name": "MultiHead",
+            "out_channels_list": [
+                {"CTCLabelDecode": 6625},
+                {"SARLabelDecode": 6627}
+            ],
+            "head_list": [
+                {
+                    "CTCHead": {
+                        "Neck": {"name": "svtr"},
+                        "out_channels": 6624
+                    }
+                },
+                {
+                    "SARHead": {
+                        "enc_dim": 512,
+                        "max_text_length": 25
+                    }
+                }
+            ]
+        }
+    }
+
+    model = SVTR(model_config)
+
+    # load pretrained weights
+    if pretrained:
+        default_cfg = default_cfgs["svtr_ppocrv3_ch"]
         load_pretrained(model, default_cfg)
 
     return model

@@ -116,8 +116,8 @@ def create_group_params(params, weight_decay=0, grouping_strategy=None, no_weigh
         grouping_strategy (str): name of the hard-coded grouping strategy. If not None, group parameters according to
             the predefined function and `no_weight_decay_params` will not make effect.
         no_weight_decay_params (list): list of the param name substrings that will be picked to exclude from
-            weight decay. If a parameter containing one of the substrings in the list, the paramter will not be applied
-            with weigt decay. (Tips: param names can be checked by `[p.name for p in network.trainable_params()]`
+            weight decay. If a parameter containing one of the substrings in the list, the parameter will not be applied
+            with weight decay. (Tips: param names can be checked by `[p.name for p in network.trainable_params()]`
 
     Return:
         list[dict], grouped parameters

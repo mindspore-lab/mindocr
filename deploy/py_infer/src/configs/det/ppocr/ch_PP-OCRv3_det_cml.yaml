@@ -1,5 +1,5 @@
 postprocess:
-  name: DBPostprocess
+  name: DBV4Postprocess
   binary_thresh: 0.3
   box_thresh: 0.6
   max_candidates: 1000
@@ -15,7 +15,8 @@ eval:
       - DetResize:  #ScalePadImage
           keep_ratio: True
           padding: True
-          limit_type: None
+          limit_type: max
+          limit_side_len: 960
           force_divisable: False
       - NormalizeImage:
           mean: [ 123.675, 116.28 , 103.53 ]
