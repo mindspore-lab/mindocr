@@ -381,6 +381,12 @@ data_info_for_converte_dynamic_model_from_exported_mindir = {
         'infer_shape_list': ['96,3,32,128'],
         'var': 'args0'
     },
+    'cls_mobilenet_v3_small_100_model': {
+        'data_shape': '-1,3,-1,-1',
+        'mindir_name': 'cls_mobilenet_v3_small_100_model.mindir',
+        'infer_shape_list': ['1,3,48,192'],
+        'var': 'args0'
+    },
 }
 
 
@@ -474,6 +480,10 @@ data_info_for_export_static_model = {
     'visionlan_resnet45': {
         'model_name': 'visionlan_resnet45',
         'data_shape_h_w': [64, 256]
+    },
+    'cls_mobilenet_v3_small_100_model': {
+        'model_name': 'cls_mobilenet_v3_small_100_model',
+        'data_shape_h_w': [48, 192]
     },
 }
 

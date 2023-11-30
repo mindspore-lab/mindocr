@@ -1,19 +1,14 @@
 import sys
 import os
 
-import numpy as np
 import pytest
-import argparse
 
 sys.path.append("../../")
-from mindocr import build_model, list_models
-from tools.export import export
 import subprocess
 from abc import ABCMeta,abstractmethod
 from collections import defaultdict
 
 sys.path.append("data")
-
 
 from data_for_export import data_info_for_converte_static_model_from_download_mindir
 from data_for_export import data_info_for_converte_static_model_from_exported_mindir
@@ -24,8 +19,8 @@ from data_for_export import data_info_for_export_dynamic_model
 
 output_path = "./output"
 
-path_exported_static_model = "./home/zhq/code/codehub/models/models_from_205_ms22/export_static_rst"
-path_exported_dynamic_model = "./home/zhq/code/codehub/models/models_from_205_ms22/export_dynamic_rst"
+path_exported_static_model = "/home/zhq/code/codehub/models/models_from_205_ms22/export_static_rst"
+path_exported_dynamic_model = "/home/zhq/code/codehub/models/models_from_205_ms22/export_dynamic_rst"
 
 
 class BaseTestConvertModel(metaclass=ABCMeta):
@@ -58,27 +53,27 @@ class BaseTestConvertModel(metaclass=ABCMeta):
         converted_model_path = os.path.join(self.save_path, model + f'_{info}')
         command = f"{self.convert_tool} --fmk=MINDIR --modelFile={mindir_path} --outputFile={converted_model_path} --optimize=ascend_oriented --configFile={self.config_file}"
         print(f"\033[34mConvert Command\033[0m: {command}")
-        self.log_handle.write(f"Convert Command: {command}")
+        subprocess.call(f"echo Convert Command: {command}".split(), stdout=self.log_handle, stderr=self.log_handle)
         ret = subprocess.call(command.split(), stdout=self.log_handle, stderr=self.log_handle)
         if ret == 0:
             print(f"\033[32mConvert Success\033[0m: {converted_model_path}.mindir")
-            self.log_handle.write(f"Convert Success: {converted_model_path}.mindir")
+            subprocess.call(f"echo Convert Success: {converted_model_path}.mindir".split(), stdout=self.log_handle, stderr=self.log_handle)
         else:
-            print("\033[31mConvert Failed \033[0m")
-            self.log_handle.write(f"Convert Failed")
+            print("\033[31mConvert Failed \033[0m")y
+            subprocess.call(f"echo Convert Failed: {converted_model_path}.mindir".split(), stdout=self.log_handle, stderr=self.log_handle)
         return ret
 
     def infer_static_shape_ascend(self, converted_model_path, data_shape):
         command = f"{self.benchmark_tool} --modelFile={converted_model_path} --device=Ascend --inputShapes={data_shape} --loopCount=100 --warmUpLoopCount=10"
         print(f"\033[34mBenchmark Command\033[0m: {command}")
-        self.log_handle.write(f"Benchmark Command: {command}")
+        subprocess.call(f"echo Benchmark Command: {command}".split(), stdout=self.log_handle, stderr=self.log_handle)
         ret = subprocess.call(command.split(), stdout=self.log_handle, stderr=self.log_handle)
         if ret == 0:
             print("\033[32mInfer Static Shape Success \033[0m")
-            self.log_handle.write("Infer Static Shape Success")
+            subprocess.call(f"echo Infer Static Shape Success".split(), stdout=self.log_handle, stderr=self.log_handle)
         else:
             print("\033[31mInfer Static Shape Failed \033[0m")
-            self.log_handle.write("Infer Static Shape Failed")
+            subprocess.call(f"echo Infer Static Shape Failed".split(), stdout=self.log_handle, stderr=self.log_handle)
         return ret
 
     def infer_dynamic_shape_ascend(self, converted_model_path, data_shape_list):
@@ -86,14 +81,14 @@ class BaseTestConvertModel(metaclass=ABCMeta):
         for data_shape in data_shape_list:
             command = f"{self.benchmark_tool} --modelFile={converted_model_path} --device=Ascend --inputShapes={data_shape} --loopCount=100 --warmUpLoopCount=10"
             print(f"\033[34mBenchmark Command\033[0m: {command}")
-            self.log_handle.write(f"Benchmark Command: {command}")
+            subprocess.call(f"echo Benchmark Command: {command}".split(), stdout=self.log_handle, stderr=self.log_handle)
             ret = subprocess.call(command.split(), stdout=self.log_handle, stderr=self.log_handle)
             if ret == 0:
                 print("\033[32mInfer Dynamic Shape Success \033[0m")
-                self.log_handle.write("Infer Dynamic Shape Success")
+                subprocess.call("echo Infer Dynamic Shape Success".split(), stdout=self.log_handle, stderr=self.log_handle)
             else:
                 print("\033[31mInfer Dynamic Shape Failed \033[0m")
-                self.log_handle.write("Infer Dynamic Shape Failed")
+                subprocess.call("echo Infer Dynamic Shape Failed".split(), stdout=self.log_handle, stderr=self.log_handle)
             rets.append(ret)
         return rets
 
@@ -122,6 +117,7 @@ class TestConvertStaticModelFromDownloadMindir(BaseTestConvertModel):
     def mindir_download(self, mindir_name, mindir_url):
         if not os.path.exists(os.path.join(self.download_path, mindir_name)):
             command = f"wget -P {self.download_path} {mindir_url} --no-check-certificate"
+            subprocess.call(f"echo wget Command: {command}".split(), stdout=self.log_handle, stderr=self.log_handle)
             ret = subprocess.call(command.split(), stdout=sys.stdout, stderr=sys.stderr)
             return ret, os.path.join(self.download_path, mindir_name)
         else:
@@ -234,7 +230,7 @@ class BaseTestExportModel(metaclass=ABCMeta):
         exported_model_path = os.path.join(self.save_path, 'model.mindir')
         command = f"bash ../../tools/export_tool.sh -c={model} -d={self.save_path} -D={is_dynamic} -H={data_shape_h_w[0]} " + \
             f"-W={data_shape_h_w[1]} -T={model_type}"
-        self.log_handle.write(f"Export Command: {command}")
+        subprocess.call(f"echo Export Command: {command}".split(), stdout=self.log_handle, stderr=self.log_handle)
         print(f"\033[34mExport Command\033[0m: {command}")
         ret = subprocess.call(command.split(), stdout=self.log_handle, stderr=self.log_handle)
         
@@ -360,53 +356,69 @@ def test_export_dynamic_model(output_path):
 
 if __name__ == "__main__":
     test_convert_static_model_from_download_mindir(output_path)
-    # convert_tool = "converter_lite"
-    # benchmark_tool = "/home/zhq_test/ms2.2.1/ms_download/mindspore-lite-2.2.1.20231114-linux-x64/tools/benchmark/benchmark"
-    # download_path = "/home/zhq/code/codehub/mindocr-edu/tools_download"
-    # save_path = "/home/zhq/code/codehub/mindocr-edu/tools_py_convert"
-    # log_file = f"{save_path}/log.log"
-    # config_file = f"{save_path}/static_config.txt"
-    # testcase = TestConvertStaticModelFromDownloadMindir(convert_tool, benchmark_tool, data_info_for_converte_static_model_from_download_mindir, \
-    #                                          download_path, save_path, log_file, config_file)
-    # testcase.run()
-    # testcase.report()
-    
 
-    test_convert_static_model_from_exported_mindir(output_path, path_exported_dynamic_model)
-    # convert_tool = "converter_lite"
-    # benchmark_tool = "/home/zhq_test/ms2.2.1/ms_download/mindspore-lite-2.2.1.20231114-linux-x64/tools/benchmark/benchmark"
-    # exported_path = "/home/zhq/code/codehub/models/models_from_205_ms22/export_static_rst"
-    # save_path = "/home/zhq/code/codehub/mindocr-edu/tools_py_convert"
-    # log_file = f"{save_path}/log.log"
-    # config_file = f"{save_path}/static_config.txt"
-    # testcase = TestConvertStaticModelFromExportedMindir(convert_tool, benchmark_tool, data_info_for_converte_static_model_from_exported_mindir, \
-    #                                          exported_path, save_path, log_file, config_file)
-    # testcase.run()
-    # testcase.report()
-
+    test_convert_static_model_from_exported_mindir(output_path, path_exported_static_model)
 
     test_convert_dynamic_model_from_exported_mindir(output_path, path_exported_dynamic_model)
-    # convert_tool = "converter_lite"
-    # benchmark_tool = "/home/zhq_test/ms2.2.1/ms_download/mindspore-lite-2.2.1.20231114-linux-x64/tools/benchmark/benchmark"
-    # exported_path = "/home/zhq/code/codehub/models/models_from_205_ms22/export_dynamic_rst"
-    # save_path = "/home/zhq/code/codehub/mindocr-edu/tools_py_convert"
-    # log_file = f"{save_path}/log.log"
-    # config_file = f"{save_path}/dynamic_config.txt"
-    # testcase = TestConvertDynamicModelFromExportedMindir(convert_tool, benchmark_tool, data_info_for_converte_dynamic_model_from_exported_mindir, \
-    #                                          exported_path, save_path, log_file, config_file)
-    # testcase.run()
-    # testcase.report()
 
     test_export_static_model(output_path)
-    # save_path = "/home/zhq/code/codehub/mindocr-edu/tools_py_export_static"
-    # log_file = f"{save_path}/log.log"
-    # testcase = TestExportStaticModel(data_info_for_export_static_model, save_path, log_file)
-    # testcase.run()
-    # testcase.report()
 
     test_export_dynamic_model(output_path)
-    # save_path = "output/tools_py_export_dynamic"
-    # log_file = f"{save_path}/log.log"
-    # testcase = TestExportDynamicModel(data_info_for_export_dynamic_model, save_path, log_file)
-    # testcase.run()
-    # testcase.report()
+
+    # export static model. e.g. dbnet_resnet50
+    save_path = f"{output_path}/export_static"                 # path to save exported static model
+    log_file = f"{save_path}/log.log"                          # file to store log
+    model_name = "dbnet_resnet50"                              # which model to be exported
+    model_exporter = TestExportStaticModel(data_info_for_export_static_model, save_path, log_file)
+    model_exporter.run_single(model_name)
+    model_exporter.report(model_name)
+
+
+    # export dynamic model. e.g. dbnet_resnet50
+    save_path = f"{output_path}/export_dynamic"                # path to save exported dynamic model
+    log_file = f"{save_path}/log.log"                          # file to store log
+    model_name = "dbnet_resnet50"                              # which model to be exported
+    model_exporter = TestExportDynamicModel(data_info_for_export_dynamic_model, save_path, log_file)
+    model_exporter.run_single(model_name)
+    model_exporter.report()
+
+
+    # convert static model from web
+    convert_tool = "converter_lite"                            # path to converter_lite
+    benchmark_tool = "benchmark"                               # path to benchmark
+    save_path = f"{output_path}/convert_static_from_download"  # path to save converted static model
+    download_path = f"{save_path}/download"                    # path to save downloaded model
+    log_file = f"{save_path}/log.log"                          # file to store log
+    config_file = f"{save_path}/static_config.txt"             # file to store config.txt. It will be generated automatically.
+    model_name = "dbnet_resnet50"                              # which model to be exported
+    model_converter = TestConvertStaticModelFromDownloadMindir(convert_tool, benchmark_tool,
+        data_info_for_converte_static_model_from_download_mindir, download_path, save_path, log_file, config_file)
+    model_converter.run(model_name)
+    model_converter.report()
+
+
+    # convert static model from exported model
+    convert_tool = "converter_lite"                            # path to converter_lite
+    benchmark_tool = "benchmark"                               # path to benchmark
+    save_path = f"{output_path}/convert_static_from_download"  # path to save converted static model
+    exported_path = "path/to/exported/path"                    # path to exported model
+    log_file = f"{save_path}/log.log"                          # file to store log
+    config_file = f"{save_path}/static_config.txt"             # file to store config.txt. It will be generated automatically.
+    model_name = "dbnet_resnet50"                              # which model to be exported
+    model_converter = TestConvertStaticModelFromExportedMindir(convert_tool, benchmark_tool,
+        data_info_for_converte_static_model_from_exported_mindir, download_path, save_path, log_file, config_file)
+    model_converter.run(model_name)
+    model_converter.report()
+
+    # convert dynamic model from exported model
+    convert_tool = "converter_lite"                            # path to converter_lite
+    benchmark_tool = "benchmark"                               # path to benchmark
+    save_path = f"{output_path}/convert_dynamic_from_download"  # path to save converted dynamic model
+    exported_path = "path/to/exported/path"                    # path to exported model
+    log_file = f"{save_path}/log.log"                          # file to store log
+    config_file = f"{save_path}/dynamic_config.txt"             # file to store config.txt. It will be generated automatically.
+    model_name = "dbnet_resnet50"                              # which model to be exported
+    model_converter = TestConvertDynamicModelFromExportedMindir(convert_tool, benchmark_tool,
+        data_info_for_converte_dynamic_model_from_exported_mindir, download_path, save_path, log_file, config_file)
+    model_converter.run(model_name)
+    model_converter.report()
