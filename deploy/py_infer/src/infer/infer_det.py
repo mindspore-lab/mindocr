@@ -82,6 +82,6 @@ class TextDetector(InferBase):
         return self.model.infer(data["net_inputs"])
 
     def postprocess(self, pred: List[np.ndarray], shape_list: np.ndarray) -> List[np.ndarray]:
-        polys = self.postprocess_ops(tuple(pred), shape_list)
+        polys = self.postprocess_ops(tuple(pred), shape_list)["polys"][0]  # {'polys': [img0_polys, ...], ...}
         polys = [np.array(x) for x in polys]
         return polys  # [poly(points_num, 2), ...], bs=1
