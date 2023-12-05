@@ -82,13 +82,13 @@ class DBV4Postprocess(det_base_postprocess.DetBasePostprocess):
             self.warned = True
         result = self._postprocess(pred, shape_list=shape_list)
         src_w, src_h = shape_list[0, 1], shape_list[0, 0]
-        result = self.filter_tag_det_res(result["polys"][0], [src_h, src_w])
+        polys = self.filter_tag_det_res(result["polys"][0], [src_h, src_w])
         if self._if_merge_longedge_bbox:
-            result = longedge_bbox_merge(
-                result, self._merge_inter_area_thres, self._merge_ratio, self._merge_angle_theta
-            )
+            polys = longedge_bbox_merge(polys, self._merge_inter_area_thres, self._merge_ratio, self._merge_angle_theta)
         if self._if_sort_bbox:
-            result = sorted_boxes(result, self._sort_bbox_y_delta)
+            polys = sorted_boxes(polys, self._sort_bbox_y_delta)
+        result["polys"][0] = polys
+        result["scores"].clear()
         return result
 
     def _postprocess(self, pred: Union[Tensor, Tuple[Tensor], np.ndarray], **kwargs) -> dict:

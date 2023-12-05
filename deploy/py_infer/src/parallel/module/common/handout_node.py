@@ -1,6 +1,3 @@
-from email.mime import image
-from tkinter.tix import Tree
-import numpy as np
 import os
 
 import cv2
@@ -9,7 +6,6 @@ import numpy as np
 from ....data_process.utils import cv_utils
 from ....utils import log
 from ...datatype import ProcessData, StopData, StopSign
-from ....data_process.utils import cv_utils
 from ...framework.module_base import ModuleBase
 
 
