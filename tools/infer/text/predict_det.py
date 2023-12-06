@@ -2,7 +2,7 @@
 Text detection inference
 
 Example:
-    $ python tools/infer/text/predict_det.py  --image_dir {path_to_img} --rec_algorithm DB++
+    $ python tools/infer/text/predict_det.py  --image_dir {path_to_img} --det_algorithm DB++
 """
 
 import json
@@ -34,6 +34,7 @@ algo_to_model_name = {
     "DB": "dbnet_resnet50",
     "DB++": "dbnetpp_resnet50",
     "DB_MV3": "dbnet_mobilenetv3",
+    "DB_PPOCRv3": "dbnet_ppocrv3",
     "PSE": "psenet_resnet152",
 }
 logger = logging.getLogger("mindocr")
@@ -54,9 +55,14 @@ class TextDetector(object):
             f"Supported detection algorithms are {list(algo_to_model_name.keys())}"
         )
         model_name = algo_to_model_name[args.det_algorithm]
-        self.model = build_model(
-            model_name, pretrained=pretrained, ckpt_load_path=ckpt_load_path, amp_level=args.det_amp_level
-        )
+        amp_level = args.det_amp_level
+        if ms.get_context("device_target") == "GPU" and amp_level == "O3":
+            logger.warning(
+                "Detection model prediction does not support amp_level O3 on GPU currently. "
+                "The program has switched to amp_level O2 automatically."
+            )
+            amp_level = "O2"
+        self.model = build_model(model_name, pretrained=pretrained, ckpt_load_path=ckpt_load_path, amp_level=amp_level)
         self.model.set_train(False)
         logger.info(
             "Init detection model: {} --> {}. Model weights loaded from {}".format(

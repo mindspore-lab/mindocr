@@ -70,6 +70,12 @@ def main(cfg):
     # model
     cfg.model.backbone.pretrained = False
     amp_level = cfg.system.get("amp_level_infer", "O0")
+    if ms.get_context("device_target") == "GPU" and amp_level == "O3":
+        logger.warning(
+            "Model evaluation does not support amp_level O3 on GPU currently. "
+            "The program has switched to amp_level O2 automatically."
+        )
+        amp_level = "O2"
     network = build_model(cfg.model, ckpt_load_path=cfg.eval.ckpt_load_path, amp_level=amp_level)
     num_params = sum([param.size for param in network.get_parameters()])
     num_trainable_params = sum([param.size for param in network.trainable_params()])
@@ -100,7 +106,7 @@ def main(cfg):
             allow_postprocess_rescale = False
             logger.warning(
                 "`shape_list` is NOT found in yaml config, which is used to rescale postprocessing result back to "
-                "orginal image space for detection. Please add it to `eval.dataset.output_columns` for a fair "
+                "original image space for detection. Please add it to `eval.dataset.output_columns` for a fair "
                 "evaluation. [CRITICAL!!!!!]"
             )
 
@@ -138,7 +144,6 @@ def main(cfg):
 
 
 if __name__ == "__main__":
-    # argpaser
     args, config = parse_args_and_config()
     config = Dict(config)
 

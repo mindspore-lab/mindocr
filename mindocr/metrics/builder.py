@@ -1,11 +1,15 @@
-from . import cls_metrics, det_metrics, rec_metrics
+from . import cls_metrics, det_metrics, kie_metrics, layout_metrics, rec_metrics
 from .cls_metrics import *
 from .det_metrics import *
+from .kie_metrics import VQAReTokenMetric, VQASerTokenMetric
+from .layout_metrics import YOLOv8Metric
 from .rec_metrics import *
 
 __all__ = ["build_metric"]
 
-supported_metrics = det_metrics.__all__ + rec_metrics.__all__ + cls_metrics.__all__
+supported_metrics = (
+    det_metrics.__all__ + rec_metrics.__all__ + cls_metrics.__all__ + layout_metrics.__all__ + kie_metrics.__all__
+)
 
 
 def build_metric(config, device_num=1, **kwargs):
@@ -38,6 +42,8 @@ def build_metric(config, device_num=1, **kwargs):
     if mn in supported_metrics:
         device_num = 1 if device_num is None else device_num
         config.update({"device_num": device_num})
+        if "save_dir" in kwargs:
+            config.update({"save_dir": kwargs["save_dir"]})
         metric = eval(mn)(**config)
     else:
         raise ValueError(f"Invalid metric name {mn}, support metrics are {supported_metrics}")

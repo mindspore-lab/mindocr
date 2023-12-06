@@ -1,6 +1,6 @@
 """adan"""
 import mindspore as ms
-from mindspore import ops
+from mindspore import ops, version
 from mindspore.common import dtype as mstype
 from mindspore.common.tensor import Tensor
 from mindspore.nn.optim.optimizer import Optimizer, opt_init_args_register
@@ -163,6 +163,8 @@ class Adan(Optimizer):
         gradients = self.scale_grad(gradients)
         gradients = self._grad_sparse_indices_deduplicate(gradients)
         lr = self.get_lr()
+        if version.__version__ >= "2.2":
+            self.assignadd(self.global_step, self.global_step_increase_tensor)
 
         # TODO: currently not support dist
         success = self.map_(

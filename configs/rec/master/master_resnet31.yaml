@@ -151,7 +151,7 @@ eval:
 
   loader:
     shuffle: False
-    batch_size: 64
+    batch_size: 1
     drop_remainder: False
     max_rowsize: 12
     num_workers: 1

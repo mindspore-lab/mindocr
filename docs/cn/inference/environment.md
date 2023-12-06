@@ -44,11 +44,15 @@ pip install *.whl
 
 ### 2. MindSpore Lite推理
 
-对于MindOCR的MindSpore Lite推理，需要安装2.0.0-rc1或以上版本的[MindSpore Lite](https://www.mindspore.cn/lite/docs/zh-CN/master/index.html)的**云侧**推理工具包。
+对于MindOCR的MindSpore Lite推理，需要安装2.2.0或以上版本的[MindSpore Lite](https://www.mindspore.cn/lite/docs/zh-CN/master/index.html)的**云侧**推理工具包。
 
-先下载Ascend版的云侧版本的[推理工具包tar.gz](https://www.mindspore.cn/lite/docs/zh-CN/master/use/downloads.html)文件，以及Python接口Wheel包。
+先下载Ascend版的云侧版本的[推理工具包tar.gz](https://www.mindspore.cn/lite/docs/zh-CN/master/use/downloads.html)文件，以及Python接口Wheel包。例如对于Ascend硬件平台，Linux-x86_64操作系统，Python版本为3.7，mindspore-lite版本为2.2.0，应下载并安装以下两个包
 
-下载地址中提供了3.7版本的Python包，如需其它版本可参考[编译](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/build.html)教程。
+ - [推理工具包tar.gz](https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.2.0/MindSpore/lite/release/linux/x86_64/cloud_fusion/python37/mindspore-lite-2.2.0-linux-x64.tar.gz)
+
+ - [Wheel包](https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.2.0/MindSpore/lite/release/linux/x86_64/cloud_fusion/python37/mindspore_lite-2.2.0-cp37-cp37m-linux_x86_64.whl)
+
+如需其它版本可参考[编译](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/build.html)教程。
 
 推理工具包安装时直接解压即可，并注意设置环境变量：
 

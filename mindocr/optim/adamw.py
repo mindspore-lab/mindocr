@@ -3,7 +3,7 @@
 import numpy as np
 
 import mindspore as ms
-from mindspore import ops
+from mindspore import ops, version
 from mindspore.common.initializer import initializer
 from mindspore.common.parameter import Parameter
 from mindspore.common.tensor import Tensor
@@ -174,6 +174,8 @@ class AdamW(Optimizer):
     @jit
     def construct(self, gradients):
         lr = self.get_lr()
+        if version.__version__ >= "2.2":
+            self.assignadd(self.global_step, self.global_step_increase_tensor)
         gradients = scale_grad(gradients, self.reciprocal_scale)
         if self.clip:
             gradients = ops.clip_by_global_norm(gradients, 5.0, None)

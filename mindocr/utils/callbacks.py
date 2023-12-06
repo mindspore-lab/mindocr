@@ -91,7 +91,7 @@ class EvalSaveCallback(Callback):
 
         self._device_num = device_num
         self._reduce = AllReduce(device_num=self._device_num)
-        # lamda expression is not supported in jit
+        # lambda expression is not supported in jit
         self._loss_reduce = self._reduce if device_num is not None else lambda x: x
 
         if self.is_main_device:

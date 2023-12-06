@@ -35,6 +35,7 @@ algo_to_model_name = {
     "CRNN_CH": "crnn_resnet34_ch",
     "RARE_CH": "rare_resnet34_ch",
     "SVTR": "svtr_tiny",
+    "SVTR_PPOCRv3_CH": "svtr_ppocrv3_ch",
 }
 logger = logging.getLogger("mindocr")
 
@@ -65,14 +66,18 @@ class TextRecognizer(object):
         )
         model_name = algo_to_model_name[args.rec_algorithm]
 
-        # amp_level = 'O2' if args.rec_algorithm.startswith('SVTR') else args.rec_amp_level
         amp_level = args.rec_amp_level
         if args.rec_algorithm.startswith("SVTR") and amp_level != "O2":
             logger.warning(
                 "SVTR recognition model is optimized for amp_level O2. ampl_level for rec model is changed to O2"
             )
             amp_level = "O2"
-
+        if ms.get_context("device_target") == "GPU" and amp_level == "O3":
+            logger.warning(
+                "Recognition model prediction does not support amp_level O3 on GPU currently. "
+                "The program has switched to amp_level O2 automatically."
+            )
+            amp_level = "O2"
         self.model = build_model(model_name, pretrained=pretrained, ckpt_load_path=ckpt_load_path, amp_level=amp_level)
         self.model.set_train(False)
 

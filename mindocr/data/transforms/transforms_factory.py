@@ -10,6 +10,7 @@ from .det_east_transforms import *
 from .det_fce_transforms import *
 from .det_transforms import *
 from .general_transforms import *
+from .layoutlm_transforms import *
 from .rec_abinet_transforms import *
 from .rec_transforms import *
 from .svtr_transform import *
@@ -21,7 +22,7 @@ _logger = logging.getLogger(__name__)
 # TODO: use class with __call__, to perform transformation
 def create_transforms(transform_pipeline: List, global_config: Dict = None):
     """
-    Create a squence of callable transforms.
+    Create a sequence of callable transforms.
 
     Args:
         transform_pipeline (List): list of callable instances or dicts where each key is a transformation class name,
@@ -116,7 +117,7 @@ def transforms_dbnet_icdar15(phase="train"):
         pipeline = [
             {"DecodeImage": {"img_mode": "RGB", "to_float32": False}},
             {"DetLabelEncode": None},
-            {"DetResize": {"target_size": [736, 1280], "keep_ratio": False, "limit_type": None, "divisor": 32}},
+            {"DetResize": {"target_size": [736, 1280], "keep_ratio": False, "limit_type": "none", "divisor": 32}},
             {
                 "NormalizeImage": {
                     "bgr_to_rgb": False,
@@ -131,7 +132,7 @@ def transforms_dbnet_icdar15(phase="train"):
         pipeline = [
             {"DecodeImage": {"img_mode": "RGB", "to_float32": False}},
             {
-                "DetResize": {"target_size": [736, 1280], "keep_ratio": False, "limit_type": None, "divisor": 32}
+                "DetResize": {"target_size": [736, 1280], "keep_ratio": False, "limit_type": "none", "divisor": 32}
             },  # GridResize
             {
                 "NormalizeImage": {

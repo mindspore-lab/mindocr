@@ -1,4 +1,4 @@
-## Inference - Model Shape Scaling
+## Inference - Dynamic Shape Scaling
 
 ### 1. Introduction
 

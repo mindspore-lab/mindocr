@@ -4,7 +4,7 @@ __all__ = ["ClsPostprocess"]
 
 
 class ClsPostprocess(object):
-    """Map the predicted index back to orignal format (angle)."""
+    """Map the predicted index back to original format (angle)."""
 
     def __init__(self, label_list=None, **kwargs):
         assert (

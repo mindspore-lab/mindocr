@@ -2,7 +2,7 @@
 
 # MindOCR
 
-[![CI](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml/badge.svg)](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml)
+[![CI](https://github.com/mindspore-lab/mindocr/actions/workflow/ci.yml/badge.svg)](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/mindspore-lab/mindocr.svg)](https://github.com/mindspore-lab/mindocr/blob/main/LICENSE)
 [![open issues](https://img.shields.io/github/issues/mindspore-lab/mindocr)](https://github.com/mindspore-lab/mindocr/issues)
 [![PRs](https://img.shields.io/badge/PRs-welcome-pink.svg)](https://github.com/mindspore-lab/mindocr/pulls)
@@ -17,6 +17,7 @@
 [📚使用教程](#使用教程) |
 [🎁模型列表](#模型列表) |
 [📰数据集列表](#数据集列表) |
+[📖常见问题](#常见问题) |
 [🎉更新日志](#更新日志)
 
 </div>
@@ -36,16 +37,16 @@ MindOCR是一个基于[MindSpore](https://www.mindspore.cn/en) 框架开发的OC
 
 ## 安装教程
 
-<details close markdown>
+<details open markdown>
 
 #### MindSpore相关环境准备
 
 MindOCR基于MindSpore AI框架（支持CPU/GPU/NPU）开发，并适配以下框架版本。安装方式请参见下方的安装链接。
 
-- mindspore >= 1.9 (ABINet 需要 mindspore >= 2.0) [[安装](https://www.mindspore.cn/install)]
+- mindspore >= 2.2.0 [[安装](https://www.mindspore.cn/install)]
 - python >= 3.7
-- openmpi 4.0.3 (for distributed training/evaluation)  [[安装](https://www.open-mpi.org/software/ompi/v4.0/)]
-- mindspore lite (for inference)  [[安装](docs/cn/inference/environment.md)]
+- openmpi 4.0.3 (用于分布式训练与验证)  [[安装](https://www.open-mpi.org/software/ompi/v4.0/)]
+- mindspore lite (用于离线推理) >= 2.2.0  [[安装](docs/cn/inference/environment.md)]
 
 #### 包依赖
 
@@ -93,9 +94,9 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 
 可以看到图像中的文字块均被检测出来并正确识别。更详细的用法介绍，请参考推理[教程](#使用教程)。
 
-### 2. 模型训练与评估-快速指南
+### 2. 模型训练、评估与推理-快速指南
 
-使用`tools/train.py`脚本可以很容易地训练OCR模型，该脚本可支持文本检测和识别模型训练。
+使用`tools/train.py`脚本可以进行OCR模型训练，该脚本可支持文本检测和识别模型训练。
 ```shell
 python tools/train.py --config {path/to/model_config.yaml}
 ```
@@ -112,19 +113,28 @@ python tools/train.py --config configs/det/dbnet/db++_r50_icdar15.yaml
 python tools/train.py --config configs/rec/crnn/crnn_icdar15.yaml
 ```
 
-类似的，使用`tools/eval.py` 脚本可以很容易地评估已训练好的模型，如下所示：
+使用`tools/eval.py` 脚本可以评估已训练好的模型，如下所示：
 ```shell
 python tools/eval.py \
     --config {path/to/model_config.yaml} \
     --opt eval.dataset_root={path/to/your_dataset} eval.ckpt_load_path={path/to/ckpt_file}
 ```
 
-更多使用方法，请参考[使用教程](#使用教程)中的模型训练章节。
+使用`tools/infer/text/predict_system.py` 脚本可进行模型的在线推理，如下所示：
+```shell
+python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_imgs} \
+                                          --det_algorithm DB++  \
+                                          --rec_algorithm CRNN
+```
 
-### 3. 模型推理-快速指南
+更多使用方法，请参考[使用教程](#使用教程)中的模型训练、推理章节。
 
-你可以在MindOCR中对**MindOCR自研模型**或**第三方模型**（如PaddleOCR、MMOCR等）进行MindSpore Lite推理。
-请见[MindOCR自研模型推理-快速开始](docs/cn/inference/inference_quickstart.md)或[第三方模型推理-快速开始](docs/cn/inference/inference_thirdparty_quickstart.md)。
+### 3. 模型离线推理-快速指南
+
+你可以在MindOCR中对**MindOCR原生模型**或**第三方模型**（如PaddleOCR、MMOCR等）进行MindSpore Lite推理。请参考以下文档
+ - [基于Python/C++和昇腾310的OCR推理](docs/cn/inference/inference_tutorial.md)
+ - [MindOCR原生模型离线推理 - 快速开始](docs/cn/inference/inference_quickstart.md)
+ - [第三方模型离线推理 - 快速开始](docs/cn/inference/inference_thirdparty_quickstart.md)
 
 ## 使用教程
 
@@ -137,9 +147,12 @@ python tools/eval.py \
     - [文本识别](docs/cn/tutorials/training_recognition_custom_dataset.md)
     - [分布式训练](docs/cn/tutorials/distribute_train.md)
     - [进阶技巧：梯度累积，EMA，断点续训等](docs/cn/tutorials/advanced_train.md)
-- 推理与部署
-    - [基于Python/C++和昇腾310的OCR推理](docs/cn/inference/inference_tutorial.md)
+- 使用MindSpore进行在线推理
     - [基于Python的OCR在线推理](tools/infer/text/README.md)
+- 使用MindSpore Lite进行离线推理
+    - [基于Python/C++和昇腾310的OCR推理](docs/cn/inference/inference_tutorial.md)
+    - [MindOCR原生模型离线推理 - 快速开始](docs/cn/inference/inference_quickstart.md)
+    - [第三方模型离线推理 - 快速开始](docs/cn/inference/inference_thirdparty_quickstart.md)
 - 开发者指南
     - [如何自定义数据集](mindocr/data/README.md)
     - [如何自定义数据增强方法](mindocr/data/transforms/README.md)
@@ -173,7 +186,7 @@ python tools/eval.py \
 关于以上模型的具体训练方法和结果，请参见[configs](./configs)下各模型子目录的readme文档。
 
 关于[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)模型推理的支持列表，
-请参见[MindOCR自研模型推理支持列表](docs/cn/inference/inference_quickstart.md) 和 [第三方模型推理支持列表](docs/cn/inference/inference_thirdparty_quickstart.md)（如PaddleOCR、MMOCR等）。
+请参见[MindOCR原生模型推理支持列表](docs/cn/inference/inference_quickstart.md) 和 [第三方模型推理支持列表](docs/cn/inference/inference_thirdparty_quickstart.md)（如PaddleOCR、MMOCR等）。
 
 ## 数据集列表
 
@@ -209,24 +222,42 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 
 我们会在更多的数据集上进行模型训练和验证。该列表将持续更新。
 
+## 常见问题
+关于配置环境、使用mindocr遇到的高频问题，可以参考[常见问题](docs/cn/tutorials/frequently_asked_questions.md)。
+
 ## 重要信息
 
 ### 更新日志
+<details close markdown>
+<summary>详细</summary>
+
+- 2023/12/05
+1. 增加新模型
+    - 文档版面识别 [YOLOv8 nano]()
+    - 关键信息提取 [VI-LayoutXLM](configs/kie/vi_layoutxlm/README_CN.md)在线训练推理
+    - [PP-OCRv3](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.7/doc/doc_ch/PP-OCRv3_introduction.md)三方模型训练推理
+        - 文本检测 [PP-OCRv3 DBNet](deploy/py_infer/src/configs/det/ppocr/ch_PP-OCRv3_det_cml.yaml)
+        - 文本识别 [PP-OCRv3 SVTR](deploy/py_infer/src/configs/rec/ppocr/ch_PP-OCRv3_rec_distillation.yml)
+2. 离线推理
+    - 文档版面识别 [YOLOv8 nano]()昇腾310推理
+    - [PP-OCRv4](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.7/doc/doc_ch/PP-OCRv4_introduction.md)三方模型昇腾310推理
+        - 文本检测 [PP-OCRv4 DBNet](deploy/py_infer/src/configs/det/ppocr/ch_PP-OCRv4_det_cml.yaml)
+        - 文本识别 [PP-OCRv4 CRNN](deploy/py_infer/src/configs/rec/ppocr/ch_PP-OCRv4_rec_distillation.yaml)
 - 2023/07/06
 1. 增加新模型
-    - 文本识别[RobustScanner](configs/rec/robustscanner)
+    - 文本识别 [RobustScanner](configs/rec/robustscanner)
 - 2023/07/05
 1. 增加新模型
-    - 文本识别[VISIONLAN](configs/rec/visionlan)
+    - 文本识别 [VISIONLAN](configs/rec/visionlan)
 - 2023/06/29
 1. 新增2个SoTA模型
-    - 文本检测[FCENet](configs/det/fcenet)
-    - 文本识别[MASTER](configs/rec/master)
+    - 文本检测 [FCENet](configs/det/fcenet)
+    - 文本识别 [MASTER](configs/rec/master)
 - 2023/06/07
 1. 增加新模型
-    - 文本检测[PSENet](configs/det/psenet)
-    - 文本检测[EAST](configs/det/east)
-    - 文本识别[SVTR](configs/rec/svtr)
+    - 文本检测 [PSENet](configs/det/psenet)
+    - 文本检测 [EAST](configs/det/east)
+    - 文本识别 [SVTR](configs/rec/svtr)
 2. 添加更多基准数据集及其结果
     - [totaltext](docs/cn/datasets/totaltext.md)
     - [mlt2017](docs/cn/datasets/mlt2017.md)
@@ -237,8 +268,8 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 
 - 2023/05/15
 1. 增加新模型
-    - 文本检测[DBNet++](configs/det/dbnet)
-    - 文本识别[CRNN-Seq2Seq](configs/rec/rare)
+    - 文本检测 [DBNet++](configs/det/dbnet)
+    - 文本识别 [CRNN-Seq2Seq](configs/rec/rare)
     - 在SynthText数据集上预训练的[DBNet](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)
 2. 添加更多基准数据集及其结果
     - [SynthText](docs/cn/datasets/synthtext.md), [MSRA-TD500](docs/cn/datasets/td500.md), [CTW1500](docs/cn/datasets/ctw1500.md)
@@ -276,6 +307,7 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
     iv)  在网页的UI界面增加运行参数`enable_modelarts`并将其设置为True；
     v)   填写其他项并启动训练任务。
   ```
+</details>
 
 ### 如何贡献
 

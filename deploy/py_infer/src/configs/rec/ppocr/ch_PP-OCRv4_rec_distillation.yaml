@@ -1,0 +1,22 @@
+postprocess:
+  name: RecCTCLabelDecode
+  use_space_char: True
+  blank_at_last: False
+
+
+eval:
+  dataset:
+    transform_pipeline:
+      - DecodeImage: # load image
+          img_mode: BGR
+          channel_first: False
+      - RecResizeNormForInfer:
+          target_height: 48
+          target_width: 320
+          keep_ratio: True
+          padding: True
+          norm_before_pad: True
+          mean: [ 0.5, 0.5, 0.5 ]
+          std: [ 0.5, 0.5, 0.5 ]
+          divisor: 255
+      - ToCHWImage:

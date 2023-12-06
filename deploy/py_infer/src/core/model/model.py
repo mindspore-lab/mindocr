@@ -91,7 +91,7 @@ class Model:
         return ShapeType.DYNAMIC_IMAGESIZE, [(batchsize, channel, tuple(hw_list))]
 
     def warmup(self):
-        scale_divisor = 32
+        scale_divisor = 64
         shape_type, shape_value = self.get_shape_details()
 
         if shape_type in (ShapeType.STATIC_SHAPE, ShapeType.DYNAMIC_SHAPE):

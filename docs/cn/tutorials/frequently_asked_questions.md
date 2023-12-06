@@ -1,34 +1,44 @@
-### Q1 缺少符号
+## 常见问题
+ - [未定义符号](#q1-未定义符号)
+ - [Ascend so库找不到相关错误](#q2-ascend-so库找不到相关错误)
+ - [关于错误码`a39999`](#q3-ascend-error-message-a39999)
+ - [关于错误`acl open device 0 failed`](#q4-acl-open-device-0-failed)
+ - [windows安装mindocr依赖失败相关问题](#q5-windows安装mindocr依赖失败)
+ - [关于`RunTimeError:The device address tpe is wrong`](#q6-runtimeerror-the-device-address-type-is-wrong-type-name-in-addresscpu-type-name-in-contextascend)
+ - [模型转换相关问题](#q7-模型转换相关问题)
+ - [推理相关问题](#q8-推理时相关问题)
+
+### Q1 未定义符号
 
 - `undefined symbol:_ZN9mindspore5tracel15GetDebugInfostrERKSt10shared_ptrINS_9DebugInfoEERKSsNS_13SourceLineTipE`
 
   ```bash
-  Python 3.7.16 (default, Jan 17 2023, 22:20:44)	
+  Python 3.7.16 (default, Jan 17 2023, 22:20:44)
   [GCC 11.2.0] :: Anaconda, Inc. on linux
   Type "help", "copyright", "credits" or "license" for more infommation.
   >>> import mindspore
   >>> import mindspore lite
   Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
-  	File "/root/miniconda3/envs/xxx/lib/python3.7/site-packages/mindspore_lite/_init_.py", line 26, in <module>	
+  	File "/root/miniconda3/envs/xxx/lib/python3.7/site-packages/mindspore_lite/_init_.py", line 26, in <module>
   		from mindspore lite.context import Context
   	File "/root/miniconda3/envs/xxx/lib/python3.7/site-packages/mindspore_lite/context.py", line 22, in <module>
-  		from mindspore lite.lib import-c lite wrapper	
+  		from mindspore lite.lib import-c lite wrapper
   ImportError: xxxx/mindspore-lite-2.2.0-linux-x64/tools/converter/lib/libmindspore_converter.so: undefined symbol:_ZN9mindspore5tracel15GetDebugInfostrERKSt10shared_ptrINS_9DebugInfoEERKSsNS_13SourceLineTipE
   ```
 
 - `undefined symbol: _ZN9mindspore12label_manage23GetGlobalTraceLabelTypeEv`
 
   ```bash
-  Python 3.7.16 (default, Jan 17 2023, 22:20:44)	
+  Python 3.7.16 (default, Jan 17 2023, 22:20:44)
   [GCC 11.2.0] :: Anaconda, Inc. on linux
   Type "help", "copyright". "credits" or "license" for more infommation.
   >>> import mindspore_lite
   >>> import mindspore
   Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>	
+  File "<stdin>", line 1, in <module>
   	File "/ root/miniconda3/envs/xxx/1ib/python3.7/site-packages/mindspore/_init_.py", line 18, in <module>
-  		from mindspore.run check import run check	
+  		from mindspore.run check import run check
   	File "/root/miniconda3/envs/xxx/lib/python3.7/site-packages/mindspore/ run_check/_init_.py", line 17, in <module>
   		from . check_version import check_version_and_env_config
   	File "/root/miniconda3/envs/xxx/lib/python3.7/site-packages/mindspo re/run_check/check version.py", line 29, in <module>
@@ -39,13 +49,12 @@
 - `undefined symbol: _ZNK9mindspore6kernel15KernelBuildInfo8TostringEv`
 
   ```bash
-  [WARNING] LITE(20788, 7f897f04ff40, converter_lite) :2023-10-19-07:24: 10.858.973 [mindspore/lite/tools/opt imizer/common/fommat_utils.cc:385] ConvertAbstractFommatShape] abstract must be a tensor, but got: ValueAny.	
-  [WARNING] LITE(20788,7f897f04ff40, converter_lite) :2023-10-19-07:24: 10.858.998 [mindspore/lite/tools/optimizer/common/gllo_utils.cc: 1071] GenTransposeNode] Convertabstract failed for node: args0_nh2nc	
-  [WARNING] LITE(20788,7f897fO04ff40, converter_lite) :2023-10-19-07:24: 11.035.069 [mindspore/lite/src/extendrt/cxx_api/dlutils.h:124] DLSo0pen] dlopen /xxx/mindspore/to0ls/converter/lib/libascend pass plugin.so failed, error: /xxx/mindspore/tools/converter/1ib/libmslite_shared lib.s0: undefined symbol: _ZNK9mindspore6kernel15KernelBuildInfo8TostringEv
-  
-  [ERROR] LITE(20788,7f897f04ff40, converter_lite) :2023-10-19-07:24: 11.035.121 [mindspore/lite/tools/converter/adapter/acl/plugin/acl_pass_plugin.cc:86] CreateAclPassInner] DLSo0pen failed, so path: /xxx/mindspore-1ite-2.2.0.20231019-1inux-x64/tools/converter/lib/1ibascend_pass_plugin.so, ret: dlopen /xxx/mindspore/tools/converter/lib/libascend_pass_plugin.so failed, error: /xxx/mindspore/tools/converter/lib/libmslite shared lib.so: undefined symbol: _ZNK9mindspore6kernel15KernelBuildInfo8TostringEv
-  ```
+  [WARNING] LITE(20788, 7f897f04ff40, converter_lite) :2023-10-19-07:24: 10.858.973 [mindspore/lite/tools/opt imizer/common/fommat_utils.cc:385] ConvertAbstractFommatShape] abstract must be a tensor, but got: ValueAny.
+  [WARNING] LITE(20788,7f897f04ff40, converter_lite) :2023-10-19-07:24: 10.858.998 [mindspore/lite/tools/optimizer/common/gllo_utils.cc: 1071] GenTransposeNode] Convertabstract failed for node: args0_nh2nc
+  [WARNING] LITE(20788,7f897fO04ff40, converter_lite) :2023-10-19-07:24: 11.035.069 [mindspore/lite/src/extendrt/cxx_api/dlutils.h:124] DLSopen] dlopen /xxx/mindspore/to0ls/converter/lib/libascend pass plugin.so failed, error: /xxx/mindspore/tools/converter/1ib/libmslite_shared lib.s0: undefined symbol: _ZNK9mindspore6kernel15KernelBuildInfo8TostringEv
 
+  [ERROR] LITE(20788,7f897f04ff40, converter_lite) :2023-10-19-07:24: 11.035.121 [mindspore/lite/tools/converter/adapter/acl/plugin/acl_pass_plugin.cc:86] CreateAclPassInner] DLSopen failed, so path: /xxx/mindspore-1ite-2.2.0.20231019-1inux-x64/tools/converter/lib/1ibascend_pass_plugin.so, ret: dlopen /xxx/mindspore/tools/converter/lib/libascend_pass_plugin.so failed, error: /xxx/mindspore/tools/converter/lib/libmslite shared lib.so: undefined symbol: _ZNK9mindspore6kernel15KernelBuildInfo8TostringEv
+  ```
 
 以上缺少符号问题，为`mindspore` python whl包、`mindspore_lite` python whl包、`mindspore_lite`tar包不匹配导致。根据[下载mindspore](https://www.mindspore.cn/install) 和 [下载MindSpore Lite](https://www.mindspore.cn/lite/docs/zh-CN/master/use/downloads.html)，需检查
 
@@ -64,28 +73,28 @@
 - `dlopen mindspore_lite/lib/libascend_kernel_plugin.so` ，No such file or directory
 
   **错误信息**
-  
+
   ```bash
   File "/home/xxx/miniconda3/envs/yyy/lib/python3.8/site-packages/mindspore_lite/model.py", line 95, in warpper
   	return func(*args, **kwargs)
   File "/home/xxx/miniconda3/envs/yyy/lib/python3.8/site-packages/mindspore_lite/model.py", line 235, in build_from_file
   	raise RuntimeError(f"build from_file failed! Error is {ret.Tostring()}")
-  RuntimeError: build_from_file failed! Error is Common error code.    
-  [WARNING] ME(15411,7f07f56be100, python) : 2023-10-16-00:51:42.509.780 [mindspore/lite/src/extend rt/cxx_api/dlutils.h:124] DLSo0pen] 
+  RuntimeError: build_from_file failed! Error is Common error code.
+  [WARNING] ME(15411,7f07f56be100, python) : 2023-10-16-00:51:42.509.780 [mindspore/lite/src/extend rt/cxx_api/dlutils.h:124] DLSopen]
   dlopen /home/xxx/miniconda3/envs/yyy/lib/python3.8/site-packages/mindspore_lite/lib/libascend_kernel_plugin.so failed, error: libacl_cblas.so: cannot open shared object file: No such file or directory
-  [ERROR] ME(15411,7f07f56be100, python) :2023-10-16-00:51:42.509.877 [mindspo re/lite/src/extendrt/kernel/ascend/plugin/ascend_allocator_plugin.cc:70] Register] DLSo0pen failed, so path: /home/xxx/miniconda3/envs/ yyy/lib/python3.8/site-packages/mindspore_lite/lib/libascend_kernel_plugin.so , func name: CreateAclAllocator. err: dlopen /home/xxx/miniconda3/envs/yyy/lib/python3.8/site-packages/mindspore_lite/lib/libascend_ kernel_plugin.so failed, error: libacl_cblas.so: cannot open shared object file: No such file or directory    
-  [ERROR] ME(15411,7f07f56be100, python):2023-10-16-00:51:42.509.893 [mindspore/lite/src/extendrt/infer_session.cc:66] HandleContext] failed register ascend allocator plugin.    
+  [ERROR] ME(15411,7f07f56be100, python) :2023-10-16-00:51:42.509.877 [mindspo re/lite/src/extendrt/kernel/ascend/plugin/ascend_allocator_plugin.cc:70] Register] DLSopen failed, so path: /home/xxx/miniconda3/envs/ yyy/lib/python3.8/site-packages/mindspore_lite/lib/libascend_kernel_plugin.so , func name: CreateAclAllocator. err: dlopen /home/xxx/miniconda3/envs/yyy/lib/python3.8/site-packages/mindspore_lite/lib/libascend_ kernel_plugin.so failed, error: libacl_cblas.so: cannot open shared object file: No such file or directory
+  [ERROR] ME(15411,7f07f56be100, python):2023-10-16-00:51:42.509.893 [mindspore/lite/src/extendrt/infer_session.cc:66] HandleContext] failed register ascend allocator plugin.
   ...
   raise RuntimeError(f"build_from_file failed! Error is {ret.ToString()}")
   RuntimeError: build_from_file failed! Error is Common error code.
   ```
-  
+
   **解决方法**
-  
+
   该错误是`mindspore_lite`tar包中的`libascend_kernel plugin.so`未加入到环境变量`LD_LIBRARY_PATH`导致，解决方法如下
-  
+
   1. 查看是否安装了`mindspore_lite`的**云侧推理工具包**。如果未安装，请从 [工具包tar.gz、whl包下载链接](https://gitee.com/link?target=https%3A%2F%2Fwww.mindspore.cn%2Flite%2Fdocs%2Fzh-CN%2Fmaster%2Fuse%2Fdownloads.html)，下载Ascend版的云侧版本`tar.gz`包以及`whl`包安装，详细请见 [mindspore lite 安装](https://gitee.com/mindspore-lab/mindocr/blob/main/docs/cn/inference/environment.md)。
-  
+
   2. 找到`mindspore_lite`的安装路径，如路径为`/your_path_to/mindspore-lite`，cd到该目录下
 
   3. 查找`libascend_kernel_plugin.so`，命令为`find ./ -name libascend_kernel_plugin.so`，可以找到该so的路径为
@@ -99,7 +108,7 @@
   ```bash
   export LD_LIBRARY_PATH=$LITE_HOME/runtime/lib:$LD_LIBRARY_PATH
   ```
-  
+
 - `Load dynamic library: libmindspore_ascend.so.2 failed. liboptiling.so: cannot open shared object file: No such file or directory`
 
   ```bash
@@ -107,7 +116,7 @@
   [WARNING] ME(60105:13981374421 1776, MainProcess):2023-10-25-08: 14:33.640.411 [mindspore/run_check/_check_version.py:348] Using custom Ascend AI software package (Ascend Data Center Solution) path, package version checking is skipped. Please make sure Ascend AI software package (Ascend Data Center Solution) version is supported. For details, refer to the installation guidelines https://www.mindspore.cn/install
   Traceback (most recent call last):
   File "<string>", line 1, in module>
-  File "/xxx/py37/lib/python3.7/site-packages/mindspore/_checkparam.py", line 1313, in wrapper	
+  File "/xxx/py37/lib/python3.7/site-packages/mindspore/_checkparam.py", line 1313, in wrapper
   	return func(*args, **kwargs)
   File "/xxx/py37/1ib/python3.7/site-packages/mindspore/context.py", line 1456, in set_context
   	ctx.set_device_target(kwargs['device target'])
@@ -116,13 +125,13 @@
   File "/xxx/py37/lib/python3.7/site-packages/mindspore/context.py", line 175, in set_param
   	self._context_handle.set_param(param, value)
   RuntimeError: Unsupported device target Ascend. This process only supports one of the ['CPU']. Please check whether the Ascend environment is installed and configured correctly. and check whether current mindspore wheel package was built with "-e Ascend". For details, please refer to "Device load error message".
-  
+
   ----------------------------------------------------
   - Device load error message:
   ----------------------------------------------------
   Load dynamic library: libmindspore_ascend.so.2 failed. liboptiling.so: cannot open shared object file: No such file or directory
-  Load dynamic library: 1ibmindspore ascend.so.1 failed. liboptiling.so: cannot open shared object file: No such file or directory	
-  
+  Load dynamic library: 1ibmindspore ascend.so.1 failed. liboptiling.so: cannot open shared object file: No such file or directory
+
   ----------------------------------------------------
   ...
   ```
@@ -146,29 +155,27 @@
      ```bash
      export LD_LIBRARY_PATH=$ASCEND_HOME/CANN-7.0/opp/built-in/op_impl/ai_core/tbe/op_tiling/lib/linux/x86_64/:$LD_LIBRARY_PATH
      ```
-  
+
      当下列信息出现时，提示安装成功
-  
+
      ```bash
      The result of multiplication calculation is correct. MindSpore has been installed on platform [Ascend] successfully!
      ```
-
-
 
 - `Load dynamic library: libmindspore_ascend.so.2 failed. libaicpu_ascend_engine.so: cannot open shared object file: No such file or directory`
 
   ```bash
   RuntimeError: Unsupported device target Ascend. This process only supports one of the ['CPU']. Please check whether the Ascend environment is installed and configured correctly. and check whether current mindspore wheel package was built with "-e Ascend". For details, please refer to "Device load error message".
-  
+
   ----------------------------------------------------
   - Device load error message:
   ----------------------------------------------------
   Load dynamic library: libmindspore_ascend.so.2 failed. libaicpu_ascend_engine.so: cannot open shared object file: No such file or directory
-  Load dynamic library: libmindspore_ascend.so.1 failed. libaicpu_ascend_engine.so: cannot open shared object file: No such file or directory		
-  
+  Load dynamic library: libmindspore_ascend.so.1 failed. libaicpu_ascend_engine.so: cannot open shared object file: No such file or directory
+
   ----------------------------------------------------
   ...
-  
+
   ```
 
   该错误为`libaicpu_ascend_engine.so`未加入环境变量`LD_LIBRARY_PATH`导致，解决方法如下
@@ -191,8 +198,6 @@
      export LD_LIBRARY_PATH=$ASCEND_HOME/CANN-7.0/compiler/lib64/plugin/opskernel/:$LD_LIBRARY_PATH
      ```
 
-  
-
 ### Q3 Ascend Error Message A39999
 
 - 错误1
@@ -201,17 +206,17 @@
   ----------------------------------------------------
   - Ascend Error Message:
   ----------------------------------------------------
-  E39999: Inner Error!	
+  E39999: Inner Error!
   E39999 TsdOpen failed. devId=0, tdt error=31[FUNC:PrintfTsdError] [FILE: runtime.cc][LINE:2060]
   	   TraceBack (most recent call last):
   	   Start aicpu executor failed, retCode=0x7020009 devId=0[FUNC :DeviceRetain][FILE: runtime.cc][LINE:2698]
   	   check param failed, dev can not be NULL![FUNC:PrimaryContextRetain][FILE: runtime.cc][LINE:2544]
   	   Check param failed, ctx can not be NULL! [FUNC:PrimaryContextRetain][FILE: runtime.cc][LINE:2571]
-  	   Check param failed, context can not be null.[FUNC:NewDevice][FILE:api impl.cc][LINE:1899]	
-  	   New device failed, retcode=0x70 10006[FUNC:SetDevice][FILE:api_impL-cc][LINE:1922]	
+  	   Check param failed, context can not be null.[FUNC:NewDevice][FILE:api impl.cc][LINE:1899]
+  	   New device failed, retcode=0x70 10006[FUNC:SetDevice][FILE:api_impL-cc][LINE:1922]
   	   rtsetDevice execute failed, reason=[device retain error][FUNC:FuncErrorReason][FILE :error message manage.ccl[LINE:50]
   	   open device 0 failed runtime result = 507033.[FUNC: ReportCallError][FILE:log_inner.cpp][LINE:161]
-  
+
   (Please search "Ascend Error Message" at https://www.mindspore.cn for error code description)
   ```
 
@@ -253,15 +258,13 @@
   export ASCEND_AICPU_PATH=${ASCEND_OPP_PATH}/..
   ```
 
-  
-
 ### Q4 `acl open device 0 failed`
 
 推理时可能触发`acl open device 0 failed`，例如
 
 ```bash
 benchmark --modelFile=dbnet_mobilenetv3_lite.mindir --device=Ascend --inputShapes='1,3,736,1280' --loopCount=100 - -wammUpLoopCount=10
-ModelPath = dbnet_mobilenetv3_lite.mindir	
+ModelPath = dbnet_mobilenetv3_lite.mindir
 ModelType = MindIR
 InDatapath =
 GroupInfoFile =
@@ -301,8 +304,6 @@ export LD_LIBRARY_PATH=$ASCEND_HOME/latest/acllib/lib64
 export ASCEND_AICPU_PATH=$ASCEND_HOME/latest/x86_64-linux
 export LD_LIBRARY_PATH=$ASCEND_HOME/latest/x86_64-linux/lib64:$LD_LIBRARY_PATH
 ```
-
-
 
 ### Q5 windows安装mindocr依赖失败
 
@@ -359,8 +360,6 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
 
 删除`requirement.txt`中的`lanms`依赖项，继续执行`pip install -r requirements.txt`可完成安装。
 
-
-
 ### Q6 `RuntimeError: The device address type is wrong: type name in address:CPU, type name in context:Ascend`
 
 - export时触发 `RuntimeError: The device address type is wrong: type name in address:CPU, type name in context:Ascend`，例如
@@ -395,7 +394,7 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
     File "/xxx/py37/lib/python3.7/site-packages/mindspore/common/api.py", line 1186, in run_op_async
       return self._executor.run_op_async(*args)
   RuntimeError: The device address type is wrong: type name in address:CPU, type name in context:Ascend
-  
+
   ----------------------------------------------------
   - C++ Call Stack: (For framework developers)
   ----------------------------------------------------
@@ -405,7 +404,7 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
 - MindSporeAscend模式下进行计算发生错误。触发`RuntimeError: The device address type is wrong: type name in address:CPU, type name in context:Ascend`，例如
 
   ```python
-  Python 3.7.16 (default, Jan 17 2023, 22:20:44) 
+  Python 3.7.16 (default, Jan 17 2023, 22:20:44)
   [GCC 11.2.0] :: Anaconda, Inc. on linux
   Type "help", "copyright", "credits" or "license" for more information.
   >>> import numpy as np
@@ -429,7 +428,7 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
     File "/root/miniconda3/envs/py37/lib/python3.7/site-packages/mindspore/common/tensor.py", line 964, in asnumpy
       return Tensor_.asnumpy(self)
   RuntimeError: The device address type is wrong: type name in address:CPU, type name in context:Ascend
-  
+
   ----------------------------------------------------
   - C++ Call Stack: (For framework developers)
   ----------------------------------------------------
@@ -440,7 +439,6 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
 
 - 将MindSpore模式调为CPU
 - 使用 [MindSpore Lite](https://www.mindspore.cn/lite)
-
 
 ### Q7 模型转换相关问题
 
@@ -488,8 +486,6 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
   ```
 
   可知`config.txt`中输入变量名`args0`与模型中的输入变量名`x`不匹配。将`config.txt`中`args0`改为`x`即可
-
-  
 
 - 推理过程误用云侧`mindir`模型，报`Save ge model to buffer failed.`
 
@@ -588,13 +584,10 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
   RuntimeError: build_from_file failed! Error is Common error code.
   ```
 
-  
-
 可能原因
 
 - `mindir`云侧模型在未转换为`mindir`端侧模型使用
 - `converter_lite`转换工具版本与推理时`mindspore_lite`版本不一致。例如用`converter_lite 2.2`转换得到的`mindir`端侧模型，用于`mindspore_lite 2.1`下推理
-
 
 
 ### Q8 推理时相关问题
@@ -619,11 +612,9 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
     File "/home/mindocr/mindocr/postprocess/rec_postprocess.py", line 153, in <listcomp>
       raw_chars = [[self.character[idx] for idx in pred_indices[b]] for b in range(pred_indices.shape[0])]
   TypeError: unhashable type: 'numpy.ndarray'
-  
   ```
 
   该错误为模型输出的shape有误。请检查如下事项
 
   - 使用恰当的模型。例如在 `--rec_model_path` 错误传入了检测模型，可触发此错误；
   - 使用推理模型（非训练模型），用`converter_lite`转换工具转为端侧`mindir`进行推理。
-
