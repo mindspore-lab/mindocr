@@ -103,14 +103,14 @@ MindOCR中的FCENet网络在ICDAR 2015数据集上训练。训练结果如下：
 ```yaml
 ...
 train:
-  ckpt_save_dir: './tmp_det_fcenet'
+  ckpt_save_dir: './tmp_det'
   dataset_sink_mode: False
   ema: True
   dataset:
     type: DetDataset
     dataset_root: dir/to/dataset          <--- 更新
-    data_dir: icda/ch4_training_images    <--- 更新
-    label_file: icda/train_det_gt.txt     <--- 更新
+    data_dir: train/images                <--- 更新
+    label_file: train/train_det_gt.txt    <--- 更新
 ...
 eval:
   ckpt_load_path: '/best.ckpt'            <--- 更新
@@ -118,8 +118,8 @@ eval:
   dataset:
     type: DetDataset
     dataset_root: dir/to/dataset          <--- 更新
-    data_dir: icda/ch4_test_images        <--- 更新
-    label_file: icda/test_det_gt.txt      <--- 更新
+    data_dir: test/images                 <--- 更新
+    label_file: test/test_det_gt.txt      <--- 更新
 ...
 ```
 
