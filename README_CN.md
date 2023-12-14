@@ -170,6 +170,12 @@ python tools/eval.py \
 - [x] [ABINet](configs/rec/abinet/README_CN.md) (CVPR'2021)
 </details>
 
+<details open markdown>
+<summary>版面分析</summary>
+
+- [x] [YOLOv8](configs/layout/yolov8/README_CN.md) ([Ultralytics Inc.](https://github.com/ultralytics/ultralytics))
+</details>
+
 关于以上模型的具体训练方法和结果，请参见[configs](./configs)下各模型子目录的readme文档。
 
 关于[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)模型推理的支持列表，
@@ -212,6 +218,9 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 ## 重要信息
 
 ### 更新日志
+- 2023/12/14
+1. 增加新模型
+    - 版面分析[YOLOv8](configs/layout/yolov8)
 - 2023/07/06
 1. 增加新模型
     - 文本识别[RobustScanner](configs/rec/robustscanner)

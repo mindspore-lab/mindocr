@@ -177,6 +177,13 @@ Please refer to [MindOCR Models Inference - Quick Start](docs/en/inference/infer
 
 </details>
 
+<details open markdown>
+<summary>Layout Analysis</summary>
+
+- [x] [YOLOv8](configs/layout/yolov8/README.md) ([Ultralytics Inc.](https://github.com/ultralytics/ultralytics))
+
+</details>
+
 For the detailed performance of the trained models, please refer to [configs](./configs).
 
 For details of MindSpore Lite and ACL inference models support, please refer to [MindOCR Models Support List](docs/en/inference/inference_quickstart.md) and [Third-party Models Support List](docs/en/inference/inference_thirdparty_quickstart.md) (PaddleOCR, MMOCR, etc.).
@@ -217,6 +224,9 @@ We will include more datasets for training and evaluation. This list will be con
 ## Notes
 
 ### What is New
+- 2023/12/14
+1. Add new trained models
+    - [YOLOv8](configs/layout/yolov8) for layout analysis
 - 2023/07/06
 1. Add new trained models
     - [RobustScanner](configs/rec/robustscanner) for text recognition
