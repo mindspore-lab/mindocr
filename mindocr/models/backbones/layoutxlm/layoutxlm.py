@@ -3,7 +3,7 @@ import math
 import numpy as np
 
 import mindspore as ms
-from mindspore import Parameter, nn, ops
+from mindspore import Parameter, nn, ops, set_context
 from mindspore.common.initializer import Constant, initializer
 
 from .._registry import register_backbone, register_backbone_class
@@ -22,11 +22,11 @@ def _cfg(url="", use_visual_backbone=True, **kwargs):
 
 default_cfgs = {
     "layoutxlm": _cfg(
-        url="https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/ser_vi_layoutxlm-1e740bcb.ckpt",
+        url="https://download-mindspore.osinfra.cn/toolkits/mindocr/layoutxlm/layoutxlm_base_uncased-00b703e2.ckpt",
         use_visual_backbone=True,
     ),
     "vi-layoutxlm": _cfg(
-        url="https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/ser_vi_layoutxlm-1e740bcb.ckpt",
+        url="https://download-mindspore.osinfra.cn/toolkits/mindocr/vi-layoutxlm/vi_layoutxlm_uncased-5ae4d2b8.ckpt",
         use_visual_backbone=False,
     ),
 }
@@ -62,20 +62,39 @@ class VisualBackbone(nn.Cell):
                 self.backbone.output_shape()[self.out_feature_key].channels
             )
 
+        input_shape = (224, 224)
+        outsize = config.image_feature_pool_shape[0]  # (7,7)
+        insize = (input_shape[0] + 4 - 1) // 4
+        shape_info = self.backbone.output_shape()[self.out_feature_key]
+        channels = shape_info.channels
+        stride = insize // outsize
+        kernel = insize - (outsize - 1) * stride
+
+        self.weight = ms.Tensor(np.ones([channels, 1, kernel, kernel]), dtype=ms.float32) / (kernel * kernel)
+        self.conv2d = ops.Conv2D(channels, kernel, stride=stride, group=channels)
+
+    def pool(self, features):
+        """
+        Custom AvgPool2d
+        """
+        features = self.conv2d(features, self.weight)
+        return features
+
+    def freeze(self):
+        """
+        Freeze parameters
+        """
+        for param in self.trainable_params():
+            param.requires_grad = False
+
     def construct(self, images):
         images_input = (images - self.pixel_mean) / self.pixel_std
         features = self.backbone(images_input)
         for item in features:
             if item[0] == self.out_feature_key:
                 features = item[1]
-        channel = features.shape[1]
-        weight = ms.Tensor(np.ones([channel, channel, 1, 1]), dtype=ms.float32)
-        features = (
-            ops.conv2d(features, weight, stride=self.pool_shape[0] + 1)
-            .flatten(start_dim=2)
-            .transpose((0, 2, 1))
-        )
-        return features
+        features = self.pool(features)
+        return features.flatten(start_dim=2).transpose(0, 2, 1)
 
 
 def relative_position_bucket(
@@ -323,13 +342,8 @@ class LayoutXLMSelfAttention(nn.Cell):
             attention_scores += rel_pos
         if self.has_spatial_attention_bias:
             attention_scores += rel_2d_pos
-        bool_attention_mask = attention_mask.bool()  # ms.int32 or ms.bool
-        bool_attention_mask = ops.stop_gradient(bool_attention_mask)
-        attention_scores_shape = ops.shape(attention_scores)
-        attention_scores = ops.where(
-            bool_attention_mask.broadcast_to(attention_scores_shape),
-            ops.ones(attention_scores_shape) * float("-1e10"),
-            attention_scores,
+        attention_scores = ops.masked_fill(
+            attention_scores.astype(ms.float32), ops.stop_gradient(attention_mask.astype(ms.bool_)), float("-1e10")
         )
         attention_probs = ops.softmax(attention_scores, axis=-1)
         # This is actually dropping out entire tokens to attend to, which might
@@ -685,7 +699,9 @@ class LayoutXLMModel(nn.Cell):
             self.dense_dtype = ms.float16
 
         if self.use_visual_backbone is True:
+            set_context(jit_syntax_level=0)
             self.visual = VisualBackbone(config)
+            self.visual.freeze()
             self.visual_proj = nn.Dense(
                 config.image_feature_pool_shape[-1], config.hidden_size
             ).to_float(self.dense_dtype)
@@ -739,7 +755,7 @@ class LayoutXLMModel(nn.Cell):
             bbox
         )
         if use_image_info:
-            visual_embeddings = self.visual_proj(self.visual(image))
+            visual_embeddings = self.visual_proj(self.visual(image.astype(ms.float32)))
             embeddings = (
                 visual_embeddings + position_embeddings + spatial_position_embeddings
             )

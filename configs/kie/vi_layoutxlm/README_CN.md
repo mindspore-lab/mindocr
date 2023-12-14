@@ -54,7 +54,7 @@ Table Format:
 
 | **模型** |**任务** |**环境配置** | **训练集** | **参数量** | **单卡批量** | **图模式单卡训练 (s/epoch)** | **图模式单卡训练 (ms/step)** | **图模式单卡训练 (FPS)** | **hmean** | **配置文件** | **模型权重下载** |
 | :-----: | :-----: |:-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----:
-| VI-LayoutXLM | SER | D910Ax1-MS2.1-G | XFUND_zh | 265.7 M | 4 |  7.53 | 203.48 | 19.66 | 93.31%  | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/kie/vi_layoutxlm/ser_vi_layoutxlm_xfund_zh.yaml)     | [ckpt](https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/ser_vi_layoutxlm.ckpt) |
+| VI-LayoutXLM | SER | D910Ax1-MS2.1-G | XFUND_zh | 265.7 M | 8 |  3.06 | 169.7 | 47.2 | 93.31%  | [yaml](ser_vi_layoutxlm_xfund_zh.yaml)     | [ckpt](https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/ser_vi_layoutxlm-f3c83585.ckpt) |
 </div>
 
 
