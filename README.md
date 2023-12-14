@@ -17,6 +17,7 @@ English | [中文](README_CN.md)
 [📚Tutorials](#tutorials) |
 [🎁Model List](#model-list) |
 [📰Dataset List](#dataset-list) |
+[📖Frequently Asked Questions](#frequently-asked-questions) |
 [🎉Notes](#notes)
 
 </div>
@@ -36,17 +37,18 @@ MindOCR is an open-source toolbox for OCR development and application based on [
 
 ## Installation
 
-<details close markdown>
+<details open markdown>
+<summary> Details </summary>
 
 #### Prerequisites
 
 MindOCR is built on MindSpore AI framework, which supports CPU/GPU/NPU devices.
 MindOCR is compatible with the following framework versions. For details and installation guideline, please refer to the installation links shown below.
 
-- mindspore >= 1.9 (ABINet requires mindspore >= 2.0) [[install](https://www.mindspore.cn/install)]
+- mindspore >= 2.2.0 [[install](https://www.mindspore.cn/install)]
 - python >= 3.7
 - openmpi 4.0.3 (for distributed training/evaluation)  [[install](https://www.open-mpi.org/software/ompi/v4.0/)]
-- mindspore lite (for inference)  [[install](docs/en/inference/environment.md)]
+- mindspore lite (for offline inference) >= 2.2.0  [[install](docs/en/inference/environment.md)]
 
 
 #### Dependency
@@ -126,10 +128,12 @@ python tools/eval.py \
 
 For more illustration and usage, please refer to the model training section in [Tutorials](#tutorials).
 
-### 3. Model Inference - Quick Guideline
+### 3. Model Offline Inference - Quick Guideline
 
-You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Third-party models** (PaddleOCR, MMOCR, etc.).
-Please refer to [MindOCR Models Inference - Quick Start](docs/en/inference/inference_quickstart.md) or [Third-party Models Inference - Quick Start](docs/en/inference/inference_thirdparty_quickstart.md).
+You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Third-party models** (PaddleOCR, MMOCR, etc.). Please refer to the following documents
+ - [Python/C++ Inference on Ascend 310](docs/en/inference/inference_tutorial.md)
+ - [MindOCR Models Offline Inference - Quick Start](docs/en/inference/inference_quickstart.md)
+ - [Third-party Models Offline Inference - Quick Start](docs/en/inference/inference_thirdparty_quickstart.md).
 
 ## Tutorials
 
@@ -142,9 +146,12 @@ Please refer to [MindOCR Models Inference - Quick Start](docs/en/inference/infer
     - [Text Recognition](docs/en/tutorials/training_recognition_custom_dataset.md)
     - [Distributed Training](docs/en/tutorials/distribute_train.md)
     - [Advance: Gradient Accumulation, EMA, Resume Training, etc](docs/en/tutorials/advanced_train.md)
-- Inference and Deployment
-    - [Python/C++ Inference on Ascend 310](docs/en/inference/inference_tutorial.md)
+- Inference with MindSpore
     - [Python Online Inference](tools/infer/text/README.md)
+- Inference with MindSpore Lite
+    - [Python/C++ Inference on Ascend 310](docs/en/inference/inference_tutorial.md)
+    - [MindOCR Models Offline Inference - Quick Start](docs/en/inference/inference_quickstart.md)
+    - [Third-party Models Offline Inference - Quick Start](docs/en/inference/inference_thirdparty_quickstart.md).
 - Developer Guides
     - [Customize Dataset](mindocr/data/README.md)
     - [Customize Data Transformation](mindocr/data/transforms/README.md)
@@ -184,6 +191,13 @@ Please refer to [MindOCR Models Inference - Quick Start](docs/en/inference/infer
 
 </details>
 
+<details open markdown>
+<summary>Key Information Extraction</summary>
+
+- [x] [LayoutXLM SER](configs/kie/vi_layoutxlm/README_CN.md) (arXiv'2016)
+
+</details>
+
 For the detailed performance of the trained models, please refer to [configs](./configs).
 
 For details of MindSpore Lite and ACL inference models support, please refer to [MindOCR Models Support List](docs/en/inference/inference_quickstart.md) and [Third-party Models Support List](docs/en/inference/inference_thirdparty_quickstart.md) (PaddleOCR, MMOCR, etc.).
@@ -219,14 +233,49 @@ MindOCR provides a [dataset conversion tool](tools/dataset_converters) to OCR da
 
 </details>
 
+<details close markdown>
+<summary>Layout Analysis Datasets</summary>
+
+- [PublayNet](https://github.com/ibm-aur-nlp/PubLayNet) [[paper](https://arxiv.org/abs/1908.07836)] [[download](https://dax-cdn.cdn.appdomain.cloud/dax-publaynet/1.0.0/publaynet.tar.gz)]
+
+</details>
+
+<details close markdown>
+<summary>Key Information Extraction Datasets</summary>
+
+- [XFUND](https://github.com/doc-analysis/XFUND) [[paper](https://aclanthology.org/2022.findings-acl.253/)] [[download](https://github.com/doc-analysis/XFUND/releases/tag/v1.0)]
+
+</details>
+
 We will include more datasets for training and evaluation. This list will be continuously updated.
+
+## Frequently Asked Questions
+Frequently asked questions about configuring environment and mindocr, please refer to [FAQ](docs/en/tutorials/frequently_asked_questions.md).
 
 ## Notes
 
 ### What is New
+
+<details close markdown>
+<summary>News</summary>
+
 - 2023/12/14
 1. Add new trained models
+    - [LayoutXLM SER](configs/kie/vi_layoutxlm) for key information extraction
+    - [VI-LayoutXLM SER](configs/kie/layoutlm_series) for key information extraction
+    - [PP-OCRv3 DBNet](configs/det/dbnet/db_mobilenetv3_ppocrv3.yaml) for text detection and [PP-OCRv3 SVTR](configs/rec/svtr/svtr_ppocrv3_ch.yaml) for recognition, supporting online inferece and finetuning
+2. Add more benchmark datasets and their results
+    - [XFUND](configs/kie/vi_layoutxlm/README_CN.md)
+3. Multiple specifications support for Ascend 910: DBNet ResNet-50, DBNet++ ResNet-50, CRNN VGG7, SVTR-Tiny, FCENet, ABINet
+- 2023/11/28
+1. Add offline inference support for PP-OCRv4
+    - [PP-OCRv4 DBNet](deploy/py_infer/src/configs/det/ppocr/ch_PP-OCRv4_det_cml.yaml) for text detection and [PP-OCRv4 CRNN](deploy/py_infer/src/configs/rec/ppocr/ch_PP-OCRv4_rec_distillation.yaml) for text recognition, supporting offline inferece
+2. Fix bugs of third-party models offline inference
+- 2023/11/17
+1. Add new trained models
     - [YOLOv8](configs/layout/yolov8) for layout analysis
+2. Add more benchmark datasets and their results
+    - [PublayNet](configs/layout/yolov8/README_CN.md)
 - 2023/07/06
 1. Add new trained models
     - [RobustScanner](configs/rec/robustscanner) for text recognition
@@ -285,13 +334,14 @@ which can be enabled by add "shape_list" to the `eval.dataset.output_columns` li
 - 2023/03/13
 1. Add system test and CI workflow.
 2. Add modelarts adapter to allow training on OpenI platform. To train on OpenI:
-  ```text
-    i)   Create a new training task on the openi cloud platform.
-    ii)  Link the dataset (e.g., ic15_mindocr) on the webpage.
-    iii) Add run parameter `config` and write the yaml file path on the website UI interface, e.g., '/home/work/user-job-dir/V0001/configs/rec/test.yaml'
-    iv)  Add run parameter `enable_modelarts` and set True on the website UI interface.
-    v)   Fill in other blanks and launch.
-  ```
+    ```text
+        i)   Create a new training task on the openi cloud platform.
+        ii)  Link the dataset (e.g., ic15_mindocr) on the webpage.
+        iii) Add run parameter `config` and write the yaml file path on the website UI interface, e.g., '/home/work/user-job-dir/V0001/configs/rec/test.yaml'
+        iv)  Add run parameter `enable_modelarts` and set True on the website UI interface.
+        v)   Fill in other blanks and launch.
+    ```
+</details>
 
 ### How to Contribute
 
