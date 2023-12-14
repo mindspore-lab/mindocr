@@ -43,7 +43,7 @@ class BasicStem(nn.Cell):
         if norm == "BN":
             self.bn1 = nn.BatchNorm2d(out_channels)
         self.relu = nn.ReLU()
-        self.max_pool = nn.MaxPool2d(kernel_size=3, stride=2, pad_mode="same")
+        self.max_pool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1, pad_mode="pad")
 
     def construct(self, x):
         x = self.conv1(x)
