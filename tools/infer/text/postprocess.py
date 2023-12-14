@@ -19,7 +19,7 @@ class Postprocessor(object):
                         name="DBPostprocess",
                         box_type="quad",
                         binary_thresh=0.3,
-                        box_thresh=0.9,
+                        box_thresh=0.7,
                         max_candidates=1000,
                         expand_ratio=1.5,
                     )

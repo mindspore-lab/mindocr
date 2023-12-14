@@ -2,7 +2,7 @@
 
 # MindOCR
 
-[![CI](https://github.com/mindspore-lab/mindocr/actions/workflow/ci.yml/badge.svg)](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml)
+[![CI](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml/badge.svg)](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/mindspore-lab/mindocr.svg)](https://github.com/mindspore-lab/mindocr/blob/main/LICENSE)
 [![open issues](https://img.shields.io/github/issues/mindspore-lab/mindocr)](https://github.com/mindspore-lab/mindocr/issues)
 [![PRs](https://img.shields.io/badge/PRs-welcome-pink.svg)](https://github.com/mindspore-lab/mindocr/pulls)
@@ -183,6 +183,20 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 - [x] [ABINet](configs/rec/abinet/README_CN.md) (CVPR'2021)
 </details>
 
+<details open markdown>
+<summary>版面分析</summary>
+
+- [x] [YOLOv8](configs/layout/yolov8/README_CN.md) ([Ultralytics Inc.](https://github.com/ultralytics/ultralytics))
+</details>
+
+<details open markdown>
+<summary>关键信息抽取</summary>
+
+- [x] [LayoutXLM SER](configs/kie/vi_layoutxlm/README_CN.md) (arXiv'2016)
+
+</details>
+
+
 关于以上模型的具体训练方法和结果，请参见[configs](./configs)下各模型子目录的readme文档。
 
 关于[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)模型推理的支持列表，
@@ -220,6 +234,20 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 
 </details>
 
+<details close markdown>
+<summary>版面分析数据集</summary>
+
+- [PublayNet](https://github.com/ibm-aur-nlp/PubLayNet) [[paper](https://arxiv.org/abs/1908.07836)] [[download](https://dax-cdn.cdn.appdomain.cloud/dax-publaynet/1.0.0/publaynet.tar.gz)]
+
+</details>
+
+<details close markdown>
+<summary>关键信息抽取数据集</summary>
+
+- [XFUND](https://github.com/doc-analysis/XFUND) [[paper](https://aclanthology.org/2022.findings-acl.253/)] [[download](https://github.com/doc-analysis/XFUND/releases/tag/v1.0)]
+
+</details>
+
 我们会在更多的数据集上进行模型训练和验证。该列表将持续更新。
 
 ## 常见问题
@@ -231,18 +259,23 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 <details close markdown>
 <summary>详细</summary>
 
-- 2023/12/05
+- 2023/12/14
 1. 增加新模型
-    - 文档版面识别 [YOLOv8 nano]()
-    - 关键信息提取 [VI-LayoutXLM](configs/kie/vi_layoutxlm/README_CN.md)在线训练推理
-    - [PP-OCRv3](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.7/doc/doc_ch/PP-OCRv3_introduction.md)三方模型训练推理
-        - 文本检测 [PP-OCRv3 DBNet](deploy/py_infer/src/configs/det/ppocr/ch_PP-OCRv3_det_cml.yaml)
-        - 文本识别 [PP-OCRv3 SVTR](deploy/py_infer/src/configs/rec/ppocr/ch_PP-OCRv3_rec_distillation.yml)
-2. 离线推理
-    - 文档版面识别 [YOLOv8 nano]()昇腾310推理
-    - [PP-OCRv4](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.7/doc/doc_ch/PP-OCRv4_introduction.md)三方模型昇腾310推理
-        - 文本检测 [PP-OCRv4 DBNet](deploy/py_infer/src/configs/det/ppocr/ch_PP-OCRv4_det_cml.yaml)
-        - 文本识别 [PP-OCRv4 CRNN](deploy/py_infer/src/configs/rec/ppocr/ch_PP-OCRv4_rec_distillation.yaml)
+    - 关键信息抽取[LayoutXLM SER](configs/kie/vi_layoutxlm)
+    - 关键信息抽取[VI-LayoutXLM SER](configs/kie/layoutlm_series)
+    - 文本检测[PP-OCRv3 DBNet](configs/det/dbnet/db_mobilenetv3_ppocrv3.yaml)和文本识别[PP-OCRv3 SVTR](configs/rec/svtr/svtr_ppocrv3_ch.yaml)，支持在线推理和微调训练
+2. 添加更多基准数据集及其结果
+    - [XFUND](configs/kie/vi_layoutxlm/README_CN.md)
+3. 昇腾910硬件多规格支持：DBNet ResNet-50、DBNet++ ResNet-50、CRNN VGG7、SVTR-Tiny、FCENet、ABINet
+- 2023/11/28
+1. 增加支持PP-OCRv4模型离线推理
+    - 文本检测 [PP-OCRv4 DBNet](deploy/py_infer/src/configs/det/ppocr/ch_PP-OCRv4_det_cml.yaml)和文本识别 [PP-OCRv4 CRNN](deploy/py_infer/src/configs/rec/ppocr/ch_PP-OCRv4_rec_distillation.yaml)，支持离线推理
+2. 修复第三方模型离线推理bug
+- 2023/11/17
+1. 增加新模型
+    - 版面分析[YOLOv8](configs/layout/yolov8)
+2. 添加更多基准数据集及其结果
+    - [PublayNet](configs/layout/yolov8/README_CN.md)
 - 2023/07/06
 1. 增加新模型
     - 文本识别 [RobustScanner](configs/rec/robustscanner)

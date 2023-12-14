@@ -176,8 +176,8 @@ graph LR;
 
     ```shell
     python deploy/eval_utils/eval_rec.py \
-            --gt_path=/path/to/ic15/rec_gt.txt \
-            --pred_path=/path/to/rec_infer_results/rec_results.txt
+        --gt_path=/path/to/ic15/rec_gt.txt \
+        --pred_path=/path/to/rec_infer_results/rec_results.txt
     ```
 
 #### 3.3 文本方向分类
