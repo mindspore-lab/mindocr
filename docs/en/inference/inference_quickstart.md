@@ -190,8 +190,7 @@ Let's take `CRNN ResNet34_vd en` in the [model support list](#12-text-recognitio
           --gt_path=/path/to/ic15/rec_gt.txt \
           --pred_path=/path/to/rec_infer_results/rec_results.txt
      ```
-     
-     The result is: `{'acc': 0.6966779232025146, 'norm_edit_distance': 0.8627135157585144}`
+
 
 #### 3.3 Text Direction Classification
 Let's take `MobileNet` in the model support list as an example to introduce the inference method:

@@ -184,6 +184,20 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 
 </details>
 
+<details open markdown>
+<summary>Layout Analysis</summary>
+
+- [x] [YOLOv8](configs/layout/yolov8/README.md) ([Ultralytics Inc.](https://github.com/ultralytics/ultralytics))
+
+</details>
+
+<details open markdown>
+<summary>Key Information Extraction</summary>
+
+- [x] [LayoutXLM SER](configs/kie/vi_layoutxlm/README_CN.md) (arXiv'2016)
+
+</details>
+
 For the detailed performance of the trained models, please refer to [configs](./configs).
 
 For details of MindSpore Lite and ACL inference models support, please refer to [MindOCR Models Support List](docs/en/inference/inference_quickstart.md) and [Third-party Models Support List](docs/en/inference/inference_thirdparty_quickstart.md) (PaddleOCR, MMOCR, etc.).
@@ -219,6 +233,20 @@ MindOCR provides a [dataset conversion tool](tools/dataset_converters) to OCR da
 
 </details>
 
+<details close markdown>
+<summary>Layout Analysis Datasets</summary>
+
+- [PublayNet](https://github.com/ibm-aur-nlp/PubLayNet) [[paper](https://arxiv.org/abs/1908.07836)] [[download](https://dax-cdn.cdn.appdomain.cloud/dax-publaynet/1.0.0/publaynet.tar.gz)]
+
+</details>
+
+<details close markdown>
+<summary>Key Information Extraction Datasets</summary>
+
+- [XFUND](https://github.com/doc-analysis/XFUND) [[paper](https://aclanthology.org/2022.findings-acl.253/)] [[download](https://github.com/doc-analysis/XFUND/releases/tag/v1.0)]
+
+</details>
+
 We will include more datasets for training and evaluation. This list will be continuously updated.
 
 ## Frequently Asked Questions
@@ -230,19 +258,24 @@ Frequently asked questions about configuring environment and mindocr, please ref
 
 <details close markdown>
 <summary>News</summary>
-- 2023/12/05
-1. Add new trained models
-    - [YOLOv8 nano]()
-    - [VI-LayoutXLM](configs/kie/vi_layoutxlm/README_CN.md) for key information extraction
-    - [PP-OCRv3](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.7/doc/doc_ch/PP-OCRv3_introduction.md)
-        - [PP-OCRv3 DBNet](deploy/py_infer/src/configs/det/ppocr/ch_PP-OCRv3_det_cml.yaml) for text detection
-        - [PP-OCRv3 SVTR](deploy/py_infer/src/configs/rec/ppocr/ch_PP-OCRv3_rec_distillation.yml) for text recognition
-2. Add new offline inference models
-    - [YOLOv8 nano]() for table recognition, inference on Ascend310
-    - [PP-OCRv4](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.7/doc/doc_ch/PP-OCRv4_introduction.md) inference on Ascend310
-        - [PP-OCRv4 DBNet](deploy/py_infer/src/configs/det/ppocr/ch_PP-OCRv4_det_cml.yaml) for text detection
-        - [PP-OCRv4 CRNN](deploy/py_infer/src/configs/rec/ppocr/ch_PP-OCRv4_rec_distillation.yaml) for text recognition
 
+- 2023/12/14
+1. Add new trained models
+    - [LayoutXLM SER](configs/kie/vi_layoutxlm) for key information extraction
+    - [VI-LayoutXLM SER](configs/kie/layoutlm_series) for key information extraction
+    - [PP-OCRv3 DBNet](configs/det/dbnet/db_mobilenetv3_ppocrv3.yaml) for text detection and [PP-OCRv3 SVTR](configs/rec/svtr/svtr_ppocrv3_ch.yaml) for recognition, supporting online inferece and finetuning
+2. Add more benchmark datasets and their results
+    - [XFUND](configs/kie/vi_layoutxlm/README_CN.md)
+3. Multiple specifications support for Ascend 910: DBNet ResNet-50, DBNet++ ResNet-50, CRNN VGG7, SVTR-Tiny, FCENet, ABINet
+- 2023/11/28
+1. Add offline inference support for PP-OCRv4
+    - [PP-OCRv4 DBNet](deploy/py_infer/src/configs/det/ppocr/ch_PP-OCRv4_det_cml.yaml) for text detection and [PP-OCRv4 CRNN](deploy/py_infer/src/configs/rec/ppocr/ch_PP-OCRv4_rec_distillation.yaml) for text recognition, supporting offline inferece
+2. Fix bugs of third-party models offline inference
+- 2023/11/17
+1. Add new trained models
+    - [YOLOv8](configs/layout/yolov8) for layout analysis
+2. Add more benchmark datasets and their results
+    - [PublayNet](configs/layout/yolov8/README_CN.md)
 - 2023/07/06
 1. Add new trained models
     - [RobustScanner](configs/rec/robustscanner) for text recognition
