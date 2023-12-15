@@ -198,6 +198,13 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 
 </details>
 
+<details open markdown>
+<summary>Table Recognition</summary>
+
+- [x] [TableMaster](configs/table/README.md) (arXiv'2021)
+
+</details>
+
 For the detailed performance of the trained models, please refer to [configs](./configs).
 
 For details of MindSpore Lite and ACL inference models support, please refer to [MindOCR Models Support List](docs/en/inference/inference_quickstart.md) and [Third-party Models Support List](docs/en/inference/inference_thirdparty_quickstart.md) (PaddleOCR, MMOCR, etc.).
@@ -247,6 +254,13 @@ MindOCR provides a [dataset conversion tool](tools/dataset_converters) to OCR da
 
 </details>
 
+<details close markdown>
+<summary>Table Recognition Datasets</summary>
+
+- [PubTabNet](https://github.com/ibm-aur-nlp/PubTabNet) [[paper](https://arxiv.org/pdf/1911.10683.pdf)] [[download](https://dax-cdn.cdn.appdomain.cloud/dax-pubtabnet/2.0.0/pubtabnet.tar.gz)]
+
+</details>
+
 We will include more datasets for training and evaluation. This list will be continuously updated.
 
 ## Frequently Asked Questions
@@ -258,6 +272,12 @@ Frequently asked questions about configuring environment and mindocr, please ref
 
 <details close markdown>
 <summary>News</summary>
+
+- 2023/12/25
+1. Add new trained models
+    - [TableMaster](configs/table/table_master.yaml) for table recognition
+2. Add more benchmark datasets and their results
+    - [PubTabNet](configs/table/README.md)
 
 - 2023/12/14
 1. Add new trained models

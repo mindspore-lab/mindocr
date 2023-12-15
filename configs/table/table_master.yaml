@@ -1,0 +1,164 @@
+system:
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: True
+  amp_level: O2 # running in O2 mode
+  amp_level_infer: O2
+  seed: 17
+  log_interval: 100
+  val_while_train: True
+  drop_overflow_update: False
+  ckpt_max_keep: 30
+
+common:
+  character_dict_path: &character_dict_path mindocr/utils/dict/table_master_structure_dict.txt
+  max_text_len: &max_text_len 500
+  batch_size: &batch_size 10
+  box_format: &box_format 'xywh' # 'xywh', 'xyxy', 'xyxyxyxy'
+
+model:
+  type: table
+  transform: null
+  backbone:
+    name: table_resnet_extra
+    gcb_config:
+      ratio: 0.0625
+      headers: 1
+      att_scale: False
+      fusion_type: channel_add
+      layers: [ False, True, True, True ]
+    layers: [ 1,2,5,3 ]
+  head:
+    name: TableMasterHead
+    out_channels: 43
+    hidden_size: 512
+    headers: 8
+    dropout: 0.
+    d_ff: 2024
+    max_text_length: *max_text_len
+    loc_reg_num: &loc_reg_num 4
+
+postprocess:
+  name: TableMasterLabelDecode
+  character_dict_path: *character_dict_path
+  box_shape: pad
+  merge_no_span_structure: &merge_no_span_structure True
+
+metric:
+  name: TableMetric
+  main_indicator: acc
+  compute_bbox_metric: False
+  box_format: *box_format
+
+loss:
+  name: TableMasterLoss
+  ignore_index: 42 # set to len of dict + 3
+
+scheduler:
+  scheduler: 'cosine_decay'
+  lr: 0.001
+  min_lr: 0.00001
+  num_epochs: 30
+  warmup_epochs: 0
+  decay_epochs: 25
+
+optimizer:
+  opt: adam
+  beta1: 0.9
+  beta2: 0.999
+
+loss_scaler:
+  type: dynamic
+  loss_scale: 512
+  scale_factor: 2.0
+  scale_window: 1000
+
+train:
+  ckpt_save_dir: ./tmp_table
+  dataset_sink_mode: False
+  ema: True
+  dataset:
+    type: PubTabDataset
+    data_dir: dir/to/train
+    label_file_list: [ dir/to/pubtabnet/PubTabNet_2.0.0_train.jsonl ]
+    sample_ratio_list: [ 1.0 ]
+    shuffle: True
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          to_float32: false
+      - TableMasterLabelEncode:
+          character_dict_path: *character_dict_path
+          learn_empty_box: False
+          merge_no_span_structure: *merge_no_span_structure
+          replace_empty_cell_token: True
+          loc_reg_num: *loc_reg_num
+          max_text_length: *max_text_len
+      - ResizeTableImage:
+          max_len: 480
+          resize_bboxes: True
+      - PaddingTableImage:
+          size: [ 480, 480 ]
+      - TableBoxEncode:
+          in_box_format: *box_format
+          out_box_format: *box_format
+      - TableImageNorm:
+          scale: 1./255.
+          mean: [0.5, 0.5, 0.5]
+          std: [0.5, 0.5, 0.5]
+          order: hwc
+      - ToCHWImage:
+    output_columns: [ "image", "structure", "bboxes", "bbox_masks", "shape" ]
+    net_input_column_index: [ 0, 1 ]
+    label_column_index: [ 1, 2, 3 ]
+
+  loader:
+    shuffle: True
+    batch_size: *batch_size
+    drop_remainder: True
+    max_rowsize: 12
+    num_workers: 1
+
+eval:
+  ckpt_load_path: ./tmp_table/best.ckpt
+  dataset_sink_mode: False
+  dataset:
+    type: PubTabDataset
+    data_dir: dir/to/val
+    label_file_list: [ dir/to/PubTabNet_2.0.0_val.jsonl ]
+    sample_ratio_list: [ 1.0 ]
+    shuffle: False
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          to_float32: True
+      - TableMasterLabelEncode:
+          character_dict_path: *character_dict_path
+          learn_empty_box: False
+          merge_no_span_structure: *merge_no_span_structure
+          replace_empty_cell_token: True
+          loc_reg_num: *loc_reg_num
+          max_text_length: *max_text_len
+      - ResizeTableImage:
+          max_len: 480
+          resize_bboxes: True
+      - PaddingTableImage:
+          size: [ 480, 480 ]
+      - TableBoxEncode:
+          in_box_format: *box_format
+          out_box_format: *box_format
+      - TableImageNorm:
+          scale: 1./255.
+          mean: [ 0.5, 0.5, 0.5 ]
+          std: [ 0.5, 0.5, 0.5 ]
+          order: hwc
+      - ToCHWImage:
+    output_columns: [ "image", "structure", "bboxes", "bbox_masks", "shape" ]
+    net_input_column_index: [ 0, 1 ]
+    label_column_index: [ 0, 1, 2, 3, 4 ]
+
+  loader:
+    shuffle: False
+    batch_size: 10
+    drop_remainder: False
+    max_rowsize: 12
+    num_workers: 1

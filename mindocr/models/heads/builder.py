@@ -16,6 +16,7 @@ supported_heads = [
     "TokenClassificationHead",
     'YOLOv8Head',
     'MultiHead',
+    'TableMasterHead',
 ]
 from .cls_head import MobileNetV3Head
 from .conv_head import ConvHead
@@ -31,6 +32,7 @@ from .rec_master_decoder import MasterDecoder
 from .rec_multi_head import MultiHead
 from .rec_robustscanner_head import RobustScannerHead
 from .rec_visionlan_head import VisionLANHead
+from .table_master_head import TableMasterHead
 from .yolov8_head import YOLOv8Head
 
 
