@@ -2,7 +2,7 @@
 
 # MindOCR
 
-[![CI](https://github.com/mindspore-lab/mindocr/actions/workflow/ci.yml/badge.svg)](https://github.com/mindspore-lab/mindocr/actions/workflow/ci.yml)
+[![CI](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml/badge.svg)](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/mindspore-lab/mindocr.svg)](https://github.com/mindspore-lab/mindocr/blob/main/LICENSE)
 [![open issues](https://img.shields.io/github/issues/mindspore-lab/mindocr)](https://github.com/mindspore-lab/mindocr/issues)
 [![PRs](https://img.shields.io/badge/PRs-welcome-pink.svg)](https://github.com/mindspore-lab/mindocr/pulls)
