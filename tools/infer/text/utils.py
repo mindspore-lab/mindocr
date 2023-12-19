@@ -157,3 +157,29 @@ def eval_rec_res(rec_res_fp, gt_fp, lower=True, ignore_space=True, filter_ood=Tr
     acc = correct / tot
 
     return {"acc:": acc, "correct_num:": correct, "total_num:": tot}
+
+
+def get_ocr_result_paths(ocr_result_dir: str) -> List[str]:
+    """
+    Args:
+        ocr_result_dir: path to an ocr result or a directory containing multiple ocr result.
+
+    Returns:
+        List: list of ocr result in the directory and its subdirectories.
+    """
+    ocr_result_dir = Path(ocr_result_dir)
+    if ocr_result_dir.exists() is False:
+        raise ValueError(f"{ocr_result_dir} does NOT exist. Please check the directory / file path.")
+
+    extensions = [".txt", ".json"]
+    if ocr_result_dir.is_file():
+        ocr_result_path = [str(ocr_result_dir)]
+    else:
+        ocr_result_path = [str(file) for file in ocr_result_dir.rglob("*.*") if file.suffix.lower() in extensions]
+
+    if len(ocr_result_path) == 0:
+        raise ValueError(
+            f"{ocr_result_dir} does NOT exist, or no image files exist in {ocr_result_dir}."
+            "Please check the `image_dir` arg value."
+        )
+    return sorted(ocr_result_path)

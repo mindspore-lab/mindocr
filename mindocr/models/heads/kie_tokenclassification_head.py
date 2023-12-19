@@ -1,4 +1,4 @@
-from mindspore import Tensor, nn, ops
+from mindspore import nn, ops
 from mindspore.common import float16, float32
 
 from ..backbones.layoutxlm.configuration import LayoutXLMPretrainedConfig
@@ -31,7 +31,7 @@ class TokenClassificationHead(nn.Cell):
             if layer.bias is not None:
                 layer.bias.set_data(ops.zeros(size=layer.bias.shape))
 
-    def construct(self, x: Tensor, input_id=None):
+    def construct(self, x, input_id=None):
         # sequence out and image out
         seq_length = input_id.shape[1]
         sequence_output = x[0][:, :seq_length]

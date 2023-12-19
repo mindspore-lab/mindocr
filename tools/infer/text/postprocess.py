@@ -72,12 +72,15 @@ class Postprocessor(object):
 
             else:
                 raise ValueError(f"No postprocess config defined for {algo}. Please check the algorithm name.")
+        elif task == "ser":
+            class_path = "mindocr/utils/dict/class_list_xfun.txt"
+            postproc_cfg = dict(name="VQASerTokenLayoutLMPostProcess", class_path=class_path)
 
         postproc_cfg.update(kwargs)
         self.task = task
         self.postprocess = build_postprocess(postproc_cfg)
 
-    def __call__(self, pred, data=None):
+    def __call__(self, pred, data=None, **kwargs):
         """
         Args:
             pred: network prediction
@@ -127,4 +130,9 @@ class Postprocessor(object):
             return det_res
         elif self.task == "rec":
             output = self.postprocess(pred)
+            return output
+        elif self.task == "ser":
+            output = self.postprocess(
+                pred, segment_offset_ids=kwargs.get("segment_offset_ids"), ocr_infos=kwargs.get("ocr_infos")
+            )
             return output
