@@ -1,4 +1,4 @@
-## Inference - Tutorial
+## Python/C++ Inference on Ascend 310
 
 ### 1. Introduction
 
@@ -39,181 +39,180 @@ Enter the inference directory：`cd deploy/py_infer`.
 
 - detection + classification + recognition
 
-```shell
-python infer.py \
-    --input_images_dir=/path/to/images \
-    --det_model_path=/path/to/mindir/dbnet_resnet50.mindir \
-    --det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
-    --cls_model_path=/path/to/mindir/cls_mv3.mindir \
-    --cls_model_name_or_config=ch_pp_mobile_cls_v2.0 \
-    --rec_model_path=/path/to/mindir/crnn_resnet34.mindir \
-    --rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
-    --res_save_dir=det_cls_rec \
-    --vis_pipeline_save_dir=det_cls_rec
-```
+  ```shell
+  python infer.py \
+      --input_images_dir=/path/to/images \
+      --det_model_path=/path/to/mindir/dbnet_resnet50.mindir \
+      --det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
+      --cls_model_path=/path/to/mindir/cls_mv3.mindir \
+      --cls_model_name_or_config=ch_pp_mobile_cls_v2.0 \
+      --rec_model_path=/path/to/mindir/crnn_resnet34.mindir \
+      --rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
+      --res_save_dir=det_cls_rec \
+      --vis_pipeline_save_dir=det_cls_rec
+  ```
 
-The visualization images are stored in det_cls_rec, as shown in the picture.
+  The visualization images are stored in det_cls_rec, as shown in the picture.
 
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/15178426/253492222-b4df6b80-0da5-4902-9b8d-8058ea367a55.jpg" width=90% />
-</p>
-<p align="center">
-  <em>Visualization of text detection and recognition result</em>
-</p>
+  <p align="center">
+    <img src="https://user-images.githubusercontent.com/15178426/253492222-b4df6b80-0da5-4902-9b8d-8058ea367a55.jpg" width=90% />
+  </p>
+  <p align="center">
+    <em>Visualization of text detection and recognition result</em>
+  </p>
 
-The results are saved in det_cls_rec/pipeline_results.txt in the following format:
+  The results are saved in det_cls_rec/pipeline_results.txt in the following format:
 
-```
-img_182.jpg	[{"transcription": "cocoa", "points": [[14.0, 284.0], [222.0, 274.0], [225.0, 325.0], [17.0, 335.0]]}, {...}]
-```
+  ```
+  img_182.jpg	[{"transcription": "cocoa", "points": [[14.0, 284.0], [222.0, 274.0], [225.0, 325.0], [17.0, 335.0]]}, {...}]
+  ```
 
 
 - detection + recognition
 
-If you don't enter the parameters related to classification, it will skip and only perform detection+recognition.
+  If you don't enter the parameters related to classification, it will skip and only perform detection+recognition.
 
-```shell
-python infer.py \
-    --input_images_dir=/path/to/images \
-    --det_model_path=/path/to/mindir/dbnet_resnet50.mindir \
-    --det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
-    --rec_model_path=/path/to/mindir/crnn_resnet34.mindir \
-    --rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
-    --res_save_dir=det_rec \
-    --vis_pipeline_save_dir=det_rec
-```
+  ```shell
+  python infer.py \
+      --input_images_dir=/path/to/images \
+      --det_model_path=/path/to/mindir/dbnet_resnet50.mindir \
+      --det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
+      --rec_model_path=/path/to/mindir/crnn_resnet34.mindir \
+      --rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
+      --res_save_dir=det_rec \
+      --vis_pipeline_save_dir=det_rec
+  ```
 
-The visualization images are stored in det_rec, as shown in the picture.
+  The visualization images are stored in det_rec folder, as shown in the picture.
 
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/15178426/253446379-65dc0ee7-7d2a-4680-b1f2-5822493d361a.jpg" width=90% />
-</p>
-<p align="center">
-  <em>Visualization of text detection and recognition result</em>
-</p>
+  <p align="center">
+    <img src="https://user-images.githubusercontent.com/15178426/253446379-65dc0ee7-7d2a-4680-b1f2-5822493d361a.jpg" width=90% />
+  </p>
+  <p align="center">
+    <em>Visualization of text detection and recognition result</em>
+  </p>
 
-The recognition results are saved in det_rec/pipeline_results.txt in the following format:
+  The recognition results are saved in det_rec/pipeline_results.txt in the following format:
 
-```
-img_498.jpg	[{"transcription": "keep", "points": [[819.0, 71.0], [888.0, 67.0], [891.0, 104.0], [822.0, 108.0]]}, {...}]
-```
+  ```
+  img_498.jpg	[{"transcription": "keep", "points": [[819.0, 71.0], [888.0, 67.0], [891.0, 104.0], [822.0, 108.0]]}, {...}]
+  ```
 
 - detection
 
-Run text detection alone.
+  Run text detection alone.
 
-```shell
-python infer.py \
-    --input_images_dir=/path/to/images \
-    --det_model_path=/path/to/mindir/dbnet_resnet50.mindir \
-    --det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
-    --res_save_dir=det \
-    --vis_det_save_dir=det
-```
+  ```shell
+  python infer.py \
+      --input_images_dir=/path/to/images \
+      --det_model_path=/path/to/mindir/dbnet_resnet50.mindir \
+      --det_model_name_or_config=../../configs/det/dbnet/db_r50_icdar15.yaml \
+      --res_save_dir=det \
+      --vis_det_save_dir=det
+  ```
 
-The visualization results are stored in the det folder, as shown in the picture.
+  The visualization results are stored in the det folder, as shown in the picture.
 
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/15178426/253494276-c941431c-0936-47f2-a0a9-75a2f048a1e0.jpg" width=60% />
-</p>
-<p align="center">
-  <em>Visualization of text detection result</em>
-</p>
+  <p align="center">
+    <img src="https://user-images.githubusercontent.com/15178426/253494276-c941431c-0936-47f2-a0a9-75a2f048a1e0.jpg" width=60% />
+  </p>
+  <p align="center">
+    <em>Visualization of text detection result</em>
+  </p>
 
-The detection results are saved in the det/det_results.txt file in the following format:
+  The detection results are saved in the det/det_results.txt file in the following format:
 
-```
-img_108.jpg	[[[226.0, 442.0], [402.0, 416.0], [404.0, 433.0], [228.0, 459.0]], [...]]
-```
+  ```
+  img_108.jpg	[[[226.0, 442.0], [402.0, 416.0], [404.0, 433.0], [228.0, 459.0]], [...]]
+  ```
 
 - classification
 
-Run text angle classification alone.
+  Run text angle classification alone.
 
-```shell
-# cls_mv3.mindir is converted from ppocr
-python infer.py \
-    --input_images_dir=/path/to/images \
-    --cls_model_path=/path/to/mindir/cls_mv3.mindir \
-    --cls_model_name_or_config=ch_pp_mobile_cls_v2.0 \
-    --res_save_dir=cls
-```
+  ```shell
+  # cls_mv3.mindir is converted from ppocr
+  python infer.py \
+      --input_images_dir=/path/to/images \
+      --cls_model_path=/path/to/mindir/cls_mv3.mindir \
+      --cls_model_name_or_config=ch_pp_mobile_cls_v2.0 \
+      --res_save_dir=cls
+  ```
 
-The results will be saved in cls/cls_results.txt, with the following format:
+  The results will be saved in cls/cls_results.txt, with the following format:
 
-```
-word_867.png   ["180", 0.5176]
-word_1679.png  ["180", 0.6226]
-word_1189.png  ["0", 0.9360]
-```
+  ```
+  word_867.png   ["180", 0.5176]
+  word_1679.png  ["180", 0.6226]
+  word_1189.png  ["0", 0.9360]
+  ```
 
 - recognition
 
-Run text recognition alone.
+  Run text recognition alone.
 
-```shell
-python infer.py \
-    --input_images_dir=/path/to/images \
-    --rec_model_path=/path/to/mindir/crnn_resnet34.mindir \
-    --rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
-    --res_save_dir=rec
-```
+  ```shell
+  python infer.py \
+      --input_images_dir=/path/to/images \
+      --rec_model_path=/path/to/mindir/crnn_resnet34.mindir \
+      --rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
+      --res_save_dir=rec
+  ```
 
-The results will be saved in rec/rec_results.txt, with the following format:
+  The results will be saved in rec/rec_results.txt, with the following format:
 
-```
-word_421.png   "under"
-word_1657.png  "candy"
-word_1814.png  "cathay"
-```
+  ```
+  word_421.png   "under"
+  word_1657.png  "candy"
+  word_1814.png  "cathay"
+  ```
 
 #### 4.2 Detail of inference parameter
 
 - Basic settings
 
-
-| name             | type | default | description                                              |
-|:-----------------|:-----|:--------|:---------------------------------------------------------|
-| input_images_dir | str  | None    | Image or folder path for inference                       |
-| device           | str  | Ascend  | Device type, support Ascend                              |
-| device_id        | int  | 0       | Device id                                                |
-| backend          | str  | lite    | Inference backend, support acl, lite                     |
-| parallel_num     | int  | 1       | Number of parallel in each stage of pipeline parallelism |
-| precision_mode   | str  | None    | Precision mode, only supports setting by [Model Conversion](convert_tutorial.md) currently, and it takes no effect here |
+  | name             | type | default | description                                              |
+  |:-----------------|:-----|:--------|:---------------------------------------------------------|
+  | input_images_dir | str  | None    | Image or folder path for inference                       |
+  | device           | str  | Ascend  | Device type, support Ascend                              |
+  | device_id        | int  | 0       | Device id                                                |
+  | backend          | str  | lite    | Inference backend, support acl, lite                     |
+  | parallel_num     | int  | 1       | Number of parallel in each stage of pipeline parallelism |
+  | precision_mode   | str  | None    | Precision mode, only supports setting by [Model Conversion](convert_tutorial.md) currently, and it takes no effect here |
 
 - Saving Result
 
-| name                  | type | default           | description                                            |
-|:----------------------|:-----|:------------------|:-------------------------------------------------------|
-| res_save_dir          | str  | inference_results | Saving dir for inference results                       |
-| vis_det_save_dir      | str  | None              | Saving dir for images of with detection boxes          |
-| vis_pipeline_save_dir | str  | None              | Saving dir for images of with detection boxes and text |
-| vis_font_path         | str  | None              | Font path for drawing text                             |
-| crop_save_dir         | str  | None              | Saving path for cropped images after detection         |
-| show_log              | bool | False             | Whether show log when inferring                        |
-| save_log_dir          | str  | None              | Log saving dir                                         |
+  | name                  | type | default           | description                                            |
+  |:----------------------|:-----|:------------------|:-------------------------------------------------------|
+  | res_save_dir          | str  | inference_results | Saving dir for inference results                       |
+  | vis_det_save_dir      | str  | None              | Saving dir for images of with detection boxes          |
+  | vis_pipeline_save_dir | str  | None              | Saving dir for images of with detection boxes and text |
+  | vis_font_path         | str  | None              | Font path for drawing text                             |
+  | crop_save_dir         | str  | None              | Saving path for cropped images after detection         |
+  | show_log              | bool | False             | Whether show log when inferring                        |
+  | save_log_dir          | str  | None              | Log saving dir                                         |
 
 - Text detection
 
-| name                     | type | default | description                                            |
-|:-------------------------|:-----|:--------|:-------------------------------------------------------|
-| det_model_path           | str  | None    | Model path for text detection                          |
-| det_model_name_or_config | str  | None    | Model name or YAML config file path for text detection |
+  | name                     | type | default | description                                            |
+  |:-------------------------|:-----|:--------|:-------------------------------------------------------|
+  | det_model_path           | str  | None    | Model path for text detection                          |
+  | det_model_name_or_config | str  | None    | Model name or YAML config file path for text detection |
 
 - Text angle classification
 
-| name                     | type | default | description                                                       |
-|:-------------------------|:-----|:--------|:------------------------------------------------------------------|
-| cls_model_path           | str  | None    | Model path for text angle classification                          |
-| cls_model_name_or_config | str  | None    | Model name or YAML config file path for text angle classification |
+  | name                     | type | default | description                                                       |
+  |:-------------------------|:-----|:--------|:------------------------------------------------------------------|
+  | cls_model_path           | str  | None    | Model path for text angle classification                          |
+  | cls_model_name_or_config | str  | None    | Model name or YAML config file path for text angle classification |
 
 - Text recognition
 
-| name                     | type | default | description                                                                 |
-|:-------------------------|:-----|:--------|:----------------------------------------------------------------------------|
-| rec_model_path           | str  | None    | Model path for text recognition                                             |
-| rec_model_name_or_config | str  | None    | Model name or YAML config file path for text recognition                    |
-| character_dict_path      | str  | None    | Dict file for text recognition，default only supports numbers and lowercase |
+  | name                     | type | default | description                                                                 |
+  |:-------------------------|:-----|:--------|:----------------------------------------------------------------------------|
+  | rec_model_path           | str  | None    | Model path for text recognition                                             |
+  | rec_model_name_or_config | str  | None    | Model name or YAML config file path for text recognition                    |
+  | character_dict_path      | str  | None    | Dict file for text recognition，default only supports numbers and lowercase |
 
 Notes：
 
@@ -233,116 +232,115 @@ path.
 
 - detection + classification + recognition
 
-```shell
-./dist/infer \
-    --input_images_dir /path/to/images \
-    --backend lite \
-    --det_model_path /path/to/mindir/dbnet_resnet50.mindir \
-    --cls_model_path /path/to/mindir/crnn \
-    --rec_model_path /path/to/mindir/crnn_resnet34.mindir \
-    --character_dict_path /path/to/ppocr_keys_v1.txt \
-    --res_save_dir det_cls_rec
-```
+  ```shell
+  ./dist/infer \
+      --input_images_dir /path/to/images \
+      --backend lite \
+      --det_model_path /path/to/mindir/dbnet_resnet50.mindir \
+      --cls_model_path /path/to/mindir/crnn \
+      --rec_model_path /path/to/mindir/crnn_resnet34.mindir \
+      --character_dict_path /path/to/ppocr_keys_v1.txt \
+      --res_save_dir det_cls_rec
+  ```
 
-The results will be saved in det_cls_rec/pipeline_results.txt, with the following format:
+  The results will be saved in det_cls_rec/pipeline_results.txt, with the following format:
 
-```
-img_478.jpg	[{"transcription": "spa", "points": [[1114, 35], [1200, 0], [1234, 52], [1148, 97]]}, {...}]
-```
+  ```
+  img_478.jpg	[{"transcription": "spa", "points": [[1114, 35], [1200, 0], [1234, 52], [1148, 97]]}, {...}]
+  ```
 
 - detection + recognition
 
-If you don't enter the parameters related to classification, it will skip and only perform detection+recognition.
+  If you don't enter the parameters related to classification, it will skip and only perform detection+recognition.
 
-```shell
-./dist/infer \
-    --input_images_dir /path/to/images \
-    --backend lite \
-    --det_model_path /path/to/mindir/dbnet_resnet50.mindir \
-    --rec_model_path /path/to/mindir/crnn_resnet34.mindir \
-    --character_dict_path /path/to/ppocr_keys_v1.txt \
-    --res_save_dir det_rec
-```
+  ```shell
+  ./dist/infer \
+      --input_images_dir /path/to/images \
+      --backend lite \
+      --det_model_path /path/to/mindir/dbnet_resnet50.mindir \
+      --rec_model_path /path/to/mindir/crnn_resnet34.mindir \
+      --character_dict_path /path/to/ppocr_keys_v1.txt \
+      --res_save_dir det_rec
+  ```
 
-The results will be saved in det_rec/pipeline_results.txt, with the following format:
+  The results will be saved in det_rec/pipeline_results.txt, with the following format:
 
-```
-img_478.jpg	[{"transcription": "spa", "points": [[1114, 35], [1200, 0], [1234, 52], [1148, 97]]}, {...}]
-```
+  ```
+  img_478.jpg	[{"transcription": "spa", "points": [[1114, 35], [1200, 0], [1234, 52], [1148, 97]]}, {...}]
+  ```
 
 - detection
 
-Run text detection alone.
+  Run text detection alone.
 
-```shell
-./dist/infer \
-    --input_images_dir /path/to/images \
-    --backend lite \
-    --det_model_path /path/to/mindir/dbnet_resnet50.mindir \
-    --res_save_dir det
-```
+  ```shell
+  ./dist/infer \
+      --input_images_dir /path/to/images \
+      --backend lite \
+      --det_model_path /path/to/mindir/dbnet_resnet50.mindir \
+      --res_save_dir det
+  ```
 
-The results will be saved in det/det_results.txt, with the following format:
+  The results will be saved in det/det_results.txt, with the following format:
 
-```
-img_478.jpg    [[[1114, 35], [1200, 0], [1234, 52], [1148, 97]], [...]]]
-```
+  ```
+  img_478.jpg    [[[1114, 35], [1200, 0], [1234, 52], [1148, 97]], [...]]]
+  ```
 
 - classification
 
-Run text angle classification alone.
+  Run text angle classification alone.
 
-```shell
-./dist/infer \
-    --input_images_dir /path/to/images \
-    --backend lite \
-    --cls_model_path /path/to/mindir/crnn \
-    --res_save_dir cls
-```
+  ```shell
+  ./dist/infer \
+      --input_images_dir /path/to/images \
+      --backend lite \
+      --cls_model_path /path/to/mindir/crnn \
+      --res_save_dir cls
+  ```
 
-The results will be saved in cls/cls_results.txt, with the following format:
+  The results will be saved in cls/cls_results.txt, with the following format:
 
-```
-word_867.png   ["180", 0.5176]
-word_1679.png  ["180", 0.6226]
-word_1189.png  ["0", 0.9360]
-```
+  ```
+  word_867.png   ["180", 0.5176]
+  word_1679.png  ["180", 0.6226]
+  word_1189.png  ["0", 0.9360]
+  ```
 
 #### 5.2 Detail of inference parameter
 
 - Basic settings
 
-
-| name             | type | default | description                                              |
-|:-----------------|:-----|:--------|:---------------------------------------------------------|
-| input_images_dir | str  | None    | Image or folder path for inference                       |
-| device           | str  | Ascend  | Device type, support Ascend                              |
-| device_id        | int  | 0       | Device id                                                |
-| backend          | str  | acl     | Inference backend, support acl, lite                     |
-| parallel_num     | int  | 1       | Number of parallel in each stage of pipeline parallelism |
+  | name             | type | default | description                                              |
+  |:-----------------|:-----|:--------|:---------------------------------------------------------|
+  | input_images_dir | str  | None    | Image or folder path for inference                       |
+  | device           | str  | Ascend  | Device type, support Ascend                              |
+  | device_id        | int  | 0       | Device id                                                |
+  | backend          | str  | acl     | Inference backend, support acl, lite                     |
+  | parallel_num     | int  | 1       | Number of parallel in each stage of pipeline parallelism |
 
 - Saving Result
 
-| name         | type | default           | description                      |
-|:-------------|:-----|:------------------|:---------------------------------|
-| res_save_dir | str  | inference_results | Saving dir for inference results |
+  | name         | type | default           | description                      |
+  |:-------------|:-----|:------------------|:---------------------------------|
+  | res_save_dir | str  | inference_results | Saving dir for inference results |
 
 - Text detection
 
-| name           | type | default | description                   |
-|:---------------|:-----|:--------|:------------------------------|
-| det_model_path | str  | None    | Model path for text detection |
+  | name           | type | default | description                   |
+  |:---------------|:-----|:--------|:------------------------------|
+  | det_model_path | str  | None    | Model path for text detection |
 
 - Text angle classification
 
-| name           | type | default | description                              |
-|:---------------|:-----|:--------|:-----------------------------------------|
-| cls_model_path | str  | None    | Model path for text angle classification |
+  | name           | type | default | description                              |
+  |:---------------|:-----|:--------|:-----------------------------------------|
+  | cls_model_path | str  | None    | Model path for text angle classification |
 
 - Text recognition
 
-| name                | type | default | description                                                                 |
-|:--------------------|:-----|:--------|:----------------------------------------------------------------------------|
-| rec_model_path      | str  | None    | Model path for text recognition                                             |
-| rec_config_path     | str  | None    | Config file for text recognition                                            |
-| character_dict_path | str  | None    | Dict file for text recognition，default only supports numbers and lowercase |
+  | name                | type | default | description                                                                 |
+  |:--------------------|:-----|:--------|:----------------------------------------------------------------------------|
+  | rec_model_path      | str  | None    | Model path for text recognition                                             |
+  | rec_config_path     | str  | None    | Config file for text recognition                                            |
+  | character_dict_path | str  | None    | Dict file for text recognition，default only supports numbers and lowercase |

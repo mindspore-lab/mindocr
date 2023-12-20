@@ -53,51 +53,62 @@ Among them, `config.txt` can be used to set the shape and inference precision of
 
 - **Static Shape**
 
-If the input name of the exported model is `x`, and the input shape is `(1,3,736,1280)`, then the `config.txt` is as follows:
+    If the input name of the exported model is `x`, and the input shape is `(1,3,736,1280)`, then the `config.txt` is as follows:
 
-```
-[ascend_context]
-input_format=NCHW
-input_shape=x:[1,3,736,1280]
-```
+    ```text
+    [ascend_context]
+    input_format=NCHW
+    input_shape=x:[1,3,736,1280]
+    ```
 
-The generated output.mindir is a static shape version, and the input image during inference needs to be resized to this input_shape to meet the input requirements.
+    The generated output.mindir is a static shape version, and the input image during inference needs to be resized to this input_shape to meet the input requirements.
 
-In some inference scenarios, such as detecting a target and then executing the target recognition network, the number and size of targets is not fixed resulting. If each inference is computed at the maximum Batch Size or maximum Image Size, it will result in wasted computational resources.
+- **Dynamic Shape(scaling)**
 
-Assuming the exported model input shape is (-1, 3, -1, -1), and the NHW axes are dynamic. Therefore, some optional values can be set during model conversion to adapt to input images of various size during inference.
+    In some inference scenarios, such as detecting a target and then executing the target recognition network, the number and size of targets is not fixed resulting. If each inference is computed at the maximum Batch Size or maximum Image Size, it will result in wasted computational resources.
 
-`converter_lite` achieves this by setting the `dynamic_dims` parameter in `[ascend_context]` through `--configFile`. Please refer to the [Dynamic Shape Configuration](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool_ascend.html#dynamic-shape-configuration) for details. We will refer to it as **Model Shape Scaling** for short.
+    Assuming the exported model input shape is (-1, 3, -1, -1), and the NHW axes are dynamic. Therefore, some optional values can be set during model conversion to adapt to input images of various size during inference.
 
-So, there are two options for conversion, by setting different config.txt:
+    `converter_lite` achieves this by setting the `dynamic_dims` parameter in `[ascend_context]` through `--configFile`. Please refer to the [Dynamic Shape Configuration](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool_ascend.html#dynamic-shape-configuration) for details. We will refer to it as **Model Shape Scaling** for short.
 
-- **Dynamic Image Size**
+    So, there are two options for conversion, by setting different config.txt:
 
-N uses fixed values, HW uses multiple optional values, the config.txt is as follows:
+    - **Dynamic Image Size**
 
-```shell
- [ascend_context]
- input_format=NCHW
- input_shape=x:[1,3,-1,-1]
- dynamic_dims=[736,1280],[768,1280],[896,1280],[1024,1280]
-```
+        N uses fixed values, HW uses multiple optional values, the config.txt is as follows:
 
-- **Dynamic Batch Size**
+        ```shell
+        [ascend_context]
+        input_format=NCHW
+        input_shape=x:[1,3,-1,-1]
+        dynamic_dims=[736,1280],[768,1280],[896,1280],[1024,1280]
+        ```
 
-N uses multiple optional values, HW uses fixed values, the config.txt is as follows:
+    - **Dynamic Batch Size**
 
-```shell
- [ascend_context]
- input_format=NCHW
- input_shape=x:[-1,3,736,1280]
- dynamic_dims=[1],[4],[8],[16],[32]
-```
+        N uses multiple optional values, HW uses fixed values, the config.txt is as follows:
 
-When converting the dynamic batch size/image size model, the option of NHW values can be set by the user based on empirical values or calculated from the dataset.
+        ```shell
+        [ascend_context]
+        input_format=NCHW
+        input_shape=x:[-1,3,736,1280]
+        dynamic_dims=[1],[4],[8],[16],[32]
+        ```
 
-If your model needs to support both dynamic batch size and dynamic image size togather, you can combine multiple models with different batch size, each using the same dynamic image size.
+    When converting the dynamic batch size/image size model, the option of NHW values can be set by the user based on empirical values or calculated from the dataset.
 
-In order to simplify the model conversion process, we have developed an automatic tool that can complete the dynamic value selection and model conversion. For detailed tutorials, please refer to [Model Shape Scaling](convert_dynamic.md).
+    If your model needs to support both dynamic batch size and dynamic image size togather, you can combine multiple models with different batch size, each using the same dynamic image size.
+
+    In order to simplify the model conversion process, we have developed an automatic tool that can complete the dynamic value selection and model conversion. For detailed tutorials, please refer to [Model Shape Scaling](convert_dynamic.md).
+
+- **Dynamic Shape**
+
+    The diffenece between `Dynamic Shape` and `Dynamic Shape(scaling)` is that `Dynamic Shape` mode can adapt diverse batch size and input shape, the config.txt is as follows:
+    ```text
+    [acl_build_options]
+    input_format=NCHW
+    input_shape_range=x:[-1,3,-1,-1]
+    ```
 
 **Notes:**
 
@@ -152,9 +163,9 @@ The [example](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/doc/doc
 # git clone https://github.com/PaddlePaddle/PaddleOCR.git
 # cd PaddleOCR
 python tools/export_model.py \
-	-c configs/det/det_r50_vd_db.yml \
-	-o Global.pretrained_model=./det_r50_vd_db_v2.0_train/best_accuracy  \
-	Global.save_inference_dir=./det_db
+    -c configs/det/det_r50_vd_db.yml \
+    -o Global.pretrained_model=./det_r50_vd_db_v2.0_train/best_accuracy  \
+    Global.save_inference_dir=./det_db
 ```
 
 #### 2.2 Inference model -> ONNX
@@ -211,59 +222,61 @@ The exported ONNX in the example has an input shape of (-1, 3, -1, -1).
 
 - **Static Shape**
 
-It can be converted to a static shape version by fixed values for NHW, the command is as follows:
+    It can be converted to a static shape version by fixed values for NHW, the command is as follows:
 
-```shell
-atc --model=det_db.onnx \
-	--framework=5 \
-	--input_shape="x:1,3,736,1280" \
-	--input_format=ND \
-	--soc_version=Ascend310P3 \
-	--output=det_db_static \
-	--log=error
-```
+    ```shell
+    atc --model=det_db.onnx \
+        --framework=5 \
+        --input_shape="x:1,3,736,1280" \
+        --input_format=ND \
+        --soc_version=Ascend310P3 \
+        --output=det_db_static \
+        --log=error
+    ```
 
-The generated file is a static shape version, and the input image during inference needs to be resized to this input_shape to meet the input requirements.
+    The generated file is a static shape version, and the input image during inference needs to be resized to this input_shape to meet the input requirements.
 
-The ATC tool also supports **Model Shape Scaling** by parameter [dynamic_dims](https://www.hiascend.com/document/detail/en/CANNCommunityEdition/600alphaX/infacldevg/atctool/atctool_0056.html), and some optional values can be set during model conversion to adapt to input images of various shape during inference.
+- **Dynamic Shape(Scaling)**
 
-So, there are two options for conversion, by setting different command line parameters:
+    The ATC tool also supports **Model Shape Scaling** by parameter [dynamic_dims](https://www.hiascend.com/document/detail/en/CANNCommunityEdition/600alphaX/infacldevg/atctool/atctool_0056.html), and some optional values can be set during model conversion to adapt to input images of various shape during inference.
 
-- **Dynamic Image Size**
+    So, there are two options for conversion, by setting different command line parameters:
 
-N uses fixed values, HW uses multiple optional values, the command is as follows:
+    - **Dynamic Image Size**
 
-```shell
-atc --model=det_db.onnx \
-	--framework=5 \
-	--input_shape="x:1,3,-1,-1" \
-	--input_format=ND \
-	--dynamic_dims="736,1280;768,1280;896,1280;1024,1280" \
-	--soc_version=Ascend310P3 \
-	--output=det_db_dynamic_bs \
-	--log=error
-```
+        N uses fixed values, HW uses multiple optional values, the command is as follows:
 
-- **Dynamic Batch Size**
+        ```shell
+        atc --model=det_db.onnx \
+            --framework=5 \
+            --input_shape="x:1,3,-1,-1" \
+            --input_format=ND \
+            --dynamic_dims="736,1280;768,1280;896,1280;1024,1280" \
+            --soc_version=Ascend310P3 \
+            --output=det_db_dynamic_bs \
+            --log=error
+        ```
 
-N uses multiple optional values, HW uses fixed values, the command is as follows:
+    - **Dynamic Batch Size**
 
-```shell
-atc --model=det_db.onnx \
-	--framework=5 \
-	--input_shape="x:-1,3,736,1280" \
-	--input_format=ND \
-	--dynamic_dims="1;4;8;16;32" \
-	--soc_version=Ascend310P3 \
-	--output=det_db_dynamic_bs \
-	--log=error
-```
+        N uses multiple optional values, HW uses fixed values, the command is as follows:
 
-When converting the dynamic batch size/image size model, the option of NHW values can be set by the user based on empirical values or calculated from the dataset.
+        ```shell
+        atc --model=det_db.onnx \
+            --framework=5 \
+            --input_shape="x:-1,3,736,1280" \
+            --input_format=ND \
+            --dynamic_dims="1;4;8;16;32" \
+            --soc_version=Ascend310P3 \
+            --output=det_db_dynamic_bs \
+            --log=error
+        ```
 
-If your model needs to support both dynamic batch size and dynamic image size togather, you can combine multiple models with different batch size, each using the same dynamic image size.
+    When converting the dynamic batch size/image size model, the option of NHW values can be set by the user based on empirical values or calculated from the dataset.
 
-In order to simplify the model conversion process, we have developed an automatic tool that can complete the dynamic value selection and model conversion. For detailed tutorials, please refer to [Model Shape Scaling](convert_dynamic.md).
+    If your model needs to support both dynamic batch size and dynamic image size togather, you can combine multiple models with different batch size, each using the same dynamic image size.
+
+    In order to simplify the model conversion process, we have developed an automatic tool that can complete the dynamic value selection and model conversion. For detailed tutorials, please refer to [Model Shape Scaling](convert_dynamic.md).
 
 **Notes:**
 
@@ -277,13 +290,13 @@ So, you can add the `precision_mode` parameter in the `atc` command line to set 
 
 ```
 atc --model=det_db.onnx \
-	--framework=5 \
-	--input_shape="x:1,3,736,1280" \
-	--input_format=ND \
-	--precision_mode=force_fp32 \
-	--soc_version=Ascend310P3 \
-	--output=det_db_static \
-	--log=error
+    --framework=5 \
+    --input_shape="x:1,3,736,1280" \
+    --input_format=ND \
+    --precision_mode=force_fp32 \
+    --soc_version=Ascend310P3 \
+    --output=det_db_static \
+    --log=error
 ```
 
 If not set, defaults to `force_fp16`.

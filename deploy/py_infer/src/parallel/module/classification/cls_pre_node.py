@@ -1,6 +1,7 @@
+import copy
+
 from ....data_process.utils import gear_utils
 from ....infer import TaskType, TextClassifier
-from ...datatype import ProcessData
 from ...framework import ModuleBase
 
 
@@ -34,10 +35,8 @@ class ClsPreNode(ModuleBase):
         _, split_data = self.text_classifier.preprocess(images)
 
         # len(images) <= cls_batch_num, so len(split_data) == 1
-        send_data = ProcessData(
-            data=split_data[0],
-            image_path=input_data.image_path,
-        )
+        send_data = copy.copy(input_data)
+        send_data.data = split_data[0]
 
         self.send_to_next_module(send_data)
 
@@ -50,13 +49,10 @@ class ClsPreNode(ModuleBase):
         split_sub_results = gear_utils.split_by_size(sub_results, split_sub_bs)
 
         for split_image, split_data, split_result in zip(split_sub_images, split_sub_data, split_sub_results):
-            send_data = ProcessData(
-                sub_image_size=len(split_image),
-                sub_image_list=split_image,
-                infer_result=split_result,
-                data=split_data,
-                image_path=input_data.image_path,
-                frame=input_data.frame,
-                sub_image_total=input_data.sub_image_total,
-            )
+            send_data = copy.copy(input_data)
+            send_data.sub_image_size = len(split_image)
+            send_data.sub_image_list = split_image
+            send_data.infer_result = split_result
+            send_data.data = split_data
+
             self.send_to_next_module(send_data)

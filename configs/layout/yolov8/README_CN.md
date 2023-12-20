@@ -43,7 +43,7 @@ Table Format:
 
 **注意:**
 
-- 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。例如，D910x8-MS2.2-G 用于使用图模式在4张昇腾910 NPU上依赖Mindspore2.2版本进行训练。
+- 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。例如，D910x4-MS2.2-G 用于使用图模式在4张昇腾910 NPU上依赖Mindspore2.2版本进行训练。
 - 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
 - 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[PubLayNet数据集准备](#3.1.2 PubLayNet数据集准备)章节。
 - YOLOv8的MindIR导出时的输入Shape均为(1, 3, 800, 800)。
@@ -154,7 +154,7 @@ python tools/eval.py --config configs/layout/yolov8/yolov8n.yaml
 python tools/export.py --model_name_or_config configs/layout/yolov8/yolov8n.yaml --data_shape 800 800 --local_ckpt_path /path/to/local_ckpt.ckpt
 ```
 
-其中，`data_shape`是导出MindIR时的模型输入Shape的height和width，下载链接中MindIR对应的shape值见[注释](#2-评估结果)。
+其中，`data_shape`是导出MindIR时的模型输入Shape的height和width，下载链接中MindIR对应的shape值见[注释](#2-评估结果)。yaml中的`distribute`需要被设置为False。
 
 **2. 环境搭建**
 

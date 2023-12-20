@@ -17,27 +17,36 @@ class HandoutNode(ModuleBase):
     def init_self_args(self):
         super().init_self_args()
 
-    def process(self, input_data):
-        if isinstance(input_data, StopSign):
+    def process(self, input_mix_data):
+        if isinstance(input_mix_data, StopSign):
             data = self.process_stop_sign()
             self.send_to_next_module(data)
-        elif isinstance(input_data, np.ndarray):
+        elif isinstance(input_mix_data, np.ndarray):
+            input_data, info_data = input_mix_data
             data = self.process_image_array([input_data])
+            data.task_images_num = info_data[0]
+            data.taskid = info_data[1]
+            data.data_type = 1
             self.send_to_next_module(data)
-        elif isinstance(input_data, (tuple, list)):
+        elif isinstance(input_mix_data, (tuple, list)):
+            input_data, info_data = input_mix_data
             if len(input_data) == 0:
                 return
             if cv_utils.check_type_in_container(input_data, str):
                 data = self.process_image_path(input_data)
+                data.data_type = 0
             elif cv_utils.check_type_in_container(input_data, np.ndarray):
                 data = self.process_image_array(input_data)
+                data.data_type = 1
             else:
-                ValueError(
+                raise ValueError(
                     "unknown input data, input_data should be StopSign, or tuple&list contains str or np.ndarray"
                 )
+            data.task_images_num = info_data[0]
+            data.taskid = info_data[1]
             self.send_to_next_module(data)
         else:
-            raise ValueError(f"unknown input data: {type(input_data)}")
+            raise ValueError(f"unknown input data: {type(input_mix_data)}")
 
     def process_image_path(self, image_path_list):
         """
@@ -56,18 +65,22 @@ class HandoutNode(ModuleBase):
         array_save_path = []
         image_num = len(image_array_list)
         for i in range(image_num):
-            image_path = os.path.join(self.args.input_array_save_dir, f"input_array_{self.image_total}.jpg")
-            if len(image_array_list[i].shape) != 3:
-                log.info(f"image_array_list[{i}] with shape {image_array_list[i].shape} is invalid")
-                continue
-            try:
-                cv_utils.img_write(image_path, image_array_list[i])
-            except cv2.error:
-                log.info(f"Failed to write image_array_list[{i}] with shape {image_array_list[i].shape}")
-                continue
-            log.info(f"sending array(saved at {image_path}) to pipleine")
+            if self.args.input_array_save_dir:
+                image_path = os.path.join(self.args.input_array_save_dir, f"input_array_{self.image_total}.jpg")
+                if len(image_array_list[i].shape) != 3:
+                    log.info(f"image_array_list[{i}] array with shape {image_array_list[i].shape} is invalid")
+                    continue
+                try:
+                    cv_utils.img_write(image_path, image_array_list[i])
+                except cv2.error:
+                    log.info(f"image_array_list[{i}] with shape {image_array_list[i].shape} array is invalid")
+                    continue
+                log.info(f"sending array(saved at {image_path}) to pipleine")
+                array_save_path.append(image_path)
+            else:
+                array_save_path.append(str(i))
             frames.append(image_array_list[i])
-            array_save_path.append(image_path)
+
             self.image_total += 1
         data = ProcessData(frame=frames, image_path=array_save_path)
         return data
