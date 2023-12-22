@@ -114,8 +114,8 @@ python tools/eval.py \
 
 ### 3. 模型推理-快速指南
 
-你可以在MindOCR中使用MindSpore Lite对MindOCR自研模型或第三方模型（如PaddleOCR、MMOCR等）进行推理。
-请见[MindOCR自研模型推理-快速开始](inference/inference_quickstart.md)或[第三方模型推理-快速开始](inference/inference_thirdparty_quickstart.md)。
+你可以在MindOCR中使用MindSpore Lite对MindOCR原生模型或第三方模型（如PaddleOCR、MMOCR等）进行推理。
+请见[MindOCR原生模型推理-快速开始](inference/inference_quickstart.md)或[第三方模型推理-快速开始](inference/inference_thirdparty_quickstart.md)。
 
 ## 使用教程
 
