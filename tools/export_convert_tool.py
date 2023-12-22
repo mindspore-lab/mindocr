@@ -1,29 +1,13 @@
 import sys
 import os
 
-import pytest
-
-sys.path.append("../../")
 import subprocess
 from abc import ABCMeta,abstractmethod
 from collections import defaultdict
 
-sys.path.append("data")
+from .data_for_export_convert import *  # noqa
 
-from data_for_export import data_info_for_converte_static_model_from_download_mindir
-from data_for_export import data_info_for_converte_static_model_from_exported_mindir
-from data_for_export import data_info_for_converte_dynamic_model_from_exported_mindir
-
-from data_for_export import data_info_for_export_static_model
-from data_for_export import data_info_for_export_dynamic_model
-
-output_path = "./output"
-
-path_exported_static_model = "/home/zhq/code/codehub/models/models_from_205_ms22/export_static_rst"
-path_exported_dynamic_model = "/home/zhq/code/codehub/models/models_from_205_ms22/export_dynamic_rst"
-
-
-class BaseTestConvertModel(metaclass=ABCMeta):
+class BaseConvertModel(metaclass=ABCMeta):
     def __init__(self, convert_tool, benchmark_tool, models_info, save_path, log_file, config_file) -> None:
         self.convert_tool = convert_tool
         self.benchmark_tool = benchmark_tool
@@ -49,8 +33,19 @@ class BaseTestConvertModel(metaclass=ABCMeta):
             f.write("input_format=NCHW\n")
             f.write(f"input_shape_range={var}:[{data_shape}]")
 
-    def convert_mindir(self, model, info, mindir_path):
+    def convert_mindir(self, model, info, mindir_path, force=False):
         converted_model_path = os.path.join(self.save_path, model + f'_{info}')
+        if os.path.exists(f"{converted_model_path}.mindir"):
+            if not force:
+                log = f"{converted_model_path}.mindir exists. You can set `force=True` to overwrite this file."
+                subprocess.call(f"echo {log}".split(), stdout=self.log_handle, stderr=self.log_handle)
+                print(log)
+                return False
+            else:
+                log = f"{converted_model_path}.mindir exists and it will be overwrited if exported successfully."
+                subprocess.call(f"echo {log}".split(), stdout=self.log_handle, stderr=self.log_handle)
+                print(log)
+
         command = f"{self.convert_tool} --fmk=MINDIR --modelFile={mindir_path} --outputFile={converted_model_path} --optimize=ascend_oriented --configFile={self.config_file}"
         print(f"\033[34mConvert Command\033[0m: {command}")
         subprocess.call(f"echo Convert Command: {command}".split(), stdout=self.log_handle, stderr=self.log_handle)
@@ -59,7 +54,7 @@ class BaseTestConvertModel(metaclass=ABCMeta):
             print(f"\033[32mConvert Success\033[0m: {converted_model_path}.mindir")
             subprocess.call(f"echo Convert Success: {converted_model_path}.mindir".split(), stdout=self.log_handle, stderr=self.log_handle)
         else:
-            print("\033[31mConvert Failed \033[0m")y
+            print("\033[31mConvert Failed \033[0m")
             subprocess.call(f"echo Convert Failed: {converted_model_path}.mindir".split(), stdout=self.log_handle, stderr=self.log_handle)
         return ret
 
@@ -91,24 +86,34 @@ class BaseTestConvertModel(metaclass=ABCMeta):
                 subprocess.call("echo Infer Dynamic Shape Failed".split(), stdout=self.log_handle, stderr=self.log_handle)
             rets.append(ret)
         return rets
-
-    def run(self):
+    
+    def run(self, models=None, force=False):
         count = 0
-        for model in self.models_info.keys():
-            print(f"\033[36mTesting model:{model}, {count+1}/{len(self.models_info)}\033[0m")
-            self.run_single(model)
-            count += 1
+        if not models:
+            for model in self.models_info.keys():
+                print(f"\033[36mConverting model:{model}, {count+1}/{len(self.models_info)}\033[0m")
+                self.run_single(model, force)
+                count += 1
+        elif isinstance(models, (tuple, list)):
+            for model in models:
+                print(f"\033[36mConverting model:{model}, {count+1}/{len(models)}\033[0m")
+                self.run_single(model, force)
+                count += 1
+        elif isinstance(models, str):
+            self.run([models], force)
+        else:
+            raise ValueError("models should be None, tuple&list containing str, or str.")
 
     def __del__(self):
         self.log_handle.close()
 
     @abstractmethod
-    def run_single(self, model):
+    def run_single(self, model, force=False):
         print('Func run_single is an abstract function.')
 
-class TestConvertStaticModelFromDownloadMindir(BaseTestConvertModel):
+class ConvertStaticModelFromDownloadMindir(BaseConvertModel):
     def __init__(self, convert_tool, benchmark_tool, models_info, download_path, save_path, log_file, config_file) -> None:
-        super(TestConvertStaticModelFromDownloadMindir, self).__init__(convert_tool, benchmark_tool, models_info, save_path, log_file, config_file)
+        super(ConvertStaticModelFromDownloadMindir, self).__init__(convert_tool, benchmark_tool, models_info, save_path, log_file, config_file)
         self.download_path = download_path
         self.info = "lite_static"
         if not os.path.exists(download_path):
@@ -123,12 +128,12 @@ class TestConvertStaticModelFromDownloadMindir(BaseTestConvertModel):
         else:
             return 0, os.path.join(self.download_path, mindir_name)
 
-    def run_single(self, model):
+    def run_single(self, model, force=False):
         info = self.models_info[model]
         self.record[model] = {'Static Convert': False, 'Static Benchmark': False, 'Static Shape': info['data_shape']}
         _, download_mindir_path = self.mindir_download(info['mindir_name'], info['mindir_url'])
         self.generate_static_shape_config_file(info['var'], info['data_shape'])
-        ret = self.convert_mindir(model, self.info, download_mindir_path)
+        ret = self.convert_mindir(model, self.info, download_mindir_path, force)
         if ret == 0:
             self.record[model]['Static Convert'] = True
             converted_model_path = os.path.join(self.save_path, model + f'_{self.info}.mindir')
@@ -146,18 +151,18 @@ class TestConvertStaticModelFromDownloadMindir(BaseTestConvertModel):
             table.add_row([model, static_convert, static_benchmark, info['Static Shape']])
         print(table)
 
-class TestConvertStaticModelFromExportedMindir(BaseTestConvertModel):
+class ConvertStaticModelFromExportedMindir(BaseConvertModel):
     def __init__(self, convert_tool, benchmark_tool, models_info, exported_path, save_path, log_file, config_file) -> None:
-        super(TestConvertStaticModelFromExportedMindir, self).__init__(convert_tool, benchmark_tool, models_info, save_path, log_file, config_file)
+        super(ConvertStaticModelFromExportedMindir, self).__init__(convert_tool, benchmark_tool, models_info, save_path, log_file, config_file)
         self.exported_path = exported_path
         self.info = "lite_static"
 
-    def run_single(self, model):
+    def run_single(self, model, force=False):
         info = self.models_info[model]
         self.record[model] = {'Static Convert': False, 'Static Benchmark': False, 'Static Shape': info['data_shape']}
         self.generate_static_shape_config_file(info['var'], info['data_shape'])
         exported_mindir_path = os.path.join(self.exported_path, info['mindir_name'])
-        ret = self.convert_mindir(model, self.info, exported_mindir_path)
+        ret = self.convert_mindir(model, self.info, exported_mindir_path, force)
         if ret == 0:
             self.record[model]['Static Convert'] = True
             converted_model_path = os.path.join(self.save_path, model + f'_{self.info}.mindir')
@@ -175,20 +180,20 @@ class TestConvertStaticModelFromExportedMindir(BaseTestConvertModel):
             table.add_row([model, static_convert, static_benchmark, info['Static Shape']])
         print(table)
 
-class TestConvertDynamicModelFromExportedMindir(BaseTestConvertModel):
+class ConvertDynamicModelFromExportedMindir(BaseConvertModel):
     def __init__(self, convert_tool, benchmark_tool, models_info, exported_path, save_path, log_file, config_file) -> None:
-        super(TestConvertDynamicModelFromExportedMindir, self).__init__(convert_tool, benchmark_tool, models_info, save_path, log_file, config_file)
+        super(ConvertDynamicModelFromExportedMindir, self).__init__(convert_tool, benchmark_tool, models_info, save_path, log_file, config_file)
         self.exported_path = exported_path
         self.infer_max_num = 0
         self.info = "lite_dynamic"
 
-    def run_single(self, model):
+    def run_single(self, model, force=False):
         info = self.models_info[model]
         self.record[model] = defaultdict(lambda : ("", 0))
         self.record[model]['Dynamic Convert'] = False
         self.generate_dynamic_shape_config_file(info['var'], info['data_shape'])
         exported_mindir_path = os.path.join(self.exported_path, info['mindir_name'])
-        ret = self.convert_mindir(model, self.info, exported_mindir_path)
+        ret = self.convert_mindir(model, self.info, exported_mindir_path, force)
         self.infer_max_num = max(self.infer_max_num, len(info['infer_shape_list']))
         if ret == 0:
             self.record[model]['Dynamic Convert'] = True
@@ -215,7 +220,7 @@ class TestConvertDynamicModelFromExportedMindir(BaseTestConvertModel):
             table.add_row(content)
         print(table)
 
-class BaseTestExportModel(metaclass=ABCMeta):
+class BaseExportModel(metaclass=ABCMeta):
     def __init__(self, models_info, save_path, log_file) -> None:
         self.models_info = models_info
         self.save_path = save_path
@@ -226,46 +231,81 @@ class BaseTestExportModel(metaclass=ABCMeta):
         self.log_handle = open(self.log_file, 'w')
         self.record = {}
 
-    def export_mindir(self, model, is_dynamic, data_shape_h_w, model_type):
-        exported_model_path = os.path.join(self.save_path, 'model.mindir')
-        command = f"bash ../../tools/export_tool.sh -c={model} -d={self.save_path} -D={is_dynamic} -H={data_shape_h_w[0]} " + \
-            f"-W={data_shape_h_w[1]} -T={model_type}"
+    def export_mindir(self, model, is_dynamic, data_shape_h_w, model_type, ckpt_path=None, force=False):
+        exported_model_path = os.path.join(self.save_path, f'{model}.mindir')
+
+        model_name = os.path.splitext(os.path.basename(model))[0]
+        export_mindir_filename = f"{model_name}.mindir"
+        export_mindir_path = os.path.join(self.save_path, export_mindir_filename)
+        if os.path.exists(export_mindir_path):
+            if not force:
+                log = f"{export_mindir_path} exists. You can set `force=True` to overwrite this file."
+                subprocess.call(f"echo {log}".split(), stdout=self.log_handle, stderr=self.log_handle)
+                print(log)
+                return False
+            else:
+                log = f"{export_mindir_path} exists and it will be overwrited if exported successfully."
+                subprocess.call(f"echo {log}".split(), stdout=self.log_handle, stderr=self.log_handle)
+                print(log)
+
+        command = f"python export.py --model_name_or_config {model} --save_dir {self.save_path}"
+
+        if ckpt_path and os.path.exists(ckpt_path):
+            command = f"{command} --local_ckpt_path {ckpt_path}"
+        
+        if is_dynamic:
+            command = f"{command} --is_dynamic_shape {is_dynamic} --model_type {model_type}"
+        else:
+            command = f"{command} --is_dynamic_shape {is_dynamic} --data_shape {data_shape_h_w[0]} {data_shape_h_w[1]}"
+
         subprocess.call(f"echo Export Command: {command}".split(), stdout=self.log_handle, stderr=self.log_handle)
         print(f"\033[34mExport Command\033[0m: {command}")
-        ret = subprocess.call(command.split(), stdout=self.log_handle, stderr=self.log_handle)
+        subprocess.call(command.split(), stdout=self.log_handle, stderr=self.log_handle)
         
-        if ret == 0:
+        if os.path.exists(export_mindir_path):
             print(f"\033[32mExport Success\033[0m: {exported_model_path}")
             self.log_handle.write(f"Export Success: {exported_model_path}")
+            return True
         else:
             print("\033[31mExport Failed \033[0m")
             self.log_handle.write("Export Failed")
-        return ret
+            return False
 
-    def run(self):
+    def run(self, models=None, force=False):
         count = 0
-        for model in self.models_info.keys():
-            print(f"\033[36mTesting model:{model}, {count+1}/{len(self.models_info)}\033[0m")
-            self.run_single(model)
-            count += 1
+        if not models:
+            for model in self.models_info.keys():
+                print(f"\033[36mExporting model:{model}, {count+1}/{len(self.models_info)}\033[0m")
+                self.run_single(model, force)
+                count += 1
+        elif isinstance(models, (tuple, list)):
+            for model in models:
+                print(f"\033[36mExporting model:{model}, {count+1}/{len(models)}\033[0m")
+                self.run_single(model, force)
+                count += 1
+        elif isinstance(models, str):
+            self.run([models], force)
+        else:
+            raise ValueError("models should be None, tuple&list containing str, or str.")
+
 
     def __del__(self):
         self.log_handle.close()
 
     @abstractmethod
-    def run_single(self, model):
+    def run_single(self, model, force=False):
         print('Func run_single is an abstract function.')
 
-class TestExportStaticModel(BaseTestExportModel):
+class ExportStaticModel(BaseExportModel):
     def __init__(self, models_info, save_path, log_file) -> None:
-        super(TestExportStaticModel, self).__init__(models_info, save_path, log_file)
+        super(ExportStaticModel, self).__init__(models_info, save_path, log_file)
 
-    def run_single(self, model):
+    def run_single(self, model, force=False):
         info = self.models_info[model]
         self.record[model] = defaultdict(lambda : ("", 0))
         self.record[model]['Static Export'] = False
-        ret = self.export_mindir(model, False, info['data_shape_h_w'], "")
-        if ret == 0:
+        ret = self.export_mindir(model, False, info['data_shape_h_w'], "", None, force)
+        if ret == True:
             self.record[model]['Static Export'] = True
 
     def report(self):
@@ -276,16 +316,16 @@ class TestExportStaticModel(BaseTestExportModel):
             table.add_row([model, static_export])
         print(table)
     
-class TestExportDynamicModel(BaseTestExportModel):
+class ExportDynamicModel(BaseExportModel):
     def __init__(self, models_info, save_path, log_file) -> None:
-        super(TestExportDynamicModel, self).__init__(models_info, save_path, log_file)
+        super(ExportDynamicModel, self).__init__(models_info, save_path, log_file)
 
-    def run_single(self, model):
+    def run_single(self, model, force=False):
         info = self.models_info[model]
         self.record[model] = defaultdict(lambda : ("", 0))
         self.record[model]['Dynamic Export'] = False
-        ret = self.export_mindir(model, True, [-1, -1], info['model_type'])
-        if ret == 0:
+        ret = self.export_mindir(model, True, [-1, -1], info['model_type'], None, force)
+        if ret == True:
             self.record[model]['Dynamic Export'] = True
 
     def report(self):
@@ -296,90 +336,25 @@ class TestExportDynamicModel(BaseTestExportModel):
             table.add_row([model, dynamic_export])
         print(table)
 
-@pytest.mark.parametrize("output_path", output_path)
-def test_convert_static_model_from_download_mindir(output_path):
-    convert_tool = "converter_lite"
-    benchmark_tool = "benchmark"
-    save_path = f"{output_path}/convert_static_from_download"
-    download_path = f"{save_path}/download"
-    log_file = f"{save_path}/log.log"
-    config_file = f"{save_path}/static_config.txt"
-    testcase = TestConvertStaticModelFromDownloadMindir(convert_tool, benchmark_tool, data_info_for_converte_static_model_from_download_mindir, \
-                                             download_path, save_path, log_file, config_file)
-    testcase.run()
-    testcase.report()
-
-@pytest.mark.parametrize("output_path", output_path)
-@pytest.mark.parametrize("path_exported_static_model", path_exported_static_model)
-def test_convert_static_model_from_exported_mindir(output_path, path_exported_static_model):
-    convert_tool = "converter_lite"
-    benchmark_tool = "benchmark"
-    save_path = f"{output_path}/convert_static_from_exported"
-    exported_path = path_exported_static_model
-    log_file = f"{save_path}/log.log"
-    config_file = f"{save_path}/static_config.txt"
-    testcase = TestConvertStaticModelFromExportedMindir(convert_tool, benchmark_tool, data_info_for_converte_static_model_from_exported_mindir, \
-                                             exported_path, save_path, log_file, config_file)
-    testcase.run()
-    testcase.report()
-
-@pytest.mark.parametrize("output_path", output_path)
-@pytest.mark.parametrize("path_exported_dynamic_model", path_exported_dynamic_model)
-def test_convert_dynamic_model_from_exported_mindir(output_path, path_exported_dynamic_model):
-    convert_tool = "converter_lite"
-    benchmark_tool = "benchmark"
-    save_path = f"{output_path}/convert_dynamic_from_exported"
-    exported_path = path_exported_dynamic_model
-    log_file = f"{save_path}/log.log"
-    config_file = f"{save_path}/dynamic_config.txt"
-    testcase = TestConvertDynamicModelFromExportedMindir(convert_tool, benchmark_tool, data_info_for_converte_dynamic_model_from_exported_mindir, \
-                                             exported_path, save_path, log_file, config_file)
-    testcase.run()
-    testcase.report()
-
-@pytest.mark.parametrize("output_path", output_path)
-def test_export_static_model(output_path):
-    save_path = f"{output_path}/export_static"
-    log_file = f"{save_path}/log.log"
-    testcase = TestExportStaticModel(data_info_for_export_static_model, save_path, log_file)
-    testcase.run()
-    testcase.report()
-
-@pytest.mark.parametrize("output_path", output_path)
-def test_export_dynamic_model(output_path):
-    save_path = f"{output_path}/export_dynamic"
-    log_file = f"{save_path}/log.log"
-    testcase = TestExportDynamicModel(data_info_for_export_dynamic_model, save_path, log_file)
-    testcase.run()
-    testcase.report()
-
 
 if __name__ == "__main__":
-    test_convert_static_model_from_download_mindir(output_path)
-
-    test_convert_static_model_from_exported_mindir(output_path, path_exported_static_model)
-
-    test_convert_dynamic_model_from_exported_mindir(output_path, path_exported_dynamic_model)
-
-    test_export_static_model(output_path)
-
-    test_export_dynamic_model(output_path)
+    output_path = "./output"
 
     # export static model. e.g. dbnet_resnet50
     save_path = f"{output_path}/export_static"                 # path to save exported static model
     log_file = f"{save_path}/log.log"                          # file to store log
+    model_exporter = ExportStaticModel(data_info_for_export_static_model, save_path, log_file)
     model_name = "dbnet_resnet50"                              # which model to be exported
-    model_exporter = TestExportStaticModel(data_info_for_export_static_model, save_path, log_file)
-    model_exporter.run_single(model_name)
-    model_exporter.report(model_name)
+    model_exporter.run(model_name, force=True)
+    model_exporter.report()
 
 
     # export dynamic model. e.g. dbnet_resnet50
     save_path = f"{output_path}/export_dynamic"                # path to save exported dynamic model
     log_file = f"{save_path}/log.log"                          # file to store log
-    model_name = "dbnet_resnet50"                              # which model to be exported
-    model_exporter = TestExportDynamicModel(data_info_for_export_dynamic_model, save_path, log_file)
-    model_exporter.run_single(model_name)
+    model_exporter = ExportDynamicModel(data_info_for_export_dynamic_model, save_path, log_file)
+    model_name = ["dbnet_resnet50", "crnn_vgg7"]               # which model to be exported
+    model_exporter.run(model_name, force=True)
     model_exporter.report()
 
 
@@ -390,35 +365,35 @@ if __name__ == "__main__":
     download_path = f"{save_path}/download"                    # path to save downloaded model
     log_file = f"{save_path}/log.log"                          # file to store log
     config_file = f"{save_path}/static_config.txt"             # file to store config.txt. It will be generated automatically.
-    model_name = "dbnet_resnet50"                              # which model to be exported
-    model_converter = TestConvertStaticModelFromDownloadMindir(convert_tool, benchmark_tool,
+    model_converter = ConvertStaticModelFromDownloadMindir(convert_tool, benchmark_tool,
         data_info_for_converte_static_model_from_download_mindir, download_path, save_path, log_file, config_file)
-    model_converter.run(model_name)
+    model_name = "dbnet_resnet50"                              # which model to be exported
+    model_converter.run(model_name, force=True)
     model_converter.report()
 
 
     # convert static model from exported model
     convert_tool = "converter_lite"                            # path to converter_lite
     benchmark_tool = "benchmark"                               # path to benchmark
-    save_path = f"{output_path}/convert_static_from_download"  # path to save converted static model
+    save_path = f"{output_path}/convert_static_from_exported"  # path to save converted static model
     exported_path = "path/to/exported/path"                    # path to exported model
     log_file = f"{save_path}/log.log"                          # file to store log
     config_file = f"{save_path}/static_config.txt"             # file to store config.txt. It will be generated automatically.
     model_name = "dbnet_resnet50"                              # which model to be exported
-    model_converter = TestConvertStaticModelFromExportedMindir(convert_tool, benchmark_tool,
+    model_converter = ConvertStaticModelFromExportedMindir(convert_tool, benchmark_tool,
         data_info_for_converte_static_model_from_exported_mindir, download_path, save_path, log_file, config_file)
-    model_converter.run(model_name)
+    model_converter.run(model_name, force=True)
     model_converter.report()
 
     # convert dynamic model from exported model
     convert_tool = "converter_lite"                            # path to converter_lite
     benchmark_tool = "benchmark"                               # path to benchmark
-    save_path = f"{output_path}/convert_dynamic_from_download"  # path to save converted dynamic model
+    save_path = f"{output_path}/convert_dynamic_from_exported"  # path to save converted dynamic model
     exported_path = "path/to/exported/path"                    # path to exported model
     log_file = f"{save_path}/log.log"                          # file to store log
     config_file = f"{save_path}/dynamic_config.txt"             # file to store config.txt. It will be generated automatically.
     model_name = "dbnet_resnet50"                              # which model to be exported
-    model_converter = TestConvertDynamicModelFromExportedMindir(convert_tool, benchmark_tool,
+    model_converter = ConvertDynamicModelFromExportedMindir(convert_tool, benchmark_tool,
         data_info_for_converte_dynamic_model_from_exported_mindir, download_path, save_path, log_file, config_file)
-    model_converter.run(model_name)
+    model_converter.run(model_name, force=True)
     model_converter.report()
