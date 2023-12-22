@@ -7,7 +7,7 @@ PADDLEOCR_MODELS = {
     "ch_pp_det_OCRv4": "det/ppocr/ch_PP-OCRv4_det_cml.yaml",                         # ch_PP-OCRv4_det
     "ch_pp_server_det_v2.0": "det/ppocr/ch_det_res18_db_v2.0.yaml",                  # ch_ppocr_server_v2.0_det
     "ch_pp_det_OCRv3": "det/ppocr/ch_PP-OCRv3_det_cml.yaml",                         # ch_PP-OCRv3_det
-    "ch_pp_server_rec_v2.0": "rec/ppocr/rec_chinese_common_train_v2.0.yaml",         # ch_ppocr_server_v2.0_rec
+    "ch_pp_server_rec_v2.0": "rec/ppocr/rec_chinese_common_v2.0.yaml",               # ch_ppocr_server_v2.0_rec
     "ch_pp_rec_OCRv3": "rec/ppocr/ch_PP-OCRv3_rec_distillation.yaml",                # ch_PP-OCRv3_rec
     "ch_pp_rec_OCRv4": "rec/ppocr/ch_PP-OCRv4_rec_distillation.yaml",                # ch_PP-OCRv4_rec
     "ch_pp_mobile_cls_v2.0": "cls/ppocr/cls_mv3.yaml",                               # ch_ppocr_mobile_v2.0_cls
@@ -17,10 +17,10 @@ PADDLEOCR_MODELS = {
     "en_pp_det_OCRv3": "det/ppocr/ch_PP-OCRv3_det_cml.yaml",                         # en_PP-OCRv3_det
     "ml_pp_det_OCRv3": "det/ppocr/ch_PP-OCRv3_det_cml.yaml",                         # ml_PP-OCRv3_det
     "ch_pp_rec_OCRv2": "rec/ppocr/ch_PP-OCRv2_rec_distillation.yaml",                # ch_PP-OCRv2_rec
-    "ch_pp_mobile_rec_v2.0": "rec/ppocr/rec_chinese_lite_train_v2.0.yaml",           # ch_ppocr_mobile_v2.0_rec
+    "ch_pp_mobile_rec_v2.0": "rec/ppocr/rec_chinese_lite_v2.0.yaml",                 # ch_ppocr_mobile_v2.0_rec
     "en_pp_rec_OCRv3": "rec/ppocr/en_PP-OCRv3_rec.yaml",                             # en_PP-OCRv3_rec
-    "en_pp_mobile_rec_number_v2.0_slim": "rec/ppocr/rec_en_number_lite_train.yaml",  # en_number_mobile_slim_v2.0_rec
-    "en_pp_mobile_rec_number_v2.0": "rec/ppocr/rec_en_number_lite_train.yaml",       # en_number_mobile_v2.0_rec
+    "en_pp_mobile_rec_number_v2.0_slim": "rec/ppocr/rec_en_number_lite.yaml",        # en_number_mobile_slim_v2.0_rec
+    "en_pp_mobile_rec_number_v2.0": "rec/ppocr/rec_en_number_lite.yaml",             # en_number_mobile_v2.0_rec
     "korean_pp_rec_OCRv3": "rec/ppocr/korean_PP-OCRv3_rec.yaml",                     # korean_PP-OCRv3_rec
     "japan_pp_rec_OCRv3": "rec/ppocr/japan_PP-OCRv3_rec.yaml",                       # japan_PP-OCRv3_rec
     "chinese_cht_pp_rec_OCRv3": "rec/ppocr/chinese_cht_PP-OCRv3_rec.yaml",           # chinese_cht_PP-OCRv3_rec

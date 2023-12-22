@@ -53,14 +53,18 @@ If use C++ interface, the above steps are not necessary.
 
 ### 2. MindSpore Lite inference
 
-For the MindSpore Lite inference of MindOCR, It requires the version 2.0.0-rc1 or higher of the
-[MindSpore Lite](https://www.mindspore.cn/lite/docs/zh-CN/master/index.html) **cloud-side** inference toolkit.
+For the MindSpore Lite inference of MindOCR, It requires the version 2.2.0 or higher of the
+[MindSpore Lite](https://www.mindspore.cn/lite/docs/en/master/index.html) **cloud-side** inference toolkit.
 
 Download the Ascend version of the cloud-side
-[inference toolkit tar.gz](https://www.mindspore.cn/lite/docs/zh-CN/master/use/downloads.html) file, as well as the Python interface Wheel package.
+[inference toolkit tar.gz](https://www.mindspore.cn/lite/docs/en/master/use/downloads.html) file, as well as the Python interface Wheel package. For example, when using Ascend，system on Linux-x86_64，Python 3.7，and mindspore-lite 2.2.0，the following package should be downloaded and installed:
+
+ - [toolkit tar.gz](https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.2.0/MindSpore/lite/release/linux/x86_64/cloud_fusion/python37/mindspore-lite-2.2.0-linux-x64.tar.gz)
+
+ - [wheel Package](https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.2.0/MindSpore/lite/release/linux/x86_64/cloud_fusion/python37/mindspore_lite-2.2.0-cp37-cp37m-linux_x86_64.whl)
 
 The download address provides the Python package for version 3.7. If you need other versions, please refer to the
-[compilation tutorial]().
+[compilation tutorial](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/build.html).
 
 Just decompress the inference toolkit, and set environment variables:
 

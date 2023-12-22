@@ -1,4 +1,4 @@
-## 推理 - MindOCR模型
+## MindOCR原生模型离线推理 - 快速开始
 ### 1. MindOCR模型支持列表
 #### 1.1 文本检测
 
@@ -30,7 +30,13 @@
 | [RobustScanner](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/robustscanner) | ResNet-31 | [en_dict90.txt](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/utils/dict/en_dict90.txt) | IC15 | 73.71 | 22.30 | (1,3,48,160) | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner/robustscanner_resnet31.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37-158bde10.mindir) |
 | [VisionLAN](https://github.com/mindspore-lab/mindocr/tree/main/configs/rec/visionlan) | ResNet-45 | Default |  IC15 |  80.07  |  321.37 | (1,3,64,256) | [yaml(LA)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LA.yaml) | [ckpt(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e.ckpt) \| [mindir(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e-71b38d2d.mindir) |
 
-<br></br>
+
+#### 1.3 文本方向分类
+| 模型                                                                         | 骨干网络     | 数据集 | Acc(%)    | FPS    | data shape (NCHW) | 配置文件                                                                                           | 下载                                                                                                            |
+|:----------------------------------------------------------------------------|:------------|:------|:------|:-------|:-------|:--------------------------------------------------------------------------------------------------|:---------------------------------------------------------------------------------------------------------------|
+| [MobileNetV3](https://github.com/mindspore-lab/mindocr/tree/main/configs/cls/mobilenetv3) | MobileNetV3        | /  | / | / | (1,3,48,192) | [yaml](https://github.com/mindspore-lab/mindocr/tree/main/configs/cls/mobilenetv3/cls_mv3.yaml)        | [ckpt](https://download.mindspore.cn/toolkits/mindocr/cls/cls_mobilenetv3-92db9c58.ckpt) |
+
+
 ### 2. MindOCR推理流程
 ```mermaid
 graph LR;
@@ -64,79 +70,72 @@ graph LR;
 ### 3. MindOCR推理方法
 #### 3.1 文本检测
 下面以[模型表格](#11-文本检测)中的`DBNet ResNet-50 en`为例介绍推理方法：
-- 下载模型表格中的[ckpt文件](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24.ckpt)并使用以下命令导出为MindIR
-，或者直接从模型表格下载已经导出完成的[MindIR文件](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24-fbf95c82.mindir):
-``` shell
-# 使用本地ckpt文件，导出`DBNet ResNet-50 en` 模型的MindIR
-# 更多参数使用详情，请执行 `python tools/export.py -h`
-python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/dbnet.ckpt
-```
-上述命令中```--model_name_or_config```为MindOCR中的模型名称或传入yaml目录(例如```--model_name_or_config configs/rec/crnn/crnn_resnet34.yaml```)；
+- 下载模型表格中的[ckpt文件](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24.ckpt)并使用以下命令导出为MindIR，或者直接从模型表格下载已经导出完成的[MindIR文件](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24-fbf95c82.mindir):
 
-```--data_shape 736 1280```参数表明模型输入图片的大小为[736, 1280]，每个MindOCR模型都对应着一个固定导出data shape，详细请见模型支持列表中的**data shape**列；
+    ``` shell
+    # 使用本地ckpt文件，导出`DBNet ResNet-50 en` 模型的MindIR
+    # 更多参数使用详情，请执行 `python tools/export.py -h`
+    python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/dbnet.ckpt
+    ```
 
-```--local_ckpt_path /path/to/dbnet.ckpt```参数表明需要导出的模型文件为```/path/to/dbnet.ckpt```
+    上述命令中```--model_name_or_config```为MindOCR中的模型名称或传入yaml目录(例如```--model_name_or_config configs/rec/crnn/crnn_resnet34.yaml```)；
+
+    ```--data_shape 736 1280```参数表明模型输入图片的大小为[736, 1280]，每个MindOCR模型都对应着一个固定导出data shape，详细请见模型支持列表中的**data shape**列；
+
+    ```--local_ckpt_path /path/to/dbnet.ckpt```参数表明需要导出的模型文件为```/path/to/dbnet.ckpt```
 
 - 在Ascend310或310P上使用converter_lite工具将MindIR转换为MindSpore Lite MindIR：
 
-执行以下命令：
-```shell
-converter_lite \
-    --saveType=MINDIR \
-    --fmk=MINDIR \
-    --optimize=ascend_oriented \
-    --modelFile=dbnet_resnet50-c3a4aa24-fbf95c82.mindir \
-    --outputFile=dbnet_resnet50
-```
-上述命令中：
+    执行以下命令：
+    ```shell
+    converter_lite \
+        --saveType=MINDIR \
+        --fmk=MINDIR \
+        --optimize=ascend_oriented \
+        --modelFile=dbnet_resnet50-c3a4aa24-fbf95c82.mindir \
+        --outputFile=dbnet_resnet50_lite
+    ```
+    上述命令中：
 
-```--fmk=MINDIR```表明输入模型的原始格式为MindIR，同时```—fmk```参数还支持ONNX等；
+    ```--fmk=MINDIR```表明输入模型的原始格式为MindIR，同时```—fmk```参数还支持ONNX等；
 
-```--saveType=MINDIR```表明输出模型格式为MindIR格式；
+    ```--saveType=MINDIR```表明输出模型格式为MindIR格式；
 
-```--optimize=ascend_oriented```表明针对Ascend设备做优化；
+    ```--optimize=ascend_oriented```表明针对Ascend设备做优化；
 
-```--modelFile=dbnet_resnet50-c3a4aa24-fbf95c82.mindir```表明当前需要转换的模型路径为```dbnet_resnet50-c3a4aa24-fbf95c82.mindir```；
+    ```--modelFile=dbnet_resnet50-c3a4aa24-fbf95c82.mindir```表明当前需要转换的模型路径为```dbnet_resnet50-c3a4aa24-fbf95c82.mindir```；
 
-```--outputFile=dbnet_resnet50```表明输出模型的路径为```dbnet_resnet50```，不需要加.mindir后缀，可自动生成；
+    ```--outputFile=dbnet_resnet50_lite```表明输出模型的路径为```dbnet_resnet50_lite```，不需要加.mindir后缀，可自动生成；
 
-上述命令执行完成后会生成`dbnet_resnet50.mindir`模型文件;
+    上述命令执行完成后会生成`dbnet_resnet50_lite.mindir`模型文件;
 
 
-> 了解更多[converter_lite](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)
+    > 了解更多[converter_lite](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)
 
-> 了解更多[模型转换教程](convert_tutorial.md)
+    > 了解更多[模型转换教程](convert_tutorial.md)
 
-- 使用`/deploy/py_infer/infer.py`脚本和`dbnet_resnet50.mindir`文件执行推理：
+- 使用`deploy/py_infer/infer.py`脚本和`dbnet_resnet50_lite.mindir`文件执行推理：
 
-```shell
-python infer.py \
-    --input_images_dir=/path/to/ic15/ch4_test_images \
-    --det_model_path=/path/to/mindir/dbnet_resnet50.mindir \
-    --det_model_name_or_config=en_ms_det_dbnet_resnet50 \
-    --res_save_dir=/path/to/dbnet_resnet50_results
-```
-执行完成后，在参数`--res_save_dir`所指目录下生成预测文件`det_results.txt`；
+    ```shell
+    python deploy/py_infer/infer.py \
+        --input_images_dir=/path/to/ic15/ch4_test_images \
+        --det_model_path=/path/to/mindir/dbnet_resnet50_lite.mindir \
+        --det_model_name_or_config=en_ms_det_dbnet_resnet50 \
+        --res_save_dir=/path/to/dbnet_resnet50_results
+    ```
+    执行完成后，在参数`--res_save_dir`所指目录下生成预测文件`det_results.txt`；
 
-在进行推理时，可使用`--vis_det_save_dir`参数进行结果可视化：
-<p align="center">
-<img src="https://user-images.githubusercontent.com/15178426/253494276-c941431c-0936-47f2-a0a9-75a2f048a1e0.jpg" width=60% />
-</p>
-<p align="center">
-<em>文本检测结果可视化</em>
-</p>
+    在进行推理时，可使用`--vis_det_save_dir`参数进行结果可视化。
 
-> 了解更多[infer.py](inference_tutorial.md#42-详细推理参数解释)推理参数
+    > 了解更多[infer.py](inference_tutorial.md#42-详细推理参数解释)推理参数
 
 - 使用以下命令评估结果：
 
-```shell
-python deploy/eval_utils/eval_det.py \
-		--gt_path=/path/to/ic15/test_det_gt.txt \
-		--pred_path=/path/to/dbnet_resnet50_results/det_results.txt
-```
-结果为: `{'recall': 0.8348579682233991, 'precision': 0.8657014478282576, 'f-score': 0.85}`
-<br></br>
+    ```shell
+    python deploy/eval_utils/eval_det.py \
+            --gt_path=/path/to/ic15/test_det_gt.txt \
+            --pred_path=/path/to/dbnet_resnet50_results/det_results.txt
+    ```
 
 #### 3.2 文本识别
 下面以[模型表格](#12-文本识别)中的`CRNN ResNet34_vd en`为例介绍推理方法：
@@ -145,39 +144,93 @@ python deploy/eval_utils/eval_det.py \
 
 - 在Ascend310或310P上使用converter_lite工具将MindIR转换为MindSpore Lite MindIR：
 
+    执行以下命令：
+    ```shell
+    converter_lite \
+        --saveType=MINDIR \
+        --fmk=MINDIR \
+        --optimize=ascend_oriented \
+        --modelFile=crnn_resnet34-83f37f07-eb10a0c9.mindir \
+        --outputFile=crnn_resnet34vd_lite
+    ```
+    上述命令执行完成后会生成`crnn_resnet34vd_lite.mindir`模型文件；
+
+    converter_lite参数简要说明请见上述文本检测样例。
+    > 了解更多[converter_lite](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)
+
+    > 了解更多[模型转换教程](convert_tutorial.md)
+
+- 使用`deploy/py_infer/infer.py`脚本和`crnn_resnet34vd_lite.mindir`文件执行推理：
+
+    ```shell
+    python deploy/py_infer/infer.py \
+        --input_images_dir=/path/to/ic15/ch4_test_word_images \
+        --rec_model_path=/path/to/mindir/crnn_resnet34vd_lite.mindir \
+        --rec_model_name_or_config=configs/rec/crnn/crnn_resnet34.yaml \
+        --res_save_dir=/path/to/rec_infer_results
+    ```
+    执行完成后，在参数`--res_save_dir`所指目录下生成预测文件`rec_results.txt`。
+    > 了解更多[infer.py](inference_tutorial.md#42-详细推理参数解释)推理参数
+
+- 使用以下命令评估结果：
+
+    ```shell
+    python deploy/eval_utils/eval_rec.py \
+        --gt_path=/path/to/ic15/rec_gt.txt \
+        --pred_path=/path/to/rec_infer_results/rec_results.txt
+    ```
+
+#### 3.3 文本方向分类
+下面以[模型表格](#13-文本方向分类)中的`MobileNet`为例介绍推理方法：
+
+- 下载模型表格中的[ckpt文件](https://download.mindspore.cn/toolkits/mindocr/cls/cls_mobilenetv3-92db9c58.ckpt)；
+- 使用`export.py`工具将ckpt转换为mindIR
+    - 转换为动态mindIR
+        ```shell
+        python tools/export.py \
+            --model_name_or_config configs/cls/mobilenetv3/cls_mv3.yaml \
+            --save_dir /path/to/save/cls_mv3 \
+            --is_dynamic_shape True \
+            --model_type cls
+        ```
+    - 转换为静态mindIR
+        ```shell
+        python tools/export.py \
+            --model_name_or_config configs/cls/mobilenetv3/cls_mv3.yaml \
+            --save_dir /path/to/save/cls_mv3 \
+            --is_dynamic_shape False \
+            --data_shape 48 192
+        ```
+- 在Ascend310或310P上使用converter_lite工具将MindIR转换为MindSpore Lite MindIR：
+
 执行以下命令：
 ```shell
 converter_lite \
     --saveType=MINDIR \
     --fmk=MINDIR \
     --optimize=ascend_oriented \
-    --modelFile=crnn_resnet34-83f37f07-eb10a0c9.mindir \
-    --outputFile=crnn_resnet34vd
+    --modelFile=/path/to/save/cls_mv3.mindir \
+    --outputFile=cls_mv3_lite
 ```
-上述命令执行完成后会生成`crnn_resnet34vd.mindir`模型文件；
+上述命令执行完成后会生成`cls_mv3_lite.mindir`模型文件；
 
-converter_lite参数简要说明请见上述文本检测样例。
 > 了解更多[converter_lite](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)
 
 > 了解更多[模型转换教程](convert_tutorial.md)
 
-- 使用`/deploy/py_infer/infer.py`脚本和`crnn_resnet34vd.mindir`文件执行推理：
-
+#### 3.4 端到端推理
+根据[文本检测](#31-文本检测), [文本识别](#32-文本识别), [文字方向识别](#33-文本方向分类), 准备好用于推理的mindIR文件。执行下列命令进行端到端推理
 ```shell
-python infer.py \
-    --input_images_dir=/path/to/ic15/ch4_test_word_images \
-    --rec_model_path=/path/to/mindir/crnn_resnet34vd.mindir \
-    --rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
-    --res_save_dir=/path/to/rec_infer_results
+python deploy/py_infer/infer.py \
+    --input_images_dir=/path/to/ic15/ch4_test_images \
+    --det_model_path=/path/to/mindir/dbnet_resnet50_lite.mindir \
+    --det_model_name_or_config=en_ms_det_dbnet_resnet50 \
+    --cls_model_path=/path/to/mindir/cls_mv3_lite.mindir \
+    --cls_model_name_or_config=configs/cls/mobilenetv3/cls_mv3.yaml \
+    --rec_model_path=/path/to/mindir/crnn_resnet34vd_lite.mindir \
+    --rec_model_name_or_config=configs/rec/crnn/crnn_resnet34.yaml \
+    --res_save_dir=/path/to/infer_results
 ```
-执行完成后，在参数`--res_save_dir`所指目录下生成预测文件`rec_results.txt`。
-> 了解更多[infer.py](inference_tutorial.md#42-详细推理参数解释)推理参数
 
-- 使用以下命令评估结果：
-
-```shell
-python deploy/eval_utils/eval_rec.py \
-		--gt_path=/path/to/ic15/rec_gt.txt \
-		--pred_path=/path/to/rec_infer_results/rec_results.txt
-```
-结果为: `{'acc': 0.6966779232025146, 'norm_edit_distance': 0.8627135157585144}`
+### 4.转换、推理常见问题
+转换与推理相关问题可参考[FAQ](../tutorials/frequently_asked_questions.md)。
