@@ -518,9 +518,116 @@ class VQAReTokenChunk:
 
 
 class TensorizeEntitiesRelations:
-    def __init__(self, max_seq_len=512, infer_mode=False, **kwargs):
+    def __init__(self, max_seq_len=512, infer_mode=False, max_relation_len=None, **kwargs):
         self.max_seq_len = max_seq_len
         self.infer_mode = infer_mode
+        self.max_relation_len = max_relation_len
+
+    def build_relation(self, relations, entities):
+        max_seq_len, _ = entities.shape
+        num_max_relation = (max_seq_len - 1) * (max_seq_len - 1) // 4
+        if self.max_relation_len is not None:
+            num_max_relation = min(num_max_relation, self.max_relation_len)
+
+        q_id = np.full(
+            shape=[
+                num_max_relation,
+            ],
+            fill_value=-1,
+            dtype=np.int32,
+        )
+
+        q_labels = np.zeros(
+            shape=[
+                num_max_relation,
+            ],
+            dtype=np.int32,
+        )
+
+        a_id = np.full(
+            shape=[
+                num_max_relation,
+            ],
+            fill_value=-1,
+            dtype=np.int32,
+        )
+
+        a_labels = np.zeros(
+            shape=[
+                num_max_relation,
+            ],
+            dtype=np.int32,
+        )
+
+        realation_label = np.full(
+            shape=[
+                num_max_relation,
+            ],
+            fill_value=-100,
+            dtype=np.int32,
+        )
+
+        if entities[0, 0] <= 2:
+            entitie_new = -np.ones_like(entities)
+            entitie_new[0, :] = 2
+            entitie_new[1:3, 0] = 0  # start
+            entitie_new[1:3, 1] = 1  # end
+            entitie_new[1:3, 2] = 0  # label
+            entities = entitie_new
+        entitie_label = entities[1 : entities[0, 2] + 1, 2]
+        all_possible_relations1 = np.arange(0, entities[0, 2], dtype=entities.dtype)
+        all_possible_relations1 = all_possible_relations1[entitie_label == 1]
+        all_possible_relations2 = np.arange(0, entities[0, 2], dtype=entities.dtype)
+        all_possible_relations2 = all_possible_relations2[entitie_label == 2]
+
+        a, q = np.meshgrid(all_possible_relations2, all_possible_relations1)
+        all_possible_relations = np.stack([q, a], axis=2).reshape((-1, 2))
+
+        if len(all_possible_relations) == 0:
+            all_possible_relations = np.full_like(all_possible_relations, fill_value=-1, dtype=entities.dtype)
+            all_possible_relations[0, 0] = 0
+            all_possible_relations[0, 1] = 1
+
+        relation_head = relations[1 : relations[0, 0] + 1, 0]
+        relation_tail = relations[1 : relations[0, 1] + 1, 1]
+        positive_relations = np.stack([relation_head, relation_tail], axis=1)
+
+        all_possible_relations_repeat = np.expand_dims(all_possible_relations, axis=1).repeat(
+            len(positive_relations), axis=1
+        )
+        positive_relations_repeat = np.expand_dims(positive_relations, axis=0).repeat(
+            len(all_possible_relations), axis=0
+        )
+        mask = np.all(all_possible_relations_repeat == positive_relations_repeat, axis=2)
+        negative_mask = np.any(mask, axis=1) == False  # noqa
+        negative_relations = all_possible_relations[negative_mask]
+
+        positive_mask = np.any(mask, axis=0) == True  # noqa
+        positive_relations = positive_relations[positive_mask]
+        if negative_mask.sum() > 0:
+            reordered_relations = np.concatenate([positive_relations, negative_relations])
+
+        else:
+            reordered_relations = positive_relations
+        reordered_relations = reordered_relations[:num_max_relation, :]
+        num_recorded_relations = reordered_relations.shape[0]
+        q_index = reordered_relations[:, 0]
+        entites_id_list = entities[1 : entities[0, 0] + 1, 0]
+        recorded_q_id = entites_id_list[q_index]
+        recorded_q_labels = entitie_label[q_index]
+        q_id[:num_recorded_relations] = recorded_q_id
+        q_labels[:num_recorded_relations] = recorded_q_labels
+
+        a_index = reordered_relations[:, 1]
+        recorded_a_id = entites_id_list[a_index]
+        recorded_a_labels = entitie_label[a_index]
+        a_id[:num_recorded_relations] = recorded_a_id
+        a_labels[:num_recorded_relations] = recorded_a_labels
+
+        qa_label = np.zeros((reordered_relations.shape[0],), dtype=reordered_relations.dtype)
+        qa_label[: positive_relations.shape[0]] = 1
+        realation_label[: qa_label.shape[0]] = qa_label
+        return q_id, q_labels, a_id, a_labels, realation_label
 
     def __call__(self, data):
         entities = data["entities"]
@@ -540,6 +647,10 @@ class TensorizeEntitiesRelations:
         relations_new[1 : len(relations["head"]) + 1, 0] = np.array(relations["head"])
         relations_new[1 : len(relations["tail"]) + 1, 1] = np.array(relations["tail"])
 
-        data["entities"] = entities_new
-        data["relations"] = relations_new
+        q_id, q_labels, a_id, a_labels, realation_label = self.build_relation(relations_new, entities_new)
+        data["question"] = q_id
+        data["question_label"] = q_labels
+        data["answer"] = a_id
+        data["answer_label"] = a_labels
+        data["relation_label"] = realation_label
         return data
