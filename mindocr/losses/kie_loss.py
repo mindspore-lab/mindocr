@@ -11,7 +11,7 @@ class VQASerTokenLayoutLMLoss(nn.LossBase):
 
     def __init__(self, **kwargs):
         super().__init__()
-        self.loss_class = nn.CrossEntropyLoss()
+        self.loss_fct = nn.CrossEntropyLoss()
 
     def construct(self, predicts, attention_mask, labels):
         loss = self.loss_fct(predicts.transpose(0, 2, 1), labels.astype(ms.int32))
