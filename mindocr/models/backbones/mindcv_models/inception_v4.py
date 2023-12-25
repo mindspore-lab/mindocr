@@ -278,7 +278,7 @@ class InceptionV4(nn.Cell):
         self.features = nn.SequentialCell(blocks)
 
         self.pool = GlobalAvgPooling()
-        self.dropout = nn.Dropout(1 - drop_rate)
+        self.dropout = nn.Dropout(p=drop_rate)
         self.num_features = 1536
         self.classifier = nn.Dense(self.num_features, num_classes)
         self._initialize_weights()

@@ -421,7 +421,7 @@ class EfficientNet(nn.Cell):
 
         self.features = nn.SequentialCell(layers)
         self.avgpool = GlobalAvgPooling()
-        self.dropout = nn.Dropout(1 - dropout_rate)
+        self.dropout = nn.Dropout(p=dropout_rate)
         self.mlp_head = nn.Dense(lastconv_output_channels, num_classes)
         self._initialize_weights()
 

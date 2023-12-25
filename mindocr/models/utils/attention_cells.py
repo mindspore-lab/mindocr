@@ -7,8 +7,6 @@ import mindspore.nn as nn
 import mindspore.ops as ops
 from mindspore import Tensor
 
-from ...utils.misc import is_ms_version_2
-
 __all__ = ["MultiHeadAttention", "PositionwiseFeedForward", "PositionalEncoding", "SEModule"]
 
 
@@ -25,10 +23,7 @@ class MultiHeadAttention(nn.Cell):
         self.h = multi_attention_heads
         self.linears = nn.CellList([nn.Dense(dimensions, dimensions) for _ in range(4)])
         self.attention = None
-        if is_ms_version_2():
-            self.dropout = nn.Dropout(p=dropout)
-        else:
-            self.dropout = nn.Dropout(keep_prob=1 - dropout)
+        self.dropout = nn.Dropout(p=dropout)
 
         self.matmul = ops.BatchMatMul()
 
@@ -90,10 +85,7 @@ class PositionwiseFeedForward(nn.Cell):
         super(PositionwiseFeedForward, self).__init__()
         self.w_1 = nn.Dense(dimensions, feed_forward_dimensions)
         self.w_2 = nn.Dense(feed_forward_dimensions, dimensions)
-        if is_ms_version_2():
-            self.dropout = nn.Dropout(p=dropout)
-        else:
-            self.dropout = nn.Dropout(keep_prob=1 - dropout)
+        self.dropout = nn.Dropout(p=dropout)
 
     def construct(self, input_tensor: Tensor) -> Tensor:
         return self.w_2(self.dropout(ops.relu(self.w_1(input_tensor))))
@@ -104,10 +96,7 @@ class PositionalEncoding(nn.Cell):
         self, dimensions: int, dropout: float = 0.1, max_len: int = 5000
     ) -> None:
         super(PositionalEncoding, self).__init__()
-        if is_ms_version_2():
-            self.dropout = nn.Dropout(p=dropout)
-        else:
-            self.dropout = nn.Dropout(keep_prob=1 - dropout)
+        self.dropout = nn.Dropout(p=dropout)
 
         # Compute the positional encodings once in log space.
         pe = np.zeros((max_len, dimensions), dtype=np.float32)

@@ -68,9 +68,9 @@ class Attention(nn.Cell):
 
         self.q = nn.Dense(dim, dim, has_bias=qkv_bias)
         self.kv = nn.Dense(dim, dim * 2, has_bias=qkv_bias)
-        self.attn_drop = nn.Dropout(1 - attn_drop)
+        self.attn_drop = nn.Dropout(p=attn_drop)
         self.proj = nn.Dense(dim, dim)
-        self.proj_drop = nn.Dropout(1 - proj_drop)
+        self.proj_drop = nn.Dropout(p=proj_drop)
         self.qk_batmatmul = ops.BatchMatMul(transpose_b=True)
         self.batmatmul = ops.BatchMatMul()
         self.softmax = nn.Softmax(axis=-1)
@@ -203,7 +203,7 @@ class PyramidVisionTransformer(nn.Cell):
         cur = 0
         b_list = []
         self.pos_embed = []
-        self.pos_drop = nn.Dropout(1 - drop_rate)
+        self.pos_drop = nn.Dropout(p=drop_rate)
         for i in range(num_stages):
             block = nn.CellList(
                 [Block(dim=embed_dims[i], num_heads=num_heads[i], mlp_ratio=mlp_ratios[i], qkv_bias=qkv_bias,
@@ -221,7 +221,7 @@ class PyramidVisionTransformer(nn.Cell):
                                        embed_dim=embed_dims[0])
         num_patches = self.patch_embed1.num_patches
         self.pos_embed1 = mindspore.Parameter(ops.zeros((1, num_patches, embed_dims[0]), mindspore.float16))
-        self.pos_drop1 = nn.Dropout(1 - drop_rate)
+        self.pos_drop1 = nn.Dropout(p=drop_rate)
 
         self.patch_embed2 = PatchEmbed(img_size=img_size // (2 ** (1 + 1)),
                                        patch_size=2,
@@ -229,7 +229,7 @@ class PyramidVisionTransformer(nn.Cell):
                                        embed_dim=embed_dims[1])
         num_patches = self.patch_embed2.num_patches
         self.pos_embed2 = mindspore.Parameter(ops.zeros((1, num_patches, embed_dims[1]), mindspore.float16))
-        self.pos_drop2 = nn.Dropout(1 - drop_rate)
+        self.pos_drop2 = nn.Dropout(p=drop_rate)
 
         self.patch_embed3 = PatchEmbed(img_size=img_size // (2 ** (2 + 1)),
                                        patch_size=2,
@@ -237,7 +237,7 @@ class PyramidVisionTransformer(nn.Cell):
                                        embed_dim=embed_dims[2])
         num_patches = self.patch_embed3.num_patches
         self.pos_embed3 = mindspore.Parameter(ops.zeros((1, num_patches, embed_dims[2]), mindspore.float16))
-        self.pos_drop3 = nn.Dropout(1 - drop_rate)
+        self.pos_drop3 = nn.Dropout(p=drop_rate)
 
         self.patch_embed4 = PatchEmbed(img_size // (2 ** (3 + 1)),
                                        patch_size=2,
@@ -245,7 +245,7 @@ class PyramidVisionTransformer(nn.Cell):
                                        embed_dim=embed_dims[3])
         num_patches = self.patch_embed4.num_patches + 1
         self.pos_embed4 = mindspore.Parameter(ops.zeros((1, num_patches, embed_dims[3]), mindspore.float16))
-        self.pos_drop4 = nn.Dropout(1 - drop_rate)
+        self.pos_drop4 = nn.Dropout(p=drop_rate)
         self.Blocks = nn.CellList(b_list)
 
         self.norm = norm_layer([embed_dims[3]])

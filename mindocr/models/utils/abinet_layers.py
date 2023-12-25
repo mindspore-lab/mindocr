@@ -326,7 +326,7 @@ class PositionAttention(nn.Cell):
 class PositionalEncoding(nn.Cell):
     def __init__(self, d_model=512, dropout=0.9, max_len=5000):
         super(PositionalEncoding, self).__init__()
-        self.dropout = nn.Dropout(keep_prob=dropout)
+        self.dropout = nn.Dropout(p=1 - dropout)
         pe = np.zeros((max_len, d_model), np.float32)
         position = np.arange(0, max_len, dtype=np.float32)
         position = np.expand_dims(position, 1)
