@@ -8,6 +8,7 @@ from . import (  # rec_abinet_postprocess,
     layout_token_ser_postprocess,
     rec_abinet_postprocess,
     rec_postprocess,
+    table_postprocess,
 )
 from .cls_postprocess import *
 from .det_db_postprocess import *
@@ -18,6 +19,7 @@ from .layout_postprocess import YOLOv8Postprocess
 from .layout_token_ser_postprocess import VQASerTokenLayoutLMPostProcess
 from .rec_abinet_postprocess import *
 from .rec_postprocess import *
+from .table_postprocess import *
 
 __all__ = ["build_postprocess"]
 

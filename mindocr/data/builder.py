@@ -10,6 +10,7 @@ from .layout_dataset import PublayNetDataset
 from .predict_dataset import PredictDataset
 from .rec_dataset import RecDataset
 from .rec_lmdb_dataset import LMDBDataset
+from .table_pubtab_dataset import PubTabDataset
 
 __all__ = ["build_dataset"]
 _logger = logging.getLogger(__name__)
@@ -23,6 +24,7 @@ supported_dataset_types = [
     "PredictDataset",
     "PublayNetDataset",
     "KieDataset",
+    "PubTabDataset",
 ]
 
 
