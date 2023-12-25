@@ -4,6 +4,7 @@ from .det_loss import DBLoss, EASTLoss, FCELoss, PSEDiceLoss
 from .kie_loss import LossFromOutput, VQASerTokenLayoutLMLoss
 from .rec_loss import AttentionLoss, CTCLoss, SARLoss, VisionLANLoss
 from .rec_multi_loss import MultiLoss
+from .table_master_loss import TableMasterLoss
 from .yolov8_loss import YOLOv8Loss
 
 __all__ = ["build_loss"]
@@ -23,6 +24,7 @@ supported_losses = [
     "LossFromOutput",
     "YOLOv8Loss",
     "MultiLoss",
+    "TableMasterLoss",
 ]
 
 

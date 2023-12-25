@@ -140,7 +140,7 @@ Please [download](#2-results) the exported MindIR file first, or refer to the [M
 python tools/export.py --model_name_or_config configs/layout/yolov8/yolov8n.yaml --data_shape 800 800 --local_ckpt_path /path/to/local_ckpt.ckpt
 ```
 
-The `data_shape` is the model input shape of height and width for MindIR file. The shape value of MindIR in the download link can be found in [Notes](#2-results) under results table.
+The `data_shape` is the model input shape of height and width for MindIR file. The shape value of MindIR in the download link can be found in [Notes](#2-results) under results table. `distribute` in yaml shall be set to False.
 
 **2. Environment Installation**
 

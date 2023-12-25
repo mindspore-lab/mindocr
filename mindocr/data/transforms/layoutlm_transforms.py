@@ -258,23 +258,10 @@ class VQATokenLabelEncode:
         return [x1, y1, x2, y2]
 
     def _load_ocr_info(self, data):
-        if self.infer_mode:
-            ocr_result = self.ocr_engine.ocr(data["image"], cls=False)[0]
-            ocr_info = []
-            for res in ocr_result:
-                ocr_info.append(
-                    {
-                        "transcription": res[1][0],
-                        "bbox": self.trans_poly_to_bbox(res[0]),
-                        "points": res[0],
-                    }
-                )
-            return ocr_info
-        else:
-            info = data["label"]
-            # read text info
-            info_dict = json.loads(info)
-            return info_dict
+        """read text info from 'label' data"""
+        info = data["label"]
+        info_dict = json.loads(info)
+        return info_dict
 
     @staticmethod
     def _smooth_box(bboxes, height, width):

@@ -4,6 +4,7 @@ from .det_metrics import *
 from .kie_metrics import VQAReTokenMetric, VQASerTokenMetric
 from .layout_metrics import YOLOv8Metric
 from .rec_metrics import *
+from .table_metrics import *
 
 __all__ = ["build_metric"]
 

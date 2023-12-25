@@ -52,11 +52,37 @@ Table Format:
 
 <div align="center">
 
-| **模型** |**任务** |**环境配置** | **训练集** | **参数量** | **单卡批量** | **图模式单卡训练 (s/epoch)** | **图模式单卡训练 (ms/step)** | **图模式单卡训练 (FPS)** | **hmean** | **配置文件** | **模型权重下载** |
-| :-----: | :-----: |:-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----:
-| VI-LayoutXLM | SER | D910Ax1-MS2.1-G | XFUND_zh | 265.7 M | 4 |  7.53 | 203.48 | 19.66 | 93.31%  | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/kie/vi_layoutxlm/ser_vi_layoutxlm_xfund_zh.yaml)     | [ckpt](https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/ser_vi_layoutxlm.ckpt) |
+|   **模型**   | **任务** |  **环境配置**   | **训练集** | **参数量** | **单卡批量** | **图模式单卡训练 (s/epoch)** | **图模式单卡训练 (ms/step)** | **图模式单卡训练 (FPS)** | **hmean** |                      **配置文件**                      |                                          **模型权重下载**                                          |
+| :----------: | :------: | :-------------: | :--------: | :--------: | :----------: | :--------------------------: | :--------------------------: | :----------------------: | :-------: | :----------------------------------------------------: | :------------------------------------------------------------------------------------------------: |
+|  LayoutXLM   |   SER    | D910Ax1-MS2.1-G |  XFUND_zh  |  352.0 M   |      8       |             3.41             |            189.50            |          42.24           |  90.41%   | [yaml](../layoutlm_series/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt)  |
+| VI-LayoutXLM |   SER    | D910Ax1-MS2.1-G |  XFUND_zh  |  265.7 M   |      8       |             3.06             |            169.7             |           47.2           |  93.31%   |         [yaml](ser_vi_layoutxlm_xfund_zh.yaml)         | [ckpt](https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/ser_vi_layoutxlm-f3c83585.ckpt) |
+
 </div>
 
+### 3.4 模型推理
+
+若要使用已训练的模型进行推理，可使用`tools/infer/text/predict_ser.py`进行推理并将结果进行可视化展示。
+
+```
+python tools/infer/text/predict_ser.py --rec_algorithm CRNN_CH --image_dir {dir of images or path of image}
+```
+
+以中文表单的实体识别为例，使用脚本识别`configs/kie/vi_layoutxlm/example.jpg`表单中的实体，结果将默认存放在`./inference_results`文件夹内，也可以通过`--draw_img_save_dir`命令行参数自定义结果存储路径。
+
+<p align="center">
+  <img src="example.jpg" width=1000 />
+</p>
+<p align="center">
+  <em> example.jpg </em>
+</p>
+识别结果如图，图片保存为`inference_results/example_ser.jpg`：
+
+<p align="center">
+  <img src="example_ser.jpg" width=1000 />
+</p>
+<p align="center">
+  <em> example_ser.jpg </em>
+</p>
 
 
 ### 推理端
@@ -247,4 +273,5 @@ python tools/eval.py --config configs/kie/vi_layoutxlm/ser_vi_layoutxlm_xfund_zh
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 
 [1] Yang Xu, Yiheng Xu, Tengchao Lv, Lei Cui, Furu Wei, Guoxin Wang, Yijuan Lu, Dinei Florencio, Cha Zhang, Wanxiang Che, Min Zhang, Lidong Zhou. LayoutLMv2: Multi-modal Pre-training for Visually-Rich Document Understanding. arXiv preprint arXiv:2012.14740, 2020.
+
 [2] Yiheng Xu, Tengchao Lv, Lei Cui, Guoxin Wang, Yijuan Lu, Dinei Florencio, Cha Zhang, Furu Wei. LayoutXLM: Multimodal Pre-training for Multilingual Visually-rich Document Understanding. arXiv preprint arXiv:2104.08836, 2021.

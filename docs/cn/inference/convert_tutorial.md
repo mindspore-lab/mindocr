@@ -54,51 +54,61 @@ converter_lite \
 
 - **静态Shape**
 
-如果导出模型的输入名为`x`，输入Shape为`(1,3,736,1280)`，则config.txt如下：
+    如果导出模型的输入名为`x`，输入Shape为`(1,3,736,1280)`，则config.txt如下：
+    ```text
+    [ascend_context]
+    input_format=NCHW
+    input_shape=x:[1,3,736,1280]
+    ```
+    转换生成的output.mindir为静态shape版，推理时的输入图像需要Resize到该input_shape以满足输入要求。
 
-```
-[ascend_context]
-input_format=NCHW
-input_shape=x:[1,3,736,1280]
-```
+- **动态Shape(分档)**
 
-转换生成的output.mindir为静态shape版，推理时的输入图像需要Resize到该input_shape以满足输入要求。
+    在某些推理场景（如检测出文本区域后，再执行文本识别网络），由于文本区域的个数和分辨率不固定，每次推理都按照最大的BatchSize或最大ImageSize进行计算，会造成计算资源浪费。
 
-在某些推理场景，如检测出目标后再执行目标识别网络，由于目标个数和大小不固定，如果每次推理都按照最大的BatchSize或最大ImageSize进行计算，会造成计算资源浪费。
+    假设导出模型输入Shape为(-1, 3, -1, -1)，NHW这3个轴是动态的，所以可以在模型转换时设置一些可选值，以适应推理时各种Shape大小的输入图像。
 
-假设导出模型输入Shape为(-1, 3, -1, -1)，NHW这3个轴是动态的，所以可以在模型转换时设置一些可选值，以适应推理时各种Shape大小的输入图像。
+    `converter_lite`通过`configFile`配置`[ascend_context]`中`dynamic_dims`参数来实现，详细信息可参考[动态shape配置](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool_ascend.html#动态shape配置)，下文简称”**分档**“。
 
-`converter_lite`通过`configFile`配置`[ascend_context]`中`dynamic_dims`参数来实现，详细信息可参考[动态shape配置](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool_ascend.html#动态shape配置)，下文简称”**分档**“。
+    所以，转换时有2种选择，通过设置不同的config.txt实现：
 
-所以，转换时有2种选择，通过设置不同的config.txt实现：
+    - **动态Image Size**
 
-- **动态Image Size**
+        N使用固定值，HW使用多个可选值，config.txt如下：
 
-N使用固定值，HW使用多个可选值，config.txt如下：
+        ```shell
+        [ascend_context]
+        input_format=NCHW
+        input_shape=x:[1,3,-1,-1]
+        dynamic_dims=[736,1280],[768,1280],[896,1280],[1024,1280]
+        ```
 
-```shell
-[ascend_context]
-input_format=NCHW
-input_shape=x:[1,3,-1,-1]
-dynamic_dims=[736,1280],[768,1280],[896,1280],[1024,1280]
-```
+    - **动态Batch Size**
 
-- **动态Batch Size**
+        N使用多个可选值，HW使用固定值，config.txt如下：
 
-N使用多个可选值，HW使用固定值，config.txt如下：
+        ```shell
+        [ascend_context]
+        input_format=NCHW
+        input_shape=x:[-1,3,736,1280]
+        dynamic_dims=[1],[4],[8],[16],[32]
+        ```
 
-```shell
-[ascend_context]
-input_format=NCHW
-input_shape=x:[-1,3,736,1280]
-dynamic_dims=[1],[4],[8],[16],[32]
-```
+    在转换动态Batch Size/Image Size模型时，NHW值的选择可以由用户根据经验值设定，也可以从数据集中统计而来。
 
-在转换动态Batch Size/Image Size模型时，NHW值的选择可以由用户根据经验值设定，也可以从数据集中统计而来。
+    如果模型转换时需要同时支持动态Batch Size和动态Image Size，可以组合多个不同Batch Size的模型，每个模型使用相同的动态Image Size。
 
-如果模型转换时需要同时支持动态Batch Size和动态Image Size，可以组合多个不同Batch Size的模型，每个模型使用相同的动态Image Size。
+    为了简化模型转换流程，我们开发了**自动分档工具**，可以从数据集中统计选择动态值和模型转换，详细教程请参考[模型Shape分档](convert_dynamic.md)。
 
-为了简化模型转换流程，我们开发了**自动分档工具**，可以从数据集中统计选择动态值和模型转换，详细教程请参考[模型Shape分档](convert_dynamic.md)。
+- **动态Shape**
+
+    这种`动态Shape`与`动态Shape(分档)`的区别在于他灵活适配各种Batch Size和Shape的输入。其配置的config.txt如下
+    ```text
+    [acl_build_options]
+    input_format=NCHW
+    input_shape_range=x:[-1,3,-1,-1]
+    ```
+
 
 **注意：**
 
@@ -154,9 +164,9 @@ graph LR;
 # git clone https://github.com/PaddlePaddle/PaddleOCR.git
 # cd PaddleOCR
 python tools/export_model.py \
-	-c configs/det/det_r50_vd_db.yml \
-	-o Global.pretrained_model=./det_r50_vd_db_v2.0_train/best_accuracy  \
-	Global.save_inference_dir=./det_db
+    -c configs/det/det_r50_vd_db.yml \
+    -o Global.pretrained_model=./det_r50_vd_db_v2.0_train/best_accuracy  \
+    Global.save_inference_dir=./det_db
 ```
 
 #### 2.2 推理模型 -> ONNX
@@ -214,55 +224,57 @@ converter_lite \
 
 ```shell
 atc --model=det_db.onnx \
-	--framework=5 \
-	--input_shape="x:1,3,736,1280" \
-	--input_format=ND \
-	--soc_version=Ascend310P3 \
-	--output=det_db_static \
-	--log=error
+    --framework=5 \
+    --input_shape="x:1,3,736,1280" \
+    --input_format=ND \
+    --soc_version=Ascend310P3 \
+    --output=det_db_static \
+    --log=error
 ```
 
-ATC工具通过设置参数 [dynamic_dims](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/63RC2alpha002/infacldevg/atctool/atlasatc_16_0056.html)来支持Shape的**分档**，可以在模型转换时设置一些可选值，以适应推理时各种Shape大小的输入图像，如下两种选择：
+- **动态Shape(分档)**
 
-- **动态Image Size**
+    ATC工具通过设置参数 [dynamic_dims](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/63RC2alpha002/infacldevg/atctool/atlasatc_16_0056.html)来支持Shape的**分档**，可以在模型转换时设置一些可选值，以适应推理时各种Shape大小的输入图像，如下两种选择：
 
-N使用固定值，HW使用多个可选值，命令如下：
+    - **动态Image Size**
 
-```shell
-atc --model=det_db.onnx \
-	--framework=5 \
-	--input_shape="x:1,3,-1,-1" \
-	--input_format=ND \
-	--dynamic_dims="736,1280;768,1280;896,1280;1024,1280" \
-	--soc_version=Ascend310P3 \
-	--output=det_db_dynamic_bs \
-	--log=error
-```
+        N使用固定值，HW使用多个可选值，命令如下：
 
-- **动态Batch Size**
+        ```shell
+        atc --model=det_db.onnx \
+            --framework=5 \
+            --input_shape="x:1,3,-1,-1" \
+            --input_format=ND \
+            --dynamic_dims="736,1280;768,1280;896,1280;1024,1280" \
+            --soc_version=Ascend310P3 \
+            --output=det_db_dynamic_bs \
+            --log=error
+        ```
 
-N使用多个可选值，HW使用固定值，命令如下：
+    - **动态Batch Size**
 
-```shell
-atc --model=det_db.onnx \
-	--framework=5 \
-	--input_shape="x:-1,3,736,1280" \
-	--input_format=ND \
-	--dynamic_dims="1;4;8;16;32" \
-	--soc_version=Ascend310P3 \
-	--output=det_db_dynamic_bs \
-	--log=error
-```
+        N使用多个可选值，HW使用固定值，命令如下：
 
-在转换动态Batch Size/Image Size模型时，NHW值的选择可以由用户根据经验值设定，也可以从数据集中统计而来。
+        ```shell
+        atc --model=det_db.onnx \
+            --framework=5 \
+            --input_shape="x:-1,3,736,1280" \
+            --input_format=ND \
+            --dynamic_dims="1;4;8;16;32" \
+            --soc_version=Ascend310P3 \
+            --output=det_db_dynamic_bs \
+            --log=error
+        ```
 
-如果模型转换时需要同时支持动态Batch Size和动态Image Size，可以组合多个不同Batch Size的模型，每个模型使用相同的动态Image Size。
+    在转换动态Batch Size/Image Size模型时，NHW值的选择可以由用户根据经验值设定，也可以从数据集中统计而来。
 
-为了简化模型转换流程，我们开发了**自动分档工具**，可以一键式完成动态值选择和模型转换过程，详细教程请参考[模型Shape分档](convert_dynamic.md)。
+    如果模型转换时需要同时支持动态Batch Size和动态Image Size，可以组合多个不同Batch Size的模型，每个模型使用相同的动态Image Size。
 
-**注意：**
+    为了简化模型转换流程，我们开发了**自动分档工具**，可以一键式完成动态值选择和模型转换过程，详细教程请参考[模型Shape分档](convert_dynamic.md)。
 
-如果导出的模型是静态Shape版的，则无法分档，需确保导出动态Shape版的模型。
+    **注意：**
+
+    如果导出的模型是静态Shape版的，则无法分档，需确保导出动态Shape版的模型。
 
 ##### 2.4.2 模型精度模式配置
 
@@ -274,13 +286,13 @@ atc --model=det_db.onnx \
 
 ```
 atc --model=det_db.onnx \
-	--framework=5 \
-	--input_shape="x:1,3,736,1280" \
-	--input_format=ND \
-	--precision_mode=force_fp32 \
-	--soc_version=Ascend310P3 \
-	--output=det_db_static \
-	--log=error
+    --framework=5 \
+    --input_shape="x:1,3,736,1280" \
+    --input_format=ND \
+    --precision_mode=force_fp32 \
+    --soc_version=Ascend310P3 \
+    --output=det_db_static \
+    --log=error
 ```
 
 如不设置，默认为`force_fp16`。

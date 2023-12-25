@@ -7,7 +7,7 @@ system:
   log_interval: 100
   val_while_train: False
   drop_overflow_update: False
-  ckpt_max_keep: 100
+  ckpt_max_keep: 500
   device_id: 0
 
 common:
