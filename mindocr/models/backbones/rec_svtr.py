@@ -7,7 +7,6 @@ import mindspore.nn as nn
 import mindspore.ops as ops
 from mindspore import Parameter, Tensor
 
-from ...utils.misc import is_ms_version_2
 from ._registry import register_backbone, register_backbone_class
 from .mindcv_models.layers import DropPath
 
@@ -62,10 +61,7 @@ class Mlp(nn.Cell):
         self.fc1 = nn.Dense(in_features, hidden_features)
         self.act = act_layer()
         self.fc2 = nn.Dense(hidden_features, out_features)
-        if is_ms_version_2():
-            self.drop = nn.Dropout(p=drop)
-        else:
-            self.drop = nn.Dropout(keep_prob=1 - drop)
+        self.drop = nn.Dropout(p=drop)
 
     def construct(self, x: Tensor) -> Tensor:
         x = self.fc1(x)
@@ -132,15 +128,9 @@ class Attention(nn.Cell):
         self.scale = qk_scale or head_dim**-0.5
 
         self.qkv = nn.Dense(dim, dim * 3, has_bias=qkv_bias)
-        if is_ms_version_2():
-            self.attn_drop = nn.Dropout(p=attn_drop)
-        else:
-            self.attn_drop = nn.Dropout(keep_prob=1 - attn_drop)
+        self.attn_drop = nn.Dropout(p=attn_drop)
         self.proj = nn.Dense(dim, dim)
-        if is_ms_version_2():
-            self.proj_drop = nn.Dropout(p=proj_drop)
-        else:
-            self.proj_drop = nn.Dropout(keep_prob=1 - proj_drop)
+        self.proj_drop = nn.Dropout(p=proj_drop)
         self.HW = HW
         if HW is not None:
             H = HW[0]
@@ -487,11 +477,8 @@ class SVTRNet(nn.Cell):
             )
         else:
             self.pos_embed = None
+        self.pos_drop = nn.Dropout(p=drop_rate)
 
-        if is_ms_version_2():
-            self.pos_drop = nn.Dropout(p=drop_rate)
-        else:
-            self.pos_drop = nn.Dropout(keep_prob=1 - drop_rate)
         Block_unit = eval(block_unit)
         dpr = np.linspace(0, drop_path_rate, num=sum(depth))
         self.blocks1 = nn.SequentialCell(
@@ -595,10 +582,8 @@ class SVTRNet(nn.Cell):
                 has_bias=False,
             )
             self.hardswish = nn.HSwish()
-            if is_ms_version_2():
-                self.dropout = nn.Dropout(p=last_drop)
-            else:
-                self.dropout = nn.Dropout(keep_prob=1 - last_drop)
+            self.dropout = nn.Dropout(p=last_drop)
+
             if extra_pool_at_last_stage > 1:
                 self.pool = ops.AvgPool(
                     kernel_size=(1, extra_pool_at_last_stage),
@@ -614,10 +599,7 @@ class SVTRNet(nn.Cell):
         if use_lenhead:
             self.len_conv = nn.Dense(embed_dim[2], self.out_channels)
             self.hardswish_len = nn.HSwish()
-            if is_ms_version_2():
-                self.dropout_len = nn.Dropout(p=last_drop)
-            else:
-                self.dropout_len = nn.Dropout(keep_prob=1 - last_drop)
+            self.dropout_len = nn.Dropout(p=last_drop)
 
     def forward_features(self, x: Tensor) -> Tensor:
         x = self.patch_embed(x)

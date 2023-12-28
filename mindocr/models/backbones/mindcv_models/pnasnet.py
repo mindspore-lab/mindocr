@@ -424,7 +424,7 @@ class Pnasnet(nn.Cell):
 
         self.relu = nn.ReLU()
         self.pool = GlobalAvgPooling()
-        self.dropout = nn.Dropout(keep_prob=0.5)
+        self.dropout = nn.Dropout(p=0.5)
         self.last_linear = nn.Dense(in_channels=1080, out_channels=num_classes)
 
         self._initialize_weights()

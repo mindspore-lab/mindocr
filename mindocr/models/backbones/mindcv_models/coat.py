@@ -76,7 +76,7 @@ class Mlp(nn.Cell):
         self.fc1 = nn.Dense(in_channels=in_features, out_channels=hidden_features, has_bias=True)
         self.act = nn.GELU(approximate=False)
         self.fc2 = nn.Dense(in_channels=hidden_features, out_channels=out_features, has_bias=True)
-        self.drop = nn.Dropout(keep_prob=1.0 - drop)
+        self.drop = nn.Dropout(p=drop)
 
     def construct(self, x: Tensor) -> Tensor:
         x = self.fc1(x)
@@ -173,9 +173,9 @@ class FactorAtt_ConvRelPosEnc(nn.Cell):
         self.q = nn.Dense(in_channels=dim, out_channels=dim, has_bias=qkv_bias)
         self.k = nn.Dense(in_channels=dim, out_channels=dim, has_bias=qkv_bias)
         self.v = nn.Dense(in_channels=dim, out_channels=dim, has_bias=qkv_bias)
-        self.attn_drop = nn.Dropout(keep_prob=1 - attn_drop)
+        self.attn_drop = nn.Dropout(p=attn_drop)
         self.proj = nn.Dense(dim, dim)
-        self.proj_drop = nn.Dropout(keep_prob=1 - proj_drop)
+        self.proj_drop = nn.Dropout(p=proj_drop)
         self.softmax = nn.Softmax(axis=-1)
         self.batch_matmul = ops.BatchMatMul()
 
