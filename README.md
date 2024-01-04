@@ -1,6 +1,8 @@
+<!--start-->
 <div align="center" markdown>
 
 # MindOCR
+<!--end-->
 
 [![CI](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml/badge.svg)](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/mindspore-lab/mindocr.svg)](https://github.com/mindspore-lab/mindocr/blob/main/LICENSE)
@@ -8,7 +10,7 @@
 [![PRs](https://img.shields.io/badge/PRs-welcome-pink.svg)](https://github.com/mindspore-lab/mindocr/pulls)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-
+<!--start-->
 English | [中文](README_CN.md)
 
 [📝Introduction](#introduction) |
@@ -151,7 +153,8 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 - Inference with MindSpore Lite
     - [Python/C++ Inference on Ascend 310](docs/en/inference/inference_tutorial.md)
     - [MindOCR Models Offline Inference - Quick Start](docs/en/inference/inference_quickstart.md)
-    - [Third-party Models Offline Inference - Quick Start](docs/en/inference/inference_thirdparty_quickstart.md).
+    - [Third-party Models Offline Inference - Quick Start](docs/en/inference/inference_thirdparty_quickstart.md)
+    - [Model Conversion](docs/en/inference/convert_tutorial.md)
 - Developer Guides
     - [Customize Dataset](mindocr/data/README.md)
     - [Customize Data Transformation](mindocr/data/transforms/README.md)
@@ -365,3 +368,4 @@ If you find this project useful in your research, please consider citing:
     year={2023}
 }
 ```
+<!--end-->
