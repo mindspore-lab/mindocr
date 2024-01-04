@@ -151,7 +151,8 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 - Inference with MindSpore Lite
     - [Python/C++ Inference on Ascend 310](docs/en/inference/inference_tutorial.md)
     - [MindOCR Models Offline Inference - Quick Start](docs/en/inference/inference_quickstart.md)
-    - [Third-party Models Offline Inference - Quick Start](docs/en/inference/inference_thirdparty_quickstart.md).
+    - [Third-party Models Offline Inference - Quick Start](docs/en/inference/inference_thirdparty_quickstart.md)
+    - [Model Conversion](docs/en/inference/convert_tutorial.md)
 - Developer Guides
     - [Customize Dataset](mindocr/data/README.md)
     - [Customize Data Transformation](mindocr/data/transforms/README.md)
