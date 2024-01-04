@@ -1,6 +1,6 @@
 system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
-  distribute: False
+  distribute: True
   amp_level: 'O0'
   seed: 42
   log_interval: 10
@@ -51,13 +51,13 @@ loss:
 
 scheduler:
   scheduler: polynomial_decay
-  lr: 0.007
-  num_epochs: 1200
+  lr: 0.02
+  num_epochs: 2000
   decay_rate: 0.9
   warmup_epochs: 3
 
 optimizer:
-  opt: SGD
+  opt: momentum
   filter_bias_and_bn: false
   momentum: 0.9
   weight_decay: 1.0e-4
@@ -123,7 +123,7 @@ train:
 
   loader:
     shuffle: True
-    batch_size: 10
+    batch_size: 8
     drop_remainder: True
     num_workers: 10
 
