@@ -56,35 +56,48 @@ class BaseModel(nn.Cell):
             f"but not found in {neck_name}"
         )
 
-        head_name = config.head.pop("name")
-        self.head = build_head(
-            head_name, in_channels=self.neck.out_channels, **config.head
+        self.head_name = config.head.pop("name")
+        self.head = build_head(self.head_name, in_channels=self.neck.out_channels, **config.head)
+
+        self.model_name = f"{backbone_name}_{neck_name}_{self.head_name}"
+
+    def ser(self, *inputs):
+        image = inputs[4]
+
+        x = self.backbone(
+            input_ids=inputs[0],
+            bbox=inputs[1],
+            attention_mask=inputs[2],
+            token_type_ids=inputs[3],
+            pixel_values=image,
         )
+        x = self.head(x, inputs[0])
 
-        self.model_name = f"{backbone_name}_{neck_name}_{head_name}"
+        return x
 
-    def kie_construct(self, *args):
+    def re(self, *inputs):
         if self.backbone.use_visual_backbone is True:
-            image = args[4]
+            image = inputs[4]
         else:
             image = None
 
         x = self.backbone(
-            input_ids=args[0],
-            bbox=args[1],
-            attention_mask=args[2],
-            token_type_ids=args[3],
+            input_ids=inputs[0],
+            bbox=inputs[1],
+            attention_mask=inputs[2],
+            token_type_ids=inputs[3],
             image=image,
-            position_ids=None,
-            head_mask=None,
         )
-        x = self.head(x, args[0])
+        x = self.head(x, inputs[0], inputs[5], inputs[6], inputs[7], inputs[8])
 
         return x
 
     def construct(self, *args):
         if self.is_kie is True:
-            return self.kie_construct(*args)
+            if self.head_name == "TokenClassificationHead":
+                return self.ser(*args)
+            elif self.head_name == "RelationExtractionHead":
+                return self.re(*args)
 
         x = args[0]
         if self.transform is not None:
