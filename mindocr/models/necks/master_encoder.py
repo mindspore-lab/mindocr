@@ -4,7 +4,6 @@ import mindspore.nn as nn
 import mindspore.ops as ops
 from mindspore import Tensor
 
-from ...utils.misc import is_ms_version_2
 from ..utils import MultiHeadAttention, PositionalEncoding, PositionwiseFeedForward
 
 
@@ -52,10 +51,7 @@ class MasterEncoder(nn.Cell):
         self.position = PositionalEncoding(in_channels, dropout)
         self.layer_norm = nn.LayerNorm([in_channels], epsilon=1e-6)
         self.stacks = stacks
-        if is_ms_version_2():
-            self.dropout = nn.Dropout(p=dropout)
-        else:
-            self.dropout = nn.Dropout(keep_prob=1 - dropout)
+        self.dropout = nn.Dropout(p=dropout)
         self.with_encoder = with_encoder
 
     def construct(self, features: List[Tensor]) -> Tensor:

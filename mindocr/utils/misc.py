@@ -22,6 +22,8 @@ class AverageMeter:
         self.count = Tensor(0.0, dtype=ms.float32)
 
     def update(self, val: Tensor, n: int = 1) -> None:
+        if val == float("inf"):
+            return
         self.val = val
         self.sum += val * n
         self.count += n

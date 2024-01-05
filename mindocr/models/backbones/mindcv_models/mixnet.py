@@ -339,7 +339,7 @@ class MixNet(nn.Cell):
         ])
 
         self.pool = GlobalAvgPooling()
-        self.dropout = nn.Dropout(keep_prob=1 - drop_rate)
+        self.dropout = nn.Dropout(p=drop_rate)
         self.classifier = nn.Dense(feature_size, num_classes)
 
         self._initialize_weights()

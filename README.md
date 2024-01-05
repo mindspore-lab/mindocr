@@ -2,7 +2,11 @@
 <div align="center" markdown>
 
 # MindOCR
+
+</div>
 <!--end-->
+
+<div align="center" markdown>
 
 [![CI](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml/badge.svg)](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/mindspore-lab/mindocr.svg)](https://github.com/mindspore-lab/mindocr/blob/main/LICENSE)
@@ -10,7 +14,6 @@
 [![PRs](https://img.shields.io/badge/PRs-welcome-pink.svg)](https://github.com/mindspore-lab/mindocr/pulls)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-<!--start-->
 English | [中文](README_CN.md)
 
 [📝Introduction](#introduction) |
@@ -24,6 +27,7 @@ English | [中文](README_CN.md)
 
 </div>
 
+<!--start-->
 ## Introduction
 MindOCR is an open-source toolbox for OCR development and application based on [MindSpore](https://www.mindspore.cn/en), which integrates series of mainstream text detection and recognition algorihtms/models, provides easy-to-use training and inference tools. It can accelerate the process of developing and deploying SoTA text detection and recognition models in real-world applications, such as DBNet/DBNet++ and CRNN/SVTR, and help fulfill the need of image-text understanding.
 
@@ -201,6 +205,13 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 
 </details>
 
+<details open markdown>
+<summary>Table Recognition</summary>
+
+- [x] [TableMaster](configs/table/README.md) (arXiv'2021)
+
+</details>
+
 For the detailed performance of the trained models, please refer to [configs](./configs).
 
 For details of MindSpore Lite and ACL inference models support, please refer to [MindOCR Models Support List](docs/en/inference/inference_quickstart.md) and [Third-party Models Support List](docs/en/inference/inference_thirdparty_quickstart.md) (PaddleOCR, MMOCR, etc.).
@@ -250,6 +261,13 @@ MindOCR provides a [dataset conversion tool](tools/dataset_converters) to OCR da
 
 </details>
 
+<details close markdown>
+<summary>Table Recognition Datasets</summary>
+
+- [PubTabNet](https://github.com/ibm-aur-nlp/PubTabNet) [[paper](https://arxiv.org/pdf/1911.10683.pdf)] [[download](https://dax-cdn.cdn.appdomain.cloud/dax-pubtabnet/2.0.0/pubtabnet.tar.gz)]
+
+</details>
+
 We will include more datasets for training and evaluation. This list will be continuously updated.
 
 ## Frequently Asked Questions
@@ -261,6 +279,12 @@ Frequently asked questions about configuring environment and mindocr, please ref
 
 <details close markdown>
 <summary>News</summary>
+
+- 2023/12/25
+1. Add new trained models
+    - [TableMaster](configs/table/table_master.yaml) for table recognition
+2. Add more benchmark datasets and their results
+    - [PubTabNet](configs/table/README.md)
 
 - 2023/12/14
 1. Add new trained models

@@ -118,7 +118,7 @@ markdown_extensions:
 
 plugins:
   - search
-  - include-markdown
+  - include-markdown:
       rewrite-relative-urls: false
       start: <!--start-->
       end: <!--end-->

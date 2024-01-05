@@ -1,0 +1,165 @@
+system:
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: False
+  amp_level: 'O0'
+  seed: 42
+  log_interval: 10
+  val_while_train: True
+  val_start_epoch: 50
+  drop_overflow_update: False
+
+model:
+  type: kie
+  transform: null
+  backbone:
+    name: layoutxlm
+    pretrained: True
+    num_classes: &num_classes 7
+    use_visual_backbone: True
+    use_float16: True
+  head:
+    name: RelationExtractionHead
+    use_visual_backbone: True
+    use_float16: True
+  pretrained:
+
+postprocess:
+  name: VQAReTokenLayoutLMPostProcess
+  class_path: &class_path path/to/class_list_xfun.txt
+
+metric:
+  name: VQAReTokenMetric
+  main_indicator: hmean
+
+loss:
+  name: VQAReTokenLayoutLMLoss
+
+scheduler:
+  scheduler: polynomial_decay
+  lr: 5.0e-5
+  min_lr: 2.0e-7
+  num_epochs: 200
+  warmup_epochs: 10
+
+optimizer:
+  opt: adam
+  beta1: 0.9
+  beta2: 0.999
+  clip_norm: 10
+  filter_bias_and_bn: False
+  weight_decay: 0.0005
+
+train:
+  ckpt_save_dir: './tmp_kie_re'
+  dataset_sink_mode: False
+  dataset:
+    type: KieDataset
+    dataset_root: path/to/train_data/
+    data_dir: XFUND/zh_train/image
+    label_file: XFUND/zh_train/train.json
+    sample_ratio: 1.0
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: RGB
+          to_float32: False
+      - VQATokenLabelEncode:
+          contains_re: True
+          algorithm: &algorithm LayoutXLM
+          class_path: *class_path
+          order_method: tb-yx
+      - VQATokenPad:
+          max_seq_len: &max_seq_len 512
+          return_attention_mask: True
+      - VQAReTokenRelation:
+      - VQAReTokenChunk:
+          max_seq_len: *max_seq_len
+      - TensorizeEntitiesRelations:
+          max_relation_len: 5000
+      - LayoutResize:
+          size: [224, 224]
+      - NormalizeImage:
+          bgr_to_rgb: False
+          is_hwc: True
+          mean: imagenet
+          std: imagenet
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visualize
+    output_columns:
+      [
+        "input_ids",
+        "bbox",
+        "attention_mask",
+        "token_type_ids",
+        "image",
+        "question",
+        "question_label",
+        "answer",
+        "answer_label",
+        "relation_label",
+      ]
+    net_input_column_index: [0, 1, 2, 3, 4, 5, 6, 7, 8] # input indices for network forward func in output_columns
+    label_column_index: [9] # input indices marked as label
+
+  loader:
+    shuffle: True
+    batch_size: 8
+    drop_remainder: True
+    num_workers: 16
+
+eval:
+  ckpt_load_path: 'tmp_kie_re/best.ckpt'
+  dataset_sink_mode: False
+  dataset:
+    type: KieDataset
+    dataset_root: path/to/train_data/
+    data_dir: XFUND/zh_val/image
+    label_file: XFUND/zh_val/val.json
+    sample_ratio: 1.0
+    shuffle: False
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: RGB
+          to_float32: False
+      - VQATokenLabelEncode:
+          contains_re: True
+          algorithm: *algorithm
+          class_path: *class_path
+          order_method: tb-yx
+      - VQATokenPad:
+          max_seq_len: *max_seq_len
+          return_attention_mask: True
+      - VQAReTokenRelation:
+      - VQAReTokenChunk:
+          max_seq_len: *max_seq_len
+      - TensorizeEntitiesRelations:
+          max_relation_len: 5000
+      - LayoutResize:
+          size: [224, 224]
+      - NormalizeImage:
+          bgr_to_rgb: False
+          is_hwc: True
+          mean: imagenet
+          std: imagenet
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visualize
+    output_columns:
+      [
+        "input_ids",
+        "bbox",
+        "attention_mask",
+        "token_type_ids",
+        "image",
+        "question",
+        "question_label",
+        "answer",
+        "answer_label",
+        "relation_label",
+      ]
+    net_input_column_index: [0, 1, 2, 3, 4, 5, 6, 7, 8] # input indices for network forward func in output_columns
+    label_column_index: [9] # input indices marked as label
+
+  loader:
+    shuffle: False
+    batch_size: 1
+    drop_remainder: False
+    num_workers: 1

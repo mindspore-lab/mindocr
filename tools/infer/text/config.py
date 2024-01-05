@@ -181,6 +181,27 @@ def create_parser():
     parser.add_argument("--cpu_threads", type=int, default=10)
     """
     parser.add_argument("--warmup", type=str2bool, default=False)
+    parser.add_argument("--ocr_result_dir", type=str, default=None, help="path or directory of ocr results")
+    parser.add_argument(
+        "--ser_algorithm",
+        type=str,
+        default="VI_LAYOUTXLM",
+        choices=["VI_LAYOUTXLM", "LAYOUTXLM"],
+        help="ser algorithm",
+    )
+    parser.add_argument(
+        "--ser_model_dir",
+        type=str,
+        help="directory containing the ser model checkpoint best.ckpt, or path to a specific checkpoint file.",
+    )
+    parser.add_argument(
+        "--kie_batch_mode",
+        type=str2bool,
+        default=True,
+        help="Whether to run recognition inference in batch-mode, which is faster but may degrade the accuracy "
+        "due to padding or resizing to the same shape.",
+    )
+    parser.add_argument("--kie_batch_num", type=int, default=8)
 
     return parser_config, parser
 
