@@ -7,7 +7,8 @@
  - [关于`RunTimeError:The device address tpe is wrong`](#q6-runtimeerror-the-device-address-type-is-wrong-type-name-in-addresscpu-type-name-in-contextascend)
  - [模型转换相关问题](#q7-模型转换相关问题)
  - [推理相关问题](#q8-推理时相关问题)
- - [`libgomp-d22c30c5.so.1.0.0`相关错误](#q9-libgomp-d22c30c5.so.1.0.0相关错误)
+ - [DBNet训练速率不及预期](#q9-DBNet训练速率不及预期)
+ - [`libgomp-d22c30c5.so.1.0.0`相关错误](#q10-libgomp-d22c30c5so100相关错误)
 
 ### Q1 未定义符号
 
@@ -620,7 +621,61 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
   - 使用恰当的模型。例如在 `--rec_model_path` 错误传入了检测模型，可触发此错误；
   - 使用推理模型（非训练模型），用`converter_lite`转换工具转为端侧`mindir`进行推理。
 
-### Q9 `libgomp-d22c30c5.so.1.0.0`相关错误
+### Q9 DBNet训练速率不及预期
+
+执行以下命令，训练DBNet系列网络（包括DBNet MobileNetV3、DBNet ResNet-18、DBNet ResNet-50、DBNet++ ResNet-50等）时，训练帧率不及预期。例如，DBNet MobileNetV3在Ascend 910A上，训练速率仅80fps，不及预期的100fps。
+
+``` bash
+python tools/train.py -c configs/det/dbnet/db_mobilenetv3_icdar15.yaml
+```
+
+由于DBNet数据预处理过程相对复杂，如训练服务器CPU单核运算能力较弱，则数据预处理可能成为性能瓶颈。
+
+**解决方法**
+
+1. 尝试将配置文件中`train.dataset.use_minddata`和`eval.dataset.use_minddata`的选项设置为`True`。MindOCR将采用MindSpore[MindData](https://www.mindspore.cn/docs/zh-CN/master/api_python/dataset/dataset_method/operation/mindspore.dataset.Dataset.map.html?highlight=map#mindspore.dataset.Dataset.map)执行部分数据预处理步骤：
+
+    ```yaml
+    ...
+    train:
+      ckpt_save_dir: './tmp_det'
+      dataset_sink_mode: True
+      dataset:
+        type: DetDataset
+        dataset_root: /data/ocr_datasets
+        data_dir: ic15/det/train/ch4_training_images
+        label_file: ic15/det/train/det_gt.txt
+        sample_ratio: 1.0
+        use_minddata: True                          <-- 设置该选项
+    ...
+    eval:
+      ckpt_load_path: tmp_det/best.ckpt
+      dataset_sink_mode: False
+      dataset:
+        type: DetDataset
+        dataset_root: /data/ocr_datasets
+        data_dir: ic15/det/test/ch4_test_images
+        label_file: ic15/det/test/det_gt.txt
+        sample_ratio: 1.0
+        use_minddata: True                          <-- 设置该选项
+    ...
+    ```
+
+2. 如训练服务器CPU核数较多，尝试调高配置文件中的`train.loader.num_workers`选项，提升数据预取的线程数：
+
+    ``` yaml
+    ...
+    train:
+      ...
+      loader:
+        shuffle: True
+        batch_size: 10
+        drop_remainder: True
+        num_workers: 12                             <-- 设置该选项
+    ...
+    ```
+
+### Q10 `libgomp-d22c30c5.so.1.0.0`相关错误
 运行mindocr时，可能报以下错误
 ```bash
 ImportError: /root/mindocr_env/lib/python3.8/site-packages/sklearn/__check_build/../../scikit_learn.libs/libgomp-d22c30c5.so.1.0.0: cannot allocate memory in static TLS block

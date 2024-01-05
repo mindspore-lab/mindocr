@@ -80,7 +80,7 @@ class ConvMlp(nn.Cell):
         self.fc1 = nn.Conv2d(in_features, hidden_features, kernel_size=1, has_bias=bias[0])
         self.norm = norm_layer(hidden_features) if norm_layer else Identity()
         self.act = act_layer(approximate=False)
-        self.drop = nn.Dropout(1 - drop)
+        self.drop = nn.Dropout(p=drop)
         self.fc2 = nn.Conv2d(hidden_features, out_features, kernel_size=1, has_bias=bias[1])
         self.cls_init_weights()
 

@@ -67,9 +67,9 @@ class ClassAttention(nn.Cell):
         self.q = nn.Dense(dim, dim, has_bias=qkv_bias)
         self.k = nn.Dense(dim, dim, has_bias=qkv_bias)
         self.v = nn.Dense(dim, dim, has_bias=qkv_bias)
-        self.attn_drop = nn.Dropout(1 - attn_drop_rate)
+        self.attn_drop = nn.Dropout(p=attn_drop_rate)
         self.proj = nn.Dense(dim, dim)
-        self.proj_drop = nn.Dropout(1 - proj_drop_rate)
+        self.proj_drop = nn.Dropout(p=proj_drop_rate)
         self.softmax = nn.Softmax(axis=-1)
 
         self.attn_matmul_v = ops.BatchMatMul()
@@ -156,14 +156,14 @@ class AttentionTalkingHead(nn.Cell):
         self.scale = qk_scale or head_dim ** -0.5
 
         self.qkv = nn.Dense(dim, dim * 3, has_bias=qkv_bias)
-        self.attn_drop = nn.Dropout(1 - attn_drop_rate)
+        self.attn_drop = nn.Dropout(p=attn_drop_rate)
 
         self.proj = nn.Dense(dim, dim, has_bias=False)
 
         self.proj_l = nn.Dense(num_heads, num_heads, has_bias=False)
         self.proj_w = nn.Dense(num_heads, num_heads, has_bias=False)
 
-        self.proj_drop = nn.Dropout(1 - proj_drop_rate)
+        self.proj_drop = nn.Dropout(p=proj_drop_rate)
 
         self.softmax = nn.Softmax(axis=-1)
 
@@ -271,7 +271,7 @@ class CaiT(nn.Cell):
         zeros = ops.Zeros()
         self.cls_token = Parameter(zeros((1, 1, embed_dim), ms.float32))
         self.pos_embed = Parameter(zeros((1, num_patches, embed_dim), ms.float32))
-        self.pos_drop = nn.Dropout(1 - drop_rate)
+        self.pos_drop = nn.Dropout(p=drop_rate)
 
         dpr = [drop_path_rate for i in range(depth)]
 

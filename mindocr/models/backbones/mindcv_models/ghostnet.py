@@ -177,7 +177,7 @@ class GhostNet(nn.Cell):
         num_classes: number of classification classes. Default: 1000.
         in_channels: number of input channels. Default: 3.
         width: base width of hidden channel in blocks. Default: 1.0
-        droupout: the probability of the features before classification. Default: 0.2
+        dropout: the probability of the features before classification. Default: 0.2
     """
 
     def __init__(
@@ -227,7 +227,7 @@ class GhostNet(nn.Cell):
                                    padding=0, stride=1, has_bias=True, pad_mode="pad")
         self.act2 = nn.ReLU()
         if self.dropout_rate > 0:
-            self.dropout = nn.Dropout(self.dropout_rate)
+            self.dropout = nn.Dropout(p=self.dropout_rate)
         self.classifier = nn.Dense(output_channel, num_classes)
         self._initialize_weights()
 

@@ -132,7 +132,7 @@ def main(cfg):
         f"Total number of trainable parameters: {num_trainable_params}\n"
         f"AMP level: {amp_level}\n"
         f"Num batches: {num_batches}\n"
-        f"Batch size: {cfg.eval.loader.batch_size}\n"
+        f"Batch size: {loader_eval.get_batch_size()}\n"
         f"{det_spec}{rec_spec}\n"
         f"{info_seg}\n"
         f"\nStart evaluating..."

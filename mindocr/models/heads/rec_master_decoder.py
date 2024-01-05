@@ -66,10 +66,7 @@ class MasterDecoder(nn.Cell):
         )
         self.position = PositionalEncoding(in_channels, dropout)
         self.stacks = stacks
-        if is_ms_version_2():
-            self.dropout = nn.Dropout(p=dropout)
-        else:
-            self.dropout = nn.Dropout(keep_prob=1 - dropout)
+        self.dropout = nn.Dropout(p=dropout)
         self.layer_norm = nn.LayerNorm([in_channels], epsilon=1e-6)
         self.embedding = nn.Embedding(out_channels, in_channels)
         self.sqrt_model_size = np.sqrt(in_channels)
