@@ -158,6 +158,7 @@ eval:
 
 predict:
   ckpt_load_path: tmp_det/best.ckpt
+  output_save_dir: ./output
   dataset_sink_mode: False
   dataset:
     type: PredictDataset
@@ -169,12 +170,12 @@ predict:
       - DecodeImage:
           img_mode: RGB
           to_float32: False
-#      - DetLabelEncode:
-      - DetResize:  # GridResize 32
-          target_size: [ 736, 1280 ]
-          keep_ratio: False
-          limit_type: none
-          divisor: 32
+          keep_ori: True
+      - DetResize:
+          keep_ratio: True
+          padding: False
+          limit_side_len: 960
+          limit_type: max
       - NormalizeImage:
           bgr_to_rgb: False
           is_hwc: True
@@ -182,11 +183,11 @@ predict:
           std: imagenet
       - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the labels for evaluation
-    output_columns: [ 'img_path', 'image', 'raw_img_shape' ]  # shape in h, w order
-#    num_keys_of_labels: 2 # num labels
+    output_columns: ["image", "img_path", "shape_list", "image_ori"]
+    net_input_column_index: [ 0 ] # input indices for network forward func in output_columns
 
   loader:
     shuffle: False
-    batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
+    batch_size: 1
     drop_remainder: False
     num_workers: 2

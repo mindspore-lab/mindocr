@@ -91,9 +91,11 @@ def export(model_name_or_config, data_shape, local_ckpt_path, save_dir, is_dynam
         amp_level = "O0"
 
     if local_ckpt_path:
-        net = build_model(model_cfg, pretrained=False, ckpt_load_path=local_ckpt_path, amp_level=amp_level)
+        net = build_model(
+            model_cfg, pretrained=False, pretrained_backbone=False, ckpt_load_path=local_ckpt_path, amp_level=amp_level
+        )
     else:
-        net = build_model(model_cfg, pretrained=True, amp_level=amp_level)
+        net = build_model(model_cfg, pretrained=True, pretrained_backbone=False, amp_level=amp_level)
 
     logger.info(f"Set the AMP level of the model to be `{amp_level}`.")
 

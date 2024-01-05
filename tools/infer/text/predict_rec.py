@@ -102,7 +102,9 @@ class TextRecognizer(object):
 
         # TODO: try GeneratorDataset to wrap preprocess transform on batch for possible speed-up.
         #  if use_ms_dataset: ds = ms.dataset.GeneratorDataset(wrap_preprocess, ) in run_batchwise
-        self.postprocess = Postprocessor(task="rec", algo=args.rec_algorithm)
+        self.postprocess = Postprocessor(
+            task="rec", algo=args.rec_algorithm, rec_char_dict_path=args.rec_char_dict_path
+        )
 
         self.vis_dir = args.draw_img_save_dir
         os.makedirs(self.vis_dir, exist_ok=True)
