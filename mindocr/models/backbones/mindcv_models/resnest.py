@@ -308,7 +308,7 @@ class ResNeSt(nn.Cell):
             self.layer3 = self._make_layer(block, 256, layers[2], stride=2, norm_layer=norm_layer)
             self.layer4 = self._make_layer(block, 512, layers[3], stride=2, norm_layer=norm_layer)
         self.avgpool = GlobalAvgPooling()
-        self.drop = nn.Dropout(keep_prob=1.0 - drop_rate) if drop_rate > 0.0 else None
+        self.drop = nn.Dropout(p=drop_rate) if drop_rate > 0.0 else None
         self.fc = nn.Dense(512 * block.expansion, num_classes)
 
         self._initialize_weights()

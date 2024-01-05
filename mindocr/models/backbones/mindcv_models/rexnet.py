@@ -209,11 +209,11 @@ class ReXNetV1(nn.Cell):
         self.features = nn.SequentialCell(*features)
         if self.useconv:
             self.cls = nn.SequentialCell(
-                nn.Dropout(1.0 - drop_rate),
+                nn.Dropout(p=drop_rate),
                 nn.Conv2d(pen_channels, num_classes, 1, has_bias=True))
         else:
             self.cls = nn.SequentialCell(
-                nn.Dropout(1.0 - drop_rate),
+                nn.Dropout(p=drop_rate),
                 nn.Dense(pen_channels, num_classes))
         self._initialize_weights()
 

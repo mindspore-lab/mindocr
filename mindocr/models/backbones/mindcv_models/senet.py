@@ -310,7 +310,7 @@ class SENet(nn.Cell):
 
         self.pool = GlobalAvgPooling()
         if self.drop_rate > 0.:
-            self.dropout = nn.Dropout(keep_prob=1. - self.drop_rate)
+            self.dropout = nn.Dropout(p=self.drop_rate)
         self.classifier = nn.Dense(self.num_features, self.num_classes)
 
         self._initialize_weights()

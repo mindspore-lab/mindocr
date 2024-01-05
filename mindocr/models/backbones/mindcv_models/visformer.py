@@ -73,7 +73,7 @@ class Mlp(nn.Cell):
                 hidden_features = in_features * 2
         self.hidden_features = hidden_features
         self.group = group
-        self.drop = nn.Dropout(1 - drop)
+        self.drop = nn.Dropout(p=drop)
         self.conv1 = nn.Conv2d(in_features, hidden_features, 1, 1, pad_mode="pad", padding=0)
         self.act1 = act_layer()
         if self.spatial_conv:
@@ -118,9 +118,9 @@ class Attention(nn.Cell):
         self.scale = head_dim**qk_scale_factor
 
         self.qkv = nn.Conv2d(dim, head_dim * num_heads * 3, 1, 1, pad_mode="pad", padding=0, has_bias=qkv_bias)
-        self.attn_drop = nn.Dropout(1 - attn_drop)
+        self.attn_drop = nn.Dropout(p=attn_drop)
         self.proj = nn.Conv2d(self.head_dim * self.num_heads, dim, 1, 1, pad_mode="pad", padding=0)
-        self.proj_drop = nn.Dropout(1 - proj_drop)
+        self.proj_drop = nn.Dropout(p=proj_drop)
 
     def construct(self, x: Tensor) -> Tensor:
         B, C, H, W = x.shape
@@ -275,7 +275,7 @@ class Visformer(nn.Cell):
         ])
         img_size //= 2
 
-        self.pos_drop = nn.Dropout(1 - drop_rate)
+        self.pos_drop = nn.Dropout(p=drop_rate)
         # stage0
         if depth[0]:
             self.patch_embed0 = PatchEmbed(img_size=img_size, patch_size=2, in_chans=self.init_channels,

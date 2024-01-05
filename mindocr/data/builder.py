@@ -4,12 +4,14 @@ import os
 
 import mindspore as ms
 
+from .constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from .det_dataset import DetDataset, SynthTextDataset
 from .kie_dataset import KieDataset
 from .layout_dataset import PublayNetDataset
 from .predict_dataset import PredictDataset
 from .rec_dataset import RecDataset
 from .rec_lmdb_dataset import LMDBDataset
+from .table_pubtab_dataset import PubTabDataset
 
 __all__ = ["build_dataset"]
 _logger = logging.getLogger(__name__)
@@ -23,6 +25,7 @@ supported_dataset_types = [
     "PredictDataset",
     "PublayNetDataset",
     "KieDataset",
+    "PubTabDataset",
 ]
 
 
@@ -138,6 +141,9 @@ def build_dataset(
     assert dataset_class_name in supported_dataset_types, "Invalid dataset name"
     dataset_class = eval(dataset_class_name)
     dataset_args = dict(is_train=is_train, **dataset_config)
+    if "use_minddata" in dataset_args and dataset_args["use_minddata"]:
+        minddata_op_list = _parse_minddata_op(dataset_args)
+
     dataset = dataset_class(**dataset_args)
 
     dataset_column_names = dataset.get_output_columns()
@@ -156,8 +162,13 @@ def build_dataset(
     )
 
     # 2. data mapping using minddata C lib (optional)
-    # ds = ds.map(operations=transform_list, input_columns=['image', 'label'], num_parallel_workers=8,
-    # python_multiprocessing=True)
+    if "use_minddata" in dataset_args and dataset_args["use_minddata"]:
+        ds = ds.map(
+            operations=minddata_op_list,
+            input_columns=["image"],
+            num_parallel_workers=num_workers,
+            python_multiprocessing=True,
+        )
 
     # 3. create loader
     # get batch of dataset by collecting batch_size consecutive data rows and apply batch operations
@@ -240,3 +251,30 @@ def _check_batch_size(num_samples, ori_batch_size=32, refine=True):
                     f"dropped/padded in graph mode."
                 )
                 return bs
+
+
+def _parse_minddata_op(dataset_args):
+    minddata_op_idx = []
+    minddata_op_list = []
+    for i, transform_dict in enumerate(dataset_args["transform_pipeline"]):
+        if "RandomColorAdjust" in transform_dict.keys():
+            minddata_op_idx.append(i)
+            color_adjust_op = ms.dataset.vision.RandomColorAdjust(
+                brightness=transform_dict["RandomColorAdjust"]["brightness"],
+                saturation=transform_dict["RandomColorAdjust"]["saturation"],
+            )
+            minddata_op_list.append(color_adjust_op)
+            continue
+        if "NormalizeImage" in transform_dict.keys():
+            minddata_op_idx.append(i)
+            normalize_op = ms.dataset.vision.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD)
+            minddata_op_list.append(normalize_op)
+            continue
+        if "ToCHWImage" in transform_dict.keys():
+            minddata_op_idx.append(i)
+            change_swap_op = ms.dataset.vision.HWC2CHW()
+            minddata_op_list.append(change_swap_op)
+            continue
+    for _ in range(len(minddata_op_idx)):
+        dataset_args["transform_pipeline"].pop(minddata_op_idx.pop())
+    return minddata_op_list

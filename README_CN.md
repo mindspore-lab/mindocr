@@ -198,6 +198,13 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 
 </details>
 
+<details open markdown>
+<summary>表格识别</summary>
+
+- [x] [TableMaster](configs/table/README_CN.md) (arXiv'2021)
+
+</details>
+
 
 关于以上模型的具体训练方法和结果，请参见[configs](./configs)下各模型子目录的readme文档。
 
@@ -250,6 +257,13 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 
 </details>
 
+<details close markdown>
+<summary>表格识别数据集</summary>
+
+- [PubTabNet](https://github.com/ibm-aur-nlp/PubTabNet) [[paper](https://arxiv.org/pdf/1911.10683.pdf)] [[download](https://dax-cdn.cdn.appdomain.cloud/dax-pubtabnet/2.0.0/pubtabnet.tar.gz)]
+
+</details>
+
 我们会在更多的数据集上进行模型训练和验证。该列表将持续更新。
 
 ## 常见问题
@@ -260,6 +274,12 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 ### 更新日志
 <details close markdown>
 <summary>详细</summary>
+
+- 2023/12/25
+1. 增加新模型
+    - 表格识别[TableMaster](configs/table/table_master.yaml)
+2. 添加更多基准数据集及其结果
+    - [PubTabNet](configs/table/README_CN.md)
 
 - 2023/12/14
 1. 增加新模型

@@ -78,6 +78,7 @@ train:
     data_dir: ic15/det/train/ch4_training_images
     label_file: ic15/det/train/det_gt.txt
     sample_ratio: 1.0
+    use_minddata: True
     transform_pipeline:
       - DecodeImage:
           img_mode: RGB
@@ -135,6 +136,7 @@ eval:
     data_dir: ic15/det/test/ch4_test_images
     label_file: ic15/det/test/det_gt.txt
     sample_ratio: 1.0
+    use_minddata: True
     transform_pipeline:
       - DecodeImage:
           img_mode: RGB

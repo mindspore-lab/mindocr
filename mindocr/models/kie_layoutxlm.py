@@ -1,5 +1,17 @@
 from ._registry import register_model
+from .backbones.mindcv_models.utils import load_pretrained
 from .base_model import BaseModel
+
+
+def _cfg(url="", **kwargs):
+    return {"url": url, **kwargs}
+
+
+default_cfgs = {
+    "vi_layoutxlm": _cfg(
+        url="https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/ser_vi_layoutxlm-f3c83585.ckpt"
+    ),
+}
 
 
 class KieNet(BaseModel):
@@ -13,7 +25,7 @@ class KieNet(BaseModel):
         else:
             image = None
 
-        x = self.backbone(
+        out = self.backbone(
             input_ids=x[0],
             bbox=x[1],
             attention_mask=x[2],
@@ -21,11 +33,10 @@ class KieNet(BaseModel):
             image=image,
             position_ids=None,
             head_mask=None,
-            labels=None,
         )
-        x = self.head(x)
+        out = self.head(out, input_id=x[0])
 
-        return x
+        return out
 
 
 @register_model
@@ -47,6 +58,9 @@ def layoutxlm_ser(pretrained: bool = True, use_visual_backbone: bool = True, use
         },
     }
     model = KieNet(model_config)
+    if pretrained:
+        default_cfg = default_cfgs["vi_layoutxlm"]
+        load_pretrained(model, default_cfg)
 
     return model
 

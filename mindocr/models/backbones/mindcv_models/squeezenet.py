@@ -117,7 +117,7 @@ class SqueezeNet(nn.Cell):
 
         self.final_conv = nn.Conv2d(512, num_classes, kernel_size=1, has_bias=True)
         self.classifier = nn.SequentialCell([
-            nn.Dropout(keep_prob=1 - drop_rate),
+            nn.Dropout(p=drop_rate),
             self.final_conv,
             nn.ReLU(),
             GlobalAvgPooling()

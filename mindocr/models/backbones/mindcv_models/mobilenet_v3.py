@@ -204,7 +204,7 @@ class MobileNetV3(nn.Cell):
         self.classifier = nn.SequentialCell([
             nn.Dense(output_channels, last_channels),
             nn.HSwish(),
-            nn.Dropout(keep_prob=0.8),
+            nn.Dropout(p=0.2),
             nn.Dense(last_channels, num_classes),
         ])
         self._initialize_weights()

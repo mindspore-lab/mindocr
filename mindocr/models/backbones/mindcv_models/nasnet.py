@@ -807,7 +807,7 @@ class NASNetAMobile(nn.Cell):
         )  # 24, 4
 
         self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(keep_prob=0.5)
+        self.dropout = nn.Dropout(p=0.5)
         self.classifier = nn.Dense(in_channels=24 * filters, out_channels=num_classes)
         self.pool = GlobalAvgPooling()
         self._initialize_weights()

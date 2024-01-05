@@ -75,7 +75,7 @@ class VisualBackbone(nn.Cell):
 
     def pool(self, features):
         """
-        Custom AvgPool2d
+        To enhance performance, customize the AdaptiveAvgPool2d layer
         """
         features = self.conv2d(features, self.weight)
         return features

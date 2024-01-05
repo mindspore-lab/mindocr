@@ -26,9 +26,9 @@ class FeedForward(nn.Cell):
         self.net = nn.SequentialCell(
             nn.Dense(dim, hidden_dim),
             nn.GELU(),
-            nn.Dropout(keep_prob=1 - dropout),
+            nn.Dropout(p=dropout),
             nn.Dense(hidden_dim, dim),
-            nn.Dropout(keep_prob=1 - dropout)
+            nn.Dropout(p=dropout)
         )
 
     def construct(self, x):

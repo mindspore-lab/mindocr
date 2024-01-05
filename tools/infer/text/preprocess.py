@@ -161,6 +161,32 @@ class Preprocessor(object):
                 #    'std': [127.0, 127.0, 127.0]}},
                 {"ToCHWImage": None},
             ]
+        elif task == "ser":
+            pipeline = [
+                {"DecodeImage": {"img_mode": "RGB", "infer_mode": True, "to_float32": False}},
+                {
+                    "VQATokenLabelEncode": {
+                        "contains_re": False,
+                        "infer_mode": True,
+                        "algorithm": "LayoutXLM",
+                        "class_path": "mindocr/utils/dict/class_list_xfun.txt",
+                        "order_method": "tb-yx",
+                    }
+                },
+                {"VQATokenPad": {"max_seq_len": 512, "infer_mode": True, "return_attention_mask": True}},
+                {"VQASerTokenChunk": {"infer_mode": True, "max_seq_len": 512}},
+                {"LayoutResize": {"infer_mode": True, "size": [224, 224]}},
+                {
+                    "NormalizeImage": {
+                        "infer_mode": True,
+                        "bgr_to_rgb": False,
+                        "is_hwc": True,
+                        "mean": "imagenet",
+                        "std": "imagenet",
+                    }
+                },
+                {"ToCHWImage": None},
+            ]
 
         self.pipeline = pipeline
         self.transforms = create_transforms(pipeline)
@@ -178,6 +204,8 @@ class Preprocessor(object):
         if isinstance(img_or_path, str):
             data = {"img_path": img_or_path}
             output = run_transforms(data, self.transforms)
+        elif isinstance(img_or_path, dict):
+            output = run_transforms(img_or_path, self.transforms)
         else:
             data = {"image": img_or_path}
             data["image_ori"] = img_or_path.copy()  # TODO
