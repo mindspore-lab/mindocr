@@ -33,8 +33,8 @@ class DBNet(BaseModel):
 
 
 @register_model
-def dbnet_mobilenetv3(pretrained=False, **kwargs):
-    pretrained_backbone = 'https://download.mindspore.cn/toolkits/mindcv/mobilenet/mobilenetv3' \
+def dbnet_mobilenetv3(pretrained=False, pretrained_backbone=True, **kwargs):
+    backbone_ckpt_url = 'https://download.mindspore.cn/toolkits/mindcv/mobilenet/mobilenetv3' \
                           '/mobilenet_v3_large_050_no_scale_se_v2_expand-3c4047ac.ckpt'
     model_config = {
         "backbone": {
@@ -43,7 +43,7 @@ def dbnet_mobilenetv3(pretrained=False, **kwargs):
             'alpha': 0.5,
             'out_stages': [5, 8, 14, 20],
             'bottleneck_params': {'se_version': 'SqueezeExciteV2', 'always_expand': True},
-            'pretrained': pretrained_backbone if not pretrained else False
+            'pretrained': backbone_ckpt_url if pretrained_backbone else False
         },
         "neck": {
             "name": 'DBFPN',
@@ -68,8 +68,7 @@ def dbnet_mobilenetv3(pretrained=False, **kwargs):
 
 
 @register_model
-def dbnet_resnet18(pretrained=False, **kwargs):
-    pretrained_backbone = not pretrained
+def dbnet_resnet18(pretrained=False, pretrained_backbone=True, **kwargs):
     model_config = {
         "backbone": {
             'name': 'det_resnet18',
@@ -98,8 +97,7 @@ def dbnet_resnet18(pretrained=False, **kwargs):
 
 
 @register_model
-def dbnet_resnet50(pretrained=False, **kwargs):
-    pretrained_backbone = not pretrained
+def dbnet_resnet50(pretrained=False, pretrained_backbone=True, **kwargs):
     model_config = {
         "backbone": {
             'name': 'det_resnet50',
@@ -128,8 +126,7 @@ def dbnet_resnet50(pretrained=False, **kwargs):
 
 
 @register_model
-def dbnetpp_resnet50(pretrained=False, **kwargs):
-    pretrained_backbone = not pretrained
+def dbnetpp_resnet50(pretrained=False, pretrained_backbone=True, **kwargs):
     model_config = {
         "backbone": {
             'name': 'det_resnet50',

@@ -27,8 +27,7 @@ class ClsMv3(BaseModel):
 
 
 @register_model
-def cls_mobilenet_v3_small_100_model(pretrained=False, **kwargs):
-    pretrained_backbone = not pretrained
+def cls_mobilenet_v3_small_100_model(pretrained=False, pretrained_backbone=True, **kwargs):
     model_config = {
         "backbone": {
             'name': 'cls_mobilenet_v3_small_100',

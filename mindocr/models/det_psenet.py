@@ -29,8 +29,7 @@ class PSENet(BaseModel):
 
 
 @register_model
-def psenet_resnet152(pretrained=False, **kwargs):
-    pretrained_backbone = not pretrained
+def psenet_resnet152(pretrained=False, pretrained_backbone=True, **kwargs):
     model_config = {
         "backbone": {
             'name': 'det_resnet152',

@@ -37,7 +37,7 @@ def test_mindir_infer(model_name):
     outputs_mindir = model(x)
 
     # get original ckpt outputs
-    net = build_model(model_name, pretrained=True)
+    net = build_model(model_name, pretrained=True, pretrained_backbone=False)
     outputs_ckpt = net(x)
 
     for i, o in enumerate(outputs_mindir):

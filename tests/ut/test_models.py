@@ -31,7 +31,8 @@ print("All config yamls: ", all_yamls)
 @pytest.mark.parametrize("pretrained", [True, False])
 def test_model_by_name(model_name, pretrained):
     print(model_name)
-    build_model(model_name, pretrained=pretrained)
+    pretrained_backbone = not pretrained
+    build_model(model_name, pretrained=pretrained, pretrained_backbone=pretrained_backbone)
     print("model created")
 
 
