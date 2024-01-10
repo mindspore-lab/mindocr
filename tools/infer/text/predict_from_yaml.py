@@ -98,7 +98,7 @@ def save_predict_result(task: str, preds_list: list, output_save_dir: str):
         save_rec_res(rec_res, img_list, save_path=os.path.join(output_save_dir, "rec_results.txt"))
 
 
-def predict_single_step(cfg):
+def predict_single_step(cfg, save_res=True):
     """Run predict for det task or rec task"""
     # 1. Set the environment information.
     set_context(mode=cfg.system.mode)
@@ -162,6 +162,12 @@ def predict_single_step(cfg):
             "The program has switched to amp_level O2 automatically."
         )
         amp_level = "O2"
+    cfg.model.backbone.pretrained = False
+    if cfg.predict.ckpt_load_path is None:
+        logger.warning(
+            f"No ckpt is available for {cfg.model.task}, "
+            "please check your configuration of 'predict.ckpt_load_path' in the yaml file."
+        )
     network = build_model(cfg.model, ckpt_load_path=cfg.predict.ckpt_load_path, amp_level=amp_level)
     network.set_train(False)
 
@@ -219,7 +225,8 @@ def predict_single_step(cfg):
         preds_list.append(preds)
 
     # 7. Save the prediction results to the specified directory
-    save_predict_result(cfg.model.type, preds_list, output_save_dir)
+    if save_res is True:
+        save_predict_result(cfg.model.type, preds_list, output_save_dir)
     return preds_list
 
 
@@ -231,7 +238,7 @@ def predict_system(args, det_cfg, rec_cfg):
     output_save_dir = det_cfg.predict.output_save_dir or "./output"
 
     # get det result from predict
-    preds_list = predict_single_step(det_cfg)
+    preds_list = predict_single_step(det_cfg, save_res=False)
 
     # set amp level
     amp_level = det_cfg.system.get("amp_level_infer", "O0")
@@ -247,6 +254,12 @@ def predict_system(args, det_cfg, rec_cfg):
     postprocessor = build_postprocess(rec_cfg.postprocess)
 
     # build rec model from yaml
+    rec_cfg.model.backbone.pretrained = False
+    if rec_cfg.predict.ckpt_load_path is None:
+        logger.warning(
+            f"No ckpt is available for {rec_cfg.model.type}, "
+            "please check your configuration of 'predict.ckpt_load_path' in the yaml file."
+        )
     rec_network = build_model(rec_cfg.model, ckpt_load_path=rec_cfg.predict.ckpt_load_path, amp_level=amp_level)
 
     # start rec task
