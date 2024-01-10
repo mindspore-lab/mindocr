@@ -226,8 +226,8 @@ def predict_single_step(cfg):
 def predict_system(args, det_cfg, rec_cfg):
     """Run predict for both det and rec task"""
     # merge image_dir option in model config
-    det_cfg.predict.dataset_root = ""
-    det_cfg.predict.data_dir = args.image_dir
+    det_cfg.predict.dataset.dataset_root = ""
+    det_cfg.predict.dataset.data_dir = args.image_dir
     output_save_dir = det_cfg.predict.output_save_dir or "./output"
 
     # get det result from predict
