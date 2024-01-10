@@ -60,8 +60,12 @@ def img_write(path: str, img: np.ndarray):
     cv2.imencode(os.path.splitext(filename)[1], img)[1].tofile(filename)
 
 
-def check_type_in_container(input_data, t):
-    for data in input_data:
+def check_type_in_container(input_data, t, skip_last=False):
+    if skip_last:
+        check_data = input_data[:-1]
+    else:
+        check_data = input_data
+    for data in check_data:
         if not isinstance(data, t):
             return False
     else:

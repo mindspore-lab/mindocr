@@ -44,6 +44,13 @@ def get_args():
         required=False,
         help="Interval(seconds) that each node fetch data from queue.",
     )
+    parser.add_argument(
+        "--result_contain_score",
+        type=bool,
+        default=False,
+        required=False,
+        help="If save confidence score to output result.",
+    )
 
     parser.add_argument("--det_model_path", type=str, required=False, help="Detection model file path.")
     parser.add_argument(
@@ -85,7 +92,6 @@ def get_args():
     parser.add_argument(
         "--input_array_save_dir",
         type=str,
-        default="input_array_temp",
         required=False,
         help="Saving input array.",
     )

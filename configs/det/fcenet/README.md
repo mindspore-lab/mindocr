@@ -104,8 +104,8 @@ train:
   dataset:
     type: DetDataset
     dataset_root: dir/to/dataset          <--- Update
-    data_dir: icda/ch4_training_images    <--- Update
-    label_file: icda/train_det_gt.txt     <--- Update
+    data_dir: train/images                <--- Update
+    label_file: train/train_det_gt.txt    <--- Update
 ...
 eval:
   ckpt_load_path: '/best.ckpt'            <--- Update
@@ -113,8 +113,8 @@ eval:
   dataset:
     type: DetDataset
     dataset_root: dir/to/dataset          <--- Update
-    data_dir: icda/ch4_test_images        <--- Update
-    label_file: icda/test_det_gt.txt      <--- Update
+    data_dir: test/images                 <--- Update
+    label_file: test/test_det_gt.txt      <--- Update
 ...
 ```
 

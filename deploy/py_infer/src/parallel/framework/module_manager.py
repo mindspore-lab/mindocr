@@ -1,4 +1,5 @@
 from collections import defaultdict, namedtuple
+from ctypes import c_bool
 from multiprocessing import Manager, Process, Queue
 
 from ...utils import log
@@ -11,17 +12,17 @@ OutputRegisterInfo = namedtuple("OutputRegisterInfo", ["pipeline_name", "module_
 class ModuleManager:
     MODULE_QUEUE_MAX_SIZE = 16
 
-    def __init__(self, msg_queue: Queue, task_queue: Queue, args):
+    def __init__(self, msg_queue: Queue, task_queue: Queue, result_queue: Queue, args):
         self.pipeline_map = defaultdict(lambda: defaultdict(ModulesInfo))
         self.msg_queue = msg_queue
-        self.stop_manager = Queue(1)
-        self.stop_manager.put("-")
+        self.stop_manager = Manager().Value(c_bool, True)
         self.args = args
         self.pipeline_name = ""
         self.process_list = []
         self.queue_list = []
         self.pipeline_queue_map = defaultdict(lambda: defaultdict(list))
-        self.task_queue = task_queue
+        self.task_queue = task_queue  # input_queue for HandoutNode
+        self.result_queue = result_queue  # output_queue for CollectNode
         self.module_params = Manager().dict()
 
     @staticmethod
@@ -37,6 +38,7 @@ class ModuleManager:
         log.info("----------------------------------------------------")
         log.info("---------------register_modules start---------------")
         modules_info_dict = self.pipeline_map[pipeline_name]
+        self.pipeline_name = pipeline_name
 
         for module_desc in module_desc_list:
             log.info("+++++++++++++++++++++++++++++++++++++")
@@ -83,7 +85,7 @@ class ModuleManager:
             connect_info_dict[send_name].append(queue)
             connect_info_dict[recv_name].append(queue)
             last_module = recv_name
-        connect_info_dict[last_module].append(self.stop_manager)
+        connect_info_dict[last_module].append(self.result_queue)
 
         log.info("------------register_module_connects end------------")
         log.info("----------------------------------------------------")
@@ -139,7 +141,5 @@ class ModuleManager:
             if process.is_alive():
                 process.kill()
 
-        self.stop_manager.close()
-        self.stop_manager.join_thread()
         log.info("------------------pipeline stopped------------------")
         log.info("----------------------------------------------------")

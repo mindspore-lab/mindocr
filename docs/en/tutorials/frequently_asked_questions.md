@@ -8,6 +8,7 @@
  - [Problems related to model converting](#q7-problems-related-to-model-converting)
  - [Problems related to inference](#q8-problems-related-to-inference)
  - [Training speed of DBNet not as fast as expexted](#q9-training-speed-of-dbnet-not-as-fast-as-expexted)
+ - [Error about `libgomp-d22c30c5.so.1.0.0`](#q9-error-about-libgomp-d22c30c5so100)
 
 ### Q1 Undefined symbol
 
@@ -609,7 +610,6 @@ Reason:
   - Use suitable model. For example, it may fail and pass detection model to `--rec_model_path` parameter.
   - Use inference model(not training model) to do converting.
 
-
 ### Q9 Training speed of DBNet not as fast as expexted
 
 When traning DBNet series networks (including DBNet MobileNetV3, DBNet ResNet-18, DBNet ResNet-50, and DBNet++ ResNet-50) using following command, the training speed is not as fast as expexted. For instance, the training speed of DBNet MobileNetV3 can reach only 80fps which is slower than the expecting 100fps.
@@ -624,42 +624,62 @@ This problem is due to the complex data pre-processing procedures of DBNet. The 
 
 1. Try to set the `train.dataset.use_minddata` and `eval.dataset.use_minddata` in the configuration file to `True`. MindOCR will execute parts of data pre-processing procedures using MindSpore[MindData](https://www.mindspore.cn/docs/zh-CN/master/api_python/dataset/dataset_method/operation/mindspore.dataset.Dataset.map.html?highlight=map#mindspore.dataset.Dataset.map):
 
-``` yaml
-...
-train:
-  ckpt_save_dir: './tmp_det'
-  dataset_sink_mode: True
-  dataset:
-    type: DetDataset
-    dataset_root: /data/ocr_datasets
-    data_dir: ic15/det/train/ch4_training_images
-    label_file: ic15/det/train/det_gt.txt
-    sample_ratio: 1.0
-    use_minddata: True                          <-- Set this configuration
-...
-eval:
-  ckpt_load_path: tmp_det/best.ckpt
-  dataset_sink_mode: False
-  dataset:
-    type: DetDataset
-    dataset_root: /data/ocr_datasets
-    data_dir: ic15/det/test/ch4_test_images
-    label_file: ic15/det/test/det_gt.txt
-    sample_ratio: 1.0
-    use_minddata: True                          <-- Set this configuration
-...
-```
+    ``` yaml
+    ...
+    train:
+      ckpt_save_dir: './tmp_det'
+      dataset_sink_mode: True
+      dataset:
+        type: DetDataset
+        dataset_root: /data/ocr_datasets
+        data_dir: ic15/det/train/ch4_training_images
+        label_file: ic15/det/train/det_gt.txt
+        sample_ratio: 1.0
+        use_minddata: True                          <-- Set this configuration
+    ...
+    eval:
+      ckpt_load_path: tmp_det/best.ckpt
+      dataset_sink_mode: False
+      dataset:
+        type: DetDataset
+        dataset_root: /data/ocr_datasets
+        data_dir: ic15/det/test/ch4_test_images
+        label_file: ic15/det/test/det_gt.txt
+        sample_ratio: 1.0
+        use_minddata: True                          <-- Set this configuration
+    ...
+    ```
 
 2. Try to set the `train.loader.num_workers` in the configuration file to a larger value to enhance the number of threads fetching dataset if the training server has enough CPU cores:
 
-``` yaml
-...
-train:
-  ...
-  loader:
-    shuffle: True
-    batch_size: 10
-    drop_remainder: True
-    num_workers: 12                             <-- Set this configuration
-...
+    ``` yaml
+    ...
+    train:
+      ...
+      loader:
+        shuffle: True
+        batch_size: 10
+        drop_remainder: True
+        num_workers: 12                             <-- Set this configuration
+    ...
+    ```
+
+### Q10 Error about `libgomp-d22c30c5.so.1.0.0`
+The following error may occur when running mindocr
+```bash
+ImportError: /root/mindocr_env/lib/python3.8/site-packages/sklearn/__check_build/../../scikit_learn.libs/libgomp-d22c30c5.so.1.0.0: cannot allocate memory in static TLS block
 ```
+You can try the following steps to fix it:
+ - search `libgomp-d22c30c5.so.1.0.0` in your python install path
+   ```bash
+   cd /root/mindocr_env/lib/python3.8
+   find ~ -name libgomp-d22c30c5.so.1.0.0
+   ```
+   and get the following search result:
+   ```bash
+   /root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0
+   ```
+ - Add the so file to environment variable `LD_PRELOAD`
+   ```bash
+   export LD_PRELOAD=/root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
+   ```
