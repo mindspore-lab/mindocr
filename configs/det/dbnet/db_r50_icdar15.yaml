@@ -164,7 +164,6 @@ predict:
     type: PredictDataset
     dataset_root: path/to/dataset_root
     data_dir: ic15/det/test/ch4_test_images
-#    label_file: test.txt
     sample_ratio: 1.0
     transform_pipeline:
       - DecodeImage:
