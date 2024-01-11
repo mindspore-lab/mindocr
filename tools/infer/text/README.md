@@ -10,7 +10,7 @@ Thus, online inference is more suitable for demonstration and to visually evalua
 
 | Environment | Version |
 |-------------|---------|
-| MindSpore   | >=1.9   |
+| MindSpore   | 2.2.x   |
 | Python      | >=3.7   |
 
 Supported platforms: Linux, MacOS, Windows (Not tested)
@@ -27,7 +27,7 @@ Then install the dependency by
 pip install -r requirements.txt
 ```
 
-For MindSpore(>=1.9) installation, please follow the official [installation instructions](https://www.mindspore.cn/install) for the best fit of your machine.
+For MindSpore 2.2.x installation, please follow the official [installation instructions](https://www.mindspore.cn/install) for the best fit of your machine.
 
 
 ## Text Detection
