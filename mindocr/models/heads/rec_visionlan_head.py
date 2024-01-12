@@ -29,7 +29,7 @@ class ScaledDotProductAttention(nn.Cell):
     def __init__(self, temperature: float, attn_dropout: float = 0.1):
         super().__init__()
         self.temperature = temperature
-        self.dropout = nn.Dropout(keep_prob=1 - attn_dropout)
+        self.dropout = nn.Dropout(p=attn_dropout)
         self.softmax = nn.Softmax(axis=2)
         self.bmm = ops.BatchMatMul()
         self.masked_fill = ops.MaskedFill()
@@ -51,7 +51,7 @@ class PositionwiseFeedForward(nn.Cell):
         self.w_1 = nn.Conv1d(d_in, d_hid, kernel_size=1)  # position-wise
         self.w_2 = nn.Conv1d(d_hid, d_in, kernel_size=1)  # position-wise
         self.layer_norm = nn.LayerNorm((d_in, ))
-        self.dropout = nn.Dropout(keep_prob=1 - dropout)
+        self.dropout = nn.Dropout(p=dropout)
         self.relu = nn.ReLU()
 
     def construct(self, x):
@@ -84,7 +84,7 @@ class MultiHeadAttention(nn.Cell):
         self.layer_norm = nn.LayerNorm((d_model,))
         self.fc = nn.Dense(n_head * d_v, d_model)
         self.fc.weight.set_data(init.initializer(init.XavierUniform(), self.fc.weight.shape))
-        self.dropout = nn.Dropout(keep_prob=1 - dropout)
+        self.dropout = nn.Dropout(p=dropout)
 
     def construct(self, q, k, v, mask=None):
         d_k, d_v, n_head = self.d_k, self.d_v, self.n_head
@@ -133,7 +133,7 @@ class TransformerEncoder(nn.Cell):
                  n_position: int = 256):
         super().__init__()
         self.position_enc = PositionalEncoding(d_word_vec, n_position=n_position)
-        self.dropout = nn.Dropout(keep_prob=1 - dropout)
+        self.dropout = nn.Dropout(p=dropout)
         self.layer_stack = nn.CellList([
             EncoderLayer(d_model, d_inner, n_head, d_k, d_v, dropout=dropout)
             for _ in range(n_layers)])

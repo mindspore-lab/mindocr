@@ -26,6 +26,15 @@ class ProcessData:
     # confidence of the result from rec
     score: float = field(default_factory=lambda: [])
 
+    # the images fed into the ocr system in the same call, share the same taskid
+    taskid: int = 0
+
+    # number of images shared the same taskid
+    task_images_num: int = 0
+
+    # data type: raw input is string path or np.ndarray. 0: string path, 1: np.ndarray
+    data_type: int = 0
+
 
 @dataclass
 class StopData:

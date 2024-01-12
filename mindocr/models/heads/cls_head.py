@@ -14,7 +14,7 @@ class MobileNetV3Head(nn.Cell):
         self.classifier = nn.SequentialCell([
             nn.Dense(in_channels, hidden_channels),
             nn.HSwish(),
-            nn.Dropout(keep_prob=0.8),
+            nn.Dropout(p=0.2),
             nn.Dense(hidden_channels, num_classes),
         ])
         self.softmax = nn.Softmax(axis=-1)

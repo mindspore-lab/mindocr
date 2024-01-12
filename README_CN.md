@@ -1,6 +1,8 @@
+<!--start-->
 <div align="center" markdown>
 
 # MindOCR
+<!--end-->
 
 [![CI](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml/badge.svg)](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/mindspore-lab/mindocr.svg)](https://github.com/mindspore-lab/mindocr/blob/main/LICENSE)
@@ -8,7 +10,7 @@
 [![PRs](https://img.shields.io/badge/PRs-welcome-pink.svg)](https://github.com/mindspore-lab/mindocr/pulls)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-
+<!--start-->
 [English](README.md) | 中文
 
 [📝简介](#简介) |
@@ -384,3 +386,4 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
     year={2023}
 }
 ```
+<!--end-->

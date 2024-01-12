@@ -30,6 +30,8 @@ class ModuleBase(object):
     def process_handler(self, stop_manager, module_params, input_queue, output_queue):
         self.input_queue = input_queue
         self.output_queue = output_queue
+        self.stop_manager = stop_manager
+
         try:
             params = self.init_self_args()
             if params:
@@ -43,11 +45,12 @@ class ModuleBase(object):
             continue
 
         # waiting for the release of stop sign
-        while stop_manager.full():
+        while self.stop_manager.value:
             continue
 
         while True:
-            if stop_manager.full():
+            time.sleep(self.args.node_fetch_interval)
+            if self.stop_manager.value:
                 break
             if self.input_queue.empty():
                 time.sleep(self.args.node_fetch_interval)

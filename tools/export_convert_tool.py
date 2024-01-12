@@ -23,7 +23,6 @@ Example:
     >>> python export_convert_tool.py --model_name svtr --task export_convert --is_dynamic False \
         --output_folder output_folder --force True
 """
-
 import argparse
 import os
 import subprocess
@@ -31,11 +30,15 @@ import sys
 from abc import ABCMeta, abstractmethod
 from collections import defaultdict
 
-from data_for_export_convert import data_converte_dynamic_model_from_exported_mindir  # noqa
-from data_for_export_convert import data_converte_static_model_from_download_mindir  # noqa
-from data_for_export_convert import data_converte_static_model_from_exported_mindir  # noqa
-from data_for_export_convert import data_export_dynamic_model  # noqa
-from data_for_export_convert import data_export_static_model  # noqa
+__dir__ = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "..")))
+
+from mindocr import list_models  # noqa
+from tools.data_for_export_convert import data_converte_dynamic_model_from_exported_mindir  # noqa
+from tools.data_for_export_convert import data_converte_static_model_from_download_mindir  # noqa
+from tools.data_for_export_convert import data_converte_static_model_from_exported_mindir  # noqa
+from tools.data_for_export_convert import data_export_dynamic_model  # noqa
+from tools.data_for_export_convert import data_export_static_model  # noqa
 
 
 class BaseConvertModel(metaclass=ABCMeta):
@@ -51,17 +54,17 @@ class BaseConvertModel(metaclass=ABCMeta):
         self.log_handle = open(self.log_file, "w")
         self.record = {}
 
-    def generate_static_shape_config_file(self, config_file, var, data_shape):
+    def generate_static_shape_config_file(self, config_file, data_shape):
         with open(config_file, "w") as f:
             f.write("[ascend_context]\n")
             f.write("input_format=NCHW\n")
-            f.write(f"input_shape={var}:[{data_shape}]")
+            f.write(f"input_shape={data_shape}")
 
-    def generate_dynamic_shape_config_file(self, config_file, var, data_shape):
+    def generate_dynamic_shape_config_file(self, config_file, data_shape):
         with open(config_file, "w") as f:
             f.write("[acl_build_options]\n")
             f.write("input_format=NCHW\n")
-            f.write(f"input_shape_range={var}:[{data_shape}]")
+            f.write(f"input_shape_range={data_shape}")
 
     def convert_mindir(self, model, info, input_file, config_file, force=False):
         converted_model_path = os.path.join(self.save_path, model + f"_{info}")
@@ -75,7 +78,7 @@ class BaseConvertModel(metaclass=ABCMeta):
                 log = f"{converted_model_path}.mindir exists and it will be overwritten if exported successfully."
                 subprocess.call(f"echo {log}".split(), stdout=self.log_handle, stderr=self.log_handle)
                 print(log)
-
+        os.remove(converted_model_path)
         command = (
             f"{self.convert_tool} --fmk=MINDIR --modelFile={input_file} --outputFile={converted_model_path}"
             + f" --optimize=ascend_oriented --configFile={config_file}"
@@ -183,6 +186,7 @@ class BaseConvertModel(metaclass=ABCMeta):
 
     def __del__(self):
         self.log_handle.close()
+        print(f"Please refer to {self.log_file} for more details.")
 
     @abstractmethod
     def run_single(self, model, force=False):
@@ -213,12 +217,12 @@ class ConvertStaticModelFromDownloadMindir(BaseConvertModel):
         self.record[model] = {"Static Convert": False, "Static Benchmark": False, "Static Shape": info["data_shape"]}
         _, download_mindir_path = self.mindir_download(info["mindir_name"], info["mindir_url"])
         save_config_file = os.path.join(self.save_path, save_config_file)
-        self.generate_static_shape_config_file(save_config_file, info["var"], info["data_shape"])
+        self.generate_static_shape_config_file(save_config_file, info["data_shape"])
         ret = self.convert_mindir(model, self.info, download_mindir_path, save_config_file, force)
         if ret == 0:
             self.record[model]["Static Convert"] = True
             converted_model_path = os.path.join(self.save_path, model + f"_{self.info}.mindir")
-            ret = self.infer_static_shape_ascend(converted_model_path, info["data_shape"])
+            ret = self.infer_static_shape_ascend(converted_model_path, info["infer_shape_list"][0])
             if ret == 0:
                 self.record[model]["Static Benchmark"] = True
         print()
@@ -248,13 +252,12 @@ class ConvertStaticModelFromExportedMindir(BaseConvertModel):
         info = self.models_info[model]
         self.record[model] = {"Static Convert": False, "Static Benchmark": False, "Static Shape": info["data_shape"]}
         save_config_file = os.path.join(self.save_path, save_config_file)
-        self.generate_static_shape_config_file(save_config_file, info["var"], info["data_shape"])
-        # exported_mindir_path = os.path.join(self.exported_path, info["mindir_name"])
+        self.generate_static_shape_config_file(save_config_file, info["data_shape"])
         ret = self.convert_mindir(model, self.info, input_file, save_config_file, force)
         if ret == 0:
             self.record[model]["Static Convert"] = True
             converted_model_path = os.path.join(self.save_path, model + f"_{self.info}.mindir")
-            ret = self.infer_static_shape_ascend(converted_model_path, info["data_shape"])
+            ret = self.infer_static_shape_ascend(converted_model_path, info["infer_shape_list"][0])
             if ret == 0:
                 self.record[model]["Static Benchmark"] = True
         print()
@@ -285,8 +288,7 @@ class ConvertDynamicModelFromExportedMindir(BaseConvertModel):
         self.record[model] = defaultdict(lambda: ("", 0))
         self.record[model]["Dynamic Convert"] = False
         save_config_file = os.path.join(self.save_path, save_config_file)
-        self.generate_dynamic_shape_config_file(save_config_file, info["var"], info["data_shape"])
-        # exported_mindir_path = os.path.join(self.exported_path, info["mindir_name"])
+        self.generate_dynamic_shape_config_file(save_config_file, info["data_shape"])
         ret = self.convert_mindir(model, self.info, input_file, save_config_file, force)
         self.infer_max_num = max(self.infer_max_num, len(info["infer_shape_list"]))
         if ret == 0:
@@ -343,7 +345,7 @@ class BaseExportModel(metaclass=ABCMeta):
                 log = f"{export_mindir_path} exists and it will be overwritten if exported successfully."
                 subprocess.call(f"echo {log}".split(), stdout=self.log_handle, stderr=self.log_handle)
                 print(log)
-
+        os.remove(export_mindir_path)
         command = f"python export.py --model_name_or_config {model} --save_dir {self.save_path}"
 
         if len(input_file) > 0 and os.path.exists(input_file):
@@ -386,6 +388,7 @@ class BaseExportModel(metaclass=ABCMeta):
 
     def __del__(self):
         self.log_handle.close()
+        print(f"Please refer to {self.log_file} for more details.")
 
     @abstractmethod
     def run_single(self, model, input_file="", force=False):
@@ -503,7 +506,10 @@ def run_convert(
                 convert_folder,
                 log_file,
             )
-            model_converter.run_single(model_name, input_file, config_file, force=force)
+            if model_name == "all":
+                model_converter.run(exported_path=input_file, force=force)
+            else:
+                model_converter.run_single(model_name, input_file, config_file, force=force)
             model_converter.report()
 
 
@@ -552,14 +558,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model_name",
         type=str,
-        required=True,
         help="Name of the model to be exported or converted. If `all`, all models supported will be run",
     )
 
     parser.add_argument(
         "--task",
         type=str,
-        required=True,
         choices=["export", "convert", "export_convert"],
         help="The task will run",
     )
@@ -610,7 +614,19 @@ if __name__ == "__main__":
         help="Whether to overwrite the file(like exported/converted file) if they exist.",
     )
 
+    parser.add_argument(
+        "--show_model_list",
+        action="store_true",
+        default=False,
+        help="List all supported models.",
+    )
+
     args = parser.parse_args()
+
+    if args.show_model_list:
+        print("Support models:")
+        print(list_models())
+        exit()
 
     if not os.path.exists(args.output_folder):
         os.makedirs(args.output_folder)

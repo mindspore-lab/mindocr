@@ -7,6 +7,9 @@
  - [`RunTimeError:The device address tpe is wrong`](#q6-runtimeerror-the-device-address-type-is-wrong-type-name-in-addresscpu-type-name-in-contextascend)
  - [Problems related to model converting](#q7-problems-related-to-model-converting)
  - [Problems related to inference](#q8-problems-related-to-inference)
+ - [Training speed of DBNet not as fast as expexted](#q9-training-speed-of-dbnet-not-as-fast-as-expexted)
+ - [Error about `libgomp-d22c30c5.so.1.0.0`](#q10-error-about-libgomp-d22c30c5so100)
+ - [Dataset Pipeline Error when training abinet on lmdb dataset](#q11-dataset-pipeline-error-when-training-abinet-on-lmdb-dataset)
 
 ### Q1 Undefined symbol
 
@@ -607,3 +610,124 @@ Reason:
 
   - Use suitable model. For example, it may fail and pass detection model to `--rec_model_path` parameter.
   - Use inference model(not training model) to do converting.
+
+### Q9 Training speed of DBNet not as fast as expexted
+
+When traning DBNet series networks (including DBNet MobileNetV3, DBNet ResNet-18, DBNet ResNet-50, and DBNet++ ResNet-50) using following command, the training speed is not as fast as expexted. For instance, the training speed of DBNet MobileNetV3 can reach only 80fps which is slower than the expecting 100fps.
+
+``` bash
+python tools/train.py -c configs/det/dbnet/db_mobilenetv3_icdar15.yaml
+```
+
+This problem is due to the complex data pre-processing procedures of DBNet. The data pre-processing procedures will become the performance bottleneck if the computation ability of a CPU core of the training server is relatively weak.
+
+**Solutions**
+
+1. Try to set the `train.dataset.use_minddata` and `eval.dataset.use_minddata` in the configuration file to `True`. MindOCR will execute parts of data pre-processing procedures using MindSpore[MindData](https://www.mindspore.cn/docs/zh-CN/master/api_python/dataset/dataset_method/operation/mindspore.dataset.Dataset.map.html?highlight=map#mindspore.dataset.Dataset.map):
+
+    ``` yaml
+    ...
+    train:
+      ckpt_save_dir: './tmp_det'
+      dataset_sink_mode: True
+      dataset:
+        type: DetDataset
+        dataset_root: /data/ocr_datasets
+        data_dir: ic15/det/train/ch4_training_images
+        label_file: ic15/det/train/det_gt.txt
+        sample_ratio: 1.0
+        use_minddata: True                          <-- Set this configuration
+    ...
+    eval:
+      ckpt_load_path: tmp_det/best.ckpt
+      dataset_sink_mode: False
+      dataset:
+        type: DetDataset
+        dataset_root: /data/ocr_datasets
+        data_dir: ic15/det/test/ch4_test_images
+        label_file: ic15/det/test/det_gt.txt
+        sample_ratio: 1.0
+        use_minddata: True                          <-- Set this configuration
+    ...
+    ```
+
+2. Try to set the `train.loader.num_workers` in the configuration file to a larger value to enhance the number of threads fetching dataset if the training server has enough CPU cores:
+
+    ``` yaml
+    ...
+    train:
+      ...
+      loader:
+        shuffle: True
+        batch_size: 10
+        drop_remainder: True
+        num_workers: 12                             <-- Set this configuration
+    ...
+    ```
+
+### Q10 Error about `libgomp-d22c30c5.so.1.0.0`
+The following error may occur when running mindocr
+```bash
+ImportError: /root/mindocr_env/lib/python3.8/site-packages/sklearn/__check_build/../../scikit_learn.libs/libgomp-d22c30c5.so.1.0.0: cannot allocate memory in static TLS block
+```
+You can try the following steps to fix it:
+ - search `libgomp-d22c30c5.so.1.0.0` in your python install path
+   ```bash
+   cd /root/mindocr_env/lib/python3.8
+   find ~ -name libgomp-d22c30c5.so.1.0.0
+   ```
+   and get the following search result:
+   ```bash
+   /root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0
+   ```
+ - Add the so file to environment variable `LD_PRELOAD`
+   ```bash
+   export LD_PRELOAD=/root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
+   ```
+
+### Q11 Dataset Pipeline Error when training abinet on lmdb dataset
+The following error may occur when training abinet on lmdb dataset
+```bash
+mindocr.data.rec_lmdb_dataset WARNING - Error occurred during preprocess.
+ Exception thrown from dataset pipeline. Refer to 'Dataset Pipeline Error Message'.
+
+------------------------------------------------------------------
+- Dataset Pipeline Error Message:
+------------------------------------------------------------------
+[ERROR] No cast for the specified DataType was found.
+
+------------------------------------------------------------------
+- C++ Call Stack: (For framework developers)
+------------------------------------------------------------------
+mindspore/ccsrc/minddata/dataset/kernels/py_func_op.cc(143).
+```
+You can try the following steps to fix it:
+ - find the folder of mindspore package
+ - open file: `mindspore/dataset/transforms/transform.py`
+ - switch to line 93:
+  ```bash
+  93        if key in EXECUTORS_LIST:
+  94           # get the executor by process id and thread id
+  95            executor = EXECUTORS_LIST[key]
+  96            # remove the old transform which in executor and update the new transform
+  97            executor.UpdateOperation(self.parse())
+  98        else:
+  99            # create a new executor by process id and thread_id
+  100           executor = cde.Execute(self.parse())
+  101           # add the executor the global EXECUTORS_LIST
+  102           EXECUTORS_LIST[key] = executor
+  ```
+ - replace line 97 with `executor = cde.Execute(self.parse())`, and get
+  ```bash
+  93        if key in EXECUTORS_LIST:
+  94            # get the executor by process id and thread id
+  95            executor = EXECUTORS_LIST[key]
+  96            # remove the old transform which in executor and update the new transform
+  97            executor = cde.Execute(self.parse())
+  98        else:
+  99            # create a new executor by process id and thread_id
+  100           executor = cde.Execute(self.parse())
+  101           # add the executor the global EXECUTORS_LIST
+  102           EXECUTORS_LIST[key] = executor
+  ```
+  - save the file, and try to train the model.

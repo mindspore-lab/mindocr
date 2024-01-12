@@ -50,18 +50,22 @@ class SemanticEntityRecognition(object):
         # build model for algorithm with pretrained weights or local checkpoint
         ckpt_dir = args.ser_model_dir
         if ckpt_dir is None:
-            pretrained = True
+            pretrained = False
             ckpt_load_path = None
+            pretrained_backbone = False
         else:
             ckpt_load_path = get_ckpt_file(ckpt_dir)
             pretrained = False
+            pretrained_backbone = False
         if args.ser_algorithm not in algo_to_model_name:
             raise ValueError(
                 f"Invalid ser algorithm {args.ser_algorithm}. "
                 f"Supported ser algorithms are {list(algo_to_model_name.keys())}"
             )
         model_name = algo_to_model_name[args.ser_algorithm]
-        self.model = build_model(model_name, pretrained=pretrained, ckpt_load_path=ckpt_load_path)
+        self.model = build_model(
+            model_name, pretrained=pretrained, pretrained_backbone=pretrained_backbone, ckpt_load_path=ckpt_load_path
+        )
         self.model.set_train(False)
 
         self.preprocess = Preprocessor(

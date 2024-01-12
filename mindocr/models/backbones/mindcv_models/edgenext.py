@@ -264,9 +264,9 @@ class XCA(nn.Cell):
         self.temperature = Parameter(Tensor(np.ones((num_heads, 1, 1)), ms.float32))
 
         self.qkv = nn.Dense(dim, dim * 3, has_bias=qkv_bias)
-        self.attn_drop = nn.Dropout(1 - attn_drop)
+        self.attn_drop = nn.Dropout(p=attn_drop)
         self.proj = nn.Dense(dim, dim)
-        self.proj_drop = nn.Dropout(1 - proj_drop)
+        self.proj_drop = nn.Dropout(p=proj_drop)
 
     def construct(self, x: Tensor) -> Tensor:
         B, N, C = x.shape
@@ -363,7 +363,7 @@ class EdgeNeXt(nn.Cell):
         self.head = nn.Dense(dims[-1], num_classes)
 
         # self.head_dropout = nn.Dropout(kwargs["classifier_dropout"])
-        self.head_dropout = nn.Dropout(1.0)
+        self.head_dropout = nn.Dropout(p=0.0)
         self.head_init_scale = head_init_scale
         self._initialize_weights()
 

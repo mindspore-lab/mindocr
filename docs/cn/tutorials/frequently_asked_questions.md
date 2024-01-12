@@ -7,6 +7,9 @@
  - [关于`RunTimeError:The device address tpe is wrong`](#q6-runtimeerror-the-device-address-type-is-wrong-type-name-in-addresscpu-type-name-in-contextascend)
  - [模型转换相关问题](#q7-模型转换相关问题)
  - [推理相关问题](#q8-推理时相关问题)
+ - [DBNet训练速率不及预期](#q9-DBNet训练速率不及预期)
+ - [`libgomp-d22c30c5.so.1.0.0`相关错误](#q10-libgomp-d22c30c5so100相关错误)
+ - [当在lmdb dataset上训练abinet报数据管道错误](#q11-当在lmdb-dataset上训练abinet报数据管道错误)
 
 ### Q1 未定义符号
 
@@ -618,3 +621,124 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
 
   - 使用恰当的模型。例如在 `--rec_model_path` 错误传入了检测模型，可触发此错误；
   - 使用推理模型（非训练模型），用`converter_lite`转换工具转为端侧`mindir`进行推理。
+
+### Q9 DBNet训练速率不及预期
+
+执行以下命令，训练DBNet系列网络（包括DBNet MobileNetV3、DBNet ResNet-18、DBNet ResNet-50、DBNet++ ResNet-50等）时，训练帧率不及预期。例如，DBNet MobileNetV3在Ascend 910A上，训练速率仅80fps，不及预期的100fps。
+
+``` bash
+python tools/train.py -c configs/det/dbnet/db_mobilenetv3_icdar15.yaml
+```
+
+由于DBNet数据预处理过程相对复杂，如训练服务器CPU单核运算能力较弱，则数据预处理可能成为性能瓶颈。
+
+**解决方法**
+
+1. 尝试将配置文件中`train.dataset.use_minddata`和`eval.dataset.use_minddata`的选项设置为`True`。MindOCR将采用MindSpore[MindData](https://www.mindspore.cn/docs/zh-CN/master/api_python/dataset/dataset_method/operation/mindspore.dataset.Dataset.map.html?highlight=map#mindspore.dataset.Dataset.map)执行部分数据预处理步骤：
+
+    ```yaml
+    ...
+    train:
+      ckpt_save_dir: './tmp_det'
+      dataset_sink_mode: True
+      dataset:
+        type: DetDataset
+        dataset_root: /data/ocr_datasets
+        data_dir: ic15/det/train/ch4_training_images
+        label_file: ic15/det/train/det_gt.txt
+        sample_ratio: 1.0
+        use_minddata: True                          <-- 设置该选项
+    ...
+    eval:
+      ckpt_load_path: tmp_det/best.ckpt
+      dataset_sink_mode: False
+      dataset:
+        type: DetDataset
+        dataset_root: /data/ocr_datasets
+        data_dir: ic15/det/test/ch4_test_images
+        label_file: ic15/det/test/det_gt.txt
+        sample_ratio: 1.0
+        use_minddata: True                          <-- 设置该选项
+    ...
+    ```
+
+2. 如训练服务器CPU核数较多，尝试调高配置文件中的`train.loader.num_workers`选项，提升数据预取的线程数：
+
+    ``` yaml
+    ...
+    train:
+      ...
+      loader:
+        shuffle: True
+        batch_size: 10
+        drop_remainder: True
+        num_workers: 12                             <-- 设置该选项
+    ...
+    ```
+
+### Q10 `libgomp-d22c30c5.so.1.0.0`相关错误
+运行mindocr时，可能报以下错误
+```bash
+ImportError: /root/mindocr_env/lib/python3.8/site-packages/sklearn/__check_build/../../scikit_learn.libs/libgomp-d22c30c5.so.1.0.0: cannot allocate memory in static TLS block
+```
+可以尝试以下步骤
+ - 在python安装路径下查找`libgomp-d22c30c5.so.1.0.0`:
+   ```bash
+   cd /root/mindocr_env/lib/python3.8
+   find ~ -name libgomp-d22c30c5.so.1.0.0
+   ```
+   将查找到以下结果
+   ```bash
+   /root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0
+   ```
+ - 将so文件路径加入到环境变量`LD_PRELOAD`
+   ```bash
+   export LD_PRELOAD=/root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
+   ```
+
+### Q11 当在lmdb dataset上训练abinet报数据管道错误
+当在lmdb dataset上训练abinet报以下数据管道错误
+```bash
+mindocr.data.rec_lmdb_dataset WARNING - Error occurred during preprocess.
+ Exception thrown from dataset pipeline. Refer to 'Dataset Pipeline Error Message'.
+
+------------------------------------------------------------------
+- Dataset Pipeline Error Message:
+------------------------------------------------------------------
+[ERROR] No cast for the specified DataType was found.
+
+------------------------------------------------------------------
+- C++ Call Stack: (For framework developers)
+------------------------------------------------------------------
+mindspore/ccsrc/minddata/dataset/kernels/py_func_op.cc(143).
+```
+可以尝试用如下步骤修复
+ - 找到mindspore的包路径
+ - 打开文件: `mindspore/dataset/transforms/transform.py`
+ - 跳转到93行，可以得到如下内容:
+  ```bash
+  93        if key in EXECUTORS_LIST:
+  94           # get the executor by process id and thread id
+  95            executor = EXECUTORS_LIST[key]
+  96            # remove the old transform which in executor and update the new transform
+  97            executor.UpdateOperation(self.parse())
+  98        else:
+  99            # create a new executor by process id and thread_id
+  100           executor = cde.Execute(self.parse())
+  101           # add the executor the global EXECUTORS_LIST
+  102           EXECUTORS_LIST[key] = executor
+  ```
+ - 使用`executor = cde.Execute(self.parse())`替换97行, 得到如下内容:
+  ```bash
+  93        if key in EXECUTORS_LIST:
+  94            # get the executor by process id and thread id
+  95            executor = EXECUTORS_LIST[key]
+  96            # remove the old transform which in executor and update the new transform
+  97            executor = cde.Execute(self.parse())
+  98        else:
+  99            # create a new executor by process id and thread_id
+  100           executor = cde.Execute(self.parse())
+  101           # add the executor the global EXECUTORS_LIST
+  102           EXECUTORS_LIST[key] = executor
+  ```
+  - 保存后再次尝试训练即可
