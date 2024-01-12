@@ -21,7 +21,7 @@ This doc introduces how to run the detection and recognition prediction pipeline
 
 | Environment | Version |
 |-------------|---------|
-| MindSpore   | >=1.9   |
+| MindSpore   | 2.2.x   |
 | Python      | >=3.7   |
 
 
