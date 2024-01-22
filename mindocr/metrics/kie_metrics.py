@@ -3,7 +3,7 @@ import os
 from glob import glob
 
 import numpy as np
-import seqeval
+import seqeval.metrics
 import sklearn
 
 from mindspore import get_context, nn

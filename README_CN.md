@@ -194,7 +194,8 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 <details open markdown>
 <summary>关键信息抽取</summary>
 
-- [x] [LayoutXLM SER](configs/kie/vi_layoutxlm/README_CN.md) (arXiv'2016)
+- [x] [LayoutXLM](configs/kie/vi_layoutxlm/README_CN.md) (arXiv'2021)
+- [x] [LayoutLMv3](configs/kie/layoutlmv3/README_CN.md) (arXiv'2022)
 
 </details>
 
@@ -275,6 +276,10 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 <details close markdown>
 <summary>详细</summary>
 
+- 2023/04/01
+1. 增加新模型
+    - 关键信息抽取[LayoutLMv3](configs/kie/layoutlmv3/)
+
 - 2023/12/25
 1. 增加新模型
     - 表格识别[TableMaster](configs/table/table_master.yaml)
@@ -283,8 +288,8 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 
 - 2023/12/14
 1. 增加新模型
-    - 关键信息抽取[LayoutXLM SER](configs/kie/vi_layoutxlm)
-    - 关键信息抽取[VI-LayoutXLM SER](configs/kie/layoutlm_series)
+    - 关键信息抽取[LayoutXLM](configs/kie/layoutxlm)
+    - 关键信息抽取[VI-LayoutXLM](configs/kie/vi_layoutxlm)
     - 文本检测[PP-OCRv3 DBNet](configs/det/dbnet/db_mobilenetv3_ppocrv3.yaml)和文本识别[PP-OCRv3 SVTR](configs/rec/svtr/svtr_ppocrv3_ch.yaml)，支持在线推理和微调训练
 2. 添加更多基准数据集及其结果
     - [XFUND](configs/kie/vi_layoutxlm/README_CN.md)
