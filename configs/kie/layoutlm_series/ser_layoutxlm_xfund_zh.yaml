@@ -80,7 +80,7 @@ train:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visualize
     output_columns: [ 'input_ids', 'bbox','attention_mask','token_type_ids', 'image', 'labels' ]
     net_input_column_index: [ 0, 1, 2, 3, 4 ] # input indices for network forward func in output_columns
-    label_column_index: [ 2, 5 ] # input indices marked as label
+    label_column_index: [ 5 ] # input indices marked as label
 
   loader:
     shuffle: True
@@ -122,7 +122,7 @@ eval:
     #  the order of the dataloader list, matching the network input and the labels for evaluation
     output_columns: [ 'input_ids', 'bbox', 'attention_mask','token_type_ids','image', 'labels' ]
     net_input_column_index: [ 0, 1, 2, 3, 4 ] # input indices for network forward func in output_columns
-    label_column_index: [ 2, 5 ] # input indices marked as label
+    label_column_index: [ 5 ] # input indices marked as label
 
   loader:
     shuffle: False
