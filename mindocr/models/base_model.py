@@ -62,34 +62,19 @@ class BaseModel(nn.Cell):
         self.model_name = f"{backbone_name}_{neck_name}_{self.head_name}"
 
     def ser(self, *inputs):
-        image = inputs[4]
+        input_ids, bbox, attention_mask, token_type_ids = inputs[:4]
+        image = inputs[4] if self.backbone.use_visual_backbone else None
 
-        x = self.backbone(
-            input_ids=inputs[0],
-            bbox=inputs[1],
-            attention_mask=inputs[2],
-            token_type_ids=inputs[3],
-            pixel_values=image,
-        )
-        x = self.head(x, inputs[0])
-
+        x = self.backbone(input_ids, bbox, attention_mask, token_type_ids, image)
+        x = self.head(x, input_ids)
         return x
 
     def re(self, *inputs):
-        if self.backbone.use_visual_backbone is True:
-            image = inputs[4]
-        else:
-            image = None
+        (input_ids, bbox, attention_mask, token_type_ids, question, question_label, answer, answer_label) = inputs[:8]
+        image = inputs[8] if self.backbone.use_visual_backbone else None
 
-        x = self.backbone(
-            input_ids=inputs[0],
-            bbox=inputs[1],
-            attention_mask=inputs[2],
-            token_type_ids=inputs[3],
-            image=image,
-        )
-        x = self.head(x, inputs[0], inputs[5], inputs[6], inputs[7], inputs[8])
-
+        x = self.backbone(input_ids, bbox, attention_mask, token_type_ids, image)
+        x = self.head(x, input_ids, question, question_label, answer, answer_label)
         return x
 
     def construct(self, *args):

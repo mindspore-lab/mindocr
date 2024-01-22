@@ -194,7 +194,8 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 <details open markdown>
 <summary>关键信息抽取</summary>
 
-- [x] [LayoutXLM SER](configs/kie/vi_layoutxlm/README_CN.md) (arXiv'2016)
+- [x] [LayoutXLM](configs/kie/vi_layoutxlm/README_CN.md) (arXiv'2021)
+- [x] [LayoutLMv3](configs/kie/layoutlmv3/README_CN.md) (arXiv'2022)
 
 </details>
 
