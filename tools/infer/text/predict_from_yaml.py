@@ -2,7 +2,7 @@
 Inference base on custom yaml
 
 Example:
-    $ python tools/infer/text/predict_from_yaml.py  --config configs/det/dbnet/db++_r50_icdar15.yaml
+    $ python tools/infer/text/predict_from_yaml.py  --config configs/det/dbnet/dbpp_r50_icdar15.yaml
     $ python tools/infer/text/predict_from_yaml.py  --config configs/rec/crnn/crnn_resnet34.yaml
 """
 import argparse
