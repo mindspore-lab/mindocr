@@ -108,7 +108,7 @@ MindOCR在`configs`文件夹中提供系列SoTA的OCR模型及其训练策略，
 
 ```shell
 # train text detection model DBNet++ on icdar15 dataset
-python tools/train.py --config configs/det/dbnet/db++_r50_icdar15.yaml
+python tools/train.py --config configs/det/dbnet/dbnetpp_r50_icdar15.yaml
 ```
 ```shell
 # train text recognition model CRNN on icdar15 dataset

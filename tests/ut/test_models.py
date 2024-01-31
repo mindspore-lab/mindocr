@@ -15,7 +15,7 @@ print("Registered models: ", all_model_names)
 
 all_yamls = [
     "configs/det/dbnet/db_r50_icdar15.yaml",
-    "configs/det/dbnet/db++_r50_icdar15.yaml",
+    "configs/det/dbnet/dbnetpp_r50_icdar15.yaml",
     "configs/rec/crnn/crnn_resnet34.yaml",
     "configs/rec/master/master_resnet31.yaml",
     "configs/rec/rare/rare_resnet34.yaml",

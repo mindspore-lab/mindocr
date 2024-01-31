@@ -85,7 +85,9 @@ class DBV4Postprocess(det_base_postprocess.DetBasePostprocess):
         polys = self.filter_tag_det_res(result["polys"][0], [src_h, src_w])
         if self._if_merge_longedge_bbox:
             try:
-                polys = longedge_bbox_merge(polys, self._merge_inter_area_thres, self._merge_ratio, self._merge_angle_theta)
+                polys = longedge_bbox_merge(
+                    polys, self._merge_inter_area_thres, self._merge_ratio, self._merge_angle_theta
+                )
             except Exception as e:
                 _logger.warning(f"long edge bbox merge failed: {e}")
         if self._if_sort_bbox:
