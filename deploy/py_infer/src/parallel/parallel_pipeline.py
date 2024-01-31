@@ -22,14 +22,14 @@ class ParallelPipeline:
     def stop_pipeline(self):
         self.pipeline_manager.stop_pipeline()
 
-    def infer_for_images(self, input_images_dir, task_id):
+    def infer_for_images(self, input_images_dir, task_id=0):
         self.infer_params = dict(**self.pipeline_manager.module_params)
         self.send_image(input_images_dir, task_id)
 
     def fetch_result(self):
         return self.pipeline_manager.fetch_result()
 
-    def send_image(self, images: str, task_id):
+    def send_image(self, images: str, task_id=0):
         """
         send image to input queue for pipeline
         """
@@ -61,7 +61,7 @@ class ParallelPipeline:
         else:
             self.input_queue.put([[images], (1, task_id)], block=True)
 
-    def infer_for_array(self, input_array, task_id):
+    def infer_for_array(self, input_array, task_id=0):
         self.infer_params = dict(**self.pipeline_manager.module_params)
         self.send_array(input_array, task_id)
 
