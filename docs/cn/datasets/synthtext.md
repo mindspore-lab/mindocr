@@ -22,7 +22,7 @@ path-to-data-dir/
 
 > :warning: 另外, 我们强烈建议在使用 `SynthText` 数据集之前先进行预处理，因为它包含一些错误的数据。可以使用下列的方式进行校正:
 > ```shell
-> python tools/dataset_converters/convert.py --dataset_name=synthtext --task=det --label_dir=/path-to-data-dir/SynthText/gt.mat --output_path=/path-to-data-dir/SynthText/gt_processed.mat
+> python tools/dataset_converters/convert.py --dataset_name=synthtext --task=det --label_dir=/path-to-data-dir/SynthText/gt.mat --output_path=/path-to-data-dir/SynthText/gt_processed.mat --image_dir=/path-to-data-dir/SynthText
 > ```
 > 以上的操作会产生与`SynthText`原始标注格式相同但是是经过过滤后的标注数据.
 
