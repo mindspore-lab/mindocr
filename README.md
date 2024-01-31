@@ -116,7 +116,7 @@ You may adapt it to your task/dataset, for example, by running
 
 ```shell
 # train text detection model DBNet++ on icdar15 dataset
-python tools/train.py --config configs/det/dbnet/dbnetpp_r50_icdar15.yaml
+python tools/train.py --config configs/det/dbnet/dbpp_r50_icdar15.yaml
 ```
 
 ```shell
