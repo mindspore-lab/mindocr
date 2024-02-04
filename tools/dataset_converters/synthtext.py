@@ -61,7 +61,7 @@ class SYNTHTEXT_Converter:
 
     def convert(self, task="det", image_dir=None, label_path=None, output_path=None):
         if task == "det":
-            self.convert_det(image_dir, label_path, output_path, save_output=True)
+            self.convert_det(image_dir, label_path, output_path)
         elif task == "rec_lmdb":
             self.convert_rec_lmdb(image_dir, label_path, output_path)
         else:
