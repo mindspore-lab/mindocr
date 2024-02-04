@@ -1,60 +1,8 @@
 import math
-import numpy as np
 import os
 import sys
 
-mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
-sys.path.insert(0, mindocr_path)
-
-use_mindformer = True
-if use_mindformer:
-    print("Using mindformers.")
-    from mindformers.modules.layers import LayerNorm as _LayerNorm
-    from mindformers.modules.layers import (
-        _args_type_validator_check,
-        _check_input_dtype,
-        _check_past_none_input_none,
-        _check_shape_equal,
-        _valid_type_checks,
-        _valid_value_checks,
-    )
-    from mindformers.modules.transformer.moe import MoE, _check_moe_config, default_moe_config
-    from mindformers.modules.transformer.op_parallel_config import (
-        MoEParallelConfig,
-        OpParallelConfig,
-        _check_config,
-        default_dpmp_config,
-    )
-    from mindformers.modules.transformer.transformer import (
-        FeedForward,
-        MultiHeadAttention,
-        TransformerOpParallelConfig,
-        _get_lambda_func,
-        default_transformer_config,
-    )
-else:
-    print("Not using mindformers")
-    from mindocr.models.backbones.mindformers_modules.layers import LayerNorm as _LayerNorm
-    from mindocr.models.backbones.mindformers_modules.layers import (
-        _args_type_validator_check,
-        _check_input_dtype,
-        _check_past_none_input_none,
-        _check_shape_equal,
-        _valid_type_checks,
-        _valid_value_checks,
-    )
-    from mindocr.models.backbones.mindformers_modules.transformer.moe import (
-        MoE,
-        _check_moe_config,
-        default_moe_config,
-    )
-    from mindocr.models.backbones.mindformers_modules.transformer.transformer import (
-        FeedForward,
-        MultiHeadAttention,
-        TransformerOpParallelConfig,
-        _get_lambda_func,
-        default_transformer_config,
-    )
+import numpy as np
 
 import mindspore as ms
 import mindspore.common.dtype as mstype
@@ -69,6 +17,37 @@ from mindspore.nn.cell import Cell
 from mindspore.ops import functional as F
 from mindspore.ops import operations as P
 from mindspore.parallel._utils import _get_parallel_mode, _is_sharding_propagation
+
+mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
+sys.path.insert(0, mindocr_path)
+
+from mindocr.models.backbones.mindformers_modules.layers import LayerNorm as _LayerNorm  # noqa
+from mindocr.models.backbones.mindformers_modules.layers import (  # noqa
+    _args_type_validator_check,
+    _check_input_dtype,
+    _check_past_none_input_none,
+    _check_shape_equal,
+    _valid_type_checks,
+    _valid_value_checks,
+)
+from mindocr.models.backbones.mindformers_modules.transformer.moe import (  # noqa
+    MoE,
+    _check_moe_config,
+    default_moe_config,
+)
+from mindocr.models.backbones.mindformers_modules.transformer.op_parallel_config import (  # noqa
+    MoEParallelConfig,
+    OpParallelConfig,
+    _check_config,
+    default_dpmp_config,
+)
+from mindocr.models.backbones.mindformers_modules.transformer.transformer import (  # noqa
+    FeedForward,
+    MultiHeadAttention,
+    TransformerOpParallelConfig,
+    _get_lambda_func,
+    default_transformer_config,
+)
 
 _default_tfmer_cfg = dict(
     d_model=512, nhead=8, d_inner=2048, dropout=0.1, activation="relu"  # 1024

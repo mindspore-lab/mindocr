@@ -18,34 +18,32 @@ Note:
 """
 from __future__ import absolute_import
 
-import inspect
 import math
-import numpy as np
 import os
 import sys
 
-from mindspore.common.tensor import Tensor
-from mindspore.common.parameter import Parameter
-from mindspore.common.initializer import initializer
-from mindspore import nn
-from mindspore import context
-import mindspore
+import numpy as np
+
 import mindspore.common.dtype as mstype
-from mindspore.ops import operations as P
-from mindspore.ops import functional as F
+from mindspore import context, nn
+from mindspore.common.tensor import Tensor
 from mindspore.nn.cell import Cell
+from mindspore.ops import functional as F
+from mindspore.ops import operations as P
+
 try:
     from mindspore._checkparam import Validator
 except ImportError:
     import mindspore._checkparam as Validator
+
 from mindspore import log as logger
-from mindspore.parallel._utils import _get_parallel_mode, _is_sharding_propagation
 from mindspore.context import ParallelMode
+from mindspore.parallel._utils import _get_parallel_mode, _is_sharding_propagation
 
 mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../../"))
 sys.path.insert(0, mindocr_path)
 
-from mindocr.models.backbones.mindformers_modules.layers import (
+from mindocr.models.backbones.mindformers_modules.layers import (  # noqa
     Linear,
     _args_type_validator_check,
     _check_input_dtype,
@@ -54,14 +52,13 @@ from mindocr.models.backbones.mindformers_modules.layers import (
     _valid_value_checks,
 )
 
-from .op_parallel_config import (
-    default_dpmp_config,
-    default_moeparallel_config,
+from .op_parallel_config import (  # noqa
+    MoEParallelConfig,
+    OpParallelConfig,
     _check_config,
     _Config,
     _PipeLineConfig,
-    MoEParallelConfig,
-    OpParallelConfig,
+    default_dpmp_config,
 )
 
 
@@ -84,7 +81,6 @@ class EmbeddingOpParallelConfig(_Config):
             ``Ascend`` ``GPU``
 
         Examples:
-            >>> from mindformers.modules.transformer import EmbeddingOpParallelConfig
             >>> config=EmbeddingOpParallelConfig(data_parallel=1, model_parallel=1, vocab_emb_dp=True)
     """
 
@@ -121,7 +117,7 @@ class EmbeddingOpParallelConfig(_Config):
     @property
     def dp_mp_config(self):
         return self._dp_mp_config
-    
+
 
 class TransformerRecomputeConfig(_Config):
     r"""
@@ -140,7 +136,6 @@ class TransformerRecomputeConfig(_Config):
             ``Ascend`` ``GPU``
 
         Examples:
-            >>> from mindformers.modules.transformer import TransformerRecomputeConfig
             >>> config=TransformerRecomputeConfig(recompute=True, parallel_optimizer_comm_recompute=True, \
             ...                                   mp_comm_recompute=True, recompute_slice_activation=True)
     """
@@ -228,7 +223,6 @@ class TransformerOpParallelConfig(_Config):
             ``Ascend`` ``GPU``
 
         Examples:
-            >>> from mindformers.modules.transformer import TransformerRecomputeConfig
             >>> recompute_config=TransformerRecomputeConfig(recompute=True, parallel_optimizer_comm_recompute=True, \
             ...                                             mp_comm_recompute=True, recompute_slice_activation=True)
             >>> config=TransformerOpParallelConfig(data_parallel=1, model_parallel=1, recompute=recompute_config)
@@ -255,7 +249,7 @@ class TransformerOpParallelConfig(_Config):
         if not isinstance(value, TransformerRecomputeConfig) and not isinstance(value, bool):
             raise TypeError(f"recompute must be a TransformerRecomputeConfig/bool, but got {type(value).__name__}.")
         if isinstance(value, bool):
-            logger.warning(f"TransformerRecomputeConfig is recommended as the recompute configuration type.")
+            logger.warning("TransformerRecomputeConfig is recommended as the recompute configuration type.")
         self._recompute = value
 
     @property
@@ -394,7 +388,6 @@ class FeedForward(Cell):
 
         Examples:
             >>> import numpy as np
-            >>> from mindformers.modules.transformer import FeedForward
             >>> from mindspore import dtype as mstype
             >>> from mindspore import Tensor, nn
             >>> import mindspore.ops as ops
@@ -665,7 +658,6 @@ class MultiHeadAttention(Cell):
 
         Examples:
             >>> import numpy as np
-            >>> from mindformers.modules.transformer import MultiHeadAttention
             >>> from mindspore import dtype as mstype
             >>> from mindspore import Tensor
             >>> model = MultiHeadAttention(batch_size=None, hidden_size=15, src_seq_length=20, tgt_seq_length=20,

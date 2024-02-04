@@ -1,38 +1,31 @@
-import logging
-
-from functools import wraps, partial
 import inspect
-import math
-import numpy as np
+import logging
+from functools import partial, wraps
 
 import mindspore
-from mindspore import nn, context
-from mindspore.common.parameter import Parameter
-from mindspore.common.initializer import initializer, Tensor
 import mindspore.common.dtype as mstype
-from mindspore.common.seed import _get_graph_seed
+from mindspore import nn
 from mindspore._extends import cell_attr_register
+from mindspore.common.initializer import Tensor, initializer
+from mindspore.common.parameter import Parameter
 from mindspore.nn.cell import Cell
 from mindspore.nn.layer.activation import get_activation
 from mindspore.ops import functional as F
 from mindspore.ops import operations as P
 from mindspore.ops.primitive import constexpr
+
 # MindSpore 2.0 has changed the APIs of _checkparam, the following try except is for compatibility
 try:
     from mindspore._checkparam import Validator
 except ImportError:
     import mindspore._checkparam as Validator
-from mindspore.parallel._utils import _get_parallel_mode, _is_sharding_propagation
-from mindspore.context import ParallelMode
 
-from .transformer.op_parallel_config import (
-    default_dpmp_config,
-    OpParallelConfig,
-    MoEParallelConfig,
-)
+from mindspore.context import ParallelMode
+from mindspore.parallel._utils import _get_parallel_mode, _is_sharding_propagation
+
+from .transformer.op_parallel_config import MoEParallelConfig, OpParallelConfig
 
 _logger = logging.getLogger(__name__)
-
 
 
 def is_version_ge(current_version, base_version):
@@ -286,7 +279,7 @@ class LayerNorm(Cell):
             strategy (tuple): The strategy for the dropout. Should be the same shape as the inputs.
         Examples:
             >>> import mindspore
-            >>> net = mindformers.modules.transformer.LayerNorm(normalized_shape=(1024, 10))
+            >>> net = LayerNorm(normalized_shape=(1024, 10))
             >>> net.shard(((10, 2, 1),))
         """
         if self.is_self_defined:
@@ -402,7 +395,7 @@ class Linear(Cell):
             self.weight = Parameter(initializer(weight_init, weight_shape, param_init_type), name="weight")
             self.matmul = P.MatMul(transpose_b=transpose_b)
         self.use_expert_group_size = _get_parallel_mode() in (ParallelMode.AUTO_PARALLEL,) \
-                                     and not _is_sharding_propagation() and self.expert_flag is True
+            and not _is_sharding_propagation() and self.expert_flag is True
         if self.use_expert_group_size is True and self.expert_group_size is None:
             raise ValueError("'expert_group_size' should be configured as an integer in MoEConfig.")
         self.bias = None
@@ -497,7 +490,6 @@ class Linear(Cell):
                 self.activation.activation_shard(parallel_config)
             else:
                 _logger.warning("The user passed the custom defined activation function %s. "
-                               "If the user want to enable shard for the activation cell, "
-                               "the user should set the shard for each primitives in the cell.", self.activation_flag)
+                                "If the user want to enable shard for the activation cell, "
+                                "the user should set the shard for each primitives in the cell.", self.activation_flag)
         return self
-

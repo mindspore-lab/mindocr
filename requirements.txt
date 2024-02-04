@@ -17,7 +17,6 @@ lanms>=1.0.2
 sentencepiece>=0.1.99
 huggingface_hub>=0.16.4
 seqeval>=1.2.2
-mindformers==0.3.0
 requests>=2.31.0
 pycocotools>=2.0.2
 setuptools-scm

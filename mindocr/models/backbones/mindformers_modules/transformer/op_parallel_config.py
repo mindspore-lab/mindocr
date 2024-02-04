@@ -18,12 +18,14 @@ This is an experimental interface that is subject to change and/or deletion.
 """
 
 import logging
+
 try:
     from mindspore._checkparam import Validator
 except ImportError:
     import mindspore._checkparam as Validator
-from mindspore import context
+
 import mindspore.communication.management as D
+from mindspore import context
 from mindspore.context import ParallelMode
 from mindspore.parallel._utils import _get_parallel_mode
 
@@ -144,7 +146,6 @@ class OpParallelConfig(_Config):
             ``Ascend`` ``GPU``
 
         Examples:
-            >>> from mindformers.modules import OpParallelConfig
             >>> config=OpParallelConfig(data_parallel=1, model_parallel=1)
     """
 
@@ -171,6 +172,7 @@ class OpParallelConfig(_Config):
     def model_parallel(self, value):
         Validator.check_positive_int(value, "model_parallel")
         self._model_parallel = value
+
 
 # In case the user doesn't pass a config as args.
 default_dpmp_config = OpParallelConfig()
@@ -206,5 +208,5 @@ def _check_config(config):
     # the config optimizer_shard is same with context.optimizer_shard
     if hasattr(config, "optimizer_shard") and optimizer_shard and optimizer_shard != config.optimizer_shard:
         _logger.warning(f"The optimizer shard {optimizer_shard} in auto_parallel_context is not equal to the"
-                       f" optimizer_shard {config.optimizer_shard} in the OpParallelConfig. Please check the "
-                       f"optimizer_shard to make them consistent.")
+                        f" optimizer_shard {config.optimizer_shard} in the OpParallelConfig. Please check the "
+                        f"optimizer_shard to make them consistent.")

@@ -17,24 +17,27 @@ Note: Mixture of Expert (MoE) structure. This is an experimental interface that 
 """
 
 import math
-import numpy as np
 import os
 import sys
 
-from mindspore.common.tensor import Tensor
+import numpy as np
+
 import mindspore.common.dtype as mstype
 import mindspore.communication.management as D
+from mindspore.common.tensor import Tensor
+
 # MindSpore 2.0 has changed the APIs of _checkparam, the following try except is for compatibility
 try:
     from mindspore._checkparam import Validator
 except ImportError:
     import mindspore._checkparam as Validator
-from mindspore.ops import operations as P
-from mindspore.ops import functional as F
-from mindspore.ops.primitive import constexpr
+
+from mindspore.context import ParallelMode
 from mindspore.nn.cell import Cell
 from mindspore.nn.layer import Dense
-from mindspore.context import ParallelMode
+from mindspore.ops import functional as F
+from mindspore.ops import operations as P
+from mindspore.ops.primitive import constexpr
 from mindspore.parallel._utils import _get_parallel_mode, _is_sharding_propagation
 
 from .op_parallel_config import default_moeparallel_config
@@ -42,7 +45,7 @@ from .op_parallel_config import default_moeparallel_config
 mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../../"))
 sys.path.insert(0, mindocr_path)
 
-from .transformer import FeedForward
+from .transformer import FeedForward  # noqa
 
 
 class MoEConfig:
@@ -72,7 +75,6 @@ class MoEConfig:
             ``Ascend`` ``GPU``
 
         Examples:
-            >>> from mindformers.modules.transformer import MoEConfig
             >>> moe_config = MoEConfig(expert_num=4, capacity_factor=5.0, aux_loss_factor=0.05, num_experts_chosen=1,
             ...                        expert_group_size=64, group_wise_a2a=True, comp_comm_parallel=False,
             ...                        comp_comm_parallel_degree=2)
@@ -274,8 +276,8 @@ class MoE(Cell):
         pad_size = 0
         if self.group_wise_a2a:
             # If capacity can't div by mp, pad for mp shard.
-            if capacity%self.mp != 0:
-                pad_size = self.mp-(capacity%self.mp)
+            if capacity % self.mp != 0:
+                pad_size = self.mp - (capacity % self.mp)
             if pad_size != 0:
                 capacity += pad_size
                 pad_tensor = self.stride_slice_dp(expert_input, (0, 0, 0, 0),
@@ -331,8 +333,8 @@ class MoE(Cell):
         """
         # Pad capacity for comp_comm_parallel_degree split.
         pad_size = 0
-        if capacity%self.comp_comm_parallel_degree != 0:
-            pad_size = self.comp_comm_parallel_degree-(capacity%self.comp_comm_parallel_degree)
+        if capacity % self.comp_comm_parallel_degree != 0:
+            pad_size = self.comp_comm_parallel_degree - (capacity % self.comp_comm_parallel_degree)
             capacity += pad_size
             pad_tensor = self.stride_slice_dp(expert_input, (0, 0, 0, 0),
                                               (self.expert_dim, self.dp_group, pad_size, self.hidden_size),
