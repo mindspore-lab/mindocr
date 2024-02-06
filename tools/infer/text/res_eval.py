@@ -4,17 +4,31 @@ Uasage Example:
         --rec_gt_path /Users/Samit/Data/datasets/ic15/rec/test/rec_gt.txt
 """
 
-from config import parse_args
+import argparse
+
 from utils import eval_rec_res
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Result Evaluation Config Args")
+
+    parser.add_argument(
+        "--draw_img_save_dir",
+        type=str,
+        default="./inference_results",
+        help="Dir to save visualization and detection/recogintion/system prediction results",
+    )
+    parser.add_argument(
+        "--rec_gt_path", type=str, default=None, help="Path to ground truth labels of the recognition result"
+    )
+
+    args = parser.parse_args()
+    return args
+
 
 if __name__ == "__main__":
     # parse args
     args = parse_args()
-
-    # pred_fp = 'inference_results/rec_results.txt'
-    # pred_fp = 'inference_results/rec_results_serail.txt'
-    # rec_gt_fp = '/Users/Samit/Data/datasets/ic15/rec/test/rec_gt.txt'
-
     pred_fp = args.draw_img_save_dir
     rec_gt_fp = args.rec_gt_path
 

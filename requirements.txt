@@ -11,7 +11,7 @@ rapidfuzz>=2.13.7
 Pillow>=9.1.1,<=9.5
 PyYAML>=6.0
 xml-python>=0.4.3
-packaging
+packaging>=23.1
 Cython
 lanms>=1.0.2
 sentencepiece>=0.1.99
