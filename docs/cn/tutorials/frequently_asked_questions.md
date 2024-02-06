@@ -10,6 +10,7 @@
  - [DBNet训练速率不及预期](#q9-DBNet训练速率不及预期)
  - [`libgomp-d22c30c5.so.1.0.0`相关错误](#q10-libgomp-d22c30c5so100相关错误)
  - [当在lmdb dataset上训练abinet报数据管道错误](#q11-当在lmdb-dataset上训练abinet报数据管道错误)
+ - [当在synthtext数据集上训练dbnet报运行时错误](#q12-当在synthtext数据集上训练dbnet报运行时错误)
 
 ### Q1 未定义符号
 
@@ -742,3 +743,15 @@ mindspore/ccsrc/minddata/dataset/kernels/py_func_op.cc(143).
   102           EXECUTORS_LIST[key] = executor
   ```
   - 保存后再次尝试训练即可
+
+### Q12 当在synthtext数据集上训练dbnet报运行时错误
+当在synthtext数据集上训练dbnet报以下数据管道错误
+```bash
+Traceback (most recent call last):
+  ...
+  File "/root/archiconda3/envs/Python380/lib/python3.8/site-packages/mindspore/common/api.py", line 1608, in _exec_pip
+    return self.graph_executor(args, phase)
+RuntimeError: Run task for graph:kernel_graph_1 error! The details reger to 'Ascend Error Message'
+```
+
+请尝试将CANN更新到7.1。
