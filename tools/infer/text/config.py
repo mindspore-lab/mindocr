@@ -23,7 +23,7 @@ def create_parser():
     parser.add_argument("--mode", type=int, default=0, help="0 for graph mode, 1 for pynative mode ")  # added
 
     # params for text detector
-    parser.add_argument("--image_dir", type=str, help="image path or image directory")
+    parser.add_argument("--image_dir", type=str, required=True, help="image path or image directory")
     # parser.add_argument("--page_num", type=int, default=0)
     parser.add_argument(
         "--det_algorithm",
@@ -38,7 +38,7 @@ def create_parser():
         default="O0",
         choices=["O0", "O1", "O2", "O3"],
         help="Auto Mixed Precision level. This setting only works on GPU and Ascend",
-    )  # added
+    )
     parser.add_argument(
         "--det_model_dir",
         type=str,
@@ -87,7 +87,7 @@ def create_parser():
         default="O0",
         choices=["O0", "O1", "O2", "O3"],
         help="Auto Mixed Precision level. This setting only works on GPU and Ascend",
-    )  # added
+    )
     parser.add_argument(
         "--rec_model_dir",
         type=str,
@@ -121,11 +121,7 @@ def create_parser():
     # parser.add_argument("--use_space_char", type=str2bool, default=True)
     parser.add_argument("--vis_font_path", type=str, default="docs/fonts/simfang.ttf")
     parser.add_argument("--drop_score", type=float, default=0.5)
-    parser.add_argument(
-        "--rec_gt_path", type=str, default=None, help="Path to ground truth labels of the recognition result"
-    )  # added
 
-    #
     parser.add_argument(
         "--draw_img_save_dir",
         type=str,
