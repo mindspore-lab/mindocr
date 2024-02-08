@@ -268,7 +268,7 @@ def _parse_minddata_op(dataset_args):
         if "NormalizeImage" in transform_dict.keys():
             from mindocr.data.transforms.general_transforms import get_value
 
-            normalize_transform = transform_dict['NormalizeImage']
+            normalize_transform = transform_dict["NormalizeImage"]
             mean = get_value(normalize_transform.get("mean", "imagenet"), "mean")
             std = get_value(normalize_transform.get("std", "imagenet"), "std")
             minddata_op_idx.append(i)
