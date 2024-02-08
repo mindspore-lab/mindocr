@@ -266,8 +266,12 @@ def _parse_minddata_op(dataset_args):
             minddata_op_list.append(color_adjust_op)
             continue
         if "NormalizeImage" in transform_dict.keys():
+            from mindocr.data.transforms.general_transforms import get_value
+            normalize_transform = transform_dict['NormalizeImage']
+            mean = get_value(normalize_transform.get("mean", "imagenet"), "mean")
+            std = get_value(normalize_transform.get("std", "imagenet"), "std")
             minddata_op_idx.append(i)
-            normalize_op = ms.dataset.vision.Normalize(mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD)
+            normalize_op = ms.dataset.vision.Normalize(mean=mean, std=std)
             minddata_op_list.append(normalize_op)
             continue
         if "ToCHWImage" in transform_dict.keys():

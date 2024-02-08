@@ -5,8 +5,8 @@ import cv2
 import numpy as np
 from PIL import Image
 
-from mindspore.dataset.vision import RandomColorAdjust as MSRandomColorAdjust
-from mindspore.dataset.vision import ToPIL
+from mindspore import dataset as ds
+from mindspore.dataset import vision
 
 from ...data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 
@@ -20,6 +20,16 @@ __all__ = [
     "RandomRotate",
     "RandomHorizontalFlip",
 ]
+
+
+def get_value(val, name):
+    if isinstance(val, str) and val.lower() == "imagenet":
+        assert name in ["mean", "std"]
+        return IMAGENET_DEFAULT_MEAN if name == "mean" else IMAGENET_DEFAULT_STD
+    elif isinstance(val, list):
+        return val
+    else:
+        raise ValueError(f"Wrong {name} value: {val}")
 
 
 class DecodeImage:
@@ -37,17 +47,31 @@ class DecodeImage:
         self.flag = cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR if ignore_orientation else cv2.IMREAD_COLOR
         self.keep_ori = keep_ori
 
+        self.use_minddata = kwargs.get("use_minddata", False)
+        self.decoder = None
+        self.cvt_color = None
+        if self.use_minddata:
+            self.decoder = vision.Decoder()
+            self.cvt_color = vision.ConvertColor(vision.ConvertMode.COLOR_BGR2RGB)
+
     def __call__(self, data):
         if "img_path" in data:
             with open(data["img_path"], "rb") as f:
                 img = f.read()
         elif "img_lmdb" in data:
             img = data["img_lmdb"]
+        else:
+            raise ValueError('"img_path" or "img_lmdb" must be in input data')
         img = np.frombuffer(img, dtype="uint8")
-        img = cv2.imdecode(img, self.flag)
 
-        if self.img_mode == "RGB":
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        if self.use_minddata:
+            img = self.decoder(img)
+            if self.img_mode == "BGR":
+                img = self.cvt_color(img)
+        else:
+            img = cv2.imdecode(img, self.flag)
+            if self.img_mode == "RGB":
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         if self.channel_first:
             img = img.transpose((2, 0, 1))
@@ -86,15 +110,32 @@ class NormalizeImage:
 
         # TODO: detect hwc or chw automatically
         shape = (3, 1, 1) if not is_hwc else (1, 1, 3)
-        self.mean = np.array(self._get_value(mean, "mean")).reshape(shape).astype("float32")
-        self.std = np.array(self._get_value(std, "std")).reshape(shape).astype("float32")
+        self.mean = get_value(mean, "mean")
+        self.std = get_value(std, "std")
         self.is_hwc = is_hwc
+
+        self.use_minddata = kwargs.get("use_minddata", False)
+        self.normalize = None
+        self.cvt_color = None
+        if self.use_minddata:
+            self.decoder = vision.Normalize(self.mean, self.std, is_hwc)
+            self.cvt_color = vision.ConvertColor(vision.ConvertMode.COLOR_BGR2RGB)
+        else:
+            self.mean = np.array(self.mean).reshape(shape).astype("float32")
+            self.std = np.array(self.std).reshape(shape).astype("float32")
 
     def __call__(self, data):
         img = data["image"]
         if isinstance(img, Image.Image):
             img = np.array(img)
         assert isinstance(img, np.ndarray), "invalid input 'img' in NormalizeImage"
+
+        if self.use_minddata:
+            if self._channel_conversion:
+                img = self.cvt_color(img)
+            img = self.normalize(img)
+            data["image"] = img
+            return data
 
         if self._channel_conversion:
             if self.is_hwc:
@@ -105,26 +146,22 @@ class NormalizeImage:
         data["image"] = (img.astype("float32") - self.mean) / self.std
         return data
 
-    @staticmethod
-    def _get_value(val, name):
-        if isinstance(val, str) and val.lower() == "imagenet":
-            assert name in ["mean", "std"]
-            return IMAGENET_DEFAULT_MEAN if name == "mean" else IMAGENET_DEFAULT_STD
-        elif isinstance(val, list):
-            return val
-        else:
-            raise ValueError(f"Wrong {name} value: {val}")
-
 
 class ToCHWImage:
     # convert hwc image to chw image
     def __init__(self, **kwargs):
-        pass
+        self.use_minddata = kwargs.get("use_minddata", False)
+        self.hwc2chw = None
+        if self.use_minddata:
+            self.hwc2chw = vision.HWC2CHW()
 
     def __call__(self, data):
         img = data["image"]
         if isinstance(img, Image.Image):
             img = np.array(img)
+        if self.use_minddata:
+            data["image"] = self.hwc2chw(img)
+            return data
         data["image"] = img.transpose((2, 0, 1))
         return data
 
@@ -181,7 +218,7 @@ class RandomScale:
             image
             (polys)
         """
-        if random.random() < self._p:
+        if np.random.random() < self._p:
             if self._size_limits:
                 size = data["image"].shape[:2]
                 min_scale = max(self._size_limits[0] / size[0], self._size_limits[0] / size[1], self._range[0])
@@ -201,8 +238,9 @@ class RandomColorAdjust:
     def __init__(self, brightness=32.0 / 255, saturation=0.5, **kwargs):
         contrast = kwargs.get("contrast", (1, 1))
         hue = kwargs.get("hue", (0, 0))
-        self._jitter = MSRandomColorAdjust(brightness=brightness, saturation=saturation, contrast=contrast, hue=hue)
-        self._pil = ToPIL()
+        self._jitter = vision.RandomColorAdjust(brightness=brightness, saturation=saturation, contrast=contrast,
+                                                hue=hue)
+        self._jitter.implementation = ds.Implementation.C
 
     def __call__(self, data):
         """
@@ -210,7 +248,7 @@ class RandomColorAdjust:
         modified keys: image
         """
         # there's a bug in MindSpore that requires images to be converted to the PIL format first
-        data["image"] = np.array(self._jitter(self._pil(data["image"])))
+        data["image"] = self._jitter(data["image"])
         return data
 
 
@@ -230,8 +268,8 @@ class RandomRotate:
         self._p = p
 
     def __call__(self, data: dict) -> dict:
-        if random.random() < self._p:
-            angle = random.randint(self._degrees[0], self._degrees[1])
+        if np.random.random() < self._p:
+            angle = np.random.randint(self._degrees[0], self._degrees[1])
             h, w = data["image"].shape[:2]
 
             center = w // 2, h // 2  # x, y
@@ -265,7 +303,7 @@ class RandomHorizontalFlip:
         self._p = p
 
     def __call__(self, data: dict) -> dict:
-        if random.random() < self._p:
+        if np.random.random() < self._p:
             data["image"] = cv2.flip(data["image"], 1)
 
             if "polys" in data and len(data["polys"]):
