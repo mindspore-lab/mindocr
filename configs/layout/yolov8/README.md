@@ -159,7 +159,8 @@ Assuming that you obtain output.mindir after model conversion, go to the `deploy
 python infer.py \
     --input_images_dir=/your_path_to/val \
     --layout_model_path=your_path_to/output.mindir \
-    --layout_model_name_or_config=../../configs/layout/yolov8/yolov8n.yaml
+    --layout_model_name_or_config=../../configs/layout/yolov8/yolov8n.yaml \
+    --res_save_dir=results_dir
 ```
 
 ## 6. Visualization
