@@ -238,8 +238,9 @@ class RandomColorAdjust:
     def __init__(self, brightness=32.0 / 255, saturation=0.5, **kwargs):
         contrast = kwargs.get("contrast", (1, 1))
         hue = kwargs.get("hue", (0, 0))
-        self._jitter = vision.RandomColorAdjust(brightness=brightness, saturation=saturation, contrast=contrast,
-                                                hue=hue)
+        self._jitter = vision.RandomColorAdjust(
+            brightness=brightness, saturation=saturation, contrast=contrast, hue=hue
+        )
         self._jitter.implementation = ds.Implementation.C
 
     def __call__(self, data):
