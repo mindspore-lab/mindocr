@@ -9,6 +9,8 @@
  - [推理相关问题](#q8-推理时相关问题)
  - [DBNet训练速率不及预期](#q9-DBNet训练速率不及预期)
  - [`libgomp-d22c30c5.so.1.0.0`相关错误](#q10-libgomp-d22c30c5so100相关错误)
+ - [当在lmdb dataset上训练abinet报数据管道错误](#q11-当在lmdb-dataset上训练abinet报数据管道错误)
+ - [当在synthtext数据集上训练dbnet报运行时错误](#q12-当在synthtext数据集上训练dbnet报运行时错误)
 
 ### Q1 未定义符号
 
@@ -694,3 +696,62 @@ ImportError: /root/mindocr_env/lib/python3.8/site-packages/sklearn/__check_build
    ```bash
    export LD_PRELOAD=/root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
    ```
+
+### Q11 当在lmdb dataset上训练abinet报数据管道错误
+当在lmdb dataset上训练abinet报以下数据管道错误
+```bash
+mindocr.data.rec_lmdb_dataset WARNING - Error occurred during preprocess.
+ Exception thrown from dataset pipeline. Refer to 'Dataset Pipeline Error Message'.
+
+------------------------------------------------------------------
+- Dataset Pipeline Error Message:
+------------------------------------------------------------------
+[ERROR] No cast for the specified DataType was found.
+
+------------------------------------------------------------------
+- C++ Call Stack: (For framework developers)
+------------------------------------------------------------------
+mindspore/ccsrc/minddata/dataset/kernels/py_func_op.cc(143).
+```
+可以尝试用如下步骤修复
+ - 找到mindspore的包路径
+ - 打开文件: `mindspore/dataset/transforms/transform.py`
+ - 跳转到93行，可以得到如下内容:
+  ```bash
+  93        if key in EXECUTORS_LIST:
+  94           # get the executor by process id and thread id
+  95            executor = EXECUTORS_LIST[key]
+  96            # remove the old transform which in executor and update the new transform
+  97            executor.UpdateOperation(self.parse())
+  98        else:
+  99            # create a new executor by process id and thread_id
+  100           executor = cde.Execute(self.parse())
+  101           # add the executor the global EXECUTORS_LIST
+  102           EXECUTORS_LIST[key] = executor
+  ```
+ - 使用`executor = cde.Execute(self.parse())`替换97行, 得到如下内容:
+  ```bash
+  93        if key in EXECUTORS_LIST:
+  94            # get the executor by process id and thread id
+  95            executor = EXECUTORS_LIST[key]
+  96            # remove the old transform which in executor and update the new transform
+  97            executor = cde.Execute(self.parse())
+  98        else:
+  99            # create a new executor by process id and thread_id
+  100           executor = cde.Execute(self.parse())
+  101           # add the executor the global EXECUTORS_LIST
+  102           EXECUTORS_LIST[key] = executor
+  ```
+  - 保存后再次尝试训练即可
+
+### Q12 当在synthtext数据集上训练dbnet报运行时错误
+当在synthtext数据集上训练dbnet报以下数据管道错误
+```bash
+Traceback (most recent call last):
+  ...
+  File "/root/archiconda3/envs/Python380/lib/python3.8/site-packages/mindspore/common/api.py", line 1608, in _exec_pip
+    return self.graph_executor(args, phase)
+RuntimeError: Run task for graph:kernel_graph_1 error! The details reger to 'Ascend Error Message'
+```
+
+请尝试将CANN更新到7.1。
