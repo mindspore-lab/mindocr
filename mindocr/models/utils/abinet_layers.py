@@ -1,29 +1,6 @@
 import math
 
 import numpy as np
-from mindformers.modules.layers import LayerNorm as _LayerNorm
-from mindformers.modules.layers import (
-    _args_type_validator_check,
-    _check_input_dtype,
-    _check_past_none_input_none,
-    _check_shape_equal,
-    _valid_type_checks,
-    _valid_value_checks,
-)
-from mindformers.modules.transformer.moe import MoE, _check_moe_config, default_moe_config
-from mindformers.modules.transformer.op_parallel_config import (
-    MoEParallelConfig,
-    OpParallelConfig,
-    _check_config,
-    default_dpmp_config,
-)
-from mindformers.modules.transformer.transformer import (
-    FeedForward,
-    MultiHeadAttention,
-    TransformerOpParallelConfig,
-    _get_lambda_func,
-    default_transformer_config,
-)
 
 import mindspore as ms
 import mindspore.common.dtype as mstype
@@ -37,11 +14,40 @@ from mindspore.log import _LogActionOnce
 from mindspore.nn.cell import Cell
 from mindspore.ops import functional as F
 from mindspore.ops import operations as P
+from mindspore.ops.primitive import constexpr
+from mindspore.parallel._transformer.layers import (
+    _args_type_validator_check,
+    _check_input_dtype,
+    _check_past_none_input_none,
+    _LayerInputCheck,
+    _LayerNorm,
+    _valid_type_checks,
+    _valid_value_checks,
+)
+from mindspore.parallel._transformer.moe import MoE, _check_moe_config, default_moe_config
+from mindspore.parallel._transformer.op_parallel_config import (
+    MoEParallelConfig,
+    OpParallelConfig,
+    _check_config,
+    default_dpmp_config,
+)
+from mindspore.parallel._transformer.transformer import (
+    FeedForward,
+    MultiHeadAttention,
+    TransformerOpParallelConfig,
+    _get_lambda_func,
+    default_transformer_config,
+)
 from mindspore.parallel._utils import _get_parallel_mode, _is_sharding_propagation
 
 _default_tfmer_cfg = dict(
     d_model=512, nhead=8, d_inner=2048, dropout=0.1, activation="relu"  # 1024
 )
+
+
+@constexpr
+def _check_shape_equal(input_shape, param_name, func_name, target_shape):
+    _LayerInputCheck.check_shape_equal(input_shape, param_name, func_name, target_shape)
 
 
 class ABINetBlock(nn.Cell):
