@@ -186,7 +186,7 @@ eval:
 如要重现报告的评估结果，您可以：
 - 方法 1：对所有单个数据集重复评估步骤：CUTE80、IC03_860、IC03_867、IC13_857、IC131015、IC15_1811、IC15_2077、IIIT5k_3000、SVT、SVTP。然后取平均分。
 
-- 方法 2：将所有基准数据集文件夹放在同一目录下，例如`evaluation/`。并使用脚本`tools/benchmarking/multi_dataset_eval.py`。
+- 方法 2：将所有基准数据集文件夹放在同一目录下，例如`evaluation/`，对应修改配置文件中`eval.dataset.data_dir`变量配置，并执行脚本`tools/benchmarking/multi_dataset_eval.py`。
 
 1.评估一个特定的数据集
 
@@ -295,7 +295,7 @@ eval:
 
 * 分布式训练
 
-使用预定义的训练配置可以轻松重现报告的结果。对于在多个昇腾910设备上的分布式训练，请将配置参数`distribute`修改为True，并运行：
+使用预定义的训练配置可以轻松重现报告的结果。对于在多个昇腾910设备上的分布式训练，请将配置参数`system.distribute`修改为True，并运行：
 
 ```shell
 # 在多个 GPU/Ascend 设备上进行分布式训练
@@ -305,21 +305,27 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/
 
 * 单卡训练
 
-如果要在没有分布式训练的情况下在较小的数据集上训练或微调模型，请将配置参数`distribute`修改为False 并运行：
+如果要在没有分布式训练的情况下在较小的数据集上训练或微调模型，请将配置参数`system.distribute`修改为False 并运行：
 
 ```shell
 # CPU/GPU/Ascend 设备上的单卡训练
 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
-训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的目录下，默认为`./tmp_rec`。
+训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`train.ckpt_save_dir`参数配置的目录下，默认为`./tmp_rec`。
 
 ### 3.3 模型评估
 
-若要评估已训练模型的准确性，可以使用`eval.py`。请在yaml配置文件的`eval`部分将参数`ckpt_load_path`设置为模型checkpoint的文件路径，设置`distribute`为False，然后运行：
+若要评估已训练模型的准确性，可以使用`eval.py`。请将yaml配置文件的参数`eval.ckpt_load_path`设置为模型checkpoint的文件路径，参数`eval.dataset.data_dir`设置为评估数据集目录，参数`system.distribute`设置为False，然后运行：
 
 ```
 python tools/eval.py --config configs/rec/crnn/crnn_resnet34.yaml
+```
+
+类似的，可以修改yaml配置文件的`eval.ckpt_load_path`、`eval.dataset.data_dir`、`system.distribute`等参数，然后使用`multi_dataset_eval.py`评估多个数据集的模型准确性：
+
+```
+python tools/benchmarking/multi_dataset_eval.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
 ## 4. 字符词典
@@ -342,11 +348,11 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 您也可以自定义一个字典文件 (***.txt)， 放在 `mindocr/utils/dict/` 下，词典文件格式应为每行一个字符的.txt 文件。
 
 
-如需使用指定的词典，请将参数 `character_dict_path` 设置为字典的路径，并将参数 `num_classes` 改成对应的数量，即字典中字符的数量 + 1。
+如需使用指定的词典，请将参数 `common.character_dict_path` 设置为字典的路径，并将参数 `common.num_classes` 改成对应的数量，即字典中字符的数量 + 1。
 
 
 **注意：**
-- 您可以通过将配置文件中的参数 `use_space_char` 设置为 True 来包含空格字符。
+- 您可以通过将配置文件中的参数 `common.use_space_char` 设置为 True 来包含空格字符。
 - 请记住检查配置文件中的 `dataset->transform_pipeline->RecCTCLabelEncode->lower` 参数的值。如果词典中有大小写字母而且想区分大小写的话，请将其设置为 False。
 
 
