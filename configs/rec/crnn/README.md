@@ -186,7 +186,7 @@ We use the dataset under `evaluation/` as the benchmark dataset. On **each indiv
 To reproduce the reported evaluation results, you can:
 - Option 1: Repeat the evaluation step for all individual datasets: CUTE80, IC03_860, IC03_867, IC13_857, IC131015, IC15_1811, IC15_2077, IIIT5k_3000, SVT, SVTP. Then take the average score.
 
-- Option 2: Put all the benchmark datasets folder under the same directory, e.g. `evaluation/`. And use the script `tools/benchmarking/multi_dataset_eval.py`.
+- Option 2: Put all the benchmark datasets folder under the same directory, e.g. `evaluation/`. Modify the `eval.dataset.data_dir` in the config yaml accordingly. Then execute the script `tools/benchmarking/multi_dataset_eval.py`.
 
 1. Evaluate on one specific dataset
 
@@ -295,7 +295,7 @@ eval:
 
 * Distributed Training
 
-It is easy to reproduce the reported results with the pre-defined training recipe. For distributed training on multiple Ascend 910 devices, please modify the configuration parameter `distribute` as True and run
+It is easy to reproduce the reported results with the pre-defined training recipe. For distributed training on multiple Ascend 910 devices, please modify the configuration parameter `system.distribute` as True and run
 
 ```shell
 # distributed training on multiple GPU/Ascend devices
@@ -305,21 +305,27 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/
 
 * Standalone Training
 
-If you want to train or finetune the model on a smaller dataset without distributed training, please modify the configuration parameter`distribute` as False and run:
+If you want to train or finetune the model on a smaller dataset without distributed training, please modify the configuration parameter`system.distribute` as False and run:
 
 ```shell
 # standalone training on a CPU/GPU/Ascend device
 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
-The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir`. The default directory is `./tmp_rec`.
+The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `train.ckpt_save_dir`. The default directory is `./tmp_rec`.
 
 ### 3.3 Model Evaluation
 
-To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
+To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `eval.ckpt_load_path` in the yaml config file, set the evaluation dataset path to the arg `eval.dataset.data_dir`, set `system.distribute` to be False, and then run:
 
 ```
 python tools/eval.py --config configs/rec/crnn/crnn_resnet34.yaml
+```
+
+Similarly, the accuracy of the trained model can be evaluated using multiple evaluation datasets by properly setting the args `eval.ckpt_load_path`, `eval.dataset.data_dir`, and `system.distribute` in the yaml config file. And then run:
+
+```
+python tools/benchmarking/multi_dataset_eval.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
 ## 4. Character Dictionary
@@ -341,11 +347,11 @@ There are some built-in dictionaries, which are placed in `mindocr/utils/dict/`,
 You can also customize a dictionary file (***.txt) and place it under `mindocr/utils/dict/`, the format of the dictionary file should be a .txt file with one character per line.
 
 
-To use a specific dictionary, set the parameter `character_dict_path` to the path of the dictionary, and change the parameter `num_classes` to the corresponding number, which is the number of characters in the dictionary + 1.
+To use a specific dictionary, set the parameter `common.character_dict_path` to the path of the dictionary, and change the parameter `common.num_classes` to the corresponding number, which is the number of characters in the dictionary + 1.
 
 
 **Notes:**
-- You can include the space character by setting the parameter `use_space_char` in configuration yaml to True.
+- You can include the space character by setting the parameter `common.use_space_char` in configuration yaml to True.
 - Remember to check the value of `dataset->transform_pipeline->RecCTCLabelEncode->lower` in the configuration yaml. Set it to False if you prefer case-sensitive encoding.
 
 
