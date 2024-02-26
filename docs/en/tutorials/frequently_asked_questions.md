@@ -10,6 +10,7 @@
  - [Training speed of DBNet not as fast as expexted](#q9-training-speed-of-dbnet-not-as-fast-as-expexted)
  - [Error about `libgomp-d22c30c5.so.1.0.0`](#q10-error-about-libgomp-d22c30c5so100)
  - [Dataset Pipeline Error when training abinet on lmdb dataset](#q11-dataset-pipeline-error-when-training-abinet-on-lmdb-dataset)
+ - [Runtime Error when training dbnet on synthtext dataset](#q12-runtime-error-when-training-dbnet-on-synthtext-dataset)
 
 ### Q1 Undefined symbol
 
@@ -731,3 +732,15 @@ You can try the following steps to fix it:
   102           EXECUTORS_LIST[key] = executor
   ```
   - save the file, and try to train the model.
+
+
+### Q12 Runtime Error when training dbnet on synthtext dataset
+Runtime Error occur as following when training dbnet on synthtext dataset:
+```bash
+Traceback (most recent call last):
+  ...
+  File "/root/archiconda3/envs/Python380/lib/python3.8/site-packages/mindspore/common/api.py", line 1608, in _exec_pip
+    return self.graph_executor(args, phase)
+RuntimeError: Run task for graph:kernel_graph_1 error! The details reger to 'Ascend Error Message'
+```
+Please update CANN to 7.1 version.

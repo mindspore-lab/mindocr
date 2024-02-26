@@ -77,8 +77,8 @@ class BaseConvertModel(metaclass=ABCMeta):
             else:
                 log = f"{converted_model_path}.mindir exists and it will be overwritten if exported successfully."
                 subprocess.call(f"echo {log}".split(), stdout=self.log_handle, stderr=self.log_handle)
+                os.remove(converted_model_path)
                 print(log)
-        os.remove(converted_model_path)
         command = (
             f"{self.convert_tool} --fmk=MINDIR --modelFile={input_file} --outputFile={converted_model_path}"
             + f" --optimize=ascend_oriented --configFile={config_file}"
@@ -344,8 +344,8 @@ class BaseExportModel(metaclass=ABCMeta):
             else:
                 log = f"{export_mindir_path} exists and it will be overwritten if exported successfully."
                 subprocess.call(f"echo {log}".split(), stdout=self.log_handle, stderr=self.log_handle)
+                os.remove(export_mindir_path)
                 print(log)
-        os.remove(export_mindir_path)
         command = f"python export.py --model_name_or_config {model} --save_dir {self.save_path}"
 
         if len(input_file) > 0 and os.path.exists(input_file):
