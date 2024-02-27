@@ -25,9 +25,6 @@ from .det_db_head import DBHead, DBHeadEnhance
 from .det_east_head import EASTHead
 from .det_fce_head import FCEHead
 from .det_pse_head import PSEHead
-from .kie_relationextraction_head import RelationExtractionHead
-from .kie_tokenclassification_head import TokenClassificationHead
-from .rec_abinet_head import ABINetHead
 from .rec_attn_head import AttentionHead
 from .rec_ctc_head import CTCHead
 from .rec_master_decoder import MasterDecoder
