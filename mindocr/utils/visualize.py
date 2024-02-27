@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-from ..data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 
 __all__ = ["show_img", "show_imgs", "draw_boxes", "draw_texts_with_boxes", "recover_image", "visualize"]
 _logger = logging.getLogger(__name__)
@@ -217,7 +216,7 @@ def visualize(
     show_imgs(vis_imgs, show=display, title=None, save_path=save_path)
 
 
-def recover_image(img, mean=IMAGENET_DEFAULT_MEAN, std=IMAGENET_DEFAULT_STD, is_chw=True, to_bgr=True):
+def recover_image(img, mean, std, is_chw=True, to_bgr=True):
     """
     recover normalized image for visualization
     img: must be in rgb mode"""
