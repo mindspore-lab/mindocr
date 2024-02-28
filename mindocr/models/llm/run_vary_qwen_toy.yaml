@@ -95,7 +95,7 @@ model:
   model_config:
     type: QwenConfig
     batch_size: 1
-    seq_length: 1024
+    seq_length: 2048
     hidden_size: 2048
     num_layers: 24
     num_heads: 16
@@ -114,9 +114,9 @@ model:
     use_flash_attention: False
     use_past_shard: False
     offset: 0
-    checkpoint_name_or_path: "/home/wutiancheng/workspace/mindformers/vary_toy_weights_ms/qwen_toy_ms.ckpt"
+    checkpoint_name_or_path: "./qwen_toy_ms.ckpt"
     repetition_penalty: 1
-    max_decode_length: 1024
+    max_decode_length: 2048
     top_k: 0
     top_p: 0.8
     do_sample: False
@@ -134,7 +134,7 @@ processor:
   return_tensors: ms
   tokenizer:
     model_max_length: 8192
-    vocab_file: "/home/wutiancheng/workspace/mindformers/qwen.tiktoken"
+    vocab_file: "./qwen.tiktoken"
     pad_token: "<|endoftext|>"
     type: QwenTokenizer
   type: QwenProcessor

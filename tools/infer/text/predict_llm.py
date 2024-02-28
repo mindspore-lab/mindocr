@@ -22,22 +22,19 @@ config_file_path = "../../../mindocr/models/llm/run_vary_qwen_toy.yaml"
 config = MindFormerConfig(config_file_path)
 build_context(config)
 build_parallel_config(config)
-# ms.set_context(mode=ms.GRAPH_MODE, device_target="Ascend", device_id=0)
-ms.set_context(mode=ms.PYNATIVE_MODE, device_target="Ascend", device_id=1)
+ms.set_context(mode=ms.GRAPH_MODE, device_target="Ascend", device_id=4)
 tokenizer = QwenTokenizer(**config.processor.tokenizer)
 
 model_config = QwenConfig.from_pretrained(config_file_path)
 # model = QwenForCausalLM(model_config)
 model = VaryQwenForCausalLM(model_config)
 
-DEFAULT_IMAGE_TOKEN = "<image>"
 DEFAULT_IMAGE_PATCH_TOKEN = '<imgpad>'
 DEFAULT_IM_START_TOKEN = '<img>'
 DEFAULT_IM_END_TOKEN = '</img>'
-DEFAULT_PAD_TOKEN = "<|endoftext|>"
 prompt = '<|im_start|>system\nYou should follow the instructions carefully and explain your answers in detail.'
 prompt += '<|im_end|><|im_start|>user\n'
-prompt += '<img>' + '<imgpad>' * 256 + '</img>'
+prompt += DEFAULT_IM_START_TOKEN + DEFAULT_IMAGE_PATCH_TOKEN * 256 + DEFAULT_IM_END_TOKEN
 prompt += 'Provide the ocr results of this image.<|im_end|><|im_start|>assistant\n'
 inputs = tokenizer([prompt, ], return_tensors=None, padding='max_length', max_length=model_config.seq_length)
 output = model.generate(input_ids=inputs["input_ids"])

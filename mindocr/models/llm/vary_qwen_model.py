@@ -25,6 +25,9 @@ class VaryQwenModel(QwenModel):
 
         self.vision_select_layer = getattr(self.config, "vision_select_layer", -1)
 
+        self.image_start_token_pos = 22
+        self.num_patches = 256
+
     # def initialize_vision_modules(
     #         self,
     #         vision_tower,
@@ -100,32 +103,22 @@ class VaryQwenModel(QwenModel):
         # image_features_2 = [self.mm_projector_vary(image_feature) for image_feature in image_features_2]
         # image_features = [ops.cat((image_feature[0], image_feature[1]), axis=-1) for image_feature in
         #                   zip(image_features_1, image_features_2)]
-        image_features = [
-            ms.Tensor(np.load('/home/wutiancheng/workspace/mindformers/image_features.npy').astype(np.float16))
-        ]
-
-        im_patch_token = 151859
+        image_features = ms.Tensor(np.load('./image_features.npy').astype(np.float16))
 
         new_input_embeds = []
-        for cur_input_ids, cur_input_embeds, cur_image_features in zip(input_ids, inputs_embeds, image_features):
-            img_mask = cur_input_ids == im_patch_token
-            if img_mask.sum() == 0:
-                # no images in input_ids
-                new_input_embeds.append(cur_input_embeds)
-                continue
-
-            image_start_tokens = ops.nonzero(img_mask)[0]
-            for image_start_token_pos, per_cur_image_features in zip(image_start_tokens, cur_image_features):
-                num_patches = per_cur_image_features.shape[0]
-
-                cur_input_embeds = ops.cat(
-                    (
-                        cur_input_embeds[:image_start_token_pos + 1],
-                        per_cur_image_features,
-                        cur_input_embeds[image_start_token_pos + num_patches + 1:]
-                    ),
-                    axis=0
-                )
+        num_patches = self.num_patches
+        image_start_token_pos = self.image_start_token_pos
+        for i in range(input_shape[0]):
+            cur_input_embeds = inputs_embeds[i]
+            per_cur_image_features = image_features[i]
+            cur_input_embeds = ops.cat(
+                (
+                    cur_input_embeds[:image_start_token_pos + 1],
+                    per_cur_image_features,
+                    cur_input_embeds[image_start_token_pos + num_patches + 1:]
+                ),
+                axis=0
+            )
 
             new_input_embeds.append(cur_input_embeds)
 
