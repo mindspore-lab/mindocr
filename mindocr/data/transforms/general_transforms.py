@@ -50,7 +50,7 @@ class DecodeImage:
         self.decoder = None
         self.cvt_color = None
         if self.use_minddata:
-            self.decoder = vision.Decoder()
+            self.decoder = vision.Decode()
             self.cvt_color = vision.ConvertColor(vision.ConvertMode.COLOR_BGR2RGB)
 
     def __call__(self, data):
