@@ -110,11 +110,11 @@ model:
     softmax_compute_type: "float16"
     rotary_dtype: "float16"
     param_init_type: "float16"
-    use_past: False
+    use_past: True
     use_flash_attention: False
     use_past_shard: False
     offset: 0
-    checkpoint_name_or_path: "./qwen_toy_ms.ckpt"
+    checkpoint_name_or_path: "./qwen_toy.ckpt"
     repetition_penalty: 1
     max_decode_length: 2048
     top_k: 0

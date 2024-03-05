@@ -1,17 +1,17 @@
 from collections import OrderedDict
-import numpy as np
 
 import mindspore as ms
-from mindspore import Parameter, Tensor, nn, ops, load_checkpoint, load_param_into_net
+from mindspore import Parameter, Tensor, nn, ops
 
 
 class QuickGELU(nn.Cell):
     def construct(self, x: Tensor):
         return x * ops.sigmoid(1.702 * x)
- 
+
 
 class CLIPAttention(nn.Cell):
     """Multi-head attention module for CLIP"""
+
     def __init__(self, embed_dim, num_heads):
         super().__init__()
         self.embed_dim = embed_dim
@@ -35,9 +35,12 @@ class CLIPAttention(nn.Cell):
 
     def construct(self, x):
         bsz, tgt_len, embed_dim = x.shape
-        query_states = self.transpose(self.reshape(self.q_proj(x) * self.scale, (bsz, tgt_len, self.num_heads, self.head_dim)), (0, 2, 1, 3))
-        key_states = self.transpose(self.reshape(self.k_proj(x), (bsz, tgt_len, self.num_heads, self.head_dim)), (0, 2, 1, 3))
-        value_states = self.transpose(self.reshape(self.v_proj(x), (bsz, tgt_len, self.num_heads, self.head_dim)), (0, 2, 1, 3))
+        query_states = self.transpose(
+            self.reshape(self.q_proj(x) * self.scale, (bsz, tgt_len, self.num_heads, self.head_dim)), (0, 2, 1, 3))
+        key_states = self.transpose(self.reshape(self.k_proj(x), (bsz, tgt_len, self.num_heads, self.head_dim)),
+                                    (0, 2, 1, 3))
+        value_states = self.transpose(self.reshape(self.v_proj(x), (bsz, tgt_len, self.num_heads, self.head_dim)),
+                                      (0, 2, 1, 3))
 
         proj_shape = (bsz * self.num_heads, -1, self.head_dim)
         query_states = self.reshape(query_states, proj_shape)
@@ -69,6 +72,7 @@ class CLIPAttention(nn.Cell):
 
 class ResidualAttentionBlock(nn.Cell):
     """ResidualAttention module for CLIP"""
+
     def __init__(self, d_model: int, n_head: int, attn_mask: Tensor = None):
         super().__init__()
 
@@ -99,18 +103,18 @@ class ResidualAttentionBlock(nn.Cell):
 
 class Transformer(nn.Cell):
     """Vision Transformer module for CLIP"""
+
     def __init__(self, width: int, layers: int, heads: int, attn_mask: Tensor = None):
         super().__init__()
         self.width = width
         self.layers = layers
         self.resblocks = nn.CellList([ResidualAttentionBlock(width, heads, attn_mask) for _ in range(layers)])
 
-
     def construct(self, x: Tensor):
         encoder_states = ()
         hidden_state = x
         for block in self.resblocks:
-            encoder_states += (hidden_state, )
+            encoder_states += (hidden_state,)
             hidden_state = block(hidden_state)
         encoder_states += (hidden_state,)
         return encoder_states
@@ -118,7 +122,9 @@ class Transformer(nn.Cell):
 
 class VisionTransformer(nn.Cell):
     """CLIP module for Vary system"""
-    def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int, vision_select_layer: int):
+
+    def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int,
+                 vision_select_layer: int):
         super().__init__()
         self.input_resolution = input_resolution
         self.output_dim = output_dim
@@ -134,7 +140,7 @@ class VisionTransformer(nn.Cell):
             bias_init="uniform",
         )
 
-        scale = width**-0.5
+        scale = width ** -0.5
         self.class_embedding = Parameter(scale * ops.randn(width))
         self.positional_embedding = Parameter(scale * ops.randn(((input_resolution // patch_size) ** 2 + 1, width)))
         self.ln_pre = nn.LayerNorm([width], epsilon=1e-5)
@@ -155,40 +161,14 @@ class VisionTransformer(nn.Cell):
         return x
 
 
-def convert_weights(model: nn.Cell):
-    """Convert applicable model parameters to fp16"""
-    def _convert_weights_to_fp16(layer):
-        if isinstance(layer, (nn.Conv1d, nn.Conv2d, nn.Dense)):
-            layer.weight.to(ms.float16)
-            if layer.bias is not None:
-                layer.bias.to(ms.float16)
-
-        if isinstance(layer, nn.MultiheadAttention):
-            for attr in [*[f"{s}_proj_weight" for s in ["in", "q", "k", "v"]], "in_proj_bias", "bias_k", "bias_v"]:
-                param = getattr(layer, attr)
-                if param is not None:
-                    param.to(ms.float16)
-
-        for name in ["text_projection", "proj"]:
-            if hasattr(layer, name):
-                attr = getattr(layer, name)
-                if attr is not None:
-                    attr.to(ms.float16)
-
-    model.apply(_convert_weights_to_fp16)
-
-
-def build_model(ckpt_dict: dict):
+def build_model():
     """construct the CLIP module and load ckpt"""
-    vision_width = ckpt_dict["visual.conv1.weight"].shape[0]
-    vision_layers = len(
-        [k for k in ckpt_dict.keys() if k.startswith("visual.") and k.endswith(".attn.k_proj.weight")]
-    )
-    vision_patch_size = ckpt_dict["visual.conv1.weight"].shape[-1]
-    grid_size = round((ckpt_dict["visual.positional_embedding"].shape[0] - 1) ** 0.5)
+    vision_width = 1024
+    vision_layers = 24
+    vision_patch_size = 14
+    grid_size = round(256 ** 0.5)
     image_resolution = vision_patch_size * grid_size
-    out_width = ckpt_dict["visual.transformer.resblocks." + str(vision_layers-1) + ".ln_2.gamma"].shape[0]
- 
+    out_width = 1024
     model = VisionTransformer(
         input_resolution=image_resolution,  # image_size in transformers
         patch_size=vision_patch_size,  # patch_size in transformers
@@ -196,33 +176,7 @@ def build_model(ckpt_dict: dict):
         layers=vision_layers,  # num_hidden_layers
         heads=grid_size,  # num_attention_heads
         output_dim=out_width,  # projection_dim in transformers, default: 1024
-        vision_select_layer = -2,
+        vision_select_layer=-2,
     )
- 
-    for key in ["input_resolution", "context_length", "vocab_size"]:
-        if key in ckpt_dict:
-            del ckpt_dict[key]
- 
-    load_param_into_net(model, ckpt_dict)
-    convert_weights(model)
-    return model.set_train(False)
 
-
-if __name__ == "__main__":
-    """
-    realize following torch code in vary_qwen_vary.py using MindSpore:
-
-    with torch.set_grad_enabled(False):
-        image_forward_out = vision_tower(image[0], output_hidden_states=True)
-        select_hidden_state = image_forward_out.hidden_states[vision_select_layer]
-        image_feature = select_hidden_state[:, 1:]  # 256*1024
-    """
-    ms.set_context(device_target="GPU", mode=ms.PYNATIVE_MODE)
-    img = np.load("/data0/perf/git/mindocr/tests/ut/clip_img.npy").astype(np.float16)
-    img_ts = Tensor.from_numpy(img)
-
-    ckpt_dict = load_checkpoint("/data0/perf/code/wtc_ms/Vary/Vary-master/vit-large-patch14/pytorch_model.ckpt")
-    model = build_model(ckpt_dict)
-    model.to_float(ms.float16)
-    image_feature = model(img_ts)
-    print("test clip completed")
+    return model
