@@ -50,19 +50,7 @@ from mindocr.utils.logger import set_logger
 logger = logging.getLogger("mindocr.export")
 
 
-def generate_kie_inputs(data_shape):
-    h, w = data_shape
-    bs, c = 1, 3
-    x0 = ms.Tensor(np.ones([1, 512]), dtype=ms.int64)
-    x1 = ms.Tensor(np.ones([1, 512, 4]), dtype=ms.int64)
-    x2 = ms.Tensor(np.ones([1, 512]), dtype=ms.int64)
-    x3 = ms.Tensor(np.ones([1, 512]), dtype=ms.int64)
-    x4 = ms.Tensor(np.ones([bs, c, h, w]), dtype=ms.float32)
-    inputs = [x0, x1, x2, x3, x4]
-    return inputs
-
-
-def generate_common_inputs(data_shape, is_dynamic_shape, model_type):
+def common_exporter(save_dir, name, net, data_shape, is_dynamic_shape, model_type):
     if is_dynamic_shape:
         if model_type == "det":
             x = ms.Tensor(shape=[None, 3, None, None], dtype=ms.float32)
@@ -72,7 +60,65 @@ def generate_common_inputs(data_shape, is_dynamic_shape, model_type):
         h, w = data_shape
         bs, c = 1, 3
         x = ms.Tensor(np.ones([bs, c, h, w]), dtype=ms.float32)
-    return x
+    output_path = os.path.join(save_dir, name) + ".mindir"
+    ms.export(net, x, file_name=output_path, file_format="MINDIR")
+    logger.info(
+        f"=> Finish exporting mindir file of {name} to {os.path.realpath(output_path)}."
+        f"The data shape (N, C, H, W) is {x.shape}."
+    )
+
+
+def abinet_exporter(save_dir, name, net, data_shape, is_dynamic_shape):
+    if is_dynamic_shape:
+        x = ms.Tensor(shape=[96, 3, 32, None], dtype=ms.float32)
+    else:
+        h, w = data_shape
+        bs, c = 96, 3
+        x = ms.Tensor(np.ones([bs, c, h, w]), dtype=ms.float32)
+    output_path = os.path.join(save_dir, name) + ".mindir"
+    ms.export(net, x, file_name=output_path, file_format="MINDIR")
+    logger.info(
+        f"=> Finish exporting mindir file of {name} to {os.path.realpath(output_path)}."
+        f"The data shape (N, C, H, W) is {x.shape}."
+    )
+
+
+def robustscanner_resnet31_exporter(save_dir, name, net, data_shape, is_dynamic_shape):
+    if is_dynamic_shape:
+        x0 = ms.Tensor(shape=[1, 3, 48, None], dtype=ms.float32)
+        x1 = ms.Tensor(np.ones([1, 1, 40]), dtype=ms.int64)
+        x2 = ms.Tensor(np.ones([1, 40]), dtype=ms.int64)
+        inputs = [x0, x1, x2]
+    else:
+        h, w = data_shape
+        bs, c = 1, 3
+        x0 = ms.Tensor(np.ones([bs, c, h, w]), dtype=ms.float32)
+        x1 = ms.Tensor(np.ones([1, 1, 40]), dtype=ms.int64)
+        x2 = ms.Tensor(np.ones([1, 40]), dtype=ms.int64)
+        inputs = [x0, x1, x2]
+    output_path = os.path.join(save_dir, name) + ".mindir"
+    ms.export(net, *inputs, file_name=output_path, file_format="MINDIR")
+    logger.info(
+        f"=> Finish exporting mindir file of {name} to {os.path.realpath(output_path)}."
+        f"The data shape (N, C, H, W) is {inputs[0].shape}."
+    )
+
+
+def kie_exporter(save_dir, name, net, data_shape):
+    h, w = data_shape
+    bs, c = 1, 3
+    x0 = ms.Tensor(np.ones([1, 512]), dtype=ms.int64)
+    x1 = ms.Tensor(np.ones([1, 512, 4]), dtype=ms.int64)
+    x2 = ms.Tensor(np.ones([1, 512]), dtype=ms.int64)
+    x3 = ms.Tensor(np.ones([1, 512]), dtype=ms.int64)
+    x4 = ms.Tensor(np.ones([bs, c, h, w]), dtype=ms.float32)
+    inputs = [x0, x1, x2, x3, x4]
+    output_path = os.path.join(save_dir, name) + ".mindir"
+    ms.export(net, *inputs, file_name=output_path, file_format="MINDIR")
+    logger.info(
+        f"=> Finish exporting mindir file of {name} to {os.path.realpath(output_path)}."
+        f"The image shape (N, C, H, W) is {inputs[-1].shape}."
+    )
 
 
 def export(model_name_or_config, data_shape, local_ckpt_path, save_dir, is_dynamic_shape, model_type, **kwargs):
@@ -91,35 +137,29 @@ def export(model_name_or_config, data_shape, local_ckpt_path, save_dir, is_dynam
         amp_level = "O0"
 
     if local_ckpt_path:
-        net = build_model(model_cfg, pretrained=False, ckpt_load_path=local_ckpt_path, amp_level=amp_level)
+        net = build_model(
+            model_cfg, pretrained=False, pretrained_backbone=False, ckpt_load_path=local_ckpt_path, amp_level=amp_level
+        )
     else:
-        net = build_model(model_cfg, pretrained=True, amp_level=amp_level)
+        net = build_model(model_cfg, pretrained=True, pretrained_backbone=False, amp_level=amp_level)
 
     logger.info(f"Set the AMP level of the model to be `{amp_level}`.")
 
     net.set_train(False)
 
-    if model_type == "kie":
-        inputs = generate_kie_inputs(data_shape)
-    else:
-        inputs = generate_common_inputs(data_shape, is_dynamic_shape, model_type)
+    if name == "abinet":
+        abinet_exporter(save_dir, name, net, data_shape, is_dynamic_shape)
+        return
 
-    output_path = os.path.join(save_dir, name) + ".mindir"
-    if model_type == "kie":
-        ms.export(net, *inputs, file_name=output_path, file_format="MINDIR")
-    else:
-        ms.export(net, inputs, file_name=output_path, file_format="MINDIR")
+    if name == "robustscanner_resnet31":
+        robustscanner_resnet31_exporter(save_dir, name, net, data_shape, is_dynamic_shape)
+        return
 
     if model_type == "kie":
-        logger.info(
-            f"=> Finish exporting mindir file of {name} to {os.path.realpath(output_path)}."
-            f"The image shape (N, C, H, W) is {inputs[-1].shape}."
-        )
-    else:
-        logger.info(
-            f"=> Finish exporting mindir file of {name} to {os.path.realpath(output_path)}."
-            f"The data shape (N, C, H, W) is {inputs.shape}."
-        )
+        kie_exporter(save_dir, name, net, data_shape)
+        return
+
+    common_exporter(save_dir, name, net, data_shape, is_dynamic_shape, model_type)
 
 
 def check_args(args):

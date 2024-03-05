@@ -5,8 +5,6 @@ Argument names are adopted from ppocr for easy usage transfer.
 """
 import argparse
 
-import yaml
-
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -20,27 +18,12 @@ def str2bool(v):
 
 
 def create_parser():
-    parser_config = argparse.ArgumentParser(description="Inference Config File", add_help=False)
-    parser_config.add_argument(
-        "-c", "--config", type=str, default="", help='YAML config file specifying default arguments (default="")'
-    )
-
     parser = argparse.ArgumentParser(description="Inference Config Args")
     # params for prediction engine
     parser.add_argument("--mode", type=int, default=0, help="0 for graph mode, 1 for pynative mode ")  # added
-    # parser.add_argument("--use_gpu", type=str2bool, default=True)
-    # parser.add_argument("--use_npu", type=str2bool, default=False)
-    # parser.add_argument("--ir_optim", type=str2bool, default=True)
-    # parser.add_argument("--min_subgraph_size", type=int, default=15)
-    # parser.add_argument("--precision", type=str, default="fp32")
-    # parser.add_argument("--gpu_mem", type=int, default=500)
-    # parser.add_argument("--gpu_id", type=int, default=0)
-
-    parser.add_argument("--det_model_config", type=str, help="path to det model yaml config")  # added
-    parser.add_argument("--rec_model_config", type=str, help="path to rec model yaml config")  # added
 
     # params for text detector
-    parser.add_argument("--image_dir", type=str, help="image path or image directory")
+    parser.add_argument("--image_dir", type=str, required=True, help="image path or image directory")
     # parser.add_argument("--page_num", type=int, default=0)
     parser.add_argument(
         "--det_algorithm",
@@ -55,7 +38,7 @@ def create_parser():
         default="O0",
         choices=["O0", "O1", "O2", "O3"],
         help="Auto Mixed Precision level. This setting only works on GPU and Ascend",
-    )  # added
+    )
     parser.add_argument(
         "--det_model_dir",
         type=str,
@@ -104,7 +87,7 @@ def create_parser():
         default="O0",
         choices=["O0", "O1", "O2", "O3"],
         help="Auto Mixed Precision level. This setting only works on GPU and Ascend",
-    )  # added
+    )
     parser.add_argument(
         "--rec_model_dir",
         type=str,
@@ -138,11 +121,7 @@ def create_parser():
     # parser.add_argument("--use_space_char", type=str2bool, default=True)
     parser.add_argument("--vis_font_path", type=str, default="docs/fonts/simfang.ttf")
     parser.add_argument("--drop_score", type=float, default=0.5)
-    parser.add_argument(
-        "--rec_gt_path", type=str, default=None, help="Path to ground truth labels of the recognition result"
-    )  # added
 
-    #
     parser.add_argument(
         "--draw_img_save_dir",
         type=str,
@@ -165,21 +144,6 @@ def create_parser():
         help="Whether to visualize results and save the visualized image.",
     )
 
-    # multi-process
-    """
-    parser.add_argument("--use_mp", type=str2bool, default=False)
-    parser.add_argument("--total_process_num", type=int, default=1)
-    parser.add_argument("--process_id", type=int, default=0)
-
-    parser.add_argument("--benchmark", type=str2bool, default=False)
-    parser.add_argument("--save_log_path", type=str, default="./log_output/")
-
-    parser.add_argument("--show_log", type=str2bool, default=True)
-    parser.add_argument("--use_onnx", type=str2bool, default=False)
-
-    parser.add_argument("--enable_mkldnn", type=str2bool, default=False)
-    parser.add_argument("--cpu_threads", type=int, default=10)
-    """
     parser.add_argument("--warmup", type=str2bool, default=False)
     parser.add_argument("--ocr_result_dir", type=str, default=None, help="path or directory of ocr results")
     parser.add_argument(
@@ -203,29 +167,10 @@ def create_parser():
     )
     parser.add_argument("--kie_batch_num", type=int, default=8)
 
-    return parser_config, parser
+    return parser
 
 
-def _check_cfgs_in_parser(cfgs: dict, parser: argparse.ArgumentParser):
-    actions_dest = [action.dest for action in parser._actions]
-    defaults_key = parser._defaults.keys()
-    for k in cfgs.keys():
-        if k not in actions_dest and k not in defaults_key:
-            raise KeyError(f"{k} does not exist in ArgumentParser!")
-
-
-def parse_args(args=None):
-    parser_config, parser = create_parser()
-    # Do we have a config file to parse?
-    args_config, remaining = parser_config.parse_known_args(args)
-    if args_config.config:
-        with open(args_config.config, "r") as f:
-            cfg = yaml.safe_load(f)
-            _check_cfgs_in_parser(cfg, parser)
-            parser.set_defaults(**cfg)
-            parser.set_defaults(config=args_config.config)
-
-    # The main arg parser parses the rest of the args, the usual
-    # defaults will have been overridden if config file specified.
-    args = parser.parse_args(remaining)
+def parse_args():
+    parser = create_parser()
+    args = parser.parse_args()
     return args

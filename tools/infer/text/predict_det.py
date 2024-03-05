@@ -62,7 +62,13 @@ class TextDetector(object):
                 "The program has switched to amp_level O2 automatically."
             )
             amp_level = "O2"
-        self.model = build_model(model_name, pretrained=pretrained, ckpt_load_path=ckpt_load_path, amp_level=amp_level)
+        self.model = build_model(
+            model_name,
+            pretrained=pretrained,
+            pretrained_backbone=False,
+            ckpt_load_path=ckpt_load_path,
+            amp_level=amp_level,
+        )
         self.model.set_train(False)
         logger.info(
             "Init detection model: {} --> {}. Model weights loaded from {}".format(

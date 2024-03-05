@@ -15,7 +15,7 @@ print("Registered models: ", all_model_names)
 
 all_yamls = [
     "configs/det/dbnet/db_r50_icdar15.yaml",
-    "configs/det/dbnet/db++_r50_icdar15.yaml",
+    "configs/det/dbnet/dbpp_r50_icdar15.yaml",
     "configs/rec/crnn/crnn_resnet34.yaml",
     "configs/rec/master/master_resnet31.yaml",
     "configs/rec/rare/rare_resnet34.yaml",
@@ -31,7 +31,8 @@ print("All config yamls: ", all_yamls)
 @pytest.mark.parametrize("pretrained", [True, False])
 def test_model_by_name(model_name, pretrained):
     print(model_name)
-    build_model(model_name, pretrained=pretrained)
+    pretrained_backbone = not pretrained
+    build_model(model_name, pretrained=pretrained, pretrained_backbone=pretrained_backbone)
     print("model created")
 
 
