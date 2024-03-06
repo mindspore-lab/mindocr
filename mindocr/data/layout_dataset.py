@@ -134,12 +134,15 @@ class PublayNetDataset:
         self.img_shapes = np.array(shapes, dtype=np.float64)
         self.img_files = list(cache.keys())  # update
         if not is_train:
-            with open(annotations_path, "r") as f:
-                data = json.load(f)
-            file_id_dict = dict()
-            for item in data["images"]:
-                file_id_dict[item["file_name"]] = item["id"]
-            self.image_ids = [file_id_dict[img_file.split("/")[-1]] for img_file in self.img_files]
+            if os.path.isfile(annotations_path):
+                with open(annotations_path, "r") as f:
+                    data = json.load(f)
+                file_id_dict = dict()
+                for item in data["images"]:
+                    file_id_dict[item["file_name"]] = item["id"]
+                self.image_ids = [file_id_dict[img_file.split("/")[-1]] for img_file in self.img_files]
+            else:
+                self.image_ids = self.img_files
         else:
             self.image_ids = None
         self.label_files = self._img2label_paths(cache.keys())  # update
