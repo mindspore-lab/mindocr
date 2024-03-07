@@ -1,0 +1,48 @@
+PositionEmbedding2D:
+  op_config: {"num_pos_feats": 128, "temperature": 10000, "normalize": True, "scale": None}
+  data_config: [
+    {"func": "bool_generator", "seed": 42, "shape": [2, 175, 312], "dtype": "bool", "ratio": 0.5},
+    {"func": "bool_generator", "seed": 42, "shape": [2, 175, 312], "dtype": "bool", "ratio": 0.5},
+  ]
+  targets: [
+    [{"ms.ops.sum": {"target": 13842190}, 
+      "ms.ops.mean": {"target": 0.4952},
+      "ms.ops.std": {"target": 0.5048},
+      "ms.ops.shape": {"target": [2, 256, 175, 312]},
+      "ms.Tensor.item": {"param": {"index": [1,196,128,128]}, "target": 0.01755}}
+    ],
+    [{"ms.Tensor.item": {"param": {"index": [0,0,0,0]}, "target": 0.0374}}]
+  ]
+
+ms_deform_attn_core:
+  data_config: [
+    {"func": "load_ms_deform_attn_core_data"},
+  ]
+  targets: [
+    [{"ms.ops.sum": {"target": -232177.75}, 
+      "ms.ops.mean": {"target": -0.00624462},
+      "ms.ops.std": {"target": 0.41066703},
+      "ms.ops.shape": {"target": [2, 72618, 256]},
+      "ms.Tensor.item": {"param": {"index": [1,1024,128]}, "target": 0.37336722}}
+    ]
+  ]
+
+# ms_deform_attn:
+#   data_config: [
+#     {"func": "load_ms_deform_attn_data"},
+#   ]
+
+ms_deform_attn:
+  op_config: {"d_model": 256, "n_levels": 4, "n_heads": 8, "n_points": 4}
+  data_config: [
+    {"func": "load_ms_deform_attn_data"},
+  ]
+  targets: [
+    [{"ms.ops.sum": {"target": -8.1424e+08}, 
+      "ms.ops.mean": {"target": -25.3368},
+      "ms.ops.std": {"target": 102.2425},
+      "ms.ops.shape": {"target": [2, 62767, 256]},
+      "ms.Tensor.item": {"param": {"index": [1,1024,128]}, "target": -60.6997}}
+    ]
+  ]
+
