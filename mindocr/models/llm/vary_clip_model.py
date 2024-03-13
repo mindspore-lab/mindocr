@@ -3,6 +3,8 @@ from collections import OrderedDict
 import mindspore as ms
 from mindspore import Parameter, Tensor, nn, ops
 
+from mindocr.models.utils.layers import Linear
+
 
 class QuickGELU(nn.Cell):
     def construct(self, x: Tensor):
@@ -12,7 +14,7 @@ class QuickGELU(nn.Cell):
 class CLIPAttention(nn.Cell):
     """Multi-head attention module for CLIP"""
 
-    def __init__(self, embed_dim, num_heads):
+    def __init__(self, embed_dim, num_heads, param_init_type=ms.float32):
         super().__init__()
         self.embed_dim = embed_dim
         self.num_heads = num_heads
@@ -23,10 +25,10 @@ class CLIPAttention(nn.Cell):
                 f" {self.num_heads})."
             )
         self.scale = self.head_dim ** -0.5
-        self.k_proj = nn.Dense(self.embed_dim, self.embed_dim)
-        self.v_proj = nn.Dense(self.embed_dim, self.embed_dim)
-        self.q_proj = nn.Dense(self.embed_dim, self.embed_dim)
-        self.out_proj = nn.Dense(self.embed_dim, self.embed_dim)
+        self.k_proj = Linear(self.embed_dim, self.embed_dim, param_init_type=param_init_type)
+        self.v_proj = Linear(self.embed_dim, self.embed_dim, param_init_type=param_init_type)
+        self.q_proj = Linear(self.embed_dim, self.embed_dim, param_init_type=param_init_type)
+        self.out_proj = Linear(self.embed_dim, self.embed_dim, param_init_type=param_init_type)
         self.reshape = ops.Reshape()
         self.transpose = ops.Transpose()
         self.batch_matmul = ops.BatchMatMul()
@@ -73,17 +75,17 @@ class CLIPAttention(nn.Cell):
 class ResidualAttentionBlock(nn.Cell):
     """ResidualAttention module for CLIP"""
 
-    def __init__(self, d_model: int, n_head: int, attn_mask: Tensor = None):
+    def __init__(self, d_model: int, n_head: int, attn_mask: Tensor = None, param_init_type=ms.float32):
         super().__init__()
 
-        self.attn = CLIPAttention(d_model, n_head)
+        self.attn = CLIPAttention(d_model, n_head, param_init_type=param_init_type)
         self.ln_1 = nn.LayerNorm([d_model], epsilon=1e-5)
         self.mlp = nn.SequentialCell(
             OrderedDict(
                 [
-                    ("c_fc", nn.Dense(d_model, d_model * 4)),
+                    ("c_fc", Linear(d_model, d_model * 4, param_init_type=param_init_type)),
                     ("gelu", QuickGELU()),
-                    ("c_proj", nn.Dense(d_model * 4, d_model)),
+                    ("c_proj", Linear(d_model * 4, d_model, param_init_type=param_init_type)),
                 ]
             )
         )
@@ -104,11 +106,13 @@ class ResidualAttentionBlock(nn.Cell):
 class Transformer(nn.Cell):
     """Vision Transformer module for CLIP"""
 
-    def __init__(self, width: int, layers: int, heads: int, attn_mask: Tensor = None):
+    def __init__(self, width: int, layers: int, heads: int, attn_mask: Tensor = None, param_init_type=ms.float32):
         super().__init__()
         self.width = width
         self.layers = layers
-        self.resblocks = nn.CellList([ResidualAttentionBlock(width, heads, attn_mask) for _ in range(layers)])
+        self.resblocks = nn.CellList([
+            ResidualAttentionBlock(width, heads, attn_mask, param_init_type=param_init_type) for _ in range(layers)
+        ])
 
     def construct(self, x: Tensor):
         encoder_states = ()
@@ -124,7 +128,7 @@ class VisionTransformer(nn.Cell):
     """CLIP module for Vary system"""
 
     def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int,
-                 vision_select_layer: int):
+                 vision_select_layer: int, param_init_type=ms.float32):
         super().__init__()
         self.input_resolution = input_resolution
         self.output_dim = output_dim
@@ -141,10 +145,12 @@ class VisionTransformer(nn.Cell):
         )
 
         scale = width ** -0.5
-        self.class_embedding = Parameter(scale * ops.randn(width))
-        self.positional_embedding = Parameter(scale * ops.randn(((input_resolution // patch_size) ** 2 + 1, width)))
+        self.class_embedding = Parameter((scale * ops.randn(width)).astype(param_init_type))
+        self.positional_embedding = Parameter(
+            (scale * ops.randn(((input_resolution // patch_size) ** 2 + 1, width))).astype(param_init_type)
+        )
         self.ln_pre = nn.LayerNorm([width], epsilon=1e-5)
-        self.transformer = Transformer(width, layers, heads)
+        self.transformer = Transformer(width, layers, heads, param_init_type=param_init_type)
 
     def construct(self, x: Tensor):
         x = self.conv1(x)  # shape = [*, width, grid, grid]
@@ -161,7 +167,7 @@ class VisionTransformer(nn.Cell):
         return x
 
 
-def build_model():
+def build_model(param_init_type=ms.float32):
     """construct the CLIP module and load ckpt"""
     vision_width = 1024
     vision_layers = 24
@@ -177,6 +183,7 @@ def build_model():
         heads=grid_size,  # num_attention_heads
         output_dim=out_width,  # projection_dim in transformers, default: 1024
         vision_select_layer=-2,
+        param_init_type=param_init_type,
     )
 
     return model

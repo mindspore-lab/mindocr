@@ -1,53 +1,26 @@
-import numpy as np
-
 import mindspore as ms
 from mindspore import ops
-from mindspore import nn
 
-from mindocr.models.third_party.mindformers.research.qwen.qwen_model import QwenForCausalLM, QwenModel
-from mindocr.models.third_party.mindformers.research.qwen.qwen_config import QwenConfig
-from mindocr.models.third_party.mindformers.mindformers.models import ImageEncoderConfig
-
+from mindocr.models.utils.layers import Linear
+from mindocr.models.llm import register_llm
+from mindocr.models.llm.qwen_model import QwenForCausalLM, QwenModel
 from mindocr.models.llm.vary_clip_model import build_model
 from mindocr.models.llm.vary_sam_model import SAMEncoder
-
-
-class VaryConfig(QwenConfig):
-    model_type = "vary"
+from mindocr.models.llm.configs import VaryConfig, SAMConfig
 
 
 class VaryQwenModel(QwenModel):
-    def __init__(self, config: QwenConfig):
+    def __init__(self, config):
         super(VaryQwenModel, self).__init__(config)
-        sam_config_dict = dict(img_size=1024,  # img_size in ImageEncoderViT
-                               patch_size=16,  # patch_size in ImageEncoderViT
-                               in_chans=3,  # in_chans in ImageEncoderViT
-                               embed_dim=768,  # encoder_embed_dim in build_sam_vit_b
-                               depth=12,  # encoder_depth in build_sam_vit_b
-                               num_heads=12,  # encoder_num_heads in build_sam_vit_b
-                               mlp_ratio=4,  # mlp_ratio in ImageEncoderViT
-                               out_chans=256,  # out_chans in ImageEncoderViT
-                               qkv_bias=True,  # qkv_bias in ImageEncoderViT
-                               layer_norm_eps=1.e-6,  # refer to Vary-master\vary\model\vision_encoder\sam.py
-                               use_abs_pos=True,  # use_abs_pos in ImageEncoderViT
-                               use_rel_pos=True,  # use_rel_pos in ImageEncoderViT
-                               window_size=14,
-                               global_attn_indexes=[2, 5, 8, 11],  # encoder_global_attn_indexes in build_sam_vit_b
-                               compute_dtype="float32",
-                               layernorm_compute_type="float32",
-                               softmax_compute_type="float32",
-                               param_init_type="float32")
-        sam_config = ImageEncoderConfig(**sam_config_dict)
-        self.vision_tower_high = SAMEncoder(sam_config)
+        config = SAMConfig()
+        self.vision_tower_high = SAMEncoder(config)
         self.vision_tower_high.to_float(ms.float16)
 
-        self.vision_tower = build_model()
+        self.vision_tower = build_model(param_init_type=config.param_init_type)
         self.vision_tower.to_float(ms.float16)
 
-        self.mm_projector = nn.Dense(1024, 1024).to_float(ms.float16)
-        self.mm_projector_vary = nn.Dense(1024, 1024).to_float(ms.float16)
-
-        self.vision_select_layer = getattr(self.config, "vision_select_layer", -1)
+        self.mm_projector = Linear(1024, 1024, param_init_type=config.param_init_type)
+        self.mm_projector_vary = Linear(1024, 1024, param_init_type=config.param_init_type)
 
         self.image_start_token_pos = 22
         self.num_patches = 256
@@ -63,17 +36,14 @@ class VaryQwenModel(QwenModel):
             image_high=None,
     ):
         # 1. wte
-        input_shape = input_ids.shape
-        input_ids = input_ids.view(-1, input_shape[-1])
+        bs, seq_len = self.shape(input_ids)
         inputs_embeds = self.wte(input_ids)
 
-        if input_shape[1] > 1:
-            img_ts = image_high
-            sam_out = self.vision_tower_high(img_ts)
+        if seq_len > 1:
+            sam_out = self.vision_tower_high(image_high)
             sam_out = self.mm_projector_vary(sam_out)
 
-            img_ts = image
-            clip_out = self.vision_tower(img_ts)
+            clip_out = self.vision_tower(image)
             clip_out = self.mm_projector(clip_out)
 
             image_features = ops.concat((clip_out, sam_out), -1)
@@ -81,7 +51,7 @@ class VaryQwenModel(QwenModel):
             new_input_embeds = []
             num_patches = self.num_patches
             image_start_token_pos = self.image_start_token_pos
-            for i in range(input_shape[0]):
+            for i in range(bs):
                 cur_input_embeds = inputs_embeds[i]
                 per_cur_image_features = image_features[i]
                 cur_input_embeds = ops.cat(
@@ -103,7 +73,6 @@ class VaryQwenModel(QwenModel):
         hidden_states = self.drop(hidden_states)
 
         # 2. rotary_emb
-        bs, seq_len = self.shape(input_ids)
         if not self.use_past:
             freqs_cis = self.freqs_mgr()
             mask = self.casual_mask(input_ids)  # mask: [bs, seq, seq]
@@ -136,11 +105,12 @@ class VaryQwenModel(QwenModel):
         return hidden_states
 
 
+@register_llm
 class VaryQwenForCausalLM(QwenForCausalLM):
     def __init__(self, config):
+        config = VaryConfig(**config)
         super(VaryQwenForCausalLM, self).__init__(config)
         self.transformer = VaryQwenModel(config=config)
-        self.load_checkpoint(config)
 
     def prepare_inputs_for_generation(self, input_ids, **kwargs):
         return {

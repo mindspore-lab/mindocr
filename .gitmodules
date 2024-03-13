@@ -1,3 +1,0 @@
-[submodule "mindocr/models/third_party/mindformers"]
-	path = mindocr/models/third_party/mindformers
-	url = https://gitee.com/mindspore/mindformers.git
