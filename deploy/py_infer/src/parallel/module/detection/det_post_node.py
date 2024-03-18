@@ -11,6 +11,7 @@ class DetPostNode(ModuleBase):
         super(DetPostNode, self).__init__(args, msg_queue)
         self.text_detector = None
         self.task_type = self.args.task_type
+        self.is_concat = self.args.is_concat
 
     def init_self_args(self):
         self.text_detector = TextDetector(self.args)
