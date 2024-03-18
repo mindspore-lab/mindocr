@@ -28,17 +28,18 @@ class DetPostNode(ModuleBase):
         Returns:
             numpy.ndarray: A horizontally concatenated image array.
         """
-        max_height = max(crop.shape[0] for crop in crops)
+        crops_sorted = sorted(crops, key=lambda points: (points[0][1], points[0][0]))
+        max_height = max(crop.shape[0] for crop in crops_sorted)
         resized_crops = []
-        for crop in crops:
+        for crop in crops_sorted:
             h, w, c = crop.shape
             new_h = max_height
             new_w = int((w / h) * new_h)
 
             resized_img = cv2.resize(crop, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
             resized_crops.append(resized_img)
-        crops = np.concatenate(resized_crops, axis=1)
-        return crops
+        crops_concated = np.concatenate(resized_crops, axis=1)
+        return crops_concated
 
     def process(self, input_data):
         if input_data.skip:
