@@ -66,7 +66,7 @@ class DetPostNode(ModuleBase):
                 sub_image = cv_utils.crop_box_from_image(image, np.array(box))
                 sub_image_list.append(sub_image)
             if self.is_concat:
-                sub_image_list = [self.concat_crops(sub_image_list)]
+                sub_image_list = len(sub_image_list) * [self.concat_crops(sub_image_list)]
             input_data.sub_image_list = sub_image_list
 
         input_data.data = None
