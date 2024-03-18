@@ -7,7 +7,6 @@ class RecPostNode(ModuleBase):
         super(RecPostNode, self).__init__(args, msg_queue)
         self.text_recognizer = None
         self.task_type = self.args.task_type
-        self.is_concat = self.args.is_concat
 
     def init_self_args(self):
         self.text_recognizer = TextRecognizer(self.args)
@@ -29,13 +28,9 @@ class RecPostNode(ModuleBase):
         else:
             texts = output["texts"]
             confs = output["confs"]
-            for i, result in enumerate(input_data.infer_result):
-                if self.is_concat:
-                    result.append(texts[0])
-                    result.append(confs[0])
-                else:
-                    result.append(texts[i])
-                    result.append(confs[i])
+            for result, text, conf in zip(input_data.infer_result, texts, confs):
+                result.append(text)
+                result.append(conf)
 
         input_data.data = None
 
