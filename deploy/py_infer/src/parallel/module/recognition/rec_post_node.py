@@ -7,6 +7,7 @@ class RecPostNode(ModuleBase):
         super(RecPostNode, self).__init__(args, msg_queue)
         self.text_recognizer = None
         self.task_type = self.args.task_type
+        self.is_concat = self.args.is_concat
 
     def init_self_args(self):
         self.text_recognizer = TextRecognizer(self.args)
