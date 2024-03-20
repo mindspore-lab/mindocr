@@ -20,3 +20,4 @@ seqeval>=1.2.2
 requests>=2.31.0
 pycocotools>=2.0.2
 setuptools-scm
+albumentations
