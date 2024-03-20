@@ -15,6 +15,7 @@
 """utils for text generation."""
 
 from threading import Thread
+
 import numpy as np
 
 
@@ -79,11 +80,7 @@ def topk(x, top_k, axis=-1, largest=True, sort=True):
     topk_index = np.take(topk_index, np.arange(top_k), axis=axis)
     topk_data = np.take_along_axis(x, topk_index, axis=axis)
     if sort:
-        sort_index = (
-            np.argsort(-topk_data, axis=axis)
-            if largest
-            else np.argsort(topk_data, axis=axis)
-        )
+        sort_index = np.argsort(-topk_data, axis=axis) if largest else np.argsort(topk_data, axis=axis)
         topk_data = np.take_along_axis(topk_data, sort_index, axis=axis)
         topk_index = np.take_along_axis(topk_index, sort_index, axis=axis)
     return topk_data, topk_index

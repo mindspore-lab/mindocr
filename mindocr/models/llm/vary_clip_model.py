@@ -3,7 +3,7 @@ from collections import OrderedDict
 import mindspore as ms
 from mindspore import Parameter, Tensor, nn, ops
 
-from mindocr.models.utils.layers import Linear
+from mindocr.models.utils.layers import LayerNorm, Linear
 
 
 class QuickGELU(nn.Cell):
@@ -75,11 +75,12 @@ class CLIPAttention(nn.Cell):
 class ResidualAttentionBlock(nn.Cell):
     """ResidualAttention module for CLIP"""
 
-    def __init__(self, d_model: int, n_head: int, attn_mask: Tensor = None, param_init_type=ms.float32):
+    def __init__(self, d_model: int, n_head: int, attn_mask: Tensor = None, param_init_type=ms.float32,
+                 ln_param_init_type=ms.float32):
         super().__init__()
 
         self.attn = CLIPAttention(d_model, n_head, param_init_type=param_init_type)
-        self.ln_1 = nn.LayerNorm([d_model], epsilon=1e-5)
+        self.ln_1 = LayerNorm((d_model,), eps=1e-5, param_init_type=ln_param_init_type)
         self.mlp = nn.SequentialCell(
             OrderedDict(
                 [
@@ -89,7 +90,7 @@ class ResidualAttentionBlock(nn.Cell):
                 ]
             )
         )
-        self.ln_2 = nn.LayerNorm([d_model], epsilon=1e-5)
+        self.ln_2 = LayerNorm((d_model,), eps=1e-5, param_init_type=ln_param_init_type)
         self.attn_mask = Parameter(attn_mask) if attn_mask is not None else None
 
     def construct(self, x: Tensor):
@@ -106,12 +107,14 @@ class ResidualAttentionBlock(nn.Cell):
 class Transformer(nn.Cell):
     """Vision Transformer module for CLIP"""
 
-    def __init__(self, width: int, layers: int, heads: int, attn_mask: Tensor = None, param_init_type=ms.float32):
+    def __init__(self, width: int, layers: int, heads: int, attn_mask: Tensor = None, param_init_type=ms.float32,
+                 ln_param_init_type=ms.float32):
         super().__init__()
         self.width = width
         self.layers = layers
         self.resblocks = nn.CellList([
-            ResidualAttentionBlock(width, heads, attn_mask, param_init_type=param_init_type) for _ in range(layers)
+            ResidualAttentionBlock(width, heads, attn_mask, param_init_type=param_init_type,
+                                   ln_param_init_type=ln_param_init_type) for _ in range(layers)
         ])
 
     def construct(self, x: Tensor):
@@ -128,7 +131,7 @@ class VisionTransformer(nn.Cell):
     """CLIP module for Vary system"""
 
     def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int,
-                 vision_select_layer: int, param_init_type=ms.float32):
+                 vision_select_layer: int, param_init_type=ms.float32, ln_param_init_type=ms.float32):
         super().__init__()
         self.input_resolution = input_resolution
         self.output_dim = output_dim
@@ -142,6 +145,7 @@ class VisionTransformer(nn.Cell):
             pad_mode="pad",
             weight_init="uniform",
             bias_init="uniform",
+            dtype=param_init_type,
         )
 
         scale = width ** -0.5
@@ -149,25 +153,26 @@ class VisionTransformer(nn.Cell):
         self.positional_embedding = Parameter(
             (scale * ops.randn(((input_resolution // patch_size) ** 2 + 1, width))).astype(param_init_type)
         )
-        self.ln_pre = nn.LayerNorm([width], epsilon=1e-5)
-        self.transformer = Transformer(width, layers, heads, param_init_type=param_init_type)
+        self.ln_pre = LayerNorm((width,), eps=1e-5, param_init_type=ln_param_init_type)
+        self.transformer = Transformer(width, layers, heads, param_init_type=param_init_type,
+                                       ln_param_init_type=ln_param_init_type)
 
     def construct(self, x: Tensor):
+        x_type = x.dtype
         x = self.conv1(x)  # shape = [*, width, grid, grid]
         x = x.reshape((x.shape[0], x.shape[1], -1))  # shape = [*, width, grid ** 2]
         x = x.permute((0, 2, 1))  # shape = [*, grid ** 2, width]
         x = ops.cat(
-            [self.class_embedding.to(x.dtype) + ops.zeros((x.shape[0], 1, x.shape[-1]), dtype=x.dtype), x], axis=1
+            [self.class_embedding.to(x_type) + ops.zeros((x.shape[0], 1, x.shape[-1]), dtype=x_type), x], axis=1
         )  # shape = [*, grid ** 2 + 1, width]
-        x = x + self.positional_embedding.to(x.dtype)  # torch version: CLIPVisionEmbeddings
-        x_type = x.dtype
-        x = self.ln_pre(x.to(ms.float32)).to(x_type)  # modeling_clip.py L842
+        x = x + self.positional_embedding.to(x_type)  # torch version: CLIPVisionEmbeddings
+        x = self.ln_pre(x)  # modeling_clip.py L842
         x = self.transformer(x)  # modeling_clip.py L844, error 1e-3
         x = x[self.vision_select_layer][:, 1:]
         return x
 
 
-def build_model(param_init_type=ms.float32):
+def build_model(param_init_type=ms.float32, ln_param_init_type=ms.float32):
     """construct the CLIP module and load ckpt"""
     vision_width = 1024
     vision_layers = 24
@@ -184,6 +189,7 @@ def build_model(param_init_type=ms.float32):
         output_dim=out_width,  # projection_dim in transformers, default: 1024
         vision_select_layer=-2,
         param_init_type=param_init_type,
+        ln_param_init_type=ln_param_init_type,
     )
 
     return model

@@ -1,6 +1,7 @@
 import numpy as np
-from mindspore import Tensor, Parameter, nn, ops
+
 import mindspore.common.dtype as mstype
+from mindspore import Parameter, Tensor, nn, ops
 
 
 class KVCacheMgr(nn.Cell):

@@ -1,7 +1,7 @@
 model:
   name: VaryQwenForCausalLM
   batch_size: 1
-  seq_length: 512
+  seq_length: 2048
   hidden_size: 2048
   num_layers: 24
   num_heads: 16
@@ -16,17 +16,20 @@ model:
   softmax_compute_type: "float16"
   rotary_dtype: "float16"
   param_init_type: "float16"
+  ln_param_init_type: "float16"
   use_past: True
   use_flash_attention: False
   use_past_shard: False
   offset: 0
   checkpoint_name_or_path: "/path/to/vary_toy.ckpt"
-  repetition_penalty: 1.1
-  max_decode_length: 512
+  repetition_penalty: 1.5
+  max_decode_length: 2048
   top_k: 0
   top_p: 0.8
   do_sample: False
-  compute_in_2d: False
+  max_new_tokens: 1024
+  temperature: 1.0
+  num_beams: 1
 
   # configuration items copied from Qwen
   rotary_pct: 1.0

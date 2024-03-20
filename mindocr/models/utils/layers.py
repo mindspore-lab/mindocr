@@ -1,8 +1,7 @@
-from mindspore import Parameter, Tensor, ops, nn
-from mindspore.common.initializer import initializer
 import mindspore.common.dtype as mstype
+from mindspore import Parameter, Tensor, nn, ops
 from mindspore._extends import cell_attr_register
-
+from mindspore.common.initializer import initializer
 
 __all__ = ["LayerNorm", "Linear"]
 

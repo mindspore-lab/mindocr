@@ -1,6 +1,5 @@
-from mindspore import nn, Tensor, ops
+from mindspore import Tensor, nn, ops
 from mindspore.common import dtype as mstype
-
 
 __all__ = ['CrossEntropyLoss']
 

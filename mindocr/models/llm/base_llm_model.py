@@ -17,11 +17,12 @@
 BaseModel
 """
 import os
+
 from mindspore import nn
 from mindspore.train.serialization import load_checkpoint, load_param_into_net
 
-from mindocr.models.llm.builder import build_llm_model
 from mindocr.generation import GeneratorMixin
+from mindocr.models.llm.builder import build_llm_model
 from mindocr.models.llm.configs import BaseConfig, LLMConfig
 
 

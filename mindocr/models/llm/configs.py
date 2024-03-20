@@ -1,6 +1,8 @@
-import os
 import copy
+import os
+
 import yaml
+
 import mindspore.common.dtype as mstype
 
 
@@ -185,6 +187,7 @@ class QwenConfig(BaseConfig):
                  softmax_compute_type: str = "float32",
                  rotary_dtype: str = "float32",
                  param_init_type: str = "float16",
+                 ln_param_init_type: str = "float32",
                  qkv_has_bias: bool = False,
                  qkv_concat: bool = False,
                  use_past: bool = False,
@@ -228,6 +231,7 @@ class QwenConfig(BaseConfig):
         self.softmax_compute_type = convert_mstype(softmax_compute_type)
         self.rotary_dtype = convert_mstype(rotary_dtype)
         self.compute_dtype = convert_mstype(compute_dtype)
+        self.ln_param_init_type = convert_mstype(ln_param_init_type)
         self.checkpoint_name_or_path = checkpoint_name_or_path
         self.bos_token_id = bos_token_id
         self.eos_token_id = eos_token_id
@@ -282,6 +286,7 @@ class SAMConfig(BaseConfig):
                  layernorm_compute_type: str = "float32",
                  softmax_compute_type: str = "float16",
                  param_init_type: str = "float16",
+                 ln_param_init_type: str = "float32",
                  **kwargs) -> None:
         super().__init__(**kwargs)
         self.img_size = img_size
@@ -304,5 +309,6 @@ class SAMConfig(BaseConfig):
         self.layernorm_compute_type = convert_mstype(layernorm_compute_type)
         self.softmax_compute_type = convert_mstype(softmax_compute_type)
         self.compute_dtype = convert_mstype(compute_dtype)
+        self.ln_param_init_type = convert_mstype(ln_param_init_type)
 
         self.checkpoint_name_or_path = checkpoint_name_or_path

@@ -1,4 +1,4 @@
-from ._registry import llm_class_entrypoint, llm_entrypoint, is_llm, is_llm_class, list_llms
+from ._registry import is_llm, is_llm_class, list_llms, llm_class_entrypoint, llm_entrypoint
 
 __all__ = ['build_llm_model']
 

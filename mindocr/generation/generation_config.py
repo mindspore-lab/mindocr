@@ -79,6 +79,7 @@ class GenerationConfig:
             Kwargs that are not present in `generate`'s signature will be used in the
             model forward pass.
     """
+
     def __init__(self, **kwargs):
         # max generate length
         self.max_length = kwargs.pop("max_decode_length", 20)

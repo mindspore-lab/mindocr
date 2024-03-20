@@ -15,12 +15,21 @@
 """Logits Processor for generation."""
 import inspect
 from threading import Thread
+
 import numpy as np
 
 from .utils import log_softmax, softmax, topk
 
-__all__ = ["LogitsProcessor", "LogitsWarper", "LogitsProcessorList", "RepetitionPenaltyLogitsProcessor",
-           "LogitNormalization", "TemperatureLogitsWarper", "TopKLogitsWarper", "TopPLogitsWarper"]
+__all__ = [
+    "LogitsProcessor",
+    "LogitsWarper",
+    "LogitsProcessorList",
+    "RepetitionPenaltyLogitsProcessor",
+    "LogitNormalization",
+    "TemperatureLogitsWarper",
+    "TopKLogitsWarper",
+    "TopPLogitsWarper",
+]
 
 
 class LogitsProcessor:
@@ -56,8 +65,7 @@ class LogitsProcessorList(list):
         for i in range(0, input_ids.shape[0]):
             if is_finished and is_finished[i]:
                 continue
-            thread = Thread(target=self.process,
-                            args=(i, input_ids, scores), kwargs=kwargs)
+            thread = Thread(target=self.process, args=(i, input_ids, scores), kwargs=kwargs)
             all_threads.append(thread)
             thread.start()
         for thread in all_threads:
@@ -66,8 +74,8 @@ class LogitsProcessorList(list):
 
     def process(self, i, input_ids, scores, **kwargs):
         """apply process"""
-        input_ids = input_ids[i:i+1]
-        scores_i = scores[i:i+1]
+        input_ids = input_ids[i : i + 1]
+        scores_i = scores[i : i + 1]
         for processor in self:
             function_args = inspect.signature(processor.__call__).parameters
             if len(function_args) > 2:
@@ -94,9 +102,7 @@ class TemperatureLogitsWarper(LogitsWarper):
     def __init__(self, temperature: float):
         temperature = float(temperature)
         if temperature <= 0:
-            raise ValueError(
-                f"`temperature` has to be a strictly positive float, but is {temperature}"
-            )
+            raise ValueError(f"`temperature` has to be a strictly positive float, but is {temperature}")
 
         self.temperature = temperature
 
@@ -118,9 +124,7 @@ class RepetitionPenaltyLogitsProcessor(LogitsProcessor):
     def __init__(self, repetition_penalty: float):
         repetition_penalty = float(repetition_penalty)
         if repetition_penalty <= 0:
-            raise ValueError(
-                f"`penalty` has to be a strictly positive float, but is {repetition_penalty}"
-            )
+            raise ValueError(f"`penalty` has to be a strictly positive float, but is {repetition_penalty}")
 
         self.penalty = repetition_penalty
 
@@ -154,15 +158,14 @@ class TopPLogitsWarper(LogitsWarper):
             save time to speed up generation.
     """
 
-    def __init__(self, top_p: float, filter_value: float = -50000, min_tokens_to_keep: int = 1,
-                 candidate_token_num: int = 200):
+    def __init__(
+        self, top_p: float, filter_value: float = -50000, min_tokens_to_keep: int = 1, candidate_token_num: int = 200
+    ):
         top_p = float(top_p)
         if top_p < 0 or top_p > 1.0:
             raise ValueError(f"`top_p` has to be a float > 0 and < 1, but is {top_p}")
         if not isinstance(min_tokens_to_keep, int) or (min_tokens_to_keep < 0):
-            raise ValueError(
-                f"`min_tokens_to_keep` has to be a non-negative integer, but is {min_tokens_to_keep}"
-            )
+            raise ValueError(f"`min_tokens_to_keep` has to be a non-negative integer, but is {min_tokens_to_keep}")
 
         self.top_p = top_p
         self.filter_value = float(filter_value)
@@ -177,17 +180,14 @@ class TopPLogitsWarper(LogitsWarper):
         sorted_indices_to_keep = cumulative_probs < self.top_p
         # add the last token that exceed top_p
         sorted_indices_to_keep = np.concatenate(
-            [np.ones(shape=(scores.shape[0], 1)).astype(np.bool_), sorted_indices_to_keep[..., :-1]],
-            axis=-1
+            [np.ones(shape=(scores.shape[0], 1)).astype(np.bool_), sorted_indices_to_keep[..., :-1]], axis=-1
         )
         # Keep at least min_tokens_to_keep
-        sorted_indices_to_keep[..., :self.min_tokens_to_keep] = 1
+        sorted_indices_to_keep[..., : self.min_tokens_to_keep] = 1
 
         # set remove indices, filter negative value
         indices_to_remove = np.ones_like(scores).astype(np.bool_)
-        np.put_along_axis(
-            indices_to_remove, candidate_indices, ~sorted_indices_to_keep, axis=-1
-        )
+        np.put_along_axis(indices_to_remove, candidate_indices, ~sorted_indices_to_keep, axis=-1)
         scores[indices_to_remove] = self.filter_value
 
         return scores
@@ -208,9 +208,7 @@ class TopKLogitsWarper(LogitsWarper):
 
     def __init__(self, top_k: int, filter_value: float = -50000, min_tokens_to_keep: int = 1):
         if not isinstance(top_k, int) or top_k <= 0:
-            raise ValueError(
-                f"`top_k` has to be a strictly positive integer, but is {top_k}"
-            )
+            raise ValueError(f"`top_k` has to be a strictly positive integer, but is {top_k}")
 
         self.top_k = max(top_k, min_tokens_to_keep)
         self.filter_value = float(filter_value)

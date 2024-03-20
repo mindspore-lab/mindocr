@@ -1,11 +1,11 @@
 import base64
-from typing import Collection, Dict, List, Set, Union
 import unicodedata
+from typing import Collection, Dict, List, Set, Union
+
 import numpy as np
 import tiktoken
 
 import mindspore as ms
-
 
 PAT_STR = r"""(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}| ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+
 (?!\S)|\s+"""
@@ -249,6 +249,7 @@ class QwenTokenizer:
             inputs = {k: v[i] for k, v in encoded_inputs.items()}
 
             outputs = self._pad(inputs, max_length=max_length)
+            outputs = {_: outputs[_][:max_length] for _ in outputs}
 
             for key, value in outputs.items():
                 if key not in batch_outputs:

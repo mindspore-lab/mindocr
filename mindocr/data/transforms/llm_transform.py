@@ -1,18 +1,21 @@
 import albumentations as alb
 import numpy as np
-from timm.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from PIL import Image
 
 import mindspore as ms
 from mindspore.dataset import vision
 from mindspore.dataset.vision.utils import Inter
 
+IMAGENET_DEFAULT_MEAN = (0.485, 0.456, 0.406)
+IMAGENET_DEFAULT_STD = (0.229, 0.224, 0.225)
 
-INTERPOLATION = {'nearest': Inter.NEAREST,
-                 'antialias': Inter.ANTIALIAS,
-                 'linear': Inter.LINEAR,
-                 'cubic': Inter.PILCUBIC,
-                 'bicubic': Inter.BICUBIC}
+INTERPOLATION = {
+    "nearest": Inter.NEAREST,
+    "antialias": Inter.ANTIALIAS,
+    "linear": Inter.LINEAR,
+    "cubic": Inter.PILCUBIC,
+    "bicubic": Inter.BICUBIC,
+}
 
 
 def alb_wrapper(transform):
@@ -61,8 +64,7 @@ class BCHW2BHWC:
                 return image_batch.transpose(0, 2, 3, 1)
             if len(image_batch.shape) == 3:
                 return image_batch.transpose(1, 2, 0)
-            raise ValueError(f"the rank of image_batch should be 3 or 4,"
-                             f" but got {len(image_batch.shape)}")
+            raise ValueError(f"the rank of image_batch should be 3 or 4, but got {len(image_batch.shape)}")
         if isinstance(image_batch, Image.Image):
             return image_batch
         raise TypeError(f"the type {type(image_batch)} of image_batch is unsupported.")
@@ -88,9 +90,11 @@ class BatchPILize:
         if isinstance(image_batch, list):
             for item in image_batch:
                 if not isinstance(item, Image.Image):
-                    raise TypeError("unsupported type in list,"
-                                    " when the image_batch is a list,"
-                                    " the item in list should be PIL.Image.")
+                    raise TypeError(
+                        "unsupported type in list,"
+                        " when the image_batch is a list,"
+                        " the item in list should be PIL.Image."
+                    )
             return image_batch
 
         if isinstance(image_batch, ms.Tensor):
@@ -101,8 +105,7 @@ class BatchPILize:
                 return [Image.fromarray(item.astype(np.uint8)) for item in image_batch]
             if len(image_batch.shape) == 3:
                 return Image.fromarray(image_batch.astype(np.uint8))
-            raise ValueError(f"the rank of image_batch should be 3 or 4,"
-                             f" but got {len(image_batch.shape)}")
+            raise ValueError(f"the rank of image_batch should be 3 or 4, but got {len(image_batch.shape)}")
 
         raise ValueError("unsupported input type.")
 
@@ -113,10 +116,10 @@ class BatchResize:
 
     Args:
          image_resolution (int): the target size.
-         interpolation: interpolate method, default is 'cubic'.
+         interpolation: interpolate method, default is "cubic".
     """
 
-    def __init__(self, image_resolution, interpolation='cubic'):
+    def __init__(self, image_resolution, interpolation="cubic"):
         self.interpolation = INTERPOLATION.get(interpolation)
         self.resize = vision.c_transforms.Resize(image_resolution, self.interpolation)
 
@@ -140,12 +143,10 @@ class BatchResize:
             return [self.resize(item) for item in image_batch]
         if isinstance(image_batch, np.ndarray):
             if len(image_batch.shape) == 4:
-                return np.row_stack([self.resize(item)[np.newaxis, :]
-                                     for item in image_batch])
+                return np.row_stack([self.resize(item)[np.newaxis, :] for item in image_batch])
             if len(image_batch.shape) == 3:
                 return self.resize(image_batch)
-            raise ValueError(f"the rank of image_batch should be 3 or 4,"
-                             f" but got {len(image_batch.shape)}")
+            raise ValueError(f"the rank of image_batch should be 3 or 4, but got {len(image_batch.shape)}")
         if isinstance(image_batch, Image.Image):
             return self.resize(image_batch)
         raise TypeError(f"the type {type(image_batch)} of image_batch is unsupported.")
@@ -184,12 +185,10 @@ class BatchCenterCrop:
             return [self.crop(item) for item in image_batch]
         if isinstance(image_batch, np.ndarray):
             if len(image_batch.shape) == 4:
-                return np.row_stack([self.crop(item)[np.newaxis, :]
-                                     for item in image_batch])
+                return np.row_stack([self.crop(item)[np.newaxis, :] for item in image_batch])
             if len(image_batch.shape) == 3:
                 return self.crop(image_batch)
-            raise ValueError(f"the rank of image_batch should be 3 or 4,"
-                             f" but got {len(image_batch.shape)}")
+            raise ValueError(f"the rank of image_batch should be 3 or 4, but got {len(image_batch.shape)}")
         if isinstance(image_batch, Image.Image):
             return self.crop(image_batch)
         raise TypeError(f"the type {type(image_batch)} of image_batch is unsupported.")
@@ -219,12 +218,10 @@ class BatchToTensor:
             return [self.totensor(item) for item in image_batch]
         if isinstance(image_batch, np.ndarray):
             if len(image_batch.shape) == 4:
-                return np.row_stack([self.totensor(item)[np.newaxis, :]
-                                     for item in image_batch])
+                return np.row_stack([self.totensor(item)[np.newaxis, :] for item in image_batch])
             if len(image_batch.shape) == 3:
                 return self.totensor(image_batch)
-            raise ValueError(f"the rank of image_batch should be 3 or 4,"
-                             f" but got {len(image_batch.shape)}")
+            raise ValueError(f"the rank of image_batch should be 3 or 4, but got {len(image_batch.shape)}")
         if isinstance(image_batch, Image.Image):
             return self.totensor(image_batch)
         raise TypeError(f"the type {type(image_batch)} of image_batch is unsupported.")
@@ -234,10 +231,7 @@ class BatchNormalize:
     """Normalize a batch of image."""
 
     def __init__(
-            self,
-            mean=(0.48145466, 0.4578275, 0.40821073),
-            std=(0.26862954, 0.26130258, 0.27577711),
-            is_hwc=False
+        self, mean=(0.48145466, 0.4578275, 0.40821073), std=(0.26862954, 0.26130258, 0.27577711), is_hwc=False
     ):
         self.normalize = vision.Normalize(mean=mean, std=std, is_hwc=is_hwc)
 
@@ -261,10 +255,8 @@ class BatchNormalize:
             if len(image_batch.shape) == 3:
                 return self.normalize(image_batch)
             if len(image_batch.shape) == 4:
-                return np.row_stack([self.normalize(item)[np.newaxis, :]
-                                     for item in image_batch])
-            raise ValueError(f"the rank of image_batch should be 3 or 4,"
-                             f" but got {len(image_batch.shape)}")
+                return np.row_stack([self.normalize(item)[np.newaxis, :] for item in image_batch])
+            raise ValueError(f"the rank of image_batch should be 3 or 4, but got {len(image_batch.shape)}")
         raise TypeError(f"the type {type(image_batch)} of image_batch is unsupported.")
 
 

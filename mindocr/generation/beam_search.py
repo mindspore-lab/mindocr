@@ -15,7 +15,7 @@
 """Beam search for text generation."""
 from abc import ABC, abstractmethod
 from collections import UserDict
-from typing import Optional, Union, List
+from typing import List, Optional, Union
 
 import numpy as np
 
@@ -24,8 +24,9 @@ class BeamScorer(ABC):
     """Abstract base class for all beam scorers"""
 
     @abstractmethod
-    def process(self, input_ids, next_scores, next_tokens, next_indices, pad_token_id, eos_token_id, beam_indices,
-                group_index):
+    def process(
+        self, input_ids, next_scores, next_tokens, next_indices, pad_token_id, eos_token_id, beam_indices, group_index
+    ):
         r"""
         Args:
             input_ids:
@@ -96,14 +97,16 @@ class BeamSearchScorer(BeamScorer):
             The maximum length of the sequence to be generated.
     """
 
-    def __init__(self,
-                 batch_size: int,
-                 num_beams: int,
-                 length_penalty: Optional[float] = 1.0,
-                 do_early_stopping: Optional[Union[bool, str]] = False,
-                 num_beam_hyps_to_keep: Optional[int] = 1,
-                 num_beam_groups: Optional[int] = 1,
-                 max_length: Optional[int] = None):
+    def __init__(
+        self,
+        batch_size: int,
+        num_beams: int,
+        length_penalty: Optional[float] = 1.0,
+        do_early_stopping: Optional[Union[bool, str]] = False,
+        num_beam_hyps_to_keep: Optional[int] = 1,
+        num_beam_groups: Optional[int] = 1,
+        max_length: Optional[int] = None,
+    ):
         self.num_beams = num_beams
         self.length_penalty = length_penalty
         self.do_early_stopping = do_early_stopping
@@ -143,15 +146,17 @@ class BeamSearchScorer(BeamScorer):
     def is_done(self) -> bool:
         return self._done.all()
 
-    def process(self,
-                input_ids,
-                next_scores,
-                next_tokens,
-                next_indices,
-                pad_token_id: Optional[int] = None,
-                eos_token_id: Optional[Union[int, List[int]]] = None,
-                beam_indices=None,
-                group_index: Optional[int] = 0):
+    def process(
+        self,
+        input_ids,
+        next_scores,
+        next_tokens,
+        next_indices,
+        pad_token_id: Optional[int] = None,
+        eos_token_id: Optional[Union[int, List[int]]] = None,
+        beam_indices=None,
+        group_index: Optional[int] = 0,
+    ):
         batch_size = len(self._beam_hyps) // self.num_beam_groups
 
         if not batch_size == (input_ids.shape[0] // self.group_size):
@@ -189,7 +194,7 @@ class BeamSearchScorer(BeamScorer):
             beam_idx = 0
             cur_len = np.min(np.where(input_ids[beam_idx] == pad_token_id))
             for beam_token_rank, (next_token, next_score, next_index) in enumerate(
-                    zip(next_tokens[batch_idx], next_scores[batch_idx], next_indices[batch_idx])
+                zip(next_tokens[batch_idx], next_scores[batch_idx], next_indices[batch_idx])
             ):
                 batch_beam_idx = batch_idx * self.group_size + next_index
                 # add to generated hypotheses if end of sentence
@@ -239,13 +244,15 @@ class BeamSearchScorer(BeamScorer):
             }
         )
 
-    def finalize(self,
-                 input_ids,
-                 final_beam_scores,
-                 max_length: int,
-                 pad_token_id: Optional[int] = None,
-                 eos_token_id: Optional[Union[int, List[int]]] = None,
-                 beam_indices=None):
+    def finalize(
+        self,
+        input_ids,
+        final_beam_scores,
+        max_length: int,
+        pad_token_id: Optional[int] = None,
+        eos_token_id: Optional[Union[int, List[int]]] = None,
+        beam_indices=None,
+    ):
         batch_size = len(self._beam_hyps) // self.num_beam_groups
 
         if isinstance(eos_token_id, int):
@@ -273,7 +280,7 @@ class BeamSearchScorer(BeamScorer):
 
         # retrieve best hypotheses
         for i in range(batch_size):
-            beam_hyps_in_batch = self._beam_hyps[i * self.num_beam_groups: (i + 1) * self.num_beam_groups]
+            beam_hyps_in_batch = self._beam_hyps[i * self.num_beam_groups : (i + 1) * self.num_beam_groups]
             candidate_beams = [beam for beam_hyp in beam_hyps_in_batch for beam in beam_hyp.beams]
             sorted_hyps = sorted(candidate_beams, key=lambda x: x[0])
             for j in range(self.num_beam_hyps_to_keep):
@@ -313,7 +320,7 @@ class BeamSearchScorer(BeamScorer):
         # fill with hypotheses and eos_token_id if the latter fits in
         for i, (hypo, best_idx) in enumerate(zip(best, best_indices)):
             sent_length = min(decoded.shape[-1], sent_lengths[i])
-            decoded[i, : sent_length] = hypo[:sent_length]
+            decoded[i, :sent_length] = hypo[:sent_length]
 
             if indices is not None:
                 indices[i, : len(best_idx)] = best_idx
@@ -389,7 +396,7 @@ class BeamHypotheses:
         # `False`: heuristic compute the best possible score from `cur_len`, even though it is not entirely accurate
         #  when `length_penalty` is positive.
         if self.early_stopping is False:
-            highest_attainable_score = best_sum_logprobs / cur_len ** self.length_penalty
+            highest_attainable_score = best_sum_logprobs / cur_len**self.length_penalty
             ret = self.worst_score >= highest_attainable_score
             return ret
 
@@ -398,9 +405,9 @@ class BeamHypotheses:
         # abs(`highest_attainable_score`) is obtained -> `highest_attainable_score` is negative, hence we obtain
         # its max this way
         if self.length_penalty > 0.0:
-            highest_attainable_score = best_sum_logprobs / self.max_length ** self.length_penalty
+            highest_attainable_score = best_sum_logprobs / self.max_length**self.length_penalty
         # the opposite logic applies here (max `highest_attainable_score` from `cur_len`)
         else:
-            highest_attainable_score = best_sum_logprobs / cur_len ** self.length_penalty
+            highest_attainable_score = best_sum_logprobs / cur_len**self.length_penalty
         ret = self.worst_score >= highest_attainable_score
         return ret

@@ -1,22 +1,24 @@
 import mindspore as ms
 from mindspore import ops
 
-from mindocr.models.utils.layers import Linear
 from mindocr.models.llm import register_llm
+from mindocr.models.llm.configs import SAMConfig, VaryConfig
 from mindocr.models.llm.qwen_model import QwenForCausalLM, QwenModel
 from mindocr.models.llm.vary_clip_model import build_model
 from mindocr.models.llm.vary_sam_model import SAMEncoder
-from mindocr.models.llm.configs import VaryConfig, SAMConfig
+from mindocr.models.utils.layers import Linear
+from mindocr.utils.conversation import Conversation
 
 
 class VaryQwenModel(QwenModel):
     def __init__(self, config):
         super(VaryQwenModel, self).__init__(config)
-        config = SAMConfig()
+        config = SAMConfig(ln_param_init_type=config.ln_param_init_type)
         self.vision_tower_high = SAMEncoder(config)
         self.vision_tower_high.to_float(ms.float16)
 
-        self.vision_tower = build_model(param_init_type=config.param_init_type)
+        self.vision_tower = build_model(param_init_type=config.param_init_type,
+                                        ln_param_init_type=config.ln_param_init_type)
         self.vision_tower.to_float(ms.float16)
 
         self.mm_projector = Linear(1024, 1024, param_init_type=config.param_init_type)
@@ -39,7 +41,7 @@ class VaryQwenModel(QwenModel):
         bs, seq_len = self.shape(input_ids)
         inputs_embeds = self.wte(input_ids)
 
-        if seq_len > 1:
+        if seq_len > 1 and image is not None and image_high is not None:
             sam_out = self.vision_tower_high(image_high)
             sam_out = self.mm_projector_vary(sam_out)
 
@@ -111,12 +113,18 @@ class VaryQwenForCausalLM(QwenForCausalLM):
         config = VaryConfig(**config)
         super(VaryQwenForCausalLM, self).__init__(config)
         self.transformer = VaryQwenModel(config=config)
+        self.conversation = None
+
+        self.image_past = None
+        self.image_high_past = None
 
     def prepare_inputs_for_generation(self, input_ids, **kwargs):
+        image = kwargs.get("image")
+        image_high = kwargs.get("image_high")
         return {
             "input_ids": ms.Tensor(input_ids, ms.int32),
-            "image": ms.Tensor(kwargs["image"], ms.float16),
-            "image_high": ms.Tensor(kwargs["image_high"], ms.float16)
+            "image": ms.Tensor(image, ms.float16) if image is not None else None,
+            "image_high": ms.Tensor(image_high, ms.float16) if image_high is not None else None,
         }
 
     def construct(self, input_ids, labels=None, input_position=None, position_ids=None, attention_mask=None,
@@ -170,3 +178,55 @@ class VaryQwenForCausalLM(QwenForCausalLM):
         input_mask = self.reshape(input_mask, (-1,))
         loss = self.loss(logits, labels, input_mask)
         return loss
+
+    def chat(
+            self,
+            tokenizer,
+            query: str,
+            image=None,
+            image_high=None,
+    ) -> str:
+        """
+        example:
+            inputs:
+                query: Provide the ocr results of this image.
+                image: np.array.
+                image_high: np.array.
+            outputs:
+                response: the modalities of irradiation could be modified...
+                history: [
+                    ("user", "Provide the ocr results of this image."),
+                    ("assistant", "the modalities of irradiation could be modified..."),
+                ]
+
+        """
+        if self.conversation is None:
+            self.conversation = Conversation()
+
+        if image is not None and image_high is not None:
+            num_patch = 256
+            im_start_token = '<img>'
+            im_end_token = '</img>'
+            im_patch_token = '<imgpad>'
+            query = im_start_token + im_patch_token * num_patch + im_end_token + query
+            self.image_past = image
+            self.image_high_past = image_high
+
+        self.conversation.add_message(role="user", message=query)
+        prompt = self.conversation.get_prompt()
+
+        inputs = tokenizer([prompt], max_length=self.seq_length)
+        input_ids = inputs["input_ids"]
+        outputs = self.generate(input_ids=input_ids, image=self.image_past, image_high=self.image_high_past)
+        outputs = tokenizer.decode(outputs, skip_special_tokens=False)
+        response = outputs[0][len(prompt):]
+
+        for special_token in tokenizer.special_tokens:
+            response = response.replace(special_token, "")
+        self.conversation.add_message(role="assistant", message=response)
+
+        return response
+
+    def reset(self):
+        if self.conversation is not None:
+            self.conversation.messages = list()

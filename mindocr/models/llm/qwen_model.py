@@ -1,18 +1,20 @@
 from enum import Enum
-import numpy as np
 from typing import Optional, Tuple
 
+import numpy as np
+
+import mindspore as ms
 import mindspore.common.dtype as mstype
-from mindspore import Tensor, Parameter, nn, ops
+from mindspore import Parameter, Tensor, nn, ops
+from mindspore._c_expression import MSContext
 from mindspore.common.initializer import initializer
 from mindspore.nn.layer.flash_attention import FlashAttention
-from mindspore._c_expression import MSContext
 
-from mindocr.models.utils.loss import CrossEntropyLoss
-from mindocr.models.utils.layers import Linear
-from mindocr.models.utils.kvcache_mgr import KVCachePreprocess, KVCacheMgr
 from mindocr.models.llm.base_llm_model import BaseLLMModel
 from mindocr.models.llm.configs import QwenConfig
+from mindocr.models.utils.kvcache_mgr import KVCacheMgr, KVCachePreprocess
+from mindocr.models.utils.layers import Linear
+from mindocr.models.utils.loss import CrossEntropyLoss
 
 
 def is_910a():
@@ -244,9 +246,14 @@ class LlamaRotaryEmbedding(nn.Cell):
         self.concat = ops.Concat(axis=-1)
         self.shape = ops.Shape()
 
+        self.is_ascend = ms.get_context("device_target") == "Ascend"
+
     def rotate_half(self, x, swap_mask):
         # [bs, n_head/n_kv_head, seq/1, head_dim], [head_dim, head_dim]
-        x = self.bmm_swap(x, swap_mask)
+        if self.is_ascend:
+            x = self.bmm_swap(x, swap_mask)
+        else:
+            x = ops.matmul(x, swap_mask)
         return x
 
     def slice_half(self, x):
@@ -558,6 +565,7 @@ class LlamaRMSNorm(nn.Cell):
             dim (int): The shape of the input tensor
             eps (float): The epsilon value of the denominator. Default 1e-5.
             compute_type: The compute type.
+            param_init_type: The layer norm param init type.
         Inputs:
             - **x** (Tensor) - Tensor of shape :math:`(batch, seq\_length, hidden\_size)`.
 
@@ -565,13 +573,13 @@ class LlamaRMSNorm(nn.Cell):
             Tensor of shape :math:`(batch, seq_length, hidden_size)`.
     """
 
-    def __init__(self, dim, eps=1e-6, compute_type=mstype.float32, is_dynamic=False):
+    def __init__(self, dim, eps=1e-6, compute_type=mstype.float32, is_dynamic=False, param_init_type=mstype.float32):
         super(LlamaRMSNorm, self).__init__()
         self.eps = eps
         self.compute_type = compute_type
-        self.weight = Parameter(initializer('ones', (dim,), dtype=mstype.float32), parallel_optimizer=False)
+        self.weight = Parameter(initializer('ones', (dim,), dtype=param_init_type), parallel_optimizer=False)
 
-        if not is_910a() and not is_dynamic:
+        if ms.get_context("device_target") == "Ascend" and not is_910a() and not is_dynamic:
             self.norm = ops.RmsNorm(eps)
             self.rms_norm = self._rms_norm
         else:
@@ -735,6 +743,7 @@ class QwenModel(BaseLLMModel):
                                     softmax_compute_dtype=config.softmax_compute_type,
                                     rotary_dtype=config.rotary_dtype,
                                     param_init_type=config.param_init_type,
+                                    ln_param_init_type=config.ln_param_init_type,
                                     qkv_has_bias=True,
                                     use_past=config.use_past,
                                     use_flash_attention=config.use_flash_attention)
@@ -763,7 +772,8 @@ class QwenModel(BaseLLMModel):
         self.ln_f = LlamaRMSNorm(
             self.embed_dim,
             eps=config.rms_norm_eps,
-            compute_type=config.layernorm_compute_type
+            compute_type=config.layernorm_compute_type,
+            param_init_type=config.ln_param_init_type,
         )
 
         self.shape = ops.Shape()
@@ -833,6 +843,7 @@ class QwenDecodeLayer(nn.Cell):
                  softmax_compute_dtype=mstype.float32,
                  rotary_dtype=mstype.float32,
                  param_init_type=mstype.float32,
+                 ln_param_init_type=mstype.float32,
                  use_past=False,
                  is_dynamic=False,
                  use_kvcache_op=False,
@@ -858,9 +869,9 @@ class QwenDecodeLayer(nn.Cell):
         self.reshape = ops.Reshape().add_prim_attr("skip_redistribution", True)
         self.add = ops.Add()
         self.attention_norm = LlamaRMSNorm(self.hidden_size, norm_eps, compute_type=layernorm_compute_dtype,
-                                           is_dynamic=is_dynamic)
+                                           is_dynamic=is_dynamic, param_init_type=ln_param_init_type)
         self.ffn_norm = LlamaRMSNorm(self.hidden_size, norm_eps, compute_type=layernorm_compute_dtype,
-                                     is_dynamic=is_dynamic)
+                                     is_dynamic=is_dynamic, param_init_type=ln_param_init_type)
         self.attention = LLamaAttention(batch_size=batch_size,
                                         seq_length=seq_length,
                                         dim=dim,

@@ -205,6 +205,13 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 
 </details>
 
+<details open markdown>
+<summary>OCR大模型</summary>
+
+- [x] [Vary](configs/llm/vary/README_CN.md) (arXiv'2023)
+
+</details>
+
 
 关于以上模型的具体训练方法和结果，请参见[configs](./configs)下各模型子目录的readme文档。
 
@@ -274,6 +281,10 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 ### 更新日志
 <details close markdown>
 <summary>详细</summary>
+
+- 2024/03/20
+1. 增加新模型
+    - OCR大模型[Vary](configs/llm/vary/vary_toy.yaml)
 
 - 2023/12/25
 1. 增加新模型

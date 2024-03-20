@@ -1,11 +1,12 @@
 from typing import Optional, Tuple
+
 import mindspore as ms
-import mindspore.ops as ops
-import mindspore.numpy as np
 import mindspore.common.dtype as mstype
+import mindspore.numpy as np
+import mindspore.ops as ops
 from mindspore import Parameter, nn
 
-from mindocr.models.utils.layers import Linear, LayerNorm
+from mindocr.models.utils.layers import LayerNorm, Linear
 
 
 class MLPBlock(nn.Cell):
@@ -40,10 +41,10 @@ class LayerNorm2d(nn.Cell):
     Returns:
         ms.Tensor: Normalized tensor.
     """
-    def __init__(self, num_channels: int, eps: float = 1e-6) -> None:
+    def __init__(self, num_channels: int, eps: float = 1e-6, param_init_type=ms.float32) -> None:
         super().__init__()
-        self.weight = Parameter(ops.Ones()(num_channels, ms.float32))
-        self.bias = Parameter(ops.Zeros()(num_channels, ms.float32))
+        self.weight = Parameter(ops.Ones()(num_channels, param_init_type))
+        self.bias = Parameter(ops.Zeros()(num_channels, param_init_type))
         self.eps = eps
         self.pow = ops.Pow()
         self.sqrt = ops.Sqrt()
@@ -81,6 +82,7 @@ class SAMImageEncoder(nn.Cell):
         self.layernorm_compute_type = config.layernorm_compute_type
         self.softmax_compute_type = config.softmax_compute_type
         self.param_init_type = config.param_init_type
+        self.ln_param_init_type = config.ln_param_init_type
 
         if isinstance(self.img_size, int):
             img_h = self.img_size
@@ -102,13 +104,15 @@ class SAMImageEncoder(nn.Cell):
             stride=(self.patch_size, self.patch_size),
             in_chans=self.in_chans,
             embed_dim=self.embed_dim,
+            param_init_type=self.param_init_type,
         )
 
         self.pos_embed: Optional[Parameter] = None
         if self.use_abs_pos:
             # Initialize absolute positional embedding with pretrain image size.
-            self.pos_embed = Parameter(ops.Zeros()((1, self.img_size // self.patch_size,
-                                                    self.img_size // self.patch_size, self.embed_dim), mstype.float32))
+            self.pos_embed = Parameter(
+                ops.Zeros()((1, self.img_size // self.patch_size, self.img_size // self.patch_size, self.embed_dim),
+                            self.param_init_type))
 
         self.blocks = nn.CellList()
         for i in range(self.depth):
@@ -126,7 +130,8 @@ class SAMImageEncoder(nn.Cell):
                 compute_dtype=self.compute_dtype,
                 layernorm_compute_type=self.layernorm_compute_type,
                 softmax_compute_type=self.softmax_compute_type,
-                param_init_type=self.param_init_type
+                param_init_type=self.param_init_type,
+                ln_param_init_type=self.ln_param_init_type,
             )
             self.blocks.append(block)
 
@@ -135,9 +140,10 @@ class SAMImageEncoder(nn.Cell):
                 self.embed_dim,
                 self.out_chans,
                 kernel_size=1,
-                has_bias=False
+                has_bias=False,
+                dtype=self.param_init_type,
             ),
-            LayerNorm2d(self.out_chans),
+            LayerNorm2d(self.out_chans, param_init_type=self.ln_param_init_type),
             nn.Conv2d(
                 self.out_chans,
                 self.out_chans,
@@ -145,8 +151,9 @@ class SAMImageEncoder(nn.Cell):
                 pad_mode='pad',
                 padding=1,
                 has_bias=False,
+                dtype=self.param_init_type,
             ),
-            LayerNorm2d(self.out_chans),
+            LayerNorm2d(self.out_chans, param_init_type=self.ln_param_init_type),
         )
 
     def construct(self, x: ms.Tensor) -> ms.Tensor:
@@ -187,9 +194,10 @@ class Block(nn.Cell):
                  compute_dtype=mstype.float16,
                  layernorm_compute_type=mstype.float32,
                  softmax_compute_type=mstype.float32,
-                 param_init_type=mstype.float32) -> None:
+                 param_init_type=mstype.float32,
+                 ln_param_init_type=mstype.float32) -> None:
         super().__init__()
-        self.norm1 = LayerNorm((dim,), eps=layer_norm_eps)
+        self.norm1 = LayerNorm((dim,), eps=layer_norm_eps, param_init_type=ln_param_init_type)
         self.attn = Attention(
             dim,
             num_heads=num_heads,
@@ -202,7 +210,7 @@ class Block(nn.Cell):
             param_init_type=param_init_type
         )
 
-        self.norm2 = LayerNorm((dim,), eps=layer_norm_eps)
+        self.norm2 = LayerNorm((dim,), eps=layer_norm_eps, param_init_type=ln_param_init_type)
         self.mlp = MLPBlock(embedding_dim=dim,
                             mlp_dim=int(dim * mlp_ratio),
                             compute_dtype=compute_dtype,
@@ -467,7 +475,9 @@ class PatchEmbed(nn.Cell):
                  stride: Tuple[int, int] = (16, 16),
                  padding: Tuple[int, int, int, int] = (0, 0, 0, 0),
                  in_chans: int = 3,
-                 embed_dim: int = 768) -> None:
+                 embed_dim: int = 768,
+                 param_init_type=ms.float32,
+                 ) -> None:
         """
         Initialize the PatchEmbed layer.
 
@@ -485,7 +495,8 @@ class PatchEmbed(nn.Cell):
                               kernel_size=kernel_size,
                               stride=stride,
                               padding=padding,
-                              has_bias=True)
+                              has_bias=True,
+                              dtype=param_init_type)
 
     def construct(self, x: ms.Tensor) -> ms.Tensor:
         """
@@ -507,8 +518,10 @@ class SAMEncoder(SAMImageEncoder):
     """SAM encoder for Vary system"""
     def __init__(self, config) -> None:
         super().__init__(config)
-        self.net_2 = nn.Conv2d(256, 512, kernel_size=3, stride=2, pad_mode="pad", padding=1, has_bias=False)
-        self.net_3 = nn.Conv2d(512, 1024, kernel_size=3, stride=2, pad_mode="pad", padding=1, has_bias=False)
+        self.net_2 = nn.Conv2d(256, 512, kernel_size=3, stride=2, pad_mode="pad", padding=1, has_bias=False,
+                               dtype=config.param_init_type)
+        self.net_3 = nn.Conv2d(512, 1024, kernel_size=3, stride=2, pad_mode="pad", padding=1, has_bias=False,
+                               dtype=config.param_init_type)
 
     def construct(self, x):
         x = self.patch_embed(x)
