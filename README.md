@@ -212,6 +212,13 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 
 </details>
 
+<details open markdown>
+<summary>OCR large model</summary>
+
+- [x] [Vary](configs/llm/vary/README.md) (arXiv'2023)
+
+</details>
+
 For the detailed performance of the trained models, please refer to [configs](./configs).
 
 For details of MindSpore Lite and ACL inference models support, please refer to [MindOCR Models Support List](docs/en/inference/inference_quickstart.md) and [Third-party Models Support List](docs/en/inference/inference_thirdparty_quickstart.md) (PaddleOCR, MMOCR, etc.).
@@ -279,6 +286,10 @@ Frequently asked questions about configuring environment and mindocr, please ref
 
 <details close markdown>
 <summary>News</summary>
+
+- 2024/03/20
+1. Add new trained models
+    - [Vary-toy](configs/llm/vary/vary_toy.yaml) for OCR large model, providing Qwen-1.8B LLM-based object detection and OCR abilities
 
 - 2023/12/25
 1. Add new trained models
