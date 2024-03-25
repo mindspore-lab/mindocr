@@ -9,16 +9,10 @@
  - [推理相关问题](#q8-推理时相关问题)
  - [DBNet训练速率不及预期](#q9-DBNet训练速率不及预期)
  - [`libgomp-d22c30c5.so.1.0.0`相关错误](#q10-libgomp-d22c30c5so100相关错误)
-<<<<<<< HEAD
-=======
  - [当在lmdb dataset上训练abinet报数据管道错误](#q11-当在lmdb-dataset上训练abinet报数据管道错误)
  - [当在synthtext数据集上训练dbnet报运行时错误](#q12-当在synthtext数据集上训练dbnet报运行时错误)
-<<<<<<< HEAD
->>>>>>> b459eaec9f6d8e8ca14a1af38c7730037f518635
-=======
  - [安装seqeval相关错误](#q13-安装seqeval相关错误)
  - [安装lanms相关错误](#q14-安装lanms相关错误)
->>>>>>> dca11cc9989deabe86985f0729502266e5ba6f42
 
 ### Q1 未定义符号
 
@@ -704,8 +698,6 @@ ImportError: /root/mindocr_env/lib/python3.8/site-packages/sklearn/__check_build
    ```bash
    export LD_PRELOAD=/root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
    ```
-<<<<<<< HEAD
-=======
 
 ### Q11 当在lmdb dataset上训练abinet报数据管道错误
 当在lmdb dataset上训练abinet报以下数据管道错误
@@ -765,9 +757,6 @@ RuntimeError: Run task for graph:kernel_graph_1 error! The details reger to 'Asc
 ```
 
 请尝试将CANN更新到7.1。
-<<<<<<< HEAD
->>>>>>> b459eaec9f6d8e8ca14a1af38c7730037f518635
-=======
 
 
 ### Q13 安装seqeval相关错误
@@ -864,4 +853,3 @@ ImportError: Python version mismatch: module was compiled for version 3.8, while
    ```
    保存该`Makefile`, 执行过程将匹配到python 3.7环境
  - 执行`python setup.py install`以安装`lanms`
->>>>>>> dca11cc9989deabe86985f0729502266e5ba6f42

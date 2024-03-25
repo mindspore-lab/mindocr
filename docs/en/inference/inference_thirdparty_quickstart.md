@@ -454,14 +454,17 @@ For ppocrv4，we provide tools for converting Paddle model to MindIR model, the 
  - Run the following command:
 ```bash
 cd tools
-bash paddle2mindir.sh
+bash paddle2mindir.sh -m=${ppocr_model_name} -p=${save_dir}
 ```
+ - `$ppocr_model_name`: ppocr models to be converted. `ch_PP-OCRv4`, `ch_PP-OCRv4_server` are supported
+ - `$save_dir`: folder to save downloaded ppocr models and converted mindir. Default: ppocr_models
+
 The convertion may cost minutes, please wait. And You could get the following MindIR models after convertion:
 ```
 ppocr_models
-├── det_db_dynamic_output.mindir
-├── rec_crnn_dynamic_output.mindir
-├── cls_mv4_dynamic_output.mindir
+├── ${PPOCR_MODEL_NAME}_det_db_dynamic_output.mindir
+├── ${PPOCR_MODEL_NAME}_rec_crnn_static_output.mindir
+├── ${PPOCR_MODEL_NAME}_cls_mv4_static_output.mindir
 ├── ...
 ```
 
