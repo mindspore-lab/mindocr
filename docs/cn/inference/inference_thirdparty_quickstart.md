@@ -435,14 +435,17 @@ python deploy/py_infer/infer.py \
  - 执行以下命令开始转换
 ```bash
 cd tools
-bash paddle2mindir.sh
+bash paddle2mindir.sh -m=${ppocr_model_name} -p=${save_dir}
 ```
+ - `$ppocr_model_name`: 进行转换的ppocr模型，支持`ch_PP-OCRv4`, `ch_PP-OCRv4_server`
+ - `$save_dir`: 保存模型下载与转换的路径
+
 转换过程将执行较久，请等待。执行后，将得到以下转换后的MindIR文件
 ```
 ppocr_models
-├── det_db_dynamic_output.mindir
-├── rec_crnn_dynamic_output.mindir
-├── cls_mv4_dynamic_output.mindir
+├── ${PPOCR_MODEL_NAME}_det_db_dynamic_output.mindir
+├── ${PPOCR_MODEL_NAME}_rec_crnn_static_output.mindir
+├── ${PPOCR_MODEL_NAME}_cls_mv4_static_output.mindir
 ├── ...
 ```
 

@@ -8,15 +8,9 @@
  - [Problems related to model converting](#q7-problems-related-to-model-converting)
  - [Problems related to inference](#q8-problems-related-to-inference)
  - [Training speed of DBNet not as fast as expexted](#q9-training-speed-of-dbnet-not-as-fast-as-expexted)
-<<<<<<< HEAD
- - [Error about `libgomp-d22c30c5.so.1.0.0`](#q9-error-about-libgomp-d22c30c5so100)
-=======
  - [Error about `libgomp-d22c30c5.so.1.0.0`](#q10-error-about-libgomp-d22c30c5so100)
  - [Dataset Pipeline Error when training abinet on lmdb dataset](#q11-dataset-pipeline-error-when-training-abinet-on-lmdb-dataset)
  - [Runtime Error when training dbnet on synthtext dataset](#q12-runtime-error-when-training-dbnet-on-synthtext-dataset)
-<<<<<<< HEAD
->>>>>>> b459eaec9f6d8e8ca14a1af38c7730037f518635
-=======
  - [Failed to install seqeval](#q13-failed-to-install-seqeval)
  - [Failed to install lanms](#q14-failed-to-install-lanms)
 >>>>>>> dca11cc9989deabe86985f0729502266e5ba6f42
@@ -694,8 +688,6 @@ You can try the following steps to fix it:
    ```bash
    export LD_PRELOAD=/root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
    ```
-<<<<<<< HEAD
-=======
 
 ### Q11 Dataset Pipeline Error when training abinet on lmdb dataset
 The following error may occur when training abinet on lmdb dataset
@@ -755,9 +747,6 @@ Traceback (most recent call last):
 RuntimeError: Run task for graph:kernel_graph_1 error! The details reger to 'Ascend Error Message'
 ```
 Please update CANN to 7.1 version.
-<<<<<<< HEAD
->>>>>>> b459eaec9f6d8e8ca14a1af38c7730037f518635
-=======
 
 
 ### Q13 Failed to install seqeval
