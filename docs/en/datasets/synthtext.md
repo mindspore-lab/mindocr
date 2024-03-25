@@ -23,7 +23,7 @@ path-to-data-dir/
 
 > :warning: Additionally, It is strongly recommended to pre-process the `SynthText` dataset before using it as it contains some faulty data:
 > ```shell
-> python tools/dataset_converters/convert.py --dataset_name=synthtext --task=det --label_dir=/path-to-data-dir/SynthText/gt.mat --output_path=/path-to-data-dir/SynthText/gt_processed.mat
+> python tools/dataset_converters/convert.py --dataset_name=synthtext --task=det --label_dir=/path-to-data-dir/SynthText/gt.mat --output_path=/path-to-data-dir/SynthText/gt_processed.mat --image_dir=/path-to-data-dir/SynthText
 > ```
 > This operation will generate a filtered output in the same format as the original `SynthText`.
 

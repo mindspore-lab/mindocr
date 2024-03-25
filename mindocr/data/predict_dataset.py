@@ -43,7 +43,7 @@ class PredictDataset(BaseDataset):
             raise ValueError("No transform pipeline is specified!")
 
         # prefetch the data keys, to fit GeneratorDataset
-        _data = self.data_list[0]
+        _data = self.data_list[0].copy()
         _data = run_transforms(_data, transforms=self.transforms)
         _available_keys = list(_data.keys())
         if output_columns is None:
@@ -60,7 +60,7 @@ class PredictDataset(BaseDataset):
                     )
 
     def __getitem__(self, index):
-        data = self.data_list[index]
+        data = self.data_list[index].copy()
 
         # perform transformation on data
         data = run_transforms(data, transforms=self.transforms)

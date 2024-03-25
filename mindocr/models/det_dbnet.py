@@ -19,8 +19,12 @@ default_cfgs = {
     'dbnet_resnet18': _cfg(
         url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18-0c0c4cfa.ckpt'),
     'dbnet_resnet50': _cfg(
+        url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24.ckpt'),
+    'dbnet_resnet50_ch_en': _cfg(
         url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_ch_en_general-a5dbb141.ckpt'),
     'dbnetpp_resnet50': _cfg(
+        url='https://download-mindspore.osinfra.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50-068166c2.ckpt'),
+    'dbnetpp_resnet50_ch_en': _cfg(
         url='https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_ch_en_general-884ba5b9.ckpt'),
     'dbnet_ppocrv3': _cfg(
         url='https://download-mindspore.osinfra.cn/toolkits/mindocr/dbnet/dbnet_mobilenetv3_ppocrv3-70d6018f.ckpt')
@@ -33,8 +37,8 @@ class DBNet(BaseModel):
 
 
 @register_model
-def dbnet_mobilenetv3(pretrained=False, **kwargs):
-    pretrained_backbone = 'https://download.mindspore.cn/toolkits/mindcv/mobilenet/mobilenetv3' \
+def dbnet_mobilenetv3(pretrained=False, pretrained_backbone=True, **kwargs):
+    backbone_ckpt_url = 'https://download.mindspore.cn/toolkits/mindcv/mobilenet/mobilenetv3' \
                           '/mobilenet_v3_large_050_no_scale_se_v2_expand-3c4047ac.ckpt'
     model_config = {
         "backbone": {
@@ -43,7 +47,7 @@ def dbnet_mobilenetv3(pretrained=False, **kwargs):
             'alpha': 0.5,
             'out_stages': [5, 8, 14, 20],
             'bottleneck_params': {'se_version': 'SqueezeExciteV2', 'always_expand': True},
-            'pretrained': pretrained_backbone if not pretrained else False
+            'pretrained': backbone_ckpt_url if pretrained_backbone else False
         },
         "neck": {
             "name": 'DBFPN',
@@ -68,8 +72,7 @@ def dbnet_mobilenetv3(pretrained=False, **kwargs):
 
 
 @register_model
-def dbnet_resnet18(pretrained=False, **kwargs):
-    pretrained_backbone = not pretrained
+def dbnet_resnet18(pretrained=False, pretrained_backbone=True, **kwargs):
     model_config = {
         "backbone": {
             'name': 'det_resnet18',
@@ -98,8 +101,7 @@ def dbnet_resnet18(pretrained=False, **kwargs):
 
 
 @register_model
-def dbnet_resnet50(pretrained=False, **kwargs):
-    pretrained_backbone = not pretrained
+def dbnet_resnet50(pretrained=False, pretrained_backbone=True, **kwargs):
     model_config = {
         "backbone": {
             'name': 'det_resnet50',
@@ -128,8 +130,36 @@ def dbnet_resnet50(pretrained=False, **kwargs):
 
 
 @register_model
-def dbnetpp_resnet50(pretrained=False, **kwargs):
-    pretrained_backbone = not pretrained
+def dbnet_resnet50_ch_en(pretrained=False, pretrained_backbone=True, **kwargs):
+    model_config = {
+        "backbone": {
+            'name': 'det_resnet50',
+            'pretrained': pretrained_backbone
+        },
+        "neck": {
+            "name": 'DBFPN',
+            "out_channels": 256,
+            "bias": False,
+        },
+        "head": {
+            "name": 'DBHead',
+            "k": 50,
+            "bias": False,
+            "adaptive": True
+        }
+    }
+    model = DBNet(model_config)
+
+    # load pretrained weights
+    if pretrained:
+        default_cfg = default_cfgs['dbnet_resnet50_ch_en']
+        load_pretrained(model, default_cfg)
+
+    return model
+
+
+@register_model
+def dbnetpp_resnet50(pretrained=False, pretrained_backbone=True, **kwargs):
     model_config = {
         "backbone": {
             'name': 'det_resnet50',
@@ -154,6 +184,37 @@ def dbnetpp_resnet50(pretrained=False, **kwargs):
     # load pretrained weights
     if pretrained:
         default_cfg = default_cfgs['dbnetpp_resnet50']
+        load_pretrained(model, default_cfg)
+
+    return model
+
+
+@register_model
+def dbnetpp_resnet50_ch_en(pretrained=False, pretrained_backbone=True, **kwargs):
+    model_config = {
+        "backbone": {
+            'name': 'det_resnet50',
+            'pretrained': pretrained_backbone
+        },
+        "neck": {
+            "name": 'DBFPN',
+            "out_channels": 256,
+            "bias": False,
+            "use_asf": True,
+            "channel_attention": True
+        },
+        "head": {
+            "name": 'DBHead',
+            "k": 50,
+            "bias": False,
+            "adaptive": True
+        }
+    }
+    model = DBNet(model_config)
+
+    # load pretrained weights
+    if pretrained:
+        default_cfg = default_cfgs['dbnetpp_resnet50_ch_en']
         load_pretrained(model, default_cfg)
 
     return model

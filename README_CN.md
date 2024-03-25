@@ -1,6 +1,8 @@
+<!--start-->
 <div align="center" markdown>
 
 # MindOCR
+<!--end-->
 
 [![CI](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml/badge.svg)](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/mindspore-lab/mindocr.svg)](https://github.com/mindspore-lab/mindocr/blob/main/LICENSE)
@@ -8,7 +10,7 @@
 [![PRs](https://img.shields.io/badge/PRs-welcome-pink.svg)](https://github.com/mindspore-lab/mindocr/pulls)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-
+<!--start-->
 [English](README.md) | 中文
 
 [📝简介](#简介) |
@@ -106,7 +108,7 @@ MindOCR在`configs`文件夹中提供系列SoTA的OCR模型及其训练策略，
 
 ```shell
 # train text detection model DBNet++ on icdar15 dataset
-python tools/train.py --config configs/det/dbnet/db++_r50_icdar15.yaml
+python tools/train.py --config configs/det/dbnet/dbpp_r50_icdar15.yaml
 ```
 ```shell
 # train text recognition model CRNN on icdar15 dataset
@@ -203,6 +205,13 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 
 </details>
 
+<details open markdown>
+<summary>OCR大模型</summary>
+
+- [x] [Vary](configs/llm/vary/README_CN.md) (arXiv'2023)
+
+</details>
+
 
 关于以上模型的具体训练方法和结果，请参见[configs](./configs)下各模型子目录的readme文档。
 
@@ -272,6 +281,10 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 ### 更新日志
 <details close markdown>
 <summary>详细</summary>
+
+- 2024/03/20
+1. 增加新模型
+    - OCR大模型[Vary-toy](configs/llm/vary/vary_toy.yaml)，支持基于通义千问1.8B LLM的检测和OCR功能
 
 - 2023/12/25
 1. 增加新模型
@@ -384,3 +397,4 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
     year={2023}
 }
 ```
+<!--end-->

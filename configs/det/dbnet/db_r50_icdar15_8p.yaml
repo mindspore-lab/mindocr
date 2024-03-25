@@ -1,0 +1,191 @@
+system:
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: True
+  amp_level: 'O0'
+  seed: 42
+  log_interval: 10
+  val_while_train: True
+  drop_overflow_update: False
+
+model:
+  type: det
+  transform: null
+  backbone:
+    name: det_resnet50
+    pretrained: True
+  neck:
+    name: DBFPN
+    out_channels: 256
+    bias: False
+  head:
+    name: DBHead
+    k: 50
+    bias: False
+    adaptive: True
+
+postprocess:
+  name: DBPostprocess
+  box_type: quad   # whether to output a polygon or a box
+  binary_thresh: 0.3      # binarization threshold
+  box_thresh: 0.7         # box score threshold
+  max_candidates: 1000
+  expand_ratio: 1.5       # coefficient for expanding predictions
+
+metric:
+  name: DetMetric
+  main_indicator: f-score
+
+loss:
+  name: DBLoss
+  eps: 1.0e-6
+  l1_scale: 10
+  bce_scale: 5
+  bce_replace: bceloss
+
+scheduler:
+  scheduler: warmup_cosine_decay
+  lr: 0.001
+  min_lr: 0.00001
+  num_epochs: 1200
+  warmup_epochs: 3
+  decay_epochs: 1150
+
+optimizer:
+  opt: Adam
+  beta1: 0.9
+  beta2: 0.999
+
+# only used for mixed precision training
+loss_scaler:
+  type: dynamic
+  loss_scale: 512
+  scale_factor: 2
+  scale_window: 1000
+
+train:
+  ckpt_save_dir: './tmp_det'
+  dataset_sink_mode: True
+  dataset:
+    type: DetDataset
+    dataset_root: /data/ocr_datasets
+    data_dir: ic15/det/train/ch4_training_images
+    label_file: ic15/det/train/det_gt.txt
+    sample_ratio: 1.0
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: RGB
+          to_float32: False
+      - DetLabelEncode:
+      - RandomColorAdjust:
+          brightness: 0.1255  # 32.0 / 255
+          saturation: 0.5
+      - RandomHorizontalFlip:
+          p: 0.5
+      - RandomRotate:
+          degrees: [ -10, 10 ]
+          expand_canvas: False
+          p: 1.0
+      - RandomScale:
+          scale_range: [ 0.5, 3.0 ]
+          p: 1.0
+      - RandomCropWithBBox:
+          max_tries: 10
+          min_crop_ratio: 0.1
+          crop_size: [ 640, 640 ]
+          p: 1.0
+      - ValidatePolygons:
+      - ShrinkBinaryMap:
+          min_text_size: 8
+          shrink_ratio: 0.4
+      - BorderMap:
+          shrink_ratio: 0.4
+          thresh_min: 0.3
+          thresh_max: 0.7
+      - NormalizeImage:
+          bgr_to_rgb: False
+          is_hwc: True
+          mean: imagenet
+          std: imagenet
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visualize
+    output_columns: [ 'image', 'binary_map', 'mask', 'thresh_map', 'thresh_mask' ] #'img_path']
+#    output_columns: ['image'] # for debug op performance
+    net_input_column_index: [0] # input indices for network forward func in output_columns
+    label_column_index: [1, 2, 3, 4] # input indices marked as label
+
+  loader:
+    shuffle: True
+    batch_size: 10
+    drop_remainder: True
+    num_workers: 8
+
+eval:
+  ckpt_load_path: tmp_det/best.ckpt
+  dataset_sink_mode: False
+  dataset:
+    type: DetDataset
+    dataset_root: /data/ocr_datasets
+    data_dir: ic15/det/test/ch4_test_images
+    label_file: ic15/det/test/det_gt.txt
+    sample_ratio: 1.0
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: RGB
+          to_float32: False
+      - DetLabelEncode:
+      - DetResize:  # GridResize 32
+          target_size: [ 736, 1280 ]
+          keep_ratio: False
+          limit_type: none
+          divisor: 32
+      - NormalizeImage:
+          bgr_to_rgb: False
+          is_hwc: True
+          mean: imagenet
+          std: imagenet
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the labels for evaluation
+    output_columns: [ 'image', 'polys', 'ignore_tags', 'shape_list' ]
+    net_input_column_index: [0] # input indices for network forward func in output_columns
+    label_column_index: [1, 2] # input indices marked as label
+
+  loader:
+    shuffle: False
+    batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
+    drop_remainder: False
+    num_workers: 2
+
+predict:
+  ckpt_load_path: tmp_det/best.ckpt
+  dataset_sink_mode: False
+  dataset:
+    type: PredictDataset
+    dataset_root: path/to/dataset_root
+    data_dir: ic15/det/test/ch4_test_images
+#    label_file: test.txt
+    sample_ratio: 1.0
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: RGB
+          to_float32: False
+#      - DetLabelEncode:
+      - DetResize:  # GridResize 32
+          target_size: [ 736, 1280 ]
+          keep_ratio: False
+          limit_type: none
+          divisor: 32
+      - NormalizeImage:
+          bgr_to_rgb: False
+          is_hwc: True
+          mean: imagenet
+          std: imagenet
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the labels for evaluation
+    output_columns: [ 'img_path', 'image', 'raw_img_shape' ]  # shape in h, w order
+#    num_keys_of_labels: 2 # num labels
+
+  loader:
+    shuffle: False
+    batch_size: 1 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
+    drop_remainder: False
+    num_workers: 2

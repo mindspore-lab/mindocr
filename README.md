@@ -1,13 +1,18 @@
+<!--start-->
 <div align="center" markdown>
 
 # MindOCR
+
+</div>
+<!--end-->
+
+<div align="center" markdown>
 
 [![CI](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml/badge.svg)](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/mindspore-lab/mindocr.svg)](https://github.com/mindspore-lab/mindocr/blob/main/LICENSE)
 [![open issues](https://img.shields.io/github/issues/mindspore-lab/mindocr)](https://github.com/mindspore-lab/mindocr/issues)
 [![PRs](https://img.shields.io/badge/PRs-welcome-pink.svg)](https://github.com/mindspore-lab/mindocr/pulls)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-
 
 English | [中文](README_CN.md)
 
@@ -22,6 +27,7 @@ English | [中文](README_CN.md)
 
 </div>
 
+<!--start-->
 ## Introduction
 MindOCR is an open-source toolbox for OCR development and application based on [MindSpore](https://www.mindspore.cn/en), which integrates series of mainstream text detection and recognition algorihtms/models, provides easy-to-use training and inference tools. It can accelerate the process of developing and deploying SoTA text detection and recognition models in real-world applications, such as DBNet/DBNet++ and CRNN/SVTR, and help fulfill the need of image-text understanding.
 
@@ -110,7 +116,7 @@ You may adapt it to your task/dataset, for example, by running
 
 ```shell
 # train text detection model DBNet++ on icdar15 dataset
-python tools/train.py --config configs/det/dbnet/db++_r50_icdar15.yaml
+python tools/train.py --config configs/det/dbnet/dbpp_r50_icdar15.yaml
 ```
 
 ```shell
@@ -151,7 +157,8 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 - Inference with MindSpore Lite
     - [Python/C++ Inference on Ascend 310](docs/en/inference/inference_tutorial.md)
     - [MindOCR Models Offline Inference - Quick Start](docs/en/inference/inference_quickstart.md)
-    - [Third-party Models Offline Inference - Quick Start](docs/en/inference/inference_thirdparty_quickstart.md).
+    - [Third-party Models Offline Inference - Quick Start](docs/en/inference/inference_thirdparty_quickstart.md)
+    - [Model Conversion](docs/en/inference/convert_tutorial.md)
 - Developer Guides
     - [Customize Dataset](mindocr/data/README.md)
     - [Customize Data Transformation](mindocr/data/transforms/README.md)
@@ -202,6 +209,13 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 <summary>Table Recognition</summary>
 
 - [x] [TableMaster](configs/table/README.md) (arXiv'2021)
+
+</details>
+
+<details open markdown>
+<summary>OCR large model</summary>
+
+- [x] [Vary](configs/llm/vary/README.md) (arXiv'2023)
 
 </details>
 
@@ -272,6 +286,10 @@ Frequently asked questions about configuring environment and mindocr, please ref
 
 <details close markdown>
 <summary>News</summary>
+
+- 2024/03/20
+1. Add new trained models
+    - [Vary-toy](configs/llm/vary/vary_toy.yaml) for OCR large model, providing Qwen-1.8B LLM-based object detection and OCR abilities
 
 - 2023/12/25
 1. Add new trained models
@@ -385,3 +403,4 @@ If you find this project useful in your research, please consider citing:
     year={2023}
 }
 ```
+<!--end-->

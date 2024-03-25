@@ -359,7 +359,7 @@ python deploy/eval_utils/eval_rec.py \
     --gt_path=/path/to/mlt17_ch/chinese_gt.txt \
     --pred_path=/path/to/en_rec_infer_results/rec_results.txt
 ```
-关于数据集准备请参考[数据集转换](/docs/cn/datasets/converters.md)
+关于数据集准备请参考[数据集转换](../../docs/cn/datasets/converters.md)
 
 ### 3.3 文本方向分类
 下面主要以[第三方模型支持列表](#13-文本方向识别)中的`ch_pp_mobile_cls_v2`为例介绍推理方法
