@@ -14,7 +14,12 @@
  - [Error about `libgomp-d22c30c5.so.1.0.0`](#q10-error-about-libgomp-d22c30c5so100)
  - [Dataset Pipeline Error when training abinet on lmdb dataset](#q11-dataset-pipeline-error-when-training-abinet-on-lmdb-dataset)
  - [Runtime Error when training dbnet on synthtext dataset](#q12-runtime-error-when-training-dbnet-on-synthtext-dataset)
+<<<<<<< HEAD
 >>>>>>> b459eaec9f6d8e8ca14a1af38c7730037f518635
+=======
+ - [Failed to install seqeval](#q13-failed-to-install-seqeval)
+ - [Failed to install lanms](#q14-failed-to-install-lanms)
+>>>>>>> dca11cc9989deabe86985f0729502266e5ba6f42
 
 ### Q1 Undefined symbol
 
@@ -750,4 +755,103 @@ Traceback (most recent call last):
 RuntimeError: Run task for graph:kernel_graph_1 error! The details reger to 'Ascend Error Message'
 ```
 Please update CANN to 7.1 version.
+<<<<<<< HEAD
 >>>>>>> b459eaec9f6d8e8ca14a1af38c7730037f518635
+=======
+
+
+### Q13 Failed to install seqeval
+The following error occur when run `pip install -r requirements.txt`
+```bash
+Collecting seqeval>=1.2.2 (from -r requirements.txt (line 19))
+  Downloading http://mirrors.aliyun.com/pypi/packages/9d/2d/233c79d5b4e5ab1dbf111242299153f3caddddbb691219f363ad55ce783d/seqeval-1.2.2.tar.gz (43 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.6/43.6 kB 181.0 kB/s eta 0:00:00
+  Preparing metadata (setup.py) ... error
+  error: subprocess-exited-with-error
+
+  × python setup.py egg_info did not run successfully.
+  │ exit code: 1
+  ╰─> [48 lines of output]
+      /home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/__init__.py:80: _DeprecatedInstaller: setuptools.installer and fetch_build_eggs are deprecated.
+      !!
+
+              ********************************************************************************
+              Requirements should be satisfied by a PEP 517 installer.
+              If you are using pip, you can try `pip install --use-pep517`.
+              ********************************************************************************
+
+      !!
+        dist.fetch_build_eggs(dist.setup_requires)
+      WARNING: The repository located at mirrors.aliyun.com is not a trusted or secure host and is being ignored. If this repository is available via HTTPS we recommend you use HTTPS instead, otherwise you may silence this warning and allow it anyway with '--trusted-host mirrors.aliyun.com'.
+      ERROR: Could not find a version that satisfies the requirement setuptools_scm (from versions: none)
+      ERROR: No matching distribution found for setuptools_scm
+      Traceback (most recent call last):
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/installer.py", line 101, in _fetch_build_egg_no_warn
+          subprocess.check_call(cmd)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/subprocess.py", line 373, in check_call
+          raise CalledProcessError(retcode, cmd)
+      subprocess.CalledProcessError: Command '['/home/ma-user/anaconda3/envs/MindSpore/bin/python3.9', '-m', 'pip', '--disable-pip-version-check', 'wheel', '--no-deps', '-w', '/tmp/tmpusgt0k69', '--quiet', 'setuptools_scm']' returned non-zero exit status 1.
+
+      The above exception was the direct cause of the following exception:
+
+      Traceback (most recent call last):
+        File "<string>", line 2, in <module>
+        File "<pip-setuptools-caller>", line 34, in <module>
+        File "/tmp/pip-install-m2kqztlz/seqeval_da00f708dc0e483b92cd18083513d5e7/setup.py", line 27, in <module>
+          setup(
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/__init__.py", line 102, in setup
+          _install_setup_requires(attrs)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/__init__.py", line 75, in _install_setup_requires
+          _fetch_build_eggs(dist)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/__init__.py", line 80, in _fetch_build_eggs
+          dist.fetch_build_eggs(dist.setup_requires)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/dist.py", line 636, in fetch_build_eggs
+          return _fetch_build_eggs(self, requires)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/installer.py", line 38, in _fetch_build_eggs
+          resolved_dists = pkg_resources.working_set.resolve(
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/pkg_resources/__init__.py", line 829, in resolve
+          dist = self._resolve_dist(
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/pkg_resources/__init__.py", line 865, in _resolve_dist
+          dist = best[req.key] = env.best_match(
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/pkg_resources/__init__.py", line 1135, in best_match
+          return self.obtain(req, installer)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/pkg_resources/__init__.py", line 1147, in obtain
+          return installer(requirement)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/installer.py", line 103, in _fetch_build_egg_no_warn
+          raise DistutilsError(str(e)) from e
+      distutils.errors.DistutilsError: Command '['/home/ma-user/anaconda3/envs/MindSpore/bin/python3.9', '-m', 'pip', '--disable-pip-version-check', 'wheel', '--no-deps', '-w', '/tmp/tmpusgt0k69', '--quiet', 'setuptools_scm']' returned non-zero exit status 1.
+      [end of output]
+
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+error: metadata-generation-failed
+
+× Encountered error while generating package metadata.
+╰─> See above for output.
+
+note: This is an issue with the package mentioned above, not pip.
+
+```
+Please try the following steps to fix this problem：
+ - Update `setuptools`: `pip3 install --upgrade setuptools`
+ - Update `setuptools_scm`: `pip3 install --upgrade setuptools_scm`
+ - Install `seqeval`：`pip3 install seqeval -i https://pypi.tuna.tsinghua.edu.cn/simple`
+
+
+### Q14 Failed to install lanms
+The following error occur when installing lanms
+```bash
+ImportError: Python version mismatch: module was compiled for version 3.8, while the interpreter is running version 3.7.
+```
+Some Python 3.7 environment may meet this problem when multiple python3 environment exists. You could try the following steps to solve this problem:
+1. run `pip3 install lanms -i https://pypi.tuna.tsinghua.edu.cn/simple`, and get the url for downloading `lanms-1.0.2.tar.gz`(like https://pypi.tuna.tsinghua.edu.cn/packages/96/c0/50dc2c857ed060e907adaef31184413a7706e475c322236d346382e45195/lanms-1.0.2.tar.gz)
+2. use this url and dowload the `lanms-1.0.2.tar.gz`, run `tar -zxvf lanms-1.0.2.tar.gz` to decompress the package.
+3. `cd lanms-1.0.2`
+4. edit the `Makefile`, replace `python3-config` with `python3.7-config` in line 1 and line 2, and you could get
+   ```text
+   CXXFLAGS = -I include  -std=c++11 -O3 $(shell python3.7-config --cflags)
+   LDFLAGS = $(shell python3.7-config --ldflags)
+   ...
+   ```
+   save `Makefile`. So that the make process would exactly compile with python3.7 environment
+5. run `python setup.py install` and completely install lanms.
+>>>>>>> dca11cc9989deabe86985f0729502266e5ba6f42

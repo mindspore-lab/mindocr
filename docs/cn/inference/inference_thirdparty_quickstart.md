@@ -71,6 +71,7 @@ graph LR;
 ```
 
 ### 3. 第三方模型推理方法
+对于`ppocrv4`模型，这里提供了[快速转换工具](#35-快速转换工具)，供用户快速将paddle模型转换为MindIR模型。
 #### 3.1 文本检测
 
 下面主要以[第三方模型支持列表](#11-文本检测)中的`ch_pp_det_OCRv4`为例介绍推理方法：
@@ -426,6 +427,23 @@ python deploy/py_infer/infer.py \
     --rec_model_name_or_config=ch_pp_rec_OCRv4 \
     --character_dict_path=/path/to/ppocr_keys_v1.txt \
     --res_save_dir=/path/to/infer_results
+```
+
+### 3.5 快速转换工具
+对于ppocrv4，我们提供了快速转换工具，方便用户将ppocrv4的paddle模型转换为MindIR模型，使用方法如下
+ - 确认`MindSpore Lite`已成功下载并配置，详见[MindSpore Lite](https://www.mindspore.cn/lite)，且`converter_lite`已加入环境变量
+ - 执行以下命令开始转换
+```bash
+cd tools
+bash paddle2mindir.sh
+```
+转换过程将执行较久，请等待。执行后，将得到以下转换后的MindIR文件
+```
+ppocr_models
+├── det_db_dynamic_output.mindir
+├── rec_crnn_dynamic_output.mindir
+├── cls_mv4_dynamic_output.mindir
+├── ...
 ```
 
 ## 4 FAQ
