@@ -1,3 +1,4 @@
+import os
 from typing import Optional, Tuple
 
 import numpy as np
@@ -8,6 +9,8 @@ import mindspore.ops as ops
 from mindspore import Tensor
 
 __all__ = ["MultiHeadAttention", "PositionwiseFeedForward", "PositionalEncoding", "SEModule"]
+
+OFFLINE_MODE = os.getenv("OFFLINE_MODE", None)
 
 
 class MultiHeadAttention(nn.Cell):
@@ -108,9 +111,14 @@ class PositionalEncoding(nn.Cell):
         self.pe = Tensor(pe, dtype=ms.float32)
 
     def construct(self, input_tensor: Tensor) -> Tensor:
-        input_tensor = (
-            input_tensor + self.pe[:, : input_tensor.shape[1]]
-        )  # pe 1 5000 512
+        if OFFLINE_MODE is None:
+            input_tensor = (
+                input_tensor + self.pe[:, : input_tensor.shape[1]]
+            )  # pe  1 5000 512
+        else:
+            input_tensor = (
+                input_tensor + self.pe[:, : ops.dyn_shape(input_tensor)[1]]
+            )  # pe 1 5000 512
         return self.dropout(input_tensor)
 
 

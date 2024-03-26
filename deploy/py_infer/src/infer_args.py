@@ -119,6 +119,9 @@ def get_args():
         "--show_log", type=str2bool, default=False, required=False, help="Whether show log when inferring."
     )
     parser.add_argument("--save_log_dir", type=str, required=False, help="Log saving dir.")
+    parser.add_argument(
+        "--is_concat", type=str2bool, default=False, help="Whether to concatenate crops after the detection."
+    )
 
     args = parser.parse_args()
     setup_logger(args)

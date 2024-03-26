@@ -106,8 +106,8 @@ class Model:
             height, width = hw_list[0]
             warmup_shape = [(*other_shape, height, width)]  # Only single input
 
-        dummy_tensor = [np.random.randn(*shape).astype(dtype) for shape, dtype in zip(warmup_shape, self.input_dtype)]
-        self.model.infer(dummy_tensor)
+        # dummy_tensor = [np.random.randn(*shape).astype(dtype) for shape, dtype in zip(warmup_shape, self.input_dtype)]
+        # self.model.infer(dummy_tensor)
 
     def __del__(self):
         if hasattr(self, "model") and self.model:

@@ -44,6 +44,7 @@ def get_device_status():
     def _get_status():
         nonlocal status
         try:
+            ms.set_context(max_device_memory="0.01GB")
             status = ms.Tensor([0])[0:].asnumpy()[0]
         except RuntimeError:
             status = 1
