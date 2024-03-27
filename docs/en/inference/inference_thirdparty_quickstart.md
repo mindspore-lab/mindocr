@@ -73,7 +73,7 @@ graph LR;
 ```
 
 ### 3. Third-Party Model Inference Methods
-
+For ppocrv4, we provide [Quick Convertion Tool](#35-quick-convertion-tool) for converting Paddle model to MindIR model.
 #### 3.1 Text Detection
 
 Let's take `ch_pp_det_OCRv4` in [Third-Party Model Support List](#11-text-detection) as an example to introduce the inference method:
@@ -446,6 +446,26 @@ python deploy/py_infer/infer.py \
     --rec_model_name_or_config=ch_pp_rec_OCRv4 \
     --character_dict_path=/path/to/ppocr_keys_v1.txt \
     --res_save_dir=/path/to/infer_results
+```
+
+### 3.5 Quick Convertion Tool
+For ppocrv4，we provide tools for converting Paddle model to MindIR model, the guidence is as following:
+ - Make sure `MindSpore Lite` has been downloaded and configured successfully, please refer to [MindSpore Lite](https://www.mindspore.cn/lite). And make sure `converter_lite` has been added into the environment variable.
+ - Run the following command:
+```bash
+cd tools
+bash paddle2mindir.sh -m=${ppocr_model_name} -p=${save_dir}
+```
+ - `$ppocr_model_name`: ppocr models to be converted. `ch_PP-OCRv4`, `ch_PP-OCRv4_server` are supported
+ - `$save_dir`: folder to save downloaded ppocr models and converted mindir. Default: ppocr_models
+
+The convertion may cost minutes, please wait. And You could get the following MindIR models after convertion:
+```
+ppocr_models
+├── ${PPOCR_MODEL_NAME}_det_db_dynamic_output.mindir
+├── ${PPOCR_MODEL_NAME}_rec_crnn_static_output.mindir
+├── ${PPOCR_MODEL_NAME}_cls_mv4_static_output.mindir
+├── ...
 ```
 
 ## 4.FAQ about converting and inference

@@ -11,6 +11,8 @@
  - [`libgomp-d22c30c5.so.1.0.0`相关错误](#q10-libgomp-d22c30c5so100相关错误)
  - [当在lmdb dataset上训练abinet报数据管道错误](#q11-当在lmdb-dataset上训练abinet报数据管道错误)
  - [当在synthtext数据集上训练dbnet报运行时错误](#q12-当在synthtext数据集上训练dbnet报运行时错误)
+ - [安装seqeval相关错误](#q13-安装seqeval相关错误)
+ - [安装lanms相关错误](#q14-安装lanms相关错误)
 
 ### Q1 未定义符号
 
@@ -755,3 +757,99 @@ RuntimeError: Run task for graph:kernel_graph_1 error! The details reger to 'Asc
 ```
 
 请尝试将CANN更新到7.1。
+
+
+### Q13 安装seqeval相关错误
+当运行`pip install -r requirements.txt`时，报以下错误
+```bash
+Collecting seqeval>=1.2.2 (from -r requirements.txt (line 19))
+  Downloading http://mirrors.aliyun.com/pypi/packages/9d/2d/233c79d5b4e5ab1dbf111242299153f3caddddbb691219f363ad55ce783d/seqeval-1.2.2.tar.gz (43 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.6/43.6 kB 181.0 kB/s eta 0:00:00
+  Preparing metadata (setup.py) ... error
+  error: subprocess-exited-with-error
+
+  × python setup.py egg_info did not run successfully.
+  │ exit code: 1
+  ╰─> [48 lines of output]
+      /home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/__init__.py:80: _DeprecatedInstaller: setuptools.installer and fetch_build_eggs are deprecated.
+      !!
+
+              ********************************************************************************
+              Requirements should be satisfied by a PEP 517 installer.
+              If you are using pip, you can try `pip install --use-pep517`.
+              ********************************************************************************
+
+      !!
+        dist.fetch_build_eggs(dist.setup_requires)
+      WARNING: The repository located at mirrors.aliyun.com is not a trusted or secure host and is being ignored. If this repository is available via HTTPS we recommend you use HTTPS instead, otherwise you may silence this warning and allow it anyway with '--trusted-host mirrors.aliyun.com'.
+      ERROR: Could not find a version that satisfies the requirement setuptools_scm (from versions: none)
+      ERROR: No matching distribution found for setuptools_scm
+      Traceback (most recent call last):
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/installer.py", line 101, in _fetch_build_egg_no_warn
+          subprocess.check_call(cmd)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/subprocess.py", line 373, in check_call
+          raise CalledProcessError(retcode, cmd)
+      subprocess.CalledProcessError: Command '['/home/ma-user/anaconda3/envs/MindSpore/bin/python3.9', '-m', 'pip', '--disable-pip-version-check', 'wheel', '--no-deps', '-w', '/tmp/tmpusgt0k69', '--quiet', 'setuptools_scm']' returned non-zero exit status 1.
+
+      The above exception was the direct cause of the following exception:
+
+      Traceback (most recent call last):
+        File "<string>", line 2, in <module>
+        File "<pip-setuptools-caller>", line 34, in <module>
+        File "/tmp/pip-install-m2kqztlz/seqeval_da00f708dc0e483b92cd18083513d5e7/setup.py", line 27, in <module>
+          setup(
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/__init__.py", line 102, in setup
+          _install_setup_requires(attrs)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/__init__.py", line 75, in _install_setup_requires
+          _fetch_build_eggs(dist)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/__init__.py", line 80, in _fetch_build_eggs
+          dist.fetch_build_eggs(dist.setup_requires)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/dist.py", line 636, in fetch_build_eggs
+          return _fetch_build_eggs(self, requires)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/installer.py", line 38, in _fetch_build_eggs
+          resolved_dists = pkg_resources.working_set.resolve(
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/pkg_resources/__init__.py", line 829, in resolve
+          dist = self._resolve_dist(
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/pkg_resources/__init__.py", line 865, in _resolve_dist
+          dist = best[req.key] = env.best_match(
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/pkg_resources/__init__.py", line 1135, in best_match
+          return self.obtain(req, installer)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/pkg_resources/__init__.py", line 1147, in obtain
+          return installer(requirement)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/installer.py", line 103, in _fetch_build_egg_no_warn
+          raise DistutilsError(str(e)) from e
+      distutils.errors.DistutilsError: Command '['/home/ma-user/anaconda3/envs/MindSpore/bin/python3.9', '-m', 'pip', '--disable-pip-version-check', 'wheel', '--no-deps', '-w', '/tmp/tmpusgt0k69', '--quiet', 'setuptools_scm']' returned non-zero exit status 1.
+      [end of output]
+
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+error: metadata-generation-failed
+
+× Encountered error while generating package metadata.
+╰─> See above for output.
+
+note: This is an issue with the package mentioned above, not pip.
+
+```
+尝试以下步骤修复：
+ - 更新`setuptools`: `pip3 install --upgrade setuptools`
+ - 更新`setuptools_scm`: `pip3 install --upgrade setuptools_scm`
+ - 安装`seqeval`：`pip3 install seqeval -i https://pypi.tuna.tsinghua.edu.cn/simple`
+
+
+### Q14 安装lanms相关错误
+当安装lanms时，报
+```bash
+ImportError: Python version mismatch: module was compiled for version 3.8, while the interpreter is running version 3.7.
+```
+该问题可能是当前存在多个python3环境导致，你可使用以下步骤解决该问题
+ - 执行`pip3 install lanms -i https://pypi.tuna.tsinghua.edu.cn/simple`，得到`lanms-1.0.2.tar.gz`的下载链接（如https://pypi.tuna.tsinghua.edu.cn/packages/96/c0/50dc2c857ed060e907adaef31184413a7706e475c322236d346382e45195/lanms-1.0.2.tar.gz）
+ - 使用该下载链接，下载`lanms-1.0.2.tar.gz`，执行`tar -zxvf lanms-1.0.2.tar.gz`以解压该包
+ - `cd lanms-1.0.2`
+ - 编辑`Makefile`，在第1，2行中，用`python3.7-config`替代`python3-config`，得到如下修改
+   ```bash
+   CXXFLAGS = -I include  -std=c++11 -O3 $(shell python3.7-config --cflags)
+   LDFLAGS = $(shell python3.7-config --ldflags)
+   ...
+   ```
+   保存该`Makefile`, 执行过程将匹配到python 3.7环境
+ - 执行`python setup.py install`以安装`lanms`
