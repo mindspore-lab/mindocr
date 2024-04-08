@@ -7,7 +7,7 @@ from mindspore.amp import auto_mixed_precision
 
 from ._registry import is_model, list_models, model_entrypoint
 from .base_model import BaseModel
-from .utils import load_model
+from .utils import load_model, set_amp_attr
 
 __all__ = ["build_model"]
 
@@ -74,5 +74,6 @@ def build_model(name_or_config: Union[str, dict], **kwargs):
 
     if "amp_level" in kwargs:
         auto_mixed_precision(network, amp_level=kwargs["amp_level"])
+        set_amp_attr(network, kwargs["amp_level"])
 
     return network
