@@ -59,12 +59,9 @@ train:
     label_file: XFUND/zh_train/train.json
     sample_ratio: 1.0
     transform_pipeline:
-      - DecodeImage:
-          img_mode: RGB
-          to_float32: False
       - VQATokenLabelEncode:
           contains_re: True
-          algorithm: &algorithm LayoutXLM
+          algorithm: &algorithm VI-LayoutXLM
           class_path: *class_path
           order_method: tb-yx
       - VQATokenPad:
@@ -75,14 +72,6 @@ train:
           max_seq_len: *max_seq_len
       - TensorizeEntitiesRelations:
           max_relation_len: 5000
-      - LayoutResize:
-          size: [224, 224]
-      - NormalizeImage:
-          bgr_to_rgb: False
-          is_hwc: True
-          mean: imagenet
-          std: imagenet
-      - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visualize
     output_columns:
       [
@@ -90,15 +79,14 @@ train:
         "bbox",
         "attention_mask",
         "token_type_ids",
-        "image",
         "question",
         "question_label",
         "answer",
         "answer_label",
         "relation_label",
       ]
-    net_input_column_index: [0, 1, 2, 3, 4, 5, 6, 7, 8] # input indices for network forward func in output_columns
-    label_column_index: [9] # input indices marked as label
+    net_input_column_index: [0, 1, 2, 3, 4, 5, 6, 7] # input indices for network forward func in output_columns
+    label_column_index: [8] # input indices marked as label
 
   loader:
     shuffle: True
@@ -117,9 +105,6 @@ eval:
     sample_ratio: 1.0
     shuffle: False
     transform_pipeline:
-      - DecodeImage:
-          img_mode: RGB
-          to_float32: False
       - VQATokenLabelEncode:
           contains_re: True
           algorithm: *algorithm
@@ -133,14 +118,6 @@ eval:
           max_seq_len: *max_seq_len
       - TensorizeEntitiesRelations:
           max_relation_len: 5000
-      - LayoutResize:
-          size: [224, 224]
-      - NormalizeImage:
-          bgr_to_rgb: False
-          is_hwc: True
-          mean: imagenet
-          std: imagenet
-      - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visualize
     output_columns:
       [
@@ -148,15 +125,14 @@ eval:
         "bbox",
         "attention_mask",
         "token_type_ids",
-        "image",
         "question",
         "question_label",
         "answer",
         "answer_label",
         "relation_label",
       ]
-    net_input_column_index: [0, 1, 2, 3, 4, 5, 6, 7, 8] # input indices for network forward func in output_columns
-    label_column_index: [9] # input indices marked as label
+    net_input_column_index: [0, 1, 2, 3, 4, 5, 6, 7] # input indices for network forward func in output_columns
+    label_column_index: [8] # input indices marked as label
 
   loader:
     shuffle: False

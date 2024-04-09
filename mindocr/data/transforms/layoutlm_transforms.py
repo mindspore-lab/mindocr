@@ -4,6 +4,7 @@ from collections import defaultdict
 
 import cv2
 import numpy as np
+from PIL import Image
 
 from mindspore import nn
 
@@ -65,8 +66,10 @@ class VQATokenLabelEncode:
         super(VQATokenLabelEncode, self).__init__()
         tokenizer_dict = {
             "LayoutXLM": {"class": LayoutXLMTokenizer, "pretrained_model": "layoutxlm-base-uncased"},
+            "VI-LayoutXLM": {"class": LayoutXLMTokenizer, "pretrained_model": "layoutxlm-base-uncased"},
         }
         self.contains_re = contains_re
+        self.algorithm = algorithm
         tokenizer_config = tokenizer_dict[algorithm]
         self.tokenizer = tokenizer_config["class"].from_pretrained(tokenizer_config["pretrained_model"])  # to replace
         self.label2id_map, id2label_map = load_vqa_bio_label_maps(class_path)
@@ -141,8 +144,10 @@ class VQATokenLabelEncode:
         train_re = self.contains_re and not self.infer_mode
         if train_re:
             ocr_info = self.filter_empty_contents(ocr_info)
-
-        height, width, _ = data["image"].shape
+        if self.algorithm == "VI-LayoutXLM":
+            width, height = Image.open(data["img_path"]).size
+        elif self.algorithm == "LayoutXLM":
+            height, width, _ = data["image"].shape
 
         words_list = []
         bbox_list = []

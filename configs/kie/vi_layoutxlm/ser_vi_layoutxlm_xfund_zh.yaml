@@ -57,12 +57,9 @@ train:
     label_file: XFUND/zh_train/train.json
     sample_ratio: 1.0
     transform_pipeline:
-      - DecodeImage:
-          img_mode: RGB
-          to_float32: False
       - VQATokenLabelEncode:
           contains_re: False
-          algorithm: &algorithm LayoutXLM
+          algorithm: &algorithm VI-LayoutXLM
           class_path: *class_path
           order_method: tb-yx
       - VQATokenPad:
@@ -70,18 +67,10 @@ train:
           return_attention_mask: True
       - VQASerTokenChunk:
           max_seq_len: *max_seq_len
-      - LayoutResize:
-          size: [ 224, 224 ]
-      - NormalizeImage:
-          bgr_to_rgb: False
-          is_hwc: True
-          mean: imagenet
-          std: imagenet
-      - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visualize
-    output_columns: [ 'input_ids', 'bbox','attention_mask','token_type_ids', 'image', 'labels' ]
-    net_input_column_index: [ 0, 1, 2, 3, 4 ] # input indices for network forward func in output_columns
-    label_column_index: [ 2, 5 ] # input indices marked as label
+    output_columns: [ 'input_ids', 'bbox', 'attention_mask', 'token_type_ids', 'labels' ]
+    net_input_column_index: [ 0, 1, 2, 3 ] # input indices for network forward func in output_columns
+    label_column_index: [ 2, 4 ] # input indices marked as label
 
   loader:
     shuffle: True
@@ -100,9 +89,6 @@ eval:
     sample_ratio: 1.0
     shuffle: False
     transform_pipeline:
-      - DecodeImage:
-          img_mode: RGB
-          to_float32: False
       - VQATokenLabelEncode:
           contains_re: False
           algorithm: *algorithm
@@ -113,18 +99,10 @@ eval:
           return_attention_mask: True
       - VQASerTokenChunk:
           max_seq_len: *max_seq_len
-      - LayoutResize:
-          size: [ 224, 224 ]
-      - NormalizeImage:
-          bgr_to_rgb: False
-          is_hwc: True
-          mean: imagenet
-          std: imagenet
-      - ToCHWImage:
     #  the order of the dataloader list, matching the network input and the labels for evaluation
-    output_columns: [ 'input_ids', 'bbox', 'attention_mask','token_type_ids','image', 'labels' ]
-    net_input_column_index: [ 0, 1, 2, 3, 4 ] # input indices for network forward func in output_columns
-    label_column_index: [ 2, 5 ] # input indices marked as label
+    output_columns: [ 'input_ids', 'bbox', 'attention_mask', 'token_type_ids', 'labels' ]
+    net_input_column_index: [ 0, 1, 2, 3 ] # input indices for network forward func in output_columns
+    label_column_index: [ 2, 4 ] # input indices marked as label
 
   loader:
     shuffle: False
