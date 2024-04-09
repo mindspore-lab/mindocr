@@ -92,7 +92,8 @@ def transforms_dbnet_icdar15(phase="train"):
             {"DecodeImage": {"img_mode": "RGB", "to_float32": False}},
             {"DetLabelEncode": None},
             {"RandomScale": {"scale_range": [1.022, 3.0]}},
-            {"IaaAugment": {"Affine": {"rotate": [-10, 10]}, "Fliplr": {"p": 0.5}}},
+            {"RandomHorizontalFlip": {"p": 0.5}},
+            {"RandomRotate": {"degrees": [-10, 10], "expand_canvas": False, "p": 1.0}},
             {"RandomCropWithBBox": {"max_tries": 100, "min_crop_ratio": 0.1, "crop_size": (640, 640)}},
             {"ShrinkBinaryMap": {"min_text_size": 8, "shrink_ratio": 0.4}},
             {

@@ -116,7 +116,7 @@ You may adapt it to your task/dataset, for example, by running
 
 ```shell
 # train text detection model DBNet++ on icdar15 dataset
-python tools/train.py --config configs/det/dbnet/db++_r50_icdar15.yaml
+python tools/train.py --config configs/det/dbnet/dbpp_r50_icdar15.yaml
 ```
 
 ```shell
@@ -213,6 +213,13 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 
 </details>
 
+<details open markdown>
+<summary>OCR large model</summary>
+
+- [x] [Vary](configs/llm/vary/README.md) (arXiv'2023)
+
+</details>
+
 For the detailed performance of the trained models, please refer to [configs](./configs).
 
 For details of MindSpore Lite and ACL inference models support, please refer to [MindOCR Models Support List](docs/en/inference/inference_quickstart.md) and [Third-party Models Support List](docs/en/inference/inference_thirdparty_quickstart.md) (PaddleOCR, MMOCR, etc.).
@@ -284,6 +291,10 @@ Frequently asked questions about configuring environment and mindocr, please ref
 - 2023/04/01
 1. Add new trained models
     - [LayoutLMv3](configs/kie/layoutlmv3/) for key information extraction
+
+- 2024/03/20
+1. Add new trained models
+    - [Vary-toy](configs/llm/vary/vary_toy.yaml) for OCR large model, providing Qwen-1.8B LLM-based object detection and OCR abilities
 
 - 2023/12/25
 1. Add new trained models

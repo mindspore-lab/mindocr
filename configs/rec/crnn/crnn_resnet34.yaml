@@ -157,7 +157,6 @@ predict:
     type: PredictDataset
     dataset_root: path/to/dataset_root
     data_dir: predict_result/crop
-    # label_files: # not required when using LMDBDataset
     sample_ratio: 1.0
     shuffle: False
     transform_pipeline:

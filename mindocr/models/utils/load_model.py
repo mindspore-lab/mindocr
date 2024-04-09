@@ -2,11 +2,11 @@ import logging
 import os
 from typing import Callable, Dict, Optional
 
-from mindspore import load_checkpoint, load_param_into_net
+from mindspore import load_checkpoint, load_param_into_net, nn
 
 from ..backbones.mindcv_models.utils import auto_map, download_pretrained
 
-__all__ = ["load_model", "drop_inconsistent_shape_parameters"]
+__all__ = ["load_model", "drop_inconsistent_shape_parameters", "set_amp_attr"]
 _logger = logging.getLogger(__name__)
 
 
@@ -78,3 +78,9 @@ def load_model(
         f"Finish loading model checkoint from {load_from}. "
         "If no parameter fail-load warning displayed, all checkpoint params have been successfully loaded."
     )
+
+
+def set_amp_attr(network : nn.Cell, amp_level : str):
+    cells = network.name_cells()
+    for name in cells:
+        setattr(network._cells[name], "_amp_level", amp_level)

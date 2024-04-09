@@ -17,6 +17,7 @@ class ParallelPipelineManager:
     def __init__(self, args: argparse.Namespace):
         self.args = args
         self.input_queue = Queue(self.TASK_QUEUE_SIZE)
+        self.result_queue = Queue(self.TASK_QUEUE_SIZE)
         self.process = Process(target=self._build_pipeline_kernel)
         self.module_params = Manager().dict()
 
@@ -28,6 +29,13 @@ class ParallelPipelineManager:
         self.input_queue.put(StopSign(), block=True)
         self.process.join()
         self.process.close()
+
+    def fetch_result(self):
+        if not self.result_queue.empty():
+            rst_data = self.result_queue.get(block=True)
+        else:
+            rst_data = None
+        return rst_data
 
     def _build_pipeline_kernel(self):
         """
@@ -55,7 +63,7 @@ class ParallelPipelineManager:
         log.info(f"module_size: {module_size}")
         msg_queue = Queue(module_size)
 
-        manager = ModuleManager(msg_queue, self.input_queue, self.args)
+        manager = ModuleManager(msg_queue, self.input_queue, self.result_queue, self.args)
         manager.register_modules(str(os.getpid()), module_desc_list, 1)
         manager.register_module_connects(str(os.getpid()), module_connect_desc_list)
 
@@ -75,18 +83,16 @@ class ParallelPipelineManager:
         # send sign for blocking input queue
         self.input_queue.put(StopSign(), block=True)
 
-        # release the stop sign, infer start
-        manager.stop_manager.get(block=False)
+        manager.stop_manager.value = False
 
         start_time = time.time()
 
-        # waiting for inference, and pop the sign from shared queue
-        manager.stop_manager.get(block=True)
+        while not manager.stop_manager.value:
+            time.sleep(self.args.node_fetch_interval)
 
         cost_time = time.time() - start_time
 
         manager.deinit_pipeline_module()
-
         # collect the profiling data
         profiling_data = defaultdict(lambda: [0, 0])
         image_total = 0
@@ -96,7 +102,6 @@ class ParallelPipelineManager:
             profiling_data[msg_info.module_name][1] += msg_info.send_cost_time
             if msg_info.module_name != -1:
                 image_total = msg_info.image_total
-
         if image_total > 0:
             self.profiling(profiling_data, image_total)
             perf_info = (

@@ -2,7 +2,9 @@ from typing import List, Optional
 
 import numpy as np
 
-from mindspore import Tensor, nn, ops
+import mindspore.ops.functional as F
+from mindspore import Tensor, nn, ops, version
+from mindspore.common import dtype
 
 __all__ = ['RNNEncoder']
 
@@ -37,6 +39,11 @@ class RNNEncoder(nn.Cell):
                                    has_bias=True,
                                    dropout=0.,
                                    bidirectional=True)
+        self.encoder_cast_to_fp16 = False
+        if version.__version__ >= "2.3":
+            # Adapted to MindSpore r2.3, nn.LSTM has bugs when input is FP32.
+            self.seq_encoder.to_float(dtype.float16)
+            self.encoder_cast_to_fp16 = True
 
         self.hx = None
         if batch_size is not None:
@@ -49,9 +56,15 @@ class RNNEncoder(nn.Cell):
         x = ops.squeeze(x, axis=2)  # [N, C, W]
         x = ops.transpose(x, (2, 0, 1))  # [W, N, C]
 
+        if self.encoder_cast_to_fp16 and self._amp_level == "O0":
+            x = F.cast(x, dtype.float16)
+
         if self.hx is None:
             x, _ = self.seq_encoder(x)
         else:
             x, _ = self.seq_encoder(x, self.hx)
 
-        return x
+        if self.encoder_cast_to_fp16 and self._amp_level == "O0":
+            return F.cast(x, dtype.float32)
+        else:
+            return x

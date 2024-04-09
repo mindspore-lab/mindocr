@@ -108,7 +108,7 @@ MindOCR在`configs`文件夹中提供系列SoTA的OCR模型及其训练策略，
 
 ```shell
 # train text detection model DBNet++ on icdar15 dataset
-python tools/train.py --config configs/det/dbnet/db++_r50_icdar15.yaml
+python tools/train.py --config configs/det/dbnet/dbpp_r50_icdar15.yaml
 ```
 ```shell
 # train text recognition model CRNN on icdar15 dataset
@@ -206,6 +206,13 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 
 </details>
 
+<details open markdown>
+<summary>OCR大模型</summary>
+
+- [x] [Vary](configs/llm/vary/README_CN.md) (arXiv'2023)
+
+</details>
+
 
 关于以上模型的具体训练方法和结果，请参见[configs](./configs)下各模型子目录的readme文档。
 
@@ -279,6 +286,10 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 - 2023/04/01
 1. 增加新模型
     - 关键信息抽取[LayoutLMv3](configs/kie/layoutlmv3/)
+
+- 2024/03/20
+1. 增加新模型
+    - OCR大模型[Vary-toy](configs/llm/vary/vary_toy.yaml)，支持基于通义千问1.8B LLM的检测和OCR功能
 
 - 2023/12/25
 1. 增加新模型
