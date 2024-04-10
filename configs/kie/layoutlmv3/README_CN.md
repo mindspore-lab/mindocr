@@ -1,38 +1,30 @@
 [English](README.md) | 中文
 
-# LayoutXLM
+# LayoutLMv3
 <!--- Guideline: use url linked to abstract in ArXiv instead of PDF for fast loading.  -->
 
-> [LayoutXLM: Multimodal Pre-training for Multilingual Visually-rich Document Understanding](https://arxiv.org/abs/2104.08836)
+> [LayoutLMv3: Pre-training for Document AI with Unified Text and Image Masking](https://arxiv.org/abs/2204.08387)
 
 ## 1. 模型描述
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
-LayoutXLM是LayoutLMv2[<a href="#参考文献">2</a>]的多语言版本，与初版LayoutLM（图像embedding在fine-tune阶段融合）不同，LayoutXLM在预训练阶段就整合视觉信息，并利用Transformer架构学习文本和图像的跨模态交互信息。此外，受到1-D相对位置表征的启发，论文提出spatial-aware self-attention（空间感知自注意力）机制，对token pair进行2-D相对位置表征。与利用绝对2-D位置embedding建模文档布局不同的是，相对位置embedding能够清晰地为上下文空间建模提供更大的感受野。
+不同于以往的LayoutLM系列模型，在模型架构设计上，LayoutLMv3 不依赖复杂的 CNN 或 Faster R-CNN 网络来表征图像，而是直接利用文档图像的图像块，从而大大节省了参数并避免了复杂的文档预处理（如人工标注目标区域框和文档目标检测）。简单的统一架构和训练目标使 LayoutLMv3 成为通用的预训练模型，可适用于以文本为中心和以图像为中心的文档 AI 任务。
 
-如架构图（图 1）所示，LayoutXLM(LayoutLMv2)采用多模态Transformer架构作为backbone，backbone以文本、图像以及布局信息作为输入，建立深度跨模态交互。同时提出spatial-aware self-attention（空间感知自注意力）机制，使得模型能够更好地建模文档布局。
+实验结果表明，LayoutLMv3在以下数据集以更少的参数量达到了更优的性能：
+- 以文本为中心的数据集：表单理解FUNSD数据集、票据理解CORD数据集以及文档视觉问答DocVQA数据集。
+- 以图像为中心的数据集：文档图像分类RVL-CDIP数据集以及文档布局分析PubLayNet数据集。
 
-### Text Embedding
-以WordPiece对OCR文本序列进行tokenize，并将每个token标记为{[A], [B]}。然后，将[CLS]加到序列头，[SEP]加到文本段尾。额外的[PAD]token被添加到序列尾部，使得整个序列长度与最大序列长L相同。最终text embedding是三个embedding的和，其中token embedding代表token本身，1-D position embedding表示token索引，segment embedding用于区分不同文本段。
+LayoutLMv3 还应用了文本——图像多模态 Transformer 架构来学习跨模态表征。文本向量由词向量、词的一维位置向量和二维位置向量相加得到。文档图像的文本和其相应的二维位置信息（布局信息）则利用光学字符识别（OCR）工具抽取。因为文本的邻接词通常表达了相似的语义，LayoutLMv3 共享了邻接词的二维位置向量，而 LayoutLM 和 LayoutLMv2 的每个词则用了不同的二维位置向量。
 
-### Visual Embedding
-尽管所有需要的信息都在页面图像中，但模型很难通过单一的information-rich表征抓取其中的细节特征。因此，利用基于CNN的视觉encoder输出页面feature map，同时也能将页面图像转换为固定长度的序列。使用ResNeXt-FPN架构作为backbone，其参数可以通过反向传播训练。
-对于给定的页面图像I，其被resize到224×224后进入visual backbone。之后输出的feature map通过average pooling到一个固定的尺寸：宽为W、高为H。之后将其flatten为W×H长度的visual embedding序列，并通过线性投影层将维度对齐text embedding。因为基于CNN的视觉backbone不能获取位置信息，所以还需加入1-D position embedding，这些position embedding与text embedding所共享。对于segment embedding，所有的visual token都被分配到[C]。
-
-### Layout Embedding
-Layout embedding层是用于空间布局信息表征，这种表征来自OCR识别的轴对齐token bounding box，包括box的长宽和坐标。沿用LayoutLM的方法，将坐标标准化和离散化，使其取整至0到1000，并使用两个embedding层分别embed x轴和y轴的特征。给定一个标准化后的bounding box有xmin，xmax，ymin，ymax，wildth，height，layout embedding 层concat6个bounding box 特征，构建2-Dposition embedding也就是layout embedding。CNN支持局部转换，因此图像token embedding可以一一映射回原始图像，不重叠也不遗漏。因此在计算bounding box是时，visual token可以被划分到对应的网格中。而对于text embedding中的[CLS]，[SEP]以及[PAD]特殊token，会附加全零的bounding box的feature。
-
-### Multi-modal Encoder with Spatial-Aware Self-Attention Mechanism
-Encoder concat视觉embedding和文本embedding到一个统一的序列，并与layout embedding相加以混合空间信息。遵循Transformer架构，模型用一堆多头自注意力层构建了多模态encoder，而后面则是前馈网络。但是原始的自注意力方法只会抓取输入token之间的绝对位置关系。为了有效地建模文档布局中的局部不变性，有必要显示插入相对位置位置信息。因此我们提出spatial-aware self-attention（空间感知自注意力）机制，将其加入self-attention层。在原始的self-attention层得到的αij后。考虑到位置范围较大，因此建模语义相对位置和空间相对位置，作为偏置项以免加入过多的参数。用三个偏置分别代表可学习的1-D和2-D(x, y)相对位置偏置。这些偏置在每个注意力头是不同的，但在每一层是一致的。假设boudning box(xi,yi)，算出其三个偏置项与αij相加得到自注意力map，最后按照Transformer的方式求出最终的注意力得分。
- [<a href="#参考文献">1</a>] [<a href="#参考文献">2</a>]
+图像向量的表示通常依赖于 CNN 抽取特征图网格特征或 Faster R-CNN 提取区域特征，这些方式增加了计算开销或依赖于区域标注。因此，作者将图像块经过线性映射获得图像特征，这种图像表示方式最早在 ViT 中被提出，计算开销极小且不依赖于区域标注，有效解决了以上问题。具体来说，首先将图像缩放为统一的大小（例如224x224），然后将图像切分成固定大小的块（例如16x16），并通过线性映射获得图像特征序列，再加上可学习的一维位置向量后得到图像向量。[<a href="#参考文献">1</a>]
 
 <!--- Guideline: If an architecture table/figure is available in the paper, put one here and cite for intuitive illustration. -->
 
 <p align="center">
-  <img src=layoutlmv2_arch.png width=1000 />
+  <img src=layoutlmv3_arch.jpg width=1000 />
 </p>
 <p align="center">
-  <em> 图1. LayoutXLM(LayoutLMv2)架构图 [<a href="#参考文献">1</a>] </em>
+  <em> 图1. LayoutLMv3架构图 [<a href="#参考文献">1</a>] </em>
 </p>
 
 ## 2. 评估结果
@@ -54,14 +46,9 @@ Table Format:
 
 |   **模型**   | **任务** |  **环境配置**   | **训练集** | **参数量** | **单卡批量** | **图模式单卡训练 (s/epoch)** | **图模式单卡训练 (ms/step)** | **图模式单卡训练 (FPS)** | **hmean** |                      **配置文件**                      |                                          **模型权重下载**                                          |
 | :----------: | :------: | :-------------: | :--------: | :--------: | :----------: | :--------------------------: | :--------------------------: | :----------------------: | :-------: | :----------------------------------------------------: | :------------------------------------------------------------------------------------------------: |
-|  LayoutXLM   |   SER    | D910Ax1-MS2.1-G |  XFUND_zh  |  352.0 M   |      8       |             3.41             |            189.50            |          42.24           |  90.41%   | [yaml](../layoutxlm/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt)  |
-| VI-LayoutXLM |   SER    | D910Ax1-MS2.1-G |  XFUND_zh  |  265.7 M   |      8       |             3.06             |            169.7             |           47.2           |  93.31%   |         [yaml](ser_vi_layoutxlm_xfund_zh.yaml)         | [ckpt](https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/ser_vi_layoutxlm-f3c83585.ckpt) |
+|  LayoutLMv3   |   SER    | D910x1-MS2.1-G |  XFUND_zh  |  265.8 M   |      8       |             19.53            |            1094.86         |          7.37           |  91.88%   | [yaml](../layoutlmv3/ser_layoutlmv3_xfund_zh.yaml) | ckpt(TODO)  |
 
 </div>
-
-### 推理端
-
-TODO
 
 
 ## 3. 快速开始
@@ -75,7 +62,7 @@ TODO
 
 分别为：ZH(中文)、JA(日语)、ES(西班牙)、FR(法语)、IT(意大利)、DE(德语)、PT(葡萄牙)
 
-这里提供了经过预处理可以直接使用的[中文数据集](https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/XFUND.tar)供大家下载。
+这里提供了已经过预处理，可以直接用于训练的[中文数据集](https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/XFUND.tar)下载。
 
 ```bash
 mkdir train_data
@@ -164,17 +151,11 @@ model:
   type: kie
   transform: null
   backbone:
-    name: layoutxlm
-    pretrained: True
+    name: layoutlmv3
+    pretrained: False
+    checkpoints: path/to/layoutlmv3.ckpt                          # 导入ckpt位置
     num_classes: &num_classes 7
-    use_visual_backbone: False
-    use_float16: True
-  head :
-    name: TokenClassificationHead
-    num_classes: 7
-    use_visual_backbone: False
-    use_float16: True
-  pretrained:
+    mode: vi
 ...
 train:
   ckpt_save_dir: './tmp_kie_ser'                                        # 训练结果（包括checkpoint、每个epoch的性能和曲线图）保存目录
@@ -203,24 +184,13 @@ eval:
 
 ### 3.2 模型训练
 <!--- Guideline: Avoid using shell script in the command line. Python script preferred. -->
-* 转换PaddleOCR模型
-
-如果要导入PaddleOCR LayoutXLM模型，可以使用`tools/param_converter.py`脚本将pdparams文件转换为mindspore支持的ckpt格式，并导入续训。
-
-```shell
-python tools/param_converter.py \
- --input_path path/to/paddleocr.pdparams \
- --json_path mindocr/models/backbones/layoutxlm/ser_vi_layoutxlm_param_map.json \
- --output_path path/to/from_paddle.ckpt
-```
-
-* 分布式训练
+* 多卡数据并行训练
 
 使用预定义的训练配置可以轻松重现报告的结果。对于在多个昇腾910设备上的分布式训练，请将配置参数`distribute`修改为True，并运行：
 
 ```shell
 # 在多个 GPU/Ascend 设备上进行分布式训练
-mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/kie/vi_layoutxlm/ser_vi_layoutxlm_xfund_zh.yaml
+mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/kie/layoutlmv3/ser_layoutlmv3_xfund_zh.yaml
 ```
 
 
@@ -230,7 +200,7 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/kie/vi_la
 
 ```shell
 # CPU/GPU/Ascend 设备上的单卡训练
-python tools/train.py --config configs/kie/vi_layoutxlm/ser_vi_layoutxlm_xfund_zh.yaml
+python tools/train.py --config configs/kie/layoutlmv3/ser_layoutlmv3_xfund_zh.yaml
 ```
 
 训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的目录下，默认为`./tmp_kie_ser`。
@@ -240,9 +210,8 @@ python tools/train.py --config configs/kie/vi_layoutxlm/ser_vi_layoutxlm_xfund_z
 若要评估已训练模型的准确性，可以使用`eval.py`。请在yaml配置文件的`eval`部分将参数`ckpt_load_path`设置为模型checkpoint的文件路径，然后运行：
 
 ```
-python tools/eval.py --config configs/kie/vi_layoutxlm/ser_vi_layoutxlm_xfund_zh.yaml
+python tools/eval.py --config configs/kie/layoutlmv3/ser_layoutlmv3_xfund_zh.yaml
 ```
-
 
 ### 3.4 模型推理
 
@@ -270,14 +239,8 @@ python tools/infer/text/predict_ser.py --rec_algorithm CRNN_CH --image_dir {dir 
 </p>
 
 
-## 4. MindSpore Lite 推理
-
-**TODO**
-
 
 ## 参考文献
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 
-[1] Yang Xu, Yiheng Xu, Tengchao Lv, Lei Cui, Furu Wei, Guoxin Wang, Yijuan Lu, Dinei Florencio, Cha Zhang, Wanxiang Che, Min Zhang, Lidong Zhou. LayoutLMv2: Multi-modal Pre-training for Visually-Rich Document Understanding. arXiv preprint arXiv:2012.14740, 2020.
-
-[2] Yiheng Xu, Tengchao Lv, Lei Cui, Guoxin Wang, Yijuan Lu, Dinei Florencio, Cha Zhang, Furu Wei. LayoutXLM: Multimodal Pre-training for Multilingual Visually-rich Document Understanding. arXiv preprint arXiv:2104.08836, 2021.
+[1] Yupan Huang, Tengchao Lv, Lei Cui, Yutong Lu, Furu Wei. LayoutLMv3: Pre-training for Document AI with Unified Text and Image Masking. arXiv preprint arXiv:2204.08387, 2022.
