@@ -99,10 +99,6 @@ class LayoutXLMModel(nn.Cell):
         self.has_visual_segment_embedding = config.has_visual_segment_embedding
         self.embeddings = LayoutXLMEmbeddings(config)
         self.use_visual_backbone = config.use_visual_backbone
-        self.use_float16 = config.use_float16
-        self.dense_dtype = mstype.float32
-        if self.use_float16 is True:
-            self.dense_dtype = mstype.float16
 
         if self.use_visual_backbone is True:
             set_context(jit_syntax_level=0)
@@ -302,8 +298,8 @@ class LayoutXLMModel(nn.Cell):
 
 
 @register_backbone
-def layoutxlm(pretrained: bool = True, use_visual_backbone: bool = True, use_float16: bool = False, **kwargs):
-    pretrained_config = LayoutXLMPretrainedConfig(use_visual_backbone, use_float16)
+def layoutxlm(pretrained: bool = True, use_visual_backbone: bool = True, **kwargs):
+    pretrained_config = LayoutXLMPretrainedConfig(use_visual_backbone)
     model = LayoutXLMModel(pretrained_config)
     if pretrained:
         if use_visual_backbone is True:

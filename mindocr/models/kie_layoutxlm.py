@@ -44,7 +44,6 @@ def layoutxlm_ser(
     pretrained: bool = True,
     pretrained_backbone=False,
     use_visual_backbone: bool = True,
-    use_float16: bool = False,
     **kwargs
 ):
     model_config = {
@@ -53,13 +52,11 @@ def layoutxlm_ser(
             "name": "layoutxlm",
             "pretrained": pretrained_backbone,  # backbone pretrained
             "use_visual_backbone": use_visual_backbone,
-            "use_float16": use_float16,
         },
         "head": {
             "name": "TokenClassificationHead",
             "num_classes": 7,
             "use_visual_backbone": use_visual_backbone,
-            "use_float16": use_float16,
             "dropout_prod": None,
         },
     }
@@ -72,20 +69,18 @@ def layoutxlm_ser(
 
 
 @register_model
-def vi_layoutxlm_ser(pretrained: bool = True, use_visual_backbone: bool = False, use_float16: bool = False, **kwargs):
+def vi_layoutxlm_ser(pretrained: bool = True, use_visual_backbone: bool = False, **kwargs):
     model_config = {
         "type": "kie",
         "backbone": {
             "name": "layoutxlm",
             "pretrained": pretrained,  # backbone pretrained
             "use_visual_backbone": use_visual_backbone,
-            "use_float16": use_float16,
         },
         "head": {
             "name": "TokenClassificationHead",
             "num_classes": 7,
             "use_visual_backbone": use_visual_backbone,
-            "use_float16": use_float16,
             "dropout_prod": None,
         },
     }

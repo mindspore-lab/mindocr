@@ -16,11 +16,9 @@ model:
     pretrained: True
     num_classes: &num_classes 7
     use_visual_backbone: True
-    use_float16: True
   head:
     name: RelationExtractionHead
     use_visual_backbone: True
-    use_float16: True
   pretrained:
 
 postprocess:

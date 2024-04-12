@@ -157,7 +157,6 @@ model:
     name: TokenClassificationHead
     num_classes: 7
     use_visual_backbone: True
-    use_float16: True
   pretrained:
 ...
 train:

@@ -168,12 +168,10 @@ model:
     pretrained: True
     num_classes: &num_classes 7
     use_visual_backbone: False
-    use_float16: True
   head :
     name: TokenClassificationHead
     num_classes: 7
     use_visual_backbone: False
-    use_float16: True
   pretrained:
 ...
 train:
