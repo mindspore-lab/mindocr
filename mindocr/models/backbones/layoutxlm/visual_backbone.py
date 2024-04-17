@@ -130,7 +130,7 @@ class FPN(nn.Cell):
                 top_block_in_feature = bottom_up_features[self.top_block.in_feature]
             else:
                 top_block_in_feature = results[self._out_features.index(self.top_block.in_feature)]
-            results.extend(self.top_block(top_block_in_feature.astype(ms.float16)))
+            results.extend(self.top_block(top_block_in_feature))
 
         assert len(self._out_features) == len(results)
 
