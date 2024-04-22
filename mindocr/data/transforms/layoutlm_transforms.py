@@ -7,6 +7,7 @@ import numpy as np
 
 from mindspore import nn
 
+from mindocr.models.backbones.layoutlmv3 import LayoutLMv3Tokenizer
 from mindocr.models.backbones.layoutxlm import LayoutXLMTokenizer
 from mindocr.utils.kie_utils import load_vqa_bio_label_maps
 
@@ -65,6 +66,7 @@ class VQATokenLabelEncode:
         super(VQATokenLabelEncode, self).__init__()
         tokenizer_dict = {
             "LayoutXLM": {"class": LayoutXLMTokenizer, "pretrained_model": "layoutxlm-base-uncased"},
+            "LayoutLMv3": {"class": LayoutLMv3Tokenizer, "pretrained_model": "layoutxlm-base-uncased"},
         }
         self.contains_re = contains_re
         tokenizer_config = tokenizer_dict[algorithm]

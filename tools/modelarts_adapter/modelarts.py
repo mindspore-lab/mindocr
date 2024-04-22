@@ -67,7 +67,7 @@ def run_with_single_rank(local_rank: int = 0, signal: str = "/tmp/SUCCESS") -> C
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
-            if local_rank in [0, None]:
+            if local_rank is None or local_rank % 8 == 0:
                 result = func(*args, **kwargs)
                 with open(signal, "w") as f:
                     f.write("\n")

@@ -8,6 +8,11 @@
  - [模型转换相关问题](#q7-模型转换相关问题)
  - [推理相关问题](#q8-推理时相关问题)
  - [DBNet训练速率不及预期](#q9-DBNet训练速率不及预期)
+ - [`libgomp-d22c30c5.so.1.0.0`相关错误](#q10-libgomp-d22c30c5so100相关错误)
+ - [当在lmdb dataset上训练abinet报数据管道错误](#q11-当在lmdb-dataset上训练abinet报数据管道错误)
+ - [当在synthtext数据集上训练dbnet报运行时错误](#q12-当在synthtext数据集上训练dbnet报运行时错误)
+ - [安装seqeval相关错误](#q13-安装seqeval相关错误)
+ - [安装lanms相关错误](#q14-安装lanms相关错误)
 
 ### Q1 未定义符号
 
@@ -620,7 +625,6 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
   - 使用恰当的模型。例如在 `--rec_model_path` 错误传入了检测模型，可触发此错误；
   - 使用推理模型（非训练模型），用`converter_lite`转换工具转为端侧`mindir`进行推理。
 
-
 ### Q9 DBNet训练速率不及预期
 
 执行以下命令，训练DBNet系列网络（包括DBNet MobileNetV3、DBNet ResNet-18、DBNet ResNet-50、DBNet++ ResNet-50等）时，训练帧率不及预期。例如，DBNet MobileNetV3在Ascend 910A上，训练速率仅80fps，不及预期的100fps。
@@ -635,42 +639,217 @@ python tools/train.py -c configs/det/dbnet/db_mobilenetv3_icdar15.yaml
 
 1. 尝试将配置文件中`train.dataset.use_minddata`和`eval.dataset.use_minddata`的选项设置为`True`。MindOCR将采用MindSpore[MindData](https://www.mindspore.cn/docs/zh-CN/master/api_python/dataset/dataset_method/operation/mindspore.dataset.Dataset.map.html?highlight=map#mindspore.dataset.Dataset.map)执行部分数据预处理步骤：
 
-``` yaml
-...
-train:
-  ckpt_save_dir: './tmp_det'
-  dataset_sink_mode: True
-  dataset:
-    type: DetDataset
-    dataset_root: /data/ocr_datasets
-    data_dir: ic15/det/train/ch4_training_images
-    label_file: ic15/det/train/det_gt.txt
-    sample_ratio: 1.0
-    use_minddata: True                          <-- 设置该选项
-...
-eval:
-  ckpt_load_path: tmp_det/best.ckpt
-  dataset_sink_mode: False
-  dataset:
-    type: DetDataset
-    dataset_root: /data/ocr_datasets
-    data_dir: ic15/det/test/ch4_test_images
-    label_file: ic15/det/test/det_gt.txt
-    sample_ratio: 1.0
-    use_minddata: True                          <-- 设置该选项
-...
-```
+    ```yaml
+    ...
+    train:
+      ckpt_save_dir: './tmp_det'
+      dataset_sink_mode: True
+      dataset:
+        type: DetDataset
+        dataset_root: /data/ocr_datasets
+        data_dir: ic15/det/train/ch4_training_images
+        label_file: ic15/det/train/det_gt.txt
+        sample_ratio: 1.0
+        use_minddata: True                          <-- 设置该选项
+    ...
+    eval:
+      ckpt_load_path: tmp_det/best.ckpt
+      dataset_sink_mode: False
+      dataset:
+        type: DetDataset
+        dataset_root: /data/ocr_datasets
+        data_dir: ic15/det/test/ch4_test_images
+        label_file: ic15/det/test/det_gt.txt
+        sample_ratio: 1.0
+        use_minddata: True                          <-- 设置该选项
+    ...
+    ```
 
 2. 如训练服务器CPU核数较多，尝试调高配置文件中的`train.loader.num_workers`选项，提升数据预取的线程数：
 
-``` yaml
-...
-train:
-  ...
-  loader:
-    shuffle: True
-    batch_size: 10
-    drop_remainder: True
-    num_workers: 12                             <-- 设置该选项
-...
+    ``` yaml
+    ...
+    train:
+      ...
+      loader:
+        shuffle: True
+        batch_size: 10
+        drop_remainder: True
+        num_workers: 12                             <-- 设置该选项
+    ...
+    ```
+
+### Q10 `libgomp-d22c30c5.so.1.0.0`相关错误
+运行mindocr时，可能报以下错误
+```bash
+ImportError: /root/mindocr_env/lib/python3.8/site-packages/sklearn/__check_build/../../scikit_learn.libs/libgomp-d22c30c5.so.1.0.0: cannot allocate memory in static TLS block
 ```
+可以尝试以下步骤
+ - 在python安装路径下查找`libgomp-d22c30c5.so.1.0.0`:
+   ```bash
+   cd /root/mindocr_env/lib/python3.8
+   find ~ -name libgomp-d22c30c5.so.1.0.0
+   ```
+   将查找到以下结果
+   ```bash
+   /root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0
+   ```
+ - 将so文件路径加入到环境变量`LD_PRELOAD`
+   ```bash
+   export LD_PRELOAD=/root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
+   ```
+
+### Q11 当在lmdb dataset上训练abinet报数据管道错误
+当在lmdb dataset上训练abinet报以下数据管道错误
+```bash
+mindocr.data.rec_lmdb_dataset WARNING - Error occurred during preprocess.
+ Exception thrown from dataset pipeline. Refer to 'Dataset Pipeline Error Message'.
+
+------------------------------------------------------------------
+- Dataset Pipeline Error Message:
+------------------------------------------------------------------
+[ERROR] No cast for the specified DataType was found.
+
+------------------------------------------------------------------
+- C++ Call Stack: (For framework developers)
+------------------------------------------------------------------
+mindspore/ccsrc/minddata/dataset/kernels/py_func_op.cc(143).
+```
+可以尝试用如下步骤修复
+ - 找到mindspore的包路径
+ - 打开文件: `mindspore/dataset/transforms/transform.py`
+ - 跳转到93行，可以得到如下内容:
+  ```bash
+  93        if key in EXECUTORS_LIST:
+  94           # get the executor by process id and thread id
+  95            executor = EXECUTORS_LIST[key]
+  96            # remove the old transform which in executor and update the new transform
+  97            executor.UpdateOperation(self.parse())
+  98        else:
+  99            # create a new executor by process id and thread_id
+  100           executor = cde.Execute(self.parse())
+  101           # add the executor the global EXECUTORS_LIST
+  102           EXECUTORS_LIST[key] = executor
+  ```
+ - 使用`executor = cde.Execute(self.parse())`替换97行, 得到如下内容:
+  ```bash
+  93        if key in EXECUTORS_LIST:
+  94            # get the executor by process id and thread id
+  95            executor = EXECUTORS_LIST[key]
+  96            # remove the old transform which in executor and update the new transform
+  97            executor = cde.Execute(self.parse())
+  98        else:
+  99            # create a new executor by process id and thread_id
+  100           executor = cde.Execute(self.parse())
+  101           # add the executor the global EXECUTORS_LIST
+  102           EXECUTORS_LIST[key] = executor
+  ```
+  - 保存后再次尝试训练即可
+
+### Q12 当在synthtext数据集上训练dbnet报运行时错误
+当在synthtext数据集上训练dbnet报以下数据管道错误
+```bash
+Traceback (most recent call last):
+  ...
+  File "/root/archiconda3/envs/Python380/lib/python3.8/site-packages/mindspore/common/api.py", line 1608, in _exec_pip
+    return self.graph_executor(args, phase)
+RuntimeError: Run task for graph:kernel_graph_1 error! The details reger to 'Ascend Error Message'
+```
+
+请尝试将CANN更新到7.1。
+
+
+### Q13 安装seqeval相关错误
+当运行`pip install -r requirements.txt`时，报以下错误
+```bash
+Collecting seqeval>=1.2.2 (from -r requirements.txt (line 19))
+  Downloading http://mirrors.aliyun.com/pypi/packages/9d/2d/233c79d5b4e5ab1dbf111242299153f3caddddbb691219f363ad55ce783d/seqeval-1.2.2.tar.gz (43 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.6/43.6 kB 181.0 kB/s eta 0:00:00
+  Preparing metadata (setup.py) ... error
+  error: subprocess-exited-with-error
+
+  × python setup.py egg_info did not run successfully.
+  │ exit code: 1
+  ╰─> [48 lines of output]
+      /home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/__init__.py:80: _DeprecatedInstaller: setuptools.installer and fetch_build_eggs are deprecated.
+      !!
+
+              ********************************************************************************
+              Requirements should be satisfied by a PEP 517 installer.
+              If you are using pip, you can try `pip install --use-pep517`.
+              ********************************************************************************
+
+      !!
+        dist.fetch_build_eggs(dist.setup_requires)
+      WARNING: The repository located at mirrors.aliyun.com is not a trusted or secure host and is being ignored. If this repository is available via HTTPS we recommend you use HTTPS instead, otherwise you may silence this warning and allow it anyway with '--trusted-host mirrors.aliyun.com'.
+      ERROR: Could not find a version that satisfies the requirement setuptools_scm (from versions: none)
+      ERROR: No matching distribution found for setuptools_scm
+      Traceback (most recent call last):
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/installer.py", line 101, in _fetch_build_egg_no_warn
+          subprocess.check_call(cmd)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/subprocess.py", line 373, in check_call
+          raise CalledProcessError(retcode, cmd)
+      subprocess.CalledProcessError: Command '['/home/ma-user/anaconda3/envs/MindSpore/bin/python3.9', '-m', 'pip', '--disable-pip-version-check', 'wheel', '--no-deps', '-w', '/tmp/tmpusgt0k69', '--quiet', 'setuptools_scm']' returned non-zero exit status 1.
+
+      The above exception was the direct cause of the following exception:
+
+      Traceback (most recent call last):
+        File "<string>", line 2, in <module>
+        File "<pip-setuptools-caller>", line 34, in <module>
+        File "/tmp/pip-install-m2kqztlz/seqeval_da00f708dc0e483b92cd18083513d5e7/setup.py", line 27, in <module>
+          setup(
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/__init__.py", line 102, in setup
+          _install_setup_requires(attrs)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/__init__.py", line 75, in _install_setup_requires
+          _fetch_build_eggs(dist)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/__init__.py", line 80, in _fetch_build_eggs
+          dist.fetch_build_eggs(dist.setup_requires)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/dist.py", line 636, in fetch_build_eggs
+          return _fetch_build_eggs(self, requires)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/installer.py", line 38, in _fetch_build_eggs
+          resolved_dists = pkg_resources.working_set.resolve(
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/pkg_resources/__init__.py", line 829, in resolve
+          dist = self._resolve_dist(
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/pkg_resources/__init__.py", line 865, in _resolve_dist
+          dist = best[req.key] = env.best_match(
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/pkg_resources/__init__.py", line 1135, in best_match
+          return self.obtain(req, installer)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/pkg_resources/__init__.py", line 1147, in obtain
+          return installer(requirement)
+        File "/home/ma-user/anaconda3/envs/MindSpore/lib/python3.9/site-packages/setuptools/installer.py", line 103, in _fetch_build_egg_no_warn
+          raise DistutilsError(str(e)) from e
+      distutils.errors.DistutilsError: Command '['/home/ma-user/anaconda3/envs/MindSpore/bin/python3.9', '-m', 'pip', '--disable-pip-version-check', 'wheel', '--no-deps', '-w', '/tmp/tmpusgt0k69', '--quiet', 'setuptools_scm']' returned non-zero exit status 1.
+      [end of output]
+
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+error: metadata-generation-failed
+
+× Encountered error while generating package metadata.
+╰─> See above for output.
+
+note: This is an issue with the package mentioned above, not pip.
+
+```
+尝试以下步骤修复：
+ - 更新`setuptools`: `pip3 install --upgrade setuptools`
+ - 更新`setuptools_scm`: `pip3 install --upgrade setuptools_scm`
+ - 安装`seqeval`：`pip3 install seqeval -i https://pypi.tuna.tsinghua.edu.cn/simple`
+
+
+### Q14 安装lanms相关错误
+当安装lanms时，报
+```bash
+ImportError: Python version mismatch: module was compiled for version 3.8, while the interpreter is running version 3.7.
+```
+该问题可能是当前存在多个python3环境导致，你可使用以下步骤解决该问题
+ - 执行`pip3 install lanms -i https://pypi.tuna.tsinghua.edu.cn/simple`，得到`lanms-1.0.2.tar.gz`的下载链接（如https://pypi.tuna.tsinghua.edu.cn/packages/96/c0/50dc2c857ed060e907adaef31184413a7706e475c322236d346382e45195/lanms-1.0.2.tar.gz）
+ - 使用该下载链接，下载`lanms-1.0.2.tar.gz`，执行`tar -zxvf lanms-1.0.2.tar.gz`以解压该包
+ - `cd lanms-1.0.2`
+ - 编辑`Makefile`，在第1，2行中，用`python3.7-config`替代`python3-config`，得到如下修改
+   ```bash
+   CXXFLAGS = -I include  -std=c++11 -O3 $(shell python3.7-config --cflags)
+   LDFLAGS = $(shell python3.7-config --ldflags)
+   ...
+   ```
+   保存该`Makefile`, 执行过程将匹配到python 3.7环境
+ - 执行`python setup.py install`以安装`lanms`

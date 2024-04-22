@@ -70,6 +70,70 @@ pip install -e .
 ```
 > Using `-e` for "editable" mode can help resolve potential module import issues.
 
+#### Install from docker
+The environment information of dockers provided is as following:
+ - OS：Euler2.8
+ - CANN：7.0
+ - Python：3.9
+ - MindSpore：2.2.10
+ - MindSpore Lite：2.2.10
+
+Please follow the steps to install docker：
+
+1. Download docker
+    - 910：
+        ```bash
+        docker pull swr.cn-central-221.ovaijisuan.com/mindocr/mindocr_dev_910_ms_2_2_10_cann7_0_py39:v1
+        ```
+    - 910*:
+        ```bash
+        docker pull swr.cn-central-221.ovaijisuan.com/mindocr/mindocr_dev_ms_2_2_10_cann7_0_py39:v1
+        ```
+2. Create container
+    ```bash
+    docker_name="temp_mindocr"
+    # 910
+    image_name="swr.cn-central-221.ovaijisuan.com/mindocr/mindocr_dev_910_ms_2_2_10_cann7_0_py39:v1"
+    # 910*
+    image_name="swr.cn-central-221.ovaijisuan.com/mindocr/mindocr_dev_ms_2_2_10_cann7_0_py39:v1"
+
+    docker run --privileged --name ${docker_name} \
+        --tmpfs /tmp \
+        --tmpfs /run \
+        -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
+        --device=/dev/davinci1 \
+        --device=/dev/davinci2 \
+        --device=/dev/davinci3 \
+        --device=/dev/davinci4 \
+        --device=/dev/davinci5 \
+        --device=/dev/davinci6 \
+        --device=/dev/davinci7 \
+        --device=/dev/davinci_manager \
+        --device=/dev/hisi_hdc \
+        --device=/dev/devmm_svm \
+        -v /etc/localtime:/etc/localtime \
+        -v /usr/local/Ascend/driver:/usr/local/Ascend/driver \
+        -v /usr/local/bin/npu-smi:/usr/local/bin/npu-smi \
+        --shm-size 800g \
+        --cpus 96 \
+        --security-opt seccomp=unconfined \
+        --network=bridge -itd ${image_name} bash
+    ```
+
+3. Enter container
+    ```bash
+    # set docker id
+    container_id="your docker id"
+    docker exec -it --user root $container_id bash
+    ```
+
+4. Set environment variables
+    After entering container, set environment variables by the following command：
+    ```bash
+    source env_setup.sh
+    ```
+
+
 #### Install from PyPI
 ```shell
 pip install mindocr
@@ -116,7 +180,7 @@ You may adapt it to your task/dataset, for example, by running
 
 ```shell
 # train text detection model DBNet++ on icdar15 dataset
-python tools/train.py --config configs/det/dbnet/db++_r50_icdar15.yaml
+python tools/train.py --config configs/det/dbnet/dbpp_r50_icdar15.yaml
 ```
 
 ```shell
@@ -201,7 +265,8 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 <details open markdown>
 <summary>Key Information Extraction</summary>
 
-- [x] [LayoutXLM SER](configs/kie/vi_layoutxlm/README_CN.md) (arXiv'2016)
+- [x] [LayoutXLM](configs/kie/vi_layoutxlm/README_CN.md) (arXiv'2021)
+- [x] [LayoutLMv3](configs/kie/layoutlmv3/README.md) (arXiv'2022)
 
 </details>
 
@@ -209,6 +274,13 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 <summary>Table Recognition</summary>
 
 - [x] [TableMaster](configs/table/README.md) (arXiv'2021)
+
+</details>
+
+<details open markdown>
+<summary>OCR large model</summary>
+
+- [x] [Vary](configs/llm/vary/README.md) (arXiv'2023)
 
 </details>
 
@@ -280,6 +352,14 @@ Frequently asked questions about configuring environment and mindocr, please ref
 <details close markdown>
 <summary>News</summary>
 
+- 2023/04/01
+1. Add new trained models
+    - [LayoutLMv3](configs/kie/layoutlmv3/) for key information extraction
+
+- 2024/03/20
+1. Add new trained models
+    - [Vary-toy](configs/llm/vary/vary_toy.yaml) for OCR large model, providing Qwen-1.8B LLM-based object detection and OCR abilities
+
 - 2023/12/25
 1. Add new trained models
     - [TableMaster](configs/table/table_master.yaml) for table recognition
@@ -288,8 +368,8 @@ Frequently asked questions about configuring environment and mindocr, please ref
 
 - 2023/12/14
 1. Add new trained models
-    - [LayoutXLM SER](configs/kie/vi_layoutxlm) for key information extraction
-    - [VI-LayoutXLM SER](configs/kie/layoutlm_series) for key information extraction
+    - [LayoutXLM](configs/kie/layoutxlm) for key information extraction
+    - [VI-LayoutXLM](configs/kie/vi_layoutxlm) for key information extraction
     - [PP-OCRv3 DBNet](configs/det/dbnet/db_mobilenetv3_ppocrv3.yaml) for text detection and [PP-OCRv3 SVTR](configs/rec/svtr/svtr_ppocrv3_ch.yaml) for recognition, supporting online inferece and finetuning
 2. Add more benchmark datasets and their results
     - [XFUND](configs/kie/vi_layoutxlm/README_CN.md)

@@ -10,7 +10,7 @@ from mindocr import build_postprocess
 
 
 class Postprocessor(object):
-    def __init__(self, task="det", algo="DB", **kwargs):
+    def __init__(self, task="det", algo="DB", rec_char_dict_path=None, **kwargs):
         # algo = algo.lower()
         if task == "det":
             if algo.startswith("DB"):
@@ -46,27 +46,33 @@ class Postprocessor(object):
             self.rescale_internally = True
             self.round = True
         elif task == "rec":
+            rec_char_dict_path = (
+                rec_char_dict_path or "mindocr/utils/dict/ch_dict.txt"
+                if algo in ["CRNN_CH", "SVTR_PPOCRv3_CH"]
+                else rec_char_dict_path
+            )
             # TODO: update character_dict_path and use_space_char after CRNN trained using en_dict.txt released
             if algo.startswith("CRNN") or algo.startswith("SVTR"):
                 # TODO: allow users to input char dict path
-                dict_path = "mindocr/utils/dict/ch_dict.txt" if algo in ["CRNN_CH", "SVTR_PPOCRv3_CH"] else None
                 if algo == "SVTR_PPOCRv3_CH":
                     postproc_cfg = dict(
                         name="CTCLabelDecode",
-                        character_dict_path=dict_path,
+                        character_dict_path=rec_char_dict_path,
                         use_space_char=True,
                     )
                 else:
                     postproc_cfg = dict(
                         name="RecCTCLabelDecode",
-                        character_dict_path=dict_path,
+                        character_dict_path=rec_char_dict_path,
                         use_space_char=False,
                     )
             elif algo.startswith("RARE"):
-                dict_path = "mindocr/utils/dict/ch_dict.txt" if algo == "RARE_CH" else None
+                rec_char_dict_path = (
+                    rec_char_dict_path or "mindocr/utils/dict/ch_dict.txt" if algo == "RARE_CH" else rec_char_dict_path
+                )
                 postproc_cfg = dict(
                     name="RecAttnLabelDecode",
-                    character_dict_path=dict_path,
+                    character_dict_path=rec_char_dict_path,
                     use_space_char=False,
                 )
 
