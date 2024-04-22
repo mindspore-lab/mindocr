@@ -743,4 +743,5 @@ Traceback (most recent call last):
     return self.graph_executor(args, phase)
 RuntimeError: Run task for graph:kernel_graph_1 error! The details reger to 'Ascend Error Message'
 ```
+
 Please update CANN to 7.1 version.
