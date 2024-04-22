@@ -3,7 +3,7 @@ postprocess:
   binary_thresh: 0.3
   box_thresh: 0.6
   max_candidates: 1000
-  expand_ratio: 1.5
+  expand_ratio: 1.6
   if_merge_longedge_bbox: True
   merge_inter_area_thres: 300
   merge_ratio: 1.3

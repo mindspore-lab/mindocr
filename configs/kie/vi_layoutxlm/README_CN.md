@@ -48,42 +48,16 @@ Table Format:
 
 ### 训练端
 
-根据我们的实验，训练（[模型训练](#32-模型训练)）性能和精度评估（[模型评估](#33-模型评估)）结果如下：
+根据我们的实验，在XFUND中文数据集上训练（[模型训练](#32-模型训练)）性能和精度评估（[模型评估](#33-模型评估)）结果如下：
 
 <div align="center">
 
 |   **模型**   | **任务** |  **环境配置**   | **训练集** | **参数量** | **单卡批量** | **图模式单卡训练 (s/epoch)** | **图模式单卡训练 (ms/step)** | **图模式单卡训练 (FPS)** | **hmean** |                      **配置文件**                      |                                          **模型权重下载**                                          |
 | :----------: | :------: | :-------------: | :--------: | :--------: | :----------: | :--------------------------: | :--------------------------: | :----------------------: | :-------: | :----------------------------------------------------: | :------------------------------------------------------------------------------------------------: |
-|  LayoutXLM   |   SER    | D910Ax1-MS2.1-G |  XFUND_zh  |  352.0 M   |      8       |             3.41             |            189.50            |          42.24           |  90.41%   | [yaml](../layoutlm_series/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt)  |
+|  LayoutXLM   |   SER    | D910Ax1-MS2.1-G |  XFUND_zh  |  352.0 M   |      8       |             3.41             |            189.50            |          42.24           |  90.41%   | [yaml](../layoutxlm/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt)  |
 | VI-LayoutXLM |   SER    | D910Ax1-MS2.1-G |  XFUND_zh  |  265.7 M   |      8       |             3.06             |            169.7             |           47.2           |  93.31%   |         [yaml](ser_vi_layoutxlm_xfund_zh.yaml)         | [ckpt](https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/ser_vi_layoutxlm-f3c83585.ckpt) |
 
 </div>
-
-### 3.4 模型推理
-
-若要使用已训练的模型进行推理，可使用`tools/infer/text/predict_ser.py`进行推理并将结果进行可视化展示。
-
-```
-python tools/infer/text/predict_ser.py --rec_algorithm CRNN_CH --image_dir {dir of images or path of image}
-```
-
-以中文表单的实体识别为例，使用脚本识别`configs/kie/vi_layoutxlm/example.jpg`表单中的实体，结果将默认存放在`./inference_results`文件夹内，也可以通过`--draw_img_save_dir`命令行参数自定义结果存储路径。
-
-<p align="center">
-  <img src="example.jpg" width=1000 />
-</p>
-<p align="center">
-  <em> example.jpg </em>
-</p>
-识别结果如图，图片保存为`inference_results/example_ser.jpg`：
-
-<p align="center">
-  <img src="example_ser.jpg" width=1000 />
-</p>
-<p align="center">
-  <em> example_ser.jpg </em>
-</p>
-
 
 ### 推理端
 
@@ -190,11 +164,17 @@ model:
   type: kie
   transform: null
   backbone:
-    name: layoutxlm_for_ser
-    pretrained: False
-    checkpoints: path/to/ser_vi_layoutxlm.ckpt                          # 导入ckpt位置
+    name: layoutxlm
+    pretrained: True
     num_classes: &num_classes 7
-    mode: vi
+    use_visual_backbone: False
+    use_float16: True
+  head :
+    name: TokenClassificationHead
+    num_classes: 7
+    use_visual_backbone: False
+    use_float16: True
+  pretrained:
 ...
 train:
   ckpt_save_dir: './tmp_kie_ser'                                        # 训练结果（包括checkpoint、每个epoch的性能和曲线图）保存目录
@@ -262,6 +242,32 @@ python tools/train.py --config configs/kie/vi_layoutxlm/ser_vi_layoutxlm_xfund_z
 ```
 python tools/eval.py --config configs/kie/vi_layoutxlm/ser_vi_layoutxlm_xfund_zh.yaml
 ```
+
+
+### 3.4 模型推理
+
+若要使用已训练的模型进行推理，可使用`tools/infer/text/predict_ser.py`进行推理并将结果进行可视化展示。
+
+```
+python tools/infer/text/predict_ser.py --rec_algorithm CRNN_CH --image_dir {dir of images or path of image}
+```
+
+以中文表单的实体识别为例，使用脚本识别`configs/kie/vi_layoutxlm/example.jpg`表单中的实体，结果将默认存放在`./inference_results`文件夹内，也可以通过`--draw_img_save_dir`命令行参数自定义结果存储路径。
+
+<p align="center">
+  <img src="example.jpg" width=1000 />
+</p>
+<p align="center">
+  <em> example.jpg </em>
+</p>
+识别结果如图，图片保存为`inference_results/example_ser.jpg`：
+
+<p align="center">
+  <img src="example_ser.jpg" width=1000 />
+</p>
+<p align="center">
+  <em> example_ser.jpg </em>
+</p>
 
 
 ## 4. MindSpore Lite 推理

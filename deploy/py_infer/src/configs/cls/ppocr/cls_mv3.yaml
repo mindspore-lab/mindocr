@@ -10,7 +10,7 @@ eval:
           channel_first: False
       - RecResizeNormForInfer:
           target_height: 48
-          target_width: 320
+          target_width: 192  # 320 for ppocrv3
           keep_ratio: True
           padding: True
           norm_before_pad: True

@@ -10,7 +10,8 @@ from mindspore import Tensor
 
 
 def grid_sample(input: Tensor, grid: Tensor, canvas: Optional[Tensor] = None) -> Tensor:
-    output = ops.grid_sample(input, grid)
+    out_type = input.dtype
+    output = ops.grid_sample(input.astype(ms.float64), grid.astype(ms.float64)).astype(out_type)
     if canvas is None:
         return output
     else:
