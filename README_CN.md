@@ -65,6 +65,69 @@ pip install -e .
 ```
 > 使用 `-e` 代表可编辑模式，可以帮助解决潜在的模块导入问题。
 
+#### 通过docker安装
+目前提供的docker，环境信息如下
+ - 操作系统版本：Euler2.8
+ - CANN版本：7.0
+ - Python版本：3.9
+ - MindSpore 版本：2.2.10
+ - MindSpore Lite 版本：2.2.10
+
+使用docker安装，根据以下步骤：
+
+1. 下载docker
+    - 910：
+        ```bash
+        docker pull swr.cn-central-221.ovaijisuan.com/mindocr/mindocr_dev_910_ms_2_2_10_cann7_0_py39:v1
+        ```
+    - 910*:
+        ```bash
+        docker pull swr.cn-central-221.ovaijisuan.com/mindocr/mindocr_dev_ms_2_2_10_cann7_0_py39:v1
+        ```
+2. 新建容器
+    ```bash
+    docker_name="temp_mindocr"
+    # 910
+    image_name="swr.cn-central-221.ovaijisuan.com/mindocr/mindocr_dev_910_ms_2_2_10_cann7_0_py39:v1"
+    # 910*
+    image_name="swr.cn-central-221.ovaijisuan.com/mindocr/mindocr_dev_ms_2_2_10_cann7_0_py39:v1"
+
+    docker run --privileged --name ${docker_name} \
+        --tmpfs /tmp \
+        --tmpfs /run \
+        -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
+        --device=/dev/davinci1 \
+        --device=/dev/davinci2 \
+        --device=/dev/davinci3 \
+        --device=/dev/davinci4 \
+        --device=/dev/davinci5 \
+        --device=/dev/davinci6 \
+        --device=/dev/davinci7 \
+        --device=/dev/davinci_manager \
+        --device=/dev/hisi_hdc \
+        --device=/dev/devmm_svm \
+        -v /etc/localtime:/etc/localtime \
+        -v /usr/local/Ascend/driver:/usr/local/Ascend/driver \
+        -v /usr/local/bin/npu-smi:/usr/local/bin/npu-smi \
+        --shm-size 800g \
+        --cpus 96 \
+        --security-opt seccomp=unconfined \
+        --network=bridge -itd ${image_name} bash
+    ```
+
+3. 进入容器
+    ```bash
+    # 设置docker id
+    container_id="your docker id"
+    docker exec -it --user root $container_id bash
+    ```
+
+4. 设置环境变量
+    进入容器后，设置环境变量：
+    ```bash
+    source env_setup.sh
+    ```
+
 #### 通过PyPI安装
 ```shell
 pip install mindocr
