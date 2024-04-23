@@ -1,4 +1,5 @@
 import itertools
+import os
 from typing import Optional, Tuple
 
 import numpy as np
@@ -7,6 +8,8 @@ import mindspore as ms
 import mindspore.nn as nn
 import mindspore.ops as ops
 from mindspore import Tensor
+
+OFFLINE_MODE = os.getenv("OFFLINE_MODE", None)
 
 
 def grid_sample(input: Tensor, grid: Tensor, canvas: Optional[Tensor] = None) -> Tensor:
@@ -112,6 +115,9 @@ class TPSSpatialTransformer(nn.Cell):
         self.target_coordinate_repr = Tensor(target_coordinate_repr, dtype=ms.float32)
         self.target_control_points = Tensor(target_control_points, dtype=ms.float32)
 
+        if OFFLINE_MODE is not None:
+            self.matmul = ops.BatchMatMul()
+
     def construct(
         self, input: Tensor, source_control_points: Tensor
     ) -> Tuple[Tensor, Tensor]:
@@ -119,8 +125,12 @@ class TPSSpatialTransformer(nn.Cell):
 
         padding_matrix = ops.tile(self.padding_matrix, (batch_size, 1, 1))
         Y = ops.concat([source_control_points, padding_matrix], axis=1)
-        mapping_matrix = ops.matmul(self.inverse_kernel, Y)
-        source_coordinate = ops.matmul(self.target_coordinate_repr, mapping_matrix)
+        if OFFLINE_MODE is None:
+            mapping_matrix = ops.matmul(self.inverse_kernel, Y)
+            source_coordinate = ops.matmul(self.target_coordinate_repr, mapping_matrix)
+        else:
+            mapping_matrix = self.matmul(self.inverse_kernel[None, ...], Y)
+            source_coordinate = self.matmul(self.target_coordinate_repr[None, ...], mapping_matrix)
         grid = ops.reshape(
             source_coordinate,
             (-1, self.target_height, self.target_width, 2),

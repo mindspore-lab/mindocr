@@ -1,4 +1,5 @@
 import logging
+import os
 from math import pi
 from typing import Tuple, Union
 
@@ -9,6 +10,8 @@ from mindspore import Tensor, nn, ops
 
 __all__ = ["DBLoss", "PSEDiceLoss", "EASTLoss", "FCELoss"]
 _logger = logging.getLogger(__name__)
+
+OFFLINE_MODE = os.getenv("OFFLINE_MODE", None)
 
 
 class DBLoss(nn.LossBase):
@@ -165,7 +168,13 @@ class BalancedBCELoss(nn.LossBase):
         neg_loss = (loss * negative).view(loss.shape[0], -1)
 
         neg_vals, _ = ops.sort(neg_loss)
-        neg_index = ops.stack((mnp.arange(loss.shape[0]), neg_vals.shape[1] - neg_count), axis=1)
+
+        if OFFLINE_MODE is None:
+            neg_index = ops.stack((mnp.arange(loss.shape[0]), neg_vals.shape[1] - neg_count), axis=1)
+        else:
+            neg_index = ops.stack(
+                (ops.arange(loss.shape[0], dtype=neg_count.dtype), neg_vals.shape[1] - neg_count), axis=1
+            )
         min_neg_score = ops.expand_dims(ops.gather_nd(neg_vals, neg_index), axis=1)
 
         neg_loss_mask = (neg_loss >= min_neg_score).astype(ms.float32)  # filter values less than top k
