@@ -28,12 +28,13 @@ class ModuleBase(object):
         self.send_cost = Manager().Value(typecode=c_longdouble, value=0)
         self.process_cost = Manager().Value(typecode=c_longdouble, value=0)
         self.display_id = tqdm_info["i"]
-        self.bar = tqdm.tqdm(total=tqdm_info["queue_len"],
-                             desc=f"{self.display_id}. {self.module_name}",
-                             position=self.display_id,
-                             leave=False,
-                             bar_format="{l_bar}{bar}|{n_fmt}/{total_fmt}",
-                             ncols=100)
+        if self.args.visual_pipeline:
+            self.bar = tqdm.tqdm(total=tqdm_info["queue_len"],
+                                desc=f"{self.display_id}. {self.module_name}",
+                                position=self.display_id,
+                                leave=False,
+                                bar_format="{l_bar}{bar}|{n_fmt}/{total_fmt}",
+                                ncols=150)
 
     def assign_init_args(self, init_args: ModuleInitArgs):
         self.pipeline_name = init_args.pipeline_name
@@ -73,16 +74,19 @@ class ModuleBase(object):
             
             process_num += 1
             data = self.input_queue.get(block=True)
-            qsize = self.input_queue.qsize()
-            delta = qsize - self.queue_num
-            self.bar.update(delta)
-            self.queue_num = qsize
-            info = f"{self.display_id}. Node:{self.module_name}, Has Processed:{process_num}, " + \
-                f"input queue:{qsize}"
-            info = info.ljust(60, " ")
-            self.bar.set_description(info)
+            if self.args.visual_pipeline:
+                qsize = self.input_queue.qsize()
+                delta = qsize - self.queue_num
+                self.bar.update(delta)
+                self.queue_num = qsize
+                info = f"{self.display_id}. Node:{self.module_name}, Has Processed:{process_num}, " + \
+                    f"Process Time:{self.process_cost.value - self.send_cost.value:.2f} s, " + \
+                    f"Wait Time:{self.send_cost.value:.2f} s, Queue Status:"
+                info = info.ljust(85, " ")
+                self.bar.set_description(info)
             self.call_process(data)
-        self.bar.close()
+        if self.args.visual_pipeline:
+            self.bar.close()
 
     def call_process(self, send_data=None):
         if send_data is not None or self.without_input_queue:

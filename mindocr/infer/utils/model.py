@@ -59,6 +59,9 @@ class MSModel(BaseModel):
         ms.set_context(device_target=self.yaml_cfg.predict.get("device_target", "Ascend"))
         ms.set_context(device_id=self.yaml_cfg.predict.get("device_id", 0))
         ms.set_context(mode=self.yaml_cfg.predict.get("mode", 0))
+        if self.yaml_cfg.system.get("distribute", False):
+            ms.communication.init()
+            ms.set_auto_parallel_context(parallel_mode=ms.ParallelMode.DATA_PARALLEL)
         if self.yaml_cfg.predict.get("max_device_memory", None):
             ms.set_context(max_device_memory=self.yaml_cfg.predict.get("max_device_memory"))
         self.amp_level = self.yaml_cfg.predict.get("amp_level", "O0")

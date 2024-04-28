@@ -36,5 +36,5 @@ class ClsPreNode(ModuleBase):
         else:
             sub_image_list = input_data.sub_image_list
             data = [self.cls_preprocesser(split_image)["image"] for split_image in sub_image_list]
-            input_data.data = data
+            input_data.data["cls_pre_res"] = data
             self.send_to_next_module(input_data)

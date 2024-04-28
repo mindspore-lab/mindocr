@@ -32,9 +32,9 @@ class DetInferNode(ModuleBase):
             self.send_to_next_module(input_data)
             return
 
-        data = input_data.data["image"]
+        data = input_data.data["det_pre_res"]["image"]
         pred = self.det_model([data])
 
-        input_data.data = {"pred": pred, "shape_list": input_data.data["shape_list"]}
+        input_data.data["det_infer_res"] = pred
 
         self.send_to_next_module(input_data)

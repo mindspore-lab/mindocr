@@ -3,10 +3,10 @@ from collections import defaultdict
 from ctypes import c_uint64
 from multiprocessing import Manager
 
-import sys
 import numpy as np
-import yaml
-from addict import Dict
+
+import os
+import sys
 
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../../")))
@@ -25,7 +25,7 @@ RESULTS_SAVE_FILENAME = {
     TaskType.DET_CLS_REC: "pipeline_results.txt",
     TaskType.LAYOUT: "layout_results.txt",
     TaskType.LAYOUT_DET_REC: "pipeline_results.txt",
-    
+    TaskType.LAYOUT_DET_CLS_REC: "pipeline_results.txt",
 }
 
 
@@ -46,7 +46,7 @@ class CollectNode(ModuleBase):
     def _collect_stop(self, input_data):
         self.image_total.value = input_data.image_total
 
-    def _vis_results(self, image_name, image, taskid, data_type):
+    def _vis_results(self, image_name, image, taskid, data_type, task=None):
         if self.args.crop_save_dir and (data_type == 0 or (data_type == 1 and self.args.input_array_save_dir)):
             basename = os.path.basename(image_name)
             filename = os.path.join(self.args.crop_save_dir, os.path.splitext(basename)[0])
@@ -70,6 +70,15 @@ class CollectNode(ModuleBase):
             box_line = visual_utils.vis_bbox(image, box_list, [255, 255, 0], 2)
             cv_utils.img_write(filename + ".jpg", box_line)
 
+        if self.args.vis_layout_save_dir and (data_type == 0 or (data_type == 1 and self.args.input_array_save_dir)):
+            basename = os.path.basename(image_name)
+            filename = os.path.join(self.args.vis_layout_save_dir, os.path.splitext(basename)[0])
+            box_list = []
+            for x in self.image_pipeline_res[taskid][image_name]:
+                x, y, dx, dy = x['bbox']
+                box_list.append(np.array([[x, y+dy], [x+dx, y+dy], [x+dx, y], [x, y]]))
+            box_line = visual_utils.vis_bbox(image, box_list, [255, 255, 0], 2)
+            cv_utils.img_write(filename + ".jpg", box_line)
         # log.info(f"{image_name} is finished.")
 
     def final_text_save(self):
@@ -80,11 +89,36 @@ class CollectNode(ModuleBase):
         safe_list_writer(rst_dict, save_filename)
         # log.info(f"save infer result to {save_filename} successfully")
 
+    def _update_layout_result(self, input_data):
+        taskid = input_data.taskid
+        image_path = input_data.image_path[0]
+        layout_rsts = input_data.data
+        
+        for layout_rst in layout_rsts["layout_collect_res"]:
+            # X, Y = layout_rst.data["raw_img_shape"]
+            layout_bbox = layout_rst.data["layout_result"]
+            lx, ly, _, _ = layout_bbox['bbox']
+            for rec_rst in layout_rst.infer_result:
+                bbox, transcription, score = rec_rst[:-2], rec_rst[-2], rec_rst[-1]
+                bbox = [[b[0]+lx, b[1]+ly] for b in bbox]
+                if score > 0.5:
+                    if self.args.result_contain_score:
+                        self.image_pipeline_res[taskid][image_path].append(
+                            {"transcription": transcription, "points": bbox, "score": str(score)}
+                        )
+                    else:
+                        self.image_pipeline_res[taskid][image_path].append(
+                            {"transcription": transcription, "points": bbox}
+                        )
+
+
     def _collect_results(self, input_data: ProcessData):
         taskid = input_data.taskid
         if self.task_type.value in (TaskType.DET_REC.value, TaskType.DET_CLS_REC.value):
             image_path = input_data.image_path[0]  # bs=1
+            # print(f"input_data.infer_result:{input_data.infer_result}")
             for result in input_data.infer_result:
+                # print(f"result:{result}")
                 if result[-1] > 0.5:
                     if self.args.result_contain_score:
                         self.image_pipeline_res[taskid][image_path].append(
@@ -104,11 +138,13 @@ class CollectNode(ModuleBase):
                 self.image_pipeline_res[taskid][image_path] = infer_result
         elif self.task_type.value == TaskType.LAYOUT.value:
             for infer_result in input_data.infer_result:
-                image_path = infer_result.pop("image_id")
+                image_path = infer_result.pop("image_id")[0]
                 if image_path in self.image_pipeline_res[taskid]:
                     self.image_pipeline_res[taskid][image_path].append(infer_result)
                 else:
                     self.image_pipeline_res[taskid][image_path] = [infer_result]
+        elif self.task_type.value in (TaskType.LAYOUT_DET_REC.value, TaskType.LAYOUT_DET_CLS_REC.value,):
+            self._update_layout_result(input_data)
         else:
             raise NotImplementedError("Task type do not support.")
 
@@ -117,32 +153,44 @@ class CollectNode(ModuleBase):
     def _update_remaining(self, input_data: ProcessData):
         taskid = input_data.taskid
         data_type = input_data.data_type
-        if self.task_type.value in (TaskType.DET_REC.value, TaskType.DET_CLS_REC.value):  # with sub image
-            for idx, image_path in enumerate(input_data.image_path):
-                if image_path in self.image_sub_remaining[taskid]:
-                    self.image_sub_remaining[taskid][image_path] -= input_data.sub_image_size
-                    if not self.image_sub_remaining[taskid][image_path]:
-                        self.image_sub_remaining[taskid].pop(image_path)
-                        self.infer_size[taskid] += 1
-                        self._vis_results(
-                            image_path, input_data.frame[idx], taskid, data_type
-                        ) if input_data.frame else ...
-                else:
-                    remaining = input_data.sub_image_total - input_data.sub_image_size
-                    if remaining:
-                        self.image_sub_remaining[taskid][image_path] = remaining
-                    else:
-                        self.infer_size[taskid] += 1
-                        self._vis_results(
-                            image_path, input_data.frame[idx], taskid, data_type
-                        ) if input_data.frame else ...
-        else:  # without sub image
-            for idx, image_path in enumerate(input_data.image_path):
-                self.infer_size[taskid] += 1
+        # if self.task_type.value in (TaskType.DET_REC.value, TaskType.DET_CLS_REC.value, TaskType.LAYOUT_DET_REC.value):  # with sub image
+        #     for idx, image_path in enumerate(input_data.image_path):
+        #         if image_path in self.image_sub_remaining[taskid]:
+        #             self.image_sub_remaining[taskid][image_path] -= input_data.sub_image_size
+        #             if not self.image_sub_remaining[taskid][image_path]:
+        #                 self.image_sub_remaining[taskid].pop(image_path)
+        #                 self.infer_size[taskid] += 1
+        #                 if self.task_type.value in (TaskType.LAYOUT_DET_REC.value, ):
+        #                     self._vis_results(image_path, input_data.data["layout_images"][idx], taskid, data_type) if input_data.frame else ...
+        #                 else:
+        #                     self._vis_results(
+        #                         image_path, input_data.frame[idx], taskid, data_type
+        #                     ) if input_data.frame else ...
+        #         else:
+        #             remaining = input_data.sub_image_total - input_data.sub_image_size
+        #             if remaining:
+        #                 self.image_sub_remaining[taskid][image_path] = remaining
+        #             else:
+        #                 self.infer_size[taskid] += 1
+        #                 if self.task_type.value in (TaskType.LAYOUT_DET_REC.value, ):
+        #                     self._vis_results(image_path, input_data.data["layout_images"][idx], taskid, data_type) if input_data.frame else ...
+        #                 else:
+        #                     self._vis_results(
+        #                         image_path, input_data.frame[idx], taskid, data_type
+        #                     ) if input_data.frame else ...
+        # else:  # without sub image
+        # if self.task_type.value not in (TaskType.LAYOUT_DET_REC, ):
+        for idx, image_path in enumerate(input_data.image_path):
+            self.infer_size[taskid] += 1
+            if self.task_type.value in (TaskType.LAYOUT_DET_REC.value, ):
                 self._vis_results(image_path, input_data.frame[idx], taskid, data_type) if input_data.frame else ...
+            else:
+                self._vis_results(image_path, input_data.frame[idx], taskid, data_type) if input_data.frame else ...
+
 
     def process(self, input_data):
         if isinstance(input_data, ProcessData):
+            # print(f"ProcessData:{input_data.image_path}")
             taskid = input_data.taskid
             if input_data.taskid not in self.image_sub_remaining.keys():
                 self.image_sub_remaining[input_data.taskid] = defaultdict(int)

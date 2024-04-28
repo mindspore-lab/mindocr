@@ -39,7 +39,7 @@ class ClsInferNode(ModuleBase):
             self.send_to_next_module(input_data)
             return
 
-        data = input_data.data
+        data = input_data.data["cls_pre_res"]
         data = [np.expand_dims(d, 0) for d in data if len(d.shape) == 3]
         data = np.concatenate(data, axis=0)
 
@@ -53,5 +53,6 @@ class ClsInferNode(ModuleBase):
             pred = self.cls_model([d])
             preds.append(pred[0])
         preds = np.concatenate(preds, axis=0)
-        input_data.data = {"pred": preds}
+        # input_data.data = {"pred": preds}
+        input_data.data["cls_infer_res"] = {"pred": preds}
         self.send_to_next_module(input_data)

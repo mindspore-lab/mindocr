@@ -33,7 +33,7 @@ class RecPostNode(ModuleBase):
             self.send_to_next_module(input_data)
             return
 
-        data = input_data.data
+        data = input_data.data["rec_infer_res"]
         pred = data["pred"]
         output = self.rec_postprocess(pred)
         texts = output["texts"]
@@ -44,5 +44,4 @@ class RecPostNode(ModuleBase):
             for i, (text, conf) in enumerate(zip(texts, confs)):
                 input_data.infer_result[i].append(text)
                 input_data.infer_result[i].append(conf)
-        input_data.data = None
         self.send_to_next_module(input_data)

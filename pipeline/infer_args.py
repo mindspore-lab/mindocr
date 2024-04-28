@@ -79,6 +79,17 @@ def get_args():
     )
 
     parser.add_argument(
+        "--layout_algorithm",
+        type=str,
+        default="YOLOV8",
+        choices=["YOLOV8"],
+        help="layout algorithm.",
+    )  # determine the network architecture
+    parser.add_argument(
+        "--layout_model_name_or_config", type=str, required=False, help="Layout model name or config file path."
+    )
+
+    parser.add_argument(
         "--character_dict_path", type=str, required=False, help="Character dict file path for recognition models."
     )
 
@@ -105,6 +116,11 @@ def get_args():
     parser.add_argument(
         "--vis_det_save_dir", type=str, required=False, help="Saving dir for visualization of detection results."
     )
+
+    parser.add_argument(
+        "--vis_layout_save_dir", type=str, required=False, help="Saving dir for visualization of layout results."
+    )
+
     parser.add_argument(
         "--vis_pipeline_save_dir",
         type=str,
@@ -125,10 +141,17 @@ def get_args():
         default=font_default_path,
         required=False,
         help="Font file path for recognition model.")
+    parser.add_argument(
+        "--visual_pipeline",
+        type=bool,
+        default=True,
+        required=False,
+        help="visualize pipeline progress.",
+    )
     args = parser.parse_args()
     setup_logger(args)
     args = update_task_info(args)
-    check_and_update_args(args)
+    # check_and_update_args(args)
     init_save_dir(args)
 
     return args
@@ -158,6 +181,8 @@ def update_task_info(args):
         (True, False, True, False): TaskType.DET_REC,
         (True, True, True, False): TaskType.DET_CLS_REC,
         (False, False, False, True): TaskType.LAYOUT,
+        (True, False, True, True): TaskType.LAYOUT_DET_REC,
+        (True, True, True, True): TaskType.LAYOUT_DET_CLS_REC,
     }
 
     task_order = (det, cls, rec, layout)
@@ -215,10 +240,11 @@ def check_and_update_args(args):
     if args.crop_save_dir and args.task_type not in (TaskType.DET_REC, TaskType.DET_CLS_REC):
         raise ValueError("det_model_path and rec_model_path can't be empty when set crop_save_dir.")
 
-    if args.vis_pipeline_save_dir and args.task_type not in (TaskType.DET_REC, TaskType.DET_CLS_REC):
+    if args.vis_pipeline_save_dir and args.task_type not in (TaskType.DET_REC,
+                                                             TaskType.DET_CLS_REC, TaskType.LAYOUT_DET_CLS_REC):
         raise ValueError("det_model_path and rec_model_path can't be empty when set vis_pipeline_save_dir.")
 
-    if args.vis_det_save_dir and args.task_type != TaskType.DET:
+    if args.vis_det_save_dir and args.task_type not in (TaskType.DET, TaskType.LAYOUT):
         raise ValueError(
             "det_model_path can't be empty and cls_model_path/rec_model_path must be empty when set vis_det_save_dir "
             "for single detection task."

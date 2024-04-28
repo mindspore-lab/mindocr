@@ -42,14 +42,14 @@ class ClsPostNode(ModuleBase):
             self.send_to_next_module(input_data)
             return
 
-        data = input_data.data
+        data = input_data.data["cls_infer_res"]
         pred = data["pred"]
         output = self.cls_postprocess(pred)
         angles = output["angles"]
         scores = np.array(output["scores"]).tolist()
 
         batch = input_data.sub_image_size
-        if self.task_type.value == TaskType.DET_CLS_REC.value:
+        if self.task_type.value in (TaskType.DET_CLS_REC.value, TaskType.Layout_DET_CLS_REC.value):
             sub_images = input_data.sub_image_list
             for i in range(batch):
                 angle, score = angles[i], scores[i]
@@ -59,5 +59,4 @@ class ClsPostNode(ModuleBase):
         else:
             input_data.infer_result = [(angle, score) for angle, score in zip(angles, scores)]
 
-        input_data.data = None
         self.send_to_next_module(input_data)
