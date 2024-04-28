@@ -28,10 +28,9 @@ class DetPostNode(ModuleBase):
         Returns:
             numpy.ndarray: A horizontally concatenated image array.
         """
-        crops_sorted = sorted(crops, key=lambda points: (points[0][1], points[0][0]))
-        max_height = max(crop.shape[0] for crop in crops_sorted)
+        max_height = max(crop.shape[0] for crop in crops)
         resized_crops = []
-        for crop in crops_sorted:
+        for crop in crops:
             h, w, c = crop.shape
             new_h = max_height
             new_w = int((w / h) * new_h)
@@ -48,6 +47,8 @@ class DetPostNode(ModuleBase):
 
         data = input_data.data
         boxes = self.text_detector.postprocess(data["pred"], data["shape_list"])
+        if self.is_concat:
+            boxes = sorted(boxes, key=lambda points: (points[0][1], points[0][0]))
 
         infer_res_list = []
         for box in boxes:
@@ -65,7 +66,7 @@ class DetPostNode(ModuleBase):
                 sub_image = cv_utils.crop_box_from_image(image, np.array(box))
                 sub_image_list.append(sub_image)
             if self.is_concat:
-                sub_image_list = [self.concat_crops(sub_image_list)]
+                sub_image_list = len(sub_image_list) * [self.concat_crops(sub_image_list)]
             input_data.sub_image_list = sub_image_list
 
         input_data.data = None

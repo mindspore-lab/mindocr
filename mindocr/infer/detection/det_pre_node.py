@@ -35,17 +35,14 @@ class DetPreNode(ModuleBase):
                 return
             image = input_data.data["layout_images"][0]  # bs = 1 for det
         data = self.det_preprocesser({"image": image})
-        # print(data)
         
         if len(data["image"].shape) == 3:
             data["image"] = np.expand_dims(data["image"], 0)
         data["shape_list"] = np.expand_dims(data["shape_list"], 0)
-        # print(data["image"].shape)
-        # time.sleep(1000)
-        if self.task_type.value == TaskType.DET.value and not (self.args.crop_save_dir or self.args.vis_det_save_dir):
-            input_data.frame = None
+        # if self.task_type.value == TaskType.DET.value and not (self.args.crop_save_dir or self.args.vis_det_save_dir):
+        #     input_data.frame = None
 
-        if self.task_type.value in (TaskType.LAYOUT_DET.value, TaskType.LAYOUT_DET_REC, TaskType.LAYOUT_DET_CLS_REC):
+        if self.task_type.value in (TaskType.LAYOUT_DET.value, TaskType.LAYOUT_DET_REC.value, TaskType.LAYOUT_DET_CLS_REC.value):
             input_data.data["det_pre_res"] = data
         else:
             input_data.data = {"det_pre_res": data}

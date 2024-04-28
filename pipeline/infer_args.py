@@ -93,11 +93,6 @@ def get_args():
         "--character_dict_path", type=str, required=False, help="Character dict file path for recognition models."
     )
 
-    # ZHQ TODO
-    parser.add_argument(
-        "--layout_model_name_or_config", type=str, required=False, help="Layout model name or config file path."
-    )
-
     parser.add_argument(
         "--res_save_dir",
         type=str,
@@ -144,9 +139,12 @@ def get_args():
     parser.add_argument(
         "--visual_pipeline",
         type=bool,
-        default=True,
+        default=False,
         required=False,
         help="visualize pipeline progress.",
+    )
+    parser.add_argument(
+        "--is_concat", type=str2bool, default=False, help="Whether to concatenate crops after the detection."
     )
     args = parser.parse_args()
     setup_logger(args)

@@ -28,7 +28,7 @@ class ModuleBase(object):
         self.send_cost = Manager().Value(typecode=c_longdouble, value=0)
         self.process_cost = Manager().Value(typecode=c_longdouble, value=0)
         self.display_id = tqdm_info["i"]
-        if self.args.visual_pipeline:
+        if self.args.visual_pipeline is True:
             self.bar = tqdm.tqdm(total=tqdm_info["queue_len"],
                                 desc=f"{self.display_id}. {self.module_name}",
                                 position=self.display_id,
@@ -74,7 +74,7 @@ class ModuleBase(object):
             
             process_num += 1
             data = self.input_queue.get(block=True)
-            if self.args.visual_pipeline:
+            if self.args.visual_pipeline is True:
                 qsize = self.input_queue.qsize()
                 delta = qsize - self.queue_num
                 self.bar.update(delta)
@@ -85,7 +85,7 @@ class ModuleBase(object):
                 info = info.ljust(85, " ")
                 self.bar.set_description(info)
             self.call_process(data)
-        if self.args.visual_pipeline:
+        if self.args.visual_pipeline is True:
             self.bar.close()
 
     def call_process(self, send_data=None):

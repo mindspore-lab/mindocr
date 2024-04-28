@@ -17,7 +17,8 @@ from pipeline.utils import log
 
 __all__ = ["MODEL_DICT_v2",
            "DET_DESC_v2", "CLS_DESC_v2", "REC_DESC_v2",
-           "DET_REC_DESC_v2", "DET_CLS_REC_DESC_v2"]
+           "DET_REC_DESC_v2", "DET_CLS_REC_DESC_v2",
+           "LAYOUT_DESC_v2", "LAYOUT_DET_REC_DESC_v2", "LAYOUT_DET_CLS_REC_DESC_v2"]
 
 DET_DESC_v2 = [
     (("HandoutNode", "0", 1), ("DecodeNode", "0", 1)),

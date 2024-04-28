@@ -31,7 +31,7 @@ class RecPreNode(ModuleBase):
             image = input_data.frame[0]
             data = [self.rec_preprocesser(image)["image"]]
             input_data.sub_image_size = 1
-            input_data.data["rec_pre_res"] = data
+            input_data.data = {"rec_pre_res": data}
             self.send_to_next_module(input_data)
         else:
             sub_image_list = input_data.sub_image_list

@@ -9,14 +9,14 @@ sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../../")))
 
 from pipeline.framework.module_base import ModuleBase
 from pipeline.tasks import TaskType
-from .detection import DetPostProcess
+from .detection import DetPostprocess
 from tools.infer.text.utils import crop_text_region
 from pipeline.data_process.utils.cv_utils import crop_box_from_image
 
 class DetPostNode(ModuleBase):
     def __init__(self, args, msg_queue, tqdm_info):
         super(DetPostNode, self).__init__(args, msg_queue, tqdm_info)
-        self.det_postprocess = DetPostProcess(args)
+        self.det_postprocess = DetPostprocess(args)
         self.task_type = self.args.task_type
         self.is_concat = self.args.is_concat
 
@@ -51,17 +51,11 @@ class DetPostNode(ModuleBase):
             return
 
         pred = input_data.data["det_infer_res"]
-        # print("pred:", len(pred))
         pred = pred[0]
         data_dict = {"shape_list": input_data.data["det_pre_res"]["shape_list"]}
         boxes = self.det_postprocess(pred, data_dict)
 
-        
-
         boxes = boxes['polys'][0]
-
-        # TODO ZHQ 对齐 tools/infer/text/postprocess.py?
-        # print(boxes)
         
         if self.is_concat:
             boxes = sorted(boxes, key=lambda points: (points[0][1], points[0][0]))
@@ -72,11 +66,9 @@ class DetPostNode(ModuleBase):
 
         input_data.infer_result = infer_res_list
 
-        # ZHQ TODO
-
-        # input_data.sub_image_total = len(infer_res_list)
-        # input_data.sub_image_size = len(infer_res_list)
         if self.task_type.value in (TaskType.DET.value, TaskType.DET_REC.value, TaskType.DET_CLS_REC.value):
+            if len(input_data.frame) == 0:
+                return
             image = input_data.frame[0]  # bs=1 for det
         else:
             image = input_data.data["layout_images"][0]
@@ -87,9 +79,6 @@ class DetPostNode(ModuleBase):
         if self.is_concat:
             sub_image_list = len(sub_image_list) * [self.concat_crops(sub_image_list)]
         input_data.sub_image_list = sub_image_list
-
-        # if not (self.args.crop_save_dir or self.args.vis_det_save_dir or self.args.vis_pipeline_save_dir):
-            # input_data.frame = None
 
         if not infer_res_list:
             input_data.skip = True

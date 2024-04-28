@@ -14,7 +14,7 @@ from pipeline.datatype import StopData, StopSign
 from pipeline.framework.module_manager import ModuleManager
 from pipeline.tasks import SUPPORTED_TASK_BASIC_MODULE, TaskType
 # ZHQ TODO 
-from mindocr.infer.node_config import MODEL_DICT as MODEL_DICT
+from mindocr.infer.node_config import MODEL_DICT_v2 as MODEL_DICT
 
 
 class ParallelPipelineManager:

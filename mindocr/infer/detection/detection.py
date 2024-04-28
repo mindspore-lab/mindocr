@@ -36,8 +36,7 @@ class DetPreprocess(object):
                 break
         self.transforms = create_transforms(self.yaml_cfg.predict.dataset.transform_pipeline)
     
-    def __call__(self, img):
-        data = {"image": img}
+    def __call__(self, data):
         data = run_transforms(data, self.transforms[1:])
         return data
 

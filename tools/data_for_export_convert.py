@@ -159,6 +159,12 @@ data_converte_static_model_from_download_mindir = {
         "data_shape": "args0:[1,3,48,160];args1:[1,1,40];args2:[1,40]",
         "infer_shape_list": ["1,3,48,160:1,1,40:1,40"],
     },
+    "layout_yolov8n": {
+        "mindir_url": "https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-2a1f68ab.mindir",
+        "mindir_name": "yolov8n-2a1f68ab.mindir",
+        "data_shape": "args0:[1,3,800,800]",
+        "infer_shape_list": ["1,3,800,800"],
+    },
 }
 
 
@@ -278,6 +284,11 @@ data_converte_static_model_from_exported_mindir = {
         "data_shape": "args0:[1,3,48,160];args1:[1,1,40];args2:[1,40]",
         "mindir_name": "robustscanner_resnet31.mindir",
         "infer_shape_list": ["1,3,48,160:1,1,40:1,40"],
+    },
+    "layout_yolov8n": {
+        "data_shape": "args0:[1,3,800,800]",
+        "mindir_name": "yolov8n-2a1f68ab.mindir",
+        "infer_shape_list": ["1,3,800,800"],
     },
 }
 
@@ -403,6 +414,11 @@ data_converte_dynamic_model_from_exported_mindir = {
         "mindir_name": "robustscanner_resnet31.mindir",
         "infer_shape_list": ["1,3,48,160"],
     },
+    "layout_yolov8n": {
+        "data_shape": "args0:[-1,3,-1,-1]",
+        "mindir_name": "yolov8n.mindir",
+        "infer_shape_list": ["1,3,800,800"],
+    },
 }
 
 
@@ -431,6 +447,7 @@ data_export_static_model = {
     "svtr_tiny_ch": {"model_name": "svtr_tiny_ch", "data_shape_h_w": [32, 320]},
     "visionlan_resnet45": {"model_name": "visionlan_resnet45", "data_shape_h_w": [64, 256]},
     "robustscanner_resnet31": {"model_name": "robustscanner_resnet31", "data_shape_h_w": [48, 160]},
+    "layout_yolov8n": { "model_name": "layout_yolov8n", "data_shape_h_w": [800, 800]},
 }
 
 
@@ -459,4 +476,5 @@ data_export_dynamic_model = {
     "svtr_tiny_ch": {"model_name": "svtr_tiny_ch", "model_type": "rec"},
     "visionlan_resnet45": {"model_name": "visionlan_resnet45", "model_type": "rec"},
     "robustscanner_resnet31": {"model_name": "robustscanner_resnet31", "model_type": "rec"},
+    "layout_yolov8n": { "model_name": "layout_yolov8n", "model_type": "layout"},
 }

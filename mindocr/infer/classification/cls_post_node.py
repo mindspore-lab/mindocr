@@ -49,7 +49,7 @@ class ClsPostNode(ModuleBase):
         scores = np.array(output["scores"]).tolist()
 
         batch = input_data.sub_image_size
-        if self.task_type.value in (TaskType.DET_CLS_REC.value, TaskType.Layout_DET_CLS_REC.value):
+        if self.task_type.value in (TaskType.DET_CLS_REC.value, TaskType.LAYOUT_DET_CLS_REC.value):
             sub_images = input_data.sub_image_list
             for i in range(batch):
                 angle, score = angles[i], scores[i]

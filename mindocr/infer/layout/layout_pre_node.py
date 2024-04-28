@@ -47,7 +47,6 @@ class LayoutPreNode(ModuleBase):
             "target_size": [800, 800],
         }
         data = self.layout_preprocesser(data)
-        # print(data)
 
         if len(data["image"].shape) == 3:
             data["image"] = np.expand_dims(data["image"], 0)

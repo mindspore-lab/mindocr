@@ -29,7 +29,6 @@ class ClsPreprocess(object):
         self.transforms = create_transforms(self.yaml_cfg.predict.dataset.transform_pipeline)
     
     def __call__(self, img):
-        print(img)
         data = {"image": img}
         data = run_transforms(data, self.transforms[1:])
         return data
