@@ -151,3 +151,37 @@ eval:
     drop_remainder: False
     max_rowsize: 12
     num_workers: 8
+
+predict:
+  backend: MindSpore
+  deive_target: Ascend
+  device_id: 3
+  max_device_memory: 8GB
+  amp_level: O0
+  mode: 0
+  ckpt_load_path: /root/.mindspore/models/yolov8n-4b9e8004.ckpt
+  dataset_sink_mode: False
+  dataset:
+    type: PublayNetDataset
+    dataset_path: publaynet/val.txt
+    annotations_path: *annotations_path
+    img_size: 800
+    transform_pipeline:
+      - func_name: letterbox
+        scaleup: False
+      - func_name: image_norm
+        scale: 255.
+      - func_name: image_transpose
+        bgr2rgb: True
+        hwc2chw: True
+    batch_size: *refine_batch_size
+    stride: 64
+    output_columns: ['image', 'labels', 'image_ids', 'hw_ori', 'hw_scale', 'pad']
+    net_input_column_index: [ 0 ]  # input indices for network forward func in output_columns
+    meta_data_column_index: [ 2, 3, 4, 5 ]  # input indices marked as label
+  loader:
+    shuffle: False
+    batch_size: *refine_batch_size
+    drop_remainder: False
+    max_rowsize: 12
+    num_workers: 8

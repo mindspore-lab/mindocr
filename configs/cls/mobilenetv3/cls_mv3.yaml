@@ -142,3 +142,47 @@ eval:
       drop_remainder: False
       max_rowsize: 12
       num_workers: 8
+
+predict:
+  backend: MindSpore
+  deive_target: Ascend
+  device_id: 1
+  max_device_memory: 8GB
+  amp_level: O0
+  mode: 0
+  ckpt_load_path: /root/.mindspore/models/cls_mobilenetv3-92db9c58.ckpt
+  dataset_sink_mode: False
+  dataset:
+    type: RecDataset
+    dataset_root: dir/to/dataset
+    data_dir: all_images
+    label_file: val_cls_gt.txt
+    sample_ratio: 1.0
+    shuffle: False
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          to_float32: False
+      - Rotate90IfVertical:
+          threshold: 2.0
+          direction: counterclockwise
+      - RecResizeImg:
+          image_shape: [48, 192] # H, W
+          padding: False # aspect ratio will be preserved if true.
+      - NormalizeImage:
+          bgr_to_rgb: True
+          is_hwc: True
+          mean : [127.0, 127.0, 127.0]
+          std : [127.0, 127.0, 127.0]
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visaulize
+    output_columns: ['image', 'label']  # TODO return text string padding w/ fixed length, and a scaler to indicate the length
+    net_input_column_index: [0] # input indices for network forward func in output_columns
+    label_column_index: [1] # input indices marked as label
+
+  loader:
+      shuffle: False
+      batch_size: 8
+      drop_remainder: False
+      max_rowsize: 12
+      num_workers: 8

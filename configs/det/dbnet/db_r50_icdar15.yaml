@@ -157,7 +157,13 @@ eval:
     num_workers: 2
 
 predict:
-  ckpt_load_path: tmp_det/best.ckpt
+  backend: MindSpore
+  deive_target: Ascend
+  device_id: 0
+  max_device_memory: 8GB
+  amp_level: O0
+  mode: 0
+  ckpt_load_path: /root/.mindspore/models/dbnet_resnet50-c3a4aa24.ckpt
   output_save_dir: ./output
   dataset_sink_mode: False
   dataset:

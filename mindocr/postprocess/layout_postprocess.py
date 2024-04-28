@@ -259,7 +259,7 @@ def scale_coords(img1_shape, coords, img0_shape, ratio=None, pad=None):
 
     if ratio is None:  # calculate from img0_shape
         ratio = min(img1_shape[0] / img0_shape[0], img1_shape[1] / img0_shape[1])  # ratio  = old / new
-    else:
+    if isinstance(ratio, (list, np.ndarray)):
         ratio = ratio[0]
 
     if pad is None:

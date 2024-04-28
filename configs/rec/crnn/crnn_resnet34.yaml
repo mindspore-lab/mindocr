@@ -150,7 +150,13 @@ eval:
       num_workers: 8
 
 predict:
-  ckpt_load_path: ./tmp_rec/best.ckpt
+  backend: MindSpore
+  deive_target: Ascend
+  device_id: 2
+  max_device_memory: 8GB
+  amp_level: O3
+  mode: 0
+  ckpt_load_path: /root/.mindspore/models/crnn_resnet34-83f37f07.ckpt
   vis_font_path: tools/utils/simfang.ttf
   dataset_sink_mode: False
   dataset:
