@@ -146,7 +146,7 @@ eval:
 predict:
   backend: MindSpore
   deive_target: Ascend
-  device_id: 0
+  device_id: 1
   max_device_memory: 8GB
   amp_level: O0
   mode: 0

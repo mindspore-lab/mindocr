@@ -222,8 +222,8 @@ class DBV4Postprocess(DetBasePostprocess):
 
     def __call__(
         self,
-        pred: Union[ms.Tensor, Tuple[ms.Tensor], np.ndarray],
-        shape_list: Union[np.ndarray, ms.Tensor] = None,
+        pred: Union[Tensor, Tuple[Tensor], np.ndarray],
+        shape_list: Union[np.ndarray, Tensor] = None,
         **kwargs,
     ) -> dict:
         if isinstance(shape_list, Tensor):
