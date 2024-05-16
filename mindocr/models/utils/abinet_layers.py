@@ -342,8 +342,8 @@ class PositionalEncoding(nn.Cell):
         pe[:, 0::2] = np.sin(position * div_term)
         pe[:, 1::2] = np.cos(position * div_term)
         pe = np.expand_dims(pe, 0)
+        pe = np.transpose(pe, (1, 0, 2))
         pe = ms.Tensor(pe).astype(dtype=ms.float32)
-        pe = pe.transpose(1, 0, 2)
         self.pe = ms.Parameter(pe, name="pe1", requires_grad=False)
 
     def construct(self, x):

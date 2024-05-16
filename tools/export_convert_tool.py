@@ -77,7 +77,7 @@ class BaseConvertModel(metaclass=ABCMeta):
             else:
                 log = f"{converted_model_path}.mindir exists and it will be overwritten if exported successfully."
                 subprocess.call(f"echo {log}".split(), stdout=self.log_handle, stderr=self.log_handle)
-                os.remove(converted_model_path)
+                os.remove(f"{converted_model_path}.mindir")
                 print(log)
         command = (
             f"{self.convert_tool} --fmk=MINDIR --modelFile={input_file} --outputFile={converted_model_path}"
