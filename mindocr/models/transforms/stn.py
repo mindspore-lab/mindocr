@@ -70,7 +70,6 @@ class STN(nn.Cell):
             pass
         elif self.activation == "sigmoid":
             ctrl_points = -np.log(1.0 / ctrl_points - 1.0)
-        ctrl_points = Tensor(ctrl_points)
         fc2_bias = Tensor(np.reshape(ctrl_points, (-1,)))
         return fc2_bias
 
