@@ -51,6 +51,12 @@ def _name_replace(name: str):
     name = name.replace("layer_norm2.bias", "ln_2.beta")
     name = name.replace("self_attn", "attn")
     name = name.replace("post_layernorm", "vision_model.post_layernorm")
+    if "visual" in name:
+        name = name.replace("attention_norm", "ln_1")
+        name = name.replace("ffn_norm", "ln_2")
+        if "ln_" in name:
+            name = name.replace("weight", "gamma").replace("bias", "beta")
+        name = name.replace("feed_forward.w2", "mlp.c_proj")
 
     # sam
     name = name.replace("norm1.weight", "norm1.gamma")
@@ -82,6 +88,9 @@ def convert_pt_to_ms(torch_ckpt_path, output_path, dtype=ms.float16):
     state_dict = torch.load(torch_ckpt_path, map_location="cpu")
     ckpt_weights = []
     for k, v in state_dict.items():
+        if 'lora_scale' in k:
+            continue
+
         value = pt2ms(v, dtype)
 
         msname = _name_replace(k)
@@ -111,4 +120,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    convert_pt_to_ms(args.torch_ckpt_path, args.mindspore_ckpt_path, ms.float16)
+    convert_pt_to_ms(args.torch_ckpt_path, args.mindspore_ckpt_path, ms.float32)

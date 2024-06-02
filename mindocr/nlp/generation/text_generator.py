@@ -217,10 +217,7 @@ class GeneratorMixin:
             model_inputs["input_position"] = Tensor(current_index, mstype.int32)
             model_inputs["init_reset"] = Tensor([True], mstype.bool_)  # init_reset (1,) bool True
             model_inputs["batch_valid_length"] = Tensor([valid_length_each_example], mstype.int32)
-            # pylint: disable=E1102
-            res = self(
-                **model_inputs,
-            )
+            res = self(**model_inputs)
 
         return res
 

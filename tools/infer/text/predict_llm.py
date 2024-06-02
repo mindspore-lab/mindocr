@@ -2,20 +2,10 @@ import argparse
 import logging
 import os
 
-from PIL import Image
-
 import mindspore as ms
 
-from mindocr.data.transforms.llm_transform import image_processor, image_processor_high
-from mindocr.nlp.llm.configs import LLMConfig
-from mindocr.nlp.llm.qwen_tokenizer import QwenTokenizer
-from mindocr.nlp.llm.vary_qwen_model import VaryQwenForCausalLM
+from mindocr.nlp.llm import build_llm_model
 from mindocr.utils.logger import set_logger
-
-
-def load_image(image_file):
-    image = Image.open(image_file).convert("RGB")
-    return image
 
 
 def str2bool(v):
@@ -31,10 +21,13 @@ def str2bool(v):
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Inference Config Args")
-    parser.add_argument("--image_dir", type=str, required=True, help="image path")
+    parser.add_argument("--mode", type=int, default=0, help="0 for graph mode, 1 for pynative mode")
+    parser.add_argument("--device_target", type=str, default="Ascend", choices=["Ascend", "GPU", "CPU"])
+    parser.add_argument("--image_path", type=str, required=False, help="image path")
     parser.add_argument("--query", type=str, required=False, default="Provide the ocr results of this image.")
     parser.add_argument("--config_path", type=str, required=False, default="../../../configs/llm/vary/vary_toy.yaml")
     parser.add_argument("--chat_mode", type=str2bool, required=False, default=False)
+    parser.add_argument("--precision_mode", type=str, required=False, default="allow_fp32_to_fp16")
     args = parser.parse_args()
     return args
 
@@ -42,49 +35,44 @@ def parse_args():
 class LLMGenerator(object):
     def __init__(self, args):
         config_path = args.config_path
-        config = LLMConfig(config_path)
         ms.set_context(
-            mode=ms.GRAPH_MODE,
+            mode=args.mode,
             device_target="Ascend",
             enable_graph_kernel=False,
             graph_kernel_flags="--disable_expand_ops=Softmax,Dropout --enable_parallel_fusion=true "
             "--reduce_fuse_depth=8 --enable_auto_tensor_inplace=true",
-            ascend_config={"precision_mode": "must_keep_origin_dtype"},
+            ascend_config={"precision_mode": args.precision_mode},
             max_call_depth=10000,
             max_device_memory="58GB",
             save_graphs=False,
             save_graphs_path="./graph",
             device_id=os.environ.get("DEVICE_ID", 0),
         )
-        self.tokenizer = QwenTokenizer(**config.processor.tokenizer)
-        self.model = VaryQwenForCausalLM.from_pretrained(config_path)
+        self.model = build_llm_model(config_path)
 
-        self.image_dir = args.image_dir
+        self.image_path = args.image_path
         self.query = args.query
         self.seq_length = self.model.seq_length
         self.chat_mode = args.chat_mode
 
-    def _call_one(self, query=None, image=None, image_high=None):
-        response = self.model.chat(tokenizer=self.tokenizer, query=query, image=image, image_high=image_high)
+    def _call_one(self, query=None, image_path=None):
+        response = self.model.chat(query=query, image_path=image_path)
         print(">" * 100)
         print(response)
         print("<" * 100)
         return response
 
-    def __call__(self, query=None, image_dir=None):
+    def __call__(self, query=None, image_path=None):
         self.model.reset()
         is_first_iteration = True
         if query is None:
             query = self.query
-        if image_dir is None:
-            image_dir = self.image_dir
-        image = load_image(image_dir)
-        image_high = image_processor_high(image)
-        image = image_processor(image)
+        if image_path is None:
+            image_path = self.image_path
         while True:
             try:
                 if is_first_iteration:
-                    self._call_one(query=query, image=image, image_high=image_high)
+                    self._call_one(query=query, image_path=image_path)
                     if not self.chat_mode:
                         break
                     is_first_iteration = False
@@ -93,7 +81,7 @@ class LLMGenerator(object):
                     query = input()
                     if query == "exit":
                         break
-                    self._call_one(query=query, image=None, image_high=None)
+                    self._call_one(query=query, image_path=image_path)
             except ValueError as e:
                 if "check your inputs and set max_length larger than your inputs length." in e.args[0]:
                     logging.warning("The input is too long. The conversation is closed.")

@@ -2,80 +2,93 @@ import mindspore as ms
 from mindspore import ops
 
 from mindocr.nlp.llm import register_llm
-from mindocr.nlp.llm.configs import SAMConfig, VaryConfig
-from mindocr.nlp.llm.qwen_model import QwenForCausalLM, QwenModel
-from mindocr.nlp.llm.vary_clip_model import build_model
-from mindocr.nlp.llm.vary_sam_model import SAMEncoder
+from mindocr.nlp.llm.qwen_model import QwenModel, QwenForCausalLM
+from mindocr.nlp.llm.configs import MonkeyConfig
 from mindocr.nlp.utils.layers import Linear
-from mindocr.data.transforms.llm_transform import VaryImageProcessor
+from mindocr.nlp.llm.vary_clip_model import VisionTransformer
+from mindocr.utils.conversation import Conversation
+from mindocr.data.transforms.llm_transform import MonkeyImageProcessor
 
 
-class VaryQwenModel(QwenModel):
+class MonkeyModel(QwenModel):
     def __init__(self, config):
-        super(VaryQwenModel, self).__init__(config)
-        sam_config = SAMConfig(ln_param_init_type=config.ln_param_init_type)
-        self.vision_tower_high = SAMEncoder(sam_config)
-        self.vision_tower_high.to_float(ms.float16)
+        super().__init__(config)
+        self.image_start_token_pos = 0
+        self.num_patches = 1280
 
-        self.vision_tower = build_model(
-            param_init_type=config.param_init_type, ln_param_init_type=config.ln_param_init_type
+        self.visual = VisionTransformer(
+            input_resolution=config.visual.get("image_size", 896),  # image_size in transformers
+            patch_size=config.visual.get("patch_size", 14),  # patch_size in transformers
+            width=config.visual.get("width", 1664),  # hidden_size
+            layers=config.visual.get("layers", 48),  # num_hidden_layers
+            heads=config.visual.get("heads", 16),  # num_attention_heads
+            output_dim=config.visual.get("output_dim", 4096),  # projection_dim in transformers
+            vision_select_layer=-2,
+            param_init_type=config.param_init_type,
+            ln_param_init_type=config.ln_param_init_type,
+            positional_embedding_size=config.visual.get("positional_embedding_size", 1024),
+            mlp_ratio=config.visual.get("mlp_ratio", 4.9231),
+            model_type=config.visual.get("model_type", "open_clip"),
+            compute_dtype=config.compute_dtype,
+            layernorm_compute_type=config.layernorm_compute_type,
         )
-        self.vision_tower.to_float(ms.float16)
-
-        self.mm_projector = Linear(1024, 1024, param_init_type=config.param_init_type)
-        self.mm_projector_vary = Linear(1024, 1024, param_init_type=config.param_init_type)
-
-        self.image_start_token_pos = 22
-        self.num_patches = config.num_patches
 
     def construct(
         self,
-        input_ids,
-        init_reset=True,
-        batch_valid_length=None,
-        batch_index=None,
-        zactivate_len=None,
-        image_clip=None,
-        image_sam=None,
+            input_ids,
+            init_reset=True,
+            batch_valid_length=None,
+            batch_index=None,
+            zactivate_len=None,
+            windows=None,
+            image=None,
     ):
+        """construct"""
+        if input_ids is not None:
+            input_shape = input_ids.shape
+            input_ids = input_ids.view(-1, input_shape[-1])
+
         # 1. wte
         bs, seq_len = self.shape(input_ids)
-        inputs_embeds = self.wte(input_ids)
-
-        if seq_len > 1 and image_clip is not None and image_sam is not None:
-            sam_out = self.vision_tower_high(image_sam)
-            sam_out = self.mm_projector_vary(sam_out)
-
-            clip_out = self.vision_tower(image_clip)
-            clip_out = self.mm_projector(clip_out)
-
-            image_features = ops.concat((clip_out, sam_out), -1)
-
-            new_input_embeds = []
-            num_patches = self.num_patches
-            image_start_token_pos = self.image_start_token_pos
-            for i in range(bs):
-                cur_input_embeds = inputs_embeds[i]
-                per_cur_image_features = image_features[i]
-                cur_input_embeds = ops.cat(
-                    (
-                        cur_input_embeds[: image_start_token_pos + 1],
-                        per_cur_image_features,
-                        cur_input_embeds[image_start_token_pos + num_patches + 1 :],
-                    ),
-                    axis=0,
-                )
-
-                new_input_embeds.append(cur_input_embeds)
-
-            hidden_states = ops.stack(new_input_embeds, axis=0)
-        else:
-            hidden_states = inputs_embeds
+        hidden_states = self.wte(input_ids)
 
         # 2. drop
         hidden_states = self.drop(hidden_states)
 
-        # 2. rotary_emb
+        # image embedding
+        if seq_len > 1 and image is not None and windows is not None:
+            patch_list = []
+            lora_idx = 0
+            for image_patch in windows:
+                patch = self.visual(image_patch, idx=lora_idx)
+                patch_list.append(patch)
+                lora_idx += 1
+            global_feat = self.visual(image)
+
+            local_feat = ops.cat(patch_list, axis=1)
+            image_features = ops.cat([local_feat, global_feat], axis=1)
+
+            if seq_len > 1 and image_features is not None:
+                new_input_embeds = []
+                num_patches = self.num_patches
+                image_start_token_pos = self.image_start_token_pos
+                for i in range(bs):
+                    cur_input_embeds = hidden_states[i]
+                    per_cur_image_features = image_features[i]
+                    cur_input_embeds = ops.cat(
+                        (
+                            cur_input_embeds[: image_start_token_pos + 1],
+                            per_cur_image_features,
+                            cur_input_embeds[image_start_token_pos + num_patches + 1 :],
+                        ),
+                        axis=0,
+                    )
+
+                    new_input_embeds.append(cur_input_embeds)
+
+                hidden_states = ops.stack(new_input_embeds, axis=0)
+
+        # 3. rotary_emb
         if not self.use_past:
             freqs_cis = self.freqs_mgr()
             mask = self.casual_mask(input_ids)  # mask: [bs, seq, seq]
@@ -106,30 +119,37 @@ class VaryQwenModel(QwenModel):
 
         # 5. ln_f
         hidden_states = self.ln_f(hidden_states)
-
         return hidden_states
 
 
 @register_llm
-class VaryQwenForCausalLM(QwenForCausalLM):
+class MonkeyQwenForCausalLM(QwenForCausalLM):
     def __init__(self, config):
-        config = VaryConfig(**config)
-        super(VaryQwenForCausalLM, self).__init__(config)
-        self.transformer = VaryQwenModel(config=config)
-        self.image_processor = VaryImageProcessor()
+        config = MonkeyConfig(**config)
+        super().__init__(config)
+        self.transformer = MonkeyModel(config)
+        self.lm_head = Linear(
+            config.hidden_size,
+            config.vocab_size,
+            has_bias=False,
+            param_init_type=config.param_init_type,
+            compute_dtype=config.compute_dtype
+        )
+        self.conversation = Conversation(generate_mode=True)
+        self.image_processor = MonkeyImageProcessor()
 
     def prepare_inputs_for_generation(self, input_ids, **kwargs):
         image_path = kwargs.get("image_path")
         if image_path is None:
-            image_clip, image_sam = None, None
+            windows, image = None, None
         else:
-            image_clip, image_sam = self.image_processor(image_path)
-            image_clip = ms.Tensor(image_clip, ms.float16)
-            image_sam = ms.Tensor(image_sam, ms.float16)
+            windows, image = self.image_processor(image_path)
+            windows = ms.Tensor(windows, ms.float16)
+            image = ms.Tensor(image, ms.float16)
         return {
             "input_ids": ms.Tensor(input_ids, ms.int32),
-            "image_clip": image_clip,
-            "image_sam": image_sam,
+            "windows": windows,
+            "image": image,
         }
 
     def construct(
@@ -144,8 +164,8 @@ class VaryQwenForCausalLM(QwenForCausalLM):
         batch_valid_length=None,
         batch_index=None,
         zactivate_len=None,
-        image_clip=None,
-        image_sam=None,
+        windows=None,
+        image=None,
     ):
         """construct"""
         bsz, seqlen = input_ids.shape
@@ -168,8 +188,8 @@ class VaryQwenForCausalLM(QwenForCausalLM):
             batch_valid_length=batch_valid_length,
             batch_index=batch_index,
             zactivate_len=zactivate_len,
-            image_clip=image_clip,
-            image_sam=image_sam,
+            windows=windows,
+            image=image,
         )
         pre_gather = (not self.use_past or self.is_first_iteration) and batch_valid_length is not None
         if pre_gather:
@@ -201,3 +221,7 @@ class VaryQwenForCausalLM(QwenForCausalLM):
         input_mask = self.reshape(input_mask, (-1,))
         loss = self.loss(logits, labels, input_mask)
         return loss
+
+    def add_image_token_pad_in_query(self, query):
+        query = self.image_prefix + " " + query + " "
+        return query
