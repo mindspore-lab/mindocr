@@ -411,7 +411,7 @@ data_export_static_model = {
     "master_resnet31": {"model_name": "master_resnet31", "data_shape_h_w": [32, 100]},
     "cls_mobilenet_v3_small_100_model": {"model_name": "cls_mobilenet_v3_small_100_model", "data_shape_h_w": [48, 192]},
     "crnn_resnet34": {"model_name": "crnn_resnet34", "data_shape_h_w": [32, 100]},
-    "crnn_resnet34_ch": {"model_name": "crnn_resnet34_ch", "data_shape_h_w": [32, 100]},
+    "crnn_resnet34_ch": {"model_name": "crnn_resnet34_ch", "data_shape_h_w": [32, 320]},
     "crnn_vgg7": {"model_name": "crnn_vgg7", "data_shape_h_w": [32, 100]},
     "dbnet_mobilenetv3": {"model_name": "dbnet_mobilenetv3", "data_shape_h_w": [736, 1280]},
     "dbnet_resnet18": {"model_name": "dbnet_resnet18", "data_shape_h_w": [736, 1280]},

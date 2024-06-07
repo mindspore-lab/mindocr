@@ -473,7 +473,9 @@ class SVTRNet(nn.Cell):
 
         if use_pos_embed:
             self.pos_embed = Parameter(
-                ops.zeros((1, num_patches, embed_dim[0]), ms.float32)
+                Tensor(
+                    np.zeros((1, num_patches, embed_dim[0]), np.float32), dtype=ms.float32
+                )
             )
         else:
             self.pos_embed = None

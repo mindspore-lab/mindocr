@@ -108,7 +108,7 @@ class TPSSpatialTransformer(nn.Cell):
 
         # register precomputed matrices
         self.inverse_kernel = Tensor(inverse_kernel, dtype=ms.float32)
-        self.padding_matrix = ops.zeros((1, 3, 2), ms.float32)
+        self.padding_matrix = Tensor(np.zeros((1, 3, 2), np.float32), dtype=ms.float32)
         self.target_coordinate_repr = Tensor(target_coordinate_repr, dtype=ms.float32)
         self.target_control_points = Tensor(target_control_points, dtype=ms.float32)
 
@@ -119,8 +119,8 @@ class TPSSpatialTransformer(nn.Cell):
 
         padding_matrix = ops.tile(self.padding_matrix, (batch_size, 1, 1))
         Y = ops.concat([source_control_points, padding_matrix], axis=1)
-        mapping_matrix = ops.matmul(self.inverse_kernel, Y)
-        source_coordinate = ops.matmul(self.target_coordinate_repr, mapping_matrix)
+        mapping_matrix = ops.matmul(self.inverse_kernel.expand_dims(0), Y)
+        source_coordinate = ops.matmul(self.target_coordinate_repr.expand_dims(0), mapping_matrix)
         grid = ops.reshape(
             source_coordinate,
             (-1, self.target_height, self.target_width, 2),
