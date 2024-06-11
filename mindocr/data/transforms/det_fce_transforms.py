@@ -550,7 +550,7 @@ class FCENetTargets:
             # assert len(poly) == 1
             # text_instance = [[poly[i], poly[i + 1]]
             #                  for i in range(0, len(poly), 2)]
-            polygon = np.array(poly, dtype=np.int).reshape((1, -1, 2))
+            polygon = np.array(poly, dtype=np.int_).reshape((1, -1, 2))
             _, _, box_w, box_h = cv2.boundingRect(polygon)
             proportion = max(box_h, box_w) / (h + 1e-8)
 
@@ -562,7 +562,7 @@ class FCENetTargets:
             # assert len(ignore_poly) == 1
             # text_instance = [[ignore_poly[i], ignore_poly[i + 1]]
             #                  for i in range(0, len(ignore_poly), 2)]
-            polygon = np.array(ignore_poly, dtype=np.int).reshape((1, -1, 2))
+            polygon = np.array(ignore_poly, dtype=np.int_).reshape((1, -1, 2))
             _, _, box_w, box_h = cv2.boundingRect(polygon)
             proportion = max(box_h, box_w) / (h + 1e-8)
 
