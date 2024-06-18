@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "..")))
 from addict import Dict
 
 import mindspore as ms
+from mindspore._c_expression import ms_ctx_param
 from mindspore.communication import get_group_size, get_rank, init
 
 from mindocr.data import build_dataset
@@ -27,6 +28,10 @@ logger = logging.getLogger("mindocr.eval")
 def main(cfg):
     # env init
     ms.set_context(mode=cfg.system.mode)
+    if "jit_level" in ms_ctx_param.__members__ and cfg.system.mode == 0:
+        # set jit_level to O2 for better pereformance under graph mode
+        ms.set_context(jit_config={"jit_level": "O2"})
+
     if cfg.system.distribute:
         init()
         device_num = get_group_size()
