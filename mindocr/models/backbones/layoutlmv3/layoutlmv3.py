@@ -175,7 +175,7 @@ class LayoutLMv3SelfAttention(LayoutXLMSelfAttention):
 
         if attention_mask is not None:
             # Apply the attention mask is (precomputed for all layers in RobertaModel forward() function)
-            attention_scores = attention_scores + attention_mask.astype(self.dense_dtype)
+            attention_scores = attention_scores + attention_mask.astype(attention_scores.dtype)
 
         # Normalize the attention scores to probabilities.
         # Use the trick of the CogView paper to stablize training
@@ -227,11 +227,8 @@ class LayoutLMv3Model(nn.Cell):
         self.has_relative_attention_bias = config.has_relative_attention_bias
         self.has_spatial_attention_bias = config.has_spatial_attention_bias
         self.patch_size = config.patch_size
-        self.use_float16 = config.use_float16
-        self.dense_dtype = mstype.float32
-        if self.use_float16 is True:
-            self.dense_dtype = mstype.float16
-        self.min = finfo(self.dense_dtype)
+        self.float32_min = finfo(mstype.float32)
+        self.float16_min = finfo(mstype.float16)
         self.out_channels = 1
         self.use_visual_backbone = True
 
@@ -342,7 +339,13 @@ class LayoutLMv3Model(nn.Cell):
         # Since we are adding it to the raw scores before the softmax, this is
         # effectively the same as removing these entirely.  # fp16 compatibility
         extended_attention_mask = extended_attention_mask.astype(dtype)
-        extended_attention_mask = (1.0 - extended_attention_mask) * self.min
+
+        if dtype == mstype.float32:
+            minimum = self.float32_min
+        elif dtype == mstype.float16:
+            minimum = self.float16_min
+
+        extended_attention_mask = (1.0 - extended_attention_mask) * minimum
         return extended_attention_mask
 
     def get_head_mask(self, head_mask, num_hidden_layers: int, is_attention_chunked: bool = False):
@@ -518,7 +521,7 @@ class LayoutLMv3Model(nn.Cell):
 
 
 @register_backbone
-def layoutlmv3(use_float16: bool = True, **kwargs):
-    pretrained_config = LayoutLMv3PretrainedConfig(use_float16)
+def layoutlmv3(**kwargs):
+    pretrained_config = LayoutLMv3PretrainedConfig()
     model = LayoutLMv3Model(pretrained_config)
     return model

@@ -159,7 +159,7 @@ Apart from the dataset setting, please also check the following important args: 
 system:
   mode:
   distribute: False                                                     # `True` for distributed training, `False` for standalone training
-  amp_level: 'O0'
+  amp_level: 'O3'
   seed: 42
   val_while_train: True                                                 # Validate while training
   drop_overflow_update: False
@@ -171,12 +171,10 @@ model:
     pretrained: True
     num_classes: &num_classes 7
     use_visual_backbone: False
-    use_float16: True
   head :
     name: TokenClassificationHead
     num_classes: 7
     use_visual_backbone: False
-    use_float16: True
   pretrained:
 ...
 train:

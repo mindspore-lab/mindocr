@@ -11,9 +11,9 @@ from .activation import act_fn
 
 def finfo(dtype):
     if dtype == mstype.float32:
-        return np.finfo(np.float32).min
+        return Tensor(np.finfo(np.float32).min)
     elif dtype == mstype.float16:
-        return np.finfo(np.float16).min
+        return Tensor(np.finfo(np.float16).min)
     else:
         raise TypeError(f"For 'finfo', the input dtype should be float32 or float16, bug got {dtype}")
 
@@ -94,24 +94,18 @@ class LayoutXLMSelfAttention(nn.Cell):
         self.has_relative_attention_bias = config.has_relative_attention_bias
         self.has_spatial_attention_bias = config.has_spatial_attention_bias
 
-        self.use_float16 = config.use_float16
-        self.dense_dtype = mstype.float32
-        if self.use_float16 is True:
-            self.dense_dtype = mstype.float16
-
         if config.fast_qkv:
-            self.qkv_linear = nn.Dense(config.hidden_size, 3 * self.all_head_size, has_bias=False).to_float(
-                self.dense_dtype
-            )
-            self.q_bias = Parameter(initializer(Constant(0.0), [1, 1, self.all_head_size], self.dense_dtype))
-            self.v_bias = Parameter(initializer(Constant(0.0), [1, 1, self.all_head_size], self.dense_dtype))
+            self.qkv_linear = nn.Dense(config.hidden_size, 3 * self.all_head_size, has_bias=False)
+            self.q_bias = Parameter(initializer(Constant(0.0), [1, 1, self.all_head_size]))
+            self.v_bias = Parameter(initializer(Constant(0.0), [1, 1, self.all_head_size]))
         else:
-            self.query = nn.Dense(config.hidden_size, self.all_head_size).to_float(self.dense_dtype)
-            self.key = nn.Dense(config.hidden_size, self.all_head_size).to_float(self.dense_dtype)
-            self.value = nn.Dense(config.hidden_size, self.all_head_size).to_float(self.dense_dtype)
+            self.query = nn.Dense(config.hidden_size, self.all_head_size)
+            self.key = nn.Dense(config.hidden_size, self.all_head_size)
+            self.value = nn.Dense(config.hidden_size, self.all_head_size)
 
         self.dropout = nn.Dropout(p=config.attention_probs_dropout_prob)
-        self.min = finfo(self.dense_dtype)
+        self.float32_min = finfo(mstype.float32)
+        self.float16_min = finfo(mstype.float16)
 
     def transpose_for_scores(self, x):
         new_x_shape = list(x.shape[:-1]) + [
@@ -168,10 +162,20 @@ class LayoutXLMSelfAttention(nn.Cell):
             attention_scores += rel_pos
         if self.has_spatial_attention_bias:
             attention_scores += rel_2d_pos
+
+        minimum = None
+        if attention_scores.dtype == mstype.float32:
+            minimum = self.float32_min
+        elif attention_scores.dtype == mstype.float16:
+            minimum = self.float16_min
+        else:
+            raise ValueError("Dtype of attention_scores must be ms.float32 or ms.float16,",
+                             f" but got {attention_scores.dtype}")
+
         attention_scores = ops.masked_fill(
             attention_scores,
             ops.stop_gradient(attention_mask.astype(mstype.bool_)),
-            self.min,
+            minimum
         )
         attention_probs = ops.softmax(attention_scores, axis=-1)
         # This is actually dropping out entire tokens to attend to, which might
@@ -193,11 +197,7 @@ class LayoutXLMSelfAttention(nn.Cell):
 class LayoutXLMSelfOutput(nn.Cell):
     def __init__(self, config):
         super().__init__()
-        self.use_float16 = config.use_float16
-        self.dense_dtype = mstype.float32
-        if self.use_float16 is True:
-            self.dense_dtype = mstype.float16
-        self.dense = nn.Dense(config.hidden_size, config.hidden_size).to_float(self.dense_dtype)
+        self.dense = nn.Dense(config.hidden_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm((config.hidden_size,), epsilon=config.layer_norm_eps)
         self.dropout = nn.Dropout(p=config.hidden_dropout_prob)
 
@@ -251,11 +251,7 @@ class LayoutXLMAttention(nn.Cell):
 class LayoutXLMIntermediate(nn.Cell):
     def __init__(self, config):
         super().__init__()
-        self.use_float16 = config.use_float16
-        self.dense_dtype = mstype.float32
-        if self.use_float16 is True:
-            self.dense_dtype = mstype.float16
-        self.dense = nn.Dense(config.hidden_size, config.intermediate_size).to_float(self.dense_dtype)
+        self.dense = nn.Dense(config.hidden_size, config.intermediate_size)
         if isinstance(config.hidden_act, str):
             self.intermediate_act_fn = act_fn[config.hidden_act]
         else:
@@ -270,11 +266,7 @@ class LayoutXLMIntermediate(nn.Cell):
 class LayoutXLMOutput(nn.Cell):
     def __init__(self, config):
         super().__init__()
-        self.use_float16 = config.use_float16
-        self.dense_dtype = mstype.float32
-        if self.use_float16 is True:
-            self.dense_dtype = mstype.float16
-        self.dense = nn.Dense(config.intermediate_size, config.hidden_size).to_float(self.dense_dtype)
+        self.dense = nn.Dense(config.intermediate_size, config.hidden_size)
         self.LayerNorm = nn.LayerNorm((config.hidden_size,), epsilon=config.layer_norm_eps)
         self.dropout = nn.Dropout(p=config.hidden_dropout_prob)
 
@@ -347,18 +339,11 @@ class LayoutXLMEncoder(nn.Cell):
         self.has_relative_attention_bias = config.has_relative_attention_bias
         self.has_spatial_attention_bias = config.has_spatial_attention_bias
 
-        self.use_float16 = config.use_float16
-        self.dense_dtype = mstype.float32
-        if self.use_float16 is True:
-            self.dense_dtype = mstype.float16
-
         if self.has_relative_attention_bias:
             self.rel_pos_bins = config.rel_pos_bins
             self.max_rel_pos = config.max_rel_pos
             self.rel_pos_onehot_size = config.rel_pos_bins
-            self.rel_pos_bias = nn.Dense(self.rel_pos_onehot_size, config.num_attention_heads, has_bias=False).to_float(
-                mstype.float16
-            )
+            self.rel_pos_bias = nn.Dense(self.rel_pos_onehot_size, config.num_attention_heads, has_bias=False)
 
         if self.has_spatial_attention_bias:
             self.max_rel_2d_pos = config.max_rel_2d_pos
@@ -366,10 +351,10 @@ class LayoutXLMEncoder(nn.Cell):
             self.rel_2d_pos_onehot_size = config.rel_2d_pos_bins
             self.rel_pos_x_bias = nn.Dense(
                 self.rel_2d_pos_onehot_size, config.num_attention_heads, has_bias=False
-            ).to_float(self.dense_dtype)
+            )
             self.rel_pos_y_bias = nn.Dense(
                 self.rel_2d_pos_onehot_size, config.num_attention_heads, has_bias=False
-            ).to_float(self.dense_dtype)
+            )
 
     def relative_position_bucket(self, relative_position, bidirectional=True, num_buckets=32, max_distance=128):
         def test(relative_position, bidirectional=True, num_buckets=32, max_distance=128):
@@ -506,11 +491,7 @@ class LayoutXLMEncoder(nn.Cell):
 class LayoutXLMPooler(nn.Cell):
     def __init__(self, config):
         super().__init__()
-        self.use_float16 = config.use_float16
-        self.dense_dtype = mstype.float32
-        if self.use_float16 is True:
-            self.dense_dtype = mstype.float16
-        self.dense = nn.Dense(config.hidden_size, config.hidden_size).to_float(self.dense_dtype)
+        self.dense = nn.Dense(config.hidden_size, config.hidden_size)
         self.activation = nn.Tanh()
 
     def construct(self, hidden_states):

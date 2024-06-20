@@ -99,18 +99,12 @@ class LayoutXLMModel(nn.Cell):
         self.has_visual_segment_embedding = config.has_visual_segment_embedding
         self.embeddings = LayoutXLMEmbeddings(config)
         self.use_visual_backbone = config.use_visual_backbone
-        self.use_float16 = config.use_float16
-        self.dense_dtype = mstype.float32
-        if self.use_float16 is True:
-            self.dense_dtype = mstype.float16
 
         if self.use_visual_backbone is True:
             set_context(jit_syntax_level=0)
             self.visual = VisualBackbone(config)
             self.visual.freeze()
-            self.visual_proj = nn.Dense(config.image_feature_pool_shape[-1], config.hidden_size).to_float(
-                self.dense_dtype
-            )
+            self.visual_proj = nn.Dense(config.image_feature_pool_shape[-1], config.hidden_size)
         if self.has_visual_segment_embedding:
             self.visual_segment_embedding = Parameter(nn.Embedding(1, config.hidden_size).embedding_table[0])
         self.visual_LayerNorm = nn.LayerNorm((config.hidden_size,), epsilon=config.layer_norm_eps)
@@ -302,8 +296,8 @@ class LayoutXLMModel(nn.Cell):
 
 
 @register_backbone
-def layoutxlm(pretrained: bool = True, use_visual_backbone: bool = True, use_float16: bool = False, **kwargs):
-    pretrained_config = LayoutXLMPretrainedConfig(use_visual_backbone, use_float16)
+def layoutxlm(pretrained: bool = True, use_visual_backbone: bool = True, **kwargs):
+    pretrained_config = LayoutXLMPretrainedConfig(use_visual_backbone)
     model = LayoutXLMModel(pretrained_config)
     if pretrained:
         if use_visual_backbone is True:

@@ -1,7 +1,7 @@
 system:
   mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
   distribute: False
-  amp_level: 'O0'
+  amp_level: 'O3'
   seed: 42
   log_interval: 10
   val_while_train: True
@@ -15,12 +15,10 @@ model:
     pretrained: True
     num_classes: &num_classes 7
     use_visual_backbone: True
-    use_float16: True
   head :
     name: TokenClassificationHead
     num_classes: 7
     use_visual_backbone: True
-    use_float16: True
   pretrained:
 
 postprocess:

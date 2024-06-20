@@ -3,13 +3,11 @@ from dataclasses import dataclass
 
 @dataclass
 class LayoutXLMPretrainedConfig:
-    def __init__(self, use_visual_backbone=True, use_float16=False):
+    def __init__(self, use_visual_backbone=True):
         pretrained_config = {
             "use_visual_backbone": use_visual_backbone,
-            "use_float16": use_float16,
             "attention_probs_dropout_prob": 0.1,
             "use_visual_backbone": use_visual_backbone,
-            "use_float16": use_float16,
             "bos_token_id": 0,
             "coordinate_size": 128,
             "eos_token_id": 2,

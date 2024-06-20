@@ -9,19 +9,15 @@ class TokenClassificationHead(nn.Cell):
         self,
         num_classes: int = 7,
         use_visual_backbone: bool = True,
-        use_float16: bool = False,
         dropout_prod=None,
         **kwargs
     ):
         super(TokenClassificationHead, self).__init__()
         self.num_classes = num_classes
-        dense_type = float32
-        if use_float16 is True:
-            dense_type = float16
-        self.config = LayoutXLMPretrainedConfig(use_visual_backbone, use_float16)
+        self.config = LayoutXLMPretrainedConfig(use_visual_backbone)
         dropout_prod = dropout_prod if dropout_prod is not None else self.config.hidden_dropout_prob
         self.dropout = nn.Dropout(p=dropout_prod)
-        self.classifier = nn.Dense(self.config.hidden_size, num_classes).to_float(dense_type)
+        self.classifier = nn.Dense(self.config.hidden_size, num_classes)
 
     @staticmethod
     def _init_weights(layer):

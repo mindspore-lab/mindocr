@@ -7,14 +7,13 @@ from ..backbones.layoutxlm.configuration import LayoutXLMPretrainedConfig
 class BiaffineAttention(nn.Cell):
     """Implements a biaffine attention operator for binary relation classification."""
 
-    def __init__(self, in_features, out_features, use_float16: bool = True):
+    def __init__(self, in_features, out_features):
         super(BiaffineAttention, self).__init__()
-        self.dense_dtype = float16 if use_float16 else float32
         self.in_features = in_features
         self.out_features = out_features
 
         self.bilinear = nn.BiDense(in_features, in_features, out_features, has_bias=False)
-        self.linear = nn.Dense(2 * in_features, out_features).to_float(self.dense_dtype)
+        self.linear = nn.Dense(2 * in_features, out_features)
 
     def construct(self, x_1, x_2):
         return self.bilinear(x_1, x_2) + self.linear(ops.concat((x_1, x_2), axis=-1))
@@ -24,23 +23,22 @@ class REDecoder(nn.Cell):
     """
     Decoder of relation extraction
     """
-    def __init__(self, hidden_size=768, hidden_dropout_prob=0.1, use_float16: bool = True):
+    def __init__(self, hidden_size=768, hidden_dropout_prob=0.1):
         super(REDecoder, self).__init__()
-        self.dense_dtype = float16 if use_float16 else float32
         self.entity_emb = nn.Embedding(3, hidden_size)
         self.ffnn_head = nn.SequentialCell(
-            nn.Dense(hidden_size * 2, hidden_size).to_float(self.dense_dtype),
+            nn.Dense(hidden_size * 2, hidden_size),
             nn.ReLU(),
             nn.Dropout(p=hidden_dropout_prob),
-            nn.Dense(hidden_size, hidden_size // 2).to_float(self.dense_dtype),
+            nn.Dense(hidden_size, hidden_size // 2),
             nn.ReLU(),
             nn.Dropout(p=hidden_dropout_prob),
         )
         self.ffnn_tail = nn.SequentialCell(
-            nn.Dense(hidden_size * 2, hidden_size).to_float(self.dense_dtype),
+            nn.Dense(hidden_size * 2, hidden_size),
             nn.ReLU(),
             nn.Dropout(p=hidden_dropout_prob),
-            nn.Dense(hidden_size, hidden_size // 2).to_float(self.dense_dtype),
+            nn.Dense(hidden_size, hidden_size // 2),
             nn.ReLU(),
             nn.Dropout(p=hidden_dropout_prob),
         )
@@ -58,8 +56,8 @@ class REDecoder(nn.Cell):
         tmp_hidden_states = ops.gather_d(hidden_states, 1, answer)
         a_repr = ops.concat((tmp_hidden_states, a_label_repr), axis=-1)
 
-        q = self.ffnn_head(q_repr).astype(float32)
-        a = self.ffnn_tail(a_repr).astype(float32)
+        q = self.ffnn_head(q_repr)
+        a = self.ffnn_tail(a_repr)
         logits = self.rel_classifier(q, a)
         return logits
 
@@ -68,13 +66,13 @@ class RelationExtractionHead(nn.Cell):
     """
     Head of relation extraction tas
     """
-    def __init__(self, use_visual_backbone: bool = True, use_float16: bool = False, dropout=None, **kwargs):
+    def __init__(self, use_visual_backbone: bool = True, dropout=None, **kwargs):
         super(RelationExtractionHead, self).__init__()
-        self.config = LayoutXLMPretrainedConfig(use_visual_backbone, use_float16)
+        self.config = LayoutXLMPretrainedConfig(use_visual_backbone)
 
         dropout_prob = dropout if dropout is not None else self.config.hidden_dropout_prob
 
-        self.extractor = REDecoder(self.config.hidden_size, dropout_prob, use_float16)
+        self.extractor = REDecoder(self.config.hidden_size, dropout_prob)
 
         self.dropout = nn.Dropout(p=dropout_prob)
 

@@ -156,7 +156,7 @@ eval:
 system:
   mode:
   distribute: False                                                     # 分布式训练为True，单卡训练为False
-  amp_level: 'O0'
+  amp_level: 'O3'
   seed: 42
   val_while_train: True                                                 # 边训练边验证
   drop_overflow_update: False
@@ -168,12 +168,10 @@ model:
     pretrained: True
     num_classes: &num_classes 7
     use_visual_backbone: False
-    use_float16: True
   head :
     name: TokenClassificationHead
     num_classes: 7
     use_visual_backbone: False
-    use_float16: True
   pretrained:
 ...
 train:
