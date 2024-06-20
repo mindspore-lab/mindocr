@@ -41,6 +41,8 @@ logger = logging.getLogger("mindocr.train")
 def main(cfg):
     # init env
     ms.set_context(mode=cfg.system.mode)
+    if cfg.system.mode == 0:
+        ms.set_context(jit_config={"jit_level": "O2"})
     if cfg.system.distribute:
         init()
         device_num = get_group_size()
