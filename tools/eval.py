@@ -25,7 +25,7 @@ logger = logging.getLogger("mindocr.eval")
 
 
 def main(cfg):
-    # env init
+    # init env
     ms.set_context(mode=cfg.system.mode)
     if cfg.system.mode == 0:
         ms.set_context(jit_config={"jit_level": "O2"})
