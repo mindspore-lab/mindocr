@@ -43,6 +43,8 @@ def main(cfg):
     ms.set_context(mode=cfg.system.mode)
     if cfg.system.mode == 0:
         ms.set_context(jit_config={"jit_level": "O2"})
+    if cfg.train.max_call_depth:
+        ms.set_context(max_call_depth=cfg.train.max_call_depth)
     if cfg.system.distribute:
         init()
         device_num = get_group_size()
