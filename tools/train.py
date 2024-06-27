@@ -41,6 +41,8 @@ logger = logging.getLogger("mindocr.train")
 def main(cfg):
     # init env
     ms.set_context(mode=cfg.system.mode)
+    if cfg.train.max_call_depth:
+        ms.set_context(max_call_depth=cfg.train.max_call_depth)
     if cfg.system.distribute:
         init()
         device_num = get_group_size()
