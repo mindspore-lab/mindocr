@@ -12,6 +12,16 @@ PAT_STR = r"""(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}| ?[^\s
 ENDOFTEXT = "<|endoftext|>"
 IMSTART = "<|im_start|>"
 IMEND = "<|im_end|>"
+REF_START_TAG = "<ref>"
+REF_END_TAG = "</ref>"
+BOX_START_TAG = "<box>"
+BOX_END_TAG = "</box>"
+QUAD_START_TAG = "<quad>"
+QUAD_END_TAG = "</quad>"
+IMAGE_START_TAG = "<img>"
+IMAGE_END_TAG = "</img>"
+IMAGE_PAD_TAG = "<imgpad>"
+
 EXTRAS = tuple((f"<|extra_{i}|>" for i in range(205)))
 SPECIAL_TOKENS = (
     (
@@ -20,7 +30,17 @@ SPECIAL_TOKENS = (
         IMEND,
     )
     + EXTRAS
-    + ("<ref>", "</ref>", "<box>", "</box>", "<quad>", "</quad>", "<img>", "</img>", "<imgpad>")
+    + (
+        REF_START_TAG,
+        REF_END_TAG,
+        BOX_START_TAG,
+        BOX_END_TAG,
+        QUAD_START_TAG,
+        QUAD_END_TAG,
+        IMAGE_START_TAG,
+        IMAGE_END_TAG,
+        IMAGE_PAD_TAG,
+    )
 )
 
 

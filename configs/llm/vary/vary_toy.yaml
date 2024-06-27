@@ -30,6 +30,7 @@ model:
   max_new_tokens: 1024
   temperature: 1.0
   num_beams: 1
+  num_patches: 256
 
   # configuration items copied from Qwen
   rotary_pct: 1.0
@@ -37,8 +38,6 @@ model:
   kv_channels: 128
 
 processor:
-  return_tensors: ms
   tokenizer:
     vocab_file: "/path/to/qwen.tiktoken"
     pad_token: "<|endoftext|>"
-  type: QwenProcessor

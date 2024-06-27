@@ -6,18 +6,19 @@ import numpy as np
 import mindspore as ms
 import mindspore.common.dtype as mstype
 from mindspore import Parameter, Tensor, nn, ops
-from mindspore._c_expression import MSContext
 from mindspore.common.initializer import initializer
-from mindspore.nn.layer.flash_attention import FlashAttention
 
 from mindocr.nlp.llm.base_llm_model import BaseLLMModel
 from mindocr.nlp.llm.configs import QwenConfig
 from mindocr.nlp.utils.kvcache_mgr import KVCacheMgr, KVCachePreprocess
 from mindocr.nlp.utils.layers import Linear
 from mindocr.nlp.utils.loss import CrossEntropyLoss
+from mindocr.nlp.utils.flash_attention import FlashAttention
+from mindocr.nlp.llm.qwen_tokenizer import QwenTokenizer
 
 
 def is_910a():
+    from mindspore._c_expression import MSContext
     device = MSContext.get_instance().get_ascend_soc_version()
     return device in ["910a", "ascend910"]
 
@@ -141,99 +142,6 @@ class FreqsMgr(nn.Cell):
 class LlamaSiLU(nn.Cell):
     def construct(self, x):
         return ops.silu(x)
-
-
-class LlamaFeedForward(nn.Cell):
-    r"""
-    LLaMA FeedForward.
-
-    .. math::
-            (xW_1 * xW_3)W_2
-
-        Inputs:
-            - **x** (Tensor) - should be `[batch, seq_length, hidden_size] or [batch * seq_length, hidden_size]`.
-              Float tensor.
-
-        Outputs:
-            Tensor, the output of this layer after mapping. The shape is `[batch, seq_length, hidden_size] or
-            [batch * seq_length, hidden_size]`.
-
-        Raises:
-            ValueError: `hidden_dim` is not a multiple of the model parallel way.
-            ValueError: `dim` is not a multiple of the model parallel way.
-    """
-
-    def __init__(
-        self,
-        dim,
-        intermediate_size=None,
-        hidden_dim=None,
-        multiple_of=256,
-        hidden_act=LlamaSiLU,
-        ffn_dim_multiplier=None,
-        compute_dtype=mstype.float16,
-        param_init_type=mstype.float32,
-        is_dynamic=False,
-    ):
-        super().__init__()
-
-        if hidden_act is None or not (isinstance(hidden_act, str) or issubclass(hidden_act, nn.Cell)):
-            raise TypeError(
-                f"For FeedForward cell, the hidden_act should str type or nn.Cell type, but got {hidden_act}."
-            )
-
-        if intermediate_size is not None:
-            hidden_dim = intermediate_size
-        else:
-            if ffn_dim_multiplier is not None:
-                hidden_dim = int((ffn_dim_multiplier + 0.01) * hidden_dim)
-            hidden_dim = int(2 * hidden_dim / 3)
-            hidden_dim = multiple_of * ((hidden_dim + multiple_of - 1) // multiple_of)
-
-        self.dtype = compute_dtype
-        self.hidden_act = hidden_act
-        self.dim = dim
-        self.hidden_dim = hidden_dim
-
-        self.mul = ops.Mul()
-        self.cast = ops.Cast()
-        self.w1 = Linear(
-            in_channels=dim,
-            out_channels=hidden_dim,
-            activation=hidden_act,
-            has_bias=False,
-            compute_dtype=compute_dtype,
-            param_init_type=param_init_type,
-            skip_redistribution=is_dynamic,
-        )
-
-        self.w2 = Linear(
-            in_channels=hidden_dim,
-            out_channels=dim,
-            has_bias=False,
-            compute_dtype=compute_dtype,
-            param_init_type=param_init_type,
-            skip_redistribution=is_dynamic,
-        )
-
-        self.w3 = Linear(
-            in_channels=dim,
-            out_channels=hidden_dim,
-            has_bias=False,
-            compute_dtype=compute_dtype,
-            param_init_type=param_init_type,
-            skip_redistribution=is_dynamic,
-        )
-
-    def construct(self, x):
-        """Forward process of the FeedForward"""
-        x = self.cast(x, self.dtype)
-        # [bs, seq, hidden_dim] or [bs * seq, hidden_dim]
-        gate = self.w1(x)  # dp,1 -> dp, mp
-        hidden = self.w3(x)  # dp,1 -> dp, mp
-        hidden = self.mul(hidden, gate)  # dp,mp -> dp, mp
-        output = self.w2(hidden)  # dp,mp -> dp, 1
-        return output
 
 
 class LlamaRotaryEmbedding(nn.Cell):
@@ -467,7 +375,16 @@ class LLamaAttention(nn.Cell):
         )
 
         if self.use_flash_attention:
-            self.flash_attention = FlashAttention(self.head_dim, n_heads, next_block_num=0, high_precision=True)
+            self.flash_attention = FlashAttention(
+                head_num=self.n_head,
+                pre_tokens=65536,
+                next_tokens=0,
+                input_layout="BNSD",
+                keep_prob=1.,
+                scale_value=1. / (self.head_dim**0.5),
+                sparse_mode=0,
+                use_attention_mask=True,
+            )
 
         if self.use_past:
             self.kvcache_mgr = KVCacheMgr(
@@ -682,6 +599,7 @@ class QwenForCausalLM(BaseLLMModel):
         self.mul = ops.Mul()
         self.sub_batch_valid_len = ops.Sub()
         self.gather = ops.Gather(1)
+        self.tokenizer = QwenTokenizer(**config.tokenizer)
 
     def construct(
         self,
@@ -851,7 +769,7 @@ class QwenModel(BaseLLMModel):
         # 2. drop
         hidden_states = self.drop(hidden_states)
 
-        # 2. rotary_emb
+        # 3. rotary_emb
         bs, seq_len = self.shape(input_ids)
         if not self.use_past:
             freqs_cis = self.freqs_mgr()
@@ -897,8 +815,6 @@ class QwenDecodeLayer(nn.Cell):
         n_heads: int = 8,
         n_kv_heads: Optional[int] = None,
         intermediate_size: Optional[int] = None,
-        multiple_of: int = 256,
-        ffn_dim_multiplier: Optional[int] = None,
         norm_eps: float = 1e-5,
         qkv_concat=False,
         compute_dtype=mstype.float16,
@@ -963,16 +879,6 @@ class QwenDecodeLayer(nn.Cell):
             is_flexible_shape=is_flexible_shape,
             use_rope_slice=use_rope_slice,
             use_flash_attention=use_flash_attention,
-        )
-        self.feed_forward = LlamaFeedForward(
-            dim=self.hidden_size,
-            intermediate_size=intermediate_size,
-            hidden_dim=4 * self.hidden_size,
-            multiple_of=multiple_of,
-            ffn_dim_multiplier=ffn_dim_multiplier,
-            compute_dtype=compute_dtype,
-            param_init_type=param_init_type,
-            is_dynamic=is_dynamic,
         )
         self.feed_forward = QwenFeedForward(
             dim=self.hidden_size,
