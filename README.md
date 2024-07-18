@@ -48,8 +48,7 @@ MindOCR is an open-source toolbox for OCR development and application based on [
 
 #### Prerequisites
 
-MindOCR is built on MindSpore AI framework, which supports CPU/GPU/NPU devices.
-MindOCR is compatible with the following framework versions. For details and installation guideline, please refer to the installation links shown below.
+MindOCR is built on MindSpore AI framework and is compatible with the following framework versions. For details and installation guideline, please refer to the installation links shown below.
 
 - mindspore >= 2.2.0 [[install](https://www.mindspore.cn/install)]
 - python >= 3.7
