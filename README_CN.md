@@ -43,7 +43,7 @@ MindOCR是一个基于[MindSpore](https://www.mindspore.cn/en) 框架开发的OC
 
 #### MindSpore相关环境准备
 
-MindOCR基于MindSpore AI框架（支持CPU/GPU/NPU）开发，并适配以下框架版本。安装方式请参见下方的安装链接。
+MindOCR基于MindSpore AI框架开发，并适配以下框架版本。安装方式请参见下方的安装链接。
 
 - mindspore >= 2.2.0 [[安装](https://www.mindspore.cn/install)]
 - python >= 3.7
