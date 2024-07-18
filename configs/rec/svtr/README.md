@@ -34,17 +34,19 @@ Table Format:
 
 According to our experiments, the evaluation results on public benchmark datasets (IC03, IC13, IC15, IIIT, SVT, SVTP, CUTE) is as follow:
 
-<div align="center">
+<details>
+  <summary>Performance tested on ascend 910 with graph mode</summary>
 
-| **Model** | **Context** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
-| :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |
-| SVTR-Tiny      | D910x4-MS1.10-G | 90.23%    | 3638 s/epoch       | 4560 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3-86ece8c8.mindir) |
-| SVTR-Tiny-8P | D910x8-MS2.2-G  |  90.32%   | 1646 s/epoch |  9840   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \| [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir)  |
-</div>
-
-<details open markdown>
   <div align="center">
-  <summary>Detailed accuracy results for each benchmark dataset</summary>
+
+  | **Model** | **Device Card** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
+  | :-----: |:---------------:| :--------------: | :----------: | :--------: | :--------: |:----------: |
+  | SVTR-Tiny      |       4P        | 90.23%    | 3638 s/epoch       | 4560 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3-86ece8c8.mindir) |
+  | SVTR-Tiny-8P |       8P        |  90.32%   | 1646 s/epoch |  9840   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \| [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir)  |
+  </div>
+
+  Detailed accuracy results for each benchmark dataset
+  <div align="center">
 
   | **Model** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
   | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |

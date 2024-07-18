@@ -22,7 +22,6 @@ Linguistic knowledge is of great benefit to scene text recognition. However, how
 <!--- Guideline:
 Table Format:
 - Model: model name in lower case with _ seperator.
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
 - Top-1 and Top-5: Keep 2 digits after the decimal point.
 - Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
 - Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
@@ -33,16 +32,18 @@ Table Format:
 
 According to our experiments, the evaluation results on public benchmark datasets ( IC13, IC15, IIIT, SVT, SVTP, CUTE) is as follow:
 
-<div align="center">
+<details>
+  <summary>Performance tested on ascend 910 with graph mode</summary>
 
-| **Model** | **Context** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
-| :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |
-| ABINet      | D910x8-MS2.1-G | 91.35%    | 14,867 s/epoch       | 628.11 | [yaml](abinet_resnet45_en.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en-7efa1184.ckpt)
-</div>
-
-<details open>
   <div align="center">
-  <summary>Detailed accuracy results for each benchmark dataset</summary>
+
+  | **Model** | **Device** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
+  | :-----: |:----------:| :--------------: | :----------: | :--------: | :--------: |:----------: |
+  | ABINet      |     8p     | 91.35%    | 14,867 s/epoch       | 628.11 | [yaml](abinet_resnet45_en.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en-7efa1184.ckpt)
+  </div>
+
+  Detailed accuracy results for each benchmark dataset
+  <div align="center">
 
   | **Model**  | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
   | :------:  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
@@ -52,7 +53,6 @@ According to our experiments, the evaluation results on public benchmark dataset
 
 
 **Notes:**
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x4-MS1.10-G is for training on 4 pieces of Ascend 910 NPU using graph mode based on Minspore version 1.10.
 - The input Shapes of MindIR of ABINet is (1, 3, 32, 128).
 
 
