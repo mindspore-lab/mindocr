@@ -43,13 +43,13 @@ MindOCR is an open-source toolbox for OCR development and application based on [
 The following is the corresponding `mindocr` versions and supported
 mindspore versions.
 
-| `mindspore` | `mindocr` | `tested hardware`  
-| :--:| :--:|:-------------------|
-| `master`  | `master`| `ascend 910*`      | 
-| `2.3.0`   | `0.4`  | `ascend 910*`      |
-| `2.2.10`  | `0.3` | `ascend 910, 910*` |
-| `2.0`     | `0.2` | `ascend 910`       |
-| `1.8`     | `0.1`  | `ascend 910`       |
+| mindocr | mindspore |
+|:-------:|:---------:|
+| master  |  master   |
+|   0.4   |   2.3.0   |
+|   0.3   |  2.2.10   |
+|   0.1   |    1.8    |
+
 
 ## Installation
 
@@ -58,8 +58,7 @@ mindspore versions.
 
 #### Prerequisites
 
-MindOCR is built on MindSpore AI framework, which supports CPU/GPU/NPU devices.
-MindOCR is compatible with the following framework versions. For details and installation guideline, please refer to the installation links shown below.
+MindOCR is built on MindSpore AI framework and is compatible with the following framework versions. For details and installation guideline, please refer to the installation links shown below.
 
 - mindspore >= 2.2.0 [[install](https://www.mindspore.cn/install)]
 - python >= 3.7

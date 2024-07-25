@@ -36,12 +36,12 @@ According to our experiments, the evaluation results on public benchmark dataset
   <summary>Performance tested on ascend 910 with graph mode</summary>
 
   <div align="center">
-  
+
   | **Model** | **Device** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
   | :-----: |:----------:| :--------------: | :----------: | :--------: | :--------: |:----------: |
   | ABINet      |     8p     | 91.35%    | 14,867 s/epoch       | 628.11 | [yaml](abinet_resnet45_en.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en-7efa1184.ckpt)
   </div>
-  
+
   Detailed accuracy results for each benchmark dataset
   <div align="center">
 

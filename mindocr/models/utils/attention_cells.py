@@ -37,7 +37,7 @@ class MultiHeadAttention(nn.Cell):
 
         if mask is not None:
             score = ops.masked_fill(
-                score, mask == 0, -np.inf
+                score, mask == 0, ms.Tensor(-np.inf, score.dtype)
             )  # score (N, h, seq_len, seq_len)
 
         p_attn = ops.softmax(score, axis=-1)

@@ -38,13 +38,13 @@ According to our experiments, the evaluation results on public benchmark dataset
   <summary>Performance tested on ascend 910 with graph mode</summary>
 
   <div align="center">
-  
+
   | **Model** | **Device Card** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
   | :-----: |:---------------:| :--------------: | :----------: | :--------: | :--------: |:----------: |
   | SVTR-Tiny      |       4P        | 90.23%    | 3638 s/epoch       | 4560 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3-86ece8c8.mindir) |
   | SVTR-Tiny-8P |       8P        |  90.32%   | 1646 s/epoch |  9840   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \| [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir)  |
   </div>
-  
+
   Detailed accuracy results for each benchmark dataset
   <div align="center">
 
