@@ -24,7 +24,7 @@ class DetResize(det_transforms.DetResize):
             )
             padding = True
 
-        skipped = ("target_size", "limit_type", "force_divisable")
+        skipped = ("target_size", "limit_type", "limit_side_len", "force_divisable")
         [kwargs.pop(name, None) for name in skipped]
 
         super().__init__(
