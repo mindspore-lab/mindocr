@@ -10,8 +10,8 @@ Thus, online inference is more suitable for demonstration and to visually evalua
 
 | Environment | Version |
 |-------------|---------|
-| MindSpore   | >=1.9   |
-| Python      | >=3.7   |
+| MindSpore   | \>=1.9  |
+| Python      | \>=3.7  |
 
 Supported platforms: Linux, MacOS, Windows (Not tested)
 

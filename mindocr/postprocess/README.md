@@ -14,7 +14,7 @@
     - `box_type` (string): options are ["quad', 'polys"] for quadriateral and polygon text representation.
     - `rescale_fields` (List[str]='polys'): indicates which fields in the output dict will be rescaled to the original image space. Field name: "polys" for polygons
 
-3. `__call__()` method: If inherit from `DetBasePostprocess `DetBasePostprocess``, you don't need to implement this method in your Postproc. class.
+3. `__call__()` method: If inherit from `DetBasePostprocess`, you don't need to implement this method in your Postproc. class.
     Execution entry for postprocessing, which postprocess network prediction on the transformed image space to get text boxes (by `self._postprocess()` function) and then rescale them back to the original image space (by `self.rescale()` function).
 
     - Input args:

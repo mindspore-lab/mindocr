@@ -2,7 +2,11 @@
 <div align="center" markdown>
 
 # MindOCR
+</div>
+
 <!--end-->
+
+<div align="center" markdown>
 
 [![CI](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml/badge.svg)](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/mindspore-lab/mindocr.svg)](https://github.com/mindspore-lab/mindocr/blob/main/LICENSE)
@@ -10,8 +14,8 @@
 [![PRs](https://img.shields.io/badge/PRs-welcome-pink.svg)](https://github.com/mindspore-lab/mindocr/pulls)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-<!--start-->
-[English](README.md) | 中文
+
+[English](https://github.com/mindspore-lab/mindocr/blob/main/README.md) | 中文
 
 [📝简介](#简介) |
 [🔨安装教程](#安装教程) |
@@ -24,6 +28,7 @@
 
 </div>
 
+<!--start-->
 ## 简介
 MindOCR是一个基于[MindSpore](https://www.mindspore.cn/en) 框架开发的OCR开源工具箱，集成系列主流文字检测识别的算法、模型，并提供易用的训练和推理工具，可以帮助用户快速开发和应用业界SoTA文本检测、文本识别模型，如DBNet/DBNet++和CRNN/SVTR，满足图像文档理解的需求。
 
@@ -38,13 +43,12 @@ MindOCR是一个基于[MindSpore](https://www.mindspore.cn/en) 框架开发的OC
 
 以下是对应的“mindocr”版本和支持 Mindspore 版本。
 
-| `mindspore` | `mindocr` | `测试硬件`
-| :--:| :--:|:-------------------|
-| `master`  | `master`| `ascend 910*`      |
-| `2.3.0`   | `0.4`  | `ascend 910*`      |
-| `2.2.10`  | `0.3` | `ascend 910, 910*` |
-| `2.0`     | `0.2` | `ascend 910`       |
-| `1.8`     | `0.1`  | `ascend 910`       |
+| mindocr | mindspore |
+|:-------:|:---------:|
+| master  |  master   |
+|   0.4   |   2.3.0   |
+|   0.3   |  2.2.10   |
+|   0.1   |    1.8    |
 
 
 ## 安装教程
@@ -58,7 +62,7 @@ MindOCR基于MindSpore AI框架开发，并适配以下框架版本。安装方�
 - mindspore >= 2.2.0 [[安装](https://www.mindspore.cn/install)]
 - python >= 3.7
 - openmpi 4.0.3 (用于分布式训练与验证)  [[安装](https://www.open-mpi.org/software/ompi/v4.0/)]
-- mindspore lite (用于离线推理) >= 2.2.0  [[安装](docs/cn/inference/environment.md)]
+- mindspore lite (用于离线推理) >= 2.2.0  [[安装](docs/zh/inference/environment.md)]
 
 #### 包依赖
 
@@ -207,120 +211,121 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 ### 3. 模型离线推理-快速指南
 
 你可以在MindOCR中对**MindOCR原生模型**或**第三方模型**（如PaddleOCR、MMOCR等）进行MindSpore Lite推理。请参考以下文档
- - [基于Python/C++和昇腾310的OCR推理](docs/cn/inference/inference_tutorial.md)
- - [MindOCR原生模型离线推理 - 快速开始](docs/cn/inference/inference_quickstart.md)
- - [第三方模型离线推理 - 快速开始](docs/cn/inference/inference_thirdparty_quickstart.md)
+
+ - [基于Python/C++和昇腾310的OCR推理](docs/zh/inference/inference_tutorial.md)
+ - [MindOCR原生模型离线推理 - 快速开始](docs/zh/inference/inference_quickstart.md)
+ - [第三方模型离线推理 - 快速开始](docs/zh/inference/inference_thirdparty_quickstart.md)
 
 ## 使用教程
 
 - 数据集
-    - [数据集准备](docs/cn/datasets/converters.md)
-    - [数据增强策略](docs/cn/tutorials/transform_tutorial.md)
+    - [数据集准备](docs/zh/datasets/converters.md)
+    - [数据增强策略](docs/zh/tutorials/transform_tutorial.md)
 - 模型训练
-    - [Yaml配置文件](docs/cn/tutorials/yaml_configuration.md)
-    - [文本检测](docs/cn/tutorials/training_detection_custom_dataset.md)
-    - [文本识别](docs/cn/tutorials/training_recognition_custom_dataset.md)
-    - [分布式训练](docs/cn/tutorials/distribute_train.md)
-    - [进阶技巧：梯度累积，EMA，断点续训等](docs/cn/tutorials/advanced_train.md)
+    - [Yaml配置文件](docs/zh/tutorials/yaml_configuration.md)
+    - [文本检测](docs/zh/tutorials/training_detection_custom_dataset.md)
+    - [文本识别](docs/zh/tutorials/training_recognition_custom_dataset.md)
+    - [分布式训练](docs/zh/tutorials/distribute_train.md)
+    - [进阶技巧：梯度累积，EMA，断点续训等](docs/zh/tutorials/advanced_train.md)
 - 使用MindSpore进行在线推理
-    - [基于Python的OCR在线推理](tools/infer/text/README.md)
+    - [基于Python的OCR在线推理](https://github.com/mindspore-lab/mindocr/blob/main/tools/infer/text/README.md)
 - 使用MindSpore Lite进行离线推理
-    - [基于Python/C++和昇腾310的OCR推理](docs/cn/inference/inference_tutorial.md)
-    - [MindOCR原生模型离线推理 - 快速开始](docs/cn/inference/inference_quickstart.md)
-    - [第三方模型离线推理 - 快速开始](docs/cn/inference/inference_thirdparty_quickstart.md)
+    - [基于Python/C++和昇腾310的OCR推理](docs/zh/inference/inference_tutorial.md)
+    - [MindOCR原生模型离线推理 - 快速开始](docs/zh/inference/inference_quickstart.md)
+    - [第三方模型离线推理 - 快速开始](docs/zh/inference/inference_thirdparty_quickstart.md)
 - 开发者指南
-    - [如何自定义数据集](mindocr/data/README.md)
-    - [如何自定义数据增强方法](mindocr/data/transforms/README.md)
-    - [如何创建新的OCR模型](mindocr/models/README.md)
-    - [如何自定义后处理方法](mindocr/postprocess/README.md)
+    - [如何自定义数据集](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/README.md)
+    - [如何自定义数据增强方法](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/transforms/README.md)
+    - [如何创建新的OCR模型](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/models/README.md)
+    - [如何自定义后处理方法](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/postprocess/README.md)
 
 ## 模型列表
 
 <details open markdown>
 <summary>文本检测</summary>
 
-- [x] [DBNet](configs/det/dbnet/README_CN.md) (AAAI'2020)
-- [x] [DBNet++](configs/det/dbnet/README_CN.md) (TPAMI'2022)
-- [x] [PSENet](configs/det/psenet/README_CN.md) (CVPR'2019)
-- [x] [EAST](configs/det/east/README_CN.md)(CVPR'2017)
-- [x] [FCENet](configs/det/fcenet/README_CN.md) (CVPR'2021)
+- [x] [DBNet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README_CN.md) (AAAI'2020)
+- [x] [DBNet++](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README_CN.md) (TPAMI'2022)
+- [x] [PSENet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/psenet/README_CN.md) (CVPR'2019)
+- [x] [EAST](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/east/README_CN.md)(CVPR'2017)
+- [x] [FCENet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/fcenet/README_CN.md) (CVPR'2021)
 </details>
 
 <details open markdown>
 <summary>文本识别</summary>
 
-- [x] [CRNN](configs/rec/crnn/README_CN.md) (TPAMI'2016)
-- [x] [CRNN-Seq2Seq/RARE](configs/rec/rare/README_CN.md) (CVPR'2016)
-- [x] [SVTR](configs/rec/svtr/README_CN.md) (IJCAI'2022)
-- [x] [MASTER](configs/rec/master/README_CN.md) (PR'2019)
-- [x] [VISIONLAN](configs/rec/visionlan/README_CN.md) (ICCV'2021)
-- [x] [RobustScanner](configs/rec/robustscanner/README_CN.md) (ECCV'2020)
-- [x] [ABINet](configs/rec/abinet/README_CN.md) (CVPR'2021)
+- [x] [CRNN](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/README_CN.md) (TPAMI'2016)
+- [x] [CRNN-Seq2Seq/RARE](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/README_CN.md) (CVPR'2016)
+- [x] [SVTR](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/README_CN.md) (IJCAI'2022)
+- [x] [MASTER](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/master/README_CN.md) (PR'2019)
+- [x] [VISIONLAN](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/README_CN.md) (ICCV'2021)
+- [x] [RobustScanner](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner/README_CN.md) (ECCV'2020)
+- [x] [ABINet](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/abinet/README_CN.md) (CVPR'2021)
 </details>
 
 <details open markdown>
 <summary>版面分析</summary>
 
-- [x] [YOLOv8](configs/layout/yolov8/README_CN.md) ([Ultralytics Inc.](https://github.com/ultralytics/ultralytics))
+- [x] [YOLOv8](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/yolov8/README_CN.md) ([Ultralytics Inc.](https://github.com/ultralytics/ultralytics))
 </details>
 
 <details open markdown>
 <summary>关键信息抽取</summary>
 
-- [x] [LayoutXLM](configs/kie/vi_layoutxlm/README_CN.md) (arXiv'2021)
-- [x] [LayoutLMv3](configs/kie/layoutlmv3/README_CN.md) (arXiv'2022)
+- [x] [LayoutXLM](https://github.com/mindspore-lab/mindocr/blob/main/configs/kie/vi_layoutxlm/README_CN.md) (arXiv'2021)
+- [x] [LayoutLMv3](https://github.com/mindspore-lab/mindocr/blob/main/configs/kie/layoutlmv3/README_CN.md) (arXiv'2022)
 
 </details>
 
 <details open markdown>
 <summary>表格识别</summary>
 
-- [x] [TableMaster](configs/table/README_CN.md) (arXiv'2021)
+- [x] [TableMaster](https://github.com/mindspore-lab/mindocr/blob/main/configs/table/README_CN.md) (arXiv'2021)
 
 </details>
 
 <details open markdown>
 <summary>OCR大模型</summary>
 
-- [x] [Vary](configs/llm/vary/README_CN.md) (arXiv'2023)
+- [x] [Vary](https://github.com/mindspore-lab/mindocr/blob/main/configs/llm/vary/README_CN.md) (arXiv'2023)
 
 </details>
 
 
-关于以上模型的具体训练方法和结果，请参见[configs](./configs)下各模型子目录的readme文档。
+关于以上模型的具体训练方法和结果，请参见[configs](https://github.com/mindspore-lab/mindocr/blob/main/configs)下各模型子目录的readme文档。
 
 关于[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)模型推理的支持列表，
-请参见[MindOCR原生模型推理支持列表](docs/cn/inference/inference_quickstart.md) 和 [第三方模型推理支持列表](docs/cn/inference/inference_thirdparty_quickstart.md)（如PaddleOCR、MMOCR等）。
+请参见[MindOCR原生模型推理支持列表](docs/zh/inference/inference_quickstart.md) 和 [第三方模型推理支持列表](docs/zh/inference/inference_thirdparty_quickstart.md)（如PaddleOCR、MMOCR等）。
 
 ## 数据集列表
 
-MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支持不同格式的OCR数据集，支持用户自定义的数据集。
+MindOCR提供了[数据格式转换工具](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters) ，以支持不同格式的OCR数据集，支持用户自定义的数据集。
 当前已在模型训练评估中验证过的公开OCR数据集如下。
 
 <details close markdown>
 <summary>通用OCR数据集</summary>
 
-- [Born-Digital Images](https://rrc.cvc.uab.es/?ch=1) [[download](docs/cn/datasets/borndigital.md)]
-- [CASIA-10K](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html) [[download](docs/cn/datasets/casia10k.md)]
-- [CCPD](https://github.com/detectRecog/CCPD) [[download](docs/cn/datasets/ccpd.md)]
-- [Chinese Text Recognition Benchmark](https://github.com/FudanVI/benchmarking-chinese-text-recognition) [[paper](https://arxiv.org/abs/2112.15093)] [[download](docs/cn/datasets/chinese_text_recognition.md)]
-- [COCO-Text](https://rrc.cvc.uab.es/?ch=5) [[download](docs/cn/datasets/cocotext.md)]
-- [CTW](https://ctwdataset.github.io/) [[download](docs/cn/datasets/ctw.md)]
-- [ICDAR2015](https://rrc.cvc.uab.es/?ch=4) [[paper](https://rrc.cvc.uab.es/files/short_rrc_2015.pdf)] [[download](docs/cn/datasets/icdar2015.md)]
-- [ICDAR2019 ArT](https://rrc.cvc.uab.es/?ch=14) [[download](docs/cn/datasets/ic19_art.md)]
-- [LSVT](https://rrc.cvc.uab.es/?ch=16) [[download](docs/cn/datasets/lsvt.md)]
-- [MLT2017](https://rrc.cvc.uab.es/?ch=8) [[paper](https://ieeexplore.ieee.org/abstract/document/8270168)] [[download](docs/cn/datasets/mlt2017.md)]
-- [MSRA-TD500](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500)) [[paper](https://ieeexplore.ieee.org/abstract/document/6247787)] [[download](docs/cn/datasets/td500.md)]
-- [MTWI-2018](https://tianchi.aliyun.com/competition/entrance/231651/introduction) [[download](docs/cn/datasets/mtwi2018.md)]
-- [RCTW-17](https://rctw.vlrlab.net/) [[download](docs/cn/datasets/rctw17.md)]
-- [ReCTS](https://rrc.cvc.uab.es/?ch=12) [[download](docs/cn/datasets/rects.md)]
-- [SCUT-CTW1500](https://github.com/Yuliang-Liu/Curve-Text-Detector) [[paper](https://www.sciencedirect.com/science/article/pii/S0031320319300664)] [[download](docs/cn/datasets/ctw1500.md)]
-- [SROIE](https://rrc.cvc.uab.es/?ch=13) [[download](docs/cn/datasets/sroie.md)]
-- [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset) [[download](docs/cn/datasets/svt.md)]
-- [SynText150k](https://github.com/aim-uofa/AdelaiDet) [[paper](https://arxiv.org/abs/2002.10200)] [[download](docs/cn/datasets/syntext150k.md)]
-- [SynthText](https://www.robots.ox.ac.uk/~vgg/data/scenetext/) [[paper](https://www.robots.ox.ac.uk/~vgg/publications/2016/Gupta16/)] [[download](docs/cn/datasets/synthtext.md)]
-- [TextOCR](https://textvqa.org/textocr/) [[download](docs/cn/datasets/textocr.md)]
-- [Total-Text](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset) [[paper](https://arxiv.org/abs/1710.10400)] [[download](docs/cn/datasets/totaltext.md)]
+- [Born-Digital Images](https://rrc.cvc.uab.es/?ch=1) [[download](docs/zh/datasets/borndigital.md)]
+- [CASIA-10K](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html) [[download](docs/zh/datasets/casia10k.md)]
+- [CCPD](https://github.com/detectRecog/CCPD) [[download](docs/zh/datasets/ccpd.md)]
+- [Chinese Text Recognition Benchmark](https://github.com/FudanVI/benchmarking-chinese-text-recognition) [[paper](https://arxiv.org/abs/2112.15093)] [[download](docs/zh/datasets/chinese_text_recognition.md)]
+- [COCO-Text](https://rrc.cvc.uab.es/?ch=5) [[download](docs/zh/datasets/cocotext.md)]
+- [CTW](https://ctwdataset.github.io/) [[download](docs/zh/datasets/ctw.md)]
+- [ICDAR2015](https://rrc.cvc.uab.es/?ch=4) [[paper](https://rrc.cvc.uab.es/files/short_rrc_2015.pdf)] [[download](docs/zh/datasets/icdar2015.md)]
+- [ICDAR2019 ArT](https://rrc.cvc.uab.es/?ch=14) [[download](docs/zh/datasets/ic19_art.md)]
+- [LSVT](https://rrc.cvc.uab.es/?ch=16) [[download](docs/zh/datasets/lsvt.md)]
+- [MLT2017](https://rrc.cvc.uab.es/?ch=8) [[paper](https://ieeexplore.ieee.org/abstract/document/8270168)] [[download](docs/zh/datasets/mlt2017.md)]
+- [MSRA-TD500](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500)) [[paper](https://ieeexplore.ieee.org/abstract/document/6247787)] [[download](docs/zh/datasets/td500.md)]
+- [MTWI-2018](https://tianchi.aliyun.com/competition/entrance/231651/introduction) [[download](docs/zh/datasets/mtwi2018.md)]
+- [RCTW-17](https://rctw.vlrlab.net/) [[download](docs/zh/datasets/rctw17.md)]
+- [ReCTS](https://rrc.cvc.uab.es/?ch=12) [[download](docs/zh/datasets/rects.md)]
+- [SCUT-CTW1500](https://github.com/Yuliang-Liu/Curve-Text-Detector) [[paper](https://www.sciencedirect.com/science/article/pii/S0031320319300664)] [[download](docs/zh/datasets/ctw1500.md)]
+- [SROIE](https://rrc.cvc.uab.es/?ch=13) [[download](docs/zh/datasets/sroie.md)]
+- [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset) [[download](docs/zh/datasets/svt.md)]
+- [SynText150k](https://github.com/aim-uofa/AdelaiDet) [[paper](https://arxiv.org/abs/2002.10200)] [[download](docs/zh/datasets/syntext150k.md)]
+- [SynthText](https://www.robots.ox.ac.uk/~vgg/data/scenetext/) [[paper](https://www.robots.ox.ac.uk/~vgg/publications/2016/Gupta16/)] [[download](docs/zh/datasets/synthtext.md)]
+- [TextOCR](https://textvqa.org/textocr/) [[download](docs/zh/datasets/textocr.md)]
+- [Total-Text](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset) [[paper](https://arxiv.org/abs/1710.10400)] [[download](docs/zh/datasets/totaltext.md)]
 
 </details>
 
@@ -348,7 +353,7 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 我们会在更多的数据集上进行模型训练和验证。该列表将持续更新。
 
 ## 常见问题
-关于配置环境、使用mindocr遇到的高频问题，可以参考[常见问题](docs/cn/tutorials/frequently_asked_questions.md)。
+关于配置环境、使用mindocr遇到的高频问题，可以参考[常见问题](docs/zh/tutorials/frequently_asked_questions.md)。
 
 ## 重要信息
 
@@ -358,66 +363,66 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 
 - 2023/04/01
 1. 增加新模型
-    - 关键信息抽取[LayoutLMv3](configs/kie/layoutlmv3/)
+    - 关键信息抽取[LayoutLMv3](https://github.com/mindspore-lab/mindocr/blob/main/configs/kie/layoutlmv3/)
 
 - 2024/03/20
 1. 增加新模型
-    - OCR大模型[Vary-toy](configs/llm/vary/vary_toy.yaml)，支持基于通义千问1.8B LLM的检测和OCR功能
+    - OCR大模型[Vary-toy](https://github.com/mindspore-lab/mindocr/blob/main/configs/llm/vary/vary_toy.yaml)，支持基于通义千问1.8B LLM的检测和OCR功能
 
 - 2023/12/25
 1. 增加新模型
-    - 表格识别[TableMaster](configs/table/table_master.yaml)
+    - 表格识别[TableMaster](https://github.com/mindspore-lab/mindocr/blob/main/configs/table/table_master.yaml)
 2. 添加更多基准数据集及其结果
-    - [PubTabNet](configs/table/README_CN.md)
+    - [PubTabNet](https://github.com/mindspore-lab/mindocr/blob/main/configs/table/README_CN.md)
 
 - 2023/12/14
 1. 增加新模型
-    - 关键信息抽取[LayoutXLM](configs/kie/layoutxlm)
-    - 关键信息抽取[VI-LayoutXLM](configs/kie/vi_layoutxlm)
-    - 文本检测[PP-OCRv3 DBNet](configs/det/dbnet/db_mobilenetv3_ppocrv3.yaml)和文本识别[PP-OCRv3 SVTR](configs/rec/svtr/svtr_ppocrv3_ch.yaml)，支持在线推理和微调训练
+    - 关键信息抽取[LayoutXLM](https://github.com/mindspore-lab/mindocr/blob/main/configs/kie/layoutxlm)
+    - 关键信息抽取[VI-LayoutXLM](https://github.com/mindspore-lab/mindocr/blob/main/configs/kie/vi_layoutxlm)
+    - 文本检测[PP-OCRv3 DBNet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/db_mobilenetv3_ppocrv3.yaml)和文本识别[PP-OCRv3 SVTR](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_ppocrv3_ch.yaml)，支持在线推理和微调训练
 2. 添加更多基准数据集及其结果
-    - [XFUND](configs/kie/vi_layoutxlm/README_CN.md)
+    - [XFUND](https://github.com/mindspore-lab/mindocr/blob/main/configs/kie/vi_layoutxlm/README_CN.md)
 3. 昇腾910硬件多规格支持：DBNet ResNet-50、DBNet++ ResNet-50、CRNN VGG7、SVTR-Tiny、FCENet、ABINet
 - 2023/11/28
 1. 增加支持PP-OCRv4模型离线推理
-    - 文本检测 [PP-OCRv4 DBNet](deploy/py_infer/src/configs/det/ppocr/ch_PP-OCRv4_det_cml.yaml)和文本识别 [PP-OCRv4 CRNN](deploy/py_infer/src/configs/rec/ppocr/ch_PP-OCRv4_rec_distillation.yaml)，支持离线推理
+    - 文本检测 [PP-OCRv4 DBNet](https://github.com/mindspore-lab/mindocr/blob/main/deploy/py_infer/src/configs/det/ppocr/ch_PP-OCRv4_det_cml.yaml)和文本识别 [PP-OCRv4 CRNN](https://github.com/mindspore-lab/mindocr/blob/main/deploy/py_infer/src/configs/rec/ppocr/ch_PP-OCRv4_rec_distillation.yaml)，支持离线推理
 2. 修复第三方模型离线推理bug
 - 2023/11/17
 1. 增加新模型
-    - 版面分析[YOLOv8](configs/layout/yolov8)
+    - 版面分析[YOLOv8](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/yolov8)
 2. 添加更多基准数据集及其结果
-    - [PublayNet](configs/layout/yolov8/README_CN.md)
+    - [PublayNet](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/yolov8/README_CN.md)
 - 2023/07/06
 1. 增加新模型
-    - 文本识别 [RobustScanner](configs/rec/robustscanner)
+    - 文本识别 [RobustScanner](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner)
 - 2023/07/05
 1. 增加新模型
-    - 文本识别 [VISIONLAN](configs/rec/visionlan)
+    - 文本识别 [VISIONLAN](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan)
 - 2023/06/29
 1. 新增2个SoTA模型
-    - 文本检测 [FCENet](configs/det/fcenet)
-    - 文本识别 [MASTER](configs/rec/master)
+    - 文本检测 [FCENet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/fcenet)
+    - 文本识别 [MASTER](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/master)
 - 2023/06/07
 1. 增加新模型
-    - 文本检测 [PSENet](configs/det/psenet)
-    - 文本检测 [EAST](configs/det/east)
-    - 文本识别 [SVTR](configs/rec/svtr)
+    - 文本检测 [PSENet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/psenet)
+    - 文本检测 [EAST](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/east)
+    - 文本识别 [SVTR](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr)
 2. 添加更多基准数据集及其结果
-    - [totaltext](docs/cn/datasets/totaltext.md)
-    - [mlt2017](docs/cn/datasets/mlt2017.md)
-    - [chinese_text_recognition](docs/cn/datasets/chinese_text_recognition.md)
+    - [totaltext](https://github.com/mindspore-lab/mindocr/blob/main/docs/zh/datasets/totaltext.md)
+    - [mlt2017](https://github.com/mindspore-lab/mindocr/blob/main/docs/zh/datasets/mlt2017.md)
+    - [chinese_text_recognition](https://github.com/mindspore-lab/mindocr/blob/main/docs/zh/datasets/chinese_text_recognition.md)
 3. 增加断点续训(resume training)功能，可在训练意外中断时使用。如需使用，请在配置文件中`model`字段下增加`resume`参数，允许传入具体路径`resume: /path/to/train_resume.ckpt`或者通过设置`resume: True`来加载在ckpt_save_dir下保存的trian_resume.ckpt
 4. 改进检测模块的后处理部分：默认情况下，将检测到的文本多边形重新缩放到原始图像空间，可以通过在`eval.dataset.output_columns`列表中增加"shape_list"实现。
-5. 重构在线推理以支持更多模型，详情请参见[README.md](tools/infer/text/README.md) 。
+5. 重构在线推理以支持更多模型，详情请参见[README.md](https://github.com/mindspore-lab/mindocr/blob/main/tools/infer/text/README.md) 。
 
 - 2023/05/15
 1. 增加新模型
-    - 文本检测 [DBNet++](configs/det/dbnet)
-    - 文本识别 [CRNN-Seq2Seq](configs/rec/rare)
+    - 文本检测 [DBNet++](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet)
+    - 文本识别 [CRNN-Seq2Seq](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare)
     - 在SynthText数据集上预训练的[DBNet](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)
 2. 添加更多基准数据集及其结果
-    - [SynthText](docs/cn/datasets/synthtext.md), [MSRA-TD500](docs/cn/datasets/td500.md), [CTW1500](docs/cn/datasets/ctw1500.md)
-    - DBNet的更多基准结果可以[在此找到](configs/det/dbnet/README_CN.md).
+    - [SynthText](docs/zh/datasets/synthtext.md), [MSRA-TD500](docs/zh/datasets/td500.md), [CTW1500](docs/zh/datasets/ctw1500.md)
+    - DBNet的更多基准结果可以[在此找到](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README_CN.md).
 3. 添加用于保存前k个checkpoint的checkpoint manager并改进日志。
 4. Python推理代码重构。
 5. Bug修复：对大型数据集使用平均损失meter，在AMP训练中对ctcloss禁用`pred_cast_fp32`，修复存在无效多边形的错误。
@@ -457,11 +462,11 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 
 我们欢迎包括问题单和PR在内的所有贡献，来让MindOCR变得更好。
 
-请参考[CONTRIBUTING.md](CONTRIBUTING.md)作为贡献指南，请按照[Model Template and Guideline](mindocr/models/README.md)的指引贡献一个适配所有接口的模型，多谢合作。
+请参考[CONTRIBUTING.md](https://github.com/mindspore-lab/mindocr/blob/main/CONTRIBUTING.md)作为贡献指南，请按照[Model Template and Guideline](mindocr/models/README.md)的指引贡献一个适配所有接口的模型，多谢合作。
 
 ### 许可
 
-本项目遵从[Apache License 2.0](LICENSE)开源许可。
+本项目遵从[Apache License 2.0](https://github.com/mindspore-lab/mindocr/blob/main/LICENSE)开源许可。
 
 ### 引用
 

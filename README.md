@@ -14,7 +14,7 @@
 [![PRs](https://img.shields.io/badge/PRs-welcome-pink.svg)](https://github.com/mindspore-lab/mindocr/pulls)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-English | [中文](README_CN.md)
+English | [中文](https://github.com/mindspore-lab/mindocr/blob/main/README_CN.md)
 
 [📝Introduction](#introduction) |
 [🔨Installation](#installation) |
@@ -210,6 +210,7 @@ For more illustration and usage, please refer to the model training section in [
 ### 3. Model Offline Inference - Quick Guideline
 
 You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Third-party models** (PaddleOCR, MMOCR, etc.). Please refer to the following documents
+
  - [Python/C++ Inference on Ascend 310](docs/en/inference/inference_tutorial.md)
  - [MindOCR Models Offline Inference - Quick Start](docs/en/inference/inference_quickstart.md)
  - [Third-party Models Offline Inference - Quick Start](docs/en/inference/inference_thirdparty_quickstart.md).
@@ -226,80 +227,80 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
     - [Distributed Training](docs/en/tutorials/distribute_train.md)
     - [Advance: Gradient Accumulation, EMA, Resume Training, etc](docs/en/tutorials/advanced_train.md)
 - Inference with MindSpore
-    - [Python Online Inference](tools/infer/text/README.md)
+    - [Python Online Inference](https://github.com/mindspore-lab/mindocr/blob/main/tools/infer/text/README.md)
 - Inference with MindSpore Lite
     - [Python/C++ Inference on Ascend 310](docs/en/inference/inference_tutorial.md)
     - [MindOCR Models Offline Inference - Quick Start](docs/en/inference/inference_quickstart.md)
     - [Third-party Models Offline Inference - Quick Start](docs/en/inference/inference_thirdparty_quickstart.md)
     - [Model Conversion](docs/en/inference/convert_tutorial.md)
 - Developer Guides
-    - [Customize Dataset](mindocr/data/README.md)
-    - [Customize Data Transformation](mindocr/data/transforms/README.md)
-    - [Customize a New Model](mindocr/models/README.md)
-    - [Customize Postprocessing Method](mindocr/postprocess/README.md)
+    - [Customize Dataset](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/README.md)
+    - [Customize Data Transformation](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/transforms/README.md)
+    - [Customize a New Model](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/models/README.md)
+    - [Customize Postprocessing Method](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/postprocess/README.md)
 
 ## Model List
 
 <details open markdown>
 <summary>Text Detection</summary>
 
-- [x] [DBNet](configs/det/dbnet/README.md) (AAAI'2020)
-- [x] [DBNet++](configs/det/dbnet/README.md) (TPAMI'2022)
-- [x] [PSENet](configs/det/psenet/README.md) (CVPR'2019)
-- [x] [EAST](configs/det/east/README.md)(CVPR'2017)
-- [x] [FCENet](configs/det/fcenet/README.md) (CVPR'2021)
+- [x] [DBNet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README.md) (AAAI'2020)
+- [x] [DBNet++](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README.md) (TPAMI'2022)
+- [x] [PSENet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/psenet/README.md) (CVPR'2019)
+- [x] [EAST](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/east/README.md)(CVPR'2017)
+- [x] [FCENet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/fcenet/README.md) (CVPR'2021)
 
 </details>
 
 <details open markdown>
 <summary>Text Recognition</summary>
 
-- [x] [CRNN](configs/rec/crnn/README.md) (TPAMI'2016)
-- [x] [CRNN-Seq2Seq/RARE](configs/rec/rare/README.md) (CVPR'2016)
-- [x] [SVTR](configs/rec/svtr/README.md) (IJCAI'2022)
-- [x] [MASTER](configs/rec/master/README.md) (PR'2019)
-- [x] [VISIONLAN](configs/rec/visionlan/README.md) (ICCV'2021)
-- [x] [RobustScanner](configs/rec/robustscanner/README.md) (ECCV'2020)
-- [x] [ABINet](configs/rec/abinet/README.md) (CVPR'2021)
+- [x] [CRNN](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/README.md) (TPAMI'2016)
+- [x] [CRNN-Seq2Seq/RARE](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/README.md) (CVPR'2016)
+- [x] [SVTR](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/README.md) (IJCAI'2022)
+- [x] [MASTER](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/master/README.md) (PR'2019)
+- [x] [VISIONLAN](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/README.md) (ICCV'2021)
+- [x] [RobustScanner](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner/README.md) (ECCV'2020)
+- [x] [ABINet](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/abinet/README.md) (CVPR'2021)
 
 </details>
 
 <details open markdown>
 <summary>Layout Analysis</summary>
 
-- [x] [YOLOv8](configs/layout/yolov8/README.md) ([Ultralytics Inc.](https://github.com/ultralytics/ultralytics))
+- [x] [YOLOv8](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/yolov8/README.md) ([Ultralytics Inc.](https://github.com/ultralytics/ultralytics))
 
 </details>
 
 <details open markdown>
 <summary>Key Information Extraction</summary>
 
-- [x] [LayoutXLM](configs/kie/vi_layoutxlm/README_CN.md) (arXiv'2021)
-- [x] [LayoutLMv3](configs/kie/layoutlmv3/README.md) (arXiv'2022)
+- [x] [LayoutXLM](https://github.com/mindspore-lab/mindocr/blob/main/configs/kie/vi_layoutxlm/README.md) (arXiv'2021)
+- [x] [LayoutLMv3](https://github.com/mindspore-lab/mindocr/blob/main/configs/kie/layoutlmv3/README.md) (arXiv'2022)
 
 </details>
 
 <details open markdown>
 <summary>Table Recognition</summary>
 
-- [x] [TableMaster](configs/table/README.md) (arXiv'2021)
+- [x] [TableMaster](https://github.com/mindspore-lab/mindocr/blob/main/configs/table/README.md) (arXiv'2021)
 
 </details>
 
 <details open markdown>
 <summary>OCR large model</summary>
 
-- [x] [Vary](configs/llm/vary/README.md) (arXiv'2023)
+- [x] [Vary](https://github.com/mindspore-lab/mindocr/blob/main/configs/llm/vary/README.md) (arXiv'2023)
 
 </details>
 
-For the detailed performance of the trained models, please refer to [configs](./configs).
+For the detailed performance of the trained models, please refer to [https://github.com/mindspore-lab/mindocr/blob/main/configs](./configs).
 
 For details of MindSpore Lite and ACL inference models support, please refer to [MindOCR Models Support List](docs/en/inference/inference_quickstart.md) and [Third-party Models Support List](docs/en/inference/inference_thirdparty_quickstart.md) (PaddleOCR, MMOCR, etc.).
 
 ## Dataset List
 
-MindOCR provides a [dataset conversion tool](tools/dataset_converters) to OCR datasets with different formats and support customized dataset by users. We have validated the following public OCR datasets in model training/evaluation.
+MindOCR provides a [dataset conversion tool](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters) to OCR datasets with different formats and support customized dataset by users. We have validated the following public OCR datasets in model training/evaluation.
 
 <details close markdown>
 <summary>General OCR Datasets</summary>
@@ -363,50 +364,50 @@ Frequently asked questions about configuring environment and mindocr, please ref
 
 - 2023/04/01
 1. Add new trained models
-    - [LayoutLMv3](configs/kie/layoutlmv3/) for key information extraction
+    - [LayoutLMv3](https://github.com/mindspore-lab/mindocr/blob/main/configs/kie/layoutlmv3/) for key information extraction
 
 - 2024/03/20
 1. Add new trained models
-    - [Vary-toy](configs/llm/vary/vary_toy.yaml) for OCR large model, providing Qwen-1.8B LLM-based object detection and OCR abilities
+    - [Vary-toy](https://github.com/mindspore-lab/mindocr/blob/main/configs/llm/vary/vary_toy.yaml) for OCR large model, providing Qwen-1.8B LLM-based object detection and OCR abilities
 
 - 2023/12/25
 1. Add new trained models
-    - [TableMaster](configs/table/table_master.yaml) for table recognition
+    - [TableMaster](https://github.com/mindspore-lab/mindocr/blob/main/configs/table/table_master.yaml) for table recognition
 2. Add more benchmark datasets and their results
-    - [PubTabNet](configs/table/README.md)
+    - [PubTabNet](https://github.com/mindspore-lab/mindocr/blob/main/configs/table/README.md)
 
 - 2023/12/14
 1. Add new trained models
-    - [LayoutXLM](configs/kie/layoutxlm) for key information extraction
-    - [VI-LayoutXLM](configs/kie/vi_layoutxlm) for key information extraction
-    - [PP-OCRv3 DBNet](configs/det/dbnet/db_mobilenetv3_ppocrv3.yaml) for text detection and [PP-OCRv3 SVTR](configs/rec/svtr/svtr_ppocrv3_ch.yaml) for recognition, supporting online inferece and finetuning
+    - [LayoutXLM](https://github.com/mindspore-lab/mindocr/blob/main/configs/kie/layoutxlm) for key information extraction
+    - [VI-LayoutXLM](https://github.com/mindspore-lab/mindocr/blob/main/configs/kie/vi_layoutxlm) for key information extraction
+    - [PP-OCRv3 DBNet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/db_mobilenetv3_ppocrv3.yaml) for text detection and [PP-OCRv3 SVTR](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_ppocrv3_ch.yaml) for recognition, supporting online inferece and finetuning
 2. Add more benchmark datasets and their results
-    - [XFUND](configs/kie/vi_layoutxlm/README_CN.md)
+    - [XFUND](https://github.com/mindspore-lab/mindocr/blob/main/configs/kie/vi_layoutxlm/README_CN.md)
 3. Multiple specifications support for Ascend 910: DBNet ResNet-50, DBNet++ ResNet-50, CRNN VGG7, SVTR-Tiny, FCENet, ABINet
 - 2023/11/28
 1. Add offline inference support for PP-OCRv4
-    - [PP-OCRv4 DBNet](deploy/py_infer/src/configs/det/ppocr/ch_PP-OCRv4_det_cml.yaml) for text detection and [PP-OCRv4 CRNN](deploy/py_infer/src/configs/rec/ppocr/ch_PP-OCRv4_rec_distillation.yaml) for text recognition, supporting offline inferece
+    - [PP-OCRv4 DBNet](https://github.com/mindspore-lab/mindocr/blob/main/deploy/py_infer/src/configs/det/ppocr/ch_PP-OCRv4_det_cml.yaml) for text detection and [PP-OCRv4 CRNN](https://github.com/mindspore-lab/mindocr/blob/main/deploy/py_infer/src/configs/rec/ppocr/ch_PP-OCRv4_rec_distillation.yaml) for text recognition, supporting offline inferece
 2. Fix bugs of third-party models offline inference
 - 2023/11/17
 1. Add new trained models
-    - [YOLOv8](configs/layout/yolov8) for layout analysis
+    - [YOLOv8](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/yolov8) for layout analysis
 2. Add more benchmark datasets and their results
-    - [PublayNet](configs/layout/yolov8/README_CN.md)
+    - [PublayNet](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/yolov8/README_CN.md)
 - 2023/07/06
 1. Add new trained models
-    - [RobustScanner](configs/rec/robustscanner) for text recognition
+    - [RobustScanner](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner) for text recognition
 - 2023/07/05
 1. Add new trained models
-    - [VISIONLAN](configs/rec/visionlan) for text recognition
+    - [VISIONLAN](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan) for text recognition
 - 2023/06/29
 1. Add new trained models
-    - [FCENet](configs/det/fcenet) for text detection
-    - [MASTER](configs/rec/master) for text recognition
+    - [FCENet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/fcenet) for text detection
+    - [MASTER](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/master) for text recognition
 - 2023/06/07
 1. Add new trained models
-    - [PSENet](configs/det/psenet) for text detection
-    - [EAST](configs/det/east) for text detection
-    - [SVTR](configs/rec/svtr) for text recognition
+    - [PSENet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/psenet) for text detection
+    - [EAST](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/east) for text detection
+    - [SVTR](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr) for text recognition
 2. Add more benchmark datasets and their results
     - [totaltext](docs/en/datasets/totaltext.md)
     - [mlt2017](docs/en/datasets/mlt2017.md)
@@ -414,16 +415,16 @@ Frequently asked questions about configuring environment and mindocr, please ref
 3. Add resume training function, which can be used in case of unexpected interruption in training. Usage: add the `resume` parameter under the `model` field in the yaml config, e.g.,`resume: True`, load and resume training from {ckpt_save_dir}/train_resume.ckpt or `resume: /path/to/train_resume.ckpt`, load and resume training from the given path.
 4. Improve postprocessing for detection: re-scale detected text polygons to original image space by default,
 which can be enabled by add "shape_list" to the `eval.dataset.output_columns` list.
-5. Refactor online inference to support more models, see [README.md](tools/infer/text/README.md) for details.
+5. Refactor online inference to support more models, see [README.md](https://github.com/mindspore-lab/mindocr/blob/main/tools/infer/text/README.md) for details.
 
 - 2023/05/15
 1. Add new trained models
-    - [DBNet++](configs/det/dbnet) for text detection
-    - [CRNN-Seq2Seq](configs/rec/rare) for text recognition
+    - [DBNet++](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet) for text detection
+    - [CRNN-Seq2Seq](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare) for text recognition
     - DBNet pretrained on SynthText is now available: [checkpoint url](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt)
 2. Add more benchmark datasets and their results
     - [SynthText](docs/en/datasets/synthtext.md), [MSRA-TD500](docs/en/datasets/td500.md), [CTW1500](docs/en/datasets/ctw1500.md)
-    - More benchmark results for DBNet are reported [here](configs/det/dbnet/README.md).
+    - More benchmark results for DBNet are reported [here](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README.md).
 3. Add checkpoint manager for saving top-k checkpoints and improve log.
 4. Python inference code refactored.
 5. Bug fix: use Meter to average loss for large datasets, disable `pred_cast_fp32` for ctcloss in AMP training, fix error when invalid polygons exist.
@@ -463,11 +464,11 @@ which can be enabled by add "shape_list" to the `eval.dataset.output_columns` li
 
 We appreciate all kinds of contributions including issues and PRs to make MindOCR better.
 
-Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for the contributing guideline. Please follow the [Model Template and Guideline](mindocr/models/README.md) for contributing a model that fits the overall interface :)
+Please refer to [CONTRIBUTING.md](https://github.com/mindspore-lab/mindocr/blob/main/CONTRIBUTING.md) for the contributing guideline. Please follow the [Model Template and Guideline](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/models/README.md) for contributing a model that fits the overall interface :)
 
 ### License
 
-This project follows the [Apache License 2.0](LICENSE) open-source license.
+This project follows the [Apache License 2.0](https://github.com/mindspore-lab/mindocr/blob/main/LICENSE) open-source license.
 
 ### Citation
 
