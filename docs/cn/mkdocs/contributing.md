@@ -1,1 +1,0 @@
-{% include-markdown "../../../CONTRIBUTING.md" %}
