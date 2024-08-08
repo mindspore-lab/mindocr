@@ -1,8 +1,8 @@
 import os
 import sys
+import platform
 
 import cv2
-import lanms
 import numpy as np
 
 # add mindocr root path, and import postprocess from mindocr
@@ -10,6 +10,15 @@ mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..
 sys.path.insert(0, mindocr_path)
 
 from mindocr.postprocess.det_base_postprocess import DetBasePostprocess  # noqa
+from mindocr.postprocess.nms_py.lanms_py import lanms_win
+
+try:
+    from lanms import merge_quadrangle_n9
+except ImportError:
+    if platform.system() == "Windows":
+        merge_quadrangle_n9 = lanms_win
+    else:
+        raise ImportError("can not import lanms or lanms_win")
 
 __all__ = ["EASTPostprocess"]
 
@@ -90,7 +99,7 @@ class EASTPostprocess(DetBasePostprocess):
         boxes[:, :8] = text_box_restored.reshape((-1, 8))
         boxes[:, 8] = score_map[xy_text[:, 0], xy_text[:, 1]]
 
-        boxes = lanms.merge_quadrangle_n9(boxes, nms_thresh)
+        boxes = merge_quadrangle_n9(boxes, nms_thresh)
 
         if boxes.shape[0] == 0:
             return []
