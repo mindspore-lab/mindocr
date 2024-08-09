@@ -45,7 +45,7 @@ def standard_nms(boxes: List[np.array], threshold: float) -> np.array:
     return np.array(filtered_boxes)
 
 
-def merge_quadrangle_n9(geometries: np.array, threshold: float = .3) -> np.array:
+def merge_quadrangle_n9(geometries: np.array, threshold: float = 0.3) -> np.array:
     """
     locality-aware NMS for Windows version
     :param: geometries: a numpy array with shape (N,9)

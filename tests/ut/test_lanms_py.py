@@ -1,6 +1,6 @@
 import numpy as np
 
-from mindocr.postprocess.nms_py.lanms_py import calculate_iou, weighted_merge, standard_nms, merge_quadrangle_n9
+from mindocr.postprocess.nms_py.lanms_py import calculate_iou, merge_quadrangle_n9, standard_nms, weighted_merge
 
 box1 = np.array([0, 0, 0, 20, 10, 20, 10, 0, 0.8])
 box2 = np.array([8, 10, 8, 50, 30, 50, 30, 10, 0.7])
