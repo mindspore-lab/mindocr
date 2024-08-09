@@ -1,7 +1,7 @@
 import os
+import platform
 import sys
 from typing import Tuple
-import platform
 
 import numpy as np
 
@@ -10,13 +10,12 @@ mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..
 sys.path.insert(0, mindocr_path)
 
 from mindocr.postprocess import det_base_postprocess  # noqa
-from mindocr.postprocess.nms_py.lanms_py import lanms_win
 
 try:
     from lanms import merge_quadrangle_n9
 except ImportError:
     if platform.system() == "Windows":
-        merge_quadrangle_n9 = lanms_win
+        from mindocr.postprocess.nms_py.lanms_py import merge_quadrangle_n9
     else:
         raise ImportError("can not import lanms or lanms_win")
 

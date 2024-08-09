@@ -5,14 +5,13 @@ import numpy as np
 
 from mindspore import Tensor
 
-from .nms_py.lanms_py import lanms_win
 from .det_base_postprocess import DetBasePostprocess
 
 try:
     from lanms import merge_quadrangle_n9
 except ImportError:
     if platform.system() == "Windows":
-        merge_quadrangle_n9 = lanms_win
+        from .nms_py.lanms_py import merge_quadrangle_n9
     else:
         raise ImportError("can not import lanms or lanms_win")
 

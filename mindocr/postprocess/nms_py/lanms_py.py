@@ -41,16 +41,11 @@ def standard_nms(boxes: List[np.array], threshold: float) -> np.array:
     while sorted_boxes:
         max_score_box = sorted_boxes.pop(0)
         filtered_boxes.append(max_score_box)
-        remove_indexes = []
-        for i, box in enumerate(sorted_boxes):
-            if calculate_iou(max_score_box, box) > threshold:
-                remove_indexes.append(i)
-        for ind in remove_indexes[::-1]:
-            sorted_boxes.pop(ind)
+        sorted_boxes = list(filter(lambda x: calculate_iou(max_score_box, x) < threshold, sorted_boxes))
     return np.array(filtered_boxes)
 
 
-def lanms_win(geometries: np.array, threshold: float = .3) -> np.array:
+def merge_quadrangle_n9(geometries: np.array, threshold: float = .3) -> np.array:
     """
     locality-aware NMS for Windows version
     :param: geometries: a numpy array with shape (N,9)
