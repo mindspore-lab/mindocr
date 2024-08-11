@@ -8,7 +8,6 @@ box3 = np.array([9, 10, 9, 60, 30, 60, 30, 10, 1.1])
 
 
 class TestLanmsPy:
-
     def test_calculate_iou(self):
         assert round(calculate_iou(box1, box2), 3) == 0.019
 
