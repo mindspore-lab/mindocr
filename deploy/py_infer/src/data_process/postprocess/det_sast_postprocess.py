@@ -1,8 +1,8 @@
 import os
+import platform
 import sys
 from typing import Tuple
 
-import lanms
 import numpy as np
 
 # add mindocr root path, and import postprocess from mindocr
@@ -10,6 +10,14 @@ mindocr_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..
 sys.path.insert(0, mindocr_path)
 
 from mindocr.postprocess import det_base_postprocess  # noqa
+
+try:
+    from lanms import merge_quadrangle_n9
+except ImportError:
+    if platform.system() == "Windows":
+        from mindocr.postprocess.nms_py.lanms_py import merge_quadrangle_n9
+    else:
+        raise ImportError("can not import lanms or lanms_win")
 
 __all__ = ["SASTPostprocess"]
 
@@ -223,7 +231,7 @@ class SASTPostprocess(det_base_postprocess.DetBasePostprocess):
         # restore quad
         scores, quads, xy_text = self.restore_quad(tcl_map, tcl_map_thresh, tvo_map)
         dets = np.hstack((quads, scores)).astype(np.float32, copy=False)
-        dets = lanms.merge_quadrangle_n9(dets, self.nms_thresh)
+        dets = merge_quadrangle_n9(dets, self.nms_thresh)
         if dets.shape[0] == 0:
             return []
         quads = dets[:, :-1].reshape(-1, 4, 2)
