@@ -14,20 +14,19 @@ if __name__ == "__main__":
     # model parameter setting
     model_config = {
         "backbone": {
-            "name": "rec_densenet", 
+            "name": "rec_can_densenet",
             "pretrained": False,
-            "growthRate": 24, 
+            "growth_rate": 24, 
             "reduction": 0.5, 
             "bottleneck": True, 
             "use_dropout": True,
-            "input_channel": 3,
+            "input_channels": 3,
             },
         "neck": {
             },
         "head": {
             "name": "CANHead",
-            "in_channel": 684,
-            "out_channel": 111,
+            "out_channels": 111,
             "ratio": 16,
             "attdecoder": {
                 "is_train": True,
@@ -53,7 +52,7 @@ if __name__ == "__main__":
     images_mask_channel = 1
     num_steps = 10
     word_num = 111
-    out_channel = 111
+    out_channels = 111
     h = 256
     w = 256
 
@@ -68,9 +67,9 @@ if __name__ == "__main__":
     hout = model(input_tensor, images_mask, labels)
 
     assert hout["word_probs"].shape == (batch_size, num_steps, word_num), "Word probabilities shape is incorrect"
-    assert hout["counting_preds"].shape == (batch_size, out_channel), "Counting predictions shape is incorrect"
-    assert hout["counting_preds1"].shape == (batch_size, out_channel), "Counting predictions 1 shape is incorrect"
-    assert hout["counting_preds2"].shape == (batch_size, out_channel), "Counting predictions 2 shape is incorrect"
+    assert hout["counting_preds"].shape == (batch_size, out_channels), "Counting predictions shape is incorrect"
+    assert hout["counting_preds1"].shape == (batch_size, out_channels), "Counting predictions 1 shape is incorrect"
+    assert hout["counting_preds2"].shape == (batch_size, out_channels), "Counting predictions 2 shape is incorrect"
 
 
     # build_backbone unit test
@@ -78,19 +77,21 @@ if __name__ == "__main__":
     backbone = build_backbone(backbone_name, **model_config["backbone"])
     bout = backbone(input_tensor)
 
-    bout_c = model_config["head"]["in_channel"]
+    
+    bout_c = backbone.out_channels[-1] #The paper specified 684 features to be extracted
     bout_h = h/model_config["head"]["ratio"]
     bout_w = w/model_config["head"]["ratio"]
+    assert bout_c == 684, "bout channel is incorrect"
     assert bout.shape == (batch_size, bout_c, bout_h, bout_w), "bout shape is incorrect"
     
 
     # build_head unit test
     head_name = model_config["head"].pop("name")
-    head = build_head(head_name, **model_config["head"])
+    head = build_head(head_name, in_channels=bout_c, **model_config["head"])
     head_args = ((images_mask, labels))
     hout = head(bout, head_args)
 
     assert hout["word_probs"].shape == (batch_size, num_steps, word_num), "Word probabilities shape is incorrect"
-    assert hout["counting_preds"].shape == (batch_size, out_channel), "Counting predictions shape is incorrect"
-    assert hout["counting_preds1"].shape == (batch_size, out_channel), "Counting predictions 1 shape is incorrect"
-    assert hout["counting_preds2"].shape == (batch_size, out_channel), "Counting predictions 2 shape is incorrect"
+    assert hout["counting_preds"].shape == (batch_size, out_channels), "Counting predictions shape is incorrect"
+    assert hout["counting_preds1"].shape == (batch_size, out_channels), "Counting predictions 1 shape is incorrect"
+    assert hout["counting_preds2"].shape == (batch_size, out_channels), "Counting predictions 2 shape is incorrect"

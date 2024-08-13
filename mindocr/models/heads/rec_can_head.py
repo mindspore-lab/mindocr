@@ -1,19 +1,18 @@
-import mindspore as ms
+"""
+CAN_HEAD_MODULE
+"""
 import math
+import mindspore as ms
 from mindspore import nn
 from mindspore import ops
 
 ms.set_context(mode=ms.PYNATIVE_MODE, pynative_synchronize=True)
 
 
-"""
-Counting Module
-"""
-
-
 class ChannelAtt(nn.Cell):
+    """Channel Attention of the Counting Module"""
     def __init__(self, channel, reduction):
-        super(ChannelAtt, self).__init__()
+        super().__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.SequentialCell([
             nn.Dense(channel, channel // reduction),
@@ -30,8 +29,9 @@ class ChannelAtt(nn.Cell):
 
 
 class CountingDecoder(nn.Cell):
+    """Single Counting Module"""
     def __init__(self, in_channel, out_channel, kernel_size):
-        super(CountingDecoder, self).__init__()
+        super().__init__()
         self.in_channel = in_channel
         self.out_channel = out_channel
 
@@ -73,14 +73,10 @@ class CountingDecoder(nn.Cell):
         return x1, ops.reshape(x, (b, self.out_channel, h, w))
 
 
-"""
-Attention Module
-"""
-
-
 class Attention(nn.Cell):
+    """Attention Module"""
     def __init__(self, hidden_size, attention_dim):
-        super(Attention, self).__init__()
+        super().__init__()
         self.hidden = hidden_size
         self.attention_dim = attention_dim
         self.hidden_weight = nn.Dense(self.hidden, self.attention_dim)
@@ -123,16 +119,12 @@ class Attention(nn.Cell):
         return context_vector, alpha, alpha_sum
 
 
-"""
-Attention Decoder
-"""
-
-
 class PositionEmbeddingSine(nn.Cell):
+    """Position Embedding Sine Module of the Attention Decoder"""
     def __init__(
             self, num_pos_feats=64, temperature=10000, normalize=False, scale=None
     ):
-        super(PositionEmbeddingSine, self).__init__()
+        super().__init__()
         self.num_pos_feats = num_pos_feats
         self.temperature = temperature
         self.normalize = normalize
@@ -180,6 +172,7 @@ class PositionEmbeddingSine(nn.Cell):
 
 
 class AttDecoder(nn.Cell):
+    """Attention Decoder Module"""
     def __init__(
             self,
             ratio,
@@ -193,7 +186,7 @@ class AttDecoder(nn.Cell):
             counting_decoder_out_channel,
             attention,
     ):
-        super(AttDecoder, self).__init__()
+        super().__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.out_channel = encoder_out_channel
@@ -227,7 +220,7 @@ class AttDecoder(nn.Cell):
             self.dropout = nn.Dropout(p=dropout_ratio)
 
     def construct(self, cnn_features, labels, counting_preds, images_mask, is_train=True):
-        if self.is_train:
+        if is_train:
             _, num_steps = labels.shape
         else:
             num_steps = 36
@@ -293,6 +286,7 @@ class AttDecoder(nn.Cell):
         return word_probs
 
     def init_hidden(self, features, feature_mask):
+        """Used to initialize the hidden layer"""
         average = ops.sum(
             ops.sum(features * feature_mask, dim=-1), dim=-1
         ) / ops.sum((ops.sum(feature_mask, dim=-1)), dim=-1)
@@ -301,14 +295,16 @@ class AttDecoder(nn.Cell):
 
 
 class CANHead(nn.Cell):
-    r'''The CAN model is an algorithm used to recognize handwritten mathematical formulas.
+    r"""The CAN model is an algorithm used to recognize
+    handwritten mathematical formulas.
     CAN Network is based on
-    `"When Counting Meets HMER: Counting-Aware Network for Handwritten Mathematical Expression Recognition"
+    `"When Counting Meets HMER: Counting-Aware Network
+    for Handwritten Mathematical Expression Recognition"
     <https://arxiv.org/abs/2207.11463>`_ paper.
 
     Args:
-        "in_channel": number of channels for the input feature.
-        "out_channel": number of channels for the output feature.
+        "in_channels": number of channels for the input feature.
+        "out_channels": number of channels for the output feature.
         "ratio": the ratio used to downsample the feature map.
         "attdecoder", the parameters needed to build an AttDecoder:
             - "is_train": indicates whether the model is in training mode.
@@ -325,43 +321,45 @@ class CANHead(nn.Cell):
                 
     Return: 
         "word_probs": word probability distribution.
-        "counting_preds1": count prediction 1, the number of words predicted by the 3*3 convolution kernel.
-        "counting_preds2": count prediction 2, the number of words predicted by the 5*5 convolution kernel.
+        "counting_preds1": count prediction 1, the number of words
+                predicted by the 3*3 convolution kernel.
+        "counting_preds2": count prediction 2, the number of words
+                predicted by the 5*5 convolution kernel.
         "counting_preds": the mean predicted by the above two counts.
         
 
     Example:
         >>> # init a CANHead network
-        >>> in_channel = 684
-        >>> out_channel = 111
+        >>> in_channels = 684
+        >>> out_channels = 111
         >>> ratio = 16
         >>> attdecoder_params = {
-                'is_train': True,
-                'input_size': 256,
-                'hidden_size': 256,
-                'encoder_out_channel': in_channel,
-                'dropout': True,
-                'dropout_ratio': 0.5,
-                'word_num': word_num,
-                'counting_decoder_out_channel': out_channel,
-                'attention': {
-                    'attention_dim': 512,
-                    'word_conv_kernel': 1
-                }
-            }
-        >>> model = CANHead(in_channel, out_channel, ratio, attdecoder_params)
-    '''
-    def __init__(self, in_channel, out_channel, ratio, attdecoder, **kwargs):
-        super(CANHead, self).__init__()
+        >>>     'is_train': True,
+        >>>     'input_size': 256,
+        >>>     'hidden_size': 256,
+        >>>     'encoder_out_channel': in_channels,
+        >>>     'dropout': True,
+        >>>     'dropout_ratio': 0.5,
+        >>>     'word_num': 111,
+        >>>     'counting_decoder_out_channel': out_channels,
+        >>>     'attention': {
+        >>>         'attention_dim': 512,
+        >>>         'word_conv_kernel': 1
+        >>>     }
+        >>> }
+        >>> model = CANHead(in_channels, out_channels, ratio, attdecoder_params)
+    """
+    def __init__(self, in_channels, out_channels, ratio, attdecoder):
+        super().__init__()
 
-        self.in_channel = in_channel
-        self.out_channel = out_channel
+        self.in_channels = in_channels
+        self.out_channels = out_channels
 
         self.counting_decoder1 = CountingDecoder(
-            self.in_channel, self.out_channel, 3
+            self.in_channels, self.out_channels, 3
         )
         self.counting_decoder2 = CountingDecoder(
-            self.in_channel, self.out_channel, 5
+            self.in_channels, self.out_channels, 5
         )
 
         self.decoder = AttDecoder(ratio, **attdecoder)
@@ -380,10 +378,9 @@ class CANHead(nn.Cell):
 
         word_probs = self.decoder(cnn_features, labels, counting_preds, images_mask)
 
-        return {  
+        return {
             'word_probs': word_probs,  
             'counting_preds': counting_preds,  
             'counting_preds1': counting_preds1,  
             'counting_preds2': counting_preds2  
             }
-
