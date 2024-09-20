@@ -1,6 +1,7 @@
 import math
 
 import numpy as np
+
 from mindspore import Tensor
 
 from .det_base_postprocess import DetBasePostprocess
