@@ -14,10 +14,7 @@ from mindocr.postprocess.det_base_postprocess import DetBasePostprocess  # noqa
 try:
     from lanms import merge_quadrangle_n9
 except ImportError:
-    if platform.system() == "Windows":
-        from mindocr.postprocess.nms_py.lanms_py import merge_quadrangle_n9
-    else:
-        raise ImportError("can not import lanms or lanms_win")
+    from mindocr.postprocess.nms_py.lanms_py import merge_quadrangle_n9
 
 __all__ = ["EASTPostprocess"]
 
