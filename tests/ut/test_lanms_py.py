@@ -11,7 +11,7 @@ box3 = np.array([9, 10, 9, 60, 30, 60, 30, 10, 1.1])
 
 origin_boxes_test = []
 expect_processed_boxes_test = []
-lanms_test_jsons_path = os.path.join(os.getcwd(), "lanms_test_jsons")
+lanms_test_jsons_path = os.path.join("tests/ut/lanms_test_jsons")
 for file in os.listdir(lanms_test_jsons_path):
     with open(os.path.join(lanms_test_jsons_path, file)) as f:
         data = json.loads(f.readline())
