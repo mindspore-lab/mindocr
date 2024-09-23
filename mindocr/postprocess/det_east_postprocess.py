@@ -1,11 +1,15 @@
 import math
 
-import lanms
 import numpy as np
 
 from mindspore import Tensor
 
 from .det_base_postprocess import DetBasePostprocess
+
+try:
+    from lanms import merge_quadrangle_n9
+except ImportError:
+    from .nms_py.lanms_py import merge_quadrangle_n9
 
 __all__ = ["EASTPostprocess"]
 
@@ -64,7 +68,7 @@ class EASTPostprocess(DetBasePostprocess):
             boxes = np.zeros((polys_restored.shape[0], 9), dtype=np.float32)
             boxes[:, :8] = polys_restored
             boxes[:, 8] = score[xy_text[index, 0], xy_text[index, 1]]
-            boxes = lanms.merge_quadrangle_n9(boxes.astype("float32"), self._nms_thresh)
+            boxes = merge_quadrangle_n9(boxes.astype("float32"), self._nms_thresh)
             polys = boxes[:, :8].reshape(-1, 4, 2)
             scores = boxes[:, 8].reshape(-1, 1)
             polys_list.append(polys)
