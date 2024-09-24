@@ -13,7 +13,7 @@ PyYAML>=6.0
 xml-python>=0.4.3
 packaging>=23.1
 Cython
-lanms>=1.0.2
+lanms>=1.0.2; python_version <= '3.10' and sys_platform == 'linux'
 sentencepiece>=0.1.99
 huggingface_hub>=0.16.4
 seqeval>=1.2.2

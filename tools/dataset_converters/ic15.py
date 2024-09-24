@@ -36,7 +36,7 @@ class IC15_Converter(object):
 
     def _format_det_label(self, image_dir, label_dir, output_path):
         label_paths = sorted(glob.glob(os.path.join(label_dir, "*.txt")))
-        with open(output_path, "w") as out_file:
+        with open(output_path, "w", encoding="utf-8") as out_file:
             for label_fp in label_paths:
                 label_file_name = os.path.basename(label_fp)
                 img_path = os.path.join(image_dir, label_file_name[3:-4] + ".jpg")
