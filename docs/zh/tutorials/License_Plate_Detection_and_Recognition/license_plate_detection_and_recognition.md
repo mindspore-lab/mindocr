@@ -66,7 +66,7 @@ ads = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q'
 
 ## 数据集分割
 
-根据spilt文件夹中的train.txt、test.txt和val.txt对ccpd_base数据集进行分割，分割出训练数据集、测试数据集和验证数据集。分割代码见spilt.py。
+根据spilt文件夹中的train.txt、test.txt和val.txt对ccpd_base数据集进行分割，分割出训练数据集、测试数据集和验证数据集。分割代码spilt.py见附录。
 
 # [MindOCR环境安装](https://github.com/mindspore-lab/mindocr)
 
@@ -194,7 +194,7 @@ python tools/dataset_converters/convert.py \
     └── train_det_gt.txt
 ```
 
-## 编写配置文件
+## 编写配置文件（完整db_r50_ccpd.yaml文件见附录)
 
 1. 在mindocr/configsdet/dbnet下创建db_r50_ccpd.yaml文件
 2. 复制db_r50_ctw1500.ymal文件的内容到db_r50_ccpd.yaml文件
@@ -274,7 +274,7 @@ python tools/infer/text/predict_det.py 	--image_dir path/to/image or path/to/ima
 
 ## [数据集处理](https://github.com/mindspore-lab/mindocr/blob/main/docs/zh/tutorials/training_recognition_custom_dataset.md)
 
-1. 根据[mindocr提供的脚本](https://github.com/mindspore-lab/mindocr/blob/main/docs/zh/datasets/ccpd.md)生成的label文件，运行提供的generate_data.py裁剪出图片中的车牌号区域并提取车牌号码形成CRNN训练、测试、验证数据集
+1. 根据[mindocr提供的脚本](https://github.com/mindspore-lab/mindocr/blob/main/docs/zh/datasets/ccpd.md)生成的label文件，运行附录提供的generate_data.py裁剪出图片中的车牌号区域并提取车牌号码形成SVTR训练、测试和验证数据集。
 
 请将所有训练图片置入同一文件夹，并在上层路径指定一个txt文件用来标注所有训练图片名和对应标签。txt文件例子如下
 
@@ -303,7 +303,7 @@ python tools/infer/text/predict_det.py 	--image_dir path/to/image or path/to/ima
 
 ## 字典准备
 
-根据以下字符集运行generate_dict.py生成字典ccpd_dict.txt,并将其放到mindocr/utils/dict目录下。
+根据以下字符集运行附录代码generate_dict.py生成字典ccpd_dict.txt,并将其放到mindocr/utils/dict目录下。
 
 ```txt
 provinces = ["皖", "沪", "津", "渝", "冀", "晋", "蒙", "辽", "吉", "黑", "苏", "浙", "京", "闽", "赣", "鲁", "豫", "鄂", "湘", "粤", "桂", "琼", "川", "贵", "云", "藏", "陕", "甘", "青", "宁", "新", "警", "学", "O"]
@@ -313,7 +313,7 @@ ads = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q'
        'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'O']
 ```
 
-## 配置文件准备
+## 配置文件准备(完整svtr_ccpd.yaml文件见附录)
 
 1. 复制一份mindocr/configs/rec/svtr/svtr_tiny_ch.yaml文件，并对其进行修改
 2. 修改字典配置`character_dict_path`​和字符种类数量`num_classes`​，以及最大字符长度`max_text_len`​的值，如下所示：
@@ -558,3 +558,456 @@ python tools/infer/text/predict_system.py 	--image_dir path/to/image_path or ima
 ​![image](pic/det_rec_res.png)​
 
 ​![1_res](pic/det_res.png)​
+
+# 附录
+
+## spilt.py
+
+```python
+import os
+import shutil
+
+
+def copy_files_to_directory(file_paths, target_dir):
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+
+    for file_path in file_paths:
+        target_file_path = os.path.join(target_dir, os.path.basename(file_path))
+        shutil.copy2(file_path, target_file_path)
+
+def read_train_files(train_txt_path):
+    file_paths = []
+    with open(train_txt_path, 'r') as file:
+        for line in file:
+            file_path = line.strip()
+            file_paths.append(file_path)
+    return file_paths
+
+txt_paths = ['./splits/train.txt','./splits/test.txt','./splits/val.txt']
+target_dirs = ['ccpd_train','ccpd_test','ccpd_val']
+
+for i in range(3):
+    txt_path = txt_paths[i]
+    target_dir = target_dirs[i]
+    file_paths = read_train_files(txt_path)
+    copy_files_to_directory(file_paths, target_dir)
+
+print("Files copied successfully to", target_dir)
+```
+
+## generate_data.py
+
+```python
+import json
+import os
+
+from PIL import Image
+
+
+def read_annotations(file_path):
+    annotations = []
+    with open(file_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            image_name, description = line.strip().split('\t')
+            description_data = json.loads(description)
+            annotations.append((image_name, description_data))
+    return annotations
+
+def crop_images(annotations, source_folder, target_folder, output_txt):
+    if not os.path.exists(target_folder):
+        os.makedirs(target_folder)
+    with open(output_txt, 'w', encoding='utf-8') as out_file:
+        for image_name, data in annotations:
+            image_path = os.path.join(source_folder, image_name)
+            with Image.open(image_path) as img:
+                bbox = data[0]['bbox']
+                x1, y1 = bbox[0]
+                x2, y2 = bbox[1]
+                cropped_img = img.crop((x1, y1, x2, y2))
+                cropped_image_name = f"{image_name}"
+                cropped_img.save(os.path.join(target_folder, cropped_image_name))
+                transcription = data[0]['transcription']
+                out_file.write(f"{cropped_image_name}\t{transcription}\n")
+
+def main():
+    datasets = ['train', 'test', 'val']
+    for dataset in datasets:
+        annotations_file = f'path/to/DBNet_DataSets/{dataset}/{dataset}_det_gt.txt'
+        source_folder = f'path/to/DBNet_DataSets/{dataset}/images'
+        target_folder = f'path/to/SVTR_DataSets/{dataset}/'
+        output_txt = f'path/to/SVTR_DataSets/gt_{dataset}.txt'
+        annotations = read_annotations(annotations_file)
+        crop_images(annotations, source_folder, target_folder, output_txt)
+
+if __name__ == "__main__":
+    main()
+```
+
+## generate_dict.py
+
+```python
+provinces = ["皖", "沪", "津", "渝", "冀", "晋", "蒙", "辽", "吉", "黑", "苏", "浙", "京", "闽", "赣", "鲁", "豫", "鄂", "湘", "粤", "桂", "琼", "川", "贵", "云", "藏", "陕", "甘", "青", "宁", "新", "警", "学", "O"]
+alphabets = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'O']
+ads = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'O']
+
+unique_characters = set(provinces + alphabets + ads)
+unique_dict = {char: index for index, char in enumerate(sorted(unique_characters))}
+with open('ccpd.txt', 'w', encoding='utf-8') as file:
+    for char, index in unique_dict.items():
+        line = f"{char}:{index}\n"
+        file.write(line)
+```
+
+## db_r50_ccpd.yaml
+
+```yaml
+system:
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: False
+  amp_level: 'O0'
+  seed: 42
+  log_interval: 10
+  val_while_train: False
+  drop_overflow_update: False
+
+model:
+  type: det
+  transform: null
+  backbone:
+    name: det_resnet50
+    pretrained: False
+  neck:
+    name: DBFPN
+    out_channels: 256
+    bias: False
+  head:
+    name: DBHead
+    k: 50
+    bias: False
+    adaptive: True
+  pretrained: https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt
+
+postprocess:
+  name: DBPostprocess
+  box_type: quad          # whether to output a polygon or a box
+  binary_thresh: 0.3      # binarization threshold
+  box_thresh: 0.7         # box score threshold
+  max_candidates: 1000
+  expand_ratio: 1.5       # coefficient for expanding predictions
+
+metric:
+  name: DetMetric
+  main_indicator: f-score
+
+loss:
+  name: DBLoss
+  eps: 1.0e-6
+  l1_scale: 10
+  bce_scale: 5
+  bce_replace: bceloss
+
+scheduler:
+  scheduler: polynomial_decay
+  lr: 0.007
+  num_epochs: 1200
+  decay_rate: 0.9
+  warmup_epochs: 3
+
+optimizer:
+  opt: SGD
+  filter_bias_and_bn: false
+  momentum: 0.9
+  weight_decay: 1.0e-4
+
+# only used for mixed precision training
+loss_scaler:
+  type: dynamic
+  loss_scale: 512
+  scale_factor: 2
+  scale_window: 1000
+
+train:
+  ckpt_save_dir: './dbnet_ccpd'
+  dataset_sink_mode: True
+  dataset:
+    type: DetDataset
+    dataset_root: path/to/DBNet_DataSets
+    data_dir: train/images
+    label_file: train/train_det_gt.txt
+    sample_ratio: 1.0
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: RGB
+          to_float32: False
+      - DetLabelEncode:
+      - RandomColorAdjust:
+          brightness: 0.1255  # 32.0 / 255
+          saturation: 0.5
+      - RandomHorizontalFlip:
+          p: 0.5
+      - RandomScale:
+          scale_range: [ 0.5, 3.0 ]
+          p: 1.0
+      - RandomCropWithBBox:
+          max_tries: 10
+          min_crop_ratio: 0.1
+          crop_size: [ 640, 640 ]
+          p: 1.0
+      - ValidatePolygons:
+      - ShrinkBinaryMap:
+          min_text_size: 8
+          shrink_ratio: 0.55
+      - BorderMap:
+          shrink_ratio: 0.4
+          thresh_min: 0.3
+          thresh_max: 0.7
+      - NormalizeImage:
+          bgr_to_rgb: False
+          is_hwc: True
+          mean: imagenet
+          std: imagenet
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the input labels for the loss function, and optional data for debug/visualize
+    output_columns: [ 'image', 'binary_map', 'mask', 'thresh_map', 'thresh_mask' ] #'img_path']
+#    output_columns: ['image'] # for debug op performance
+    net_input_column_index: [0] # input indices for network forward func in output_columns
+    label_column_index: [1, 2, 3, 4] # input indices marked as label
+
+  loader:
+    shuffle: True
+    batch_size: 16
+    drop_remainder: True
+    num_workers: 20
+
+eval:
+  ckpt_load_path: dbnet_ccpd/best.ckpt
+  dataset_sink_mode: False
+  dataset:
+    type: DetDataset
+    dataset_root: path/to/DBNet_DataSets
+    data_dir: val/images
+    label_file: val/val_det_gt.txt
+    sample_ratio: 1.0
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: RGB
+          to_float32: False
+      - DetLabelEncode:
+      - DetResize:
+          target_size: [ 1024, 1024 ] # h, w
+          keep_ratio: True
+          padding: True
+      - NormalizeImage:
+          bgr_to_rgb: False
+          is_hwc: True
+          mean: imagenet
+          std: imagenet
+      - ToCHWImage:
+    #  the order of the dataloader list, matching the network input and the labels for evaluation
+    output_columns: [ 'image', 'polys', 'ignore_tags', 'shape_list'  ]
+    net_input_column_index: [0] # input indices for network forward func in output_columns
+    label_column_index: [1, 2] # input indices marked as label
+
+  loader:
+    shuffle: False
+    batch_size: 16 # TODO: due to dynamic shape of polygons (num of boxes varies), BS has to be 1
+    drop_remainder: True
+    num_workers: 2
+```
+
+## svtr_ccpd.yaml
+
+```yaml
+system:
+  mode: 0 # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: False
+  amp_level: O2
+  amp_level_infer: O2 # running inference in O2 mode
+  seed: 42
+  log_interval: 100
+  val_while_train: False
+  drop_overflow_update: False
+  ckpt_save_policy: latest_k
+  ckpt_max_keep: 5
+
+common:
+  character_dict_path: &character_dict_path mindocr/utils/dict/ccpd_dict.txt
+  num_classes: &num_classes 69 # num_chars_in_dict + 1
+  max_text_len: &max_text_len 24
+  use_space_char: &use_space_char False
+  batch_size: &batch_size 256
+
+model:
+  type: rec
+  transform:
+    name: STN_ON
+    in_channels: 3
+    tps_inputsize: [32, 64]
+    tps_outputsize: [32, 100]
+    num_control_points: 20
+    tps_margins: [0.05, 0.05]
+    stn_activation: none
+  backbone:
+    name: SVTRNet
+    pretrained: False
+    img_size: [32, 100]
+    out_channels: 192
+    patch_merging: Conv
+    embed_dim: [64, 128, 256]
+    depth: [3, 6, 3]
+    num_heads: [2, 4, 8]
+    mixer:
+      [
+        "Local",
+        "Local",
+        "Local",
+        "Local",
+        "Local",
+        "Local",
+        "Global",
+        "Global",
+        "Global",
+        "Global",
+        "Global",
+        "Global",
+      ]
+    local_mixer: [[7, 11], [7, 11], [7, 11]]
+    last_stage: True
+    prenorm: False
+  neck:
+    name: Img2Seq
+  head:
+    name: CTCHead
+    out_channels: *num_classes
+
+postprocess:
+  name: RecCTCLabelDecode
+  character_dict_path: *character_dict_path
+  use_space_char: *use_space_char
+
+metric:
+  name: RecMetric
+  main_indicator: acc
+  character_dict_path: *character_dict_path
+  ignore_space: True
+  print_flag: True
+  lower: false
+
+loss:
+  name: CTCLoss
+  pred_seq_len: 25 # 100 / 4
+  max_label_len: *max_text_len # this value should be smaller than pre_seq_len
+  batch_size: *batch_size
+
+scheduler:
+  scheduler: warmup_cosine_decay
+  min_lr: 0.00001
+  lr: 0.001
+  num_epochs: 30
+  warmup_epochs: 3
+  decay_epochs: 27
+
+optimizer:
+  opt: adamw
+  grouping_strategy: svtr
+  filter_bias_and_bn: False
+  weight_decay: 0.05
+
+loss_scaler:
+  type: dynamic
+  loss_scale: 512
+  scale_factor: 2.0
+  scale_window: 1000
+
+train:
+  ckpt_save_dir: ./svtr_ccpd
+  dataset_sink_mode: False
+  ema: True
+  ema_decay: 0.9999
+  dataset:
+    type: RecDataset
+    dataset_root: path/to/SVTR_DataSets
+    data_dir: train/
+    label_file: gt_train.txt
+    sample_ratio: 1.0
+    shuffle: True
+    filter_max_len: True
+    filter_zero_text_image: True
+    extra_count_if_repeat: True
+    max_text_len: *max_text_len
+    character_dict_path: *character_dict_path
+    label_standandize: True
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          to_float32: False
+      - SVTRRecAug:
+          aug_type: 0
+          geometry_p: 0.7
+          deterioration_p: 0.8
+          colorjitter_p: 0.7
+      - RecCTCLabelEncode:
+          max_text_len: *max_text_len
+          character_dict_path: *character_dict_path
+          use_space_char: *use_space_char
+          lower: False
+      - SVTRRecResizeImg:
+          image_shape: [64, 256]
+          padding: False
+      - NormalizeImage:
+          bgr_to_rgb: True
+          is_hwc: True
+          mean: [127.0, 127.0, 127.0]
+          std: [127.0, 127.0, 127.0]
+      - ToCHWImage:
+    output_columns: ["image", "text_seq"]
+    net_input_column_index: [0]
+    label_column_index: [1]
+
+  loader:
+    shuffle: True
+    batch_size: *batch_size
+    drop_remainder: True
+    max_rowsize: 12
+    num_workers: 4
+
+eval:
+  ckpt_load_path: ./svtr_ccpd/best.ckpt
+  dataset_sink_mode: False
+  dataset:
+    type: RecDataset
+    dataset_root: path/to/SVTR_DataSets
+    data_dir: val/
+    label_file: gt_val.txt
+    sample_ratio: 1.0
+    shuffle: False
+    transform_pipeline:
+      - DecodeImage:
+          img_mode: BGR
+          to_float32: False
+      - RecCTCLabelEncode:
+          max_text_len: *max_text_len
+          character_dict_path: *character_dict_path
+          use_space_char: *use_space_char
+          lower: False
+      - SVTRRecResizeImg:
+          image_shape: [64, 256]
+          padding: False
+      - NormalizeImage:
+          bgr_to_rgb: True
+          is_hwc: True
+          mean: [127.0, 127.0, 127.0]
+          std: [127.0, 127.0, 127.0]
+      - ToCHWImage:
+    output_columns: ["image", "text_padded", "text_length"]
+    net_input_column_index: [0]
+    label_column_index: [1, 2]
+
+  loader:
+    shuffle: False
+    batch_size: 64
+    drop_remainder: False
+    max_rowsize: 12
+    num_workers: 1
+```
