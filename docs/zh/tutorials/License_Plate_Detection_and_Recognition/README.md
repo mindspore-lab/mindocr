@@ -199,17 +199,37 @@ python tools/dataset_converters/convert.py \
 2. 复制db_r50_ctw1500.ymal文件的内容到db_r50_ccpd.yaml文件
 3. 修改`postprocess`​下的`box_type`​和`box_thresh`​分别为`quad`​和`0.7`​
 
-​![image](pic/db_post_yaml.png)​
+```yaml
+postprocess:
+  name: DBPostprocess
+  box_type: quad          # whether to output a polygon or a box
+  binary_thresh: 0.3      # binarization threshold
+  box_thresh: 0.7         # box score threshold
+  max_candidates: 1000
+  expand_ratio: 1.5       # coefficient for expanding predictions
+```
 
 4. 分别修改`train`​和`test`​的数据路径配置为数据所在位置
 
-​​![image](pic/deb_data_yaml.png)​
+```yaml
+dataset:
+    type: DetDataset
+    dataset_root: path/to/your/dataset/root
+    data_dir: train/images
+    label_file: train/train_det_gt.txt
+```
 
 5. 默认测试的IOU为0.5，修改为0.7
 
 代码位置：./mindocr/metrics/det_metrics.py  33
 
-​![image](pic/db_iou.png)​
+```python
+...
+def __init__(self, min_iou: float = 0.7, min_intersect: float = 0.5):
+    self._min_iou = min_iou
+    self._min_intersect = min_intersect
+...
+```
 
 ## 训练
 
@@ -329,11 +349,19 @@ eval:
 
 4. ​`metric`​中添加`lower`​为`false`​
 
-​![image](pic/rec_metric_yaml.png)
+```yaml
+metric:
+  name: RecMetric
+  main_indicator: acc
+  character_dict_path: *character_dict_path
+  ignore_space: True
+  print_flag: True
+  lower: false
+```
 
 5. 修改`RecCTCLabelEncode`​的`lower`​为`false`​
 
-```python
+```yaml
 - RecCTCLabelEncode:
     max_text_len: *max_text_len
     character_dict_path: *character_dict_path
