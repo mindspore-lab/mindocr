@@ -14,4 +14,5 @@ with open('ccpd.txt', 'w', encoding='utf-8') as file:
     for char, index in unique_dict.items():
         line = f"{char}:{index}\n"
         print(line.strip())  
-        file.write(line)     
+        file.write(line)    
+ 
