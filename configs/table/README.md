@@ -27,9 +27,10 @@ Through this approach, TableMaster is able to simultaneously learn and predict t
 ### PubTabNet
 <div align="center">
 
-| **Model**   | **Context**    | **Backbone**    | **Accuracy** |  **Train T.** | **per step time** | **Throughput** | **Recipe**                            | Download                                                                                                 |
-|-------------|----------------|-------------|--------------|--------------|-----------------|----------------|---------------------------------------|--------------------------------------------------------------------------------------------------------|
-| TableMaster | D910x8-MS2.2-G | TableResNetExtra   | 77.43%       |  2100 s/epoch  | 335 ms/step |  238 img/s    | [yaml](table_master.yaml)         | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-25810c37.ckpt) |
+| **Model**   | **Context**     | **Backbone**    | **Accuracy** | **Train T.** | **per step time** | **Throughput** | **Recipe**                            | Download                                                                                                 |
+|-------------|-----------------|-------------|--------------|--------------|-------------------|----------------|---------------------------------------|--------------------------------------------------------------------------------------------------------|
+| TableMaster | D910*x8-MS2.4-F | TableResNetExtra   | 77.47%       | 4218 s/epoch | 675 ms/step       | 15 img/s       | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
+| TableMaster | D910*x8-MS2.3-G | TableResNetExtra   | 77.49%       | 1675 s/epoch | 268 ms/step       | 37 img/s | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
 
 </div>
 
