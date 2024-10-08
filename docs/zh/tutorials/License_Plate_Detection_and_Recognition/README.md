@@ -72,7 +72,7 @@ ads = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q'
 
 ## 环境要求
 
-硬件平台：Ascend、GPU  
+硬件平台：Ascend、GPU
 软件平台：MindSpore 2.2.14
 
 ## 安装步骤
@@ -222,7 +222,7 @@ mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet
 
 ## 测试
 
-```java
+```txt
 python tools/eval.py -c=configs/det/dbnet/db_r50_ccpd.yaml --device_target GPU
 ```
 
@@ -238,11 +238,13 @@ python tools/eval.py -c=configs/det/dbnet/db_r50_ccpd.yaml --device_target GPU
 
 ### 推理命令
 
-```python
+```shell
 python tools/infer/text/predict_det.py 	--image_dir path/to/image or path/to/image_dir \
                                 --det_algorithm DB \
                                 --det_model_dir path/to/best.ckpt \
-                                --det_box_type quad --det_db_box_thresh 0.7 --visualize_outpu true 
+                                --det_box_type quad \
+                                --det_db_box_thresh 0.7 \
+                                --visualize_output true
 ```
 
 ​![1_det_res](pic/det.png)​
@@ -499,7 +501,8 @@ python tools/infer/text/predict_rec.py 	--image_dir path/to/image_path \
                         --rec_model_dir path/to/best.ckpt \
                         --draw_img_save_dir path/to/save/res \
                         --rec_char_dict_path mindocr/utils/dict/ccpd_dict.txt \
-                        --max_text_length 20 --visualize_output true 
+                        --max_text_length 20 \
+                        --visualize_output true
 ```
 
 **输入：**

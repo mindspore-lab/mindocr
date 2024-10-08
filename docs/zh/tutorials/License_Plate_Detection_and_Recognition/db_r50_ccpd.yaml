@@ -23,7 +23,6 @@ model:
     bias: False
     adaptive: True
   pretrained: https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt
-  
 
 postprocess:
   name: DBPostprocess
