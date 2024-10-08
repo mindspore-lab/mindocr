@@ -16,7 +16,6 @@ def read_annotations(file_path):
 def crop_images(annotations, source_folder, target_folder, output_txt):
     if not os.path.exists(target_folder):
         os.makedirs(target_folder)
-      
     with open(output_txt, 'w', encoding='utf-8') as out_file:
         for image_name, data in annotations:
             image_path = os.path.join(source_folder, image_name)
