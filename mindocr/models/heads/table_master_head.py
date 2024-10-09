@@ -5,8 +5,6 @@ https://github.com/JiaquanYe/TableMASTER-mmocr/blob/master/mmocr/models/textreco
 import copy
 import math
 
-import numpy as np
-
 import mindspore as ms
 from mindspore import Tensor, nn, ops
 
