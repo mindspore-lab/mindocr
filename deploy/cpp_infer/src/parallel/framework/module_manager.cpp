@@ -1,3 +1,7 @@
+#include <vector>
+#include <string>
+#include <memory>
+#include <map>
 #include <utility>
 #include "Log/Log.h"
 #include "framework/module_manager.h"
@@ -23,7 +27,7 @@ Status ModuleManager::Init(CommandParser *options, const std::string &aclConfigP
 }
 
 Status ModuleManager::InitModuleInstance(const std::shared_ptr<ModuleBase> &moduleInstance, int instanceId,
-                                         const std::string &pipelineName, const std::string &moduleName) {
+const std::string &pipelineName, const std::string &moduleName) {
   LogDebug << "ModuleManager: begin to init module instance." << moduleName;
   ModuleInitArgs initArgs;
   initArgs.pipelineName = pipelineName;
@@ -62,7 +66,7 @@ Status ModuleManager::InitModuleInstance(const std::shared_ptr<ModuleBase> &modu
 }
 
 Status ModuleManager::RegisterModules(const std::string &pipelineName, ModuleDesc *modulesDesc, int moduleTypeCount,
-                                      int defaultCount) {
+int defaultCount) {
   auto iter = pipelineMap_.find(pipelineName);
   std::map<std::string, ModulesInfo> modulesInfoMap;
   if (iter != pipelineMap_.end()) {
@@ -94,7 +98,7 @@ Status ModuleManager::RegisterModules(const std::string &pipelineName, ModuleDes
 }
 
 Status ModuleManager::RegisterModuleConnects(const std::string &pipelineName, ModuleConnectDesc *connectDescArr,
-                                             int moduleConnectCount) {
+int moduleConnectCount) {
   auto iter = pipelineMap_.find(pipelineName);
   std::map<std::string, ModulesInfo> modulesInfoMap;
   if (iter == pipelineMap_.end()) {
@@ -134,7 +138,7 @@ Status ModuleManager::RegisterModuleConnects(const std::string &pipelineName, Mo
 }
 
 Status ModuleManager::RegisterInputVec(const std::string &pipelineName, const std::string &moduleName,
-                                       std::vector<std::shared_ptr<BlockingQueue<std::shared_ptr<void>>>> inputQueVec) {
+std::vector<std::shared_ptr<BlockingQueue<std::shared_ptr<void>>>> inputQueVec) {
   auto pipelineIter = pipelineMap_.find(pipelineName);
   std::map<std::string, ModulesInfo> modulesInfoMap;
   if (pipelineIter == pipelineMap_.end()) {
@@ -161,10 +165,10 @@ Status ModuleManager::RegisterInputVec(const std::string &pipelineName, const st
 
 Status
 ModuleManager::RegisterOutputModule(const std::string &pipelineName, const std::string &moduleSend,
-                                    const std::string &moduleRecv,
-                                    ModuleConnectType connectType,
-                                    const std::vector<std::shared_ptr<BlockingQueue<std::shared_ptr<void>>>>
-                                    &outputQueVec) {
+const std::string &moduleRecv,
+ModuleConnectType connectType,
+const std::vector<std::shared_ptr<BlockingQueue<std::shared_ptr<void>>>>
+&outputQueVec) {
   auto pipelineIter = pipelineMap_.find(pipelineName);
   std::map<std::string, ModulesInfo> modulesInfoMap;
   if (pipelineIter == pipelineMap_.end()) {

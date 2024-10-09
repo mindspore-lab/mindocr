@@ -2,6 +2,7 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
+#include <memory>
 #include "classification/cls_infer_node.h"
 #include "utils/utils.h"
 #include "data_type/constant.h"

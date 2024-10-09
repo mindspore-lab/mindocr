@@ -1,6 +1,9 @@
 #include <sstream>
 #include <functional>
 #include <utility>
+#include <iostream>
+#include <vector>
+#include <string>
 #include "config_parser/config_parser.h"
 
 const char COMMENT_CHARACTER = '#';

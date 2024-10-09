@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <memory>
+#include <utility>
 #include "recognition/rec_infer_node.h"
 #include "utils/utils.h"
 #include "recognition/rec_pre_node.h"
@@ -36,7 +38,7 @@ Status RecPreNode::Init(CommandParser *options, const AscendBaseModule::ModuleIn
     for (auto &file : files) {
       std::vector<std::string> nameInfo;
       Utils::StrSplit(file, ".", &nameInfo);
-      batchSizeList_.push_back(uint64_t(std::stoi(nameInfo[nameInfo.size() - BATCH_SIZE_BIAS])));
+      batchSizeList_.push_back(static_cast<uint64_t>(std::stoi(nameInfo[nameInfo.size() - BATCH_SIZE_BIAS])));
       if (gearInfo_.empty()) {
         Utils::LoadFromFilePair(file, &gearInfo_);
       }

@@ -43,7 +43,7 @@ Status DetInferNode::ParseConfig(CommandParser *options, const ModuleInitArgs &i
     LogError << "Get device id failed, please check the value of deviceId";
     return Status::COMM_INVALID_PARAM;
   }
-  deviceId_ = (int32_t) deviceIdVec[instanceId_ % deviceIdVec.size()];
+  deviceId_ = static_cast<int32_t>(deviceIdVec[instanceId_ % deviceIdVec.size()]);
   std::string detModelPath = options->GetStringOption("--det_model_path");
   ret = Utils::CheckPath(detModelPath, "detModelPath");
   if (ret != Status::OK) {
