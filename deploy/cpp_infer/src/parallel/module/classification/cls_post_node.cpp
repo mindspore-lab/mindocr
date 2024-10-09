@@ -1,4 +1,6 @@
 #include <vector>
+#include <string>
+#include <memory>
 #include "MxBase/MxBase.h"
 #include "utils/utils.h"
 #include "common/collect_node.h"

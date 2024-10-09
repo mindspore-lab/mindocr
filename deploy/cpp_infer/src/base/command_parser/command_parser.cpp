@@ -3,6 +3,8 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <vector>
+#include <string>
 #include "command_parser/command_parser.h"
 
 namespace {

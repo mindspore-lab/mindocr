@@ -5,6 +5,9 @@
 #include <fstream>
 #include <csignal>
 #include <thread>
+#include <algorithm>
+#include <vector>
+#include <string>
 #include "Log/Log.h"
 #include "MxBase/MxBase.h"
 #include "utils/utils.h"
@@ -98,7 +101,7 @@ void ModuleConnectDesc(std::vector<AscendBaseModule::ModuleConnectDesc> *connect
 }
 
 void DescGenerator(CommandParser *options, std::vector<AscendBaseModule::ModuleConnectDesc> *connectDesc,
-                   std::vector<AscendBaseModule::ModuleDesc> *moduleDesc, TaskType taskType) {
+std::vector<AscendBaseModule::ModuleDesc> *moduleDesc, TaskType taskType) {
   std::vector<uint32_t> deviceIdVec;
   Status ret = options->GetVectorUint32Value("--device_id", &deviceIdVec);
   if (ret != Status::OK) {
@@ -113,7 +116,7 @@ void DescGenerator(CommandParser *options, std::vector<AscendBaseModule::ModuleC
 }
 
 Status InitModuleManager(ModuleManager *moduleManager, CommandParser *options, const std::string &aclConfigPath,
-                         const std::string &pipeline, TaskType taskType) {
+const std::string &pipeline, TaskType taskType) {
   std::vector<AscendBaseModule::ModuleConnectDesc> connectDesc;
   std::vector<AscendBaseModule::ModuleDesc> moduleDesc;
   DescGenerator(options, &connectDesc, &moduleDesc, taskType);
@@ -282,9 +285,9 @@ Status ParseArgs(int argc, const char *argv[], CommandParser *options) {
 
 void
 saveModelGear(std::string *modelPath,
-              const int32_t &deviceId,
-              const std::string &modelType,
-              const BackendType engine) {
+const int32_t &deviceId,
+const std::string &modelType,
+const BackendType engine) {
   std::vector<std::vector<uint64_t>> dynamicGearInfo;
   if (engine == BackendType::ACL) {
     MxBase::Model model(*modelPath, deviceId);
@@ -312,9 +315,9 @@ saveModelGear(std::string *modelPath,
 
 void
 saveModelBs(std::string *modelPath,
-            const int32_t &deviceId,
-            const std::string &modelType,
-            const BackendType engine) {
+const int32_t &deviceId,
+const std::string &modelType,
+const BackendType engine) {
   std::vector<std::vector<uint64_t>> dynamicGearInfo;
   if (engine == BackendType::ACL) {
     MxBase::Model model(*modelPath, deviceId);
@@ -410,7 +413,7 @@ Status args_check(CommandParser *options, bool useCls) {
   }
   int32_t deviceId;
   for (auto &deviceId_ : deviceIdVec) {
-    deviceId = (int32_t) deviceId_;
+    deviceId = static_cast<int32_t>(deviceId_);
     if (deviceId_ < MIN_DEVICE_NO || deviceId_ > MAX_DEVICE_NO) {
       LogError << "deviceId must between [0,7]";
       return Status::COMM_INVALID_PARAM;

@@ -1,6 +1,8 @@
 #include <securec.h>
 #include <sys/stat.h>
 #include <utility>
+#include <vector>
+#include <string>
 #include "data_type/constant.h"
 #include "data_type/data_type.h"
 #include "utils/utils.h"
