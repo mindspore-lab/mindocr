@@ -18,6 +18,7 @@ supported_heads = [
     'YOLOv8Head',
     'MultiHead',
     'TableMasterHead',
+    'CANHead',
 ]
 from .cls_head import MobileNetV3Head
 from .conv_head import ConvHead
@@ -36,6 +37,7 @@ from .rec_robustscanner_head import RobustScannerHead
 from .rec_visionlan_head import VisionLANHead
 from .table_master_head import TableMasterHead
 from .yolov8_head import YOLOv8Head
+from .rec_can_head import CANHead
 
 
 def build_head(head_name, **kwargs):
