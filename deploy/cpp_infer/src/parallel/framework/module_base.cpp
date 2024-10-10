@@ -2,6 +2,7 @@
 #include <utility>
 #include <memory>
 #include <string>
+#include <vector>
 #include "Log/Log.h"
 #include "blocking_queue/blocking_queue.h"
 #include "framework/module_base.h"
@@ -79,7 +80,7 @@ void ModuleBase::CallProcess(const std::shared_ptr<void> &sendData) {
 }
 
 void ModuleBase::SetOutputInfo(std::string moduleName, ModuleConnectType connectType,
-                               std::vector<std::shared_ptr<BlockingQueue<std::shared_ptr<void>>>> outputQueVec) {
+std::vector<std::shared_ptr<BlockingQueue<std::shared_ptr<void>>>> outputQueVec) {
   if (outputQueVec.size() == 0) {
     LogError << "outputQueVec is Empty! " << moduleName;
     return;
@@ -106,8 +107,8 @@ void ModuleBase::SetInputVec(std::shared_ptr<BlockingQueue<std::shared_ptr<void>
 }
 
 void ModuleBase::SendToNextModule(const std::string &moduleName,
-                                  const std::shared_ptr<void> &outputData,
-                                  int channelId) {
+const std::shared_ptr<void> &outputData,
+int channelId) {
   if (isStop_) {
     LogDebug << moduleName_ << "[" << instanceId_ << "] is Stopped, can't send to next module";
     return;

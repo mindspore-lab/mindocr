@@ -1,3 +1,5 @@
+#include <vector>
+#include <memory>
 #include <string>
 #include <algorithm>
 #include "recognition/rec_post_node.h"
@@ -41,7 +43,7 @@ Status RecInferNode::ParseConfig(CommandParser *options, const ModuleInitArgs &i
     LogError << "Get device id failed, please check the value of deviceId";
     return Status::COMM_INVALID_PARAM;
   }
-  deviceId_ = (int32_t) deviceIdVec[instanceId_ % deviceIdVec.size()];
+  deviceId_ = static_cast<int32_t>(deviceIdVec[instanceId_ % deviceIdVec.size()]);
   backend_ = Utils::ConvertBackendTypeToEnum(options->GetStringOption("--backend"));
   staticMethod_ = options->GetBoolOption("--static_rec_model_mode");
   LogDebug << "staticMethod: " << staticMethod_;

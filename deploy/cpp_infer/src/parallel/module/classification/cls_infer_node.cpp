@@ -1,3 +1,4 @@
+#include <vector>
 #include <string>
 #include <memory>
 #include "data_type/constant.h"
@@ -38,7 +39,7 @@ Status ClsInferNode::ParseConfig(CommandParser *options, const ModuleInitArgs &i
     LogError << "Get device id failed, please check the value of deviceId";
     return Status::COMM_INVALID_PARAM;
   }
-  deviceId_ = (int32_t) deviceIdVec[instanceId_ % deviceIdVec.size()];
+  deviceId_ = static_cast<int32_t>(deviceIdVec[instanceId_ % deviceIdVec.size()]);
   LogDebug << "deviceId: " << deviceId_;
 
   std::string clsModelPath = options->GetStringOption("--cls_model_path");

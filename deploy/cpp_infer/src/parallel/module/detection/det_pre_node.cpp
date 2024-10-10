@@ -54,7 +54,7 @@ Status DetPreNode::ParseConfig(CommandParser *options) {
     LogError << "Get device id failed, please check the value of deviceId";
     return Status::COMM_INVALID_PARAM;
   }
-  deviceId_ = (int32_t) deviceIdVec[instanceId_ % deviceIdVec.size()];
+  deviceId_ = static_cast<int32_t>(deviceIdVec[instanceId_ % deviceIdVec.size()]);
   if (deviceId_ < 0) {
     LogError << "Device id: " << deviceId_ << " is less than 0, not valid";
     return Status::COMM_INVALID_PARAM;

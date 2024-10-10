@@ -1,3 +1,6 @@
+#include <vector>
+#include <string>
+#include <memory>
 #include <map>
 #include "utils/utils.h"
 #include "common/collect_node.h"
