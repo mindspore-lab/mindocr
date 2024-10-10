@@ -1,4 +1,4 @@
-from . import cls_metrics, det_metrics, kie_metrics, layout_metrics, rec_metrics
+from . import cls_metrics, det_metrics, kie_metrics, layout_metrics, rec_metrics, table_metrics
 from .cls_metrics import *
 from .det_metrics import *
 from .kie_metrics import VQAReTokenMetric, VQASerTokenMetric
@@ -9,7 +9,12 @@ from .table_metrics import *
 __all__ = ["build_metric"]
 
 supported_metrics = (
-    det_metrics.__all__ + rec_metrics.__all__ + cls_metrics.__all__ + layout_metrics.__all__ + kie_metrics.__all__
+    det_metrics.__all__
+    + rec_metrics.__all__
+    + cls_metrics.__all__
+    + layout_metrics.__all__
+    + kie_metrics.__all__
+    + table_metrics.__all__
 )
 
 
