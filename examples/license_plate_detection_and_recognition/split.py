@@ -10,6 +10,7 @@ def copy_files_to_directory(file_paths, target_dir):
         target_file_path = os.path.join(target_dir, os.path.basename(file_path))
         shutil.copy2(file_path, target_file_path)
 
+
 def read_train_files(train_txt_path):
     file_paths = []
     with open(train_txt_path, "r") as file:
@@ -17,6 +18,7 @@ def read_train_files(train_txt_path):
             file_path = line.strip()
             file_paths.append(file_path)
     return file_paths
+
 
 txt_paths = ["./splits/train.txt", "./splits/test.txt", "./splits/val.txt"]
 target_dirs = ["ccpd_train", "ccpd_test", "ccpd_val"]

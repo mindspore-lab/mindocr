@@ -13,6 +13,7 @@ def read_annotations(file_path):
             annotations.append((image_name, description_data))
     return annotations
 
+
 def crop_images(annotations, source_folder, target_folder, output_txt):
     if not os.path.exists(target_folder):
         os.makedirs(target_folder)
@@ -29,6 +30,7 @@ def crop_images(annotations, source_folder, target_folder, output_txt):
                 transcription = data[0]["transcription"]
                 out_file.write(f"{cropped_image_name}\t{transcription}\n")
 
+
 def main():
     datasets = ["train", "test", "val"]
     for dataset in datasets:
@@ -38,6 +40,7 @@ def main():
         output_txt = f"path/to/SVTR_DataSets/gt_{dataset}.txt"
         annotations = read_annotations(annotations_file)
         crop_images(annotations, source_folder, target_folder, output_txt)
+
 
 if __name__ == "__main__":
     main()
