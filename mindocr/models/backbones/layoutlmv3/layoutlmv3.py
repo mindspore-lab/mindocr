@@ -1,4 +1,8 @@
 import collections
+import os
+
+import yaml
+from addict import Dict
 
 import numpy as np
 
@@ -6,6 +10,7 @@ from mindspore import Parameter, Tensor, nn, ops
 from mindspore.common import dtype as mstype
 
 from mindocr.models.backbones._registry import register_backbone, register_backbone_class
+from ..layoutxlm.visual_backbone import FPN, LastLevelMaxPool, ShapeSpec
 
 from ..transformer_common.layer import (
     LayoutXLMAttention,
@@ -213,22 +218,114 @@ class LayoutLMv3Layer(LayoutXLMLayer):
 
 
 class LayoutLMv3Encoder(LayoutXLMEncoder):
-    def __init__(self, config):
+    def __init__(self, config, detection=False, out_features=None):
         super().__init__(config)
+        self.detection = detection
+        self.out_features = out_features
         self.layer = nn.CellList([LayoutLMv3Layer(config) for _ in range(config.num_hidden_layers)])
+
+        if self.detection:
+            self.gradient_checkpointing = True
+            embed_dim = self.config.hidden_size
+            self.out_indices = [int(name[5:]) for name in self.out_features]
+            self.fpn1 = nn.CellList([
+                nn.Conv2dTranspose(embed_dim, embed_dim, kernel_size=2, stride=2, has_bias=True),
+                # nn.SyncBatchNorm(embed_dim),
+                nn.BatchNorm2d(embed_dim),
+                nn.GELU(),
+                nn.Conv2dTranspose(embed_dim, embed_dim, kernel_size=2, stride=2, has_bias=True)]
+            )
+
+            self.fpn2 = nn.CellList([
+                nn.Conv2dTranspose(embed_dim, embed_dim, kernel_size=2, stride=2, has_bias=True)]
+            )
+
+            self.fpn3 = nn.Identity()
+
+            self.fpn4 = nn.MaxPool2d(kernel_size=2, stride=2)
+            self.ops = [self.fpn1, self.fpn2, self.fpn3, self.fpn4]
+
+    def construct(
+        self,
+        hidden_states,
+        attention_mask=None,
+        head_mask=None,
+        encoder_hidden_states=None,
+        encoder_attention_mask=None,
+        past_key_values=None,
+        output_attentions=False,
+        output_hidden_states=False,
+        bbox=None,
+        position_ids=None,
+        Hp=None,
+        Wp=None
+    ):
+        all_hidden_states = () if output_hidden_states else None
+
+        rel_pos = self._cal_1d_pos_emb(hidden_states, position_ids) if self.has_relative_attention_bias else None
+        rel_2d_pos = self._cal_2d_pos_emb(hidden_states, bbox) if self.has_spatial_attention_bias else None
+
+        if self.detection:
+            feat_out = {}
+            j = 0
+
+        hidden_save = dict()
+        hidden_save["input_hidden_states"] = hidden_states
+
+        for i, layer_module in enumerate(self.layer):
+            if output_hidden_states:
+                all_hidden_states = all_hidden_states + (hidden_states,)
+
+            layer_head_mask = None
+            past_key_value = None
+            # gradient_checkpointing is set as False here so we remove some codes here
+            hidden_save["input_attention_mask"] = attention_mask
+            layer_outputs = layer_module(
+                hidden_states,
+                attention_mask,
+                layer_head_mask,
+                encoder_hidden_states,
+                encoder_attention_mask,
+                past_key_value,
+                output_attentions,
+                rel_pos=rel_pos,
+                rel_2d_pos=rel_2d_pos,
+            )
+
+            hidden_states = layer_outputs[0]
+
+            hidden_save["{}_data".format(i)] = hidden_states
+
+            if self.detection and i in self.out_indices:
+                xp = hidden_states[:, -Hp * Wp:, :].permute(0, 2, 1).reshape(len(hidden_states), -1, Hp, Wp)
+                feat_out[self.out_features[j]] = self.ops[j](xp.contiguous())
+                j += 1
+
+        if self.detection:
+            return feat_out
+
+        return hidden_states, hidden_save
 
 
 @register_backbone_class
 class LayoutLMv3Model(nn.Cell):
-    def __init__(self, config):
+    def __init__(self, config, detection=False, out_features=None):
         super().__init__(config)
         self.config = config
+        self.detection = detection
+        self.out_features = out_features
         self.num_hidden_layers = config.num_hidden_layers
         self.has_relative_attention_bias = config.has_relative_attention_bias
         self.has_spatial_attention_bias = config.has_spatial_attention_bias
         self.patch_size = config.patch_size
         self.use_float16 = config.use_float16
         self.dense_dtype = mstype.float32
+        if self.num_hidden_layers <= 12:
+            self._out_feature_strides = {"layer3": 4, "layer5": 8, "layer7": 16, "layer11": 32}
+            self._out_feature_channels = {"layer3": 768, "layer5": 768, "layer7": 768, "layer11": 768}
+        else:
+            self._out_feature_strides = {"layer7": 4, "layer11": 8, "layer15": 16, "layer23": 32}
+            self._out_feature_channels = {"layer7": 1024, "layer11": 1024, "layer15": 1024, "layer23": 1024}
         if self.use_float16 is True:
             self.dense_dtype = mstype.float16
         self.min = finfo(self.dense_dtype)
@@ -256,7 +353,7 @@ class LayoutLMv3Model(nn.Cell):
 
             self.norm = nn.LayerNorm((config.hidden_size,), epsilon=1e-6)
 
-        self.encoder = LayoutLMv3Encoder(config)
+        self.encoder = LayoutLMv3Encoder(config, detection=detection, out_features=out_features)
 
     def get_input_embeddings(self):
         return self.embeddings.word_embeddings
@@ -382,6 +479,14 @@ class LayoutLMv3Model(nn.Cell):
         head_mask = head_mask.to(dtype=self.dtype)  # switch to float if need + fp16 compatibility
         return head_mask
 
+    def output_shape(self):
+        return {
+            name: ShapeSpec(
+                channels=self._out_feature_channels[name], stride=self._out_feature_strides[name]
+            )
+            for name in self.out_features
+        }
+
     def construct(
         self,
         input_ids=None,  # input_ids
@@ -450,7 +555,10 @@ class LayoutLMv3Model(nn.Cell):
                 inputs_embeds=inputs_embeds,
             )
         final_bbox = final_position_ids = None
+        Hp = WP = None
         if pixel_values is not None:
+            patch_size = 16
+            Hp, Wp = int(pixel_values.shape[2] / patch_size), int(pixel_values.shape[3] / patch_size)
             visual_embeddings = self.visual_embeddings(pixel_values)
             visual_embeddings_shape = visual_embeddings.shape
             visual_attention_mask = ops.ones((batch_size, visual_embeddings_shape[1]), dtype=mstype.int64)
@@ -510,6 +618,8 @@ class LayoutLMv3Model(nn.Cell):
             head_mask=head_mask,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
+            Hp=Hp,
+            Wp=Wp
         )
 
         sequence_output = encoder_outputs[0]
@@ -519,6 +629,28 @@ class LayoutLMv3Model(nn.Cell):
 
 @register_backbone
 def layoutlmv3(use_float16: bool = True, **kwargs):
-    pretrained_config = LayoutLMv3PretrainedConfig(use_float16)
+    pretrained_config = LayoutLMv3PretrainedConfig(use_float16, **kwargs)
     model = LayoutLMv3Model(pretrained_config)
     return model
+
+
+@register_backbone
+def build_layoutlmv3_fpn_backbone(use_float16: bool = True, **kwargs):
+    pretrained_config = LayoutLMv3PretrainedConfig(use_float16, **kwargs)
+    pretrained_config.has_spatial_attention_bias = False
+    pretrained_config.has_relative_attention_bias = False
+    pretrained_config.text_embed = False
+    out_features = kwargs.get('out_features', ["layer3", "layer5", "layer7", "layer11"])
+    bottom_up = LayoutLMv3Model(pretrained_config, detection=True, out_features=out_features)
+    fpn_config = kwargs.get("fpn", {})
+    in_features = fpn_config.get("in_features", ["layer3", "layer5", "layer7", "layer11"])
+    out_channels = fpn_config.get("out_channels", 256)
+    backbone = FPN(
+        bottom_up=bottom_up,
+        in_features=in_features,
+        out_channels=out_channels,
+        norm=fpn_config.get("norm", ""),
+        top_block=LastLevelMaxPool(),
+        fuse_type=fpn_config.get("fuse_type", "sum")
+    )
+    return backbone

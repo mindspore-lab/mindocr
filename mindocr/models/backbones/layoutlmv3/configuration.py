@@ -3,11 +3,11 @@ from dataclasses import dataclass
 
 @dataclass
 class LayoutLMv3PretrainedConfig:
-    def __init__(self, use_float16=False):
+    def __init__(self, use_float16=False, **kwargs):
         pretrained_config = {
             "use_float16": use_float16,
             "fast_qkv": False,
-            "vocab_size": 250002,
+            "vocab_size": kwargs.get("vocab_size", 250002),
             "hidden_size": 768,
             "num_hidden_layers": 12,
             "num_attention_heads": 12,
