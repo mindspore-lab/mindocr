@@ -31,7 +31,7 @@
 <!--start-->
 ## 简介
 MindOCR是一个基于[MindSpore](https://www.mindspore.cn/en) 框架开发的OCR开源工具箱，集成系列主流文字检测识别的算法、模型，并提供易用的训练和推理工具，可以帮助用户快速开发和应用业界SoTA文本检测、文本识别模型，如DBNet/DBNet++和CRNN/SVTR，满足图像文档理解的需求。
-
+test
 
 <details open markdown>
 <summary> 主要特性 </summary>
