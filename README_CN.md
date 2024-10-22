@@ -15,7 +15,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 
-[English](https://github.com/mindspore-lab/mindocr/blob/main/README.md) | 中文
+[English](README.md) | 中文
 
 [📝简介](#简介) |
 [🔨安装教程](#安装教程) |

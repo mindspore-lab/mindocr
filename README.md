@@ -14,7 +14,7 @@
 [![PRs](https://img.shields.io/badge/PRs-welcome-pink.svg)](https://github.com/mindspore-lab/mindocr/pulls)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-English | [中文](https://github.com/mindspore-lab/mindocr/blob/main/README_CN.md)
+English | [中文](README_CN.md)
 
 [📝Introduction](#introduction) |
 [🔨Installation](#installation) |
@@ -58,13 +58,13 @@ mindspore versions.
 
 #### Prerequisites
 
-MindOCR is built on MindSpore AI framework and is compatible with the following framework versions. For details and installation guideline, please refer to the installation links shown below.
+MindOCR is built on MindSpore AI framework and is compatible with the following framework versions. installation guideline for Training, please refer to the installation links shown below.
 
-- mindspore >= 2.2.0 [[install](https://www.mindspore.cn/install)]
+- mindspore [[install](https://www.mindspore.cn/install)] Please install correct MindSpore version refer to `mindocr` versions.
 - python >= 3.7
 - openmpi 4.0.3 (for distributed training/evaluation)  [[install](https://www.open-mpi.org/software/ompi/v4.0/)]
-- mindspore lite (for offline inference) >= 2.2.0  [[install](docs/en/inference/environment.md)]
 
+MindSpore Lite offline Inference please refer to [Lite offline Environment Installation](docs/en/inference/environment.md)
 
 #### Dependency
 ```shell
@@ -207,13 +207,9 @@ python tools/eval.py \
 
 For more illustration and usage, please refer to the model training section in [Tutorials](#tutorials).
 
-### 3. Model Offline Inference - Quick Guideline
+### 3. Model Offline Inference
 
-You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Third-party models** (PaddleOCR, MMOCR, etc.). Please refer to the following documents
-
- - [Python/C++ Inference on Ascend 310](docs/en/inference/inference_tutorial.md)
- - [MindOCR Models Offline Inference - Quick Start](docs/en/inference/inference_quickstart.md)
- - [Third-party Models Offline Inference - Quick Start](docs/en/inference/inference_thirdparty_quickstart.md).
+You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Third-party models** (PaddleOCR, MMOCR, etc.). Please refer to [Model Offline Inference Tutorial](docs/en/inference/inference_tutorial.md)
 
 ## Tutorials
 
@@ -229,10 +225,7 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 - Inference with MindSpore
     - [Python Online Inference](https://github.com/mindspore-lab/mindocr/blob/main/tools/infer/text/README.md)
 - Inference with MindSpore Lite
-    - [Python/C++ Inference on Ascend 310](docs/en/inference/inference_tutorial.md)
-    - [MindOCR Models Offline Inference - Quick Start](docs/en/inference/inference_quickstart.md)
-    - [Third-party Models Offline Inference - Quick Start](docs/en/inference/inference_thirdparty_quickstart.md)
-    - [Model Conversion](docs/en/inference/convert_tutorial.md)
+    - [Model Offline Inference Tutorial](docs/en/inference/inference_tutorial.md)
 - Developer Guides
     - [Customize Dataset](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/README.md)
     - [Customize Data Transformation](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/transforms/README.md)
