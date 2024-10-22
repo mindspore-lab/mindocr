@@ -57,12 +57,13 @@ MindOCR是一个基于[MindSpore](https://www.mindspore.cn/en) 框架开发的OC
 
 #### MindSpore相关环境准备
 
-MindOCR基于MindSpore AI框架开发，并适配以下框架版本。安装方式请参见下方的安装链接。
+MindOCR基于MindSpore AI框架开发，并适配以下框架版本。模型训练场景：
 
-- mindspore >= 2.2.0 [[安装](https://www.mindspore.cn/install)]
+- mindspore [[安装](https://www.mindspore.cn/install)] 请按照mindocr分支安装对应版本MindSpore。
 - python >= 3.7
 - openmpi 4.0.3 (用于分布式训练与验证)  [[安装](https://www.open-mpi.org/software/ompi/v4.0/)]
-- mindspore lite (用于离线推理) >= 2.2.0  [[安装](docs/zh/inference/environment.md)]
+
+Lite推理环境准备请参考[离线推理环境准备](docs/zh/inference/environment.md)。
 
 #### 包依赖
 
@@ -208,13 +209,9 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 
 更多使用方法，请参考[使用教程](#使用教程)中的模型训练、推理章节。
 
-### 3. 模型离线推理-快速指南
+### 3. 模型离线推理
 
-你可以在MindOCR中对**MindOCR原生模型**或**第三方模型**（如PaddleOCR、MMOCR等）进行MindSpore Lite推理。请参考以下文档
-
- - [基于Python/C++和昇腾310的OCR推理](docs/zh/inference/inference_tutorial.md)
- - [MindOCR原生模型离线推理 - 快速开始](docs/zh/inference/inference_quickstart.md)
- - [第三方模型离线推理 - 快速开始](docs/zh/inference/inference_thirdparty_quickstart.md)
+你可以在MindOCR中对**MindOCR原生模型**或**第三方模型**（如PaddleOCR、MMOCR等）进行MindSpore Lite推理。详情请参考[模型离线推理教程](docs/zh/inference/inference_tutorial.md)。
 
 ## 使用教程
 
@@ -230,9 +227,7 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 - 使用MindSpore进行在线推理
     - [基于Python的OCR在线推理](https://github.com/mindspore-lab/mindocr/blob/main/tools/infer/text/README.md)
 - 使用MindSpore Lite进行离线推理
-    - [基于Python/C++和昇腾310的OCR推理](docs/zh/inference/inference_tutorial.md)
-    - [MindOCR原生模型离线推理 - 快速开始](docs/zh/inference/inference_quickstart.md)
-    - [第三方模型离线推理 - 快速开始](docs/zh/inference/inference_thirdparty_quickstart.md)
+    - [模型离线推理教程](docs/zh/inference/inference_tutorial.md)
 - 开发者指南
     - [如何自定义数据集](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/README.md)
     - [如何自定义数据增强方法](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/transforms/README.md)
