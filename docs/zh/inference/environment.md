@@ -8,7 +8,9 @@
 
 | MindSpore | Driver | Firmware | CANN | MindOCR |
 | --- | --- | --- | --- | --- |
-| 2.2.14 | 23.0.0 | 7.1.0.3.220 | 7.0.0.beta1 | v0.4.0 |
+| 2.2.14 | 配套 CANN 7.0.0.beta1 | 配套 CANN 7.0.0.beta1 | 7.0.0.beta1 | v0.4.0 |
+
+Driver和Firmware不同芯片对应的型号不一样，请根据CANN包版本下载对应的Driver和Firmware。
 
 **其他MindSpore版本配套关系参考[MindSpore 安装](https://www.mindspore.cn/install) ，其他MindSpore版本没有经过完整测试，谨慎使用。**
 
@@ -20,16 +22,16 @@
 
 | software | version | package name | download |
 | --- | --- | --- | --- |
-| Driver | 23.0.0 | {device}-npu-driver_23.0.0_linux-{arch}.run | [link](https://www.hiascend.com/hardware/firmware-drivers/community?product=2&model=2&cann=7.0.0.beta1&driver=1.0.22.alpha) |
-| Firmware | 7.1.0.3.220 | {device}-npu-firmware_7.1.0.3.220.run | [link](https://www.hiascend.com/hardware/firmware-drivers/community?product=2&model=2&cann=7.0.0.beta1&driver=1.0.22.alpha) |
+| Driver | 配套 CANN 7.0.0.beta1 | {device}-npu-driver_{version}_linux-{arch}.run | [link](https://www.hiascend.com/hardware/firmware-drivers/community?product=2&model=2&cann=7.0.0.beta1&driver=1.0.22.alpha) |
+| Firmware | 配套 CANN 7.0.0.beta1 | {device}-npu-firmware_{version}.run | [link](https://www.hiascend.com/hardware/firmware-drivers/community?product=2&model=2&cann=7.0.0.beta1&driver=1.0.22.alpha) |
 | CANN nnae | 7.0.0.beta1 | Ascend-cann-nnae_7.0.0_linux-{arch}.run | [link](https://www.hiascend.com/developer/download/community/result?module=cann&cann=7.0.0.beta1) |
 | CANN kernels(可选) | 7.0.0.beta1 | Ascend-cann-kernels-{device}_7.0.0_linux.run | [link](https://www.hiascend.com/developer/download/community/result?module=cann&cann=7.0.0.beta1) |
 
 #### 安装
 
 ```shell
-bash {device}-npu-driver_23.0.0_linux-{arch}.run --full
-bash {device}-npu-firmware_7.1.0.3.220.run --full
+bash {device}-npu-driver_{version}_linux-{arch}.run --full
+bash {device}-npu-firmware_{version}.run --full
 bash Ascend-cann-nnae_7.0.0_linux-{arch}.run --install
 bash Ascend-cann-kernels-{device}_7.0.0_linux.run --install
 
@@ -51,7 +53,7 @@ source /usr/local/Ascend/nnae/set_env.sh
 ```shell
 pip install mindspore==2.2.14
 
-# 查看版本号，离线推理mindspore仅使用CPU
+# 查看版本号，离线推理MindSpore仅使用CPU
 python -c "import mindspore;mindspore.set_context(device_target='CPU');mindspore.run_check()"
 ```
 

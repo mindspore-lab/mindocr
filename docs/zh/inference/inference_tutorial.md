@@ -44,7 +44,7 @@ python infer.py \
     --vis_pipeline_save_dir=det_cls_rec
 ```
 
-- det_model_path，cls_model_path，rec_model_path为模型转换后的MindSpore Lite MindIR。 
+- det_model_path，cls_model_path，rec_model_path为模型转换后的MindSpore Lite MindIR。
 - 可视化图片存放在det_cls_rec中,如图所示：
 
   <p align="center">
@@ -162,6 +162,9 @@ word_1814.png  "cathay"
 
 ### 4.6 详细推理参数解释
 
+<details>
+<summary> 详情 </summary>
+
 - 基本设置
 
   | 参数名称          | 类型 | 默认值   | 含义                    |
@@ -211,9 +214,14 @@ word_1814.png  "cathay"
 
 `*_model_name_or_config`可以填模型名或YAML配置文件路径，可参考[MindOCR模型列表](mindocr_models_list.md)，[PPOCR/MMOCR模型列表](thirdparty_models_list.md)。
 
+</details>
+
 ## 5. 推理 (C++)
 
 目前暂时只支持pp-ocr系列的中文DBNET、CRNN、SVTR模型。
+
+<details>
+<summary> 详情 </summary>
 
 进入到MindOCR推理测目录下 `cd deploy/cpp_infer`,执行编译脚本 `bash build.sh`, 构建完成之后在当前路径dist目录下生成可执行文件infer。
 
@@ -296,6 +304,9 @@ word_1189.png  ["0", 0.9360]
 
 ### 5.5 详细推理参数解释
 
+<details>
+<summary> 详情 </summary>
+
 - 基本设置
 
   | 参数名称          | 类型 | 默认值   | 含义                    |
@@ -330,6 +341,9 @@ word_1189.png  ["0", 0.9360]
   |:--------------------|:----|:------|:------------------------------------------------|
   | rec_model_path      | str | 无    | 文本识别模型的文件路径                               |
   | character_dict_path | str | 无    | 文本识别模型对应的词典文件路径，默认值只支持数字和英文小写，其他语言请在对应模型列表页面下载character_dict |
+
+</details>
+</details>
 
 ## 6. 模型推理精度评估
 

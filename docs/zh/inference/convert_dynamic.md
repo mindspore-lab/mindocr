@@ -51,7 +51,7 @@ python converter.py \
     --input_shape=-1,3,48,192 \
     --output_path=output
 ```
-  
+
 输出结果为单个OM模型：`model_dynamic_bs.mindir`
 
 - 对height和width进行分档
