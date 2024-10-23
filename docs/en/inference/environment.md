@@ -30,6 +30,8 @@ This example uses the Ascend package that comes with MindSpore 2.2.14, other Min
 #### Install
 
 ```shell
+# Note: When installing a new machine, install the driver first and then the firmware.
+# When the scenario of upgrade, install the firmware first and then the driver.
 bash {device}-npu-driver_{version}_linux-{arch}.run --full
 bash {device}-npu-firmware_{version}.run --full
 bash Ascend-cann-nnae_7.0.0_linux-{arch}.run --install

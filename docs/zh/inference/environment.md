@@ -30,6 +30,7 @@ Driver和Firmware不同芯片对应的型号不一样，请根据CANN包版本�
 #### 安装
 
 ```shell
+# 注意：新机器安装先driver后firmware，驱动及固件升级场景，先firmware后driver
 bash {device}-npu-driver_{version}_linux-{arch}.run --full
 bash {device}-npu-firmware_{version}.run --full
 bash Ascend-cann-nnae_7.0.0_linux-{arch}.run --install
