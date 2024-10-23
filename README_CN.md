@@ -81,6 +81,10 @@ pip install -e .
 > 使用 `-e` 代表可编辑模式，可以帮助解决潜在的模块导入问题。
 
 #### 通过docker安装
+
+<details>
+<summary> 详情 </summary>
+
 目前提供的docker，环境信息如下
  - 操作系统版本：Euler2.8
  - CANN版本：7.0
@@ -142,6 +146,8 @@ pip install -e .
     ```bash
     source env_setup.sh
     ```
+
+</details>
 
 #### 通过PyPI安装
 ```shell

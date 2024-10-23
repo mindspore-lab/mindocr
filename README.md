@@ -80,6 +80,10 @@ pip install -e .
 > Using `-e` for "editable" mode can help resolve potential module import issues.
 
 #### Install from docker
+
+<details>
+<summary> Details </summary>
+
 The environment information of dockers provided is as following:
  - OS：Euler2.8
  - CANN：7.0
@@ -142,6 +146,7 @@ Please follow the steps to install docker：
     source env_setup.sh
     ```
 
+</details>
 
 #### Install from PyPI
 ```shell
