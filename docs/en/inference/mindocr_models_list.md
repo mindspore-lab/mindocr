@@ -1,5 +1,7 @@
 ## MindOCR Support Models List
 
+**Note: All results is test on 310P3.**
+
 ### Text Detection
 
 | Model                                                                            | Backbone        | Language      | Datset    | F-score(%) | FPS   | data shape (NCHW) | Configuration File                                                                                                    | Download Link                                                                                                                    |

@@ -135,6 +135,8 @@ input_shape=x:[1,3,736,1280]
 
 #### 2.1.2 动态Shape(分档)
 
+**注意：ascend 310不支持动态shape。**
+
 在某些推理场景（如检测出文本区域后，再执行文本识别网络），由于文本区域的个数和分辨率不固定，每次推理都按照最大的BatchSize或最大ImageSize进行计算，会造成计算资源浪费。
 
 假设导出模型输入Shape为(-1, 3, -1, -1)，NHW这3个轴是动态的，所以可以在模型转换时设置一些可选值，以适应推理时各种Shape大小的输入图像，详细信息可参考[动态shape配置](https://www.mindspore.cn/lite/docs/zh-CN/r2.2/use/cloud_infer/converter_tool_ascend.html#%E5%8A%A8%E6%80%81shape%E9%85%8D%E7%BD%AE) 。

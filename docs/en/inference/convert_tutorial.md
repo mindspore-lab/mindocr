@@ -137,6 +137,8 @@ The generated output.mindir is a static shape version, and the input image durin
 
 #### 2.1.2 Dynamic Shape(scaling)
 
+**Note: ascend 310 not support dynamic shape.**
+
 In some inference scenarios, such as detecting a target and then executing the target recognition network, the number and size of targets is not fixed resulting. If each inference is computed at the maximum Batch Size or maximum Image Size, it will result in wasted computational resources.
 
 Assuming the exported model input shape is (-1, 3, -1, -1), and the NHW axes are dynamic. Therefore, some optional values can be set during model conversion to adapt to input images of various size during inference.

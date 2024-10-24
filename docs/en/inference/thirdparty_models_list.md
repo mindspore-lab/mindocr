@@ -2,6 +2,8 @@
 
 MindOCR can support inference for third-party models such as PaddleOCR, MMOCR, etc. This document presents a list of adapted models. Performance testing is based on Ascend310P, and some models currently do not have a test dataset.
 
+**Note: All results is test on 310P3.**
+
 ### Text Detection
 
 |             Name             |  Model   |   Backbone    | Dataset | F-score(%) |  FPS  |    Origin link    |                                                                  Configuration File                                                                   |                                                                                   Original Download                                                                                  |                                                         Reference Link    |  ONNX |
