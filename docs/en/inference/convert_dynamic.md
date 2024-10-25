@@ -78,7 +78,7 @@ python converter.py \
 
 The output is a single MindIR model: `model_dynamic_hw.mindir`
 
-- auto shape scaling for batch szie, height and width
+- auto shape scaling for batch size, height and width
 
 ```shell
 python converter.py \

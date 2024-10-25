@@ -44,6 +44,8 @@ python infer.py \
     --vis_pipeline_save_dir=det_cls_rec
 ```
 
+> 注意：设置 `--character_dict_path=/path/to/xxx_dict.txt` 当不仅含有数字及小写字母时。
+
 - det_model_path，cls_model_path，rec_model_path为模型转换后的MindSpore Lite MindIR。
 - 可视化图片存放在det_cls_rec中,如图所示：
 
@@ -74,6 +76,8 @@ python infer.py \
     --res_save_dir=det_rec \
     --vis_pipeline_save_dir=det_rec
 ```
+
+> 注意：设置 `--character_dict_path=/path/to/xxx_dict.txt` 当不仅含有数字及小写字母时。
 
 可视化结果存放在det_rec文件夹中，如图所示：
 
@@ -151,6 +155,8 @@ python infer.py \
     --rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
     --res_save_dir=rec
 ```
+
+> 注意：设置 `--character_dict_path=/path/to/xxx_dict.txt` 当不仅含有数字及小写字母时。
 
 结果保存在rec/rec_results.txt，格式如下：
 

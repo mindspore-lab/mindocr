@@ -45,6 +45,8 @@ python infer.py \
     --vis_pipeline_save_dir=det_cls_rec
 ```
 
+> Note: set `--character_dict_path=/path/to/xxx_dict.txt` if not only use numbers and lowercase.
+
 The visualization images are stored in det_cls_rec, as shown in the picture.
 
 <p align="center">
@@ -74,6 +76,8 @@ python infer.py \
     --res_save_dir=det_rec \
     --vis_pipeline_save_dir=det_rec
 ```
+
+> Note: set `--character_dict_path=/path/to/xxx_dict.txt` if not only use numbers and lowercase.
 
 The visualization images are stored in det_rec folder, as shown in the picture.
 
@@ -151,6 +155,8 @@ python infer.py \
     --rec_model_name_or_config=../../configs/rec/crnn/crnn_resnet34.yaml \
     --res_save_dir=rec
 ```
+
+> Note: set `--character_dict_path=/path/to/xxx_dict.txt` if not only use numbers and lowercase.
 
 The results will be saved in rec/rec_results.txt, with the following format:
 

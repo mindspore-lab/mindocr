@@ -28,4 +28,4 @@
 
 ### 如何添加自己的数据转换
 
-请参考[定制化数据转换开发指导](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/transforms/README.md)
+请参考[定制化数据转换开发指导](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/transforms/README_CN.md)

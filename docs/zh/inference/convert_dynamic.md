@@ -66,7 +66,7 @@ python converter.py \
 
 输出结果为单个OM模型：`model_dynamic_hw.mindir`
 
-- 对batch szie、height和width进行分档
+- 对batch size、height和width进行分档
 
 ```shell
 python converter.py \
