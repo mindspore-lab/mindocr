@@ -6,18 +6,16 @@
 graph LR;
     A[MindOCR models] -- export --> B[MindIR] -- converter_lite --> C[MindSpore Lite MindIR];
     D[PaddleOCR train models] -- export --> E[PaddleOCR infer models] -- paddle2onnx --> F[ONNX]-- converter_lite --> C;
-    H[MMOCR models] -- convert --> F;
 ```
 
 - MindOCR训练ckpt文件 -> MindSpore MindIR -> MindSpore Lite MindIR;
 - PaddleOCR训练文件 -> ONNX -> MindSpore Lite MindIR;
-- MMOCR模型 -> ONNX -> MindSpore Lite MindIR.
 
 ## 1. 模型导出
 
 本章节主要包含训练模型导出`MindIR`或者`ONNX`文件的过程。
 
-部分模型提供了MIndIR/ONNX导出文件的下载链接，见[MindOCR模型列表](mindocr_models_list.md)，[PPOCR/MMOCR模型列表](mindocr_models_list.md)，可跳转到对应模型的介绍页面进行下载。
+部分模型提供了MIndIR/ONNX导出文件的下载链接，见[MindOCR模型列表](mindocr_models_list.md)，[PPOCR模型列表](thirdparty_models_list.md)，可跳转到对应模型的介绍页面进行下载。
 
 ### 1.1 MindOCR 模型导出
 
@@ -88,14 +86,6 @@ paddle2onnx \
 ```
 
 参数中input_shape_dict的值，一般可以通过[Netron](https://github.com/lutzroeder/netron)工具打开推理模型查看，或者在上述[tools/export_model.py](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/tools/export_model.py)的代码中找到。
-
-### 1.3 MMOCR 模型导出
-
-MMOCR使用Pytorch，其模型文件一般是pth格式，需要先把它导出为ONNX格式。
-
-[MMDeploy](https://github.com/open-mmlab/mmdeploy)提供了MMOCR模型导出ONNX的命令，详细教程见[如何转换模型](https://github.com/open-mmlab/mmdeploy/blob/main/docs/zh_cn/02-how-to-run/convert_model.md)。
-
-对于参数`deploy_cfg`需选择目录[mmdeploy/configs/mmocr](https://github.com/open-mmlab/mmdeploy/tree/main/configs/mmocr)下的`*_onnxruntime_dynamic.py`文件，从而导出为动态Shape版ONNX模型。
 
 ## 2. MindSpore Lite MindIR 转换
 

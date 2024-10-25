@@ -1,20 +1,22 @@
 ## 离线推理环境准备
 
-本教程仅涉及MindOCR在Ascend310/Ascend310P设备离线推理环境准备。
+本教程仅涉及MindOCR在Atlas 300系列推理芯片离线推理环境准备。
 
 ### 1. 版本配套关系表
 
 搭建推理环境请参考版本配套关系，推荐使用MindSpore 2.2.14版本进行推理。
 
+不同芯片型号 Ascend Driver和 Firmware使用的版本不一定一样，请参考[CANN 包](https://www.hiascend.com/developer/download/community/result?module=cann&cann=7.0.0.beta1) 版本下载对应芯片使用的[Driver和 Firmware](https://www.hiascend.com/zh/hardware/firmware-drivers/community?product=2&model=3&cann=7.0.0.beta1&driver=1.0.22.alpha)。
+
+下面我们以 Atlas 300I 推理卡 (Model: 3010) X86 CPU架构为例介绍安装版本匹配关系，下面的安装章节也会以这个场景为例，其他芯片及CPU架构可参考这个过程进行安装。
+
 | MindSpore | Driver | Firmware | CANN | MindOCR |
 | --- | --- | --- | --- | --- |
-| 2.2.14 | 配套 CANN 7.0.0.beta1 | 配套 CANN 7.0.0.beta1 | 7.0.0.beta1 | v0.4.0 |
+| 2.2.14 | 23.0.0 | 7.1.0.3.220 | 7.0.0.beta1 | v0.4.0 |
 
-Driver和Firmware不同芯片对应的型号不一样，请根据CANN包版本下载对应的Driver和Firmware。
+**其他MindSpore and Ascend 软件匹配关系请参考 [MindSpore 安装](https://www.mindspore.cn/install)。其他 MindSpore 没有经过充分测试，谨慎使用。**
 
-**其他MindSpore版本配套关系参考[MindSpore 安装](https://www.mindspore.cn/install) ，其他MindSpore版本没有经过完整测试，谨慎使用。**
-
-### 2. Ascend环境安装
+### 2. Ascend 环境安装
 
 昇腾AI处理器配套软件包有两个版本，商用版和社区版。商用版仅供商业客户使用，下载受限；社区版本可自由下载，以下例子均使用社区版本。
 
@@ -22,25 +24,26 @@ Driver和Firmware不同芯片对应的型号不一样，请根据CANN包版本�
 
 | software | version | package name | download |
 | --- | --- | --- | --- |
-| Driver | 配套 CANN 7.0.0.beta1 | {device}-npu-driver_{version}_linux-{arch}.run | [link](https://www.hiascend.com/hardware/firmware-drivers/community?product=2&model=2&cann=7.0.0.beta1&driver=1.0.22.alpha) |
-| Firmware | 配套 CANN 7.0.0.beta1 | {device}-npu-firmware_{version}.run | [link](https://www.hiascend.com/hardware/firmware-drivers/community?product=2&model=2&cann=7.0.0.beta1&driver=1.0.22.alpha) |
-| CANN nnae | 7.0.0.beta1 | Ascend-cann-nnae_7.0.0_linux-{arch}.run | [link](https://www.hiascend.com/developer/download/community/result?module=cann&cann=7.0.0.beta1) |
-| CANN kernels(可选) | 7.0.0.beta1 | Ascend-cann-kernels-{device}_7.0.0_linux.run | [link](https://www.hiascend.com/developer/download/community/result?module=cann&cann=7.0.0.beta1) |
+| Driver | 23.0.0 | A300-3010-npu-driver_23.0.0_linux-x86_64.run | [link](https://www.hiascend.com/en/hardware/firmware-drivers/community?product=2&model=3&cann=7.0.0.beta1&driver=1.0.22.alpha) |
+| Firmware | 7.1.0.3.220 | A300-3010-npu-firmware_7.1.0.3.220.run | [link](https://www.hiascend.com/en/hardware/firmware-drivers/community?product=2&model=3&cann=7.0.0.beta1&driver=1.0.22.alpha) |
+| CANN nnae | 7.0.0.beta1 | Ascend-cann-nnae_7.0.0_linux-x86_64.run | [link](https://www.hiascend.com/developer/download/community/result?module=cann&cann=7.0.0.beta1) |
+| CANN kernels(可选) | 7.0.0.beta1 | Ascend-cann-kernels-310p_7.0.0_linux.run | [link](https://www.hiascend.com/developer/download/community/result?module=cann&cann=7.0.0.beta1) |
 
 #### 安装
 
 ```shell
-# 注意：新机器安装先driver后firmware，驱动及固件升级场景，先firmware后driver
-bash {device}-npu-driver_{version}_linux-{arch}.run --full
-bash {device}-npu-firmware_{version}.run --full
-bash Ascend-cann-nnae_7.0.0_linux-{arch}.run --install
-bash Ascend-cann-kernels-{device}_7.0.0_linux.run --install
+# Note: When installing a new machine, install the driver first and then the firmware.
+# When the scenario of upgrade, install the firmware first and then the driver.
+bash A300-3010-npu-driver_23.0.0_linux-x86_64.run --full
+bash A300-3010-npu-firmware_7.1.0.3.220.run --full
+bash Ascend-cann-nnae_7.0.0_linux-x86_64.run --install
+bash Ascend-cann-kernels-310p_7.0.0_linux.run --install
 
 pip uninstall te topi hccl -y
 pip install sympy
 pip install /usr/local/Ascend/nnae/latest/lib64/te-*-py3-none-any.whl
 pip install /usr/local/Ascend/nnae/latest/lib64/hccl-*-py3-none-any.whl
-reboot   # 重启
+reboot
 ```
 
 #### 配置环境变量

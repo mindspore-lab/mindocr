@@ -6,18 +6,16 @@ The tutorial includes the process of converting the trained model into the 'Mind
 graph LR;
     A[MindOCR models] -- export --> B[MindIR] -- converter_lite --> C[MindSpore Lite MindIR];
     D[PaddleOCR train models] -- export --> E[PaddleOCR infer models] -- paddle2onnx --> F[ONNX]-- converter_lite --> C;
-    H[MMOCR models] -- convert --> F;
 ```
 
 - MindOCR checkpoint -> MindSpore MindIR -> MindSpore Lite MindIR;
 - PaddleOCR train model -> ONNX -> MindSpore Lite MindIR;
-- MMOCR model -> ONNX -> MindSpore Lite MindIR.
 
 ## 1. Model Export
 
 This chapter includes the process of exporting MindIR or ONNX files of training models.
 
-Some models provide download links for MIndIR/ONNX export files, as shown in [MindOCR Models List](mindocr_models_list.md), [PPOCR/MMOCR Models List](mindocr_models_list.md).
+Some models provide download links for MIndIR/ONNX export files, as shown in [MindOCR Models List](mindocr_models_list.md), [PPOCR Models List](mindocr_models_list.md).
 
 ### 1.1 MindOCR Model Export
 
@@ -89,15 +87,6 @@ paddle2onnx \
 
 The `input_shape_dict` in the parameter can generally be viewed by opening the inference model using the [Netron](https://github.com/lutzroeder/netron),
 or found in the code in [tools/export_model. py](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/tools/export_model.py) above.
-
-### 1.3 MMOCR Model Export
-
-MMDeploy provides the command to export MMOCR models to ONNX. For detailed tutorials, please refer to
-[How to convert model](https://github.com/open-mmlab/mmdeploy/blob/main/docs/en/02-how-to-run/convert_model.md).
-
-For parameter `deploy_cfg`, you need to select the `*_onnxruntime_dynamic.py` file in directory
-[mmdeploy/configs/mmocr](https://github.com/open-mmlab/mmdeploy/tree/main/configs/mmocr) to export as a dynamic shape
-ONNX model.
 
 ## 2. MindSpore Lite MindIR Convert
 

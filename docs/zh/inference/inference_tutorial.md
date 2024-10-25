@@ -5,7 +5,7 @@
 MindOCR的推理支持Ascend310/Ascend310P设备，采用[MindSpore Lite](https://www.mindspore.cn/lite)推理，
 集成了文本检测、角度分类和文字识别模块，实现了端到端的OCR推理过程，并采用流水并行化方式优化推理性能。
 
-当前支持的模型有：[MindOCR模型列表](mindocr_models_list.md)，[PPOCR/MMOCR模型列表](thirdparty_models_list.md)，可跳转到对应模型的介绍页面下载MindIR/ONNX用于转换MindSpore Lite离线模型进行推理。
+当前支持的模型有：[MindOCR模型列表](mindocr_models_list.md)，[PPOCR模型列表](thirdparty_models_list.md)，可跳转到对应模型的介绍页面下载MindIR/ONNX用于转换MindSpore Lite离线模型进行推理。
 
 MindOCR Lite整体的推理流程如下：
 
@@ -212,142 +212,13 @@ word_1814.png  "cathay"
 
 说明：
 
-`*_model_name_or_config`可以填模型名或YAML配置文件路径，可参考[MindOCR模型列表](mindocr_models_list.md)，[PPOCR/MMOCR模型列表](thirdparty_models_list.md)。
+`*_model_name_or_config`可以填模型名或YAML配置文件路径，可参考[MindOCR模型列表](mindocr_models_list.md)，[PPOCR模型列表](thirdparty_models_list.md)。
 
 </details>
 
-## 5. 推理 (C++)
+## 5. 模型推理精度评估
 
-目前暂时只支持pp-ocr系列的中文DBNET、CRNN、SVTR模型。
-
-<details>
-<summary> 详情 </summary>
-
-进入到MindOCR推理测目录下 `cd deploy/cpp_infer`,执行编译脚本 `bash build.sh`, 构建完成之后在当前路径dist目录下生成可执行文件infer。
-
-### 5.1 检测+分类+识别
-
-```shell
-./dist/infer \
-    --input_images_dir /path/to/images \
-    --backend lite \
-    --det_model_path /path/to/mindir/dbnet_resnet50.mindir \
-    --cls_model_path /path/to/mindir/crnn \
-    --rec_model_path /path/to/mindir/crnn_resnet34.mindir \
-    --character_dict_path /path/to/ppocr_keys_v1.txt \
-    --res_save_dir det_cls_rec
-```
-
-结果保存在det_cls_rec/pipeline_results.txt，格式如下：
-
-```
-img_478.jpg	[{"transcription": "spa", "points": [[1114, 35], [1200, 0], [1234, 52], [1148, 97]]}, {...}]
-```
-
-### 5.2 检测+识别
-
-不传入方向分类相关的参数，就会跳过方向分类流程，只执行检测+识别
-
-```shell
-./dist/infer \
-    --input_images_dir /path/to/images \
-    --backend lite \
-    --det_model_path /path/to/mindir/dbnet_resnet50.mindir \
-    --rec_model_path /path/to/mindir/crnn_resnet34.mindir \
-    --character_dict_path /path/to/ppocr_keys_v1.txt \
-    --res_save_dir det_rec
-```
-
-结果保存在det_rec/pipeline_results.txt，格式如下：
-
-```
-img_478.jpg	[{"transcription": "spa", "points": [[1114, 35], [1200, 0], [1234, 52], [1148, 97]]}, {...}]
-```
-
-### 5.3 检测
-
-可以单独运行文本检测
-
-```shell
-./dist/infer \
-    --input_images_dir /path/to/images \
-    --backend lite \
-    --det_model_path /path/to/mindir/dbnet_resnet50.mindir \
-    --res_save_dir det
-```
-
-结果保存在det/det_results.txt，格式如下：
-
-```
-img_478.jpg    [[[1114, 35], [1200, 0], [1234, 52], [1148, 97]], [...]]]
-```
-
-### 5.4 分类
-
-可以单独运行文本方向分类
-
-```shell
-./dist/infer \
-    --input_images_dir /path/to/images \
-    --backend lite \
-    --cls_model_path /path/to/mindir/crnn \
-    --res_save_dir cls
-```
-
-结果保存在cls/cls_results.txt，格式如下：
-
-```
-word_867.png   ["180", 0.5176]
-word_1679.png  ["180", 0.6226]
-word_1189.png  ["0", 0.9360]
-```
-
-### 5.5 详细推理参数解释
-
-<details>
-<summary> 详情 </summary>
-
-- 基本设置
-
-  | 参数名称          | 类型 | 默认值   | 含义                    |
-  |:-----------------|:----|:-------|:-----------------------|
-  | input_images_dir | str | 无      | 单张图像或者图片文件夹     |
-  | device           | str | Ascend | 推理设备名称，支持：Ascend |
-  | device_id        | int | 0      | 推理设备id               |
-  | backend          | str | acl    | 推理后端，支持：acl, lite |
-  | parallel_num     | int | 1      | 推理流水线中每个节点并行数  |
-
-- 结果保存
-
-  | 参数名称      | 类型 | 默认值              | 含义            |
-  |:-------------|:----|:------------------|:----------------|
-  | res_save_dir | str | inference_results | 推理结果的保存路径 |
-
-- 文本检测
-
-  | 参数名称        | 类型 | 默认值 | 含义                |
-  |:---------------|:----|:------|:-------------------|
-  | det_model_path | str | 无    | 文本检测模型的文件路径 |
-
-- 文本方向分类
-
-  | 参数名称        | 类型 | 默认值 | 含义                   |
-  |:---------------|:----|:------|:----------------------|
-  | cls_model_path | str | 无    | 文本方向分类模型的文件路径 |
-
-- 文本识别
-
-  | 参数名称             | 类型 | 默认值 | 含义                                             |
-  |:--------------------|:----|:------|:------------------------------------------------|
-  | rec_model_path      | str | 无    | 文本识别模型的文件路径                               |
-  | character_dict_path | str | 无    | 文本识别模型对应的词典文件路径，默认值只支持数字和英文小写，其他语言请在对应模型列表页面下载character_dict |
-
-</details>
-</details>
-
-## 6. 模型推理精度评估
-
-### 6.1 文本检测
+### 5.1 文本检测
 
 完成推理后，使用以下命令评估检测结果：
 
@@ -357,7 +228,7 @@ python deploy/eval_utils/eval_det.py \
     --pred_path=/path/to/prediction/det_results.txt
 ```
 
-### 6.2 文本识别
+### 5.2 文本识别
 
 完成推理后，使用以下命令评估识别结果：
 

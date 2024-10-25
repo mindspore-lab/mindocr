@@ -6,7 +6,7 @@ MindOCR inference supports Ascend310/Ascend310P devices, supports [MindSpore Lit
 inference backend, integrates text detection, angle classification, and text recognition, implements end-to-end OCR
 inference process, and optimizes inference performance using pipeline parallelism.
 
-MindOCR supported models can find in [MindOCR models list](mindocr_models_list.md)，[PPOCR/MMOCR models list](thirdparty_models_list.md), You can jump to the models list page to download MindIR/ONNX for converting MindSpore Lite offline models.
+MindOCR supported models can find in [MindOCR models list](mindocr_models_list.md)，[PPOCR models list](thirdparty_models_list.md), You can jump to the models list page to download MindIR/ONNX for converting MindSpore Lite offline models.
 
 The overall process of MindOCR Lite inference is as follows:
 
@@ -212,145 +212,13 @@ word_1814.png  "cathay"
 
 Notes：
 
-`*_model_name_or_config` can be the model name or YAML config file path, please refer to [MindOCR models list](mindocr_models_list.md)，[PPOCR/MMOCR models list](thirdparty_models_list.md).
+`*_model_name_or_config` can be the model name or YAML config file path, please refer to [MindOCR models list](mindocr_models_list.md)，[PPOCR models list](thirdparty_models_list.md).
 
 </details>
 
-## 5. Inference (C++)
+## 5. Model Inference Evaluation
 
-Currently, only the Chinese DBNet, CRNN, and SVTR models in the PP-OCR series are supported.
-
-<details>
-<summary> Details </summary>
-
-Enter the inference directory：`cd deploy/cpp_infer`,then execute the compilation script `bash build.sh`. Once the build
-process is complete, an executable file named 'infer' will be generated in the 'dist' directory located in the current
-path.
-
-### 5.1 Detection + Classification + Recognition
-
-```shell
-./dist/infer \
-    --input_images_dir /path/to/images \
-    --backend lite \
-    --det_model_path /path/to/mindir/dbnet_resnet50.mindir \
-    --cls_model_path /path/to/mindir/crnn \
-    --rec_model_path /path/to/mindir/crnn_resnet34.mindir \
-    --character_dict_path /path/to/ppocr_keys_v1.txt \
-    --res_save_dir det_cls_rec
-```
-
-  The results will be saved in det_cls_rec/pipeline_results.txt, with the following format:
-
-```
-img_478.jpg	[{"transcription": "spa", "points": [[1114, 35], [1200, 0], [1234, 52], [1148, 97]]}, {...}]
-```
-
-### 5.2 Detection + Recognition
-
-  If you don't enter the parameters related to classification, it will skip and only perform detection+recognition.
-
-```shell
-./dist/infer \
-    --input_images_dir /path/to/images \
-    --backend lite \
-    --det_model_path /path/to/mindir/dbnet_resnet50.mindir \
-    --rec_model_path /path/to/mindir/crnn_resnet34.mindir \
-    --character_dict_path /path/to/ppocr_keys_v1.txt \
-    --res_save_dir det_rec
-```
-
-The results will be saved in det_rec/pipeline_results.txt, with the following format:
-
-```
-img_478.jpg	[{"transcription": "spa", "points": [[1114, 35], [1200, 0], [1234, 52], [1148, 97]]}, {...}]
-```
-
-### 5.3 Detection
-
-Run text detection alone.
-
-```shell
-./dist/infer \
-    --input_images_dir /path/to/images \
-    --backend lite \
-    --det_model_path /path/to/mindir/dbnet_resnet50.mindir \
-    --res_save_dir det
-```
-
-The results will be saved in det/det_results.txt, with the following format:
-
-```
-img_478.jpg    [[[1114, 35], [1200, 0], [1234, 52], [1148, 97]], [...]]]
-```
-
-### 5.4 Classification
-
-Run text angle classification alone.
-
-```shell
-./dist/infer \
-    --input_images_dir /path/to/images \
-    --backend lite \
-    --cls_model_path /path/to/mindir/crnn \
-    --res_save_dir cls
-```
-
-The results will be saved in cls/cls_results.txt, with the following format:
-
-```
-word_867.png   ["180", 0.5176]
-word_1679.png  ["180", 0.6226]
-word_1189.png  ["0", 0.9360]
-```
-
-### 5.5 Detail of inference parameter
-
-<details>
-<summary> Details </summary>
-
-- Basic settings
-
-  | name             | type | default | description                                              |
-  |:-----------------|:-----|:--------|:---------------------------------------------------------|
-  | input_images_dir | str  | None    | Image or folder path for inference                       |
-  | device           | str  | Ascend  | Device type, support Ascend                              |
-  | device_id        | int  | 0       | Device id                                                |
-  | backend          | str  | acl     | Inference backend, support acl, lite                     |
-  | parallel_num     | int  | 1       | Number of parallel in each stage of pipeline parallelism |
-
-- Saving Result
-
-  | name         | type | default           | description                      |
-  |:-------------|:-----|:------------------|:---------------------------------|
-  | res_save_dir | str  | inference_results | Saving dir for inference results |
-
-- Text detection
-
-  | name           | type | default | description                   |
-  |:---------------|:-----|:--------|:------------------------------|
-  | det_model_path | str  | None    | Model path for text detection |
-
-- Text angle classification
-
-  | name           | type | default | description                              |
-  |:---------------|:-----|:--------|:-----------------------------------------|
-  | cls_model_path | str  | None    | Model path for text angle classification |
-
-- Text recognition
-
-  | name                | type | default | description                                                                 |
-  |:--------------------|:-----|:--------|:----------------------------------------------------------------------------|
-  | rec_model_path      | str  | None    | Model path for text recognition                                             |
-  | rec_config_path     | str  | None    | Config file for text recognition                                            |
-  | character_dict_path | str  | None    | Dict file for text recognition，default only supports numbers and lowercase |
-
-</details>
-</details>
-
-## 6. Model Inference Evaluation
-
-### 6.1 Text detection
+### 5.1 Text detection
 
 After inference, please use the following command to evaluate the results:
 
@@ -360,7 +228,7 @@ python deploy/eval_utils/eval_det.py \
     --pred_path=/path/to/prediction/det_results.txt
 ```
 
-### 6.2 Text recognition
+### 5.2 Text recognition
 
 After inference, please use the following command to evaluate the results:
 
@@ -373,4 +241,4 @@ python deploy/eval_utils/eval_rec.py \
 
 Please note that **character_dict_path** is an optional parameter, and the default dictionary only supports numbers and English lowercase.
 
-When evaluating the PaddleOCR or MMOCR series models, please refer to [Third-party Model Support List](inference_thirdparty_quickstart.md) to use the corresponding dictionary.
+When evaluating the PaddleOCR series models, please refer to [Third-party Model Support List](inference_thirdparty_quickstart.md) to use the corresponding dictionary.
