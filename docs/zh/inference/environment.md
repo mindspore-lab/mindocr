@@ -14,7 +14,7 @@
 | --- | --- | --- | --- | --- |
 | 2.2.14 | 23.0.0 | 7.1.0.3.220 | 7.0.0.beta1 | v0.4.0 |
 
-**其他MindSpore and Ascend 软件匹配关系请参考 [MindSpore 安装](https://www.mindspore.cn/install)。其他 MindSpore 没有经过充分测试，谨慎使用。**
+**其他MindSpore and Ascend 软件匹配关系请参考 [MindSpore 安装](https://www.mindspore.cn/install)。**
 
 ### 2. Ascend 环境安装
 

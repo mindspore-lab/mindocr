@@ -6,7 +6,7 @@ This tutorial only covers the environment installation of MindOCR for offline in
 
 Please refer to the version matching table when setting up the inference environment. It is recommended to use MindSpore 2.2.14 for inference.
 
-The version of Driver and firmware is different for different chips. Please download the matched [driver and firmware](https://www.hiascend.com/en/hardware/firmware-drivers/community?product=2&model=3&cann=7.0.0.beta1&driver=1.0.22.alpha) according to the [CANN package](https://www.hiascend.com/en/software/cann/community) version.
+The version of Driver and Firmware is different for different chips. Please download the matched [driver and firmware](https://www.hiascend.com/en/hardware/firmware-drivers/community?product=2&model=3&cann=7.0.0.beta1&driver=1.0.22.alpha) according to the [CANN package](https://www.hiascend.com/en/software/cann/community) version.
 
 Now, we taking Atlas 300I Inference Card (Model: 3010) run on x86 CPU as an example, introduce version matching relationship. The following installation version is also introduced using this as an example.
 
@@ -14,7 +14,7 @@ Now, we taking Atlas 300I Inference Card (Model: 3010) run on x86 CPU as an exam
 | --- | --- | --- | --- | --- |
 | 2.2.14 | 23.0.0 | 7.1.0.3.220 | 7.0.0.beta1 | v0.4.0 |
 
-**Other MindSpore and Ascend software version matching please refer to [MindSpore Install](https://www.mindspore.cn/install) . Other MindSpore versions have not been fully tested, use with caution.**
+**Other MindSpore and Ascend software version matching please refer to [MindSpore Install](https://www.mindspore.cn/install).**
 
 ### 2. Ascend Environment Installation
 

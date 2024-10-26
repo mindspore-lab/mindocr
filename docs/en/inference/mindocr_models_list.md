@@ -1,6 +1,6 @@
 ## MindOCR Support Models List
 
-**Note: All results is test on 310P3.**
+**Note: All results is test on 310P3 with MindSpore2.2.14.**
 
 ### Text Detection
 
