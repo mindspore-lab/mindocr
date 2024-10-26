@@ -66,7 +66,7 @@ def parse_args():
         "--backend",
         type=str.lower,
         required=False,
-        default="atc",
+        default="lite",
         choices=["atc", "lite"],
     )
     parser.add_argument("--input_name", type=str, required=False, default="x")

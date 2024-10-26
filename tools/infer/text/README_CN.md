@@ -206,7 +206,7 @@ web_cvpr.png	[{"transcription": "canada", "points": [[430, 148], [540, 148], [54
 
 ### 推理结果的评估
 
-为了推理整个(https://rrc.cvc.uab.es/?ch=4&com=downloads)测试集，请运行：
+为了推理整个[ICDAR15](https://rrc.cvc.uab.es/?ch=4&com=downloads)测试集，请运行：
 ```
 python tools/infer/text/predict_system.py --image_dir /path/to/icdar15/det/test_images  /
                                           --det_algorithm {DET_ALGO}    /
@@ -243,7 +243,7 @@ python deploy/eval_utils/eval_pipeline.py --gt_path path/to/gt.txt --pred_path p
 
 **注意事项：**
 
-1、目前在线推理流水线未进行效率优化，FPS仅用于模型间的比较。如果FPS是您的最高优先级，请参考[Ascend 310上的推断](https://github.com/mindspore-lab/mindocr/blob/main/docs/en/inference/inference_tutorial.md)，这要快得多。
+1、目前在线推理流水线未进行效率优化，FPS仅用于模型间的比较。如果FPS是您的最高优先级，请参考[Ascend 310上的推断](https://github.com/mindspore-lab/mindocr/blob/main/docs/zh/inference/inference_tutorial.md)，这要快得多。
 
 2、除非另有说明，所有实验均以`--det_limit_type`="min"和`--det_limit_side`=720运行。
 

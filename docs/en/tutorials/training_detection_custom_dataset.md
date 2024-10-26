@@ -77,7 +77,7 @@ To prepare the corresponding configuration file, users should specify the direct
 
 ### 2.1 Configure train/validation datasets
 
-Please select `configs/det/dbnet/dbnet_r50_icdar15.yaml` as the initial configuration file and modify the `train.dataset` and `eval.dataset` fields in it.
+Please select `configs/det/dbnet/db_r50_icdar15.yaml` as the initial configuration file and modify the `train.dataset` and `eval.dataset` fields in it.
 
 ```yaml
 ...
