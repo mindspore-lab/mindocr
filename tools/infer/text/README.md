@@ -57,7 +57,7 @@ paper_sam.png	[[[1161, 340], [1277, 340], [1277, 378], [1161, 378]], [[895, 335]
 
 ### Supported Detection Algorithms and Networks
 
-<div align="center">
+<center>
 
   | **Algorithm Name** | **Network Name** | **Language** |
   | :------: | :------: | :------: |
@@ -66,7 +66,7 @@ paper_sam.png	[[[1161, 340], [1277, 340], [1277, 378], [1161, 378]], [[895, 335]
   | DB_MV3 | dbnet_mobilenetv3 | English |
   | PSE | psenet_resnet152 | English |
 
-</div>
+</center>
 
 The algorithm-network mapping is defined in `tools/infer/text/predict_det.py`.
 
@@ -129,7 +129,7 @@ doc_cn3.png 马拉松选手不会为短暂的领先感到满意，而是永远�
 
 ### Supported Recognition Algorithms and Networks
 
-<div align="center">
+<center>
 
   | **Algorithm Name** | **Network Name** | **Language** |
   | :------: | :------: | :------: |
@@ -139,7 +139,7 @@ doc_cn3.png 马拉松选手不会为短暂的领先感到满意，而是永远�
   | CRNN_CH | crnn_resnet34_ch | Chinese |
   | RARE_CH | rare_resnet34_ch | Chinese |
 
-</div>
+</center>
 
 The algorithm-network mapping is defined in `tools/infer/text/predict_rec.py`
 
@@ -221,7 +221,7 @@ python deploy/eval_utils/eval_pipeline.py --gt_path path/to/gt.txt --pred_path p
 
 Evaluation of the text spotting inference results on Ascend 910 with MindSpore 2.0rc1 are shown as follows.
 
-<div align="center">
+<center>
 
 | Det. Algorithm| Rec. Algorithm |  Dataset     | Accuracy(%) | FPS (imgs/s) |
 |---------|----------|--------------|---------------|-------|
@@ -230,7 +230,8 @@ Evaluation of the text spotting inference results on Ascend 910 with MindSpore 2
 | PSENet (det_limit_side_len=1472 )  | CRNN    | ICDAR15 | 55.51 | 0.44 |
 | DBNet++   | RARE | ICDAR15 | 59.17  | 3.47 |
 | DBNet++   | SVTR | ICDAR15 | 64.42  | 2.49 |
-</div>
+
+</center>
 
 **Notes:**
 1. Currently, online inference pipeline is not optimized for efficiency, thus FPS is only for comparison between models. If FPS is your highest priority, please refer to [Inference on Ascend 310](https://github.com/mindspore-lab/mindocr/blob/main/docs/en/inference/inference_tutorial.md), which is much faster.

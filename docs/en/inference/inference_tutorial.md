@@ -182,6 +182,8 @@ word_1814.png  "cathay"
   | parallel_num     | int  | 1       | Number of parallel in each stage of pipeline parallelism |
   | precision_mode   | str  | None    | Precision mode, only supports setting by [Model Conversion](convert_tutorial.md) currently, and it takes no effect here |
 
+---
+
 - Saving Result
 
   | name                  | type | default           | description                                            |
@@ -194,6 +196,8 @@ word_1814.png  "cathay"
   | show_log              | bool | False             | Whether show log when inferring                        |
   | save_log_dir          | str  | None              | Log saving dir                                         |
 
+---
+
 - Text detection
 
   | name                     | type | default | description                                            |
@@ -201,12 +205,16 @@ word_1814.png  "cathay"
   | det_model_path           | str  | None    | Model path for text detection                          |
   | det_model_name_or_config | str  | None    | Model name or YAML config file path for text detection |
 
+---
+
 - Text angle classification
 
   | name                     | type | default | description                                                       |
   |:-------------------------|:-----|:--------|:------------------------------------------------------------------|
   | cls_model_path           | str  | None    | Model path for text angle classification                          |
   | cls_model_name_or_config | str  | None    | Model name or YAML config file path for text angle classification |
+
+---
 
 - Text recognition
 
