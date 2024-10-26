@@ -10,11 +10,11 @@
 
 ### 2. 运行环境
 
-请参考[环境安装](environment.md)，安装ACL或MindSpore Lite环境。
+请参考[环境安装](environment.md)，安装MindSpore Lite环境。
 
 ### 3. 模型准备
 
-当前支持输入ONNX模型文件，通过选择不同后端，自动分档并转换为OM或MIndIR模型文件。
+当前支持输入MindIR/ONNX模型文件，自动分档并转换为MIndIR模型文件。
 
 请确保输入模型为动态Shape版的。例如，文本检测模型如果需要对H和W分档，要确保至少H和W轴是动态的，Shape可以为`(1,3,-1,-1)`和`(-1,3,-1,-1)`等。
 
@@ -46,51 +46,48 @@
 
 ```shell
 python converter.py \
-    --backend=atc \
-    --model_path=/path/to/model.onnx \
+    --model_path=/path/to/model.mindir \
     --dataset_path=/path/to/det_gt.txt
     --input_shape=-1,3,48,192 \
     --output_path=output
 ```
-  输出结果为单个OM模型：`model_dynamic_bs.om`
+
+输出结果为单个OM模型：`model_dynamic_bs.mindir`
 
 - 对height和width进行分档
 
 ```shell
 python converter.py \
-    --backend=atc \
     --model_path=/path/to/model.onnx \
     --dataset_path=/path/to/images \
     --input_shape=1,3,-1,-1 \
     --output_path=output
 ```
 
-输出结果为单个OM模型：`model_dynamic_hw.om`
+输出结果为单个OM模型：`model_dynamic_hw.mindir`
 
-- 对batch szie、height和width进行分档
+- 对batch size、height和width进行分档
 
 ```shell
 python converter.py \
-    --backend=atc \
     --model_path=/path/to/model.onnx \
     --dataset_path=/path/to/images \
     --input_shape=-1,3,-1,-1 \
     --output_path=output
 ```
 
-输出结果为多个OM模型，组合了多个不同Batch Size，每个模型使用相同的动态Image Size：`model_dynamic_bs1_hw.om`, `model_dynamic_bs4_hw.om`, ......
+输出结果为多个MindIR模型，组合了多个不同Batch Size，每个模型使用相同的动态Image Size：`model_dynamic_bs1_hw.mindir`, `model_dynamic_bs4_hw.mindir`, ......
 
 - 不做分档
 
 ```shell
 python converter.py \
-    --backend=atc \
     --model_path=/path/to/model.onnx \
     --input_shape=4,3,48,192 \
     --output_path=output
 ```
 
-输出结果为单个OM模型：`model_static.om`
+输出结果为单个MindIR模型：`model_static.mindir`
 
 ##### 5.2 详细参数
 
@@ -100,7 +97,7 @@ python converter.py \
 | input_shape | 无          | 是   | 模型输入shape，NCHW格式                 |
 | data_path   | 无          | 否   | 数据集或标注文件的路径                  |
 | input_name  | x           | 否   | 模型的输入名                            |
-| backend     | atc         | 否   | 转换工具，atc或lite                     |
+| backend     | lite         | 否   | 转换工具, lite或者acl                  |
 | output_path | ./output    | 否   | 输出模型保存文件夹                      |
 | soc_version | Ascend310P3 | 否   | Ascend的soc型号，Ascend310P3或Ascend310 |
 
