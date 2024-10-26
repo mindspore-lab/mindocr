@@ -75,7 +75,7 @@ img_2.jpg\t[{"transcription": "guardian", "points": [[642, 250], [769, 230], [77
 
 ### 2.1 配置训练/测试数据集
 
-请选择 `configs/det/dbnet/dbnet_r50_icdar15.yaml` 作为初始配置文件，并修改其中的` train.dataset` 和 `eval.dataset` 字段。
+请选择 `configs/det/dbnet/db_r50_icdar15.yaml` 作为初始配置文件，并修改其中的` train.dataset` 和 `eval.dataset` 字段。
 
 ```yaml
 ...

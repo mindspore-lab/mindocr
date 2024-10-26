@@ -1,82 +1,95 @@
-## Inference - Environment Installation
+## Offline Inference Environment Installation
 
-MindOCR supports inference for Ascend310/Ascend310P device.
+This tutorial only covers the environment installation of MindOCR for offline inference on Atlas 300 series inference devices.
 
-Please make sure that the Ascend AI processor software package is correctly installed on your system. If it is not
-installed, please refer to the section
-[Installing Ascend AI processor software package](https://www.mindspore.cn/install/en#installing-ascend-ai-processor-software-package)
-to install it.
+### 1. Version Matching Table
 
-The MindOCR backend supports two types of inference:
-[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)
-and [MindSpore Lite](https://www.mindspore.cn/lite/docs/zh-CN/master/index.html). Before inference using ACL mode, you need to use [ATC tool](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/atctool/atctool_000001.html) to convert the model to om format, or to use [converter_lite tool](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html) to convert the model to MindIR format, the specific differences are as follows:
+Please refer to the version matching table when setting up the inference environment. It is recommended to use MindSpore 2.2.14 for inference.
 
-|        |       ACL        |    Mindspore Lite  |
-|:------:|:----------------:|:------------------:|
-|  Conversion Tool  |       ATC        |    converter_lite  |
-| Inference Model Format |        om        |        MindIR      |
+The version of Driver and Firmware is different for different chips. Please download the matched [driver and firmware](https://www.hiascend.com/en/hardware/firmware-drivers/community?product=2&model=3&cann=7.0.0.beta1&driver=1.0.22.alpha) according to the [CANN package](https://www.hiascend.com/en/software/cann/community) version.
 
-### 1. ACL inference
+Now, we taking Atlas 300I Inference Card (Model: 3010) run on x86 CPU as an example, introduce version matching relationship. The following installation version is also introduced using this as an example.
 
-For the ACL inference of MindOCR, it currently relies on the Python API interface by
-[MindX](https://www.hiascend.com/software/Mindx-sdk), which currently only supports Python 3.9.
+| MindSpore | Driver | Firmware | CANN | MindOCR |
+| --- | --- | --- | --- | --- |
+| 2.2.14 | 23.0.0 | 7.1.0.3.220 | 7.0.0.beta1 | v0.4.0 |
 
-| package | version |
-|:--------|:--------|
-| Python  | 3.9     |
-| MindX   | 3.0.0   |
+**Other MindSpore and Ascend software version matching please refer to [MindSpore Install](https://www.mindspore.cn/install).**
 
-On the basis of the Python 3.9 environment, download the mxVision SDK installation package for
-[MindX](https://www.hiascend.com/zh/software/mindx-sdk/commercial) and refer to the
-[tutorial](https://www.hiascend.com/document/detail/zh/mind-sdk/300/quickstart/visionquickstart/visionquickstart_0003.html)
-for installation. The main steps are as follows:
+### 2. Ascend Environment Installation
 
-```shell
-# add executable permissions
-chmod +x Ascend-mindxsdk-mxvision_{version}_linux-{arch}.run
-# execute the installation command
-# if prompted to specify the path to CANN, add parameters such as: --cann-path=/usr/local/Ascend/latest
-./Ascend-mindxsdk-mxvision_{version}_linux-{arch}.run --install
-# set environment variable
-source mxVision/set_env.sh
-```
+There are two versions of the Ascend software package, the commercial edition and the community edition. The commercial edition is only for commercial customers and download is restricted; The community edition can be freely downloaded, and the following examples all use the community edition.
 
-If use python interface, after installation, test whether mindx can be imported normally：`python -c "import mindx"`
+This example uses the Ascend package that comes with MindSpore 2.2.14, other MindSpore version please refer to [Installing Ascend AI processor software package](https://www.mindspore.cn/install/en#installing-ascend-ai-processor-software-package).
 
-If prompted that mindx cannot be found, go to the mxVision/Python directory and install the corresponding Whl package:
+| software | version | package name | download |
+| --- | --- | --- | --- |
+| Driver | 23.0.0 | A300-3010-npu-driver_23.0.0_linux-x86_64.run | [link](https://www.hiascend.com/en/hardware/firmware-drivers/community?product=2&model=3&cann=7.0.0.beta1&driver=1.0.22.alpha) |
+| Firmware | 7.1.0.3.220 | A300-3010-npu-firmware_7.1.0.3.220.run | [link](https://www.hiascend.com/en/hardware/firmware-drivers/community?product=2&model=3&cann=7.0.0.beta1&driver=1.0.22.alpha) |
+| CANN nnae | 7.0.0.beta1 | Ascend-cann-nnae_7.0.0_linux-x86_64.run | [link](https://www.hiascend.com/developer/download/community/result?module=cann&cann=7.0.0.beta1) |
+| CANN kernels(Optional) | 7.0.0.beta1 | Ascend-cann-kernels-310p_7.0.0_linux.run | [link](https://www.hiascend.com/developer/download/community/result?module=cann&cann=7.0.0.beta1) |
 
-```
-cd mxVision/python
-pip install *.whl
-```
-If use C++ interface, the above steps are not necessary.
-
-### 2. MindSpore Lite inference
-
-For the MindSpore Lite inference of MindOCR, It requires the version 2.2.0 or higher of the
-[MindSpore Lite](https://www.mindspore.cn/lite/docs/en/master/index.html) **cloud-side** inference toolkit.
-
-Download the Ascend version of the cloud-side
-[inference toolkit tar.gz](https://www.mindspore.cn/lite/docs/en/master/use/downloads.html) file, as well as the Python interface Wheel package. For example, when using Ascend，system on Linux-x86_64，Python 3.7，and mindspore-lite 2.2.0，the following package should be downloaded and installed:
-
- - [toolkit tar.gz](https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.2.0/MindSpore/lite/release/linux/x86_64/cloud_fusion/python37/mindspore-lite-2.2.0-linux-x64.tar.gz)
-
- - [wheel Package](https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.2.0/MindSpore/lite/release/linux/x86_64/cloud_fusion/python37/mindspore_lite-2.2.0-cp37-cp37m-linux_x86_64.whl)
-
-The download address provides the Python package for version 3.7. If you need other versions, please refer to the
-[compilation tutorial](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/build.html).
-
-Just decompress the inference toolkit, and set environment variables:
+#### Install
 
 ```shell
-export LITE_HOME=/your_path_to/mindspore-lite
-export LD_LIBRARY_PATH=$LITE_HOME/runtime/lib::$LITE_HOME/runtime/third_party/dnnl:$LITE_HOME/tools/converter/lib:$LD_LIBRARY_PATH
+# Note: When installing a new machine, install the driver first and then the firmware.
+# When the scenario of upgrade, install the firmware first and then the driver.
+bash A300-3010-npu-driver_23.0.0_linux-x86_64.run --full
+bash A300-3010-npu-firmware_7.1.0.3.220.run --full
+bash Ascend-cann-nnae_7.0.0_linux-x86_64.run --install
+bash Ascend-cann-kernels-310p_7.0.0_linux.run --install
+
+pip uninstall te topi hccl -y
+pip install sympy
+pip install /usr/local/Ascend/nnae/latest/lib64/te-*-py3-none-any.whl
+pip install /usr/local/Ascend/nnae/latest/lib64/hccl-*-py3-none-any.whl
+reboot
+```
+
+#### Configure Environment Variables
+
+```shell
+source /usr/local/Ascend/nnae/set_env.sh
+```
+
+### 3. MindSpore Install
+
+```shell
+pip install mindspore==2.2.14
+
+# Check version number, offline inference MindSpore only uses CPU
+python -c "import mindspore;mindspore.set_context(device_target='CPU');mindspore.run_check()"
+```
+
+### 4. MindSpore Lite Install
+
+| software | version | package name | download |
+| --- | --- | --- | --- |
+| Inference Toolkit | 2.2.14 | mindspore-lite-2.2.14-linux-{arch}.tar.gz | [link](https://www.mindspore.cn/lite/docs/zh-CN/master/use/downloads.html#2-2-14) |
+| Python Wheel | 2.2.14 | mindspore_lite-2.2.14-{python_version}-linux_{arch}.whl | [link](https://www.mindspore.cn/lite/docs/zh-CN/master/use/downloads.html#2-2-14) |
+
+Unzip the inference toolkit and pay attention to setting environment variables:
+
+```shell
+tar -xvf mindspore-lite-2.2.14-linux-{arch}.tar.gz
+cd mindspore-lite-2.2.14-linux-{arch}/
+export LITE_HOME=${PWD}    # The actual path after extracting the tar package
+export LD_LIBRARY_PATH=$LITE_HOME/runtime/lib:$LITE_HOME/runtime/third_party/dnnl:$LITE_HOME/tools/converter/lib:$LD_LIBRARY_PATH
 export PATH=$LITE_HOME/tools/converter/converter:$LITE_HOME/tools/benchmark:$PATH
 ```
 
-If using python interface, install the required .whl package using pip:
+If interface with python, install the required whl package using pip.
 
 ```shell
-pip install mindspore_lite-{version}-{python_version}-linux_{arch}.whl
+pip install mindspore_lite-2.2.14-{python_version}-linux_{arch}.whl
 ```
-The installation is not necessary if using the C++ interface.
+
+### 5. MindOCR Install
+
+```shell
+git clone https://github.com/mindspore-lab/mindocr.git
+cd mindocr
+pip install -e .
+```
+
+> Using '- e' to enter editable mode, help solve import issues.
