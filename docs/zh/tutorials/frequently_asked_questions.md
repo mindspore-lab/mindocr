@@ -493,6 +493,35 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
 
   可知`config.txt`中输入变量名`args0`与模型中的输入变量名`x`不匹配。将`config.txt`中`args0`改为`x`即可
 
+- 调用`converter_lite`转换模型到`MindSpore Lite Mindir`时，报错`Can't find OpAdapter for LSTM`
+
+  在Altas 310I系列上通过`export.py`进行模型导出后，利用导出的模型调用`converter_lite`转换，例如运行
+
+  ```bash
+  converter_lite \
+    --saveType=MINDIR \
+    --fmk=MINDIR \
+    --optimize=ascend_oriented \
+    --modelFile=./models/rec/CRNN/VGG7/crnn_vgg7.mindir \
+    --outputFile=./models/rec/CRNN/VGG7/crnn_vgg7_lite \
+    --configFile=./config.txt
+  ```
+
+  报如下错误：
+
+  ```
+  [WARNING] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.361 [mindspore/ccsrc/transform/graph_ir/utils.cc:59] FindAdapter] Can\'t find OpAdapter for LSTM
+  [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.393 [mindspore/ccsrc/transform/graph_ir/convert.cc:4040] ConvertCNode] Cannot get adapter for Default/neck-RNNEncoder/seq_encoder-LSTM/rnn-_DynamicLSTMCPUGPU/LSTM-op90
+  [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.437 [mindspore/ccsrc/transform/graph_ir/convert.cc:1034] ConvertAllNode] Failed to convert node: @391_390_1_mindocr_models_base_model_BaseModel_construct_24_1:nout{[0]: ValueNode<Primitive> LSTM, [1]: nout, [2]: nout, [3]: nout, [4]: nout}.
+  [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.457 [mindspore/ccsrc/transform/graph_ir/convert.cc:1034] ConvertAllNode] Failed to convert node: ValueNode<Primitive> TupleGetItem.
+  [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.561 [mindspore/ccsrc/transform/graph_ir/convert.cc:1034] ConvertAllNode] Failed to convert node: @391_390_1_mindocr_models_base_model_BaseModel_construct_24_1:nout{[0]: ValueNode<Primitive> TupleGetItem, [1]: nout, [2]: ValueNode<Int64Imm> 0}.
+  [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.582 [mindspore/ccsrc/transform/graph_ir/convert.cc:1034] ConvertAllNode] Failed to convert node: ValueNode<Primitive> ReverseV2.
+  [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.667 [mindspore/ccsrc/transform/graph_ir/convert.cc:1034] ConvertAllNode] Failed to convert node: @391_390_1_mindocr_models_base_model_BaseModel_construct_24_1:nout{[0]: ValueNode<Primitive> ReverseV2, [1]: nout}.
+  [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.734 [mindspore/ccsrc/transform/graph_ir/convert.cc:1034] ConvertAllNode] Failed to convert node: @391_390_1_mindocr_models_base_model_BaseModel_construct_24_1:param_neck.seq_encoder.bias_hh_l0.
+  ```
+
+  遇到此情况，请使用Atlas 310T系列通过`export.py`进行模型导出，然后在Atlas 310I上通过`converter_lite`将导出的`.mindir`转换为`MindSpore Lite Mindir`即可。
+
 - 推理过程误用云侧`mindir`模型，报`Save ge model to buffer failed.`
 
   例如推理过程中，det模型误用了云侧`mindir`模型，将抛出以下错误
