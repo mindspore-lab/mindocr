@@ -8,7 +8,7 @@ Thus, online inference is more suitable for demonstration and to visually evalua
 
 ## Dependency and Installation
 
-To be consistent with traning environment.
+To be consistent with training environment.
 
 ## Text Detection
 
