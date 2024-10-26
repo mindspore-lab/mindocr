@@ -8,27 +8,7 @@ Thus, online inference is more suitable for demonstration and to visually evalua
 
 ## Dependency and Installation
 
-| Environment | Version |
-|-------------|---------|
-| MindSpore   | \>=1.9  |
-| Python      | \>=3.7  |
-
-Supported platforms: Linux, MacOS, Windows (Not tested)
-
-Supported devices: CPU, GPU, and Ascend.
-
-Please clone MindOCR at first
-```shell
-git clone https://github.com/mindspore-lab/mindocr.git
-```
-
-Then install the dependency by
-```shell
-pip install -r requirements.txt
-```
-
-For MindSpore(>=1.9) installation, please follow the official [installation instructions](https://www.mindspore.cn/install) for the best fit of your machine.
-
+To be consistent with traning environment.
 
 ## Text Detection
 

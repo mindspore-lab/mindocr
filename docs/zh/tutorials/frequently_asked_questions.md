@@ -495,7 +495,7 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
 
 - 调用`converter_lite`转换模型到`MindSpore Lite Mindir`时，报错`Can't find OpAdapter for LSTM`
 
-  在Altas 310I系列上通过`export.py`进行模型导出后，利用导出的模型调用`converter_lite`转换，例如运行
+  在Atlas 310I系列上通过`export.py`进行模型导出后，利用导出的模型调用`converter_lite`转换，例如运行
 
   ```bash
   converter_lite \
@@ -521,6 +521,33 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
   ```
 
   遇到此情况，请使用Atlas 310T系列通过`export.py`进行模型导出，然后在Atlas 310I上通过`converter_lite`将导出的`.mindir`转换为`MindSpore Lite Mindir`即可。
+
+- 通过`export.py`进行模型导出时，报错`RuntimeError: Load op info form json config failed, version: Ascend310`
+  
+  在Atlas 310I系列上通过`export.py`进行模型导出，例如运行：
+
+  ```bash
+  python tools/export.py \
+        --model_name_or_config configs/det/fcenet/fce_icdar15.yaml \
+        --data_shape 736 1280 \
+        --local_ckpt_path ./fcenet_resnet50-43857f7f.ckpt
+  ```
+
+  报如下错误：
+
+  ```bash
+    [ERROR] KERNEL(849474,7f7571d68740,python):2024-10-26-08:44:27.998.221 [mindspore/ccsrc/kernel/oplib/op_info_utils.cc:179] LoadOpInfoJson] Get op info json suffix path failed, soc_version: Ascend310
+    [ERROR] KERNEL(849474,7f7571d68740,python):2024-10-26-08:44:27.998.362 [mindspore/ccsrc/kernel/oplib/op_info_utils.cc:118] GenerateOpInfos] Load op info json failed, version: Ascend310
+    [ERROR] ANALYZER(849474,7f7571d68740,python):2024-10-26-08:44:30.168.028 [mindspore/ccsrc/pipeline/jit/ps/static_analysis/async_eval_result.cc:70] HandleException] Exception happened, check the information as below.
+    RuntimeError: Load op info form json config failed, version: Ascend310
+
+    ----------------------------------------------------
+    - C++ Call Stack: (For framework developers)
+    ----------------------------------------------------
+    mindspore/ccsrc/plugin/device/ascend/hal/device/ascend_kernel_runtime.cc:320 Init
+  ```
+  
+  遇到此情况，请使用Atlas 310T系列通过`export.py`进行模型导出。
 
 - 推理过程误用云侧`mindir`模型，报`Save ge model to buffer failed.`
 
