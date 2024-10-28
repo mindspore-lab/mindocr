@@ -8,9 +8,9 @@ nav:
   - Home: index.md
 #  - Installation: installation.md
   - Model Zoo:
-    - 1. Training: mkdocs/modelzoo_training.md
-    - 2. Inference - MindOCR Models: inference/inference_quickstart.md
-    - 3. Inference - Third-party Models: inference/inference_thirdparty_quickstart.md
+    - Training: mkdocs/modelzoo_training.md
+    - Inference - MindOCR Models: inference/inference_quickstart.md
+    - Inference - Third-party Models: inference/inference_thirdparty_quickstart.md
   - Tutorials:
     - 1. Datasets:
         - Dataset Preparation: datasets/converters.md
@@ -24,16 +24,16 @@ nav:
     - 3. Inference and Deployment:
         - Python Online Inference: mkdocs/online_inference.md
         - Python/C++ Inference on Ascend 310: inference/inference_tutorial.md
-        - MindOCR Models Offline Inference - Quick Start: inference/inference_quickstart.md
-        - Third-party Models Offline Inference - Quick Start: inference/inference_thirdparty_quickstart.md
+        - MindOCR Models List: inference/mindocr_models_list.md
+        - Third-party Models List: inference/thirdparty_models_list.md
         - Model Conversion: inference/convert_tutorial.md
     - 4. Developer Guides:
         - Customize Dataset: mkdocs/customize_dataset.md
         - Customize Data Transformation: mkdocs/customize_data_transform.md
         - Customize a New Model: mkdocs/customize_model.md
         - Customize Postprocessing Method: mkdocs/customize_postprocess.md
-  - Reference:
-      - API doc: reference/api_doc.md
+#  - Reference:
+#      - API doc: reference/api_doc.md
   - Notes:
 #      - Change Log: notes/changelog.md
       - Contributing: mkdocs/contributing.md
@@ -139,26 +139,50 @@ plugins:
       default_language: en
       docs_structure: folder
       languages:
-        en:
+        - locale: en
+          default: true
           name: English
-        cn:
+        - locale: zh
+          default: false
           name: 中文
-      nav_translations:
-        cn:
-          Home: 主页
-          Installation: 安装
-          Model Zoo: 模型仓库
-          Tutorials: 教程
-          Quick Start: 快速开始
-          Configuration: 配置
-          Finetune: 微调
-          Training: 训练
-          Inference: 推理
-          Deployment: 部署
-          Notes: 说明
-          Change Log: 更新日志
-          Code of Conduct: 行为准则
-          FAQ: 常见问题
+          nav_translations:
+            Home: 主页
+            Installation: 安装
+            Model Zoo: 模型仓库
+            Tutorials: 教程
+            Quick Start: 快速开始
+            Configuration: 配置
+            Finetune: 微调
+            Training: 训练
+            Inference: 推理
+            Deployment: 部署
+            Notes: 说明
+            Change Log: 更新日志
+            Code of Conduct: 行为准则
+            FAQ: 常见问题
+            Inference - MindOCR Models: 推理MindOCR原生模型
+            Inference - Third-party Models: 推理第三方模型
+            1. Datasets: 1. 数据集
+            Dataset Preparation: 数据准备
+            Data Transformation Mechanism: 数据转换
+            2. Model Training: 2. 模型训练
+            Yaml Configuration: Yaml 配置
+            Text Detection: 文本检测
+            Text Recognition: 文本识别
+            Distributed Training: 分布式训练
+            Advance Training: 进阶训练
+            3. Inference and Deployment: 3. 推理和部署
+            Python Online Inference: 基于Python的在线推理
+            Python/C++ Inference on Ascend 310: 基于Python/C++和昇腾310的推理
+            MindOCR Models List: MindOCR模型支持列表
+            Third-party Models List: 第三方模型支持列表
+            Model Conversion: 模型转换
+            4. Developer Guides: 4. 开发指导
+            Customize Dataset: 定制化数据
+            Customize Data Transformation: 定制化数据转换
+            Customize a New Model: 定制化一个新模型
+            Customize Postprocessing Method: 定制化后处理方法
+            Contributing: 贡献
 
 extra:
   generator: false

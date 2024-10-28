@@ -7,27 +7,7 @@
 因此，在线推理更适合于演示和可视化评估模型对未知数据的泛化能力。
 
 ## 依赖关系和安装
-|环境| 版本     |
-|-------------|--------|
-|MindSpore | \>=1.9 |
-|Python | \>=3.7 |
-
-支持的平台：Linux、MacOS、Windows（未测试）
-
-支持的设备：CPU、GPU和Ascend。
-
-请先克隆MindOCR
-```shell
-git clone https://github.com/mindspore-lab/mindocr.git
-```
-
-然后安装依赖项
-```shell
-pip install -r requirements.txt
-```
-
-对于MindSpore（>=1.9）安装，请遵循官方[安装说明](https://www.mindspore.cn/install)为您的机器提供最佳匹配。
-
+与训练环境一致。
 
 ## 文本检测
 
@@ -73,7 +53,7 @@ paper_sam.png	[[[1161, 340], [1277, 340], [1277, 378], [1161, 378]], [[895, 335]
 
 ### 支持的检测算法和网络
 
-<div align="center">
+<center>
 
   |**算法名称**|**网络名称**|**语言**|
   | :------: | :------: | :------: |
@@ -82,7 +62,7 @@ paper_sam.png	[[[1161, 340], [1277, 340], [1277, 378], [1161, 378]], [[895, 335]
   |DB_MV3 | dbnet_mobilenetv3 |英语|
   |PSE | psenet_resnet152 |英语|
 
-</div>
+</center>
 
 算法网络在`tools/infer/text/predict_det.py`中定义。
 
@@ -144,7 +124,7 @@ doc_cn3.png 马拉松选手不会为短暂的领先感到满意，而是永远�
 
 ### 支持的识别算法和网络
 
-<div align="center">
+<center>
 
   |**算法名称**|**网络名称**|**语言**|
   | :------: | :------: | :------: |
@@ -154,7 +134,7 @@ doc_cn3.png 马拉松选手不会为短暂的领先感到满意，而是永远�
   | CRNN_CH | crnn_resnet34_ch | 中文|
   | RARE_CH | rare_resnet34_ch | 中文|
 
-</div>
+</center>
 
 算法网络在`tools/infer/text/predict_rec.py`中定义
 
@@ -230,7 +210,7 @@ python deploy/eval_utils/eval_pipeline.py --gt_path path/to/gt.txt --pred_path p
 ```
 
 使用MindSpore 2.0rc1对Ascend 910上的文本定位推理结果的评估如下所示。
-<div align="center">
+<center>
 
 | Det. Algorithm| Rec. Algorithm |  Dataset     | Accuracy(%) | FPS (imgs/s) |
 |---------|----------|--------------|---------------|-------|
@@ -239,7 +219,8 @@ python deploy/eval_utils/eval_pipeline.py --gt_path path/to/gt.txt --pred_path p
 | PSENet (det_limit_side_len=1472 )  | CRNN    | ICDAR15 | 55.51 | 0.44 |
 | DBNet++   | RARE | ICDAR15 | 59.17  | 3.47 |
 | DBNet++   | SVTR | ICDAR15 | 64.42  | 2.49 |
-</div>
+
+</center>
 
 **注意事项：**
 
