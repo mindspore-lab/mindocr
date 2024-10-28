@@ -488,7 +488,7 @@ Ascend 310 or Ascend 310P3 may not support calculation in MindSpore Ascend mode.
 
 - `Can't find OpAdapter for LSTM` occurs when converting model to `MindSpore Lite Mindir` by `converter_lite`.
   
-  After exporting a MindIR file by `export.py` on Atlas 310 series inference devices, convert the MindIR file to `MindSpore Lite Mindir` by `converter_lite` as the following command:
+  After exporting a MindIR file by `export.py` on lite inference devices, convert the MindIR file to `MindSpore Lite Mindir` by `converter_lite` as the following command:
 
   ```bash
   converter_lite \
@@ -503,7 +503,7 @@ Ascend 310 or Ascend 310P3 may not support calculation in MindSpore Ascend mode.
   Error may occur:
 
   ```planetext
-  [WARNING] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.361 [mindspore/ccsrc/transform/graph_ir/utils.cc:59] FindAdapter] Can\'t find OpAdapter for LSTM
+  [WARNING] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.361 [mindspore/ccsrc/transform/graph_ir/utils.cc:59] FindAdapter] Can't find OpAdapter for LSTM
   [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.393 [mindspore/ccsrc/transform/graph_ir/convert.cc:4040] ConvertCNode] Cannot get adapter for Default/neck-RNNEncoder/seq_encoder-LSTM/rnn-_DynamicLSTMCPUGPU/LSTM-op90
   [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.437 [mindspore/ccsrc/transform/graph_ir/convert.cc:1034] ConvertAllNode] Failed to convert node: @391_390_1_mindocr_models_base_model_BaseModel_construct_24_1:nout{[0]: ValueNode<Primitive> LSTM, [1]: nout, [2]: nout, [3]: nout, [4]: nout}.
   [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.457 [mindspore/ccsrc/transform/graph_ir/convert.cc:1034] ConvertAllNode] Failed to convert node: ValueNode<Primitive> TupleGetItem.
@@ -513,11 +513,11 @@ Ascend 310 or Ascend 310P3 may not support calculation in MindSpore Ascend mode.
   [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.734 [mindspore/ccsrc/transform/graph_ir/convert.cc:1034] ConvertAllNode] Failed to convert node: @391_390_1_mindocr_models_base_model_BaseModel_construct_24_1:param_neck.seq_encoder.bias_hh_l0.
   ```
 
-  In this case, please try to export the MindIR file by `export.py` on Atlas 310 series training devices, and then convert the MindIR file to `MindSpore Lite Mindir` by `converter_lite` on Atlas 310 series inference devices.
+  In this case, please try to export the MindIR file by `export.py` on Ascend training devices, and then convert the MindIR file to `MindSpore Lite Mindir` by `converter_lite` on lite inference devices.
 
 - `RuntimeError: Load op info form json config failed, version: Ascend310` occurs when export a MindIR file by `export.py`.
   
-  Export a MindIR file by `export.py` on Atlas 310 series inference devices as the following command:
+  Export a MindIR file by `export.py` on lite inference devices as the following command:
 
   ```bash
   python tools/export.py \
@@ -540,8 +540,7 @@ Ascend 310 or Ascend 310P3 may not support calculation in MindSpore Ascend mode.
     mindspore/ccsrc/plugin/device/ascend/hal/device/ascend_kernel_runtime.cc:320 Init
   ```
   
-  In this case, please try to export the MindIR file by `export.py` on Atlas 310 series training devices.
-
+  In this case, please try to export the MindIR file by `export.py` on Ascend training devices.
 
 - `Save ge model to buffer failed.` when using Cloud-Side `mindir` model to do inference.
   For example, if you use Cloud-Side `mindir` model to do inference in detection stage, it may raise:

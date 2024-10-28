@@ -495,7 +495,7 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
 
 - 调用`converter_lite`转换模型到`MindSpore Lite Mindir`时，报错`Can't find OpAdapter for LSTM`
 
-  在Atlas 310I系列上通过`export.py`进行模型导出后，利用导出的模型调用`converter_lite`转换，例如运行
+  在Lite推理环境上通过`export.py`进行模型导出后，利用导出的模型调用`converter_lite`转换，例如运行
 
   ```bash
   converter_lite \
@@ -509,8 +509,8 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
 
   报如下错误：
 
-  ```
-  [WARNING] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.361 [mindspore/ccsrc/transform/graph_ir/utils.cc:59] FindAdapter] Can\'t find OpAdapter for LSTM
+  ```planetext
+  [WARNING] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.361 [mindspore/ccsrc/transform/graph_ir/utils.cc:59] FindAdapter] Can't find OpAdapter for LSTM
   [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.393 [mindspore/ccsrc/transform/graph_ir/convert.cc:4040] ConvertCNode] Cannot get adapter for Default/neck-RNNEncoder/seq_encoder-LSTM/rnn-_DynamicLSTMCPUGPU/LSTM-op90
   [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.437 [mindspore/ccsrc/transform/graph_ir/convert.cc:1034] ConvertAllNode] Failed to convert node: @391_390_1_mindocr_models_base_model_BaseModel_construct_24_1:nout{[0]: ValueNode<Primitive> LSTM, [1]: nout, [2]: nout, [3]: nout, [4]: nout}.
   [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.457 [mindspore/ccsrc/transform/graph_ir/convert.cc:1034] ConvertAllNode] Failed to convert node: ValueNode<Primitive> TupleGetItem.
@@ -520,11 +520,11 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
   [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.734 [mindspore/ccsrc/transform/graph_ir/convert.cc:1034] ConvertAllNode] Failed to convert node: @391_390_1_mindocr_models_base_model_BaseModel_construct_24_1:param_neck.seq_encoder.bias_hh_l0.
   ```
 
-  遇到此情况，请使用Atlas 310T系列通过`export.py`进行模型导出，然后在Atlas 310I上通过`converter_lite`将导出的`.mindir`转换为`MindSpore Lite Mindir`即可。
+  遇到此情况，请使用昇腾训练环境通过`export.py`进行模型导出，然后在Lite推理环境上通过`converter_lite`将导出的`.mindir`转换为`MindSpore Lite Mindir`即可。
 
 - 通过`export.py`进行模型导出时，报错`RuntimeError: Load op info form json config failed, version: Ascend310`
   
-  在Atlas 310I系列上通过`export.py`进行模型导出，例如运行：
+  在Lite推理环境上通过`export.py`进行模型导出，例如运行：
 
   ```bash
   python tools/export.py \
@@ -547,7 +547,7 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
     mindspore/ccsrc/plugin/device/ascend/hal/device/ascend_kernel_runtime.cc:320 Init
   ```
   
-  遇到此情况，请使用Atlas 310T系列通过`export.py`进行模型导出。
+  遇到此情况，请使用昇腾训练环境通过`export.py`进行模型导出。
 
 - 推理过程误用云侧`mindir`模型，报`Save ge model to buffer failed.`
 
