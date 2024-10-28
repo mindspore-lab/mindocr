@@ -523,7 +523,7 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
   遇到此情况，请使用昇腾训练环境通过`export.py`进行模型导出，然后在Lite推理环境上通过`converter_lite`将导出的`.mindir`转换为`MindSpore Lite Mindir`即可。
 
 - 通过`export.py`进行模型导出时，报错`RuntimeError: Load op info form json config failed, version: Ascend310`
-  
+
   在Lite推理环境上通过`export.py`进行模型导出，例如运行：
 
   ```bash
@@ -546,7 +546,7 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
     ----------------------------------------------------
     mindspore/ccsrc/plugin/device/ascend/hal/device/ascend_kernel_runtime.cc:320 Init
   ```
-  
+
   遇到此情况，请使用昇腾训练环境通过`export.py`进行模型导出。
 
 - 推理过程误用云侧`mindir`模型，报`Save ge model to buffer failed.`

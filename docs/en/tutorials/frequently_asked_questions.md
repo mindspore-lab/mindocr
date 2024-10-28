@@ -487,7 +487,7 @@ Ascend 310 or Ascend 310P3 may not support calculation in MindSpore Ascend mode.
   shows that variable `x` does not match with variable `args0`. Try to replace `args0` with `x` in the `config.txt`.
 
 - `Can't find OpAdapter for LSTM` occurs when converting model to `MindSpore Lite Mindir` by `converter_lite`.
-  
+
   After exporting a MindIR file by `export.py` on lite inference devices, convert the MindIR file to `MindSpore Lite Mindir` by `converter_lite` as the following command:
 
   ```bash
@@ -516,7 +516,7 @@ Ascend 310 or Ascend 310P3 may not support calculation in MindSpore Ascend mode.
   In this case, please try to export the MindIR file by `export.py` on Ascend training devices, and then convert the MindIR file to `MindSpore Lite Mindir` by `converter_lite` on lite inference devices.
 
 - `RuntimeError: Load op info form json config failed, version: Ascend310` occurs when export a MindIR file by `export.py`.
-  
+
   Export a MindIR file by `export.py` on lite inference devices as the following command:
 
   ```bash
@@ -539,7 +539,7 @@ Ascend 310 or Ascend 310P3 may not support calculation in MindSpore Ascend mode.
     ----------------------------------------------------
     mindspore/ccsrc/plugin/device/ascend/hal/device/ascend_kernel_runtime.cc:320 Init
   ```
-  
+
   In this case, please try to export the MindIR file by `export.py` on Ascend training devices.
 
 - `Save ge model to buffer failed.` when using Cloud-Side `mindir` model to do inference.
