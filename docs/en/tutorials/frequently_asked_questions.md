@@ -486,6 +486,62 @@ Ascend 310 or Ascend 310P3 may not support calculation in MindSpore Ascend mode.
 
   shows that variable `x` does not match with variable `args0`. Try to replace `args0` with `x` in the `config.txt`.
 
+- `Can't find OpAdapter for LSTM` occurs when converting model to `MindSpore Lite Mindir` by `converter_lite`.
+
+  After exporting a MindIR file by `export.py` on lite inference devices, convert the MindIR file to `MindSpore Lite Mindir` by `converter_lite` as the following command:
+
+  ```bash
+  converter_lite \
+    --saveType=MINDIR \
+    --fmk=MINDIR \
+    --optimize=ascend_oriented \
+    --modelFile=./models/rec/CRNN/VGG7/crnn_vgg7.mindir \
+    --outputFile=./models/rec/CRNN/VGG7/crnn_vgg7_lite \
+    --configFile=./config.txt
+  ```
+
+  Error may occur:
+
+  ```planetext
+  [WARNING] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.361 [mindspore/ccsrc/transform/graph_ir/utils.cc:59] FindAdapter] Can't find OpAdapter for LSTM
+  [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.393 [mindspore/ccsrc/transform/graph_ir/convert.cc:4040] ConvertCNode] Cannot get adapter for Default/neck-RNNEncoder/seq_encoder-LSTM/rnn-_DynamicLSTMCPUGPU/LSTM-op90
+  [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.437 [mindspore/ccsrc/transform/graph_ir/convert.cc:1034] ConvertAllNode] Failed to convert node: @391_390_1_mindocr_models_base_model_BaseModel_construct_24_1:nout{[0]: ValueNode<Primitive> LSTM, [1]: nout, [2]: nout, [3]: nout, [4]: nout}.
+  [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.457 [mindspore/ccsrc/transform/graph_ir/convert.cc:1034] ConvertAllNode] Failed to convert node: ValueNode<Primitive> TupleGetItem.
+  [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.561 [mindspore/ccsrc/transform/graph_ir/convert.cc:1034] ConvertAllNode] Failed to convert node: @391_390_1_mindocr_models_base_model_BaseModel_construct_24_1:nout{[0]: ValueNode<Primitive> TupleGetItem, [1]: nout, [2]: ValueNode<Int64Imm> 0}.
+  [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.582 [mindspore/ccsrc/transform/graph_ir/convert.cc:1034] ConvertAllNode] Failed to convert node: ValueNode<Primitive> ReverseV2.
+  [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.667 [mindspore/ccsrc/transform/graph_ir/convert.cc:1034] ConvertAllNode] Failed to convert node: @391_390_1_mindocr_models_base_model_BaseModel_construct_24_1:nout{[0]: ValueNode<Primitive> ReverseV2, [1]: nout}.
+  [ERROR] GE_ADPT(837950,7feb6e13bf40,converter_lite):2024-10-26-07:37:40.545.734 [mindspore/ccsrc/transform/graph_ir/convert.cc:1034] ConvertAllNode] Failed to convert node: @391_390_1_mindocr_models_base_model_BaseModel_construct_24_1:param_neck.seq_encoder.bias_hh_l0.
+  ```
+
+  In this case, please try to export the MindIR file by `export.py` on Ascend training devices, and then convert the MindIR file to `MindSpore Lite Mindir` by `converter_lite` on lite inference devices.
+
+- `RuntimeError: Load op info form json config failed, version: Ascend310` occurs when export a MindIR file by `export.py`.
+
+  Export a MindIR file by `export.py` on lite inference devices as the following command:
+
+  ```bash
+  python tools/export.py \
+        --model_name_or_config configs/det/fcenet/fce_icdar15.yaml \
+        --data_shape 736 1280 \
+        --local_ckpt_path ./fcenet_resnet50-43857f7f.ckpt
+  ```
+
+  Error may occur:
+
+  ```bash
+    [ERROR] KERNEL(849474,7f7571d68740,python):2024-10-26-08:44:27.998.221 [mindspore/ccsrc/kernel/oplib/op_info_utils.cc:179] LoadOpInfoJson] Get op info json suffix path failed, soc_version: Ascend310
+    [ERROR] KERNEL(849474,7f7571d68740,python):2024-10-26-08:44:27.998.362 [mindspore/ccsrc/kernel/oplib/op_info_utils.cc:118] GenerateOpInfos] Load op info json failed, version: Ascend310
+    [ERROR] ANALYZER(849474,7f7571d68740,python):2024-10-26-08:44:30.168.028 [mindspore/ccsrc/pipeline/jit/ps/static_analysis/async_eval_result.cc:70] HandleException] Exception happened, check the information as below.
+    RuntimeError: Load op info form json config failed, version: Ascend310
+
+    ----------------------------------------------------
+    - C++ Call Stack: (For framework developers)
+    ----------------------------------------------------
+    mindspore/ccsrc/plugin/device/ascend/hal/device/ascend_kernel_runtime.cc:320 Init
+  ```
+
+  In this case, please try to export the MindIR file by `export.py` on Ascend training devices.
+
 - `Save ge model to buffer failed.` when using Cloud-Side `mindir` model to do inference.
   For example, if you use Cloud-Side `mindir` model to do inference in detection stage, it may raise:
 
