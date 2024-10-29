@@ -87,7 +87,7 @@ pip install mindspore_lite-2.2.14-{python_version}-linux_{arch}.whl
 ### 5. 安装 MindOCR
 
 ```shell
-git clone https://github.com/mindspore-lab/mindocr.git
+git clone https://github.com/mindspore-lab/mindocr.git -b v0.4.0
 cd mindocr
 pip install -e .
 ```

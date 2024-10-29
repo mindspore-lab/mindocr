@@ -73,7 +73,7 @@ pip install -r requirements.txt
 
 #### Install from Source (recommend)
 ```shell
-git clone https://github.com/mindspore-lab/mindocr.git
+git clone https://github.com/mindspore-lab/mindocr.git -b v0.4.0
 cd mindocr
 pip install -e .
 ```

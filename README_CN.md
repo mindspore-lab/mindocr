@@ -74,7 +74,7 @@ pip install -r requirements.txt
 #### 通过源文件安装（推荐）
 
 ```shell
-git clone https://github.com/mindspore-lab/mindocr.git
+git clone https://github.com/mindspore-lab/mindocr.git -b v0.4.0
 cd mindocr
 pip install -e .
 ```
