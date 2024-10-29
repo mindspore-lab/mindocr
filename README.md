@@ -9,7 +9,7 @@
 <div align="center" markdown>
 
 [![CI](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml/badge.svg)](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml)
-[![license](https://img.shields.io/github/license/mindspore-lab/mindocr.svg)](https://github.com/mindspore-lab/mindocr/blob/main/LICENSE)
+[![license](https://img.shields.io/github/license/mindspore-lab/mindocr.svg)](LICENSE)
 [![open issues](https://img.shields.io/github/issues/mindspore-lab/mindocr)](https://github.com/mindspore-lab/mindocr/issues)
 [![PRs](https://img.shields.io/badge/PRs-welcome-pink.svg)](https://github.com/mindspore-lab/mindocr/pulls)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
@@ -58,13 +58,13 @@ mindspore versions.
 
 #### Prerequisites
 
-MindOCR is built on MindSpore AI framework and is compatible with the following framework versions. For details and installation guideline, please refer to the installation links shown below.
+MindOCR is built on MindSpore AI framework and is compatible with the following framework versions. installation guideline for Training, please refer to the installation links shown below.
 
-- mindspore >= 2.2.0 [[install](https://www.mindspore.cn/install)]
+- mindspore [[install](https://www.mindspore.cn/install)] Please install correct MindSpore version refer to `mindocr` versions.
 - python >= 3.7
 - openmpi 4.0.3 (for distributed training/evaluation)  [[install](https://www.open-mpi.org/software/ompi/v4.0/)]
-- mindspore lite (for offline inference) >= 2.2.0  [[install](docs/en/inference/environment.md)]
 
+MindSpore Lite offline Inference please refer to [Lite offline Environment Installation](docs/en/inference/environment.md)
 
 #### Dependency
 ```shell
@@ -73,13 +73,17 @@ pip install -r requirements.txt
 
 #### Install from Source (recommend)
 ```shell
-git clone https://github.com/mindspore-lab/mindocr.git
+git clone https://github.com/mindspore-lab/mindocr.git -b v0.4.0
 cd mindocr
 pip install -e .
 ```
 > Using `-e` for "editable" mode can help resolve potential module import issues.
 
 #### Install from docker
+
+<details>
+<summary> Details </summary>
+
 The environment information of dockers provided is as following:
  - OS：Euler2.8
  - CANN：7.0
@@ -142,6 +146,7 @@ Please follow the steps to install docker：
     source env_setup.sh
     ```
 
+</details>
 
 #### Install from PyPI
 ```shell
@@ -160,7 +165,8 @@ After installing MindOCR, we can run text detection and recognition on an arbitr
 ```shell
 python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_imgs} \
                                           --det_algorithm DB++  \
-                                          --rec_algorithm CRNN
+                                          --rec_algorithm CRNN  \
+                                          --visualize_output True
 ```
 
 After running, the results will be saved in `./inference_results` by default. Here is an example result.
@@ -207,12 +213,9 @@ python tools/eval.py \
 
 For more illustration and usage, please refer to the model training section in [Tutorials](#tutorials).
 
-### 3. Model Offline Inference - Quick Guideline
+### 3. Model Offline Inference
 
-You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Third-party models** (PaddleOCR, MMOCR, etc.). Please refer to the following documents
- - [Python/C++ Inference on Ascend 310](docs/en/inference/inference_tutorial.md)
- - [MindOCR Models Offline Inference - Quick Start](docs/en/inference/inference_quickstart.md)
- - [Third-party Models Offline Inference - Quick Start](docs/en/inference/inference_thirdparty_quickstart.md).
+You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Third-party models** (PaddleOCR, MMOCR, etc.). Please refer to [Model Offline Inference Tutorial](docs/en/inference/inference_tutorial.md)
 
 ## Tutorials
 
@@ -228,10 +231,7 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 - Inference with MindSpore
     - [Python Online Inference](tools/infer/text/README.md)
 - Inference with MindSpore Lite
-    - [Python/C++ Inference on Ascend 310](docs/en/inference/inference_tutorial.md)
-    - [MindOCR Models Offline Inference - Quick Start](docs/en/inference/inference_quickstart.md)
-    - [Third-party Models Offline Inference - Quick Start](docs/en/inference/inference_thirdparty_quickstart.md)
-    - [Model Conversion](docs/en/inference/convert_tutorial.md)
+    - [Model Offline Inference Tutorial](docs/en/inference/inference_tutorial.md)
 - Developer Guides
     - [Customize Dataset](mindocr/data/README.md)
     - [Customize Data Transformation](mindocr/data/transforms/README.md)
@@ -274,7 +274,7 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 <details open markdown>
 <summary>Key Information Extraction</summary>
 
-- [x] [LayoutXLM](configs/kie/vi_layoutxlm/README_CN.md) (arXiv'2021)
+- [x] [LayoutXLM](configs/kie/vi_layoutxlm/README.md) (arXiv'2021)
 - [x] [LayoutLMv3](configs/kie/layoutlmv3/README.md) (arXiv'2022)
 
 </details>
@@ -293,13 +293,13 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 
 </details>
 
-For the detailed performance of the trained models, please refer to [configs](./configs).
+For the detailed performance of the trained models, please refer to [https://github.com/mindspore-lab/mindocr/blob/main/configs](./configs).
 
-For details of MindSpore Lite and ACL inference models support, please refer to [MindOCR Models Support List](docs/en/inference/inference_quickstart.md) and [Third-party Models Support List](docs/en/inference/inference_thirdparty_quickstart.md) (PaddleOCR, MMOCR, etc.).
+For details of MindSpore Lite and ACL inference models support, please refer to [MindOCR Models Support List](docs/en/inference/mindocr_models_list.md) and [Third-party Models Support List](docs/en/inference/thirdparty_models_list.md) (PaddleOCR etc.).
 
 ## Dataset List
 
-MindOCR provides a [dataset conversion tool](tools/dataset_converters) to OCR datasets with different formats and support customized dataset by users. We have validated the following public OCR datasets in model training/evaluation.
+MindOCR provides a [dataset conversion tool](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters) to OCR datasets with different formats and support customized dataset by users. We have validated the following public OCR datasets in model training/evaluation.
 
 <details close markdown>
 <summary>General OCR Datasets</summary>

@@ -17,12 +17,12 @@ scaling.
 
 ### 2. Environment
 
-Please refer to [Environment Installation](environment.md) to install ACL or MindSpore Lite environment.
+Please refer to [Environment Installation](environment.md) to install MindSpore Lite environment.
 
 ### 3. Model
 
-Currently, ONNX model files are supported, and by selecting different backends, they are automatically shape scaling and
-converted to OM or MIndIR model files.
+Currently, ONNX model files are supported, and by MindSpore Lite, they are automatically shape scaling and
+converted to MIndIR model files.
 
 Please make sure that the input model is the dynamic shape version. For example, if the text detection model needs to
 shape scaling for H and W, make sure that at least the H and W axes are dynamic, and the shape can be `(1,3,-1,-1)` and
@@ -58,33 +58,30 @@ Two types of data are supported:
 
 ```shell
 python converter.py \
-    --backend=atc \
     --model_path=/path/to/model.onnx \
     --dataset_path=/path/to/det_gt.txt
     --input_shape=-1,3,48,192 \
     --output_path=output
 ```
 
-The output is a single OM model: `model_dynamic_bs.om`
+The output is a single MindIR model: `model_dynamic_bs.mindir`
 
 - auto shape scaling for height and width
 
 ```shell
 python converter.py \
-    --backend=atc \
     --model_path=/path/to/model.onnx \
     --dataset_path=/path/to/images \
     --input_shape=1,3,-1,-1 \
     --output_path=output
 ```
 
-The output is a single OM model: `model_dynamic_hw.om`
+The output is a single MindIR model: `model_dynamic_hw.mindir`
 
-- auto shape scaling for batch szie, height and width
+- auto shape scaling for batch size, height and width
 
 ```shell
 python converter.py \
-    --backend=atc \
     --model_path=/path/to/model.onnx \
     --dataset_path=/path/to/images \
     --input_shape=-1,3,-1,-1 \
@@ -92,19 +89,18 @@ python converter.py \
 ```
 
 The output result is multiple OM models, combining multiple different batch sizes, and each model uses the same dynamic
-image size：`model_dynamic_bs1_hw.om`, `model_dynamic_bs4_hw.om`, ......
+image size：`model_dynamic_bs1_hw.mindir`, `model_dynamic_bs4_hw.mindir`, ......
 
 - no shape scaling
 
 ```shell
 python converter.py \
-    --backend=atc \
     --model_path=/path/to/model.onnx \
     --input_shape=4,3,48,192 \
     --output_path=output
 ```
 
-The output is a single OM model: `model_static.om`
+The output is a single MindIR model: `model_static.mindir`
 
 ##### 5.2 Parameter Details
 
@@ -114,7 +110,7 @@ The output is a single OM model: `model_static.om`
 | input_shape | None        | Y        | model input shape, NCHW format                   |
 | data_path   | None        | N        | Path to image folder or annotation file          |
 | input_name  | x           | N        | model input name                                 |
-| backend     | atc         | N        | converter backend，atc or lite                   |
+| backend     | lite         | N        | converter backend, lite or acl                  |
 | output_path | ./output    | N        | Path to output model                             |
 | soc_version | Ascend310P3 | N        | soc_version for Ascend，Ascend310P3 or Ascend310 |
 

@@ -2,7 +2,11 @@
 <div align="center" markdown>
 
 # MindOCR
+</div>
+
 <!--end-->
+
+<div align="center" markdown>
 
 [![CI](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml/badge.svg)](https://github.com/mindspore-lab/mindocr/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/mindspore-lab/mindocr.svg)](https://github.com/mindspore-lab/mindocr/blob/main/LICENSE)
@@ -10,7 +14,7 @@
 [![PRs](https://img.shields.io/badge/PRs-welcome-pink.svg)](https://github.com/mindspore-lab/mindocr/pulls)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-<!--start-->
+
 [English](README.md) | 中文
 
 [📝简介](#简介) |
@@ -24,6 +28,7 @@
 
 </div>
 
+<!--start-->
 ## 简介
 MindOCR是一个基于[MindSpore](https://www.mindspore.cn/en) 框架开发的OCR开源工具箱，集成系列主流文字检测识别的算法、模型，并提供易用的训练和推理工具，可以帮助用户快速开发和应用业界SoTA文本检测、文本识别模型，如DBNet/DBNet++和CRNN/SVTR，满足图像文档理解的需求。
 
@@ -38,13 +43,12 @@ MindOCR是一个基于[MindSpore](https://www.mindspore.cn/en) 框架开发的OC
 
 以下是对应的“mindocr”版本和支持 Mindspore 版本。
 
-| `mindspore` | `mindocr` | `测试硬件`
-| :--:| :--:|:-------------------|
-| `master`  | `master`| `ascend 910*`      |
-| `2.3.0`   | `0.4`  | `ascend 910*`      |
-| `2.2.10`  | `0.3` | `ascend 910, 910*` |
-| `2.0`     | `0.2` | `ascend 910`       |
-| `1.8`     | `0.1`  | `ascend 910`       |
+| mindocr | mindspore |
+|:-------:|:---------:|
+| master  |  master   |
+|   0.4   |   2.3.0   |
+|   0.3   |  2.2.10   |
+|   0.1   |    1.8    |
 
 
 ## 安装教程
@@ -53,12 +57,13 @@ MindOCR是一个基于[MindSpore](https://www.mindspore.cn/en) 框架开发的OC
 
 #### MindSpore相关环境准备
 
-MindOCR基于MindSpore AI框架开发，并适配以下框架版本。安装方式请参见下方的安装链接。
+MindOCR基于MindSpore AI框架开发，并适配以下框架版本。模型训练场景：
 
-- mindspore >= 2.2.0 [[安装](https://www.mindspore.cn/install)]
+- mindspore [[安装](https://www.mindspore.cn/install)] 请按照mindocr分支安装对应版本MindSpore。
 - python >= 3.7
 - openmpi 4.0.3 (用于分布式训练与验证)  [[安装](https://www.open-mpi.org/software/ompi/v4.0/)]
-- mindspore lite (用于离线推理) >= 2.2.0  [[安装](docs/cn/inference/environment.md)]
+
+Lite推理环境准备请参考[离线推理环境准备](docs/cn/inference/environment.md)。
 
 #### 包依赖
 
@@ -69,13 +74,17 @@ pip install -r requirements.txt
 #### 通过源文件安装（推荐）
 
 ```shell
-git clone https://github.com/mindspore-lab/mindocr.git
+git clone https://github.com/mindspore-lab/mindocr.git -b v0.4.0
 cd mindocr
 pip install -e .
 ```
 > 使用 `-e` 代表可编辑模式，可以帮助解决潜在的模块导入问题。
 
 #### 通过docker安装
+
+<details>
+<summary> 详情 </summary>
+
 目前提供的docker，环境信息如下
  - 操作系统版本：Euler2.8
  - CANN版本：7.0
@@ -138,6 +147,8 @@ pip install -e .
     source env_setup.sh
     ```
 
+</details>
+
 #### 通过PyPI安装
 ```shell
 pip install mindocr
@@ -156,7 +167,8 @@ pip install mindocr
 ```shell
 python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_imgs} \
                                           --det_algorithm DB++  \
-                                          --rec_algorithm CRNN
+                                          --rec_algorithm CRNN  \
+                                          --visualize_output True
 ```
 
 运行结束后，结果将被默认保存在`./inference_results`路径，可视化结果如下：
@@ -199,17 +211,15 @@ python tools/eval.py \
 ```shell
 python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_imgs} \
                                           --det_algorithm DB++  \
-                                          --rec_algorithm CRNN
+                                          --rec_algorithm CRNN  \
+                                          --visualize_output True
 ```
 
 更多使用方法，请参考[使用教程](#使用教程)中的模型训练、推理章节。
 
-### 3. 模型离线推理-快速指南
+### 3. 模型离线推理
 
-你可以在MindOCR中对**MindOCR原生模型**或**第三方模型**（如PaddleOCR、MMOCR等）进行MindSpore Lite推理。请参考以下文档
- - [基于Python/C++和昇腾310的OCR推理](docs/cn/inference/inference_tutorial.md)
- - [MindOCR原生模型离线推理 - 快速开始](docs/cn/inference/inference_quickstart.md)
- - [第三方模型离线推理 - 快速开始](docs/cn/inference/inference_thirdparty_quickstart.md)
+你可以在MindOCR中对**MindOCR原生模型**或**第三方模型**（如PaddleOCR、MMOCR等）进行MindSpore Lite推理。详情请参考[模型离线推理教程](docs/cn/inference/inference_tutorial.md)。
 
 ## 使用教程
 
@@ -223,16 +233,14 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
     - [分布式训练](docs/cn/tutorials/distribute_train.md)
     - [进阶技巧：梯度累积，EMA，断点续训等](docs/cn/tutorials/advanced_train.md)
 - 使用MindSpore进行在线推理
-    - [基于Python的OCR在线推理](tools/infer/text/README.md)
+    - [基于Python的OCR在线推理](tools/infer/text/README_CN.md)
 - 使用MindSpore Lite进行离线推理
-    - [基于Python/C++和昇腾310的OCR推理](docs/cn/inference/inference_tutorial.md)
-    - [MindOCR原生模型离线推理 - 快速开始](docs/cn/inference/inference_quickstart.md)
-    - [第三方模型离线推理 - 快速开始](docs/cn/inference/inference_thirdparty_quickstart.md)
+    - [模型离线推理教程](docs/cn/inference/inference_tutorial.md)
 - 开发者指南
-    - [如何自定义数据集](mindocr/data/README.md)
-    - [如何自定义数据增强方法](mindocr/data/transforms/README.md)
-    - [如何创建新的OCR模型](mindocr/models/README.md)
-    - [如何自定义后处理方法](mindocr/postprocess/README.md)
+    - [如何自定义数据集](mindocr/data/README_CN.md)
+    - [如何自定义数据增强方法](mindocr/data/transforms/README_CN.md)
+    - [如何创建新的OCR模型](mindocr/models/README_CN.md)
+    - [如何自定义后处理方法](mindocr/postprocess/README_CN.md)
 
 ## 模型列表
 
@@ -287,14 +295,14 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 </details>
 
 
-关于以上模型的具体训练方法和结果，请参见[configs](./configs)下各模型子目录的readme文档。
+关于以上模型的具体训练方法和结果，请参见[configs](https://github.com/mindspore-lab/mindocr/blob/main/configs)下各模型子目录的readme文档。
 
-关于[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)模型推理的支持列表，
-请参见[MindOCR原生模型推理支持列表](docs/cn/inference/inference_quickstart.md) 和 [第三方模型推理支持列表](docs/cn/inference/inference_thirdparty_quickstart.md)（如PaddleOCR、MMOCR等）。
+[MindSpore Lite](https://www.mindspore.cn/lite)模型推理的支持列表，
+请参见[MindOCR原生模型推理支持列表](docs/cn/inference/mindocr_models_list.md) 和 [第三方模型推理支持列表](docs/cn/inference/thirdparty_models_list.md)（如PaddleOCR）。
 
 ## 数据集列表
 
-MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支持不同格式的OCR数据集，支持用户自定义的数据集。
+MindOCR提供了[数据格式转换工具](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters) ，以支持不同格式的OCR数据集，支持用户自定义的数据集。
 当前已在模型训练评估中验证过的公开OCR数据集如下。
 
 <details close markdown>
@@ -408,7 +416,7 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
     - [chinese_text_recognition](docs/cn/datasets/chinese_text_recognition.md)
 3. 增加断点续训(resume training)功能，可在训练意外中断时使用。如需使用，请在配置文件中`model`字段下增加`resume`参数，允许传入具体路径`resume: /path/to/train_resume.ckpt`或者通过设置`resume: True`来加载在ckpt_save_dir下保存的trian_resume.ckpt
 4. 改进检测模块的后处理部分：默认情况下，将检测到的文本多边形重新缩放到原始图像空间，可以通过在`eval.dataset.output_columns`列表中增加"shape_list"实现。
-5. 重构在线推理以支持更多模型，详情请参见[README.md](tools/infer/text/README.md) 。
+5. 重构在线推理以支持更多模型，详情请参见[README.md](tools/infer/text/README_CN.md) 。
 
 - 2023/05/15
 1. 增加新模型
@@ -457,7 +465,7 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
 
 我们欢迎包括问题单和PR在内的所有贡献，来让MindOCR变得更好。
 
-请参考[CONTRIBUTING.md](CONTRIBUTING.md)作为贡献指南，请按照[Model Template and Guideline](mindocr/models/README.md)的指引贡献一个适配所有接口的模型，多谢合作。
+请参考[CONTRIBUTING.md](CONTRIBUTING_CN.md)作为贡献指南，请按照[Model Template and Guideline](mindocr/models/README_CN.md)的指引贡献一个适配所有接口的模型，多谢合作。
 
 ### 许可
 
