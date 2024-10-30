@@ -1,3 +1,5 @@
+[English](./README.md)|中文
+
 # 基于MindOCR的车牌识别
 
 # 数据集处理

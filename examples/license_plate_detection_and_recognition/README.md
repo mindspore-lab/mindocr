@@ -1,3 +1,5 @@
+English|[中文](./README_CN.md)
+
 # License plate recognition based on MindOCR
 
 # Dataset processing
