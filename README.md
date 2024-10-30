@@ -295,7 +295,7 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 
 For the detailed performance of the trained models, please refer to [https://github.com/mindspore-lab/mindocr/blob/main/configs](./configs).
 
-For details of MindSpore Lite and ACL inference models support, please refer to [MindOCR Models Support List](docs/en/inference/mindocr_models_list.md) and [Third-party Models Support List](docs/en/inference/thirdparty_models_list.md) (PaddleOCR etc.).
+For details of MindSpore Lite inference models support, please refer to [MindOCR Models Support List](docs/en/inference/mindocr_models_list.md) and [Third-party Models Support List](docs/en/inference/thirdparty_models_list.md) (PaddleOCR etc.).
 
 ## Dataset List
 

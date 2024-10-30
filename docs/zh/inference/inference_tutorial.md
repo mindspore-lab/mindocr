@@ -178,7 +178,7 @@ word_1814.png  "cathay"
   | input_images_dir | str | 无      | 单张图像或者图片文件夹     |
   | device           | str | Ascend | 推理设备名称，支持：Ascend |
   | device_id        | int | 0      | 推理设备id               |
-  | backend          | str | lite   | 推理后端，支持：acl, lite |
+  | backend          | str | lite   | 推理后端 |
   | parallel_num     | int | 1      | 推理流水线中每个节点并行数  |
   | precision_mode   | str | 无      | 推理的精度模式，暂只支持在[模型转换](convert_tutorial.md)时设置，此处不生效 |
 
