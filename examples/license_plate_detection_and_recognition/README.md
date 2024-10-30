@@ -1,4 +1,4 @@
-English|[中文](./README_CN.md)
+English | [中文](./README_CN.md)
 
 # License plate recognition based on MindOCR
 
