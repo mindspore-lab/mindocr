@@ -221,7 +221,7 @@ dataset:
 
 5. The default test IOU is 0.5, which is changed to 0.7
 
-代码位置：./mindocr/metrics/det_metrics.py 33
+Location of code:./mindocr/metrics/det_metrics.py 33
 
 ```python
 ...
