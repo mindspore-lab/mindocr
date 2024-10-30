@@ -267,7 +267,7 @@ python tools/export.py --model_name_or_config visionlan_resnet45 --data_shape 64
 
 This command will save a `visionlan_resnet45.mindir` under the current working directory.
 
-> Learn more about [Model Export](https://github.com/mindspore-lab/mindocr/blob/main/docs/en/inference/convert_tutorial.md#11-model-export).
+> Learn more about [Model Export](../../../docs/zh/inference/convert_tutorial.md#1-model-export).
 
 ### 4.2 Mindspore Lite Converter Tool
 
@@ -288,7 +288,7 @@ converter_lite \
 
 Running this command will save a `visionlan_resnet45_lite.mindir` under the current working directory. This is the MindSpore Lite MindIR file that we can run inference with on the Ascend310 or 310P platform. You can also define a different file name by changing the `--outputFile` argument.
 
-> Learn more about [Model Conversion](https://github.com/mindspore-lab/mindocr/blob/main/docs/en/inference/convert_tutorial.md#12-model-conversion).
+> Learn more about [Model Conversion](../../../docs/en/inference/convert_tutorial.md#2-mindspore-lite-mindir-convert).
 
 ### 4.3 Inference on A Folder of Images
 
