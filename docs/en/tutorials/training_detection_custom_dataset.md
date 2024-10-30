@@ -312,17 +312,15 @@ python tools/eval.py -c=configs/det/dbnet/db_r50_icdar15.yaml \
 
 ### 3.3 Inference
 
-MindOCR inference supports Ascend310/Ascend310P devices, supports [MindSpore Lite](https://www.mindspore.cn/lite) and
-[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)
-inference backend. [Inference Tutorial](../inference/inference_tutorial.md) gives detailed steps on how to run inference with MindOCR, which include mainly three steps: environment preparation, model conversion, and inference.
+MindOCR inference supports Ascend310/Ascend310P devices and adopts [MindSpore Lite](https://www.mindspore.cn/lite) inference backend. [Inference Tutorial](../inference/inference_tutorial.md) gives detailed steps on how to run inference with MindOCR, which include mainly three steps: environment preparation, model conversion, and inference.
 
 #### 3.3.1 Environment Preparation
 
-Please refer to the [environment installation](../inference/environment.md) for more information, and pay attention to selecting the ACL/Lite environment based on the model.
+Please refer to the [environment installation](../inference/environment.md) for more information.
 
 #### 3.3.2 Model Conversion
 
-Before runing infernence, users need to export a MindIR file from the trained checkpoint. [MindSpore IR (MindIR)](https://www.mindspore.cn/docs/en/r2.0/design/mindir.html) is a function-style IR based on graph representation. The MindIR filew stores the model structure and weight parameters needed for inference.
+Before runing infernence, users need to export a MindIR file from the trained checkpoint. [MindSpore IR (MindIR)](https://www.mindspore.cn/docs/en/r2.2/design/mindir.html) is a function-style IR based on graph representation. The MindIR filew stores the model structure and weight parameters needed for inference.
 
 Given the trained dbnet checkpoint file, user can use the following commands to export MindIR:
 
