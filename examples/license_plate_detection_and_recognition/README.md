@@ -286,7 +286,7 @@ Please place all training images in the same folder and specify a text file in t
 023275862069-90_86-173&473_468&557-485&563_189&555_187&469_483&477-0_0_2_27_9_26_24-178-36.jpg	皖AC3K20
 ```
 
-**Note:** Use `\tab`​ as the separator between the image name and label, avoiding spaces or other separators.  
+**Note:** Use `\tab`​ as the separator between the image name and label, avoiding spaces or other separators.
 
 The final structure of the training dataset will be as follows:
 
@@ -447,7 +447,7 @@ python tools/eval.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml
 
 ### Code Modification
 
-Modify the file `/mindocr/tools/infer/text/predict_rec.py`​: 
+Modify the file `/mindocr/tools/infer/text/predict_rec.py`​:
 
 1.  Locate the `algo_to_model_name`​ mapping.
 
