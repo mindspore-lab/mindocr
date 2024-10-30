@@ -18,7 +18,7 @@ This document provides tutorials on how to train text detection networks using c
     - [3.3 Inference](#33-inference)
       - [3.3.1 Environment Preparation](#331-environment-preparation)
       - [3.3.2 Model Conversion](#332-model-conversion)
-      - [3.3.3 Inference (Python)](#333-inference-python)
+      - [3.3.3 Inference](#333-inference)
 
 ## 1. Dataset preperation
 
@@ -334,7 +334,7 @@ The `data_shape` is the model input shape of height and width for MindIR file. I
 
 Please refer to the [Conversion Tutorial](../inference/convert_tutorial.md) for more details about model conversion.
 
-#### 3.3.3 Inference (Python)
+#### 3.3.3 Inference
 
 
  After model conversion, the `output.mindir` is obtained. Users can go to the `deploy/py_infer` directory, and use the following command for inference:
