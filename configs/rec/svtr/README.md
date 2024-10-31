@@ -386,7 +386,7 @@ To inference with MindSpot Lite on Ascend 310, please refer to the tutorial [Min
 
 **1. Model Export**
 
-Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../../docs/zh/inference/convert_tutorial.md#1-model-export) tutorial and use the following command to export the trained ckpt model to  MindIR file:
+Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../../docs/en/inference/convert_tutorial.md#1-model-export) tutorial and use the following command to export the trained ckpt model to  MindIR file:
 
 ```shell
 python tools/export.py --model_name_or_config svtr_tiny --data_shape 64 256 --local_ckpt_path /path/to/local_ckpt.ckpt

@@ -188,7 +188,7 @@ Please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/infe
 
 - Model Export
 
-Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../../docs/zh/inference/convert_tutorial.md#1-model-export) tutorial and use the following command to export the trained ckpt model to  MindIR file:
+Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../../docs/en/inference/convert_tutorial.md#1-model-export) tutorial and use the following command to export the trained ckpt model to  MindIR file:
 
 ```shell
 python tools/export.py --model_name_or_config psenet_resnet152 --data_shape 1472 2624 --local_ckpt_path /path/to/local_ckpt.ckpt

@@ -267,7 +267,7 @@ python tools/export.py --model_name_or_config visionlan_resnet45 --data_shape 64
 
 This command will save a `visionlan_resnet45.mindir` under the current working directory.
 
-> Learn more about [Model Export](../../../docs/zh/inference/convert_tutorial.md#1-model-export).
+> Learn more about [Model Export](../../../docs/en/inference/convert_tutorial.md#1-model-export).
 
 ### 4.2 Mindspore Lite Converter Tool
 

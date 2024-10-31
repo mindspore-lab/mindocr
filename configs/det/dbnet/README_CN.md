@@ -395,7 +395,7 @@ python tools/eval.py --config configs/det/dbnet/db_r50_icdar15.yaml
 
 - 模型导出
 
-请先[下载](#2-实验结果)已导出的MindIR文件，或者参考[模型导出](../../../docs/zh/inference/convert_tutorial.md#1-模型导出)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
+请先[下载](#3-实验结果)已导出的MindIR文件，或者参考[模型导出](../../../docs/zh/inference/convert_tutorial.md#1-模型导出)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
 
 ```shell
 python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt.ckpt
