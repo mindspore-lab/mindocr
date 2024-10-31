@@ -297,7 +297,7 @@ eval:
 ```
 
 **注意:**
-- 由于全局批大小 （batch_size x num_devices） 是对结果复现很重要，因此当GPU/NPU卡数发生变化时，调整`batch_size`以保持全局批大小不变，或根据新的全局批大小线性调整学习率。
+- 由于全局批大小 （batch_size x num_devices） 是对结果复现很重要，因此当NPU卡数发生变化时，调整`batch_size`以保持全局批大小不变，或根据新的全局批大小线性调整学习率。
 
 
 ### 3.2 模型训练
@@ -308,7 +308,7 @@ eval:
 使用预定义的训练配置可以轻松重现报告的结果。对于在多个昇腾910设备上的分布式训练，请将配置参数`distribute`修改为True，并运行：
 
 ```shell
-# 在多个 GPU/Ascend 设备上进行分布式训练
+# 在多个 Ascend 设备上进行分布式训练
 mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/master/master_resnet31.yaml
 ```
 
@@ -318,7 +318,7 @@ mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/maste
 如果要在没有分布式训练的情况下在较小的数据集上训练或微调模型，请将配置参数`distribute`修改为False 并运行：
 
 ```shell
-# CPU/GPU/Ascend 设备上的单卡训练
+# CPU/Ascend 设备上的单卡训练
 python tools/train.py --config configs/rec/master/master_resnet31.yaml
 ```
 

@@ -168,7 +168,7 @@ python tools/train.py --config configs/det/psenet/pse_r152_icdar15.yaml
 Please set `distribute` in yaml config file to be True.
 
 ```shell
-# n is the number of GPUs/NPUs
+# n is the number of NPUs
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/det/psenet/pse_r152_icdar15.yaml
 ```
 

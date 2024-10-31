@@ -302,7 +302,7 @@ eval:
 ```
 
 **Notes:**
-- As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of GPUs/NPUs, or adjust the learning rate linearly to a new global batch size.
+- As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of NPUs, or adjust the learning rate linearly to a new global batch size.
 
 
 ### 3.2 Model Training
@@ -313,7 +313,7 @@ eval:
 It is easy to reproduce the reported results with the pre-defined training recipe. For distributed training on multiple Ascend 910 devices, please modify the configuration parameter `system.distribute` as True and run
 
 ```shell
-# distributed training on multiple GPU/Ascend devices
+# distributed training on multiple Ascend devices
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
@@ -323,7 +323,7 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/
 If you want to train or finetune the model on a smaller dataset without distributed training, please modify the configuration parameter`system.distribute` as False and run:
 
 ```shell
-# standalone training on a CPU/GPU/Ascend device
+# standalone training on a CPU/Ascend device
 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 

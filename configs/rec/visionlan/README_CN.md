@@ -183,7 +183,7 @@ common:
 ```
 
 **注意：**
-- 由于全局批大小 （batch_size x num_devices） 是对结果复现很重要，因此当GPU/NPU卡数发生变化时，调整batch_size以保持全局批大小不变，或将学习率线性调整为新的全局批大小。
+- 由于全局批大小 （batch_size x num_devices） 是对结果复现很重要，因此当NPU卡数发生变化时，调整batch_size以保持全局批大小不变，或将学习率线性调整为新的全局批大小。
 
 ### 3.4 训练
 

@@ -289,10 +289,10 @@ model:
 
 * 分布式训练
 
-在大量数据的情况下，建议用户使用分布式训练。对于在多个昇腾910设备或着GPU卡的分布式训练，请将配置参数`system.distribute`修改为True, 例如：
+在大量数据的情况下，建议用户使用分布式训练。对于在多个昇腾910设备的分布式训练，请将配置参数`system.distribute`修改为True, 例如：
 
 ```shell
-# 在多个 GPU/Ascend 设备上进行分布式训练
+# 在多个 Ascend 设备上进行分布式训练
 mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/svtr/svtr_ppocrv3_ch.yaml
 ```
 
@@ -302,7 +302,7 @@ mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/svtr/
 如果要在没有分布式训练的情况下在较小的数据集上训练模型，请将配置参数`distribute`修改为False 并运行：
 
 ```shell
-# CPU/GPU/Ascend 设备上的单卡训练
+# CPU/Ascend 设备上的单卡训练
 python tools/train.py --config configs/rec/svtr/svtr_ppocrv3_ch.yaml
 ```
 

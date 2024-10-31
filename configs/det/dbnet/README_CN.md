@@ -375,7 +375,7 @@ python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
 请确保yaml文件中的`distribute`参数为True。
 
 ```shell
-# n is the number of GPUs/NPUs
+# n is the number of NPUs
 mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
 

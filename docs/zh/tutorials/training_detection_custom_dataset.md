@@ -253,18 +253,14 @@ python tools/train.py -c=configs/det/dbnet/db_r50_icdar15.yaml
 
 * 分布式训练
 
-在分布式训练中，yaml配置文件中的`system.distribute`应该为`True`。在GPU和Ascend设备上，用户可以使用`mpirun`来启动分布式训练。例如，使用`device:0`和`device:1`进行训练：
+在分布式训练中，yaml配置文件中的`system.distribute`应该为`True`。在Ascend设备上，用户可以使用`mpirun`来启动分布式训练。例如，使用`device:0`和`device:1`进行训练：
 
 ```Shell
-# n是GPU/NPU的数量
+# n是NPU的数量
 mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
 有时，用户可能想要指定设备id来进行分布式训练，例如，`device:2`和`device:3`。
 
-在GPU设备上，在运行上面的`mpirun`命令之前，用户可以运行以下命令：
-```
-export CUDA_VISIBLE_DEVICES=2,3
-```
 在Ascend设备上，用户应该创建一个像这样的`rank_table.json`：
 ```json
 Copy{

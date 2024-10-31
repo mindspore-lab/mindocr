@@ -2,7 +2,6 @@
 
 This document provides a tutorial on distributed parallel training.
 There are two ways to train on the Ascend AI processor: by running scripts with OpenMPI or configuring `RANK_TABLE_FILE` for training.
-On GPU processors, scripts can be run with OpenMPI for training.
 
 > Please ensure that the `distribute` parameter in the yaml file is set to `True` before running the following commands for distributed training.
 
@@ -12,8 +11,6 @@ On GPU processors, scripts can be run with OpenMPI for training.
     - [1.2 Configure RANK\_TABLE\_FILE for training](#12-configure-rank_table_file-for-training)
       - [1.2.1 Running on Eight (All) Devices](#121-running-on-eight-all-devices)
       - [1.2.2 Running on Four (Partial) Devices](#122-running-on-four-partial-devices)
-  - [2. GPU](#2-gpu)
-    - [2.1 Run scripts with OpenMPI](#21-run-scripts-with-openmpi)
 
 ## 1. Ascend
 
@@ -226,22 +223,3 @@ done
 ```
 
 Note that the `DEVICE_ID` and `RANK_ID` should be matched with `hccl_4p_4567_127.0.0.1.json`.
-
-## 2. GPU
-
-### 2.1 Run scripts with OpenMPI
-
-On GPU hardware platform, only OpenMPI's `mpirun` can be used for distributed training. The following command will run training on devices `0` and `1`.
-
-
-```shell
-# n is the number of GPUs used in training
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
-```
-
-In the case when users want to run training on `device 2` and `device 3`, users can run `export CUDA_VISIBLE_DEVICES=2,3` before running the command above, or run the following command:
-
-```shell
-# n is the number of GPUs used in training
-CUDA_VISIBLE_DEVICES=2,3 mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
-```

@@ -254,23 +254,17 @@ python tools/train.py -c=configs/det/dbnet/db_r50_icdar15.yaml
 
 * Distributed training
 
-In distributed training, `distribute` in yaml config file should be True. On both GPU and Ascend devices, users can use `mpirun` to launch distributed training. For example, using `device:0` and `device:1` to train:
+In distributed training, `distribute` in yaml config file should be True. On Ascend devices, users can use `mpirun` to launch distributed training. For example, using `device:0` and `device:1` to train:
 
 ```shell
-# n is the number of GPUs/NPUs
+# n is the number of NPUs
 mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
 
 Sometimes, users may want to specify the device ids to run distributed training, for example, `device:2` and `device:3`.
 
-
- On GPU devices, before running the `mpirun` command above, users can run the following command:
-
-```shell
-export CUDA_VISIBLE_DEVICES=2,3
-```
-
 On Ascend devices, users should create a `rank_table.json` like this:
+
 ```json
 Copy{
     "version": "1.0",
@@ -288,6 +282,7 @@ Copy{
 }
 
 ```
+
 To get the `device_ip` of the target device, run `cat /etc/hccn.conf` and look for the value of `address_x`, which is the ip address. More details can be found in [distributed training tutorial](distribute_train.md).
 
 ### 3.2 Evaluation
