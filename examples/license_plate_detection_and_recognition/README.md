@@ -195,7 +195,7 @@ python tools/dataset_converters/convert.py \
     └── train_det_gt.txt
 ```
 
-## Write the configuration file (see db_r50_ccpd.yaml for the complete configuration file)
+## Write the configuration file (Refer to db_r50_ccpd.yaml for the complete configuration file)
 
 1. Create a `db_r50_ccpd.yaml`​ file in the `mindocr/configs/det/dbnet`​ directory.
 2. Copy the contents of the `db_r50_ctw1500.yaml`​ file into the `db_r50_ccpd.yaml`​ file.
@@ -388,7 +388,7 @@ valid res:
 [2024-09-10 15:16:38] mindocr.eval INFO - Performance: {'acc': 0.00023000920191407204, 'norm_edit_distance': 0.5451045036315918}
 ```
 
-2. **Adjust ​`image_shape`**​: Set the 'img_size' of the 'model' section to [32, 80].
+2. **Adjust ​****`image_shape`**​: Set the 'img_size' of the 'model' section to [32, 80].
 
 ```java
 valid res:
@@ -415,7 +415,7 @@ valid res:
 [2024-09-10 23:01:26] mindocr.eval INFO - Performance: {'acc': 0.9795991778373718, 'norm_edit_distance': 0.995379626750946}
 ```
 
-5. **Modify ​`SVTRRecAug`**​: Set `aug_type`​ to 1 for stronger data augmentation from [svtr_transform.py](https://github.com/mindspore-lab/mindocr/blob/5fd78b46b42d40aeba01f72538699837594053b1/mindocr/data/transforms/svtr_transform.py#L354)​.
+5. **Modify ****​`SVTRRecAug`**​: Set `aug_type`​ to 1 for stronger data augmentation from [svtr_transform.py](https://github.com/mindspore-lab/mindocr/blob/5fd78b46b42d40aeba01f72538699837594053b1/mindocr/data/transforms/svtr_transform.py#L354)​.
 
 ```java
 valid res:
