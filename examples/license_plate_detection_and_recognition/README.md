@@ -159,7 +159,7 @@ pip install -e .
 
 ## Dataset preparation
 
-1. Place the `ccpd_train`​, `ccpd_test`​, and `ccpd_val`​ datasets into the `train`​, `test`​, and `val`​ directories under `images`​, respectively.
+1. Copy the `ccpd_train`​, `ccpd_test`​, and `ccpd_val`​ datasets into the `train`​, `test`​, and `val`​ directories under `images`​, respectively.
 
 2. Run the [script](https://github.com/mindspore-lab/mindocr/blob/main/docs/zh/datasets/ccpd.md) provided by MindOCR to convert the data annotation format:
 
