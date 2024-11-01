@@ -74,7 +74,7 @@ ads = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q'
 
 ## 环境要求
 
-硬件平台：Ascend、GPU
+硬件平台：Ascend 或 GPU
 
 软件平台：MindSpore 2.2.14
 
@@ -381,7 +381,7 @@ python tools/train.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml
 
 ### 训练策略
 
-1. 修改配置文件`loss`​下的`pred_seq_len`​为10
+1. 修改配置文件`loss`​部分的`pred_seq_len`​为10
 
 ```java
 valid res:
@@ -389,7 +389,7 @@ valid res:
 [2024-09-10 15:16:38] mindocr.eval INFO - Performance: {'acc': 0.00023000920191407204, 'norm_edit_distance': 0.5451045036315918}
 ```
 
-3. 将`image_shape`​调整为【32，80】等比例放缩
+3. 修改配置文件`model`部分的`img_size`为[32，80]
 
 ```java
 valid res:
@@ -398,7 +398,7 @@ valid res:
 [2024-09-10 19:14:02] mindocr.eval INFO - Performance: {'acc': 0.069402776658535, 'norm_edit_distance': 0.765773355960846}
 ```
 
-4. Resize策略：不考虑宽高比，直接将所有文本图像`resize`​到`32 * 100`​，`Resize`​时不使用`Padding`​ ； `max_text_length: 25`​
+4. Resize策略: 直接将所有文本图像`resize`​到`32 * 100`​,`Resize`​时不使用`Padding`​;`max_text_length`设置为25​;
 
 ```java
 valid res:
@@ -416,7 +416,7 @@ valid res:
 [2024-09-10 23:01:26] mindocr.eval INFO - Performance: {'acc': 0.9795991778373718, 'norm_edit_distance': 0.995379626750946}
 ```
 
-6. 修改`SVTRRecAug`​的`aug_type`​为1：应用更强的数据集增强方式。[svtr_transform.py](https://github.com/mindspore-lab/mindocr/blob/5fd78b46b42d40aeba01f72538699837594053b1/mindocr/data/transforms/svtr_transform.py#L354)
+6. 增加数据增强强度:修改`SVTRRecAug`​的`aug_type`​为1。SVTR数据增强代码[svtr_transform.py](https://github.com/mindspore-lab/mindocr/blob/5fd78b46b42d40aeba01f72538699837594053b1/mindocr/data/transforms/svtr_transform.py#L354)
 
 ```java
 valid res:
@@ -425,7 +425,7 @@ valid res:
 [2024-09-11 17:08:48] mindocr.eval INFO - Performance: {'acc': 0.9606783986091614, 'norm_edit_distance': 0.9910668730735779}
 ```
 
-7. ​`SVTRRecAug`​增加`deterioration_p: 0.5`​、`colorjitter_p: 0.5`​
+7. 增加数据增强强度：在​配置文件`SVTRRecAug`部分​增加`deterioration_p: 0.5`​、`colorjitter_p: 0.5`​
 
 ```java
 valid res:

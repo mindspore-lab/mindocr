@@ -75,7 +75,7 @@ Split the ccpd_base dataset into training, testing, and validation datasets acco
 
 ## Environmental requirements
 
-**Hardware platform:** Ascend, GPU
+**Hardware platform:** Ascend or GPU
 
 **Software platform:** MindSpore 2.2.14
 
@@ -109,7 +109,7 @@ Unzip the Openmpi source package:
 tar -xvf openmpi-4.0.3.tar.gz
 ```
 
-Navigate to the source root directory and run the configuration file to start the installation:
+Navigate to the source root directory and execute the configuration file to start the installation:
 
 ```shell
 cd openmpi-4.0.0/
@@ -221,7 +221,7 @@ dataset:
     label_file: train/train_det_gt.txt
 ```
 
-5. The default test IOU is 0.5, which is changed to 0.7
+5. Change the value of IOU from 0.5(default) to 0.7.
 
 Location of code:./mindocr/metrics/det_metrics.py 33
 
@@ -314,7 +314,7 @@ ads = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q'
        'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'O']
 ```
 
-## Configuration File Preparation(See the complete configuration file in `svtr_ccpd.yaml`​)
+## Configuration File Preparation(Refer to the complete configuration file in `svtr_ccpd.yaml`​)
 
 1. Copy the file `mindocr/configs/rec/svtr/svtr_tiny_ch.yaml`​ to a new file.
 2. Modify the following parameters in the new configuration file:
@@ -349,7 +349,7 @@ eval:
   ...
 ```
 
-4. In the `metric`​ section, add `lower: false`​:
+4. Add `lower: false`​ to the metric​ section​:
 
 ```yaml
 metric:
@@ -388,7 +388,7 @@ valid res:
 [2024-09-10 15:16:38] mindocr.eval INFO - Performance: {'acc': 0.00023000920191407204, 'norm_edit_distance': 0.5451045036315918}
 ```
 
-2. **Adjust ​**​**`image_shape`**​: Set to [32, 80] and scale proportionally.
+2. **Adjust ​`image_shape`**​: Set the 'img_size' of the 'model' section to [32, 80].
 
 ```java
 valid res:
@@ -415,7 +415,7 @@ valid res:
 [2024-09-10 23:01:26] mindocr.eval INFO - Performance: {'acc': 0.9795991778373718, 'norm_edit_distance': 0.995379626750946}
 ```
 
-5. **Modify ​**​**`SVTRRecAug`**​: Set `aug_type`​ to 1 for stronger data augmentation from `svtr_transform.py`​.
+5. **Modify ​`SVTRRecAug`**​: Set `aug_type`​ to 1 for stronger data augmentation from [svtr_transform.py](https://github.com/mindspore-lab/mindocr/blob/5fd78b46b42d40aeba01f72538699837594053b1/mindocr/data/transforms/svtr_transform.py#L354)​.
 
 ```java
 valid res:
