@@ -72,7 +72,7 @@ ads = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q'
 
 ## 环境要求
 
-硬件平台：Ascend
+硬件平台：Ascend、GPU
 
 软件平台：MindSpore 2.2.14
 
@@ -236,15 +236,15 @@ def __init__(self, min_iou: float = 0.7, min_intersect: float = 0.5):
 
 ```txt
 # 单卡训练，容易爆内存
-python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend
+python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target GPU
 # 多卡训练，需要正确安装opemmpi和使用root权限
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend
+mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target GPU
 ```
 
 ## 测试
 
 ```txt
-python tools/eval.py -c=configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend
+python tools/eval.py -c=configs/det/dbnet/db_r50_ccpd.yaml --device_target GPU
 ```
 
 验证集测试结果：
@@ -373,7 +373,7 @@ metric:
 ## 训练
 
 ```txt
-# CPU/Ascend 设备上的单卡训练
+# CPU/CPU/Ascend 设备上的单卡训练
 python tools/train.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml
 ```
 
