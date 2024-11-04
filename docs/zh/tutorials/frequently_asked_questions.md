@@ -99,7 +99,7 @@
 
   该错误是`mindspore_lite`tar包中的`libascend_kernel plugin.so`未加入到环境变量`LD_LIBRARY_PATH`导致，解决方法如下
 
-  1. 查看是否安装了`mindspore_lite`的**云侧推理工具包**。如果未安装，请从 [工具包tar.gz、whl包下载链接](https://gitee.com/link?target=https%3A%2F%2Fwww.mindspore.cn%2Flite%2Fdocs%2Fzh-CN%2Fmaster%2Fuse%2Fdownloads.html)，下载Ascend版的云侧版本`tar.gz`包以及`whl`包安装，详细请见 [mindspore lite 安装](https://gitee.com/mindspore-lab/mindocr/blob/main/docs/cn/inference/environment.md)。
+  1. 查看是否安装了`mindspore_lite`的**云侧推理工具包**。如果未安装，请从 [工具包tar.gz、whl包下载链接](https://gitee.com/link?target=https%3A%2F%2Fwww.mindspore.cn%2Flite%2Fdocs%2Fzh-CN%2Fmaster%2Fuse%2Fdownloads.html)，下载Ascend版的云侧版本`tar.gz`包以及`whl`包安装，详细请见 [mindspore lite 安装](../inference/environment.md)。
 
   2. 找到`mindspore_lite`的安装路径，如路径为`/your_path_to/mindspore-lite`，cd到该目录下
 

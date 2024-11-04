@@ -1,6 +1,6 @@
 # 分布式并行训练
 
-本文档提供分布式并行训练的教程，在Ascend处理器上有两种方式可以进行单机多卡训练，通过OpenMPI运行脚本或通过配置RANK_TABLE_FILE进行单机多卡训练。在GPU处理器上可通过OpenMPI运行脚本进行单机多卡训练。
+本文档提供分布式并行训练的教程，在Ascend处理器上有两种方式可以进行单机多卡训练，通过OpenMPI运行脚本或通过配置RANK_TABLE_FILE进行单机多卡训练。
 
 > 请确保在运行以下命令进行分布式训练之前，将 `yaml` 文件中的 `distribute` 参数设置为 `True`。
 
@@ -10,8 +10,6 @@
     - [1.2 配置RANK\_TABLE\_FILE进行训练](#12-配置rank_table_file进行训练)
       - [1.2.1 使用八个（全部）设备进行训练](#121-使用八个全部设备进行训练)
       - [1.2.2 使用四个（部分）设备进行训练](#122-使用四个部分设备进行训练)
-  - [2. GPU](#2-gpu)
-    - [2.1 通过OpenMPI运行脚本进行训练](#21-通过openmpi运行脚本进行训练)
 
 ## 1. Ascend
 
@@ -136,6 +134,7 @@ done
 当需要训练其他模型时，只要将脚本中的yaml config文件路径替换即可，即`python -u tools/train.py --config path/to/model_config.yaml`
 
 此时训练已经开始，可在`train.log`中查看训练日志。
+
 #### 1.2.2 使用四个（部分）设备进行训练
 
 要在四个设备上运行训练，例如，`{4, 5, 6, 7}`，`RANK_TABLE_FILE`和运行脚本与在八个设备上运行使用的文件有所不同。
@@ -147,6 +146,7 @@ python hccl_tools.py --device_num "[4,8)"
 ```
 
 输出为：
+
 ```
 hccl_4p_4567_127.0.0.1.json
 ```
@@ -218,22 +218,3 @@ done
 ```
 
 注意， `DEVICE_ID` 和 `RANK_ID` 的组合关系应该跟 `hccl_4p_4567_127.0.0.1.json` 文件中相吻合.
-
-## 2. GPU
-
-### 2.1 通过OpenMPI运行脚本进行训练
-
-在 GPU 硬件平台上，MindSpore也支持使用 `OpenMPI` 的 `mpirun` 命令来运行分布式训练。以下命令将在 `device 0`和 `device 1` 上运行训练。
-
-
-```shell
-# n 代表训练使用到的GPU数量
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
-```
-
-如果用户想在 `device 2` 和 `device 3` 上运行训练，用户可以在运行上面的命令之前运行 `export CUDA_VISIBLE_DEVICES=2,3`，或者直接运行以下命令：
-
-```shell
-# n 代表训练使用到的GPU数量
-CUDA_VISIBLE_DEVICES=2,3 mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
-```

@@ -134,7 +134,7 @@ python tools/train.py -c configs/cls/mobilenetv3/cls_mv3.yaml
 请确保yaml文件中的`distribute`参数为`True`。
 
 ```shell
-# n is the number of GPUs/NPUs
+# n is the number of NPUs
 mpirun --allow-run-as-root -n 4 python tools/train.py -c configs/cls/mobilenetv3/cls_mv3.yaml
 yaml
 ```

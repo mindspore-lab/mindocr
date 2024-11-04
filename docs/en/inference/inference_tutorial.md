@@ -178,7 +178,7 @@ word_1814.png  "cathay"
   | input_images_dir | str  | None    | Image or folder path for inference                       |
   | device           | str  | Ascend  | Device type, support Ascend                              |
   | device_id        | int  | 0       | Device id                                                |
-  | backend          | str  | lite    | Inference backend, support acl, lite                     |
+  | backend          | str  | lite    | Inference backend, support lite                     |
   | parallel_num     | int  | 1       | Number of parallel in each stage of pipeline parallelism |
   | precision_mode   | str  | None    | Precision mode, only supports setting by [Model Conversion](convert_tutorial.md) currently, and it takes no effect here |
 

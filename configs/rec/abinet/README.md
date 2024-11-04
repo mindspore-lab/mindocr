@@ -240,7 +240,7 @@ eval:
 ```
 
 **Notes:**
-- As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of GPUs/NPUs, or adjust the learning rate linearly to a new global batch size.
+- As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of NPUs, or adjust the learning rate linearly to a new global batch size.
 - Dataset: The MJSynth and SynthText datasets come from [ABINet_repo](https://github.com/FangShancheng/ABINet).
 
 
@@ -252,7 +252,7 @@ eval:
 It is easy to reproduce the reported results with the pre-defined training recipe. For distributed training on multiple Ascend 910 devices, please modify the configuration parameter `distribute` as True and run
 
 ```shell
-# distributed training on multiple GPU/Ascend devices
+# distributed training on multiple Ascend devices
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
 The pre-trained model needs to be loaded during ABINet model training, and the weight of the pre-trained model is
@@ -263,7 +263,7 @@ from https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_pretrain_en-82
 If you want to train or finetune the model on a smaller dataset without distributed training, please modify the configuration parameter`distribute` as False and run:
 
 ```shell
-# standalone training on a CPU/GPU/Ascend device
+# standalone training on a CPU/Ascend device
 python tools/train.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
 

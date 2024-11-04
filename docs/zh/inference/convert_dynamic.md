@@ -97,7 +97,7 @@ python converter.py \
 | input_shape | 无          | 是   | 模型输入shape，NCHW格式                 |
 | data_path   | 无          | 否   | 数据集或标注文件的路径                  |
 | input_name  | x           | 否   | 模型的输入名                            |
-| backend     | lite         | 否   | 转换工具, lite或者acl                  |
+| backend     | lite        | 否   | 转换工具                 |
 | output_path | ./output    | 否   | 输出模型保存文件夹                      |
 | soc_version | Ascend310P3 | 否   | Ascend的soc型号，Ascend310P3或Ascend310 |
 

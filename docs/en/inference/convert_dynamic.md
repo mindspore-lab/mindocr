@@ -110,7 +110,7 @@ The output is a single MindIR model: `model_static.mindir`
 | input_shape | None        | Y        | model input shape, NCHW format                   |
 | data_path   | None        | N        | Path to image folder or annotation file          |
 | input_name  | x           | N        | model input name                                 |
-| backend     | lite         | N        | converter backend, lite or acl                  |
+| backend     | lite        | N        | converter backend                                |
 | output_path | ./output    | N        | Path to output model                             |
 | soc_version | Ascend310P3 | N        | soc_version for Ascend，Ascend310P3 or Ascend310 |
 

@@ -9,8 +9,8 @@ nav:
 #  - Installation: installation.md
   - Model Zoo:
     - Training: mkdocs/modelzoo_training.md
-    - Inference - MindOCR Models: inference/inference_quickstart.md
-    - Inference - Third-party Models: inference/inference_thirdparty_quickstart.md
+    - Inference - MindOCR Models: inference/mindocr_models_list.md
+    - Inference - Third-party Models: inference/thirdparty_models_list.md
   - Tutorials:
     - 1. Datasets:
         - Dataset Preparation: datasets/converters.md
@@ -23,7 +23,7 @@ nav:
         - Advance Training: tutorials/advanced_train.md
     - 3. Inference and Deployment:
         - Python Online Inference: mkdocs/online_inference.md
-        - Python/C++ Inference on Ascend 310: inference/inference_tutorial.md
+        - MindOCR Offline Inference: inference/inference_tutorial.md
         - MindOCR Models List: inference/mindocr_models_list.md
         - Third-party Models List: inference/thirdparty_models_list.md
         - Model Conversion: inference/convert_tutorial.md
@@ -173,7 +173,7 @@ plugins:
             Advance Training: 进阶训练
             3. Inference and Deployment: 3. 推理和部署
             Python Online Inference: 基于Python的在线推理
-            Python/C++ Inference on Ascend 310: 基于Python/C++和昇腾310的推理
+            MindOCR Offline Inference: MindOCR 离线推理
             MindOCR Models List: MindOCR模型支持列表
             Third-party Models List: 第三方模型支持列表
             Model Conversion: 模型转换
