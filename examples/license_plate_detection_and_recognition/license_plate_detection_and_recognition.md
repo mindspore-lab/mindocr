@@ -373,7 +373,7 @@ metric:
 ## 训练
 
 ```txt
-# CPU/CPU/Ascend 设备上的单卡训练
+# CPU/GPU/Ascend 设备上的单卡训练
 python tools/train.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml
 ```
 
