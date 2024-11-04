@@ -34,6 +34,7 @@ def show_img(img: np.array, is_bgr_img=True, title="img", show=True, save_path=N
     if show:
         plt.show()
     if save_path is not None:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path)  # , bbox_inches='tight', dpi=460)
 
 
@@ -73,6 +74,7 @@ def show_imgs(
         plt.show()
 
     if save_path is not None:
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, bbox_inches="tight", dpi=300, pad_inches=0)
 
 
