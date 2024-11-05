@@ -30,30 +30,36 @@ Table Format:
 - Download: url of the pretrained model weights. Use absolute url path.
 -->
 
+
+ ### Requirements
+
+| mindspore | ascend driver | firmware     | cann toolkit/kernel
+|:----------|:---           | :--          |:--
+| 2.3.1     | 24.1.RC2      | 7.3.0.1.231  | 8.0.RC2.beta1
+
 ### Accuracy
 
 According to our experiments, the evaluation results on public benchmark datasets (IC03, IC13, IC15, IIIT, SVT, SVTP, CUTE) is as follow:
 
-<details>
-  <summary>Performance tested on ascend 910 with graph mode</summary>
+#### Performance tested on ascend 910 with graph mode
 
-  <div align="center">
+<div align="center">
 
-  | **Model** | **Device Card** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
-  | :-----: |:---------------:| :--------------: | :----------: | :--------: | :--------: |:----------: |
-  | SVTR-Tiny      |       4P        | 90.23%    | 3638 s/epoch       | 4560 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3-86ece8c8.mindir) |
-  | SVTR-Tiny-8P |       8P        |  90.32%   | 1646 s/epoch |  9840   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \| [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir)  |
-  </div>
+| **Model** | **Cards** | **Avg Accuracy** | **Batch size** | **graph compile** |**jit level** | **Step Time** | **FPS** | **Recipe** | **Download** |
+| :-----: |:---------:| :--------------: |:--------------:|:-----------------:|:-----------------:|:-------------:| :--------: | :--------: |:----------: |
+| SVTR-Tiny      |     4     | 90.23%    |      512       |     226.86 s      |O2| 49.38 ms/step | 4560 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3-86ece8c8.mindir) |
+| SVTR-Tiny-8P |     8     |  90.32%   |      512       |     226.86 s      |O2| 55.16 ms/step |       9840        | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \| [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir) |
+</div>
 
-  Detailed accuracy results for each benchmark dataset
-  <div align="center">
+Detailed accuracy results for each benchmark dataset
+<div align="center">
 
-  | **Model** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
-  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-  | SVTR-Tiny  | 95.70% | 95.50% | 95.33% | 93.99% | 83.60% | 79.83% | 94.70% | 91.96% | 85.58% | 86.11% | 90.23% |
-  | SVTR-Tiny-8P |    95.93%    |    95.62%    |    95.33%    |    93.89%     |    84.32%     |    80.55%     |     94.33%      | 90.57%  |  86.20%  |   86.46%   |   90.32%   |
-  </div>
-</details>
+| **Model** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
+| :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
+| SVTR-Tiny  | 95.70% | 95.50% | 95.33% | 93.99% | 83.60% | 79.83% | 94.70% | 91.96% | 85.58% | 86.11% | 90.23% |
+| SVTR-Tiny-8P |    95.93%    |    95.62%    |    95.33%    |    93.89%     |    84.32%     |    80.55%     |     94.33%      | 90.57%  |  86.20%  |   86.46%   |   90.32%   |
+</div>
+
 
 **Notes:**
 - Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x4-MS1.10-G is for training on 4 pieces of Ascend 910 NPU using graph mode based on Minspore version 1.10.
