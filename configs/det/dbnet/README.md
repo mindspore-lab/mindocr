@@ -89,7 +89,7 @@ DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total
 
 <details>
    <summary>Performance tested on ascend 910 with graph mode</summary>
-   
+
    ### ICDAR2015
 
    <div align="center">
@@ -163,7 +163,7 @@ DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total
 
 <details>
    <summary>Performance tested on ascend 910* with graph mode</summary>
-   
+
    ### ICDAR2015
 
    <div align="center">

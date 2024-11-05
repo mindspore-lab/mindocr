@@ -72,7 +72,7 @@ DBNet和DBNet++在ICDAR2015，MSRA-TD500，SCUT-CTW1500，Total-Text和MLT2017�
 
 <details>
    <summary>在采用图模式的ascend 910上测试性能</summary>
-   
+
    ### ICDAR2015
 
    <div align="center">
@@ -146,7 +146,7 @@ DBNet和DBNet++在ICDAR2015，MSRA-TD500，SCUT-CTW1500，Total-Text和MLT2017�
 
 <details>
    <summary>在采用图模式的ascend 910*上测试性能</summary>
-   
+
    ### ICDAR2015
 
    <div align="center">
