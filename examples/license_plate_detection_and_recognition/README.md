@@ -415,7 +415,7 @@ valid res:
 [2024-09-10 23:01:26] mindocr.eval INFO - Performance: {'acc': 0.9795991778373718, 'norm_edit_distance': 0.995379626750946}
 ```
 
-5. **Modify SVTRRecAug**​: Set `aug_type`​ to 1 for stronger data augmentation from [svtr_transform.py](https://github.com/mindspore-lab/mindocr/blob/5fd78b46b42d40aeba01f72538699837594053b1/mindocr/data/transforms/svtr_transform.py#L354)​.
+5. **Increase the intensity of data augmentation**​: Set the `aug_type`​ in the 'SVTRRecAug' section of the configuration file to 1​.
 
 ```java
 valid res:
@@ -424,7 +424,7 @@ valid res:
 [2024-09-11 17:08:48] mindocr.eval INFO - Performance: {'acc': 0.9606783986091614, 'norm_edit_distance': 0.9910668730735779}
 ```
 
-6. **Increase Augmentation Parameters**: Set `deterioration_p`​ and `colorjitter_p`​ to 0.5 in `SVTRRecAug`​.
+6. **Increase the intensity of data augmentation**: Set `deterioration_p`​ and `colorjitter_p`​ to 0.5 in the `SVTRRecAug` section of the configuration file​.
 
 ```java
 valid res:

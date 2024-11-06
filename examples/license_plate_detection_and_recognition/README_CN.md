@@ -416,7 +416,7 @@ valid res:
 [2024-09-10 23:01:26] mindocr.eval INFO - Performance: {'acc': 0.9795991778373718, 'norm_edit_distance': 0.995379626750946}
 ```
 
-6. 增加数据增强强度:修改`SVTRRecAug`​的`aug_type`​为1。SVTR数据增强代码[svtr_transform.py](https://github.com/mindspore-lab/mindocr/blob/5fd78b46b42d40aeba01f72538699837594053b1/mindocr/data/transforms/svtr_transform.py#L354)
+6. 增加数据增强强度:将​配置文件`SVTRRecAug`部分​的`aug_type`修改为1
 
 ```java
 valid res:
