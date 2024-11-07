@@ -33,42 +33,48 @@ Table Format:
 - Download: url of the pretrained model weights. Use absolute url path.
 -->
 
+### 环境信息
+
+| mindspore | ascend driver | firmware     | cann toolkit/kernel
+|:----------|:---           | :--          |:--
+| 2.3.1     | 24.1.RC2      | 7.3.0.1.231  | 8.0.RC2.beta1
+
+
 ### 训练端
 
 根据我们的实验，训练（[模型训练](#32-模型训练)）性能和精度评估（[模型评估](#33-模型评估)）结果如下：
 
-<details>
-  <summary>在采用图模式的ascend 910上测试性能</summary>
+#### 在采用图模式的ascend 910上测试性能
+
+<div align="center">
+
+| **Model** | **Cards** | **Backbone** | **Train Dataset** | **Model Params** | **Batch size** | **graph compile** | **jit level** | **Step Time** | **FPS** | **Avg Eval Accuracy** | **Recipe** | **Download** |
+| :-----: |:---------:| :-----: | :-----: | :-----: | :-----: |:-----------------:|:-------:|:-------------:| :-----: | :-----: | :-----: | :-----: |
+| CRNN      |     8     | VGG7 | MJ+ST | 8.72 M | 16 |      67.18 s      | O2| 22.06 ms/step | 5802.71 | 82.03%  | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)  | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-573dbd61.mindir)   |
+| CRNN      |     8     | ResNet34_vd | MJ+ST | 24.48 M | 64 |     201.54 s      | O2| 76.48 ms/step | 6694.84 | 84.45% | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-eb10a0c9.mindir) |
+</div>
+
+- 在各个基准数据集（IC03，IC13，IC15，IIIT，SVT，SVTP，CUTE）上的准确率：
 
   <div align="center">
 
-  | **模型** | **环境配置** | **骨干网络** | **训练集** | **参数量** | **单卡批量** | **图模式8卡训练 (s/epoch)** | **图模式8卡训练 (ms/step)** | **图模式8卡训练 (FPS)** | **平均评估精度** | **配置文件** | **模型权重下载** |
-  | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
-  | CRNN      | D910x8-MS1.8-G | VGG7 | MJ+ST | 8.72 M | 16 |  2488.82 | 22.06 | 5802.71 | 82.03%  | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)     | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-573dbd61.mindir) |
-  | CRNN      | D910x8-MS1.8-G | ResNet34_vd | MJ+ST | 24.48 M | 64 |  2157.18 | 76.48 | 6694.84 | 84.45% | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-eb10a0c9.mindir) |
+  | **Model** | **Backbone** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
+  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
+  | CRNN | VGG7 | 94.53% | 94.00% | 92.18% | 90.74% | 71.95% | 66.06% | 84.10% | 83.93% | 73.33% | 69.44% | 82.03% |
+  | CRNN | ResNet34_vd | 94.42% | 94.23% | 93.35% | 92.02% | 75.92% | 70.15% | 87.73% | 86.40% | 76.28% | 73.96% | 84.45% |
   </div>
 
-  - 在各个基准数据集（IC03，IC13，IC15，IIIT，SVT，SVTP，CUTE）上的准确率：
 
-    <div align="center">
 
-    | **模型** | **骨干网络** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **平均准确率** |
-    | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-    | CRNN | VGG7 | 94.53% | 94.00% | 92.18% | 90.74% | 71.95% | 66.06% | 84.10% | 83.93% | 73.33% | 69.44% | 82.03% |
-    | CRNN | ResNet34_vd | 94.42% | 94.23% | 93.35% | 92.02% | 75.92% | 70.15% | 87.73% | 86.40% | 76.28% | 73.96% | 84.45% |
-    </div>
-</details>
+#### 在采用图模式的ascend 910*上测试性能
 
-<details>
-  <summary>在采用图模式的ascend 910*上测试性能</summary>
+<div align="center">
 
-  <div align="center">
+| **Model** | **Cards** | **Backbone** | **Train Dataset** | **Model Params** | **Batch size** | **graph compile** | **jit level** | **Step Time** | **FPS** | **Avg Eval Accuracy** | **Recipe** | **Download** |
+| :-----: |:---------:| :-----: | :-----: | :-----: | :-----: |:-----------------:|:----------------------------:|:-------------:|:------------------------:|:---------------------:| :-----: | :-----: |
+| CRNN      |     8     | VGG7 | MJ+ST | 8.72 M | 16 |      94.36 s      | O2| 14.76 ms/step |         8672.09          |        81.31%         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)  | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/crnn/crnn_vgg7-6faf1b2d-910v2.ckpt)|
+</div>
 
-  | **模型** | **设备卡数** | **骨干网络** | **训练集** | **参数量** | **单卡批量** | **图模式8卡训练 (s/epoch)** | **Graph train 8P (ms/step)** | **图模式8卡训练 (FPS)** | **平均评估精度** | **配置文件** | **模型权重下载** |
-  |:------:|:--------:|:--------:|:-------:|:-------:|:--------:| :-----: |:----------------------------:|:------------------------:|:---------------------:| :-----: | :-----: |
-  |  CRNN  |    8P    |   VGG7   |  MJ+ST  | 8.72 M  |    16    |  2488.82 |            14.76             |         8672.09          |        81.31%         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)  | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/crnn/crnn_vgg7-6faf1b2d-910v2.ckpt)   |
-  </div>
-</details>
 
 ### 推理端
 
@@ -301,7 +307,7 @@ eval:
 ```
 
 **注意:**
-- 由于全局批大小 （batch_size x num_devices） 是对结果复现很重要，因此当GPU/NPU卡数发生变化时，调整`batch_size`以保持全局批大小不变，或根据新的全局批大小线性调整学习率。
+- 由于全局批大小 （batch_size x num_devices） 是对结果复现很重要，因此当NPU卡数发生变化时，调整`batch_size`以保持全局批大小不变，或根据新的全局批大小线性调整学习率。
 
 
 ### 3.2 模型训练
@@ -312,7 +318,7 @@ eval:
 使用预定义的训练配置可以轻松重现报告的结果。对于在多个昇腾910设备上的分布式训练，请将配置参数`system.distribute`修改为True，并运行：
 
 ```shell
-# 在多个 GPU/Ascend 设备上进行分布式训练
+# 在多个 Ascend 设备上进行分布式训练
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
@@ -322,7 +328,7 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/
 如果要在没有分布式训练的情况下在较小的数据集上训练或微调模型，请将配置参数`system.distribute`修改为False 并运行：
 
 ```shell
-# CPU/GPU/Ascend 设备上的单卡训练
+# CPU/Ascend 设备上的单卡训练
 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
@@ -378,7 +384,7 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 
 我们采用公开的中文基准数据集[Benchmarking-Chinese-Text-Recognition](https://github.com/FudanVI/benchmarking-chinese-text-recognition)进行CRNN模型的训练和验证。
 
-详细的数据准备和config文件配置方式, 请参考 [中文识别数据集准备](../../../docs/cn/datasets/chinese_text_recognition.md)
+详细的数据准备和config文件配置方式, 请参考 [中文识别数据集准备](../../../docs/zh/datasets/chinese_text_recognition.md)
 
 ### 模型训练验证
 
@@ -404,16 +410,16 @@ mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/crnn/
 
 
 ### 使用自定义数据集进行训练
-您可以在自定义的数据集基于提供的预训练权重进行微调训练, 以在特定场景获得更高的识别准确率，具体步骤请参考文档 [使用自定义数据集训练识别网络](../../../docs/cn/tutorials/training_recognition_custom_dataset_CN.md)。
+您可以在自定义的数据集基于提供的预训练权重进行微调训练, 以在特定场景获得更高的识别准确率，具体步骤请参考文档 [使用自定义数据集训练识别网络](../../../docs/zh/tutorials/training_recognition_custom_dataset_CN.md)。
 
 
 ## 6. MindSpore Lite 推理
 
-请参考[MindOCR 推理](../../../docs/cn/inference/inference_tutorial.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
+请参考[MindOCR 推理](../../../docs/zh/inference/inference_tutorial.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
 
 **1. 模型导出**
 
-请先[下载](#2-评估结果)已导出的MindIR文件，或者参考[模型导出](../../README.md)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
+请先[下载](#2-评估结果)已导出的MindIR文件，或者参考[模型导出](../../../docs/zh/inference/convert_tutorial.md#1-模型导出)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
 
 ```shell
 python tools/export.py --model_name_or_config crnn_resnet34 --data_shape 32 100 --local_ckpt_path /path/to/local_ckpt.ckpt
@@ -425,11 +431,11 @@ python tools/export.py --model_name_or_config configs/rec/crnn/crnn_resnet34.yam
 
 **2. 环境搭建**
 
-请参考[环境安装](../../../docs/cn/inference/environment.md#2-mindspore-lite推理)教程，配置MindSpore Lite推理运行环境。
+请参考[环境安装](../../../docs/zh/inference/environment.md)教程，配置MindSpore Lite推理运行环境。
 
 **3. 模型转换**
 
-请参考[模型转换](../../../docs/cn/inference/convert_tutorial.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换。
+请参考[模型转换](../../../docs/zh/inference/convert_tutorial.md#2-mindspore-lite-mindir-转换)教程，使用`converter_lite`工具对MindIR模型进行离线转换。
 
 **4. 执行推理**
 

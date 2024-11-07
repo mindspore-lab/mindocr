@@ -38,13 +38,12 @@ MindOCR是一个基于[MindSpore](https://www.mindspore.cn/en) 框架开发的OC
 
 以下是对应的“mindocr”版本和支持 Mindspore 版本。
 
-| `mindspore` | `mindocr` | `测试硬件`
-| :--:| :--:|:-------------------|
-| `master`  | `master`| `ascend 910*`      |
-| `2.3.0`   | `0.4`  | `ascend 910*`      |
-| `2.2.10`  | `0.3` | `ascend 910, 910*` |
-| `2.0`     | `0.2` | `ascend 910`       |
-| `1.8`     | `0.1`  | `ascend 910`       |
+| mindocr |  mindspore  |
+|:-------:|:-----------:|
+| master  |   master    |
+|   0.4   | 2.3.1/2.3.0 |
+|   0.3   |   2.2.10    |
+|   0.1   |     1.8     |
 
 
 ## 安装教程

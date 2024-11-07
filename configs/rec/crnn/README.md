@@ -33,41 +33,44 @@ Table Format:
 - Download: url of the pretrained model weights. Use absolute url path.
 -->
 
+### Requirements
+
+| mindspore | ascend driver | firmware     | cann toolkit/kernel
+|:----------|:---           | :--          |:--
+| 2.3.1     | 24.1.RC2      | 7.3.0.1.231  | 8.0.RC2.beta1
+
 ### Training Perf.
 
 According to our experiments, the training (following the steps in [Model Training](#32-model-training)) performance and evaluation (following the steps in [Model Evaluation](#33-model-evaluation)) accuracy are as follows:
 
-<details>
-  <summary>Performance tested on ascend 910 with graph mode</summary>
+#### Performance tested on ascend 910 with graph mode
 
+<div align="center">
+
+| **Model** | **Cards** | **Backbone** | **Train Dataset** | **Model Params** | **Batch size** | **graph compile** | **jit level** | **Step Time** | **FPS** | **Avg Eval Accuracy** | **Recipe** | **Download** |
+| :-----: |:---------:| :-----: | :-----: | :-----: | :-----: |:-----------------:|:-------:|:-------------:| :-----: | :-----: | :-----: | :-----: |
+| CRNN      |     8     | VGG7 | MJ+ST | 8.72 M | 16 |      67.18 s      | O2| 22.06 ms/step | 5802.71 | 82.03%  | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)  | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-573dbd61.mindir)   |
+| CRNN      |     8     | ResNet34_vd | MJ+ST | 24.48 M | 64 |     201.54 s      | O2| 76.48 ms/step | 6694.84 | 84.45% | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-eb10a0c9.mindir) |
+</div>
+
+- Detailed accuracy results for each benchmark dataset (IC03, IC13, IC15, IIIT, SVT, SVTP, CUTE):
   <div align="center">
 
-  | **Model** | **Device Card** | **Backbone** | **Train Dataset** | **Model Params** | **Batch size per card** | **Graph train 8P (s/epoch)** | **Graph train 8P (ms/step)** | **Graph train 8P (FPS)** | **Avg Eval Accuracy** | **Recipe** | **Download** |
-  | :-----: |:----------:| :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: |
-  | CRNN      |     8P     | VGG7 | MJ+ST | 8.72 M | 16 |  2488.82 | 22.06 | 5802.71 | 82.03%  | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)  | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-573dbd61.mindir)   |
-  | CRNN      |     8P     | ResNet34_vd | MJ+ST | 24.48 M | 64 |  2157.18 | 76.48 | 6694.84 | 84.45% | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-eb10a0c9.mindir) |
+  | **Model** | **Backbone** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
+  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
+  | CRNN | VGG7 | 94.53% | 94.00% | 92.18% | 90.74% | 71.95% | 66.06% | 84.10% | 83.93% | 73.33% | 69.44% | 82.03% |
+  | CRNN | ResNet34_vd | 94.42% | 94.23% | 93.35% | 92.02% | 75.92% | 70.15% | 87.73% | 86.40% | 76.28% | 73.96% | 84.45% |
   </div>
 
-  - Detailed accuracy results for each benchmark dataset (IC03, IC13, IC15, IIIT, SVT, SVTP, CUTE):
-    <div align="center">
 
-    | **Model** | **Backbone** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
-    | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-    | CRNN | VGG7 | 94.53% | 94.00% | 92.18% | 90.74% | 71.95% | 66.06% | 84.10% | 83.93% | 73.33% | 69.44% | 82.03% |
-    | CRNN | ResNet34_vd | 94.42% | 94.23% | 93.35% | 92.02% | 75.92% | 70.15% | 87.73% | 86.40% | 76.28% | 73.96% | 84.45% |
-    </div>
-</details>
+#### Performance tested on ascend 910* with graph mode
+<div align="center">
 
+| **Model** | **Cards** | **Backbone** | **Train Dataset** | **Model Params** | **Batch size** | **graph compile** | **jit level** | **Step Time** | **FPS** | **Avg Eval Accuracy** | **Recipe** | **Download** |
+| :-----: |:---------:| :-----: | :-----: | :-----: | :-----: |:-----------------:|:----------------------------:|:-------------:|:------------------------:|:---------------------:| :-----: | :-----: |
+| CRNN      |     8     | VGG7 | MJ+ST | 8.72 M | 16 |      94.36 s      | O2| 14.76 ms/step |         8672.09          |        81.31%         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)  | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/crnn/crnn_vgg7-6faf1b2d-910v2.ckpt)|
+</div>
 
-<details>
-  <summary>Performance tested on ascend 910* with graph mode</summary>
-  <div align="center">
-
-  | **Model** | **Device Card** | **Backbone** | **Train Dataset** | **Model Params** | **Batch size per card** | **Graph train 8P (s/epoch)** | **Graph train 8P (ms/step)** | **Graph train 8P (FPS)** | **Avg Eval Accuracy** | **Recipe** | **Download** |
-  | :-----: |:---------------:| :-----: | :-----: | :-----: | :-----: | :-----: |:----------------------------:|:------------------------:|:---------------------:| :-----: | :-----: |
-  | CRNN      |       8P        | VGG7 | MJ+ST | 8.72 M | 16 |  2488.82 |            14.76             |         8672.09          |        81.31%         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)  | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/crnn/crnn_vgg7-6faf1b2d-910v2.ckpt)|
-  </div>
-</details>
 
 
 ### Inference Perf.
@@ -302,7 +305,7 @@ eval:
 ```
 
 **Notes:**
-- As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of GPUs/NPUs, or adjust the learning rate linearly to a new global batch size.
+- As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of NPUs, or adjust the learning rate linearly to a new global batch size.
 
 
 ### 3.2 Model Training
@@ -313,7 +316,7 @@ eval:
 It is easy to reproduce the reported results with the pre-defined training recipe. For distributed training on multiple Ascend 910 devices, please modify the configuration parameter `system.distribute` as True and run
 
 ```shell
-# distributed training on multiple GPU/Ascend devices
+# distributed training on multiple Ascend devices
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
@@ -323,7 +326,7 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/crnn/
 If you want to train or finetune the model on a smaller dataset without distributed training, please modify the configuration parameter`system.distribute` as False and run:
 
 ```shell
-# standalone training on a CPU/GPU/Ascend device
+# standalone training on a CPU/Ascend device
 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
 
@@ -412,7 +415,7 @@ To inference with MindSpot Lite on Ascend 310, please refer to the tutorial [Min
 
 **1. Model Export**
 
-Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../README.md) tutorial and use the following command to export the trained ckpt model to  MindIR file:
+Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../../docs/en/inference/convert_tutorial.md#1-model-export) tutorial and use the following command to export the trained ckpt model to  MindIR file:
 
 ```shell
 python tools/export.py --model_name_or_config crnn_resnet34 --data_shape 32 100 --local_ckpt_path /path/to/local_ckpt.ckpt
@@ -425,11 +428,11 @@ The `data_shape` is the model input shape of height and width for MindIR file. T
 
 **2. Environment Installation**
 
-Please refer to [Environment Installation](../../../docs/en/inference/environment.md#2-mindspore-lite-inference) tutorial to configure the MindSpore Lite inference environment.
+Please refer to [Environment Installation](../../../docs/en/inference/environment.md) tutorial to configure the MindSpore Lite inference environment.
 
 **3. Model Conversion**
 
-Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#1-mindocr-models),
+Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#2-mindspore-lite-mindir-convert),
 and use the `converter_lite` tool for offline conversion of the MindIR file.
 
 **4. Inference**
