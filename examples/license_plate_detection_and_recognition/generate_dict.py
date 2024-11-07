@@ -103,5 +103,5 @@ unique_characters = set(provinces + alphabets + ads)
 unique_dict = {char: index for index, char in enumerate(sorted(unique_characters))}
 with open("ccpd.txt", "w", encoding="utf-8") as file:
     for char, index in unique_dict.items():
-        line = f"{char}:{index}\n"
+        line = f"{char}\n"
         file.write(line)

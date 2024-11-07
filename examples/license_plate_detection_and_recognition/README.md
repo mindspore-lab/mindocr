@@ -1,60 +1,63 @@
-# 基于MindOCR的车牌识别
+English | [中文](./README_CN.md)
 
-# 数据集处理
+# License plate recognition based on MindOCR
 
-## 数据集介绍
+# Dataset processing
 
-由于没有公开可用的大型多样化数据集，当前大多数的车牌检测和识别方法都是在一些小且通常不具代表性的数据集进行评估。本文提出了一种大型且全面的车牌数据集CCPD，该数据集的所有图像都是由路边停车管理公司的工人手工拍摄并仔细标注的。CCPD是迄今为止最大的公开可用车牌数据集,拥有超过25万张独特的汽车图像,并且是唯一提供顶点位置标注的数据集。本文基于CCPD提出了一种新颖的网络模型,可以同时以高速和高精度预测边界框并识别相应的车牌号码。
+## Dataset Introduction
 
-论文：[Towards End-to-End License Plate Detection and Recognition: A Large Dataset and Baseline](https://openaccess.thecvf.com/content_ECCV_2018/papers/Zhenbo_Xu_Towards_End-to-End_License_ECCV_2018_paper.pdf)
+Due to the lack of publicly available large and diverse datasets, most current license plate detection and recognition methods are evaluated on small and often unrepresentative datasets. This paper propose a large and comprehensive license plate dataset, CCPD, where all images are manually captured and carefully annotated by workers from a roadside parking management company. CCPD is the largest publicly available license plate dataset to date, with more than 250,000 unique car images, and the only dataset that provides vertex position annotations.
 
-代码仓库：[https://github.com/detectRecog/CCPD](https://github.com/detectRecog/CCPD)
+Paper: [Towards End-to-End License Plate Detection and Recognition: A Large Dataset and Baseline](https://openaccess.thecvf.com/content_ECCV_2018/papers/Zhenbo_Xu_Towards_End-to-End_License_ECCV_2018_paper.pdf)
 
-## 数据集下载
+Code repository: [https://github.com/detectRecog/CCPD](https://github.com/detectRecog/CCPD)
 
-从Google云盘中或百度网盘中下载数据集：
+## Dataset Download
+
+Download the dataset from Google Drive or Baidu Cloud Drive:
 
 * [Google Drive](https://drive.google.com/open?id=1rdEsCUcIUaYOVRkx5IMTRNA7PcGMmSgc)
 * [BaiduYun Drive(code: hm0u)](https://pan.baidu.com/s/1i5AOjAbtkwb17Zy-NQGqkw)
 
-解压数据集到CCPD_Tutorial/datasets目录下：
+Unzip the dataset into the CCPD_Tutorial/datasets directory:
 
 ```txt
-解压命令：
+Decompression Command:
 tar xf CCPD2019.tar.xz
-目录结构：
+
+Directory Structure:
 CCPD_Tutorial
 └── datasets
-    └── CCPD2019                  #  图片数      说明
-        ├── ccpd_base             #  199997	  正常车牌
-        ├── ccpd_blur             #  20612	  模糊的车牌
-        ├── ccpd_challenge		  #  50004	  比较有挑战性的车牌
-        ├── ccpd_db				  #  10133	  光线较暗或较亮
-        ├── ccpd_fn               #  20968	  距离摄像头较远或较近
-        ├── ccpd_np               #  3036	  没上牌的新车
-        ├── ccpd_rotate           #  10054	  水平倾斜20-50°，垂直倾斜-10-10°
-        ├── ccpd_tilt             #  30271	  水平倾斜15-45°，垂直倾斜15-45°
-        ├── ccpd_weather          #  10000	  雨天、雪天或者雾天的车牌
+    └── CCPD2019                  #  Number of Images      Description
+        ├── ccpd_base             #  199997                Normal License Plates
+        ├── ccpd_blur             #  20612                 Blurred License Plates
+        ├── ccpd_challenge        #  50004                 Challenging License Plates
+        ├── ccpd_db               #  10133                 Poorly Lit or Overexposed
+        ├── ccpd_fn               #  20968                 Far or Close to Camera
+        ├── ccpd_np               #  3036                  New Cars Without Plates
+        ├── ccpd_rotate           #  10054                 Horizontal Tilt 20-50°, Vertical Tilt -10-10°
+        ├── ccpd_tilt             #  30271                 Horizontal Tilt 15-45°, Vertical Tilt 15-45°
+        ├── ccpd_weather          #  10000                 License Plates in Rain, Snow, or Fog
         ├── LICENSE
         ├── README.md
         └── splits
 ```
 
-## 数据集标注
+## Dataset Annotation
 
-CCPD数据集没有专门的标注文件，每张图像的文件名就是对应的数据标注（label）。
+The CCPD dataset does not have a dedicated annotation file. The file name of each image is the corresponding data label.
 
-例如 : 025-95_113-154&383_386&473-386&473_177&454_154&383_363&402-0_0_22_27_27_33_16-37-15.jpg由分隔符'-'分为七个部分:
+For example: 025-95_113-154&383_386&473-386&473_177&454_154&383_363&402-0_0_22_27_27_33_16-37-15.jpg is divided into seven parts by the separator '-':
 
-1. 面积 : 车牌面积与整个画面面积的面积比。025表示占比2.5%。
-2. 倾斜度 : 水平倾斜度和垂直倾斜度。95_113 对应两个角度, 水平95°, 竖直113°。
-3. 边界框坐标 : 左上和右下顶点的坐标。154&383_386&473对应边界框坐标:左上(154, 383), 右下(386, 473)。
-4. 四个顶点位置 : LP的四个顶点在整幅图像中的确切(x, y)坐标。这些坐标从右下角的顶点开始。386&473_177&454_154&383_363&402对应四个角点坐标。
-5. 车牌号码 : CCPD中的每个图像只有一个LP。每个LP号码由一个汉字、一个字母和五个字母或数字组成。有效的中国车牌由省份(1个字符)、字母(1个字符)、字母+数字(5个字符)7个字符组成。"0_0_22_27_27_33_16"是每个字符的索引。这三个数组的定义如下。每个数组的最后一个字符是字母O，而不是数字0。我们用O作为“无字符”的标志，因为中国车牌字符中没有O。
-6. 亮度:车牌区域的亮度。37表示亮度。
-7. 模糊性:车牌区域的模糊性。15表示模糊度。
+* **Area: ​**The ratio of the license plate area to the entire image area. 025 means 2.5%.
+* **Tilt: ​**Horizontal tilt and vertical tilt. 95_113 corresponds to two angles, horizontal 95° and vertical 113°.
+* **Bounding box coordinates:** The coordinates of the upper left and lower right vertices. 154&383_386&473 correspond to the bounding box coordinates: upper left (154, 383), lower right (386, 473).
+* **Four vertex positions:** The exact (x, y) coordinates of the four vertices of the LP in the entire image. These coordinates start from the vertex in the lower right corner. 386&473_177&454_154&383_363&402 correspond to the coordinates of the four corner points.
+* **License plate number:** There is only one LP for each image in CCPD. Each LP number consists of a Chinese character, a letter, and five letters or numbers. A valid Chinese license plate consists of 7 characters: province (1 character), letter (1 character), letter + number (5 characters). "0_0_22_27_27_33_16" is the index of each character. The three arrays are defined as follows. The last character of each array is the letter O, not the number 0. We use O as a sign of "no character" because there is no O in the Chinese license plate characters.
+* **Brightness: ​**The brightness of the license plate area. 37 indicates brightness.
+* **Blur:** The blurriness of the license plate area. 15 indicates blurriness.
 
-### 车牌字符映射数组
+## Map license plate character to array
 
 ```txt
 provinces = ["皖", "沪", "津", "渝", "冀", "晋", "蒙", "辽", "吉", "黑", "苏", "浙", "京", "闽", "赣", "鲁", "豫", "鄂", "湘", "粤", "桂", "琼", "川", "贵", "云", "藏", "陕", "甘", "青", "宁", "新", "警", "学", "O"]
@@ -64,90 +67,87 @@ ads = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q'
        'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'O']
 ```
 
-## 数据集分割
+## Dataset Partitioning
 
-根据spilt文件夹中的train.txt、test.txt和val.txt对ccpd_base数据集进行分割，分割出训练数据集、测试数据集和验证数据集。分割代码见spilt.py。
+Split the ccpd_base dataset into training, testing, and validation datasets according to the train.txt, test.txt, and val.txt files in the splits folder. The splitting code can be found in split.py.
 
-# [MindOCR环境安装](https://github.com/mindspore-lab/mindocr)
+# [MindOCR environment installation](https://github.com/mindspore-lab/mindocr)
 
-## 环境要求
+## Environmental requirements
 
-硬件平台：Ascend、GPU
+**Hardware platform:** Ascend or GPU
 
-软件平台：MindSpore 2.2.14
+**Software platform:** MindSpore 2.2.14
 
-## 安装步骤
+## Installation steps
 
-### 安装环境依赖
+### Installation environment dependencies
 
-1. conda创建虚拟环境
+1. Creating a Virtual Environment with Conda
 
-```txt
+```shell
 conda create -n mindspore2.2.14_mindocr python=3.9
 ```
 
-2. [安装MindSpore 2.2.14](https://www.mindspore.cn/install/)
-
-选择mindspore的版本为2.2.14，以及适配的CUDA版本获取安装命令。
+2. [Installing MindSpore 2.2.14](https://www.mindspore.cn/install/)
 
 ​![image](pic/install_mindspore.png)​
 
-```txt
+```shell
 pip install https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.2.14/MindSpore/unified/x86_64/mindspore-2.2.14-cp39-cp39-linux_x86_64.whl --trusted-host ms-release.obs.cn-north-4.myhuaweicloud.com -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 
-3. [安装openmpi 4.0.3](https://www.open-mpi.org/software/ompi/v4.0/) (for distributed training/evaluation)【为了分布式的训练和评估，如不需要分布式训练，可跳过】
+3. [Install openmpi 4.0.3](https://www.open-mpi.org/software/ompi/v4.0/) (For distributed training and evaluation, if distributed training is not required, you can skip it)
 
-在openmpi下载官网找到4.0.3版本，下载tar.gz文件解压到项目相关文件夹
+Find version 4.0.3 on the openmpi official website, download the tar.gz file and unzip it to the project-related folder:
 
 ​![image](pic/install_openmpi.png)​
 
-解压Openmpi源码包
+Unzip the Openmpi source package:
 
-```text
+```shell
 tar -xvf openmpi-4.0.3.tar.gz
 ```
 
-安装OpenMPI、进入源码根目录，运行配置文件，开始安装：
+Navigate to the source root directory and execute the configuration file to start the installation:
 
-```text
+```shell
 cd openmpi-4.0.0/
-./configure --prefix=/安装目录/openmpi
+./configure --prefix=/installation_directory/openmpi
 make
 make install
 ```
 
-配置环境变量
+Configure environment variables:
 
-```text
+```shell
 vim /etc/profile
-```
-
-```text
-##openmpi##
-export PATH=$PATH:/安装目录/openmpi/bin
-export LD_LIBRARY_PAHT=/安装目录/openmpii/lib
-```
-
-```text
+## OpenMPI ##
+export PATH=$PATH:/installation_directory/openmpi/bin
+export LD_LIBRARY_PATH=/installation_directory/openmpi/lib
 source /etc/profile
 ```
 
-测试
+Test the installation:
 
-```text
-cd /安装目录/openmpi/examples
+```shell
+cd /installation_directory/openmpi/examples
 make
 ./hello_c
 ```
 
-### 下载安装MindOCR
+## Install MindOCR
 
-根据对应关系表，应该下载0.3版本的。
+According to the version correspondence table, you should download version 0.3.
 
-​![image](pic/mindocr_version.png)​
+|mindocr|mindspore|
+| :-------: | :---------: |
+|master|master|
+|0.4|2.3.0|
+|0.3|2.2.10|
+|0.1|1.8|
 
-```txt
+```shell
 git clone https://github.com/mindspore-lab/mindocr.git
 git checkout v0.3.2
 cd mindocr
@@ -155,14 +155,15 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-# 训练DBNet模型做文本检测
+# Training DBNet model for text detection
 
-## 数据集准备
+## Dataset preparation
 
-1. 将ccpd_train/ccpd_test/ccpd_val数据集分别放到train/test/val下的images中
-2. 运行[mindocr提供的脚本](https://github.com/mindspore-lab/mindocr/blob/main/docs/zh/datasets/ccpd.md)转换数据标注格式
+1. Copy the `ccpd_train`​, `ccpd_test`​, and `ccpd_val`​ datasets into the `train`​, `test`​, and `val`​ directories under `images`​, respectively.
 
-```txt
+2. Run the [script](https://github.com/mindspore-lab/mindocr/blob/main/docs/zh/datasets/ccpd.md) provided by MindOCR to convert the data annotation format:
+
+```shell
 python tools/dataset_converters/convert.py \
     --dataset_name ccpd --task det \
     --image_dir path/to/CCPD2019/ccpd_base \
@@ -170,9 +171,9 @@ python tools/dataset_converters/convert.py \
     --output_path path/to/CCPD2019/det_gt.txt
 ```
 
-3. 数据集结构如下：
+3. The dataset structure is as follows:
 
-```txt
+```shell
 .
 ├── val
 │   ├── images
@@ -194,11 +195,11 @@ python tools/dataset_converters/convert.py \
     └── train_det_gt.txt
 ```
 
-## 编写配置文件（完整配置文件见db_r50_ccpd.yaml)
+## Write the configuration file (Refer to db_r50_ccpd.yaml for the complete configuration file)
 
-1. 在mindocr/configsdet/dbnet下创建db_r50_ccpd.yaml文件
-2. 复制db_r50_ctw1500.ymal文件的内容到db_r50_ccpd.yaml文件
-3. 修改`postprocess`​下的`box_type`​和`box_thresh`​分别为`quad`​和`0.7`​
+1. Create a `db_r50_ccpd.yaml`​ file in the `mindocr/configs/det/dbnet`​ directory.
+2. Copy the contents of the `db_r50_ctw1500.yaml`​ file into the `db_r50_ccpd.yaml`​ file.
+3. Modify the `box_type`​ and `box_thresh`​ under `postprocess`​ to be `quad`​ and `0.7`​, respectively.
 
 ```yaml
 postprocess:
@@ -210,7 +211,7 @@ postprocess:
   expand_ratio: 1.5       # coefficient for expanding predictions
 ```
 
-4. 分别修改`train`​和`test`​的数据路径配置为数据所在位置
+4. Modify the data path configuration of train and test respectively to the location of the data
 
 ```yaml
 dataset:
@@ -220,9 +221,9 @@ dataset:
     label_file: train/train_det_gt.txt
 ```
 
-5. 默认测试的IOU为0.5，修改为0.7
+5. Change the value of IOU from 0.5(default) to 0.7.
 
-代码位置：./mindocr/metrics/det_metrics.py  33
+Location of code:./mindocr/metrics/det_metrics.py 33
 
 ```python
 ...
@@ -232,22 +233,22 @@ def __init__(self, min_iou: float = 0.7, min_intersect: float = 0.5):
 ...
 ```
 
-## 训练
+## Train
 
-```txt
-# 单卡训练，容易爆内存
+```shell
+# Single GPU Training (May Cause Memory Issues)
 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target GPU
-# 多卡训练，需要正确安装opemmpi和使用root权限
+# Multi-GPU Training (Requires Correct OpenMPI Installation and Root Privileges)
 mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target GPU
 ```
 
-## 测试
+## Test
 
-```txt
+```shell
 python tools/eval.py -c=configs/det/dbnet/db_r50_ccpd.yaml --device_target GPU
 ```
 
-验证集测试结果：
+Validation set test results:
 
 ​![image](pic/db_valid_res.png)​
 
@@ -255,9 +256,9 @@ python tools/eval.py -c=configs/det/dbnet/db_r50_ccpd.yaml --device_target GPU
 * ​`recall`​: 98.33%
 * ​`f-score`​: 98.30%
 
-## 推理
+## Inference
 
-### 推理命令
+### Inference Commands
 
 ```shell
 python tools/infer/text/predict_det.py 	--image_dir path/to/image or path/to/image_dir \
@@ -270,26 +271,26 @@ python tools/infer/text/predict_det.py 	--image_dir path/to/image or path/to/ima
 
 ​![1_det_res](pic/det.png)​
 
-# 训练[SVTR模型](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/README_CN.md)做文本识别
+# Training [SVTR model](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/README_CN.md) for text recognition
 
-## [数据集处理](https://github.com/mindspore-lab/mindocr/blob/main/docs/zh/tutorials/training_recognition_custom_dataset.md)
+## [Dataset processing](https://github.com/mindspore-lab/mindocr/blob/main/docs/zh/tutorials/training_recognition_custom_dataset.md)
 
-1. 根据[mindocr提供的脚本](https://github.com/mindspore-lab/mindocr/blob/main/docs/zh/datasets/ccpd.md)生成的label文件，运行提供的generate_data.py裁剪出图片中的车牌号区域并提取车牌号码形成SVTR训练、测试和验证数据集。
+1. Generate the label file using the [script](https://github.com/mindspore-lab/mindocr/blob/main/docs/zh/datasets/ccpd.md) provided by MindOCR, and run the provided `generate_data.py`​ script to crop the license plate areas from the images and extract the license plate numbers to form the SVTR training, testing, and validation datasets.
 
-请将所有训练图片置入同一文件夹，并在上层路径指定一个txt文件用来标注所有训练图片名和对应标签。txt文件例子如下
+Please place all training images in the same folder and specify a text file in the parent directory to label all training image names and their corresponding labels. The format of the text file should be as follows:
 
-```
-# 文件名		# 对应标签
+```txt
+# Filename		# Corresponding Label
 0092816091954-94_82-181&490_358&548-363&554_189&540_190&484_364&498-0_0_28_29_16_29_32-133-13.jpg	皖A45S58
 0104418103448-91_84-329&442_511&520-515&519_340&508_326&447_501&458-0_0_33_18_25_26_26-166-27.jpg	皖A9U122
 023275862069-90_86-173&473_468&557-485&563_189&555_187&469_483&477-0_0_2_27_9_26_24-178-36.jpg	皖AC3K20
 ```
 
-*注意*：请将图片名和标签以 \tab 作为分隔，避免使用空格或其他分隔符。
+**Note:** Use `\tab`​ as the separator between the image name and label, avoiding spaces or other separators.
 
-最终训练集存放会是以下形式：
+The final structure of the training dataset will be as follows:
 
-```
+```txt
 |-data
     |- gt_training.txt
     |- training
@@ -299,11 +300,11 @@ python tools/infer/text/predict_det.py 	--image_dir path/to/image or path/to/ima
         | ...
 ```
 
-测试集和验证集的准备方式同理。
+The preparation method for the testing and validation datasets is the same.
 
-## 字典准备
+## Dictionary Preparation
 
-根据以下字符集运行代码generate_dict.py生成字典ccpd_dict.txt,并将其放到mindocr/utils/dict目录下。
+Run the code in `generate_dict.py`​ with the following character set to generate the dictionary `ccpd_dict.txt`​, and place it in the `mindocr/utils/dict`​ directory.
 
 ```txt
 provinces = ["皖", "沪", "津", "渝", "冀", "晋", "蒙", "辽", "吉", "黑", "苏", "浙", "京", "闽", "赣", "鲁", "豫", "鄂", "湘", "粤", "桂", "琼", "川", "贵", "云", "藏", "陕", "甘", "青", "宁", "新", "警", "学", "O"]
@@ -313,10 +314,10 @@ ads = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q'
        'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'O']
 ```
 
-## 配置文件准备(完整配置文件见svtr_ccpd.yaml)
+## Configuration File Preparation(Refer to the complete configuration file in `svtr_ccpd.yaml`​)
 
-1. 复制一份mindocr/configs/rec/svtr/svtr_tiny_ch.yaml文件，并对其进行修改
-2. 修改字典配置`character_dict_path`​和字符种类数量`num_classes`​，以及最大字符长度`max_text_len`​的值，如下所示：
+1. Copy the file `mindocr/configs/rec/svtr/svtr_tiny_ch.yaml`​ to a new file.
+2. Modify the following parameters in the new configuration file:
 
 ```yaml
 common:
@@ -327,28 +328,28 @@ common:
   batch_size: &batch_size 256
 ```
 
-3. 修改训练数据集和验证数据集的`type`​、`dataset_root`​、`data_dir`​、`label_file`​
+3. Update the training and validation datasets with the following parameters:
 
 ```yaml
-...
 train:
   ...
   dataset:
-    type: RecDataset                                                  # 文件读取方式，这里用通用数据方式读取
-    dataset_root: dir/to/data/                                        # 训练数据集根目录
-    data_dir: training/                                               # 训练数据集目录，将与`dataset_root`拼接形成完整路径
-    label_file: gt_training.txt                                       # 训练数据集标签摆放位置，将与`dataset_root`拼接形成完整路径
+    type: RecDataset                                                  # File reading method, using a generic data reading method here
+    dataset_root: dir/to/data/                                        # Root directory for the training dataset
+    data_dir: training/                                               # Directory for the training dataset, will be concatenated with `dataset_root` to form the complete path
+    label_file: gt_training.txt                                       # Location of the training dataset labels, will be concatenated with `dataset_root` to form the complete path
 ...
+
 eval:
   dataset:
-    type: RecDataset                                                  # 文件读取方式，这里用通用数据方式读取
-    dataset_root: dir/to/data/                                        # 验证数据集根目录
-    data_dir: validation/                                             # 验证数据集目录，将与`dataset_root`拼接形成完整路径
-    label_file: gt_validation.txt                                     # 训练数据集标签摆放位置，将与`dataset_root`拼接形成完整路径
+    type: RecDataset                                                  # File reading method, using a generic data reading method here
+    dataset_root: dir/to/data/                                        # Root directory for the validation dataset
+    data_dir: validation/                                             # Directory for the validation dataset, will be concatenated with `dataset_root` to form the complete path
+    label_file: gt_validation.txt                                     # Location of the validation dataset labels, will be concatenated with `dataset_root` to form the complete path
   ...
 ```
 
-4. ​`metric`​中添加`lower`​为`false`​
+4. Add `lower: false`​ to the metric​ section​:
 
 ```yaml
 metric:
@@ -360,7 +361,7 @@ metric:
   lower: false
 ```
 
-5. 修改`RecCTCLabelEncode`​的`lower`​为`false`​
+5. Modify `RecCTCLabelEncode`​ to set `lower: false`​:
 
 ```yaml
 - RecCTCLabelEncode:
@@ -370,16 +371,16 @@ metric:
     lower: False
 ```
 
-## 训练
+## Train
 
-```txt
-# CPU/GPU/Ascend 设备上的单卡训练
+```shell
+# Single GPU/CPU/Ascend Training
 python tools/train.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml
 ```
 
-### 训练策略
+### Training Strategy
 
-1. 修改配置文件`loss`​下的`pred_seq_len`​为10
+1. **Modify the Configuration File**: Change `loss`​ section's `pred_seq_len`​ to 10.
 
 ```java
 valid res:
@@ -387,7 +388,7 @@ valid res:
 [2024-09-10 15:16:38] mindocr.eval INFO - Performance: {'acc': 0.00023000920191407204, 'norm_edit_distance': 0.5451045036315918}
 ```
 
-3. 将`image_shape`​调整为【32，80】等比例放缩
+2. **Adjust image_shape**​: Set the 'img_size' of the 'model' section to [32, 80].
 
 ```java
 valid res:
@@ -396,7 +397,7 @@ valid res:
 [2024-09-10 19:14:02] mindocr.eval INFO - Performance: {'acc': 0.069402776658535, 'norm_edit_distance': 0.765773355960846}
 ```
 
-4. Resize策略：不考虑宽高比，直接将所有文本图像`resize`​到`32 * 100`​，`Resize`​时不使用`Padding`​ ； `max_text_length: 25`​
+3. **Resize Strategy**: `Resize`​ all text images to `32 * 100`​ without considering the aspect ratio and without padding; set `max_text_length`​ to 25.
 
 ```java
 valid res:
@@ -405,7 +406,7 @@ valid res:
 [2024-09-10 19:16:59] mindocr.eval INFO - Performance: {'acc': 0.9868494868278503, 'norm_edit_distance': 0.9979807138442993}
 ```
 
-5. 修改基础yaml文件为`svtr_tiny.yaml`​，增加`STN`​模块
+4. **Modify the Base YAML File**: Change to `svtr_tiny.yaml`​ and add the STN module.
 
 ```java
 valid res:
@@ -414,7 +415,7 @@ valid res:
 [2024-09-10 23:01:26] mindocr.eval INFO - Performance: {'acc': 0.9795991778373718, 'norm_edit_distance': 0.995379626750946}
 ```
 
-6. 修改`SVTRRecAug`​的`aug_type`​为1：应用更强的数据集增强方式。[svtr_transform.py](https://github.com/mindspore-lab/mindocr/blob/5fd78b46b42d40aeba01f72538699837594053b1/mindocr/data/transforms/svtr_transform.py#L354)
+5. **Increase the intensity of data augmentation**​: Set the `aug_type`​ in the 'SVTRRecAug' section of the configuration file to 1​.
 
 ```java
 valid res:
@@ -423,7 +424,7 @@ valid res:
 [2024-09-11 17:08:48] mindocr.eval INFO - Performance: {'acc': 0.9606783986091614, 'norm_edit_distance': 0.9910668730735779}
 ```
 
-7. ​`SVTRRecAug`​增加`deterioration_p: 0.5`​、`colorjitter_p: 0.5`​
+6. **Increase the intensity of data augmentation**: Set `deterioration_p`​ and `colorjitter_p`​ to 0.5 in the `SVTRRecAug` section of the configuration file​.
 
 ```java
 valid res:
@@ -432,21 +433,25 @@ valid res:
 [2024-09-11 20:12:32] mindocr.eval INFO - Performance: {'acc': 0.9797691702842712, 'norm_edit_distance': 0.9954692125320435}
 ```
 
-## 测试
+## Test
 
-```txt
+```shell
 python tools/eval.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml
 ```
 
-​​![image](pic/rec_valid_res.png)​​
+​![image](pic/rec_valid_res.png)​
 
 * ​`acc`​: 97.12%
 
-## 模型推理
+## Inference
 
-### 代码修改
+### Code Modification
 
-修改`/mindocr/tools/infer/text/predict_rec.py`​中的`algo_to_model_name`​,将`SVTR`​对应的模块修改为`svtr_ccpd`​
+Modify the file `/mindocr/tools/infer/text/predict_rec.py`​:
+
+1.  Locate the `algo_to_model_name`​ mapping.
+
+2. Change the module corresponding to SVTR to `svtr_ccpd`​.
 
 ```python
 algo_to_model_name = {
@@ -460,7 +465,7 @@ algo_to_model_name = {
 }
 ```
 
-在代码`./mindocr/models/rec_svtr.py`​中添加svtr_ccpd模块：
+Add the `svtr_ccpd`​ module in the file `./mindocr/models/rec_svtr.py`​:
 
 ```python
 __all__ = ["SVTR", "svtr_tiny", "svtr_tiny_ch", "svtr_ppocrv3_ch","svtr_ccpd"]
@@ -521,9 +526,9 @@ def svtr_ccpd(pretrained=False, **kwargs):
     return model
 ```
 
-### 推理命令
+### Inference Commands
 
-```txt
+```shell
 python tools/infer/text/predict_rec.py 	--image_dir path/to/image_path \
                         --rec_algorithm SVTR \
                         --rec_image_shape "3,32,100" \
@@ -534,17 +539,19 @@ python tools/infer/text/predict_rec.py 	--image_dir path/to/image_path \
                         --visualize_output true
 ```
 
-**输入：**
+**Input:**
 
-​![rec_test](pic/rec_test.png)
+​![rec_test](pic/rec_test.png)​
 
-**输出：**
+**Output:**
 
 ​![image](pic/rec_res.png)​
 
-# 联合DBNet和SVTR推理
+# Joint Inference of DBNet and SVTR
 
-```txt
+**Inference Commands: ​**
+
+```shell
 python tools/infer/text/predict_system.py 	--image_dir path/to/image_path or image_dir \
                         --det_algorithm DB \
                         --det_model_dir path/to/dbnet/best.ckpt \
@@ -555,6 +562,25 @@ python tools/infer/text/predict_system.py 	--image_dir path/to/image_path or ima
                         --rec_image_shape "3,64,256" --max_text_length 24 --rec_amp_level O2 --visualize_outpu true
 ```
 
+**Output:**
+
 ​![image](pic/det_rec_res.png)​
 
+Visualizing Results:
+
 ​![1_res](pic/det_res.png)​
+
+# Requirements
+
+|mindspore|gpu driver|cuda version|firmware|
+| :---------: | :----------: | :------------: | :----------------: |
+|2.2.14|535.183.06|cuda11.6|GeForce RTX 4090|
+
+# Performance
+
+Experiments are tested on GeForce RTX 4090 with mindspore 2.2.14 graph mode
+
+|model name|cards|batch size|resolution|jit level|graph compile|s/step|img/s|
+| :----------: | :-----: | :----------: | :----------: | :---------: | :-------------: | :------: | :------: |
+|dbnet|1|16|640x640|O0|1.07s|1.86|29.76|
+|svtr|1|64|64x256|O2|0.57s|5.62|359.68|
