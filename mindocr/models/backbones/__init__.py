@@ -19,6 +19,7 @@ from .rec_svtr_enhance import *
 from .rec_vgg import *
 from .table_master_resnet import *
 from .yolov8_backbone import yolov8_backbone
+from .rec_can_densenet import *
 
 __all__ = []
 __all__.extend(builder.__all__)
