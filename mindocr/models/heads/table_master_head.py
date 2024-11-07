@@ -5,8 +5,6 @@ https://github.com/JiaquanYe/TableMASTER-mmocr/blob/master/mmocr/models/textreco
 import copy
 import math
 
-import numpy as np
-
 import mindspore as ms
 from mindspore import Tensor, nn, ops
 
@@ -27,10 +25,11 @@ class TableMasterHead(nn.Cell):
                  max_text_length=500,
                  loc_reg_num=4,
                  share_parameter=False,
-                 stacks=3,
+                 stacks=2,
                  **kwargs):
         super(TableMasterHead, self).__init__()
         hidden_size = in_channels
+        self.layers = clones(DecoderLayer(headers, hidden_size, dropout, d_ff), 1 if share_parameter else stacks)
         self.cls_layer = DecoderLayer(headers, hidden_size, dropout, d_ff)
         self.bbox_layer = DecoderLayer(headers, hidden_size, dropout, d_ff)
         self.cls_fc = nn.Dense(hidden_size, out_channels)
@@ -38,44 +37,18 @@ class TableMasterHead(nn.Cell):
             nn.Dense(hidden_size, loc_reg_num),
             nn.Sigmoid())
 
-        self.out_channels = out_channels
-        self.loc_reg_num = loc_reg_num
-        self.max_text_length = max_text_length
-
-        self.share_parameter = share_parameter
-
-        self.attention = nn.CellList(
-            [
-                MultiHeadAttention(headers, in_channels, dropout)
-                for _ in range(1 if share_parameter else stacks)
-            ]
-        )
-
-        self.source_attention = nn.CellList(
-            [
-                MultiHeadAttention(headers, in_channels, dropout)
-                for _ in range(1 if share_parameter else stacks)
-            ]
-        )
-
-        self.position_feed_forward = nn.CellList(
-            [
-                PositionwiseFeedForward(in_channels, d_ff, dropout)
-                for _ in range(1 if share_parameter else stacks)
-            ]
-        )
-
-        self.position = PositionalEncoding(in_channels, dropout)
         self.stacks = stacks
-        self.dropout = nn.Dropout(p=dropout)
-        self.layer_norm1 = nn.LayerNorm([hidden_size])
-        self.layer_norm2 = nn.LayerNorm([hidden_size])
-        self.layer_norm3 = nn.LayerNorm([hidden_size])
-        self.layer_norm4 = nn.LayerNorm([hidden_size])
-        self.embedding = nn.Embedding(out_channels, in_channels)
-        self.sqrt_model_size = np.sqrt(in_channels)
         self.SOS = out_channels - 3
         self.PAD = out_channels - 1
+        self.loc_reg_num = loc_reg_num
+        self.out_channels = out_channels
+        self.max_text_length = max_text_length
+        self.share_parameter = share_parameter
+
+        self.dropout = nn.Dropout(p=dropout)
+        self.norm = nn.LayerNorm([hidden_size])
+        self.embedding = Embeddings(hidden_size, out_channels)
+        self.position = PositionalEncoding(hidden_size, dropout)
 
         self.tril = ops.tril
         self.argmax = ops.Argmax(axis=2)
@@ -97,40 +70,24 @@ class TableMasterHead(nn.Cell):
 
     def decode(self, feature, targets, src_mask=None, tgt_mask=None):
         # main process of transformer decoder.
-        targets = self.embedding(targets) * self.sqrt_model_size
+        targets = self.embedding(targets)
         targets = self.position(targets)
         output = targets
         for i in range(self.stacks):
             if self.share_parameter:
-                actual_i = i
-            else:
                 actual_i = 0
+            else:
+                actual_i = i
+            output = self.layers[actual_i](output, feature, src_mask, tgt_mask)
 
-            normed_output = self.layer_norm1(output)
-            output = output + self.dropout(
-                self.attention[actual_i](
-                    normed_output, normed_output, normed_output, tgt_mask
-                )
-            )
-            normed_output = self.layer_norm2(output)
-            output = output + self.dropout(
-                self.source_attention[actual_i](
-                    normed_output, feature, feature, src_mask
-                )
-            )
-            normed_output = self.layer_norm3(output)
-            output = output + self.dropout(
-                self.position_feed_forward[actual_i](normed_output)
-            )
+        # cls head
+        cls_x = self.cls_layer(output, feature, src_mask, tgt_mask)
+        cls_x = self.norm(cls_x)
 
-            # cls head
-            cls_x = self.cls_layer(output, feature, src_mask, tgt_mask)
-            cls_x = self.layer_norm4(cls_x)
-
-            # bbox head
-            bbox_x = self.bbox_layer(output, feature, src_mask, tgt_mask)
-            bbox_x = self.layer_norm4(bbox_x)
-            return self.cls_fc(cls_x), self.bbox_fc(bbox_x)
+        # bbox head
+        bbox_x = self.bbox_layer(output, feature, src_mask, tgt_mask)
+        bbox_x = self.norm(bbox_x)
+        return self.cls_fc(cls_x), self.bbox_fc(bbox_x)
 
     def construct(self, feat, targets=None):
         N = feat.shape[0]
@@ -188,25 +145,12 @@ class DecoderLayer(nn.Cell):
         self.self_attn = MultiHeadAttention(headers, d_model, dropout)
         self.src_attn = MultiHeadAttention(headers, d_model, dropout)
         self.feed_forward = PositionwiseFeedForward(d_model, d_ff, dropout)
-        self.norms = nn.CellList(
-            [
-                nn.LayerNorm([d_model]) for _ in range(3)
-            ]
-        )
-        self.dropouts = nn.CellList(
-            [
-                nn.Dropout(p=dropout) for _ in range(3)
-            ]
-        )
+        self.sublayer = clones(SubLayerConnection(d_model, dropout), 3)
 
     def construct(self, x, feature, src_mask, tgt_mask):
-        normed_x = self.norms[0](x)
-        x = x + self.dropouts[0](self.self_attn(normed_x, normed_x, normed_x, tgt_mask))
-        normed_x = self.norms[1](x)
-        x = x + self.dropouts[1](self.src_attn(normed_x, feature, feature, src_mask))
-        normed_x = self.norms[2](x)
-        x = x + self.dropouts[2](self.feed_forward(normed_x))
-        return x
+        x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, tgt_mask))
+        x = self.sublayer[1](x, lambda x: self.src_attn(x, feature, feature, src_mask))
+        return self.sublayer[2](x, self.feed_forward)
 
 
 class MultiHeadAttention(nn.Cell):
@@ -244,7 +188,7 @@ class MultiHeadAttention(nn.Cell):
         score = self.batch_matmul(query, key.transpose([0, 1, 3, 2])) / d_k_sqrt
         if mask is not None:
             # score = score.masked_fill(mask == 0, -1e9) # b, h, L, L
-            score = ops.masked_fill(score, mask == 0, -6.55e4)  # for fp16
+            score = ops.masked_fill(score.astype(ms.float32), mask == 0, -6.55e4)
 
         p_attn = ops.softmax(score, axis=-1)
 

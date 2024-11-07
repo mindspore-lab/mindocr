@@ -26,7 +26,7 @@ def get_args():
         type=str.lower,
         default="lite",
         required=False,
-        choices=["acl", "lite"],
+        choices=["lite"],
         help="Inference backend type.",
     )
     parser.add_argument("--device", type=str, default="Ascend", required=False, choices=["Ascend"], help="Device type.")
