@@ -9,6 +9,61 @@
 ## 依赖关系和安装
 与训练环境一致。
 
+## 版面分析
+
+要对输入图像或包含多个图像的目录运行版面分析，请执行
+```shell
+python tools/infer/text/predict_layout.py  --image_dir {path_to_img or dir_to_imgs} --layout_algorithm YOLOv8 --visualize_output True
+```
+运行后，推理结果保存在`{args.draw_img_save_dir}/det_results.txt`中，其中`--draw_img_save_dir`是保存结果的目录，这是`./inference_results`的默认设置，这里是一些示例结果。
+
+事例1:
+<p align="center">
+  <img src="../../../configs/layout/yolov8/images/result.png" width=480>
+</p>
+<p align="center">
+  <em> PMC4958442_00003.jpg的可视化结果</em>
+</p>
+
+其中保存的layout_result.txt文件如下
+```
+{"image_id": 0, "category_id": 1, "bbox": [308.649, 559.189, 240.211, 81.412], "score": 0.98431}
+{"image_id": 0, "category_id": 1, "bbox": [50.435, 673.018, 240.232, 70.262], "score": 0.98414}
+{"image_id": 0, "category_id": 3, "bbox": [322.805, 348.831, 225.949, 203.302], "score": 0.98019}
+{"image_id": 0, "category_id": 1, "bbox": [308.658, 638.657, 240.31, 70.583], "score": 0.97986}
+{"image_id": 0, "category_id": 1, "bbox": [50.616, 604.736, 240.044, 70.086], "score": 0.9797}
+{"image_id": 0, "category_id": 1, "bbox": [50.409, 423.237, 240.132, 183.652], "score": 0.97805}
+{"image_id": 0, "category_id": 1, "bbox": [308.66, 293.918, 240.181, 47.497], "score": 0.97471}
+{"image_id": 0, "category_id": 1, "bbox": [308.64, 707.13, 240.271, 36.028], "score": 0.97427}
+{"image_id": 0, "category_id": 1, "bbox": [308.697, 230.568, 240.062, 43.545], "score": 0.96921}
+{"image_id": 0, "category_id": 4, "bbox": [51.787, 100.444, 240.267, 273.653], "score": 0.96839}
+{"image_id": 0, "category_id": 5, "bbox": [308.637, 74.439, 237.878, 149.174], "score": 0.96707}
+{"image_id": 0, "category_id": 1, "bbox": [50.615, 70.667, 240.068, 22.0], "score": 0.94156}
+{"image_id": 0, "category_id": 2, "bbox": [50.549, 403.5, 67.392, 12.85], "score": 0.92577}
+{"image_id": 0, "category_id": 1, "bbox": [51.384, 374.84, 171.939, 10.736], "score": 0.76692}
+```
+其中，`image_id`为图像ID，`bbox`为检测出的边界框`[左上角的x坐标，右下角的y坐标，宽度，高度]`, `score`是检测的置信度，`category_id`的含义如下：
+- `1: text`
+- `2: title`
+- `3: list`
+- `4: table`
+- `5: figure`
+
+**注意事项：**
+- 有关更多参数说明和用法，请运行`python tools/infer/text/predict_layout.py -h`或查看`tools/infer/text/config.py`
+
+### 支持的检测算法和网络
+
+<center>
+
+  |**算法名称**|**网络名称**|**语言**|
+  | :------: | :------: | :------: |
+  |YOLOv8 | yolov8 |英语|
+
+</center>
+
+算法网络在`tools/infer/text/predict_layout.py`中定义。
+
 ## 文本检测
 
 要对输入图像或包含多个图像的目录运行文本检测，请执行
