@@ -581,6 +581,6 @@ Visualizing Results:
 Experiments are tested on GeForce RTX 4090 with mindspore 2.2.14 graph mode
 
 |model name|cards|batch size|resolution|jit level|graph compile|s/step|img/s|
-| :----------: | :-----: | :----------: | :----------: | :---------: | :-------------: | :------: | :------: 
+| :----------: | :-----: | :----------: | :----------: | :---------: | :-------------: | :------: | :------: |
 |dbnet|1|16|640x640|O0|1.07s|1.86|29.76|
 |svtr|1|64|64x256|O2|0.57s|5.62|359.68|
