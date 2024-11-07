@@ -560,3 +560,17 @@ python tools/infer/text/predict_system.py 	--image_dir path/to/image_path or ima
 ​![image](pic/det_rec_res.png)​
 
 ​![1_res](pic/det_res.png)​
+
+# 版本配套
+
+|mindspore|gpu driver|cuda version|firmware|
+| :---------: | :----------: | :------------: | :----------------: |
+|2.2.14|535.183.06|cuda11.6|GeForce RTX 4090|
+
+# 性能表现
+实验在 GeForce RTX 4090 上使用 MindSpore 2.2.14 的图模式进行测试
+
+|model name|cards|batch size|resolution|jit level|graph compile|s/step|img/s|recipe|weight|
+| :----------: | :-----: | :----------: | :----------: | :---------: | :-------------: | :------: | :------: 
+|dbnet|1|16|640x640|O0|1.07s|1.86|29.76|
+|svtr|1|64|64x256|O2|0.57s|5.62|359.68|
