@@ -41,23 +41,23 @@ Table Format:
 
 According to our experiments, the evaluation results on public benchmark datasets (IC03, IC13, IC15, IIIT, SVT, SVTP, CUTE) is as follow:
 
-#### Performance tested on ascend 910 with graph mode
+#### Experiments are tested on ascend 910 with mindspore 2.3.1 graph mode
 
 <div align="center">
 
-| **Model** | **Cards** | **Avg Accuracy** | **Batch size** | **graph compile** |**jit level** | **Step Time** | **FPS** | **Recipe** | **Download** |
-| :-----: |:---------:| :--------------: |:--------------:|:-----------------:|:-----------------:|:-------------:| :--------: | :--------: |:----------: |
-| SVTR-Tiny      |     4     | 90.23%    |      512       |     226.86 s      |O2| 49.38 ms/step | 4560 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3-86ece8c8.mindir) |
-| SVTR-Tiny-8P |     8     |  90.32%   |      512       |     226.86 s      |O2| 55.16 ms/step |       9840        | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \| [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir) |
+| **model name** | **cards** | **batch size** |**jit level** | **graph compile** |  **ms/step**  | **img/s** | **avg accuracy** | **recipe** |           **download**         |
+|:--------------:|:---------:|:--------------:|:----------------:|:-----------------:|:-----------------:|:-------------:|:---------:|:---------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|   SVTR-Tiny    |     4     |      512       |O2|     226.86 s      | 49.38 ms/step |   4560    |      90.23%      |  [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml)   |            [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3-86ece8c8.mindir)            |
+|  SVTR-Tiny-8P  |     8     |      512       |O2|     226.86 s      | 55.16 ms/step |   9840    |      90.32%      | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \| [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir) |
 </div>
 
 Detailed accuracy results for each benchmark dataset
 <div align="center">
 
-| **Model** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
-| :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-| SVTR-Tiny  | 95.70% | 95.50% | 95.33% | 93.99% | 83.60% | 79.83% | 94.70% | 91.96% | 85.58% | 86.11% | 90.23% |
-| SVTR-Tiny-8P |    95.93%    |    95.62%    |    95.33%    |    93.89%     |    84.32%     |    80.55%     |     94.33%      | 90.57%  |  86.20%  |   86.46%   |   90.32%   |
+| **model name** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **average** |
+|:--------------:| :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |:-----------:|
+|   SVTR-Tiny    | 95.70% | 95.50% | 95.33% | 93.99% | 83.60% | 79.83% | 94.70% | 91.96% | 85.58% | 86.11% |   90.23%    |
+|  SVTR-Tiny-8P  |    95.93%    |    95.62%    |    95.33%    |    93.89%     |    84.32%     |    80.55%     |     94.33%      | 90.57%  |  86.20%  |   86.46%   |   90.32%    |
 </div>
 
 
@@ -377,9 +377,9 @@ After training, evaluation results on the benchmark test set are as follows, whe
 
 <div align="center">
 
-| **Model** | **Language** | **Context**  | **Scene** | **Web** | **Document** | **Train T.** | **FPS** | **Recipe** | **Download** |
-| :-----: | :-----:  | :--------: | :--------: | :--------: | :--------: | :---------: | :--------: | :---------: | :-----------: |
-| SVTR-Tiny    | Chinese | D910x4-MS1.10-G | 65.93% | 69.64% | 98.01% | 647 s/epoch | 1580 | [svtr_tiny_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4-3e495768.mindir) |
+| **model name** | **cards** | **batch size** | **language** | **jit level** | **graph compile** | **ms/step** | **img/s** | **scene** | **web** | **document** |  **recipe**  | **download** |
+|:--------------:|:---------:|:--------------:| :--------: |:-------------:|:-----------------:|:---------:|:-------:|:------------:|:-----------:|:---------:|:----------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|   SVTR-Tiny    |     4     |      256       |   Chinese    |      O2       | 235.1 s|    37.75    |   1580    |    65.93% | 69.64%  |    98.01%    | [svtr_tiny_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4-3e495768.mindir) |
 </div>
 
 ### Training with Custom Datasets
