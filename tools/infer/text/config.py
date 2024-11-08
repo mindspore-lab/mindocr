@@ -126,7 +126,7 @@ def create_parser():
         "--draw_img_save_dir",
         type=str,
         default="./inference_results",
-        help="Dir to save visualization and detection/recogintion/system prediction results",
+        help="Dir to save visualization and detection/recognition/system prediction results",
     )
     parser.add_argument(
         "--save_crop_res",
