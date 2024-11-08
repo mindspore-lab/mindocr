@@ -230,6 +230,91 @@ python deploy/eval_utils/eval_pipeline.py --gt_path path/to/gt.txt --pred_path p
 
 3、SVTR在混合精度模式下运行（amp_level=O2），因为它针对O2进行了优化。
 
+## 表格结构识别
+
+要对输入图像或包含多个图像的目录运行表格结构识别，请执行
+```shell
+python tools/infer/text/predict_structure.py --image_dir {path_to_img or dir_to_imgs} --table_algorithm TABLE_MASTER
+```
+
+运行后，推理结果保存在`{args.draw_img_save_dir}`中，其中`--draw_img_save_dir`是保存结果的目录，这是`./inference_results`的默认设置，这里是一些示例结果。
+
+示例1：
+<p align="center">
+  <img src="../../../configs/table/example_structure.png" width=1000 />
+</p>
+<p align="center">
+  <em> example_structure.png </em>
+</p>
+
+**注意事项：**
+- 有关更多参数说明和用法，请运行`python tools/infer/text/predict_structure.py -h`或查看`tools/infer/text/config.py`
+
+### 支持的表格识别算法和网络
+
+<center>
+
+  |   **算法名称**   |**网络名称**| **语言** |
+  |:------------:| :------: |:------:|
+  | table_master | table_resnet_extra |   不区分    |
+
+</center>
+
+算法网络在`tools/infer/text/predict_structure.py`中定义。
+
+## 表格结构识别与文本检测识别级联
+
+要对输入图像或目录中的多个图像运行表格识别（即识别表格结构后，结合文本检测识别的结果，识别出完整的表格内容），请运行：
+
+```shell
+python tools/infer/text/predict_table.py --image_dir {path_to_img or dir_to_imgs} \
+                                          --det_algorithm DB++  \
+                                          --rec_algorithm CRNN \
+                                          --table_algorithm TABLE_MASTER
+```
+
+运行后，推理结果保存在`{args.draw_img_save_dir}`中，其中`--draw_img_save_dir`是保存结果的目录，这是`./inference_results`的默认设置。下面是一些结果的例子。
+
+示例1：
+
+<p align="center">
+  <img src="../../../configs/table/example_structure.png" width=1000 />
+</p>
+<p align="center">
+  <em> example_structure.png </em>
+</p>
+
+其中恢复的csv文件内容如下
+```txt
+Parameter,Non-smokers Mean± SD or N (3),Smokers Mean ± SD or N (C)
+N,24,
+Age (y),69.1 ± 7.0,61.5 ± 9.3 +
+Males/Females,24/0,11/0
+Race White/Black,19/5,9/2
+Weight (kg),97.8 ± 16.8,102.5 ± 23.4
+BMII (kg/m*),32.6 ± 4.9,32.6 ± 6.6
+Serum albumin (g/dL),3.8 ± 0.33,3.63 ± 0.30
+Serum Creatinine (mg/dL),2.75 ± 1.21,1.80 ± 0.74 *
+BUN (mg/dL),46.5 ± 25.6,38.3 ± 21.8
+Hemoglobin (g/dL),13.3 ± 1.6,13.5 ± 2.4
+24 hour urine protein (g/d),3393 ± 2522,4423 ± 4385
+lathae)mm,28.9 ± 13.8,47.2 ± 34.8 *
+Duration of diabetes (yr),15.7 ± 9.1,13.3 ± 9.0
+Insulin use,15 (63%),6 (55%)
+"Hemoglobin A, C (%)",7.57 ± 2.02,8.98 ± 2.93
+Waist/Hip Ratio,1.00 ± 0.07,1.04 ± 0.07
+Antihypertensive medications,4.3 ± 1.6,3.9 ± 1.9
+A,21 (88%),8 (73%)
+Total Cholesterol (mg/dL),184 ± 51,223 ± 87
+LDL Cholesterol (mg/dL),100 ± 44,116 ± 24
+HDL Cholesterol (mg/dL),42 ± 11.1,46 ± 11.4
+,17 (71%),7 (64%)
+
+```
+
+**注意事项：**
+1、如需更多参数说明和用法，请运行`python tools/infer/text/predict_table.py -h`或查看`tools/infer/text/config.py`
+
 ## 参数列表
 
 所有CLI参数定义都可以通过`python tools/infer/text/predict_system.py -h`或`tools/infer/text/config.py`查看。
