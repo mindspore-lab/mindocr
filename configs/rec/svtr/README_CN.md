@@ -44,10 +44,10 @@ Table Format:
 
 <div align="center">
 
-| **model name** | **cards** | **batch size** |**jit level** | **graph compile** |  **ms/step**  | **img/s** | **avg accuracy** | **recipe** |           **download**         |
+| **model name** | **cards** | **batch size** |**jit level** | **graph compile** |  **ms/step**  | **img/s** | **avg accuracy** | **recipe** |           **weight**         |
 |:--------------:|:---------:|:--------------:|:----------------:|:-----------------:|:-----------------:|:-------------:|:---------:|:---------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 |   SVTR-Tiny    |     4     |      512       |O2|     226.86 s      | 49.38 ms/step |   4560    |      90.23%      |  [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml)   |            [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3-86ece8c8.mindir)            |
-|  SVTR-Tiny-8P  |     8     |      512       |O2|     226.86 s      | 55.16 ms/step |   9840    |      90.32%      | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \| [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir) |
+|  SVTR-Tiny-8P  |     8     |      512       |O2|     230.74 s      | 55.16 ms/step |   9840    |      90.32%      | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \| [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir) |
 </div>
 
 在各个基准数据集上的准确率
@@ -373,7 +373,7 @@ mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/svtr/
 
 <div align="center">
 
-| **model name** | **cards** | **batch size** | **language** | **jit level** | **graph compile** | **ms/step** | **img/s** | **scene** | **web** | **document** |  **recipe**  | **download** |
+| **model name** | **cards** | **batch size** | **language** | **jit level** | **graph compile** | **ms/step** | **img/s** | **scene** | **web** | **document** |  **recipe**  | **weight** |
 |:--------------:|:---------:|:--------------:| :--------: |:-------------:|:-----------------:|:---------:|:-------:|:------------:|:-----------:|:---------:|:----------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 |   SVTR-Tiny    |     4     |      256       |   Chinese    |      O2       | 235.1 s|    65.93% |    37.75    |   1580    | 69.64%  |    98.01%    | [svtr_tiny_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4-3e495768.mindir) |
 </div>
