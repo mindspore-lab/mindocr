@@ -47,8 +47,8 @@ According to our experiments, the training (following the steps in [Model Traini
 
 <div align="center">
 
-| **model name** | **backbone** | **cards** | **batch size** | **train dataset** | **model params** | **jit level** | **graph compile** | **ms/step** | **img/s** | **avg eval accuracy** |  **recipe** |**download** |
-|:--------------:|:---------:|:--------------:| :-----: |:-----------------:|:----------------:|:---------------------:|:-------:|:-----------:|:---------:|:---------------------:|:-------------------------:|:----------------------------------------------------:|
+| **model name** | **backbone** | **cards** | **batch size** | **train dataset** | **model params** | **jit level** | **graph compile** | **ms/step** | **img/s** | **avg eval accuracy** |  **recipe** |                                                                                           **weight**                                                                                            |
+|:--------------:|:---------:|:--------------:| :-----: |:-----------------:|:----------------:|:---------------------:|:-------:|:-----------:|:---------:|:---------------------:|:-------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 |      CRNN      |     VGG7     |     8     |       16       |       MJ+ST       |      8.72 M      | O2|      67.18 s      |    22.06    |  5802.71  |        82.03%         |   [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)   |     [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-573dbd61.mindir)     |
 |      CRNN      | ResNet34_vd  |     8     |       64       |       MJ+ST       |     24.48 M      | O2|     201.54 s      |    76.48    |  6694.84  |        84.45%         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-eb10a0c9.mindir) |
 </div>
@@ -66,7 +66,7 @@ According to our experiments, the training (following the steps in [Model Traini
 #### Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode
 <div align="center">
 
-| **model name** | **backbone** | **cards** | **batch size** | **train dataset** | **model params** | **jit level** | **graph compile** | **ms/step** | **img/s** | **avg eval accuracy** |**recipe** | **download**    |
+| **model name** | **backbone** | **cards** | **batch size** | **train dataset** | **model params** | **jit level** | **graph compile** | **ms/step** | **img/s** | **avg eval accuracy** |**recipe** | **weight**    |
 |:--------------:|:---------:|:--------------:|:------------:|:-----------------:|:----------------:|:---------------------:|:----------------------------:|:-----------:|:---------:|:---------------------:|:------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------:|
 |      CRNN      |     VGG7     |     8     | 16 |       MJ+ST       |      8.72 M      |          O2           |      94.36 s      |    14.76    |  8672.09  |        81.31%         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/crnn/crnn_vgg7-6faf1b2d-910v2.ckpt) |
 </div>
@@ -397,9 +397,10 @@ mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/crnn/
 
 After training, evaluation results on the benchmark test set are as follows, where we also provide the model config and pretrained weights.
 
+Experiments are tested on ascend 910 with mindspore 2.3.1 graph mode
 <div align="center">
 
-| **model name** | **backbone** |   **cards**    |  **batch size**   | **language** | **jit level** | **graph compile** | **ms/step** | **img/s** | **scene** | **web** | **document** | **recipe**    | **download**  |
+| **model name** | **backbone** |   **cards**    |  **batch size**   | **language** | **jit level** | **graph compile** | **ms/step** | **img/s** | **scene** | **web** | **document** | **recipe**    | **weight**  |
 |:--------------:|:------------:|:--------------:|:-----------------:|:------------:|:---------:|:-----------------:|:---------:|:-------:|:------------:|:-----------:|:---------:|:------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 |      CRNN      | ResNet34_vd  | 4| 256|   Chinese    |      O2       |     203.48 s      |    38.01    |   1180    |  60.45%   | 65.95%  |    97.68%    | [crnn_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-7a342e3c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34_ch-7a342e3c-105bccb2.mindir) |
 </div>
