@@ -47,10 +47,10 @@ According to our experiments, the training (following the steps in [Model Traini
 
 <div align="center">
 
-| **model name** | **backbone** | **cards** | **batch size** | **train dataset** | **model params** | **jit level** | **graph compile** | **ms/step** | **img/s** | **avg eval accuracy** |  **recipe** |                                                                                           **weight**                                                                                            |
-|:--------------:|:---------:|:--------------:| :-----: |:-----------------:|:----------------:|:---------------------:|:-------:|:-----------:|:---------:|:---------------------:|:-------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|      CRNN      |     VGG7     |     8     |       16       |       MJ+ST       |      8.72 M      | O2|      67.18 s      |    22.06    |  5802.71  |        82.03%         |   [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)   |     [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-573dbd61.mindir)     |
-|      CRNN      | ResNet34_vd  |     8     |       64       |       MJ+ST       |     24.48 M      | O2|     201.54 s      |    76.48    |  6694.84  |        84.45%         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-eb10a0c9.mindir) |
+| **model name** | **backbone** | **train dataset** | **params(M)** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |  **recipe** |                                                                                           **weight**                                                                                            |
+|:--------------:|:---------:|:--------------:|:-------------:|:-----------------:|:----------------:|:---------------------:|:-------:|:-----------:|:---------:|:---------------------:|:-------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|      CRNN      |     VGG7     |       MJ+ST       |    8.72     |     8     |       16       | O2|      67.18 s      |    22.06    |  5802.71  |        82.03%         |   [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml)   |     [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_vgg7-ea7e996c-573dbd61.mindir)     |
+|      CRNN      | ResNet34_vd  |       MJ+ST       |    24.48    |     8     |       64       | O2|     201.54 s      |    76.48    |  6694.84  |        84.45%         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/crnn/crnn_resnet34-83f37f07-eb10a0c9.mindir) |
 </div>
 
 - Detailed accuracy results for each benchmark dataset (IC03, IC13, IC15, IIIT, SVT, SVTP, CUTE):
@@ -66,9 +66,9 @@ According to our experiments, the training (following the steps in [Model Traini
 #### Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode
 <div align="center">
 
-| **model name** | **backbone** | **cards** | **batch size** | **train dataset** | **model params** | **jit level** | **graph compile** | **ms/step** | **img/s** | **avg eval accuracy** |**recipe** | **weight**    |
-|:--------------:|:---------:|:--------------:|:------------:|:-----------------:|:----------------:|:---------------------:|:----------------------------:|:-----------:|:---------:|:---------------------:|:------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------:|
-|      CRNN      |     VGG7     |     8     | 16 |       MJ+ST       |      8.72 M      |          O2           |      94.36 s      |    14.76    |  8672.09  |        81.31%         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/crnn/crnn_vgg7-6faf1b2d-910v2.ckpt) |
+| **model name** | **backbone** | **train dataset** | **params(M)** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |**recipe** | **weight**    |
+|:--------------:|:---------:|:--------------:|:-------------:|:-----------------:|:----------------:|:---------------------:|:----------------------------:|:-----------:|:---------:|:---------------------:|:------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------:|
+|      CRNN      |     VGG7     |       MJ+ST       |    8.72     |     8     | 16 |          O2           |      94.36 s      |    14.76    |  8672.09  |        81.31%         | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_vgg7.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/crnn/crnn_vgg7-6faf1b2d-910v2.ckpt) |
 </div>
 
 
@@ -81,10 +81,10 @@ Experiments are tested on ascend 310P with mindspore lite 2.3.1 graph mode
 
 <div align="center">
 
-| model name |  backbone   | batch size | params  | test dataset | img/s  |
-|:----------:|:----------:|:-----------:|:-------:|:------------:|:------:|
-|    CRNN    | ResNet34_vd |     1      | 24.48 M |     IC15     | 361.09 |
-|    CRNN    | ResNet34_vd |     1      | 24.48 M |     SVT      | 274.67 |
+| model name |  backbone   | test dataset | params(M) | cards | batch size | **jit level** | **graph compile** | img/s  |
+|:----------:|:----------:|:-----:|:---------:|:-------:|:------------:|:------:|:-----------------:|:------:|
+|    CRNN    | ResNet34_vd |     IC15     |  24.48  |   1   |   1   |          O2           |      10.46 s      | 361.09 |
+|    CRNN    | ResNet34_vd |     SVT      |  24.48  |   1   |   1   |          O2           |      10.31 s      | 274.67 |
 
 </div>
 
