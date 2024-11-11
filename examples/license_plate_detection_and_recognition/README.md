@@ -255,7 +255,7 @@ Validation set test results:
 
 ## Inference
 
-### Inference commands
+### Inference command
 
 ```shell
 python tools/infer/text/predict_det.py 	--image_dir path/to/image or path/to/image_dir \
