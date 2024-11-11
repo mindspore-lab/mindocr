@@ -4,7 +4,7 @@ English | [中文](./README_CN.md)
 
 # Dataset processing
 
-## Dataset Introduction
+## Dataset introduction
 
 Due to the lack of publicly available large and diverse datasets, most current license plate detection and recognition methods are evaluated on small and often unrepresentative datasets. This paper propose a large and comprehensive license plate dataset, CCPD, where all images are manually captured and carefully annotated by workers from a roadside parking management company. CCPD is the largest publicly available license plate dataset to date, with more than 250,000 unique car images, and the only dataset that provides vertex position annotations.
 
@@ -12,12 +12,9 @@ Paper: [Towards End-to-End License Plate Detection and Recognition: A Large Data
 
 Code repository: [https://github.com/detectRecog/CCPD](https://github.com/detectRecog/CCPD)
 
-## Dataset Download
+## Dataset download
 
-Download the dataset from Google Drive or Baidu Cloud Drive:
-
-* [Google Drive](https://drive.google.com/open?id=1rdEsCUcIUaYOVRkx5IMTRNA7PcGMmSgc)
-* [BaiduYun Drive(code: hm0u)](https://pan.baidu.com/s/1i5AOjAbtkwb17Zy-NQGqkw)
+Download the dataset from the official website of [CCPD](https://github.com/detectRecog/CCPD):
 
 Unzip the dataset into the CCPD_Tutorial/datasets directory:
 
@@ -43,7 +40,7 @@ CCPD_Tutorial
         └── splits
 ```
 
-## Dataset Annotation
+## Dataset annotation
 
 The CCPD dataset does not have a dedicated annotation file. The file name of each image is the corresponding data label.
 
@@ -67,17 +64,17 @@ ads = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q'
        'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'O']
 ```
 
-## Dataset Partitioning
+## Dataset partitioning
 
 Split the ccpd_base dataset into training, testing, and validation datasets according to the train.txt, test.txt, and val.txt files in the splits folder. The splitting code can be found in split.py.
 
 # [MindOCR environment installation](https://github.com/mindspore-lab/mindocr)
 
-## Environmental requirements
+## Requirements
 
-**Hardware platform:** Ascend or GPU
-
-**Software platform:** MindSpore 2.2.14
+|mindspore|gpu driver|cuda version|firmware|
+| :---------: | :----------: | :------------: | :----------------: |
+|2.2.14|535.183.06|cuda11.6|RTX4090|
 
 ## Installation steps
 
@@ -258,7 +255,7 @@ Validation set test results:
 
 ## Inference
 
-### Inference Commands
+### Inference commands
 
 ```shell
 python tools/infer/text/predict_det.py 	--image_dir path/to/image or path/to/image_dir \
@@ -302,7 +299,7 @@ The final structure of the training dataset will be as follows:
 
 The preparation method for the testing and validation datasets is the same.
 
-## Dictionary Preparation
+## Dictionary preparation
 
 Run the code in `generate_dict.py`​ with the following character set to generate the dictionary `ccpd_dict.txt`​, and place it in the `mindocr/utils/dict`​ directory.
 
@@ -314,7 +311,7 @@ ads = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q'
        'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'O']
 ```
 
-## Configuration File Preparation(Refer to the complete configuration file in `svtr_ccpd.yaml`​)
+## Configuration file preparation(Refer to the complete configuration file in `svtr_ccpd.yaml`​)
 
 1. Copy the file `mindocr/configs/rec/svtr/svtr_tiny_ch.yaml`​ to a new file.
 2. Modify the following parameters in the new configuration file:
@@ -378,7 +375,7 @@ metric:
 python tools/train.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml
 ```
 
-### Training Strategy
+### Training strategy
 
 1. **Modify the Configuration File**: Change `loss`​ section's `pred_seq_len`​ to 10.
 
@@ -445,7 +442,7 @@ python tools/eval.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml
 
 ## Inference
 
-### Code Modification
+### Code modification
 
 Modify the file `/mindocr/tools/infer/text/predict_rec.py`​:
 
@@ -526,7 +523,7 @@ def svtr_ccpd(pretrained=False, **kwargs):
     return model
 ```
 
-### Inference Commands
+### Inference command
 
 ```shell
 python tools/infer/text/predict_rec.py 	--image_dir path/to/image_path \
@@ -547,7 +544,7 @@ python tools/infer/text/predict_rec.py 	--image_dir path/to/image_path \
 
 ​![image](pic/rec_res.png)​
 
-# Joint Inference of DBNet and SVTR
+# Joint inference of DBNet and SVTR
 
 **Inference Commands: ​**
 
@@ -569,12 +566,6 @@ python tools/infer/text/predict_system.py 	--image_dir path/to/image_path or ima
 Visualizing Results:
 
 ​![1_res](pic/det_res.png)​
-
-# Requirements
-
-|mindspore|gpu driver|cuda version|firmware|
-| :---------: | :----------: | :------------: | :----------------: |
-|2.2.14|535.183.06|cuda11.6|GeForce RTX 4090|
 
 # Performance
 

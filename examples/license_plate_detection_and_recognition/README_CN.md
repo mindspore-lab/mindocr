@@ -14,10 +14,7 @@
 
 ## 数据集下载
 
-从Google云盘中或百度网盘中下载数据集：
-
-* [Google Drive](https://drive.google.com/open?id=1rdEsCUcIUaYOVRkx5IMTRNA7PcGMmSgc)
-* [BaiduYun Drive(code: hm0u)](https://pan.baidu.com/s/1i5AOjAbtkwb17Zy-NQGqkw)
+从[CCPD官方项目网址](https://github.com/detectRecog/CCPD)下载数据集：
 
 解压数据集到CCPD_Tutorial/datasets目录下：
 
@@ -74,9 +71,9 @@ ads = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q'
 
 ## 环境要求
 
-硬件平台：Ascend 或 GPU
-
-软件平台：MindSpore 2.2.14
+|mindspore|gpu driver|cuda version|firmware|
+| :---------: | :----------: | :------------: | :----------------: |
+|2.2.14|535.183.06|cuda11.6|RTX4090|
 
 ## 安装步骤
 
@@ -198,7 +195,7 @@ python tools/dataset_converters/convert.py \
 
 ## 编写配置文件（完整配置文件见db_r50_ccpd.yaml)
 
-1. 在mindocr/configsdet/dbnet下创建db_r50_ccpd.yaml文件
+1. 在mindocr/configs/det/dbnet下创建db_r50_ccpd.yaml文件
 2. 复制db_r50_ctw1500.ymal文件的内容到db_r50_ccpd.yaml文件
 3. 修改`postprocess`​下的`box_type`​和`box_thresh`​分别为`quad`​和`0.7`​
 
@@ -560,12 +557,6 @@ python tools/infer/text/predict_system.py 	--image_dir path/to/image_path or ima
 ​![image](pic/det_rec_res.png)​
 
 ​![1_res](pic/det_res.png)​
-
-# 版本配套
-
-|mindspore|gpu driver|cuda version|firmware|
-| :---------: | :----------: | :------------: | :----------------: |
-|2.2.14|535.183.06|cuda11.6|GeForce RTX 4090|
 
 # 性能表现
 实验在 GeForce RTX 4090 上使用 MindSpore 2.2.14 的图模式进行测试
