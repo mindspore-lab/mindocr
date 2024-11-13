@@ -1,13 +1,13 @@
 import collections
-import os
 
-import yaml
 from addict import Dict
 
 import numpy as np
+import math
 
 from mindspore import Parameter, Tensor, nn, ops
 from mindspore.common import dtype as mstype
+from mindspore.common.initializer import HeUniform
 
 from mindocr.models.backbones._registry import register_backbone, register_backbone_class
 from ..layoutxlm.visual_backbone import FPN, LastLevelMaxPool, ShapeSpec
@@ -228,16 +228,16 @@ class LayoutLMv3Encoder(LayoutXLMEncoder):
             self.gradient_checkpointing = True
             embed_dim = self.config.hidden_size
             self.out_indices = [int(name[5:]) for name in self.out_features]
-            self.fpn1 = nn.CellList([
+            self.fpn1 = nn.SequentialCell(
                 nn.Conv2dTranspose(embed_dim, embed_dim, kernel_size=2, stride=2, has_bias=True),
                 # nn.SyncBatchNorm(embed_dim),
                 nn.BatchNorm2d(embed_dim),
                 nn.GELU(),
-                nn.Conv2dTranspose(embed_dim, embed_dim, kernel_size=2, stride=2, has_bias=True)]
+                nn.Conv2dTranspose(embed_dim, embed_dim, kernel_size=2, stride=2, has_bias=True)
             )
 
-            self.fpn2 = nn.CellList([
-                nn.Conv2dTranspose(embed_dim, embed_dim, kernel_size=2, stride=2, has_bias=True)]
+            self.fpn2 = nn.SequentialCell(
+                nn.Conv2dTranspose(embed_dim, embed_dim, kernel_size=2, stride=2, has_bias=True)
             )
 
             self.fpn3 = nn.Identity()
@@ -395,15 +395,20 @@ class LayoutLMv3Model(nn.Cell):
         return visual_bbox
 
     def visual_embeddings(self, pixel_values):
-        embeddings = self.patch_embed(pixel_values)
+        if self.detection:
+            embeddings = self.patch_embed(pixel_values, self.pos_embed[:, 1:, :] if self.pos_embed is not None else None)
+        else:
+            embeddings = self.patch_embed(pixel_values)
 
         # add [CLS] token
         batch_size, seq_len, _ = embeddings.shape
         cls_tokens = self.cls_token.broadcast_to((batch_size, -1, -1))
+        if self.pos_embed is not None and self.detection:
+            cls_tokens = cls_tokens + self.pos_embed[:, :1, :]
         embeddings = ops.cat((cls_tokens, embeddings), axis=1)
 
         # add position embeddings
-        if self.pos_embed is not None:
+        if self.pos_embed is not None and not self.detection:
             embeddings = embeddings + self.pos_embed
 
         embeddings = self.pos_drop(embeddings)
@@ -555,7 +560,7 @@ class LayoutLMv3Model(nn.Cell):
                 inputs_embeds=inputs_embeds,
             )
         final_bbox = final_position_ids = None
-        Hp = WP = None
+        Hp = Wp = None
         if pixel_values is not None:
             patch_size = 16
             Hp, Wp = int(pixel_values.shape[2] / patch_size), int(pixel_values.shape[3] / patch_size)
@@ -622,9 +627,106 @@ class LayoutLMv3Model(nn.Cell):
             Wp=Wp
         )
 
+        if self.detection:
+            return encoder_outputs
+
         sequence_output = encoder_outputs[0]
 
         return (sequence_output,) + encoder_outputs[1:]
+
+
+class FPNForLayout(FPN):
+    def __init__(self,
+                 bottom_up,
+                 in_features,
+                 out_channels,
+                 norm="",
+                 top_block=None,
+                 fuse_type="sum",
+                 square_pad=0):
+        super(FPN, self).__init__()
+        assert in_features, in_features
+
+        input_shapes = bottom_up.output_shape()
+        strides = [input_shapes[f].stride for f in in_features]
+        in_channels_per_feature = [input_shapes[f].channels for f in in_features]
+
+        lateral_convs = []
+        output_convs = []
+
+        use_bias = norm == ""
+        for idx, in_channels in enumerate(in_channels_per_feature):
+            lateral_conv = nn.Conv2d(in_channels,
+                                     out_channels,
+                                     kernel_size=1,
+                                     weight_init=HeUniform(negative_slope=1),
+                                     has_bias=use_bias,
+                                     bias_init="zeros")
+            output_conv = nn.Conv2d(out_channels,
+                                    out_channels,
+                                    kernel_size=3,
+                                    padding=1,
+                                    weight_init=HeUniform(negative_slope=1),
+                                    has_bias=use_bias,
+                                    bias_init="zeros",
+                                    pad_mode='pad')
+            stage = int(math.log2(strides[idx]))
+            self.insert_child_to_cell("fpn_lateral{}".format(stage), lateral_conv)
+            self.insert_child_to_cell("fpn_output{}".format(stage), output_conv)
+
+            lateral_convs.append(lateral_conv)
+            output_convs.append(output_conv)
+
+        self.lateral_convs = nn.CellList(lateral_convs[::-1])
+        self.output_convs = nn.CellList(output_convs[::-1])
+
+        self.top_block = top_block
+        self.in_features = tuple(in_features)
+        self.bottom_up = bottom_up
+
+        self._out_feature_strides = {"p{}".format(int(math.log2(s))): s for s in strides}
+        if self.top_block is not None:
+            for s in range(stage, stage + self.top_block.num_levels):
+                self._out_feature_strides["p{}".format(s + 1)] = 2 ** (s + 1)
+
+        self._out_features = list(self._out_feature_strides.keys())
+        self._out_feature_channels = {k: out_channels for k in self._out_features}
+        self._size_divisibility = strides[-1]
+        self._square_pad = square_pad
+        self._fuse_type = fuse_type
+
+        self.out_channels = out_channels
+
+    def construct(self, **x):
+        bottom_up_features = self.bottom_up(**x)
+
+        results = []
+        bottom_up_feature = bottom_up_features.get(self.in_features[-1])
+        prev_features = self.lateral_convs[0](bottom_up_feature)
+        results.append(self.output_convs[0](prev_features))
+
+        for idx, (lateral_conv, output_conv) in enumerate(zip(self.lateral_convs, self.output_convs)):
+            if idx > 0:
+                features = self.in_features[-idx - 1]
+                features = bottom_up_features[features]
+                old_shape = list(prev_features.shape)[2:]
+                new_size = tuple([2 * i for i in old_shape])
+                top_down_features = ops.ResizeNearestNeighbor(size=new_size)(prev_features)
+                lateral_features = lateral_conv(features)
+                prev_features = lateral_features + top_down_features
+                if self._fuse_type == "avg":
+                    prev_features /= 2
+                results.insert(0, output_conv(prev_features))
+        if self.top_block is not None:
+            if self.top_block.in_feature in bottom_up_features:
+                top_block_in_feature = bottom_up_features[self.top_block.in_feature]
+            else:
+                top_block_in_feature = results[self._out_features.index(self.top_block.in_feature)]
+            results.extend(self.top_block(top_block_in_feature))
+
+        assert len(self._out_features) == len(results)
+
+        return {f: res for f, res in zip(self._out_features, results)}
 
 
 @register_backbone
@@ -635,22 +737,19 @@ def layoutlmv3(use_float16: bool = True, **kwargs):
 
 
 @register_backbone
-def build_layoutlmv3_fpn_backbone(use_float16: bool = True, **kwargs):
+def build_layoutlmv3_fpn_backbone(use_float16: bool = False, **kwargs):
     pretrained_config = LayoutLMv3PretrainedConfig(use_float16, **kwargs)
     pretrained_config.has_spatial_attention_bias = False
     pretrained_config.has_relative_attention_bias = False
     pretrained_config.text_embed = False
-    out_features = kwargs.get('out_features', ["layer3", "layer5", "layer7", "layer11"])
-    bottom_up = LayoutLMv3Model(pretrained_config, detection=True, out_features=out_features)
-    fpn_config = kwargs.get("fpn", {})
-    in_features = fpn_config.get("in_features", ["layer3", "layer5", "layer7", "layer11"])
-    out_channels = fpn_config.get("out_channels", 256)
-    backbone = FPN(
+    cfg = Dict(kwargs)
+    bottom_up = LayoutLMv3Model(pretrained_config, detection=True, out_features=cfg.out_features)
+    backbone = FPNForLayout(
         bottom_up=bottom_up,
-        in_features=in_features,
-        out_channels=out_channels,
-        norm=fpn_config.get("norm", ""),
+        in_features=cfg.fpn.in_features,
+        out_channels=cfg.fpn.out_channels,
+        norm=cfg.fpn.norm,
         top_block=LastLevelMaxPool(),
-        fuse_type=fpn_config.get("fuse_type", "sum")
+        fuse_type=cfg.fpn.fuse_type
     )
     return backbone

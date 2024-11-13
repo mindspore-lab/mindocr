@@ -11,7 +11,8 @@ supported_necks = [
     'MasterEncoder',
     'RSEFPN',
     'YOLOv8Neck',
-    'Identity'
+    'Identity',
+    'RPN'
 ]
 from .fpn import DBFPN, EASTFPN, FCEFPN, FPN, PSEFPN, RSEFPN
 from .identity import Identity
@@ -20,6 +21,7 @@ from .master_encoder import MasterEncoder
 from .rnn import RNNEncoder
 from .select import Select
 from .yolov8_neck import YOLOv8Neck
+from .rpn.rpn import RPN
 
 
 def build_neck(neck_name, **kwargs):

@@ -1,7 +1,7 @@
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 
-__all__ = ["YOLOv8Metric"]
+__all__ = ["YOLOv8Metric", "Layoutlmv3Metric"]
 
 
 class YOLOv8Metric(object):
@@ -27,3 +27,7 @@ class YOLOv8Metric(object):
 
     def clear(self):
         self.result_dicts = list()
+
+
+class Layoutlmv3Metric(YOLOv8Metric):
+    """Compute the mean average precision."""
