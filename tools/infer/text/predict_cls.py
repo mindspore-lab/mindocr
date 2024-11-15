@@ -56,7 +56,7 @@ class TextClassifier(object):
         model_name = algo_to_model_name[args.cls_algorithm]
 
         amp_level = args.cls_amp_level
-        if amp_level != "O0" and args.cls_algorithm == "mv3":
+        if amp_level != "O0" and args.cls_algorithm == "MV3":
             logger.warning("The MV3 model supports only amp_level O0")
             amp_level = "O0"
 

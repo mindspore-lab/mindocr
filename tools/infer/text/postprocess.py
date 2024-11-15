@@ -75,6 +75,7 @@ class Postprocessor(object):
                     character_dict_path=rec_char_dict_path,
                     use_space_char=False,
                 )
+                
             else:
                 raise ValueError(f"No postprocess config defined for {algo}. Please check the algorithm name.")
         elif task == "ser":
