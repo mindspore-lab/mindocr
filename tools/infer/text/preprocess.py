@@ -187,7 +187,22 @@ class Preprocessor(object):
                 },
                 {"ToCHWImage": None},
             ]
-
+        elif task == "table":
+            table_max_len = kwargs.get("table_max_len", 480)
+            pipeline = [
+                {"DecodeImage": {"img_mode": "RGB", "keep_ori": True, "to_float32": False}},
+                {"ResizeTableImage": {"max_len": table_max_len}},
+                {"PaddingTableImage": {"size": [table_max_len, table_max_len]}},
+                {
+                    "TableImageNorm": {
+                        "std": [0.5, 0.5, 0.5],
+                        "mean": [0.5, 0.5, 0.5],
+                        "scale": "1./255.",
+                        "order": "hwc",
+                    }
+                },
+                {"ToCHWImage": None},
+            ]
         self.pipeline = pipeline
         self.transforms = create_transforms(pipeline)
 
