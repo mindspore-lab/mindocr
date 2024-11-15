@@ -144,7 +144,12 @@ make
 
 根据对应关系表，应该下载0.3版本的。
 
-​![image](pic/mindocr_version.png)​
+|mindocr|mindspore|
+| :-------: | :---------: |
+|master|master|
+|0.4|2.3.0|
+|0.3|2.2.10|
+|0.1|1.8|
 
 ```txt
 git clone https://github.com/mindspore-lab/mindocr.git
