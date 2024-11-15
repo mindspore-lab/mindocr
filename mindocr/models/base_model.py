@@ -14,7 +14,7 @@ __all__ = ["BaseModel"]
 def batch_image_pad(images, stride=32):
     image_sizes = [(im.shape[-2], im.shape[-1]) for im in images]
     max_size = np.stack(image_sizes).max(axis=0)
-    max_size = (max_size + (stride - 1) // stride) * stride
+    max_size = (max_size + (stride - 1)) // stride * stride
     if len(images) == 1:
         image_size = image_sizes[0]
         padding_size = (0, int(max_size[1] - image_size[1]), 0, int(max_size[0] - image_size[0]))

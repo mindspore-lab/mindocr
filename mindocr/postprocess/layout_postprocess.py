@@ -69,7 +69,7 @@ class Layoutlmv3Postprocess(YOLOv8Postprocess):
         meta_info = [_.numpy() if isinstance(_, Tensor) else _ for _ in meta_info]
         image_ids, ori_shape, hw_scale, pad = meta_info
         preds = preds if isinstance(preds, np.ndarray) else preds.numpy()
-        preds = non_max_suppression(
+        preds = non_max_suppression_for_layoutlmv3(
             preds,
             conf_thres=self.conf_thres,
             iou_thres=self.iou_thres,
@@ -424,7 +424,7 @@ def scale_coords_for_layoutlmv3(img1_shape, coords, img0_shape, ratio=None, pad=
         ratio = (img1_shape[0] / img0_shape[0], img1_shape[1] / img0_shape[1])  # ratio  = old / new
 
     if pad is None:
-        padh, padw = (img1_shape[0] - img0_shape[0] * ratio) / 2, (img1_shape[1] - img0_shape[1] * ratio) / 2
+        padh, padw = (img1_shape[0] - img0_shape[0] * ratio[0]) / 2, (img1_shape[1] - img0_shape[1] * ratio[1]) / 2
     else:
         padh, padw = pad[:]
 

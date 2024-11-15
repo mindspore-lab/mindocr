@@ -72,11 +72,11 @@ model:
       pooler_type: ROIAlignV2
       in_channel: 256
     roi_box_cascade_head:
-      bbox_reg_weight: [[10.0, 10.0, 5.0, 5.0], [20.0, 20.0, 10.0, 10.0], [30.0, 30.0, 15.0, 15.0]]
+      bbox_reg_weights: [[10.0, 10.0, 5.0, 5.0], [20.0, 20.0, 10.0, 10.0], [30.0, 30.0, 15.0, 15.0]]
       ious: [0.5, 0.6, 0.7]
     bbox_assigner:
       name: BBoxAssigner
-      rois_pper_batch: 512
+      rois_per_batch: 512
       bg_thresh: 0.5
       fg_thresh: 0.5
       fg_fraction: 0.25
@@ -92,14 +92,14 @@ postprocess:
 
 metric:
   name: Layoutlmv3Metric
-  annotations_path: &annotations_path /mnt/work/hukang/data/publaynet/val.json
+  annotations_path: &annotations_path val.json
 
 eval:
   ckpt_load_path: "from_torch.ckpt"
   dataset_sink_mode: False
   dataset:
     type: PublayNetDataset
-    dataset_path: /mnt/work/hukang/data/publaynet/val_1.txt
+    dataset_path: val.txt
     annotations_path: *annotations_path
     img_size: 800
     model_name: layoutlmv3

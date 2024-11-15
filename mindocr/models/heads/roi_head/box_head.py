@@ -10,8 +10,8 @@ from .mask_head import MaskRCNNConvUpSampleHead
 
 class FastRCNNConvFCHead(nn.SequentialCell):
 
-    def __int__(self, in_channel=256, out_channel=1024, resolution=7, conv_dims=[], fc_dims=[1024, 1024]):
-        super().__int__()
+    def __init__(self, in_channel=256, out_channel=1024, resolution=7, conv_dims=[], fc_dims=[1024, 1024]):
+        super().__init__()
 
         for k, conv_dim in enumerate(conv_dims):
             conv = nn.Conv2d(in_channel,
@@ -83,10 +83,10 @@ class FastRCNNOutputLayers(nn.Cell):
             return []
         batch_size, rois_num, _ = proposals.shape
         _, proposal_deltas = predictions
-        rois = ops.tile(rois[:, :, :4].reshape((batch_size, rois_num, 1, 4)), (1, 1, self.num_classes, 1))
+        rois = ops.tile(proposals[:, :, :4].reshape((batch_size, rois_num, 1, 4)), (1, 1, self.num_bbox_reg_classes, 1))
         # rois = rois.reshape((-1, rois.shape[-1]))[:, :4]
-        pred_loc = delta2bbox(pred_delta.reshape((-1, 4)), rois.reshape((-1, 4)))  # true box xyxy
-        pred_loc = pred_loc.reshape((batch_size, rois_num, self.num_classes * 4))
+        pred_loc = delta2bbox(proposal_deltas.reshape((-1, 4)), rois.reshape((-1, 4)))  # true box xyxy
+        pred_loc = pred_loc.reshape((batch_size, rois_num, self.num_bbox_reg_classes * 4))
         return pred_loc
 
     def predict_probs(self, predictions, proposals):
@@ -101,7 +101,7 @@ def get_head(cfg):
     if cfg.name == "FastRCNNConvFCHead":
         return FastRCNNConvFCHead(in_channel=cfg.in_channel,
                                   out_channel=cfg.out_channel,
-                                  resolution=cfg.resolution,
+                                  resolution=cfg.pooler_resolution,
                                   conv_dims=cfg.conv_dims,
                                   fc_dims=cfg.fc_dims)
     else:
@@ -144,10 +144,10 @@ class CascadeROIHeads(nn.Cell):
             ))
 
         self.box_head = nn.CellList(box_heads)
-        self.box_predictors = nn.CellList(box_predictors)
+        self.box_predictor = nn.CellList(box_predictors)
         self.proposal_matchers = nn.CellList(proposal_matchers)
 
-        self.numcascade_stages = len(box_heads)
+        self.num_cascade_stages = len(box_heads)
 
         if cfg.mask_on:
             self.mask_head = MaskRCNNConvUpSampleHead(in_channels=cfg.roi_mask_head.in_channel,
@@ -172,7 +172,7 @@ class CascadeROIHeads(nn.Cell):
         if self.training:
             pass
         box_features = self.box_head[stage](box_features)
-        return self.box_predictors[stage](box_features)
+        return self.box_predictor[stage](box_features)
 
     def clip(self, box, clip_size):
         h, w = clip_size
@@ -193,17 +193,17 @@ class CascadeROIHeads(nn.Cell):
             proposals.append(boxes_per_image)
         return ops.stack(proposals, axis=0)
 
-    def predict(self, features, proposals, proposal_mask, pixel_values):
+    def predict(self, features, proposals, proposals_mask, pixel_values):
         features = [features[f] for f in self.box_in_features]
-        head_outputs = []
+        head_outputs = [] # (predictor, predictions, proposals)
         prev_pred_boxes = None
         image_sizes = [x.shape[1:] for x in pixel_values]
-        for k in range(self.numcascade_stages):
+        for k in range(self.num_cascade_stages):
             if k > 0:
                 proposals = self._create_proposals_from_boxes(prev_pred_boxes, image_sizes)
-            predictions = self._run_stage(features, proposals, proposal_mask, k)
-            prev_pred_boxes = self.box_predictors[k].predict_boxes(predictions, proposals)
-            head_outputs.append(self.box_predictors[k], predictions, proposals)
+            predictions = self._run_stage(features, proposals, proposals_mask, k)
+            prev_pred_boxes = self.box_predictor[k].predict_boxes(predictions, proposals)
+            head_outputs.append((self.box_predictor[k], predictions, proposals))
 
         scores_per_stage = [h[0].predict_probs(h[1], h[2]) for h in head_outputs]
 
