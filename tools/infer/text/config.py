@@ -166,6 +166,35 @@ def create_parser():
         "due to padding or resizing to the same shape.",
     )
     parser.add_argument("--kie_batch_num", type=int, default=8)
+    
+    parser.add_argument(
+        "--cls_algorithm",
+        type=str,
+        default="MV3",
+        choices=["MV3"],
+        help="classification algorithm",
+    )
+    parser.add_argument(
+        "--cls_amp_level",
+        type=str,
+        default="O0",
+        choices=["O0", "O1", "O2", "O3"],
+        help="Auto Mixed Precision level. This setting only works on GPU and Ascend",
+    )
+    parser.add_argument(
+        "--cls_model_dir",
+        type=str,
+        help="directory containing the classification model checkpoint best.ckpt"
+        "or path to a specific checkpoint file.",
+    )
+    parser.add_argument(
+        "--cls_batch_mode",
+        type=str2bool,
+        default=True,
+        help="Whether to run classification inference in batch-mode, which is faster but may degrade the accuracy "
+        "due to padding or resizing to the same shape.",
+    )
+    parser.add_argument("--cls_batch_num", type=int, default=8)
 
     return parser
 

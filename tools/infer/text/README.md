@@ -238,6 +238,56 @@ Evaluation of the text spotting inference results on Ascend 910 with MindSpore 2
 2. Unless extra inidication, all experiments are run with `--det_limit_type`="min" and `--det_limit_side`=720.
 3. SVTR is run in mixed precision mode (amp_level=O2) since it is optimized for O2.
 
+## Text Direction Classification
+
+To run a text Angle classification on an input image or a directory that contains multiple images, please execute
+```shell
+python tools/infer/text/predict_cls.py  --image_dir {path_to_img or dir_to_imgs} --rec_algorithm MV3
+```
+When run, inference results are saved in `{args.draw_img_save_dir}/cls_results.txt`, where `--draw_img_save_dir` is the directory to save the results, which is the default setting for `./inference_results`. Here are some examples of the results.
+
+- Text Angle Classification
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/zhangjunlongtech/Material/refs/heads/main/CRNN_t1.png" width=150 />
+</p>
+<p align="center">
+  <em> word_01.png </em>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/zhangjunlongtech/Material/refs/heads/main/CRNN_t2.png" width=150 />
+</p>
+<p align="center">
+  <em> word_02.png </em>
+</p>
+
+Classification results:
+```text
+word_01.png   0
+word_02.png   180
+```
+
+**Note:**
+- for more parameters and usage, please run ` python tools/infer/text/predict_cls.py -h ` or view ` tools/infer/text/config.py `
+- Supports batch text Angle classification and single mode text Angle classification. Batch mode is enabled by default for speed. You can set the batch size with `--cls_batch_num`. You can also run in single image mode by setting `--cls_batch_mode` False.
+- You can set the specified weight file by setting `--cls_model_dir`, or ignore this setting. The system will load the default weight file.
+- The currently supported Angle classification network is mobilenet_v3. You can specify the model by setting `--cls_algorithm`, whose corresponding `--cls_amp_level` currently supports `O0`.
+
+### Supports angle classification algorithms and networks
+
+<center>
+
+  |**Algorithm name**|**Network name**|**Language**|
+  | :------: | :------: | :------: |
+  | MV3 | mobilenet_v3 | CH/EN|
+
+</center>
+
+The algorithm network is defined in `tools/infer/text/predict_cls.py`
+
+Currently, the listed models support classification of 0 and 180 degrees. Other angles of classification will be supported soon.
+
 ## Argument List
 
 All CLI argument definition can be viewed via `python tools/infer/text/predict_system.py -h` or reading `tools/infer/text/config.py`.

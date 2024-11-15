@@ -75,12 +75,13 @@ class Postprocessor(object):
                     character_dict_path=rec_char_dict_path,
                     use_space_char=False,
                 )
-
             else:
                 raise ValueError(f"No postprocess config defined for {algo}. Please check the algorithm name.")
         elif task == "ser":
             class_path = "mindocr/utils/dict/class_list_xfun.txt"
             postproc_cfg = dict(name="VQASerTokenLayoutLMPostProcess", class_path=class_path)
+        elif task == "cls":
+            postproc_cfg = dict(name="ClsPostprocess", label_list=["0", "180"])
 
         postproc_cfg.update(kwargs)
         self.task = task
@@ -141,4 +142,7 @@ class Postprocessor(object):
             output = self.postprocess(
                 pred, segment_offset_ids=kwargs.get("segment_offset_ids"), ocr_infos=kwargs.get("ocr_infos")
             )
+            return output
+        elif self.task == "cls":
+            output = self.postprocess(pred)
             return output

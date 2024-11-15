@@ -230,6 +230,56 @@ python deploy/eval_utils/eval_pipeline.py --gt_path path/to/gt.txt --pred_path p
 
 3、SVTR在混合精度模式下运行（amp_level=O2），因为它针对O2进行了优化。
 
+## 文本方向分类器
+
+要对输入图像或包含多个图像的目录运行文本角度分类，请执行
+```shell
+python tools/infer/text/predict_cls.py  --image_dir {path_to_img or dir_to_imgs} --rec_algorithm MV3
+```
+运行后，推理结果保存在`{args.draw_img_save_dir}/cls_results.txt`中，其中`--draw_img_save_dir`是保存结果的目录，这是`./inference_results`的默认设置。下面是一些结果的例子。
+
+- 文本角度分类
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/zhangjunlongtech/Material/refs/heads/main/CRNN_t1.png" width=150 />
+</p>
+<p align="center">
+  <em> word_01.png </em>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/zhangjunlongtech/Material/refs/heads/main/CRNN_t2.png" width=150 />
+</p>
+<p align="center">
+  <em> word_02.png </em>
+</p>
+
+分类结果：
+```text
+word_01.png   0
+word_02.png   180
+```
+
+**注意事项：**
+- 有关更多参数说明和用法，请运行`python tools/infer/text/predict_cls.py -h`或查看`tools/infer/text/config.py`
+- 支持批量文本角度分类和单模文本角度分类。默认情况下启用批处理模式以提高速度。您可以通过`--cls_batch_num`设置批量大小。您还可以通过设置`--cls_batch_mode` False在单一图像模式下运行。
+- 可通过设置`--cls_model_dir` 来设置指定的权重文件，也可忽略此项设置，系统将加载默认权重文件。
+- 当前支持的角度分类器的网络为mobilenet_v3，可通过设置`--cls_algorithm` 来指定模型，其对应的`cls_amp_level`当前支持O0。
+
+### 支持的角度分类算法和网络
+
+<center>
+
+  |**算法名称**|**网络名称**|**语言**|
+  | :------: | :------: | :------: |
+  | MV3 | mobilenet_v3 | 中/英|
+
+</center>
+
+算法网络在`tools/infer/text/predict_cls.py`中定义
+
+目前，所列型号支持识别0与180度。对于其他角度的识别我们将很快予以支持。
+
 ## 参数列表
 
 所有CLI参数定义都可以通过`python tools/infer/text/predict_system.py -h`或`tools/infer/text/config.py`查看。
