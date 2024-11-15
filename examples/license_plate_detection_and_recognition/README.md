@@ -14,7 +14,7 @@ Code repository: [https://github.com/detectRecog/CCPD](https://github.com/detect
 
 ## Dataset download
 
-Download the dataset from the official website of [CCPD](https://github.com/detectRecog/CCPD):
+On the [CCPD official project website](https://github.com/detectRecog/CCPD), follow the instructions to download the dataset:
 
 Unzip the dataset into the CCPD_Tutorial/datasets directory:
 
@@ -72,9 +72,9 @@ Split the ccpd_base dataset into training, testing, and validation datasets acco
 
 ## Requirements
 
-|mindspore|gpu driver|cuda version|firmware|
-| :---------: | :----------: | :------------: | :----------------: |
-|2.2.14|535.183.06|cuda11.6|RTX4090|
+|mindspore|ascend driver|firmware|cann toolkit/kernel|
+| :---------: | :-------------: | :-----------: | :-------------------: |
+|2.2.14|23.0.3|7.1.0.5.220|7.0.0.beta1|
 
 ## Installation steps
 
@@ -552,11 +552,11 @@ python tools/infer/text/predict_rec.py 	--image_dir path/to/image_path \
 python tools/infer/text/predict_system.py 	--image_dir path/to/image_path or image_dir \
                         --det_algorithm DB \
                         --det_model_dir path/to/dbnet/best.ckpt \
-                        --det_box_type quad --det_db_box_thresh 0.7 --visualize_outpu true \
+                        --det_box_type quad --det_db_box_thresh 0.7 \
                         --rec_algorithm SVTR \
                         --rec_model_dir path/to/svtr_ccpd/best.ckpt \
                         --rec_char_dict_path ./mindocr/utils/dict/ccpd_dict.txt \
-                        --rec_image_shape "3,64,256" --max_text_length 24 --rec_amp_level O2 --visualize_outpu true
+                        --rec_image_shape "3,64,256" --max_text_length 24 --rec_amp_level O2 --visualize_output true
 ```
 
 **Output:**
@@ -569,9 +569,9 @@ Visualizing Results:
 
 # Performance
 
-Experiments are tested on GeForce RTX 4090 with mindspore 2.2.14 graph mode
+Experiments are tested on ascend 910* with mindspore 2.2.14 graph mode :
 
 |model name|cards|batch size|resolution|jit level|graph compile|s/step|img/s|
 | :----------: | :-----: | :----------: | :----------: | :---------: | :-------------: | :------: | :------: |
-|dbnet|1|16|640x640|O0|1.07s|1.86|29.76|
-|svtr|1|64|64x256|O2|0.57s|5.62|359.68|
+|dbnet|1|16|640x640|O0|43.50s|0.26|61.59|
+|svtr|1|256|64x256|O2|202.20s|0.77|331.70|
