@@ -75,7 +75,7 @@ PubTabNet
 ```
 
 
-### 3.3 配置说明
+### 3.3 Configuration Description
 
 Update `configs/table/table_master.yaml`configuration file with data paths,
 specifically`dataset_root` is the directory of training set images folder, `label_file_list` is a list of training set annotation file path, and it may include multiple annotation file paths.
