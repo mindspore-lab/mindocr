@@ -91,6 +91,8 @@ class Postprocessor(object):
                 merge_no_span_structure=True,
                 box_shape="pad",
             )
+        elif task == "layout":
+            postproc_cfg = dict(name="YOLOv8Postprocess", conf_thres=0.5, iou_thres=0.7, conf_free=True)
 
         postproc_cfg.update(kwargs)
         self.task = task
@@ -154,4 +156,6 @@ class Postprocessor(object):
             return output
         elif self.task == "table":
             output = self.postprocess(pred, labels=kwargs.get("labels"))
+        elif self.task == "layout":
+            output = self.postprocess(pred, img_shape=kwargs.get("img_shape"), meta_info=kwargs.get("meta_info"))
             return output

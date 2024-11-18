@@ -5,7 +5,11 @@ import sys
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../../../")))
 
-
+from deploy.py_infer.src.data_process.preprocess.transforms.layout_transforms import (
+    image_norm,
+    image_transpose,
+    letterbox,
+)
 from mindocr.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from mindocr.data.transforms import create_transforms, run_transforms
 
@@ -203,6 +207,13 @@ class Preprocessor(object):
                 },
                 {"ToCHWImage": None},
             ]
+        elif task == "layout":
+            pipeline = [
+                letterbox(scaleup=False),
+                image_norm(scale=255.0),
+                image_transpose(bgr2rgb=True, hwc2chw=True),
+            ]
+
         self.pipeline = pipeline
         self.transforms = create_transforms(pipeline)
 

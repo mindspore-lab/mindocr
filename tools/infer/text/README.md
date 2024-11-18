@@ -191,7 +191,60 @@ web_cvpr.png	[{"transcription": "canada", "points": [[430, 148], [540, 148], [54
 **Notes:**
 1. For more argument illustrations and usage, please run `python tools/infer/text/predict_system.py -h` or view `tools/infer/text/config.py`
 
+## Layout Analysis
 
+To run layout analysis on an input image or a directory containing multiple images, please execute
+```shell
+python tools/infer/text/predict_layout.py  --image_dir {path_to_img or dir_to_imgs} --layout_algorithm YOLOv8 --visualize_output True
+```
+After running, the inference results will be saved in `{args.draw_img_save_dir}/det_results.txt`, where `--draw_img_save_dir` is the directory for saving  results and is set to `./inference_results` by default Here are some results for examples.
+
+Example 1:
+<p align="center">
+  <img src="../../../configs/layout/yolov8/images/result.png" width=480>
+</p>
+<p align="center">
+  <em> Visualization of layout analysis result on PMC4958442_00003.jpg</em>
+</p>
+
+, where the saved layout_result.txt file is as follows
+```
+{"image_id": 0, "category_id": 1, "bbox": [308.649, 559.189, 240.211, 81.412], "score": 0.98431}
+{"image_id": 0, "category_id": 1, "bbox": [50.435, 673.018, 240.232, 70.262], "score": 0.98414}
+{"image_id": 0, "category_id": 3, "bbox": [322.805, 348.831, 225.949, 203.302], "score": 0.98019}
+{"image_id": 0, "category_id": 1, "bbox": [308.658, 638.657, 240.31, 70.583], "score": 0.97986}
+{"image_id": 0, "category_id": 1, "bbox": [50.616, 604.736, 240.044, 70.086], "score": 0.9797}
+{"image_id": 0, "category_id": 1, "bbox": [50.409, 423.237, 240.132, 183.652], "score": 0.97805}
+{"image_id": 0, "category_id": 1, "bbox": [308.66, 293.918, 240.181, 47.497], "score": 0.97471}
+{"image_id": 0, "category_id": 1, "bbox": [308.64, 707.13, 240.271, 36.028], "score": 0.97427}
+{"image_id": 0, "category_id": 1, "bbox": [308.697, 230.568, 240.062, 43.545], "score": 0.96921}
+{"image_id": 0, "category_id": 4, "bbox": [51.787, 100.444, 240.267, 273.653], "score": 0.96839}
+{"image_id": 0, "category_id": 5, "bbox": [308.637, 74.439, 237.878, 149.174], "score": 0.96707}
+{"image_id": 0, "category_id": 1, "bbox": [50.615, 70.667, 240.068, 22.0], "score": 0.94156}
+{"image_id": 0, "category_id": 2, "bbox": [50.549, 403.5, 67.392, 12.85], "score": 0.92577}
+{"image_id": 0, "category_id": 1, "bbox": [51.384, 374.84, 171.939, 10.736], "score": 0.76692}
+```
+In this file, `image_id` is the image ID, `bbox` is the detected bounding box `[x-coordinate of the top-left corner, y-coordinate of the bottom-right corner, width, height]`, `score` is the detection confidence, and `category_id` has the following meanings:
+- `1: text`
+- `2: title`
+- `3: list`
+- `4: table`
+- `5: figure`
+
+**Notes:**
+- For more argument illustrations and usage, please run `python tools/infer/text/predict_layout.py -h` or view `tools/infer/text/config.py`
+
+### Supported Detection Algorithms and Networks
+
+<center>
+
+  | **Algorithm Name** | **Network Name** | **Language** |
+  | :------: | :------: | :------: |
+  |YOLOv8 | yolov8 |English|
+
+</center>
+
+The algorithm-network mapping is defined in `tools/infer/text/predict_layout.py`.
 
 ### Evaluation of the Inference Results
 
