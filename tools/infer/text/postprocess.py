@@ -156,6 +156,7 @@ class Postprocessor(object):
             return output
         elif self.task == "table":
             output = self.postprocess(pred, labels=kwargs.get("labels"))
+            return output
         elif self.task == "layout":
             output = self.postprocess(pred, img_shape=kwargs.get("img_shape"), meta_info=kwargs.get("meta_info"))
             return output
