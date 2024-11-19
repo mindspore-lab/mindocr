@@ -427,14 +427,13 @@ class PublayNetDataset:
         image = image.astype(np.float32, copy=False)
         return image, labels
 
-    def image_pad(self, image, labels, stride=32, max_size=None):
+    def image_pad(self, image, labels, max_size=None):
         image_size = image.shape[-2:]
         if max_size is None:
             max_size = np.array(image_size)
         else:
-            max_size = np.array(max_size)
+            max_size = np.array([max_size, max_size])
 
-        max_size = (max_size + (stride - 1)) // stride * stride
         h_pad = int(max_size[0] - image_size[0])
         w_pad = int(max_size[1] - image_size[1])
 

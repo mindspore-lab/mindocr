@@ -1,6 +1,6 @@
 from addict import Dict
 
-from mindspore import nn, ops
+from mindspore import nn, ops, Tensor
 import numpy as np
 
 from .backbones import build_backbone
@@ -88,6 +88,12 @@ class BaseModel(nn.Cell):
         hw_ori = inputs[1]
         hw_scale = inputs[2]
         pixel_values_unpad_shape = hw_ori * hw_scale
+
+        # fix batch
+        max_size = ops.reduce_max(pixel_values_unpad_shape, axis=0)
+        stride = self.backbone._size_divisibility
+        max_size = (max_size + (stride - 1)) // stride * stride
+        pixel_values = pixel_values[:, :, :int(max_size[0]), :int(max_size[1])]
 
         features = self.backbone(pixel_values=pixel_values)
         proposals, rois_mask = self.neck.predict(features, pixel_values_unpad_shape)

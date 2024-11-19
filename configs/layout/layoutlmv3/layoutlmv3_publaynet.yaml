@@ -92,14 +92,14 @@ postprocess:
 
 metric:
   name: Layoutlmv3Metric
-  annotations_path: &annotations_path /mnt/work/hukang/data/publaynet/val.json
+  annotations_path: &annotations_path publaynet/val.json
 
 eval:
   ckpt_load_path: "from_torch.ckpt"
   dataset_sink_mode: False
   dataset:
     type: PublayNetDataset
-    dataset_path: /mnt/work/hukang/data/publaynet/val.txt
+    dataset_path: publaynet/val.txt
     annotations_path: *annotations_path
     img_size: 800
     model_name: layoutlmv3
@@ -117,8 +117,8 @@ eval:
         bgr2rgb: True
         hwc2chw: True
       - func_name: image_pad
-        stride: 32
-    batch_size: &refine_batch_size 1
+        max_size: 1333
+    batch_size: &refine_batch_size 5
     stride: 64
     output_columns: ["image", "labels", "image_ids", "hw_ori", "hw_scale", "pad"]
     net_input_column_index: [0, 3, 4] # input indices for network forward func in output_columns
