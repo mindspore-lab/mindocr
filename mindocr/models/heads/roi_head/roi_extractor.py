@@ -35,7 +35,7 @@ class RoIExtractor(nn.Cell):
         self.canonical_level = canonical_level
         self.roi_layers = []
         self.num_levels = len(featmap_strides)
-        self.min_level = int(-(math.log2(1 / finest_scale[0])))
+        self.min_level = int(-(math.log2(1 / featmap_strides[0])))
         self.max_level = int(-(math.log2(1 / featmap_strides[-1])))
         self.resolution = resolution
         for s in featmap_strides:
