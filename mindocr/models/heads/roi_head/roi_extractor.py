@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import mindspore as ms
 from mindspore import ops, nn
@@ -33,6 +35,8 @@ class RoIExtractor(nn.Cell):
         self.canonical_level = canonical_level
         self.roi_layers = []
         self.num_levels = len(featmap_strides)
+        self.min_level = int(-(math.log2(1 / finest_scale[0])))
+        self.max_level = int(-(math.log2(1 / featmap_strides[-1])))
         self.resolution = resolution
         for s in featmap_strides:
             self.roi_layers.append(
@@ -66,8 +70,8 @@ class RoIExtractor(nn.Cell):
             Tensor: Level index (0-based) of each RoI, shape (k, )
         """
         scale = ops.sqrt((rois[:, 3] - rois[:, 1]) * (rois[:, 4] - rois[:, 2]))
-        target_lvls = ops.floor(self.log2(scale / self.finest_scale + 1e-6))
-        target_lvls = target_lvls.clamp(min=0, max=num_levels - 1)
+        target_lvls = ops.floor(self.canonical_level + ops.log2(scale / self.finest_scale + 1e-8))
+        target_lvls = target_lvls.clamp(min=self.min_level, max=self.max_level) - self.min_level
         return target_lvls
 
     def construct(self, features, rois, rois_mask):
