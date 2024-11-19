@@ -230,6 +230,87 @@ python deploy/eval_utils/eval_pipeline.py --gt_path path/to/gt.txt --pred_path p
 
 3、SVTR在混合精度模式下运行（amp_level=O2），因为它针对O2进行了优化。
 
+## 表格结构识别
+
+要对输入图像或包含多个图像的目录运行表格结构识别，请执行
+```shell
+python tools/infer/text/predict_table_structure.py --image_dir {path_to_img or dir_to_imgs} --table_algorithm TABLE_MASTER
+```
+
+运行后，推理结果保存在`{args.draw_img_save_dir}`中，其中`--draw_img_save_dir`是保存结果的目录，这是`./inference_results`的默认设置，这里是一些示例结果。
+
+示例1：
+
+样例图片为`configs/table/example.png`，运行结果如下：
+
+<p align="center">
+  <img src="../../../configs/table/example_structure.png" width=1000 />
+</p>
+<p align="center">
+  <em> example_structure.png </em>
+</p>
+
+**注意事项：**
+- 有关更多参数说明和用法，请运行`python tools/infer/text/predict_table_structure.py -h`或查看`tools/infer/text/config.py`
+
+### 支持的表格结构识别算法和网络
+
+<center>
+
+  |   **算法名称**   |**网络名称**| **语言** |
+  |:------------:| :------: |:------:|
+  | table_master | table_resnet_extra |   不区分    |
+
+</center>
+
+算法网络在`tools/infer/text/predict_table_structure.py`中定义。
+
+## 表格结构识别与文本检测识别级联
+
+要对输入图像或目录中的多个图像运行表格识别（即识别表格结构后，结合文本检测识别的结果，识别出完整的表格内容），并恢复成csv文件，请运行：
+
+```shell
+python tools/infer/text/predict_table_recognition.py --image_dir {path_to_img or dir_to_imgs} \
+                                          --det_algorithm DB_PPOCRv3  \
+                                          --rec_algorithm SVTR_PPOCRv3_CH \
+                                          --table_algorithm TABLE_MASTER
+```
+
+运行后，推理结果保存在`{args.draw_img_save_dir}`中，其中`--draw_img_save_dir`是保存结果的目录，这是`./inference_results`的默认设置。下面是一些结果的例子。
+
+示例1：
+
+样例图片为`configs/table/example.png`，在线推理后，得到csv文件内容如下：
+```txt
+Parameter,Non-smokers Mean± SD or N (3),Smokers Mean ± SD or N (C)
+N,24,
+Age (y),69.1 ± 7.0,61.5 ± 9.3 +
+Males/Females,24/0,11/0
+Race White/Black,19/5,9/2
+Weight (kg),97.8 ± 16.8,102.5 ± 23.4
+BMII (kg/m*),32.6 ± 4.9,32.6 ± 6.6
+Serum albumin (g/dL),3.8 ± 0.33,3.63 ± 0.30
+Serum Creatinine (mg/dL),2.75 ± 1.21,1.80 ± 0.74 *
+BUN (mg/dL),46.5 ± 25.6,38.3 ± 21.8
+Hemoglobin (g/dL),13.3 ± 1.6,13.5 ± 2.4
+24 hour urine protein (g/d),3393 ± 2522,4423 ± 4385
+lathae)mm,28.9 ± 13.8,47.2 ± 34.8 *
+Duration of diabetes (yr),15.7 ± 9.1,13.3 ± 9.0
+Insulin use,15 (63%),6 (55%)
+"Hemoglobin A, C (%)",7.57 ± 2.02,8.98 ± 2.93
+Waist/Hip Ratio,1.00 ± 0.07,1.04 ± 0.07
+Antihypertensive medications,4.3 ± 1.6,3.9 ± 1.9
+A,21 (88%),8 (73%)
+Total Cholesterol (mg/dL),184 ± 51,223 ± 87
+LDL Cholesterol (mg/dL),100 ± 44,116 ± 24
+HDL Cholesterol (mg/dL),42 ± 11.1,46 ± 11.4
+,17 (71%),7 (64%)
+
+```
+
+**注意事项：**
+1、如需更多参数说明和用法，请运行`python tools/infer/text/predict_table_recognition.py -h`或查看`tools/infer/text/config.py`
+
 ## 文本方向分类器
 
 要对输入图像或包含多个图像的目录运行文本角度分类，请执行
@@ -283,6 +364,61 @@ word_02.png   180
 ## 参数列表
 
 所有CLI参数定义都可以通过`python tools/infer/text/predict_system.py -h`或`tools/infer/text/config.py`查看。
+
+## 版面分析
+
+要对输入图像或包含多个图像的目录运行版面分析，请执行
+```shell
+python tools/infer/text/predict_layout.py  --image_dir {path_to_img or dir_to_imgs} --layout_algorithm YOLOv8 --visualize_output True
+```
+运行后，推理结果保存在`{args.draw_img_save_dir}/det_results.txt`中，其中`--draw_img_save_dir`是保存结果的目录，这是`./inference_results`的默认设置，这里是一些示例结果。
+
+事例1:
+<p align="center">
+  <img src="../../../configs/layout/yolov8/images/result.png" width=480>
+</p>
+<p align="center">
+  <em> PMC4958442_00003.jpg的可视化结果</em>
+</p>
+
+其中保存的layout_result.txt文件如下
+```
+{"image_id": 0, "category_id": 1, "bbox": [308.649, 559.189, 240.211, 81.412], "score": 0.98431}
+{"image_id": 0, "category_id": 1, "bbox": [50.435, 673.018, 240.232, 70.262], "score": 0.98414}
+{"image_id": 0, "category_id": 3, "bbox": [322.805, 348.831, 225.949, 203.302], "score": 0.98019}
+{"image_id": 0, "category_id": 1, "bbox": [308.658, 638.657, 240.31, 70.583], "score": 0.97986}
+{"image_id": 0, "category_id": 1, "bbox": [50.616, 604.736, 240.044, 70.086], "score": 0.9797}
+{"image_id": 0, "category_id": 1, "bbox": [50.409, 423.237, 240.132, 183.652], "score": 0.97805}
+{"image_id": 0, "category_id": 1, "bbox": [308.66, 293.918, 240.181, 47.497], "score": 0.97471}
+{"image_id": 0, "category_id": 1, "bbox": [308.64, 707.13, 240.271, 36.028], "score": 0.97427}
+{"image_id": 0, "category_id": 1, "bbox": [308.697, 230.568, 240.062, 43.545], "score": 0.96921}
+{"image_id": 0, "category_id": 4, "bbox": [51.787, 100.444, 240.267, 273.653], "score": 0.96839}
+{"image_id": 0, "category_id": 5, "bbox": [308.637, 74.439, 237.878, 149.174], "score": 0.96707}
+{"image_id": 0, "category_id": 1, "bbox": [50.615, 70.667, 240.068, 22.0], "score": 0.94156}
+{"image_id": 0, "category_id": 2, "bbox": [50.549, 403.5, 67.392, 12.85], "score": 0.92577}
+{"image_id": 0, "category_id": 1, "bbox": [51.384, 374.84, 171.939, 10.736], "score": 0.76692}
+```
+其中，`image_id`为图像ID，`bbox`为检测出的边界框`[左上角的x坐标，右下角的y坐标，宽度，高度]`, `score`是检测的置信度，`category_id`的含义如下：
+- `1: text`
+- `2: title`
+- `3: list`
+- `4: table`
+- `5: figure`
+
+**注意事项：**
+- 有关更多参数说明和用法，请运行`python tools/infer/text/predict_layout.py -h`或查看`tools/infer/text/config.py`
+
+### 支持的检测算法和网络
+
+<center>
+
+  |**算法名称**|**网络名称**|**语言**|
+  | :------: | :------: | :------: |
+  |YOLOv8 | yolov8 |英语|
+
+</center>
+
+算法网络在`tools/infer/text/predict_layout.py`中定义。
 
 ## 开发人员指南-如何添加新的推断模型
 
