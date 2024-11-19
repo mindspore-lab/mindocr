@@ -174,30 +174,29 @@ class CascadeROIHeads(nn.Cell):
         box_features = self.box_head[stage](box_features)
         return self.box_predictor[stage](box_features)
 
-    def clip(self, box, clip_size):
-        h, w = clip_size
-        x1 = ops.clamp(box[:, 0], min=0, max=w)
-        y1 = ops.clamp(box[:, 1], min=0, max=h)
-        x2 = ops.clamp(box[:, 2], min=0, max=w)
-        y2 = ops.clamp(box[:, 3], min=0, max=h)
-
-        box = ops.stack([x1, y1, x2, y2], axis=-1)
-        return box
+    def clip_boxes(self, boxes, im_shape):
+        h, w = im_shape
+        x1 = ops.clip_by_value(boxes[..., 0], 0, w)
+        y1 = ops.clip_by_value(boxes[..., 1], 0, h)
+        x2 = ops.clip_by_value(boxes[..., 2], 0, w)
+        y2 = ops.clip_by_value(boxes[..., 3], 0, h)
+        boxes = ops.stack((x1, y1, x2, y2), -1)
+        return boxes
 
     def _create_proposals_from_boxes(self, boxes, image_sizes):
         proposals = []
         for boxes_per_image, image_size in zip(boxes, image_sizes):
-            boxes_per_image = self.clip(boxes_per_image, image_size)
+            boxes_per_image = self.clip_boxes(boxes_per_image, image_size)
             if self.training:
                 pass
             proposals.append(boxes_per_image)
         return ops.stack(proposals, axis=0)
 
-    def predict(self, features, proposals, proposals_mask, pixel_values):
+    def predict(self, features, proposals, proposals_mask, image_sizes):
         features = [features[f] for f in self.box_in_features]
         head_outputs = [] # (predictor, predictions, proposals)
         prev_pred_boxes = None
-        image_sizes = [x.shape[1:] for x in pixel_values]
+
         for k in range(self.num_cascade_stages):
             if k > 0:
                 proposals = self._create_proposals_from_boxes(prev_pred_boxes, image_sizes)

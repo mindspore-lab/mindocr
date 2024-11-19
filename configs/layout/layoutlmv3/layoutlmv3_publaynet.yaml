@@ -92,30 +92,37 @@ postprocess:
 
 metric:
   name: Layoutlmv3Metric
-  annotations_path: &annotations_path val.json
+  annotations_path: &annotations_path /mnt/work/hukang/data/publaynet/val.json
 
 eval:
   ckpt_load_path: "from_torch.ckpt"
   dataset_sink_mode: False
   dataset:
     type: PublayNetDataset
-    dataset_path: val.txt
+    dataset_path: /mnt/work/hukang/data/publaynet/val_100.txt
     annotations_path: *annotations_path
     img_size: 800
     model_name: layoutlmv3
     transform_pipeline:
       - func_name: letterbox
-        scaleup: True
-      - func_name: image_normal
-        mean: [127.5, 127.5, 127.5]
-        std: [127.5, 127.5, 127.5]
+      - func_name: label_norm
+        xyxy2xywh_: True
+      - func_name: label_pad
+        padding_size: 160
+        padding_value: -1
       - func_name: image_transpose
         bgr2rgb: True
         hwc2chw: True
+      - func_name: image_normal
+        mean: 127.5
+        std: 127.5
+      - func_name: image_pad
+        stride: 32
+        max_size: [1065, 800]
     batch_size: &refine_batch_size 1
     stride: 64
     output_columns: ["image", "labels", "image_ids", "hw_ori", "hw_scale", "pad"]
-    net_input_column_index: [0] # input indices for network forward func in output_columns
+    net_input_column_index: [0, 3, 4] # input indices for network forward func in output_columns
     meta_data_column_index: [2, 3, 4, 5] # input indices marked as label
   loader:
     shuffle: False

@@ -46,6 +46,47 @@ class LayoutResize:
         return data
 
 
+class LayoutResizeForLayoutlmv3(LayoutResize):
+    """
+    Resize for Layoutlmv3
+    """
+
+    def resize_image(self, img):
+        ori_h, ori_w = img.shape[:2]  # (h, w, c)
+        r = self.size / min(ori_h, ori_w)
+        resize_h, resize_w = ori_h * r, ori_w * r
+
+        img = cv2.resize(img, (int(resize_w), int(resize_h)))
+        return img, [r, r]
+
+
+class ImagePad:
+    """
+    image pad
+    """
+
+    def __init__(self, stride=32, max_size=None, **kwargs):
+        self.size = stride
+        self.max_size = max_size
+
+    def __call__(self, data):
+        img = data["image"]
+        image_size = img.shape[-2:]
+        if self.max_size is None:
+            max_size = np.array(image_size)
+        else:
+            max_size = np.array(self.max_size)
+
+        max_size = (max_size + (self.stride - 1)) // self.stride * self.stride
+        h_pad = int(max_size[0] - image_size[0])
+        w_pad = int(max_size[1] - image_size[1])
+
+        padding_size = ((0, 0), (0, h_pad), (0, w_pad))
+        img = np.pad(img, padding_size, mode='constant', constant_values=0)
+        data["image"] = img
+        return data
+
+
 class VQATokenLabelEncode:
     """
     Label encode for NLP VQA methods

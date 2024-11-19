@@ -86,7 +86,7 @@ class Layoutlmv3Postprocess(YOLOv8Postprocess):
             # Predictions
             predn = np.copy(pred)
             scale_coords_for_layoutlmv3(
-                img_shape[-2:], predn[:, :4], ori_shape[si], ratio=None, pad=None
+                img_shape[-2:], predn[:, :4], ori_shape[si], ratio=hw_scale[si], pad=None
             )  # native-space pred
 
             box = xyxy2xywh(predn[:, :4])  # xywh
@@ -420,16 +420,6 @@ def scale_coords(img1_shape, coords, img0_shape, ratio=None, pad=None):
 def scale_coords_for_layoutlmv3(img1_shape, coords, img0_shape, ratio=None, pad=None):
     # Rescale coords (xyxy) from img1_shape to img0_shape
 
-    if ratio is None:  # calculate from img0_shape
-        ratio = (img1_shape[0] / img0_shape[0], img1_shape[1] / img0_shape[1])  # ratio  = old / new
-
-    if pad is None:
-        padh, padw = (img1_shape[0] - img0_shape[0] * ratio[0]) / 2, (img1_shape[1] - img0_shape[1] * ratio[1]) / 2
-    else:
-        padh, padw = pad[:]
-
-    coords[:, [0, 2]] -= padw  # x padding
-    coords[:, [1, 3]] -= padh  # y padding
     coords[:, [0, 2]] /= ratio[1]  # x rescale
     coords[:, [1, 3]] /= ratio[0]  # y rescale
     coords = _clip_coords(coords, img0_shape)

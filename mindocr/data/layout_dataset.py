@@ -296,11 +296,13 @@ class PublayNetDataset:
             img = cv2.imread(path)  # BGR
             assert img is not None, "Image Not Found " + path
             h_ori, w_ori = img.shape[:2]  # orig hw
-            if self.model_name != "layoutlmv3":
+            if self.model_name == "layoutlmv3":
+                r = self.img_size / min(h_ori, w_ori)
+            else:
                 r = self.img_size / max(h_ori, w_ori)  # resize image to img_size
-                if r != 1:  # always resize down, only resize up if training with augmentation
-                    interp = cv2.INTER_AREA if r < 1 and not self.augment else cv2.INTER_LINEAR
-                    img = cv2.resize(img, (int(w_ori * r), int(h_ori * r)), interpolation=interp)
+            if r != 1:  # always resize down, only resize up if training with augmentation
+                interp = cv2.INTER_AREA if r < 1 and not self.augment else cv2.INTER_LINEAR
+                img = cv2.resize(img, (int(w_ori * r), int(h_ori * r)), interpolation=interp)
 
             return img, np.array([h_ori, w_ori])  # img, hw_original
         else:
@@ -380,10 +382,10 @@ class PublayNetDataset:
         dh /= 2
         hw_pad = np.array([dh, dw])
 
-        if shape[::-1] != new_unpad:  # resize
-            image = cv2.resize(image, new_unpad, interpolation=cv2.INTER_LINEAR)
-
         if self.model_name != "layoutlmv3":
+            if shape[::-1] != new_unpad:  # resize
+                image = cv2.resize(image, new_unpad, interpolation=cv2.INTER_LINEAR)
+
             top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
             left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
             image = cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
@@ -424,6 +426,21 @@ class PublayNetDataset:
         image = (image - mean) / std
         image = image.astype(np.float32, copy=False)
         return image, labels
+
+    def image_pad(self, image, labels, stride=32, max_size=None):
+        image_size = image.shape[-2:]
+        if max_size is None:
+            max_size = np.array(image_size)
+        else:
+            max_size = np.array(max_size)
+
+        max_size = (max_size + (stride - 1)) // stride * stride
+        h_pad = int(max_size[0] - image_size[0])
+        w_pad = int(max_size[1] - image_size[1])
+
+        padding_size = ((0, 0), (0, h_pad), (0, w_pad))
+        batched_imgs = np.pad(image, padding_size, mode='constant', constant_values=0)
+        return batched_imgs, labels
 
     def image_transpose(self, image, labels, bgr2rgb=True, hwc2chw=True):
         if bgr2rgb:

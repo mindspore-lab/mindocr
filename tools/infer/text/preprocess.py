@@ -187,6 +187,21 @@ class Preprocessor(object):
                 },
                 {"ToCHWImage": None},
             ]
+        elif task == "layout":
+            pipeline = [
+                {"DecodeImage": {"img_mode": "RGB", "infer_mode": True, "to_float32": False}},
+                {"LayoutResizeForLayoutlmv3": {"infer_mode": True, "size": 800}},
+                {
+                    "NormalizeImage": {
+                        "infer_mode": True,
+                        "bgr_to_rgb": False,
+                        "is_hwc": True,
+                        "mean": [127.5, 127.5, 127.5],
+                        "std": [127.5, 127.5, 127.5]
+                    }
+                },
+                {"ToCHWImage": None},
+            ]
 
         self.pipeline = pipeline
         self.transforms = create_transforms(pipeline)

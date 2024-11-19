@@ -18,6 +18,14 @@ def batch_nms(boxes, score, idxs, threshold):
     output_boxes, output_idx, selected_mask = ops.NMSWithMask(threshold)(boxes_for_nms)
     return output_boxes, output_idx, selected_mask
 
+def clip_boxes(boxes, im_shape):
+    h, w = im_shape
+    x1 = ops.clip_by_value(boxes[..., 0], 0, w)
+    y1 = ops.clip_by_value(boxes[..., 1], 0, h)
+    x2 = ops.clip_by_value(boxes[..., 2], 0, w)
+    y2 = ops.clip_by_value(boxes[..., 3], 0, h)
+    boxes = ops.stack((x1, y1, x2, y2, boxes[..., 4]), -1)
+    return boxes
 
 class ProposalGenerator(nn.Cell):
     """
@@ -55,10 +63,10 @@ class ProposalGenerator(nn.Cell):
         return rpn_rois, rpn_rois_mask
 
     def predict_proposals(self, anchors, pred_objectness_logits, pred_anchor_deltas, image_sizes):
-        pred_proposals = self.decode_proposals(anchors, pred_anchor_deltas, image_sizes)
-        return self.find_top_rpn_proposals(pred_proposals, pred_objectness_logits)
+        pred_proposals = self.decode_proposals(anchors, pred_anchor_deltas)
+        return self.find_top_rpn_proposals(pred_proposals, pred_objectness_logits, image_sizes)
 
-    def decode_proposals(self, anchors, pred_anchor_deltas, image_sizes):
+    def decode_proposals(self, anchors, pred_anchor_deltas):
         """decode pred_anchor_deltas to true box xyxy"""
         proposals = ()
         for anchors_i, pred_anchor_deltas_i in zip(anchors, pred_anchor_deltas):
@@ -67,12 +75,12 @@ class ProposalGenerator(nn.Cell):
             pred_anchor_deltas_i = pred_anchor_deltas_i.reshape(-1, B)
             anchors_i = ops.tile(ops.expand_dims(anchors_i, 0), (N, 1, 1)).reshape(-1, B)
             proposals_i = delta2bbox(
-                pred_anchor_deltas_i, anchors_i, weights=(1.0, 1.0, 1.0, 1.0), max_shape=image_sizes
+                pred_anchor_deltas_i, anchors_i, weights=(1.0, 1.0, 1.0, 1.0)
             )
             proposals = proposals + (proposals_i.reshape(N, -1, B),)
         return proposals
 
-    def find_top_rpn_proposals(self, proposals, pred_objectness_logits):
+    def find_top_rpn_proposals(self, proposals, pred_objectness_logits, image_sizes):
         """get top post_nms_top_n proposals"""
         # 1. Select top-k anchor after nms for every level and every image
         boxes = []
@@ -111,6 +119,7 @@ class ProposalGenerator(nn.Cell):
         proposal_masks = []
         for b in range(boxes.shape[0]):
             box = boxes[b]
+            box = clip_boxes(box, image_sizes[b])
             nms_box_logits = box[:, 4]
             _, idx = self.topk(nms_box_logits, self.post_nms_top_n)
             box_keep = box[idx]

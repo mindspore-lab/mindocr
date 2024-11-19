@@ -11,18 +11,6 @@ from .transforms import build_trans
 __all__ = ["BaseModel"]
 
 
-def batch_image_pad(images, stride=32):
-    image_sizes = [(im.shape[-2], im.shape[-1]) for im in images]
-    max_size = np.stack(image_sizes).max(axis=0)
-    max_size = (max_size + (stride - 1)) // stride * stride
-    if len(images) == 1:
-        image_size = image_sizes[0]
-        padding_size = (0, int(max_size[1] - image_size[1]), 0, int(max_size[0] - image_size[0]))
-        batched_imgs = ops.pad(images[0], padding_size, mode='constant', value=0).unsqueeze(0)
-    else:
-        pass
-    return batched_imgs
-
 class BaseModel(nn.Cell):
     def __init__(self, config: dict):
         """
@@ -97,11 +85,13 @@ class BaseModel(nn.Cell):
 
     def layout(self, *inputs):
         pixel_values = inputs[0]
-        pixel_values_shape = pixel_values.shape[2:]
-        pixel_values_pad = batch_image_pad(pixel_values)
-        features = self.backbone(pixel_values=pixel_values_pad)
-        proposals, rois_mask = self.neck.predict(features, pixel_values_shape)
-        res = self.head.predict(features, proposals, rois_mask, pixel_values)
+        hw_ori = inputs[1]
+        hw_scale = inputs[2]
+        pixel_values_unpad_shape = hw_ori * hw_scale
+
+        features = self.backbone(pixel_values=pixel_values)
+        proposals, rois_mask = self.neck.predict(features, pixel_values_unpad_shape)
+        res = self.head.predict(features, proposals, rois_mask, pixel_values_unpad_shape)
         return res
 
     def construct(self, *args):
