@@ -215,7 +215,12 @@ def create_parser():
         help="Auto Mixed Precision level. This setting only works on GPU and Ascend",
     )
 
-    
+    parser.add_argument(
+        "--cls_mode",
+        type=str2bool,
+        default=False,
+        help="whether to use cls model",
+    )
     parser.add_argument(
         "--cls_algorithm",
         type=str,
@@ -236,14 +241,13 @@ def create_parser():
         help="directory containing the classification model checkpoint best.ckpt"
         "or path to a specific checkpoint file.",
     )
+    parser.add_argument("--cls_batch_num", type=int, default=8)
     parser.add_argument(
-        "--cls_batch_mode",
+        "--save_cls_result",
         type=str2bool,
         default=True,
-        help="Whether to run classification inference in batch-mode, which is faster but may degrade the accuracy "
-        "due to padding or resizing to the same shape.",
+        help="whether to use cls model",
     )
-    parser.add_argument("--cls_batch_num", type=int, default=8)
 
     return parser
 

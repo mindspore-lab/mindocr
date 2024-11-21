@@ -191,8 +191,6 @@ web_cvpr.png	[{"transcription": "canada", "points": [[430, 148], [540, 148], [54
 **Notes:**
 1. For more argument illustrations and usage, please run `python tools/infer/text/predict_system.py -h` or view `tools/infer/text/config.py`
 
-
-
 ### Evaluation of the Inference Results
 
 To infer on the whole [ICDAR15](https://rrc.cvc.uab.es/?ch=4&com=downloads) test set, please run:
@@ -238,15 +236,18 @@ Evaluation of the text spotting inference results on Ascend 910 with MindSpore 2
 2. Unless extra inidication, all experiments are run with `--det_limit_type`="min" and `--det_limit_side`=720.
 3. SVTR is run in mixed precision mode (amp_level=O2) since it is optimized for O2.
 
-## Text Direction Classification
+### Text direction classification
 
-To run a text Angle classification on an input image or a directory that contains multiple images, please execute
+If there are non-upright text characters in the image, they can be classified and corrected for orientation using a text direction classifier after the detection. If you run text direction classification and correction on an input image, please perform
 ```shell
-python tools/infer/text/predict_cls.py  --image_dir {path_to_img or dir_to_imgs} --rec_algorithm MV3
+python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_imgs} \
+                                          --det_algorithm DB++  \
+                                          --rec_algorithm CRNN  \
+                                          --cls_mode True
 ```
-When run, inference results are saved in `{args.draw_img_save_dir}/cls_results.txt`, where `--draw_img_save_dir` is the directory to save the results, which is the default setting for `./inference_results`. Here are some examples of the results.
+During execution, the text orientation classifier will classify the direction of the text detected in the image list and correct the direction of non-upright images. Setting `--save_cls_result` to `True` will save the text orientation classification results to `{args.crop_res_save_dir}/cls_results.txt`, where `{args.crop_res_save_dir}` is the directory to save the results. Here are some examples of the results.
 
-- Text Angle Classification
+- Text direction classification
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/zhangjunlongtech/Material/refs/heads/main/CRNN_t1.png" width=150 />
@@ -262,31 +263,158 @@ When run, inference results are saved in `{args.draw_img_save_dir}/cls_results.t
   <em> word_02.png </em>
 </p>
 
-Classification results:
+Classification Results:：
 ```text
-word_01.png   0
-word_02.png   180
+word_01.png   0     1.0
+word_02.png   180   1.0
 ```
-
-**Note:**
-- for more parameters and usage, please run ` python tools/infer/text/predict_cls.py -h ` or view ` tools/infer/text/config.py `
-- Supports batch text Angle classification and single mode text Angle classification. Batch mode is enabled by default for speed. You can set the batch size with `--cls_batch_num`. You can also run in single image mode by setting `--cls_batch_mode` False.
-- You can set the specified weight file by setting `--cls_model_dir`, or ignore this setting. The system will load the default weight file.
-- The currently supported Angle classification network is mobilenet_v3. You can specify the model by setting `--cls_algorithm`, whose corresponding `--cls_amp_level` currently supports `O0`.
-
-### Supports angle classification algorithms and networks
+You can set the direction classification algorithm by `--cls_algorithm`, and set the automatic mixed precision level and weight file for the text direction classifier by `--cls_amp_level` and `--cls_model_dir`. Currently, the supported text direction classification network is `mobilnet_v3`, which is configured with default weight files. The network is set to automatic mixed precision level `O0` by default, and direction classification support 0 and 180 degrees by default. We will support other direction classification in the future.
 
 <center>
 
-  |**Algorithm name**|**Network name**|**Language**|
+  |**Algorithm Name**|**Network Name**|**Language**|
   | :------: | :------: | :------: |
   | MV3 | mobilenet_v3 | CH/EN|
 
 </center>
 
-The algorithm network is defined in `tools/infer/text/predict_cls.py`
+For more parameter descriptions and usage information, please refer to `tools/infer/text/config.py`.
+## Layout Analysis
 
-Currently, the listed models support classification of 0 and 180 degrees. Other angles of classification will be supported soon.
+To run layout analysis on an input image or a directory containing multiple images, please execute
+```shell
+python tools/infer/text/predict_layout.py  --image_dir {path_to_img or dir_to_imgs} --layout_algorithm YOLOv8 --visualize_output True
+```
+After running, the inference results will be saved in `{args.draw_img_save_dir}/det_results.txt`, where `--draw_img_save_dir` is the directory for saving  results and is set to `./inference_results` by default Here are some results for examples.
+
+Example 1:
+<p align="center">
+  <img src="../../../configs/layout/yolov8/images/result.png" width=480>
+</p>
+<p align="center">
+  <em> Visualization of layout analysis result on PMC4958442_00003.jpg</em>
+</p>
+
+, where the saved layout_result.txt file is as follows
+```
+{"image_id": 0, "category_id": 1, "bbox": [308.649, 559.189, 240.211, 81.412], "score": 0.98431}
+{"image_id": 0, "category_id": 1, "bbox": [50.435, 673.018, 240.232, 70.262], "score": 0.98414}
+{"image_id": 0, "category_id": 3, "bbox": [322.805, 348.831, 225.949, 203.302], "score": 0.98019}
+{"image_id": 0, "category_id": 1, "bbox": [308.658, 638.657, 240.31, 70.583], "score": 0.97986}
+{"image_id": 0, "category_id": 1, "bbox": [50.616, 604.736, 240.044, 70.086], "score": 0.9797}
+{"image_id": 0, "category_id": 1, "bbox": [50.409, 423.237, 240.132, 183.652], "score": 0.97805}
+{"image_id": 0, "category_id": 1, "bbox": [308.66, 293.918, 240.181, 47.497], "score": 0.97471}
+{"image_id": 0, "category_id": 1, "bbox": [308.64, 707.13, 240.271, 36.028], "score": 0.97427}
+{"image_id": 0, "category_id": 1, "bbox": [308.697, 230.568, 240.062, 43.545], "score": 0.96921}
+{"image_id": 0, "category_id": 4, "bbox": [51.787, 100.444, 240.267, 273.653], "score": 0.96839}
+{"image_id": 0, "category_id": 5, "bbox": [308.637, 74.439, 237.878, 149.174], "score": 0.96707}
+{"image_id": 0, "category_id": 1, "bbox": [50.615, 70.667, 240.068, 22.0], "score": 0.94156}
+{"image_id": 0, "category_id": 2, "bbox": [50.549, 403.5, 67.392, 12.85], "score": 0.92577}
+{"image_id": 0, "category_id": 1, "bbox": [51.384, 374.84, 171.939, 10.736], "score": 0.76692}
+```
+In this file, `image_id` is the image ID, `bbox` is the detected bounding box `[x-coordinate of the top-left corner, y-coordinate of the bottom-right corner, width, height]`, `score` is the detection confidence, and `category_id` has the following meanings:
+- `1: text`
+- `2: title`
+- `3: list`
+- `4: table`
+- `5: figure`
+
+**Notes:**
+- For more argument illustrations and usage, please run `python tools/infer/text/predict_layout.py -h` or view `tools/infer/text/config.py`
+
+### Supported Detection Algorithms and Networks
+
+<center>
+
+  | **Algorithm Name** | **Network Name** | **Language** |
+  | :------: | :------: | :------: |
+  |YOLOv8 | yolov8 |English|
+
+</center>
+
+The algorithm-network mapping is defined in `tools/infer/text/predict_layout.py`.
+
+## Table Structure Recognition
+
+To run table structure recognition on an input image or multiple images in a directory, please run:
+
+```shell
+python tools/infer/text/predict_table_structure.py --image_dir {path_to_img or dir_to_imgs} --table_algorithm TABLE_MASTER
+```
+
+After running, the inference results will be saved in `{args.draw_img_save_dir}`, where `--draw_img_save_dir` is the directory for saving  results and is set to `./inference_results` by default. Here are some results for examples.
+
+Example 1：
+
+The sample image is `configs/table/example.png`. The inference result is as follows:
+
+<p align="center">
+  <img src="../../../configs/table/example_structure.png" width=1000 />
+</p>
+<p align="center">
+  <em> example_structure.png </em>
+</p>
+
+**Notes:**
+1. For more argument illustrations and usage, please run `python tools/infer/text/predict_table_structure.py -h` or view `tools/infer/text/config.py`
+
+### Supported Table Structure Recognition Algorithms and Networks
+
+<center>
+
+  | **Model Name** |    **Backbone**    | **Language** |
+  |:--------------:|:------------------:|:------------:|
+  |  table_master  | table_resnet_extra |  universal   |
+
+</center>
+
+The algorithm-network mapping is defined in `tools/infer/text/predict_table_structure.py`.
+
+## Table Structure Recognition and Text Detection Recognition Concatenation
+
+To run table recognition on an input image or multiple images in a directory (i.e., recognize the table structure first, then combine the results of text detection and recognition to recognize the complete table content), and recovery to CSV files, please run:
+```shell
+python tools/infer/text/predict_table_recognition.py --image_dir {path_to_img or dir_to_imgs} \
+                                          --det_algorithm DB_PPOCRv3  \
+                                          --rec_algorithm SVTR_PPOCRv3_CH \
+                                          --table_algorithm TABLE_MASTER
+```
+
+After running, the inference results will be saved in `{args.draw_img_save_dir}`, where `--draw_img_save_dir` is the directory for saving  results and is set to `./inference_results` by default. Here are some results for examples.
+
+Example 1：
+
+The sample image is `configs/table/example.png`. After online inference, the content of the CSV file is as follows:
+
+```txt
+Parameter,Non-smokers Mean± SD or N (3),Smokers Mean ± SD or N (C)
+N,24,
+Age (y),69.1 ± 7.0,61.5 ± 9.3 +
+Males/Females,24/0,11/0
+Race White/Black,19/5,9/2
+Weight (kg),97.8 ± 16.8,102.5 ± 23.4
+BMII (kg/m*),32.6 ± 4.9,32.6 ± 6.6
+Serum albumin (g/dL),3.8 ± 0.33,3.63 ± 0.30
+Serum Creatinine (mg/dL),2.75 ± 1.21,1.80 ± 0.74 *
+BUN (mg/dL),46.5 ± 25.6,38.3 ± 21.8
+Hemoglobin (g/dL),13.3 ± 1.6,13.5 ± 2.4
+24 hour urine protein (g/d),3393 ± 2522,4423 ± 4385
+lathae)mm,28.9 ± 13.8,47.2 ± 34.8 *
+Duration of diabetes (yr),15.7 ± 9.1,13.3 ± 9.0
+Insulin use,15 (63%),6 (55%)
+"Hemoglobin A, C (%)",7.57 ± 2.02,8.98 ± 2.93
+Waist/Hip Ratio,1.00 ± 0.07,1.04 ± 0.07
+Antihypertensive medications,4.3 ± 1.6,3.9 ± 1.9
+A,21 (88%),8 (73%)
+Total Cholesterol (mg/dL),184 ± 51,223 ± 87
+LDL Cholesterol (mg/dL),100 ± 44,116 ± 24
+HDL Cholesterol (mg/dL),42 ± 11.1,46 ± 11.4
+,17 (71%),7 (64%)
+
+```
+
+**Notes:**
+1. For more argument illustrations and usage, please run `python tools/infer/text/predict_table_recognition.py -h` or view `tools/infer/text/config.py`
 
 ## Argument List
 

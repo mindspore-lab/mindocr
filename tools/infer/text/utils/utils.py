@@ -183,3 +183,23 @@ def get_ocr_result_paths(ocr_result_dir: str) -> List[str]:
             "Please check the `image_dir` arg value."
         )
     return sorted(ocr_result_path)
+
+
+def img_rotate(image, angle):
+    """
+    Rotate the incoming image at a specified angle.
+
+    Args:
+        image: an encoded image that needs to be rotated.
+        angle: the target Angle at which the image is rotated
+
+    Returns:
+        rotated: the output image after rotation.
+    """
+
+    (h, w) = image.shape[:2]
+    center = (w / 2, h / 2)
+    M = cv2.getRotationMatrix2D(center, angle, 1.0)
+    rotated = cv2.warpAffine(image, M, (w, h))
+
+    return rotated
