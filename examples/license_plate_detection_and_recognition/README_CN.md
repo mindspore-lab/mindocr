@@ -14,7 +14,7 @@
 
 ## 数据集下载
 
-在[CCPD官方项目网址](https://github.com/detectRecog/CCPD)中,按照指引下载数据集：
+按照[CCPD官方项目网址](https://github.com/detectRecog/CCPD)的指引，下载数据集：
 
 解压数据集到CCPD_Tutorial/datasets目录下：
 
@@ -71,9 +71,17 @@ ads = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q'
 
 ## 环境要求
 
+### Ascend
+
 |mindspore|ascend driver|firmware|cann toolkit/kernel|
 | :---------: | :-------------: | :-----------: | :-------------------: |
 |2.2.14|23.0.3|7.1.0.5.220|7.0.0.beta1|
+
+### GPU
+
+|mindspore|gpu driver|cuda version|firmware|
+| :---------: | :----------: | :------------: | :----------------: |
+|2.2.14|535.183.06|cuda11.6| RTX 4090|
 
 ## 安装步骤
 
@@ -87,7 +95,7 @@ conda create -n mindspore2.2.14_mindocr python=3.9
 
 2. [安装MindSpore 2.2.14](https://www.mindspore.cn/install/)
 
-根据mindspore官网指引，选择适配当前环境的mindspore安装包。
+按照[MindSpore官网](https://www.mindspore.cn/install/)指引，安装MindSpore 2.2.14版本及其配套的GPU或昇腾AI处理器配套软件包。
 
 3. [安装openmpi 4.0.3](https://www.open-mpi.org/software/ompi/v4.0/) (for distributed training/evaluation)【为了分布式的训练和评估，如不需要分布式训练，可跳过】
 
@@ -136,7 +144,7 @@ make
 
 ### 下载安装MindOCR
 
-根据对应关系表，应该下载0.3版本的。
+根据MindSpore和MindOCR的版本配套关系，下载安装0.3版本的MindOCR。
 
 |mindocr|mindspore|
 | :-------: | :---------: |
@@ -563,3 +571,10 @@ python tools/infer/text/predict_system.py 	--image_dir path/to/image_path or ima
 | :----------: | :-----: | :----------: | :----------: | :---------: | :-------------: | :------: | :------: |
 |dbnet|1|16|640x640|O0|43.50s|0.26|61.59|
 |svtr|1|256|64x256|O2|202.20s|0.77|331.70|
+
+实验在 GPU 上使用 MindSpore 2.2.14 的图模式进行测试:
+
+|model name|cards|batch size|resolution|jit level|graph compile|s/step|img/s|
+| :----------: | :-----: | :----------: | :----------: | :---------: | :-------------: | :------: | :------: |
+|dbnet|1|16|640x640|O0|1.07s|1.86|29.76|
+|svtr|1|64|64x256|O2|0.57s|5.62|359.68|

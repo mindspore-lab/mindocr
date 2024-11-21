@@ -14,7 +14,7 @@ Code repository: [https://github.com/detectRecog/CCPD](https://github.com/detect
 
 ## Dataset download
 
-On the [CCPD official project website](https://github.com/detectRecog/CCPD), follow the instructions to download the dataset:
+Download the dataset following the instructions on the [CCPD official project website](https://github.com/detectRecog/CCPD):
 
 Unzip the dataset into the CCPD_Tutorial/datasets directory:
 
@@ -72,9 +72,16 @@ Split the ccpd_base dataset into training, testing, and validation datasets acco
 
 ## Requirements
 
+### Ascend 
 |mindspore|ascend driver|firmware|cann toolkit/kernel|
 | :---------: | :-------------: | :-----------: | :-------------------: |
 |2.2.14|23.0.3|7.1.0.5.220|7.0.0.beta1|
+
+### GPU
+
+|mindspore|gpu driver|cuda version|firmware|
+| :---------: | :----------: | :------------: | :----------------: |
+|2.2.14|535.183.06|cuda11.6|RTX 4090|
 
 ## Installation steps
 
@@ -88,7 +95,7 @@ conda create -n mindspore2.2.14_mindocr python=3.9
 
 2. [Installing MindSpore 2.2.14](https://www.mindspore.cn/install/)
 
-Based on the MindSpore official website guidelines, select the MindSpore installation package that is compatible with the current environment.
+According to the guidelines on the [MindSpore official website](https://www.mindspore.cn/install/), install MindSpore version 2.2.14 along with the corresponding GPU or Ascend AI processor software packages.
 
 3. [Install openmpi 4.0.3](https://www.open-mpi.org/software/ompi/v4.0/) (For distributed training and evaluation, if distributed training is not required, you can skip it)
 
@@ -131,7 +138,7 @@ make
 
 ## Install MindOCR
 
-According to the version correspondence table, you should download version 0.3.
+Based on the version compatibility between MindSpore and MindOCR, please download and install MindOCR version 0.3.
 
 |mindocr|mindspore|
 | :-------: | :---------: |
@@ -570,3 +577,10 @@ Experiments are tested on ascend 910* with mindspore 2.2.14 graph mode :
 | :----------: | :-----: | :----------: | :----------: | :---------: | :-------------: | :------: | :------: |
 |dbnet|1|16|640x640|O0|43.50s|0.26|61.59|
 |svtr|1|256|64x256|O2|202.20s|0.77|331.70|
+
+Experiments are tested on GeForce RTX 4090 with mindspore 2.2.14 graph mode :
+
+|model name|cards|batch size|resolution|jit level|graph compile|s/step|img/s|
+| :----------: | :-----: | :----------: | :----------: | :---------: | :-------------: | :------: | :------: |
+|dbnet|1|16|640x640|O0|1.07s|1.86|29.76|
+|svtr|1|64|64x256|O2|0.57s|5.62|359.68|
