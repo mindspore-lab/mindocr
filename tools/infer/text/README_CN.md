@@ -239,7 +239,7 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
                                           --rec_algorithm CRNN  \
                                           --cls_mode True
 ```
-执行过程中，文本方向分类器将对文本检测所得图像列表进行方向分类，并对非正向的图像进行方向矫正。设置`--save_cls_result`为`True`可将文本方向分类结果保存至`{args.crop_res_save_dir}/cls_results.txt`中，其中`--crop_res_save_dir`是保存结果的目录，下面是一些结果的例子。
+执行过程中，文本方向分类器将对文本检测所得图像列表进行方向分类，并对非正向的图像进行方向矫正。设置`--save_cls_result`为`True`可将文本方向分类结果保存至`{args.crop_res_save_dir}/cls_results.txt`中，其中`--crop_res_save_dir`是保存结果的目录，以下为部分结果示例。
 
 - 文本方向分类
 
