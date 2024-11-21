@@ -90,10 +90,6 @@ conda create -n mindspore2.2.14_mindocr python=3.9
 
 Based on the MindSpore official website guidelines, select the MindSpore installation package that is compatible with the current environment.
 
-```shell
-pip install https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.2.14/MindSpore/unified/x86_64/mindspore-2.2.14-cp39-cp39-linux_x86_64.whl --trusted-host ms-release.obs.cn-north-4.myhuaweicloud.com -i https://pypi.tuna.tsinghua.edu.cn/simple
-```
-
 3. [Install openmpi 4.0.3](https://www.open-mpi.org/software/ompi/v4.0/) (For distributed training and evaluation, if distributed training is not required, you can skip it)
 
 Find version 4.0.3 on the openmpi official website, download the tar.gz file and unzip it to the project-related folder:

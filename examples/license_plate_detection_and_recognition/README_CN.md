@@ -89,11 +89,6 @@ conda create -n mindspore2.2.14_mindocr python=3.9
 
 根据mindspore官网指引，选择适配当前环境的mindspore安装包。
 
-
-```txt
-pip install https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.2.14/MindSpore/unified/x86_64/mindspore-2.2.14-cp39-cp39-linux_x86_64.whl --trusted-host ms-release.obs.cn-north-4.myhuaweicloud.com -i https://pypi.tuna.tsinghua.edu.cn/simple
-```
-
 3. [安装openmpi 4.0.3](https://www.open-mpi.org/software/ompi/v4.0/) (for distributed training/evaluation)【为了分布式的训练和评估，如不需要分布式训练，可跳过】
 
 在openmpi下载官网找到4.0.3版本，下载tar.gz文件解压到项目相关文件夹
