@@ -88,7 +88,7 @@ conda create -n mindspore2.2.14_mindocr python=3.9
 
 2. [Installing MindSpore 2.2.14](https://www.mindspore.cn/install/)
 
-​![image](pic/install_mindspore.png)​
+Based on the MindSpore official website guidelines, select the MindSpore installation package that is compatible with the current environment.
 
 ```shell
 pip install https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.2.14/MindSpore/unified/x86_64/mindspore-2.2.14-cp39-cp39-linux_x86_64.whl --trusted-host ms-release.obs.cn-north-4.myhuaweicloud.com -i https://pypi.tuna.tsinghua.edu.cn/simple
@@ -233,16 +233,16 @@ def __init__(self, min_iou: float = 0.7, min_intersect: float = 0.5):
 ## Train
 
 ```shell
-# Single GPU Training (May Cause Memory Issues)
-python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target GPU
-# Multi-GPU Training (Requires Correct OpenMPI Installation and Root Privileges)
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target GPU
+# Single Ascend Training (May Cause Memory Issues)
+python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml
+# Multi-Ascend Training (Requires Correct OpenMPI Installation and Root Privileges)
+mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml
 ```
 
 ## Test
 
 ```shell
-python tools/eval.py -c=configs/det/dbnet/db_r50_ccpd.yaml --device_target GPU
+python tools/eval.py -c=configs/det/dbnet/db_r50_ccpd.yaml
 ```
 
 Validation set test results:
@@ -371,7 +371,6 @@ metric:
 ## Train
 
 ```shell
-# Single GPU/CPU/Ascend Training
 python tools/train.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml
 ```
 

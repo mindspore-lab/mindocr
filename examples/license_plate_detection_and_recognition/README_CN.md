@@ -87,9 +87,8 @@ conda create -n mindspore2.2.14_mindocr python=3.9
 
 2. [安装MindSpore 2.2.14](https://www.mindspore.cn/install/)
 
-选择mindspore的版本为2.2.14，以及适配的CUDA版本获取安装命令。
+根据mindspore官网指引，选择适配当前环境的mindspore安装包。
 
-​![image](pic/install_mindspore.png)​
 
 ```txt
 pip install https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.2.14/MindSpore/unified/x86_64/mindspore-2.2.14-cp39-cp39-linux_x86_64.whl --trusted-host ms-release.obs.cn-north-4.myhuaweicloud.com -i https://pypi.tuna.tsinghua.edu.cn/simple
@@ -240,15 +239,15 @@ def __init__(self, min_iou: float = 0.7, min_intersect: float = 0.5):
 
 ```txt
 # 单卡训练，容易爆内存
-python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target GPU
+python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml
 # 多卡训练，需要正确安装opemmpi和使用root权限
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target GPU
+mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml
 ```
 
 ## 测试
 
 ```txt
-python tools/eval.py -c=configs/det/dbnet/db_r50_ccpd.yaml --device_target GPU
+python tools/eval.py -c=configs/det/dbnet/db_r50_ccpd.yaml
 ```
 
 验证集测试结果：
@@ -377,7 +376,6 @@ metric:
 ## 训练
 
 ```txt
-# CPU/GPU/Ascend 设备上的单卡训练
 python tools/train.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml
 ```
 
