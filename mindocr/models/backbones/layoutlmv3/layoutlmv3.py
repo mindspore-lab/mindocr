@@ -55,6 +55,7 @@ class LayoutLMv3PatchEmbeddings(nn.Cell):
             position_embedding = position_embedding.view(1, self.patch_shape[0], self.patch_shape[1], -1)
             position_embedding = position_embedding.transpose(0, 3, 1, 2)
             patch_height, patch_width = embeddings.shape[2], embeddings.shape[3]
+            # bicubic模式和torch有精度差异，待替换接口
             position_embedding = ops.interpolate(position_embedding, size=(patch_height, patch_width), mode="bicubic")
             embeddings = embeddings + position_embedding
 

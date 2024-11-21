@@ -298,11 +298,12 @@ class PublayNetDataset:
             h_ori, w_ori = img.shape[:2]  # orig hw
             if self.model_name == "layoutlmv3":
                 r = self.img_size / min(h_ori, w_ori)
+                img = cv2.resize(img, (int(round(w_ori * r)), int(round(h_ori * r))), interpolation=cv2.INTER_LINEAR)
             else:
                 r = self.img_size / max(h_ori, w_ori)  # resize image to img_size
-            if r != 1:  # always resize down, only resize up if training with augmentation
-                interp = cv2.INTER_AREA if r < 1 and not self.augment else cv2.INTER_LINEAR
-                img = cv2.resize(img, (int(w_ori * r), int(h_ori * r)), interpolation=interp)
+                if r != 1:  # always resize down, only resize up if training with augmentation
+                    interp = cv2.INTER_AREA if r < 1 and not self.augment else cv2.INTER_LINEAR
+                    img = cv2.resize(img, (int(w_ori * r), int(h_ori * r)), interpolation=interp)
 
             return img, np.array([h_ori, w_ori])  # img, hw_original
         else:

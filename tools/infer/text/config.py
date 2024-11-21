@@ -154,6 +154,13 @@ def create_parser():
         help="ser algorithm",
     )
     parser.add_argument(
+        "--layout_algorithm",
+        type=str,
+        default="LAYOUTLMV3",
+        choices=["LAYOUTLMV3"],
+        help="layout algorithm",
+    )
+    parser.add_argument(
         "--ser_model_dir",
         type=str,
         help="directory containing the ser model checkpoint best.ckpt, or path to a specific checkpoint file.",
@@ -166,6 +173,13 @@ def create_parser():
         "due to padding or resizing to the same shape.",
     )
     parser.add_argument("--kie_batch_num", type=int, default=8)
+    parser.add_argument(
+        "-c",
+        "--config",
+        type=str,
+        default="",
+        help="YAML config file specifying default arguments (default=" ")",
+    )
 
     return parser
 

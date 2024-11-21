@@ -215,6 +215,7 @@ class CascadeROIHeads(nn.Cell):
         # Use the boxes of the last head
         predictor, predictions, proposals = head_outputs[-1]
         boxes = predictor.predict_boxes(predictions, proposals)
+        boxes = self._create_proposals_from_boxes(boxes, image_sizes)
 
         res = ops.concat((boxes, scores), axis=-1)
         return res

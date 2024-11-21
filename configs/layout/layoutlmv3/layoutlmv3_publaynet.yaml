@@ -99,7 +99,7 @@ eval:
   dataset_sink_mode: False
   dataset:
     type: PublayNetDataset
-    dataset_path: publaynet/val.txt
+    dataset_path: publaynet/val_1.txt
     annotations_path: *annotations_path
     img_size: 800
     model_name: layoutlmv3
@@ -118,7 +118,7 @@ eval:
         hwc2chw: True
       - func_name: image_pad
         max_size: 1333
-    batch_size: &refine_batch_size 5
+    batch_size: &refine_batch_size 1
     stride: 64
     output_columns: ["image", "labels", "image_ids", "hw_ori", "hw_scale", "pad"]
     net_input_column_index: [0, 3, 4] # input indices for network forward func in output_columns
@@ -129,3 +129,8 @@ eval:
     drop_remainder: False
     max_rowsize: 12
     num_workers: 1
+
+predict:
+  ckpt_load_path: "from_torch.ckpt"
+  category_dict: {1: 'text', 2: 'title', 3: 'list', 4: 'table', 5: 'figure'}
+  color_dict: {1: 'r', 2: 'b', 3: 'g', 4: 'c', 5: 'm'}

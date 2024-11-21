@@ -188,20 +188,24 @@ class Preprocessor(object):
                 {"ToCHWImage": None},
             ]
         elif task == "layout":
-            pipeline = [
-                {"DecodeImage": {"img_mode": "RGB", "infer_mode": True, "to_float32": False}},
-                {"LayoutResizeForLayoutlmv3": {"infer_mode": True, "size": 800}},
-                {
-                    "NormalizeImage": {
-                        "infer_mode": True,
-                        "bgr_to_rgb": False,
-                        "is_hwc": True,
-                        "mean": [127.5, 127.5, 127.5],
-                        "std": [127.5, 127.5, 127.5]
-                    }
-                },
-                {"ToCHWImage": None},
-            ]
+            if algo == "LAYOUTLMV3":
+                pipeline = [
+                    {"DecodeImage": {"img_mode": "RGB", "infer_mode": True, "to_float32": False}},
+                    {"LayoutResizeForLayoutlmv3": {"infer_mode": True, "size": 800}},
+                    {
+                        "NormalizeImage": {
+                            "infer_mode": True,
+                            "bgr_to_rgb": False,
+                            "is_hwc": True,
+                            "mean": [127.5, 127.5, 127.5],
+                            "std": [127.5, 127.5, 127.5]
+                        }
+                    },
+                    {"ToCHWImage": None},
+                    {"ImagePad": {"stride": 32}}
+                ]
+            else:
+                raise ValueError(f"No preprocess config defined for {algo}. Please check the algorithm name.")
 
         self.pipeline = pipeline
         self.transforms = create_transforms(pipeline)

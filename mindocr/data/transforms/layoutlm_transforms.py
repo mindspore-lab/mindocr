@@ -54,10 +54,18 @@ class LayoutResizeForLayoutlmv3(LayoutResize):
     def resize_image(self, img):
         ori_h, ori_w = img.shape[:2]  # (h, w, c)
         r = self.size / min(ori_h, ori_w)
-        resize_h, resize_w = ori_h * r, ori_w * r
+        resize_h, resize_w = int(round(ori_h * r)), int(round(ori_w * r))
+        ratio_h = float(resize_h) / ori_h
+        ratio_w = float(resize_w) / ori_w
+        img = cv2.resize(img, (resize_w, resize_h))
+        return img, [ratio_h, ratio_w]
 
-        img = cv2.resize(img, (int(resize_w), int(resize_h)))
-        return img, [r, r]
+    def __call__(self, data):
+        img = data["image"]
+        img_resize, [ratio_h, ratio_w] = self.resize_image(img)
+        data["image"] = img_resize
+        data["hw_scale"] = [ratio_h, ratio_w]
+        return data
 
 
 class ImagePad:
@@ -66,7 +74,7 @@ class ImagePad:
     """
 
     def __init__(self, stride=32, max_size=None, **kwargs):
-        self.size = stride
+        self.stride = stride
         self.max_size = max_size
 
     def __call__(self, data):

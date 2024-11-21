@@ -82,6 +82,7 @@ class ProposalGenerator(nn.Cell):
 
     def find_top_rpn_proposals(self, proposals, pred_objectness_logits, image_sizes):
         """get top post_nms_top_n proposals"""
+        # nms实现方式和torch有精度差异，待替换接口
         # 1. Select top-k anchor after nms for every level and every image
         boxes = []
         for level_id, (proposals_i, logits_i) in enumerate(zip(proposals, pred_objectness_logits)):
@@ -103,6 +104,7 @@ class ProposalGenerator(nn.Cell):
                 _, idx = self.topk(logits_ib, num_proposals_i)
                 boxes_for_nms = ops.concat((proposals_ib, ops.expand_dims(logits_ib, -1)), axis=-1)
                 boxes_for_nms = boxes_for_nms[idx]
+                boxes_for_nms = clip_boxes(boxes_for_nms, image_sizes[b])
                 nms_box, _, nms_mask = self.nms(boxes_for_nms)
                 nms_box_logits = ops.select(
                     nms_mask, boxes_for_nms[:, 4], ops.full_like(boxes_for_nms[:, 4], -1000).astype(nms_box.dtype)
@@ -119,7 +121,6 @@ class ProposalGenerator(nn.Cell):
         proposal_masks = []
         for b in range(boxes.shape[0]):
             box = boxes[b]
-            box = clip_boxes(box, image_sizes[b])
             nms_box_logits = box[:, 4]
             _, idx = self.topk(nms_box_logits, self.post_nms_top_n)
             box_keep = box[idx]
