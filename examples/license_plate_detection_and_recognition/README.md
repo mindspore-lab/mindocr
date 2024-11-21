@@ -72,7 +72,7 @@ Split the ccpd_base dataset into training, testing, and validation datasets acco
 
 ## Requirements
 
-### Ascend 
+### Ascend
 |mindspore|ascend driver|firmware|cann toolkit/kernel|
 | :---------: | :-------------: | :-----------: | :-------------------: |
 |2.2.14|23.0.3|7.1.0.5.220|7.0.0.beta1|
