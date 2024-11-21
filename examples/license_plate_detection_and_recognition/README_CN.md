@@ -242,15 +242,15 @@ def __init__(self, min_iou: float = 0.7, min_intersect: float = 0.5):
 
 ```txt
 # 单卡训练，容易爆内存
-python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml
+python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend/GPU
 # 多卡训练，需要正确安装opemmpi和使用root权限
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml
+mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend/GPU
 ```
 
 ## 测试
 
 ```txt
-python tools/eval.py -c=configs/det/dbnet/db_r50_ccpd.yaml
+python tools/eval.py -c=configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend/GPU
 ```
 
 验证集测试结果：
@@ -379,7 +379,7 @@ metric:
 ## 训练
 
 ```txt
-python tools/train.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml
+python tools/train.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml --device_target Ascend/GPU
 ```
 
 ### 训练策略
@@ -440,7 +440,7 @@ valid res:
 ## 测试
 
 ```txt
-python tools/eval.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml
+python tools/eval.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml --device_target Ascend/GPU
 ```
 
 ​​![image](pic/rec_valid_res.png)​​

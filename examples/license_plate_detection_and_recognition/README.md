@@ -236,16 +236,16 @@ def __init__(self, min_iou: float = 0.7, min_intersect: float = 0.5):
 ## Train
 
 ```shell
-# Single Ascend Training (May Cause Memory Issues)
-python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml
-# Multi-Ascend Training (Requires Correct OpenMPI Installation and Root Privileges)
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml
+# Single Ascend/GPU Training (May Cause Memory Issues)
+python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend/GPU
+# Multi-Ascend/GPU Training (Requires Correct OpenMPI Installation and Root Privileges)
+mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend/GPU
 ```
 
 ## Test
 
 ```shell
-python tools/eval.py -c=configs/det/dbnet/db_r50_ccpd.yaml
+python tools/eval.py -c=configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend/GPU
 ```
 
 Validation set test results:
@@ -374,7 +374,7 @@ metric:
 ## Train
 
 ```shell
-python tools/train.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml
+python tools/train.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml --device_target Ascend/GPU
 ```
 
 ### Training strategy
@@ -435,7 +435,7 @@ valid res:
 ## Test
 
 ```shell
-python tools/eval.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml
+python tools/eval.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml --device_target Ascend/GPU
 ```
 
 ​![image](pic/rec_valid_res.png)​
