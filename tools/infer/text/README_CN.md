@@ -311,10 +311,6 @@ HDL Cholesterol (mg/dL),42 ± 11.1,46 ± 11.4
 **注意事项：**
 1、如需更多参数说明和用法，请运行`python tools/infer/text/predict_table_recognition.py -h`或查看`tools/infer/text/config.py`
 
-## 参数列表
-
-所有CLI参数定义都可以通过`python tools/infer/text/predict_system.py -h`或`tools/infer/text/config.py`查看。
-
 ## 版面分析
 
 要对输入图像或包含多个图像的目录运行版面分析，请执行
@@ -369,6 +365,66 @@ python tools/infer/text/predict_layout.py  --image_dir {path_to_img or dir_to_im
 </center>
 
 算法网络在`tools/infer/text/predict_layout.py`中定义。
+
+## 端到端文档分析及恢复
+
+要对输入图像或目录中的多个图像运行文档分析（即检测所有文本区域、表格区域、图像区域，并对这些区域进行文字识别，最终将结果按照图像原来的排版方式转换成Docx文件），请运行：
+
+```shell
+python tools/infer/text/predict_table_e2e.py --image_dir {path_to_img or dir_to_imgs} \
+                                             --det_algorithm {DET_ALGO} \
+                                             --rec_algorithm {REC_ALGO}
+```
+>注意：如果要可视化版面分析、表格识别和文字识别的结果，请设置`--visualize_output True`。
+
+运行后，推理结果保存在`{args.draw_img_save_dir}/{img_name}_e2e_result.txt`中，其中`--draw_img_save_dir`是保存结果的目录，这是`./inference_results`的默认设置。下面是一些结果的例子。
+
+示例1：
+
+<p align="center">
+  <img src="../../../configs/layout/yolov8/images/example_docx.png"/>
+</p>
+<p align="center">
+  <em> PMC4958442_00003.jpg转换成docx文件的效果 </em>
+</p>
+
+其中保存的txt文件如下
+```text
+{"type": "text", "bbox": [50.615, 70.667, 290.683, 92.667], "res": "tabley predictive value ofbasic clinical laboratory and suciode variables surney anc yea after tramphenins", "layout": "double"}
+{"type": "table", "bbox": [51.787, 100.444, 292.054, 374.09700000000004], "res": "<html><body><table><thead><tr><td><b>sign factor</b></td><td><b>prediction valucofthe the</b></td><td><b>from difereness significance levelaf the</b></td></tr></thead><tbody><tr><td>gender</td><td>0027 0021</td><td>o442</td></tr><tr><td></td><td>00z44</td><td>0480</td></tr><tr><td>cause</td><td>tooza 0017</td><td>o547</td></tr><tr><td>cadaverieilizing donorst</td><td>0013 aont</td><td>0740</td></tr><tr><td>induction transplantation before dialysis</td><td>doattoos</td><td>0125</td></tr><tr><td>depleting antibodies monoclomalor cn immunosuppression with</td><td>doista09</td><td>0230</td></tr><tr><td>ititis</td><td>0029</td><td>aaso</td></tr><tr><td>status itional</td><td>0047 toots</td><td></td></tr><tr><td>townfrillage</td><td>non</td><td></td></tr><tr><td>transplantations number</td><td>toos 0017</td><td>o5s1</td></tr><tr><td>creatinine</td><td>02400g</td><td>caoor</td></tr><tr><td>pressure bload systolic</td><td>aidaloloss</td><td>aoz</td></tr><tr><td>pressure diastolic blood</td><td>dobetods</td><td>ass</td></tr><tr><td>hemoglobin</td><td>0044 0255t</td><td>caoor</td></tr><tr><td></td><td>004</td><td>caoor</td></tr></tbody></table></body></html>", "layout": "double"}
+{"type": "text", "bbox": [51.384, 374.84, 223.32299999999998, 385.57599999999996], "res": "nanc rmeans more significant forecasting factor sign", "layout": "double"}
+{"type": "title", "bbox": [50.549, 403.5, 117.941, 416.35], "res": "discussion", "layout": "double"}
+{"type": "text", "bbox": [50.409, 423.237, 290.541, 606.889], "res": "determination of creatinine and hemoglobin level in the blood well aetho concentration of protein in the urine in one year atter kidney transplantation with the calculation of prognostic criterion predics the loss of renal allotransplant function in years fafter surgery advantages ff the method are the possibility oof quantitative forecasting of renal allotransplant losser which based not only its excretory function assessment but also on assessment other characteristics that may have important prognostic value and does not always directly correlate with changes in its excretors function in order the riskof death with transplant sfunctioning returntothe program hemodialysis the predictive model was implemented cabular processor excel forthe useofthe model litisquite enough the value ethel given indices calculation and prognosis will be automatically done in the electronic table figure 31", "layout": "double"}
+{"type": "text", "bbox": [50.616, 604.736, 290.66, 674.822], "res": "the calculator designed by us has been patented chttpell napatentscomy 68339 sposib prognozuvannys vtrati funk caniskovogo transplanatchti and disnvailable on the in ternet chitpsolivad skillwond the accuract ot prediction of renal transplant function loss three years after transplantation was 92x", "layout": "double"}
+{"type": "text", "bbox": [50.435, 673.018, 290.66700000000003, 743.28], "res": "progression of chronic renal dysfunctional the transplant accompanied the simultaneous losa the benefits of successful transplantation and the growth of problems due to immunosuppresson bosed on retrospective analysis nt resultsof treatment tofkidney transplantof the recipients with blood creatinine higher than d3 immold we adhere to the", "layout": "double"}
+{"type": "figure", "bbox": [308.637, 74.439, 546.515, 223.613], "res": "./inference_results/example_figure_10.png", "layout": "double"}
+{"type": "text", "bbox": [308.697, 230.568, 548.759, 274.113], "res": "figures the cnerhecadfmuthrnatical modeltor prognostication ofkidaey transplant function during the periodal three years after thetransplantation according oletectercipiolgaps after theoperation", "layout": "double"}
+{"type": "text", "bbox": [308.66, 293.918, 548.841, 341.415], "res": "following principles in thecorrectionod immunisuppresion which allow decreasing the rateofs chronic dysfunctionof the transplant development or edecreasing the risk fof compliea tions incaeoflasof function", "layout": "double"}
+{"type": "list", "bbox": [322.805, 348.831, 548.754, 552.133], "res": "wdo not prescribe hish doses steroids and do have the steroid pulse therapy cy do not increase the dose of received cyclosporine tacrolimus and stop medication ifthere isan increase in nephropathy tj continue immunosuppression with medicines ofmy cophenolic acid which are not nephrotoxic k4 enhance amonitoring of immunosuppression andpe vention infectious com cancel immunosuppression atreturning hemodi alysis treatment cancellation of steroids should done egradually sometimes for several months when thediscomfort eassociated transplant tempera ture main in the projection the transplanted kidney and hematurial short course of low doses of steroids administered orally of intravenously can be effective", "layout": "double"}
+{"type": "text", "bbox": [308.649, 559.189, 548.86, 640.601], "res": "according to plasma concentration of creatinine the return hemodialvsis the patients were divided into groups ln the first group the creatinine concentration in blood plasma waso mmoly in the 2nd groun con centration in blood plasma was azlommaty and in the third group concentration in blood plasma was more than commolt", "layout": "double"}
+{"type": "text", "bbox": [308.658, 638.657, 548.9680000000001, 709.24], "res": "dates or the return of transplant recipients with delaved rena transplant disfunction are largely dependent ion the psychological state ofthe patient severity of depression the desire to ensure the irreversibility the transplanted kidney dysfunction and fear that the dialysis will contribute to the deterioration of renal transplant function", "layout": "double"}
+{"type": "text", "bbox": [308.64, 707.13, 548.911, 743.158], "res": "the survival rateof patients ofthe first group after return in hemodialysis was years and in the second and third groups respectively 53132 and28426 years", "layout": "double"}
+
+```
+其中，`type`为检测区域的类型，`bbox`为检测出的边界框`[左上角的x坐标，右下角的y坐标，宽度，高度]`, `res`是检测的结果内容。
+
+**注意事项：**
+1. 如需更多参数说明和用法，请运行`python tools/infer/text/predict_table_e2e.py -h`或查看`tools/infer/text/config.py`
+2. 除了config.py中的参数，predict_table_e2e.py还接受如下参数：
+<center>
+
+  |   **参数名**   |**描述**| **默认值** |
+  |:------------:| :------: |:------:|
+  | layout | 版面分析任务 |   True    |
+  | ocr | 文字识别任务 |   True    |
+  | table | 表格识别任务 |   True    |
+  | recovery | 转换成Docx任务 |   True    |
+
+</center>
+
+## 参数列表
+
+所有CLI参数定义都可以通过`python tools/infer/text/predict_system.py -h`或`tools/infer/text/config.py`查看。
 
 ## 开发人员指南-如何添加新的推断模型
 
