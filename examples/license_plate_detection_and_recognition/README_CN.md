@@ -1,3 +1,5 @@
+[English](./README.md) | 中文
+
 # 基于MindOCR的车牌识别
 
 # 数据集处理
@@ -12,10 +14,7 @@
 
 ## 数据集下载
 
-从Google云盘中或百度网盘中下载数据集：
-
-* [Google Drive](https://drive.google.com/open?id=1rdEsCUcIUaYOVRkx5IMTRNA7PcGMmSgc)
-* [BaiduYun Drive(code: hm0u)](https://pan.baidu.com/s/1i5AOjAbtkwb17Zy-NQGqkw)
+按照[CCPD官方项目网址](https://github.com/detectRecog/CCPD)的指引，下载数据集：
 
 解压数据集到CCPD_Tutorial/datasets目录下：
 
@@ -72,9 +71,17 @@ ads = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q'
 
 ## 环境要求
 
-硬件平台：Ascend、GPU
+### Ascend
 
-软件平台：MindSpore 2.2.14
+|mindspore|ascend driver|firmware|cann toolkit/kernel|
+| :---------: | :-------------: | :-----------: | :-------------------: |
+|2.2.14|23.0.3|7.1.0.5.220|7.0.0.beta1|
+
+### GPU
+
+|mindspore|gpu driver|cuda version|firmware|
+| :---------: | :----------: | :------------: | :----------------: |
+|2.2.14|535.183.06|cuda11.6| RTX 4090|
 
 ## 安装步骤
 
@@ -88,13 +95,7 @@ conda create -n mindspore2.2.14_mindocr python=3.9
 
 2. [安装MindSpore 2.2.14](https://www.mindspore.cn/install/)
 
-选择mindspore的版本为2.2.14，以及适配的CUDA版本获取安装命令。
-
-​![image](pic/install_mindspore.png)​
-
-```txt
-pip install https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.2.14/MindSpore/unified/x86_64/mindspore-2.2.14-cp39-cp39-linux_x86_64.whl --trusted-host ms-release.obs.cn-north-4.myhuaweicloud.com -i https://pypi.tuna.tsinghua.edu.cn/simple
-```
+按照[MindSpore官网](https://www.mindspore.cn/install/)指引，安装MindSpore 2.2.14版本及其配套的GPU或昇腾AI处理器配套软件包。
 
 3. [安装openmpi 4.0.3](https://www.open-mpi.org/software/ompi/v4.0/) (for distributed training/evaluation)【为了分布式的训练和评估，如不需要分布式训练，可跳过】
 
@@ -143,9 +144,14 @@ make
 
 ### 下载安装MindOCR
 
-根据对应关系表，应该下载0.3版本的。
+根据MindSpore和MindOCR的版本配套关系，下载安装0.3版本的MindOCR。
 
-​![image](pic/mindocr_version.png)​
+|mindocr|mindspore|
+| :-------: | :---------: |
+|master|master|
+|0.4|2.3.0|
+|0.3|2.2.10|
+|0.1|1.8|
 
 ```txt
 git clone https://github.com/mindspore-lab/mindocr.git
@@ -196,7 +202,7 @@ python tools/dataset_converters/convert.py \
 
 ## 编写配置文件（完整配置文件见db_r50_ccpd.yaml)
 
-1. 在mindocr/configsdet/dbnet下创建db_r50_ccpd.yaml文件
+1. 在mindocr/configs/det/dbnet下创建db_r50_ccpd.yaml文件
 2. 复制db_r50_ctw1500.ymal文件的内容到db_r50_ccpd.yaml文件
 3. 修改`postprocess`​下的`box_type`​和`box_thresh`​分别为`quad`​和`0.7`​
 
@@ -236,15 +242,15 @@ def __init__(self, min_iou: float = 0.7, min_intersect: float = 0.5):
 
 ```txt
 # 单卡训练，容易爆内存
-python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target GPU
+python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend/GPU
 # 多卡训练，需要正确安装opemmpi和使用root权限
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target GPU
+mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend/GPU
 ```
 
 ## 测试
 
 ```txt
-python tools/eval.py -c=configs/det/dbnet/db_r50_ccpd.yaml --device_target GPU
+python tools/eval.py -c=configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend/GPU
 ```
 
 验证集测试结果：
@@ -373,13 +379,12 @@ metric:
 ## 训练
 
 ```txt
-# CPU/GPU/Ascend 设备上的单卡训练
-python tools/train.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml
+python tools/train.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml --device_target Ascend/GPU
 ```
 
 ### 训练策略
 
-1. 修改配置文件`loss`​下的`pred_seq_len`​为10
+1. 修改配置文件`loss`​部分的`pred_seq_len`​为10
 
 ```java
 valid res:
@@ -387,7 +392,7 @@ valid res:
 [2024-09-10 15:16:38] mindocr.eval INFO - Performance: {'acc': 0.00023000920191407204, 'norm_edit_distance': 0.5451045036315918}
 ```
 
-3. 将`image_shape`​调整为【32，80】等比例放缩
+3. 修改配置文件`model`部分的`img_size`为[32，80]
 
 ```java
 valid res:
@@ -396,7 +401,7 @@ valid res:
 [2024-09-10 19:14:02] mindocr.eval INFO - Performance: {'acc': 0.069402776658535, 'norm_edit_distance': 0.765773355960846}
 ```
 
-4. Resize策略：不考虑宽高比，直接将所有文本图像`resize`​到`32 * 100`​，`Resize`​时不使用`Padding`​ ； `max_text_length: 25`​
+4. Resize策略: 直接将所有文本图像`resize`​到`32 * 100`​,`Resize`​时不使用`Padding`​;`max_text_length`设置为25​;
 
 ```java
 valid res:
@@ -414,7 +419,7 @@ valid res:
 [2024-09-10 23:01:26] mindocr.eval INFO - Performance: {'acc': 0.9795991778373718, 'norm_edit_distance': 0.995379626750946}
 ```
 
-6. 修改`SVTRRecAug`​的`aug_type`​为1：应用更强的数据集增强方式。[svtr_transform.py](https://github.com/mindspore-lab/mindocr/blob/5fd78b46b42d40aeba01f72538699837594053b1/mindocr/data/transforms/svtr_transform.py#L354)
+6. 增加数据增强强度:将​配置文件`SVTRRecAug`部分​的`aug_type`修改为1
 
 ```java
 valid res:
@@ -423,7 +428,7 @@ valid res:
 [2024-09-11 17:08:48] mindocr.eval INFO - Performance: {'acc': 0.9606783986091614, 'norm_edit_distance': 0.9910668730735779}
 ```
 
-7. ​`SVTRRecAug`​增加`deterioration_p: 0.5`​、`colorjitter_p: 0.5`​
+7. 增加数据增强强度：在​配置文件`SVTRRecAug`部分​增加`deterioration_p: 0.5`​、`colorjitter_p: 0.5`​
 
 ```java
 valid res:
@@ -435,7 +440,7 @@ valid res:
 ## 测试
 
 ```txt
-python tools/eval.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml
+python tools/eval.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml --device_target Ascend/GPU
 ```
 
 ​​![image](pic/rec_valid_res.png)​​
@@ -548,13 +553,28 @@ python tools/infer/text/predict_rec.py 	--image_dir path/to/image_path \
 python tools/infer/text/predict_system.py 	--image_dir path/to/image_path or image_dir \
                         --det_algorithm DB \
                         --det_model_dir path/to/dbnet/best.ckpt \
-                        --det_box_type quad --det_db_box_thresh 0.7 --visualize_outpu true \
+                        --det_box_type quad --det_db_box_thresh 0.7 \
                         --rec_algorithm SVTR \
                         --rec_model_dir path/to/svtr_ccpd/best.ckpt \
                         --rec_char_dict_path ./mindocr/utils/dict/ccpd_dict.txt \
-                        --rec_image_shape "3,64,256" --max_text_length 24 --rec_amp_level O2 --visualize_outpu true
+                        --rec_image_shape "3,64,256" --max_text_length 24 --rec_amp_level O2 --visualize_output true
 ```
 
 ​![image](pic/det_rec_res.png)​
 
 ​![1_res](pic/det_res.png)​
+
+# 性能表现
+实验在 ascend 910* 上使用 MindSpore 2.2.14 的图模式进行测试:
+
+|model name|cards|batch size|resolution|jit level|graph compile|s/step|img/s|
+| :----------: | :-----: | :----------: | :----------: | :---------: | :-------------: | :------: | :------: |
+|dbnet|1|16|640x640|O0|43.50s|0.26|61.59|
+|svtr|1|256|64x256|O2|202.20s|0.77|331.70|
+
+实验在 GPU 上使用 MindSpore 2.2.14 的图模式进行测试:
+
+|model name|cards|batch size|resolution|jit level|graph compile|s/step|img/s|
+| :----------: | :-----: | :----------: | :----------: | :---------: | :-------------: | :------: | :------: |
+|dbnet|1|16|640x640|O0|1.07s|1.86|29.76|
+|svtr|1|64|64x256|O2|0.57s|5.62|359.68|
