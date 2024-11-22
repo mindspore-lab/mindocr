@@ -3,7 +3,7 @@ Text detection inference
 
 Example:
     $ python tools/infer/text/predict_layout.py  --image_dir {path_to_img}
-                                                 --det_algorithm layoutlmv3
+                                                 --layout_algorithm LAYOUTLMV3
                                                  --config {config_path}
 """
 
@@ -104,7 +104,7 @@ class LayoutDetector(object):
         return layout_res, data
 
 
-def save_layout_res(layout_res_all: List[dict],save_path="./det_results.txt"):
+def save_layout_res(layout_res_all: List[dict],save_path="./layout_results.txt"):
     fw = open(save_path, "w")
     for i, layout_res in enumerate(layout_res_all):
         fw.write(json.dumps(layout_res) + "\n")
