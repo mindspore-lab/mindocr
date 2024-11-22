@@ -166,6 +166,7 @@ def create_parser():
         "due to padding or resizing to the same shape.",
     )
     parser.add_argument("--kie_batch_num", type=int, default=8)
+
     parser.add_argument(
         "--table_algorithm",
         type=str,
@@ -200,13 +201,18 @@ def create_parser():
     parser.add_argument(
         "--layout_algorithm", type=str, default="YOLOv8", choices=["YOLOv8"], help="layout analyzer algorithm"
     )
-
     parser.add_argument(
         "--layout_model_dir",
         type=str,
         help="directory containing the layout model checkpoint best.ckpt, or path to a specific checkpoint file.",
     )  # determine the network weights
-
+    parser.add_argument(
+        "--layout_category_dict_path",
+        type=str,
+        default="./mindocr/utils/dict/layout_category_dict.txt",
+        help="path to category dictionary for layout recognition. "
+        "If None, will pick according to layout_algorithm and layout_model_dir.",
+    )
     parser.add_argument(
         "--layout_amp_level",
         type=str,

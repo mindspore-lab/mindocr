@@ -15,7 +15,14 @@ from config import create_parser, str2bool
 from predict_layout import LayoutAnalyzer
 from predict_system import TextSystem
 from predict_table_recognition import TableAnalyzer
-from utils import add_padding, convert_info_docx, get_image_paths, sort_words_by_poly, sorted_layout_boxes
+from utils import (
+    add_padding,
+    convert_info_docx,
+    get_dict_from_file,
+    get_image_paths,
+    sort_words_by_poly,
+    sorted_layout_boxes,
+)
 
 logger = logging.getLogger("mindocr")
 
@@ -129,12 +136,15 @@ def save_e2e_res(e2e_res: List, img_path: str, save_path: str):
         f.close()
 
 
-def predict_table_e2e(img_path, layout_analyzer, text_system, table_analyzer, do_visualize, save_folder, recovery):
+def predict_table_e2e(
+    img_path, layout_category_dict, layout_analyzer, text_system, table_analyzer, do_visualize, save_folder, recovery
+):
     """
     Predict the end-to-end results for the input image
 
     Args:
         img_path: path to the input image
+        layout_category_dict: category dictionary for layout recognition
         layout_analyzer: layout analyzer model, for more details, please refer to predict_layout.py
         text_system: text system model, for more details, please refer to predict_system.py
         table_analyzer: table analyzer model, for more details, please refer to predict_table.py
@@ -157,7 +167,6 @@ def predict_table_e2e(img_path, layout_analyzer, text_system, table_analyzer, do
 
     # crop text regions
     h_ori, w_ori = image.shape[:2]
-    category_dict = {1: "text", 2: "title", 3: "list", 4: "table", 5: "figure"}
     final_results = []
     for i in range(len(results)):
         category_id = results[i]["category_id"]
@@ -176,22 +185,22 @@ def predict_table_e2e(img_path, layout_analyzer, text_system, table_analyzer, do
             rec_res_all_crops = text_system(cropped_img, do_visualize=False)
             output = sort_words_by_poly(rec_res_all_crops[1], rec_res_all_crops[0])
             final_results.append(
-                {"type": category_dict[category_id], "bbox": [left, top, right, bottom], "res": " ".join(output)}
+                {"type": layout_category_dict[category_id], "bbox": [left, top, right, bottom], "res": " ".join(output)}
             )
 
             logger.info(
-                f"Processing {category_dict[category_id]} at [{left}, {top}, {right}, {bottom}]"
+                f"Processing {layout_category_dict[category_id]} at [{left}, {top}, {right}, {bottom}]"
                 f" {time.time() - start_time:.2f}s"
             )
         elif category_id == 4 and table_analyzer is not None:
             start_time = time.time()
             pred_html, _ = table_analyzer(cropped_img, do_visualize=do_visualize)
             final_results.append(
-                {"type": category_dict[category_id], "bbox": [left, top, right, bottom], "res": pred_html}
+                {"type": layout_category_dict[category_id], "bbox": [left, top, right, bottom], "res": pred_html}
             )
 
             logger.info(
-                f"Processing {category_dict[category_id]} at [{left}, {top}, {right}, {bottom}]"
+                f"Processing {layout_category_dict[category_id]} at [{left}, {top}, {right}, {bottom}]"
                 f" {time.time() - start_time:.2f}s"
             )
         else:
@@ -199,11 +208,11 @@ def predict_table_e2e(img_path, layout_analyzer, text_system, table_analyzer, do
             save_path = os.path.join(save_folder, f"{img_name}_figure_{i}.png")
             cv2.imwrite(save_path, cropped_img)
             final_results.append(
-                {"type": category_dict[category_id], "bbox": [left, top, right, bottom], "res": save_path}
+                {"type": layout_category_dict[category_id], "bbox": [left, top, right, bottom], "res": save_path}
             )
 
             logger.info(
-                f"Processing {category_dict[category_id]} at [{left}, {top}, {right}, {bottom}]"
+                f"Processing {layout_category_dict[category_id]} at [{left}, {top}, {right}, {bottom}]"
                 f" {time.time() - start_time:.2f}s"
             )
 
@@ -229,13 +238,21 @@ def main():
 
     text_system = init_ocr(args)
     layout_analyzer = init_layout(args)
+    layout_category_dict = get_dict_from_file(args.layout_category_dict_path)
     table_analyzer = init_table(args)
 
     img_paths = get_image_paths(args.image_dir)
     for i, img_path in enumerate(img_paths):
         logger.info(f"Infering [{i+1}/{len(img_paths)}]: {img_path}")
         final_results = predict_table_e2e(
-            img_path, layout_analyzer, text_system, table_analyzer, args.visualize_output, save_folder, args.recovery
+            img_path,
+            layout_category_dict,
+            layout_analyzer,
+            text_system,
+            table_analyzer,
+            args.visualize_output,
+            save_folder,
+            args.recovery,
         )
 
         save_e2e_res(final_results, img_path, save_folder)

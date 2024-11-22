@@ -409,8 +409,8 @@ python tools/infer/text/predict_table_e2e.py --image_dir {path_to_img or dir_to_
 其中，`type`为检测区域的类型，`bbox`为检测出的边界框`[左上角的x坐标，右下角的y坐标，宽度，高度]`, `res`是检测的结果内容。
 
 **注意事项：**
-1. 如需更多参数说明和用法，请运行`python tools/infer/text/predict_e2e.py -h`或查看`tools/infer/text/config.py`
-2. 除了config.py中的参数，predict_e2e.py还接受如下参数：
+1. 如需更多参数说明和用法，请运行`python tools/infer/text/predict_table_e2e.py -h`或查看`tools/infer/text/config.py`
+2. 除了config.py中的参数，predict_table_e2e.py还接受如下参数：
 <center>
 
   |   **参数名**   |**描述**| **默认值** |

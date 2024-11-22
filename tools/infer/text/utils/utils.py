@@ -224,3 +224,14 @@ def sort_words_by_poly(words, polys):
 
     tmp = sorted(zip(words, polys), key=cmp_to_key(compare))
     return [item[0][0] for item in tmp]
+
+
+def get_dict_from_file(file_path: str) -> dict:
+    """
+    Read a file and return a dictionary
+    Args:
+        file_path: path to a file
+    """
+    with open(file_path, "rb") as f:
+        lines = f.readlines()
+    return {i + 1: line.decode("utf-8").strip("\n").strip("\r\n") for i, line in enumerate(lines)}

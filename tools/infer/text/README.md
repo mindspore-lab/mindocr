@@ -416,8 +416,8 @@ Example 1:
 In this file, `type` is the classification of the detected region, `bbox` is the detected bounding box `[x-coordinate of the top-left corner, y-coordinate of the bottom-right corner, width, height]`, and `res` is the detected result.
 
 **Notes:**
-1. For more argument illustrations and usage, please run `python tools/infer/text/predict_e2e.py -h` or view `tools/infer/text/config.py`
-2. Besides the parameters in the config.py, predict_e2e.py also accepts the following parameters:
+1. For more argument illustrations and usage, please run `python tools/infer/text/predict_table_e2e.py -h` or view `tools/infer/text/config.py`
+2. Besides the parameters in the config.py, predict_table_e2e.py also accepts the following parameters:
 <center>
 
   |   **Parameter**   |**Description**| **Default** |
