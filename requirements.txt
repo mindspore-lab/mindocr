@@ -25,4 +25,3 @@ beautifulsoup4
 pandas
 tablepyxl
 lxml
-python-docx
