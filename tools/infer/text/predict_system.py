@@ -304,7 +304,7 @@ class TextSystem(object):
                     cls_count = cls_count + 1
 
             logger.info(
-                f"The number of orientated images is {cls_count}/{len(cls_res_all)}"
+                f"The number of images corrected by rotation is {cls_count}/{len(cls_res_all)}"
                 f"\nCLS time: {time_profile['cls']}"
             )
 
