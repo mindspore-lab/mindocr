@@ -116,7 +116,7 @@ eval:
       - func_name: image_transpose
         bgr2rgb: True
         hwc2chw: True
-      - func_name: image_pad
+      - func_name: image_batch_pad
         max_size: 1333
     batch_size: &refine_batch_size 1
     stride: 64

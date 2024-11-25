@@ -428,7 +428,7 @@ class PublayNetDataset:
         image = image.astype(np.float32, copy=False)
         return image, labels
 
-    def image_pad(self, image, labels, max_size=None):
+    def image_batch_pad(self, image, labels, max_size=None):
         image_size = image.shape[-2:]
         if max_size is None:
             max_size = np.array(image_size)

@@ -19,7 +19,7 @@ def show_img(img: np.array, is_bgr_img=True, title="img", show=True, save_path=N
     if is_bgr_img:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     # imgs = np.expand_dims(imgs, axis=0)
-    # plt.figure()
+    plt.figure()
     plt.title("{}_{}".format(title, 0))
     plt.imshow(img, cmap=None if color else "gray")
     if show:
@@ -102,29 +102,6 @@ def draw_boxes(
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     return image
-
-
-def draw_boxes_for_layout(img_path, result, category_dict, color_dict):
-    img = Image.open(img_path)
-    img = img.convert('RGB')
-    fig, ax = plt.subplots()
-    ax.imshow(img)
-    for item in result:
-        category_id = item['category_id']
-        bbox = item['bbox']
-        score = item['score']
-        if score < 0.8:
-            continue
-        left, bottom, w, h = bbox
-        rect = patches.Rectangle((left, bottom), w, h, linewidth=1, edgecolor=color_dict[category_id], facecolor='none')
-        ax.add_patch(rect)
-        ax.text(left, bottom, '{} {}'.format(category_dict[category_id], score), fontsize=8, color='w',
-                bbox=dict(facecolor=color_dict[category_id], edgecolor='none', boxstyle='round'))
-
-    img = np.asarray(img)
-
-    return img
-
 
 
 def draw_texts_with_boxes(

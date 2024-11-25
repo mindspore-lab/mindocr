@@ -85,6 +85,7 @@ python tools/param_converter_from_torch.py \
 
 ```bash
 python tools/infer/text/predict_layout.py  \
+    --mode 1 \
     --image_dir {path_to_img} \
     --layout_algorithm LAYOUTLMV3 \
     --config {config_path}

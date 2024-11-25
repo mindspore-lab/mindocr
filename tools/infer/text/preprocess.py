@@ -5,7 +5,11 @@ import sys
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../../../")))
 
-
+from deploy.py_infer.src.data_process.preprocess.transforms.layout_transforms import (
+    image_norm,
+    image_transpose,
+    letterbox,
+)
 from mindocr.data.constants import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
 from mindocr.data.transforms import create_transforms, run_transforms
 
@@ -190,19 +194,18 @@ class Preprocessor(object):
         elif task == "layout":
             if algo == "LAYOUTLMV3":
                 pipeline = [
-                    {"DecodeImage": {"img_mode": "RGB", "infer_mode": True, "to_float32": False}},
-                    {"LayoutResizeForLayoutlmv3": {"infer_mode": True, "size": 800}},
+                    letterbox(scaleup=True, model_name="layoutlmv3"),
                     {
                         "NormalizeImage": {
                             "infer_mode": True,
-                            "bgr_to_rgb": False,
+                            "bgr_to_rgb": True,
                             "is_hwc": True,
                             "mean": [127.5, 127.5, 127.5],
                             "std": [127.5, 127.5, 127.5]
                         }
                     },
                     {"ToCHWImage": None},
-                    {"ImagePad": {"stride": 32}}
+                    {"ImageStridePad": {"stride": 32}}
                 ]
             else:
                 raise ValueError(f"No preprocess config defined for {algo}. Please check the algorithm name.")

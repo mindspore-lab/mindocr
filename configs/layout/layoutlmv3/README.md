@@ -82,6 +82,7 @@ Experiments are tested on ascend 910* with mindspore 2.3.1 pynative mode
 
 ```bash
 python tools/infer/text/predict_layout.py  \
+    --mode 1 \
     --image_dir {path_to_img} \
     --layout_algorithm LAYOUTLMV3 \
     --config {config_path}
