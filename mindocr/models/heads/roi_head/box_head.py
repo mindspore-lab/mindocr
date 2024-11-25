@@ -1,11 +1,12 @@
-from mindspore import ops, nn
-from mindspore.common.initializer import HeUniform, HeNormal, Normal
 from addict import Dict
 
-from .roi_extractor import RoIExtractor
+from mindspore import ops, nn
+from mindspore.common.initializer import HeUniform, HeNormal, Normal
+
 from ...label_assignment import BBoxAssigner
-from ...utils.box_utils import bbox2delta, delta2bbox
+from ...utils.box_utils import delta2bbox
 from .mask_head import MaskRCNNConvUpSampleHead
+from .roi_extractor import RoIExtractor
 
 
 class FastRCNNConvFCHead(nn.SequentialCell):
@@ -194,7 +195,7 @@ class CascadeROIHeads(nn.Cell):
 
     def predict(self, features, proposals, proposals_mask, image_sizes):
         features = [features[f] for f in self.box_in_features]
-        head_outputs = [] # (predictor, predictions, proposals)
+        head_outputs = []  # (predictor, predictions, proposals)
         prev_pred_boxes = None
 
         for k in range(self.num_cascade_stages):

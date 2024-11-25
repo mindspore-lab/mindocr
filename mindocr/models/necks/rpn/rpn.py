@@ -1,10 +1,13 @@
 import math
+
 from addict import Dict
-from mindspore import ops, nn
+
+from mindspore import nn, ops
 from mindspore.common.initializer import HeUniform
-from .proposal_generator import ProposalGenerator
-from .anchor_generator import AnchorGenerator
+
 from ...label_assignment import RPNLabelAssignment
+from .anchor_generator import AnchorGenerator
+from .proposal_generator import ProposalGenerator
 
 
 class RPNFeat(nn.Cell):
@@ -29,11 +32,11 @@ class RPNFeat(nn.Cell):
                                   bias_init="zeros"
         )
         self.rpn_rois_score = nn.Conv2d(
-            out_channel, num_anchors, 1, weight_init=HeUniform(math.sqrt(5)), has_bias=True, bias_init="zeros"
-        )
+            out_channel, num_anchors, 1, weight_init=HeUniform(math.sqrt(5)),
+            has_bias=True, bias_init="zeros")
         self.rpn_rois_delta = nn.Conv2d(
-            out_channel, 4 * num_anchors, 1, weight_init=HeUniform(math.sqrt(5)), has_bias=True, bias_init="zeros"
-        )
+            out_channel, 4 * num_anchors, 1, weight_init=HeUniform(math.sqrt(5)),
+            has_bias=True, bias_init="zeros")
         self.relu = nn.ReLU()
 
     def construct(self, feats):

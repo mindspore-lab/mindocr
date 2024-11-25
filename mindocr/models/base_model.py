@@ -1,7 +1,7 @@
 from addict import Dict
-
-from mindspore import nn, ops, Tensor
 import numpy as np
+
+from mindspore import nn, ops
 
 from .backbones import build_backbone
 from .heads import build_head

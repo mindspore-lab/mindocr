@@ -89,7 +89,8 @@ class Postprocessor(object):
                     iou_thres=0.5,
                     conf_free=False,
                     multi_label=True,
-                    time_limit=100)
+                    time_limit=100,
+                )
             elif algo == "YOLOv8":
                 postproc_cfg = dict(name="YOLOv8Postprocess", conf_thres=0.5, iou_thres=0.7, conf_free=True)
             else:
@@ -104,7 +105,6 @@ class Postprocessor(object):
                 merge_no_span_structure=True,
                 box_shape="pad",
             )
-
 
         postproc_cfg.update(kwargs)
         self.task = task

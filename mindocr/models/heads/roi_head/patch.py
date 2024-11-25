@@ -1,6 +1,6 @@
 from mindspore import _checkparam as validator
-from mindspore.ops.primitive import prim_attr_register
 from mindspore.ops import ROIAlign
+from mindspore.ops.primitive import prim_attr_register
 
 @prim_attr_register
 def __init__(self, pooled_height, pooled_width, spatial_scale, sample_num=2, roi_end_mode=1):
@@ -16,6 +16,7 @@ def __init__(self, pooled_height, pooled_width, spatial_scale, sample_num=2, roi
     self.spatial_scale = spatial_scale
     self.sample_num = sample_num
     self.roi_end_mode = roi_end_mode
+
 
 def patch_roialign():
     ROIAlign.__init__ = __init__

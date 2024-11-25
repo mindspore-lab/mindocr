@@ -18,6 +18,7 @@ def batch_nms(boxes, score, idxs, threshold):
     output_boxes, output_idx, selected_mask = ops.NMSWithMask(threshold)(boxes_for_nms)
     return output_boxes, output_idx, selected_mask
 
+
 def clip_boxes(boxes, im_shape):
     h, w = im_shape
     x1 = ops.clip_by_value(boxes[..., 0], 0, w)
@@ -26,6 +27,7 @@ def clip_boxes(boxes, im_shape):
     y2 = ops.clip_by_value(boxes[..., 3], 0, h)
     boxes = ops.stack((x1, y1, x2, y2, boxes[..., 4]), -1)
     return boxes
+
 
 class ProposalGenerator(nn.Cell):
     """
@@ -87,9 +89,9 @@ class ProposalGenerator(nn.Cell):
         boxes = []
         for level_id, (proposals_i, logits_i) in enumerate(zip(proposals, pred_objectness_logits)):
             batch_size, Hi_Wi_A, B = proposals_i.shape
-            temp_proposals = ops.concat(
-                (ops.zeros((Hi_Wi_A, 2), proposals_i.dtype), ops.ones((Hi_Wi_A, 2), proposals_i.dtype)), axis=-1
-            )
+            # temp_proposals = ops.concat(
+            #     (ops.zeros((Hi_Wi_A, 2), proposals_i.dtype), ops.ones((Hi_Wi_A, 2), proposals_i.dtype)), axis=-1
+            # )
             batch_boxes = []
             # logits_i = ops.sigmoid(logits_i)
             for b in range(batch_size):

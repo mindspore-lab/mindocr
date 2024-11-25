@@ -9,24 +9,20 @@ import logging
 import os
 from typing import List
 
-
 import cv2
 import numpy as np
+import yaml
+from addict import Dict
 from postprocess import Postprocessor
 from preprocess import Preprocessor
 from utils import get_ckpt_file, get_image_paths
-import yaml
-from addict import Dict
 
 import mindspore as ms
 
 from mindocr import build_model
 from mindocr.utils.logger import set_logger
 
-algo_to_model_name = {
-    "YOLOv8": "yolov8",
-    "LAYOUTLMV3": "layoutlmv3"
-}
+algo_to_model_name = {"YOLOv8": "yolov8", "LAYOUTLMV3": "layoutlmv3"}
 logger = logging.getLogger("mindocr")
 
 
@@ -117,7 +113,9 @@ class LayoutAnalyzer(object):
 
         if do_visualize:
             img_name = os.path.basename(img_path).rsplit(".", 1)[0]
-            self.visualize_layout(img_path, results, save_path=os.path.join(self.vis_dir, img_name + "_layout_result.png"))
+            self.visualize_layout(
+                img_path, results, save_path=os.path.join(self.vis_dir, img_name + "_layout_result.png")
+            )
 
         return results
 
@@ -141,7 +139,6 @@ class LayoutAnalyzer(object):
         data = {"image": image, "raw_img_shape": hw_ori, "target_size": target_size}
         return data
 
-
     def visualize_layout(self, image_path, results, conf_thres=0.8, save_path: str = ""):
         """
         Visualize layout analysis results
@@ -161,7 +158,6 @@ class LayoutAnalyzer(object):
             category_dict = self.cfg.predict.category_dict
         if self.cfg.predict.color_dict:
             color_dict = self.cfg.predict.color_dict
-
 
         for item in results:
             category_id = item["category_id"]

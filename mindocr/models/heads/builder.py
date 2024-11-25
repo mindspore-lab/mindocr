@@ -35,9 +35,9 @@ from .rec_master_decoder import MasterDecoder
 from .rec_multi_head import MultiHead
 from .rec_robustscanner_head import RobustScannerHead
 from .rec_visionlan_head import VisionLANHead
+from .roi_head.box_head import CascadeROIHeads
 from .table_master_head import TableMasterHead
 from .yolov8_head import YOLOv8Head
-from .roi_head.box_head import CascadeROIHeads
 
 
 def build_head(head_name, **kwargs):

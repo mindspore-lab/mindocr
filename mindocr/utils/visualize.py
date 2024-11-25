@@ -4,7 +4,6 @@ from typing import List, Union
 
 import cv2
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 

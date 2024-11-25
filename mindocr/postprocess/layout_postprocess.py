@@ -65,6 +65,7 @@ class YOLOv8Postprocess(object):
 
 class Layoutlmv3Postprocess(YOLOv8Postprocess):
     """return image_id, category_id, bbox and scores."""
+
     def __call__(self, preds, img_shape, meta_info, **kwargs):
         meta_info = [_.numpy() if isinstance(_, Tensor) else _ for _ in meta_info]
         image_ids, ori_shape, hw_scale, pad = meta_info
@@ -293,6 +294,7 @@ def non_max_suppression(
 
     return output
 
+
 def non_max_suppression_for_layoutlmv3(
     prediction,
     conf_thres=0.25,
@@ -342,11 +344,9 @@ def non_max_suppression_for_layoutlmv3(
     t = time.time()
     output = [np.zeros((0, 6))] * prediction.shape[0]
     for xi, x in enumerate(prediction):  # image index, image inference
-
         # If none remain process next image
         if not x.shape[0]:
             continue
-
 
         box = x[:, :4]
 
@@ -416,6 +416,7 @@ def scale_coords(img1_shape, coords, img0_shape, ratio=None, pad=None):
     coords[:, [1, 3]] /= ratio  # y rescale
     coords = _clip_coords(coords, img0_shape)
     return coords
+
 
 def scale_coords_for_layoutlmv3(img1_shape, coords, img0_shape, ratio=None, pad=None):
     # Rescale coords (xyxy) from img1_shape to img0_shape

@@ -19,7 +19,7 @@ def convert_hepler(input_path: str, json_path: str, output_path: str):
         os.mkdir(output_dir)
     real_output_path = os.path.join(output_dir, output_filename)
 
-    pt_ckpt = torch.load(input_path, map_location=torch.device('cpu'), weights_only=False)["model"]
+    pt_ckpt = torch.load(input_path, map_location=torch.device("cpu"), weights_only=False)["model"]
     ms_ckpt = list()
 
     with open(json_path, "r") as json_file:

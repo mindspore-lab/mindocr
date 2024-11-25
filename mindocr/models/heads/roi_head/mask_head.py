@@ -1,6 +1,7 @@
 from mindspore import nn
 from mindspore.common.initializer import HeNormal, Normal
 
+
 class MaskRCNNConvUpSampleHead(nn.SequentialCell):
 
     def __init__(self, in_channels, num_classes=5, conv_dims=[]):

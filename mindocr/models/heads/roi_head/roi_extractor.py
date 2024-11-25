@@ -1,8 +1,10 @@
 import math
 
 import numpy as np
+
 import mindspore as ms
-from mindspore import ops, nn
+from mindspore import nn, ops
+
 from ...utils.box_utils import tensor
 from .patch import patch_roialign
 
@@ -12,6 +14,7 @@ pooler_type_map = {
     "ROIAlign": 0,
     "ROIAlignV2": 2
 }
+
 
 class RoIExtractor(nn.Cell):
     """

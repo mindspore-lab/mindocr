@@ -439,7 +439,7 @@ class PublayNetDataset:
         w_pad = int(max_size[1] - image_size[1])
 
         padding_size = ((0, 0), (0, h_pad), (0, w_pad))
-        batched_imgs = np.pad(image, padding_size, mode='constant', constant_values=0)
+        batched_imgs = np.pad(image, padding_size, mode="constant", constant_values=0)
         return batched_imgs, labels
 
     def image_transpose(self, image, labels, bgr2rgb=True, hwc2chw=True):

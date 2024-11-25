@@ -1,15 +1,15 @@
 import collections
 
-from addict import Dict
-
 import numpy as np
 import math
 
+from addict import Dict
 from mindspore import Parameter, Tensor, nn, ops
 from mindspore.common import dtype as mstype
 from mindspore.common.initializer import HeUniform
 
 from mindocr.models.backbones._registry import register_backbone, register_backbone_class
+
 from ..layoutxlm.visual_backbone import FPN, LastLevelMaxPool, ShapeSpec
 
 from ..transformer_common.layer import (
@@ -397,7 +397,8 @@ class LayoutLMv3Model(nn.Cell):
 
     def visual_embeddings(self, pixel_values):
         if self.detection:
-            embeddings = self.patch_embed(pixel_values, self.pos_embed[:, 1:, :] if self.pos_embed is not None else None)
+            embeddings = self.patch_embed(pixel_values,
+                                          self.pos_embed[:, 1:, :] if self.pos_embed is not None else None)
         else:
             embeddings = self.patch_embed(pixel_values)
 

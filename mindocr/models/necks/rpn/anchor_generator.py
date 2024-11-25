@@ -2,8 +2,9 @@
 # https://github.com/facebookresearch/detectron2/blob/main/detectron2/modeling/anchor_generator.py
 
 import math
+
 import mindspore as ms
-from mindspore import ops, nn
+from mindspore import nn, ops
 
 
 class AnchorGenerator(nn.Cell):

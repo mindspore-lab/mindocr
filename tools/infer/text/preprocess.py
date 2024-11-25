@@ -201,11 +201,11 @@ class Preprocessor(object):
                             "bgr_to_rgb": True,
                             "is_hwc": True,
                             "mean": [127.5, 127.5, 127.5],
-                            "std": [127.5, 127.5, 127.5]
+                            "std": [127.5, 127.5, 127.5],
                         }
                     },
                     {"ToCHWImage": None},
-                    {"ImageStridePad": {"stride": 32}}
+                    {"ImageStridePad": {"stride": 32}},
                 ]
             elif algo == "YOLOv8":
                 pipeline = [

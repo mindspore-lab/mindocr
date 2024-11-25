@@ -166,7 +166,8 @@ def create_parser():
         "due to padding or resizing to the same shape.",
     )
     parser.add_argument("--kie_batch_num", type=int, default=8)
-    parser.add_argument("--table_algorithm",
+    parser.add_argument(
+        "--table_algorithm",
         type = str,
         default = "TABLE_MASTER",
         choices = ["TABLE_MASTER"],
@@ -176,7 +177,7 @@ def create_parser():
         "--table_model_dir",
         type=str,
         help="directory containing the table structure recognition model checkpoint best.ckpt, "
-             "or path to a specific checkpoint file.",
+        "or path to a specific checkpoint file.",
     )
     parser.add_argument(
         "--table_amp_level",
@@ -190,14 +191,18 @@ def create_parser():
         type=str,
         default="./mindocr/utils/dict/table_master_structure_dict.txt",
         help="path to character dictionary for table structure recognition. "
-             "If None, will pick according to table_algorithm and table_model_dir.",
+        "If None, will pick according to table_algorithm and table_model_dir.",
     )
     parser.add_argument(
         "--table_max_len", type=int, default=480, help="max length of the input image for table structure recognition."
     )
 
     parser.add_argument(
-        "--layout_algorithm", type=str, default="YOLOv8", choices=["YOLOv8", "LAYOUTLMV3"], help="layout analyzer algorithm"
+        "--layout_algorithm",
+        type=str,
+        default="YOLOv8",
+        choices=["YOLOv8", "LAYOUTLMV3"],
+        help="layout analyzer algorithm",
     )
 
     parser.add_argument(

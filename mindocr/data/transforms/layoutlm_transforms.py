@@ -68,7 +68,7 @@ class ImageStridePad:
         w_pad = int(max_size[1] - image_size[1])
 
         padding_size = ((0, 0), (0, h_pad), (0, w_pad))
-        img = np.pad(img, padding_size, mode='constant', constant_values=0)
+        img = np.pad(img, padding_size, mode="constant", constant_values=0)
         data["image"] = img
         return data
 

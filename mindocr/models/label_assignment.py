@@ -1,8 +1,9 @@
 import numpy as np
-import mindspore as ms
-from mindspore import ops, nn
 
-from .utils.box_utils import bbox2delta, xywh2xyxy
+import mindspore as ms
+from mindspore import nn, ops
+
+from .utils.box_utils import bbox2delta
 
 
 class RPNLabelAssignment(nn.Cell):
