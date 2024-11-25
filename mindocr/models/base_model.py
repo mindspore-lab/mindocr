@@ -1,5 +1,5 @@
-from addict import Dict
 import numpy as np
+from addict import Dict
 
 from mindspore import nn, ops
 

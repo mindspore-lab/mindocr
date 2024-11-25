@@ -29,8 +29,7 @@ class RPNFeat(nn.Cell):
                                   pad_mode="pad",
                                   weight_init=HeUniform(math.sqrt(5)),
                                   has_bias=True,
-                                  bias_init="zeros"
-        )
+                                  bias_init="zeros")
         self.rpn_rois_score = nn.Conv2d(
             out_channel, num_anchors, 1, weight_init=HeUniform(math.sqrt(5)),
             has_bias=True, bias_init="zeros")

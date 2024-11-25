@@ -1,9 +1,9 @@
 import collections
-
-import numpy as np
 import math
 
+import numpy as np
 from addict import Dict
+
 from mindspore import Parameter, Tensor, nn, ops
 from mindspore.common import dtype as mstype
 from mindspore.common.initializer import HeUniform
@@ -11,7 +11,6 @@ from mindspore.common.initializer import HeUniform
 from mindocr.models.backbones._registry import register_backbone, register_backbone_class
 
 from ..layoutxlm.visual_backbone import FPN, LastLevelMaxPool, ShapeSpec
-
 from ..transformer_common.layer import (
     LayoutXLMAttention,
     LayoutXLMEmbeddings,

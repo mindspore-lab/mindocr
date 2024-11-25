@@ -2,6 +2,7 @@ from mindspore import _checkparam as validator
 from mindspore.ops import ROIAlign
 from mindspore.ops.primitive import prim_attr_register
 
+
 @prim_attr_register
 def __init__(self, pooled_height, pooled_width, spatial_scale, sample_num=2, roi_end_mode=1):
     """Initialize ROIAlign"""

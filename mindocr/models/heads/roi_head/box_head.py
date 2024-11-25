@@ -1,7 +1,7 @@
 from addict import Dict
 
-from mindspore import ops, nn
-from mindspore.common.initializer import HeUniform, HeNormal, Normal
+from mindspore import nn, ops
+from mindspore.common.initializer import HeNormal, HeUniform, Normal
 
 from ...label_assignment import BBoxAssigner
 from ...utils.box_utils import delta2bbox
