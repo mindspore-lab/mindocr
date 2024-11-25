@@ -285,7 +285,7 @@ eval:
 ```
 
 **Notes:**
-- As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of GPUs/NPUs, or adjust the learning rate linearly to a new global batch size.
+- As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of NPUs, or adjust the learning rate linearly to a new global batch size.
 
 
 ### 3.2 Model Training
@@ -296,7 +296,7 @@ eval:
 It is easy to reproduce the reported results with the pre-defined training recipe. For distributed training on multiple Ascend 910 devices, please modify the configuration parameter `distribute` as True and run
 
 ```shell
-# distributed training on multiple GPU/Ascend devices
+# distributed training on multiple Ascend devices
 mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/svtr/svtr_tiny.yaml
 ```
 
@@ -306,7 +306,7 @@ mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/svtr/
 If you want to train or finetune the model on a smaller dataset without distributed training, please modify the configuration parameter`distribute` as False and run:
 
 ```shell
-# standalone training on a CPU/GPU/Ascend device
+# standalone training on a CPU/Ascend device
 python tools/train.py --config configs/rec/svtr/svtr_tiny.yaml
 ```
 
@@ -386,7 +386,7 @@ To inference with MindSpot Lite on Ascend 310, please refer to the tutorial [Min
 
 **1. Model Export**
 
-Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../README.md) tutorial and use the following command to export the trained ckpt model to  MindIR file:
+Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../../docs/en/inference/convert_tutorial.md#1-model-export) tutorial and use the following command to export the trained ckpt model to  MindIR file:
 
 ```shell
 python tools/export.py --model_name_or_config svtr_tiny --data_shape 64 256 --local_ckpt_path /path/to/local_ckpt.ckpt
@@ -399,11 +399,11 @@ The `data_shape` is the model input shape of height and width for MindIR file. T
 
 **2. Environment Installation**
 
-Please refer to [Environment Installation](../../../docs/en/inference/environment.md#2-mindspore-lite-inference) tutorial to configure the MindSpore Lite inference environment.
+Please refer to [Environment Installation](../../../docs/en/inference/environment.md) tutorial to configure the MindSpore Lite inference environment.
 
 **3. Model Conversion**
 
-Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#1-mindocr-models),
+Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#2-mindspore-lite-mindir-convert),
 and use the `converter_lite` tool for offline conversion of the MindIR file.
 
 **4. Inference**

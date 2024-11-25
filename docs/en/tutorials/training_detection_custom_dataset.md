@@ -18,7 +18,7 @@ This document provides tutorials on how to train text detection networks using c
     - [3.3 Inference](#33-inference)
       - [3.3.1 Environment Preparation](#331-environment-preparation)
       - [3.3.2 Model Conversion](#332-model-conversion)
-      - [3.3.3 Inference (Python)](#333-inference-python)
+      - [3.3.3 Inference](#333-inference)
 
 ## 1. Dataset preperation
 
@@ -77,7 +77,7 @@ To prepare the corresponding configuration file, users should specify the direct
 
 ### 2.1 Configure train/validation datasets
 
-Please select `configs/det/dbnet/dbnet_r50_icdar15.yaml` as the initial configuration file and modify the `train.dataset` and `eval.dataset` fields in it.
+Please select `configs/det/dbnet/db_r50_icdar15.yaml` as the initial configuration file and modify the `train.dataset` and `eval.dataset` fields in it.
 
 ```yaml
 ...
@@ -254,23 +254,17 @@ python tools/train.py -c=configs/det/dbnet/db_r50_icdar15.yaml
 
 * Distributed training
 
-In distributed training, `distribute` in yaml config file should be True. On both GPU and Ascend devices, users can use `mpirun` to launch distributed training. For example, using `device:0` and `device:1` to train:
+In distributed training, `distribute` in yaml config file should be True. On Ascend devices, users can use `mpirun` to launch distributed training. For example, using `device:0` and `device:1` to train:
 
 ```shell
-# n is the number of GPUs/NPUs
+# n is the number of NPUs
 mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
 
 Sometimes, users may want to specify the device ids to run distributed training, for example, `device:2` and `device:3`.
 
-
- On GPU devices, before running the `mpirun` command above, users can run the following command:
-
-```shell
-export CUDA_VISIBLE_DEVICES=2,3
-```
-
 On Ascend devices, users should create a `rank_table.json` like this:
+
 ```json
 Copy{
     "version": "1.0",
@@ -288,6 +282,7 @@ Copy{
 }
 
 ```
+
 To get the `device_ip` of the target device, run `cat /etc/hccn.conf` and look for the value of `address_x`, which is the ip address. More details can be found in [distributed training tutorial](distribute_train.md).
 
 ### 3.2 Evaluation
@@ -312,17 +307,15 @@ python tools/eval.py -c=configs/det/dbnet/db_r50_icdar15.yaml \
 
 ### 3.3 Inference
 
-MindOCR inference supports Ascend310/Ascend310P devices, supports [MindSpore Lite](https://www.mindspore.cn/lite) and
-[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)
-inference backend. [Inference Tutorial](../inference/inference_tutorial.md) gives detailed steps on how to run inference with MindOCR, which include mainly three steps: environment preparation, model conversion, and inference.
+MindOCR inference supports Ascend310/Ascend310P devices and adopts [MindSpore Lite](https://www.mindspore.cn/lite) inference backend. [Inference Tutorial](../inference/inference_tutorial.md) gives detailed steps on how to run inference with MindOCR, which include mainly three steps: environment preparation, model conversion, and inference.
 
 #### 3.3.1 Environment Preparation
 
-Please refer to the [environment installation](../inference/environment.md) for more information, and pay attention to selecting the ACL/Lite environment based on the model.
+Please refer to the [environment installation](../inference/environment.md) for more information.
 
 #### 3.3.2 Model Conversion
 
-Before runing infernence, users need to export a MindIR file from the trained checkpoint. [MindSpore IR (MindIR)](https://www.mindspore.cn/docs/en/r2.0/design/mindir.html) is a function-style IR based on graph representation. The MindIR filew stores the model structure and weight parameters needed for inference.
+Before runing infernence, users need to export a MindIR file from the trained checkpoint. [MindSpore IR (MindIR)](https://www.mindspore.cn/docs/en/r2.2/design/mindir.html) is a function-style IR based on graph representation. The MindIR filew stores the model structure and weight parameters needed for inference.
 
 Given the trained dbnet checkpoint file, user can use the following commands to export MindIR:
 
@@ -336,7 +329,7 @@ The `data_shape` is the model input shape of height and width for MindIR file. I
 
 Please refer to the [Conversion Tutorial](../inference/convert_tutorial.md) for more details about model conversion.
 
-#### 3.3.3 Inference (Python)
+#### 3.3.3 Inference
 
 
  After model conversion, the `output.mindir` is obtained. Users can go to the `deploy/py_infer` directory, and use the following command for inference:

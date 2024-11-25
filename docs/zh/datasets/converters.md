@@ -78,7 +78,7 @@ word_11.png	citi
 python tools/dataset_converters/convert.py \
         --dataset_name  ic15 \
         --task rec \
-        --label_dir /path/to/ic15/rec/ch4_training_word_images_gt/gt.txt
+        --label_dir /path/to/ic15/rec/ch4_training_word_images_gt/gt.txt \
         --output_path /path/to/ic15/rec/train/ch4_training_word_images_gt/rec_gt.txt
 ```
 
@@ -87,7 +87,7 @@ python tools/dataset_converters/convert.py \
 python tools/dataset_converters/convert.py \
         --dataset_name  ic15 \
         --task rec \
-        --label_dir /path/to/ic15/rec/ch4_test_word_images_gt/gt.txt
+        --label_dir /path/to/ic15/rec/ch4_test_word_images_gt/gt.txt \
         --output_path /path/to/ic15/rec/ch4_test_word_images_gt/rec_gt.txt
 ```
 

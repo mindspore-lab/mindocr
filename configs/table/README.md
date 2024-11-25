@@ -29,8 +29,8 @@ Through this approach, TableMaster is able to simultaneously learn and predict t
 
 | **Model**   | **Context**     | **Backbone**    | **Accuracy** | **Train T.** | **per step time** | **Throughput** | **Recipe**                            | Download                                                                                                 |
 |-------------|-----------------|-------------|--------------|--------------|-------------------|----------------|---------------------------------------|--------------------------------------------------------------------------------------------------------|
-| TableMaster | D910*x8-MS2.4-F | TableResNetExtra   | 77.47%       | 4218 s/epoch | 675 ms/step       | 15 img/s       | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
-| TableMaster | D910*x8-MS2.3-G | TableResNetExtra   | 77.49%       | 1675 s/epoch | 268 ms/step       | 37 img/s | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
+| TableMaster | D910*x8-MS2.4-F | TableResNetExtra   | 77.47%       | 4218 s/epoch | 675 ms/step       | 120 img/s      | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
+| TableMaster | D910*x8-MS2.3-G | TableResNetExtra   | 77.49%       | 1675 s/epoch | 268 ms/step       | 296 img/s      | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
 
 </div>
 
@@ -75,7 +75,7 @@ PubTabNet
 ```
 
 
-### 3.3 配置说明
+### 3.3 Configuration Description
 
 Update `configs/table/table_master.yaml`configuration file with data paths,
 specifically`dataset_root` is the directory of training set images folder, `label_file_list` is a list of training set annotation file path, and it may include multiple annotation file paths.
@@ -147,7 +147,7 @@ python tools/train.py --config configs/table/table_master.yaml
 Please set `distribute` in yaml config file to be True.
 
 ```shell
-# n is the number of GPUs/NPUs
+# n is the number of NPUs
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/table/table_master.yaml
 ```
 

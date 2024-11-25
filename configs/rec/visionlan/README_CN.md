@@ -183,7 +183,7 @@ common:
 ```
 
 **注意：**
-- 由于全局批大小 （batch_size x num_devices） 是对结果复现很重要，因此当GPU/NPU卡数发生变化时，调整batch_size以保持全局批大小不变，或将学习率线性调整为新的全局批大小。
+- 由于全局批大小 （batch_size x num_devices） 是对结果复现很重要，因此当NPU卡数发生变化时，调整batch_size以保持全局批大小不变，或将学习率线性调整为新的全局批大小。
 
 ### 3.4 训练
 
@@ -195,7 +195,7 @@ LF_2：训练MLM并微调骨干网络和VRM
 LA：使用MLM生成的掩码遮挡特征图，训练骨干网络、MLM和VRM
 ```
 
-我们接下来使用分布式训练进行这三个步骤。对于单卡训练，请参考[识别教程](../../../docs/cn/tutorials/training_recognition_custom_dataset.md#单卡训练)。
+我们接下来使用分布式训练进行这三个步骤。对于单卡训练，请参考[识别教程](../../../docs/zh/tutorials/training_recognition_custom_dataset.md#单卡训练)。
 
 ```shell
 mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/visionlan/visionlan_resnet45_LF_1.yaml

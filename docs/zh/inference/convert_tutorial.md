@@ -1,149 +1,47 @@
-## 推理 - 模型转换教程
+# 模型转换教程
 
-MindOCR支持MindOCR训练模型以及三方模型(PaddelOCR和mmOCR)的推理。
-
-### 1. MindOCR模型
-
-MindOCR模型的推理使用[MindSpore Lite](https://www.mindspore.cn/lite)后端。
+本教程主要包含训练后模型转换成推理使用的`MindSpore Lite MindIR`的过程，涉及场景有：
 
 ```mermaid
 graph LR;
     A[MindOCR models] -- export --> B[MindIR] -- converter_lite --> C[MindSpore Lite MindIR];
+    D[PaddleOCR train models] -- export --> E[PaddleOCR infer models] -- paddle2onnx --> F[ONNX]-- converter_lite --> C;
 ```
 
-#### 1.1 模型导出
+- MindOCR训练ckpt文件 -> MindSpore MindIR -> MindSpore Lite MindIR;
+- PaddleOCR训练文件 -> ONNX -> MindSpore Lite MindIR;
 
-在推理之前，需要先把训练端的ckpt文件导出为MindIR文件，请执行`tools/export.py`：
+## 1. 模型导出
+
+本章节主要包含训练模型导出`MindIR`或者`ONNX`文件的过程。
+
+部分模型提供了MIndIR/ONNX导出文件的下载链接，见[MindOCR模型列表](mindocr_models_list.md)，[PPOCR模型列表](thirdparty_models_list.md)，可跳转到对应模型的介绍页面进行下载。
+
+### 1.1 MindOCR 模型导出
+
+训练端的ckpt文件导出为MindIR文件，请执行`tools/export.py`：
 
 ``` shell
-# 在线下载模型参数，导出`dbnet_resnet50` 模型的MindIR
-python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 1280
+# 导出静态shape版本 `crnn_resnet34` 模型的MindIR
+python tools/export.py --model_name_or_config configs/rec/crnn/crnn_resnet34.yaml --model_type rec --local_ckpt_path ~/.mindspore/models/crnn_resnet34-83f37f07.ckpt --data_shape 32 100
 
-# 使用本地ckpt文件，导出`dbnet_resnet50` 模型的MindIR
-python tools/export.py --model_name_or_config dbnet_resnet50 --data_shape 736 1280 --local_ckpt_path /path/to/local_ckpt
-
-# 使用本地ckpt文件和参数yaml文件，导出`dbnet_resnet50` 模型的MindIR
-python tools/export.py --model_name_or_config configs/rec/crnn/crnn_resnet34.yaml --local_ckpt_path ~/.mindspore/models/crnn_resnet34-83f37f07.ckpt --data_shape 32 100
+# 导出动态分档的 `crnn_resnet34` 模型的MindIR
+python tools/export.py --model_name_or_config configs/rec/crnn/crnn_resnet34.yaml --model_type rec --local_ckpt_path ~/.mindspore/models/crnn_resnet34-83f37f07.ckpt --is_dynamic_shape True
 
 更多参数使用详情，请执行 `python tools/export.py -h`.
 ```
 
-部分模型提供了MIndIR导出文件的下载链接，见[模型列表](inference_quickstart.md)，可跳转到对应模型的介绍页面进行下载。
+一些常用参数说明：
 
-#### 1.2 模型转换
+- model_name_or_config: 模型的名字或者模型配置yaml文件路径，若传入模型名，这个模型名需要在MindOCR支持列表中，MindOCR会自动下载ckpt文件。
+- model_type：模型任务类型，支持 ["det", "rec", "cls"]。
+- local_ckpt_path：本地模型checkpoint文件路径，如使用，则不会下载预置模型checkpoint文件，使用本地checkpoint文件。
+- data_shape：静态shape的值。
+- is_dynamic_shape：动态分档配置项，默认是False，与data_shape二选一。
 
-需要使用`converter_lite`工具，将上述导出的MindIR文件进行离线转换，从而用于MindSpore Lite的推理。
+### 1.2 PaddleOCR 模型导出
 
-`converter_lite`的详细教程见[推理模型离线转换](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)。
-
-假设输入模型为input.mindir，经过`converter_lite`工具转换后的输出模型为output.mindir，则模型转换命令如下：
-
-```shell
-converter_lite \
-    --saveType=MINDIR \
-    --fmk=MINDIR \
-    --optimize=ascend_oriented \
-    --modelFile=input.mindir \
-    --outputFile=output \
-    --configFile=config.txt
-```
-
-其中，`config.txt`可以设置转换模型的Shape和推理精度。
-
-##### 1.2.1 模型Shape配置
-
-- **静态Shape**
-
-    如果导出模型的输入名为`x`，输入Shape为`(1,3,736,1280)`，则config.txt如下：
-    ```text
-    [ascend_context]
-    input_format=NCHW
-    input_shape=x:[1,3,736,1280]
-    ```
-    转换生成的output.mindir为静态shape版，推理时的输入图像需要Resize到该input_shape以满足输入要求。
-
-- **动态Shape(分档)**
-
-    在某些推理场景（如检测出文本区域后，再执行文本识别网络），由于文本区域的个数和分辨率不固定，每次推理都按照最大的BatchSize或最大ImageSize进行计算，会造成计算资源浪费。
-
-    假设导出模型输入Shape为(-1, 3, -1, -1)，NHW这3个轴是动态的，所以可以在模型转换时设置一些可选值，以适应推理时各种Shape大小的输入图像。
-
-    `converter_lite`通过`configFile`配置`[ascend_context]`中`dynamic_dims`参数来实现，详细信息可参考[动态shape配置](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool_ascend.html#动态shape配置)，下文简称”**分档**“。
-
-    所以，转换时有2种选择，通过设置不同的config.txt实现：
-
-    - **动态Image Size**
-
-        N使用固定值，HW使用多个可选值，config.txt如下：
-
-        ```shell
-        [ascend_context]
-        input_format=NCHW
-        input_shape=x:[1,3,-1,-1]
-        dynamic_dims=[736,1280],[768,1280],[896,1280],[1024,1280]
-        ```
-
-    - **动态Batch Size**
-
-        N使用多个可选值，HW使用固定值，config.txt如下：
-
-        ```shell
-        [ascend_context]
-        input_format=NCHW
-        input_shape=x:[-1,3,736,1280]
-        dynamic_dims=[1],[4],[8],[16],[32]
-        ```
-
-    在转换动态Batch Size/Image Size模型时，NHW值的选择可以由用户根据经验值设定，也可以从数据集中统计而来。
-
-    如果模型转换时需要同时支持动态Batch Size和动态Image Size，可以组合多个不同Batch Size的模型，每个模型使用相同的动态Image Size。
-
-    为了简化模型转换流程，我们开发了**自动分档工具**，可以从数据集中统计选择动态值和模型转换，详细教程请参考[模型Shape分档](convert_dynamic.md)。
-
-- **动态Shape**
-
-    这种`动态Shape`与`动态Shape(分档)`的区别在于他灵活适配各种Batch Size和Shape的输入。其配置的config.txt如下
-    ```text
-    [acl_build_options]
-    input_format=NCHW
-    input_shape_range=x:[-1,3,-1,-1]
-    ```
-
-
-**注意：**
-
-如果导出的模型是静态Shape版的，则无法分档，需确保导出动态Shape版的模型。
-
-##### 1.2.2 模型精度模式配置
-
-对于模型推理的精度，需要在转换模型时通过`converter_lite`设置。
-
-请参考[Ascend转换工具功能说明](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool_ascend.html#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6)，在配置文件的表格中描述了`precision_mode`参数的使用方法，可选择`enforce_fp16`、`enforce_fp32`、`preferred_fp32`和`enforce_origin`等。
-
-故而，可以在上述`config.txt`的`[ascend_context]`中增加`precision_mode`参数来设置精度：
-
-```
-[ascend_context]
-input_format=NCHW
-input_shape=x:[1,3,736,1280]
-precision_mode=enforce_fp32
-```
-
-如不设置，默认为`enforce_fp16`。
-
-### 2. PaddleOCR模型
-
-PaddleOCR模型的推理可以使用[MindSpore Lite](https://www.mindspore.cn/lite)和[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)两种后端，分别对应MindSpore Lite MindIR模型和OM模型。
-
-
-```mermaid
-graph LR;
-    PaddleOCR训练模型 -- export --> PaddleOCR推理模型 -- paddle2onnx --> ONNX;
-    ONNX -- converter_lite --> o2(MindSpore Lite MindIR);
-    ONNX -- atc --> o1(OM);
-```
-
-涉及到2种格式的Paddle模型，训练模型和推理模型，区别如下：
+[PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) 涉及到2种格式的Paddle模型，训练模型和推理模型，区别如下：
 
 | 模型类型 | 模型格式                                | 简介                                                       |
 |:-------|:---------------------------------------|:-----------------------------------------------------------|
@@ -152,8 +50,7 @@ graph LR;
 
 下载模型文件并解压，请根据模型格式来区别是训练模型还是推理模型。
 
-
-#### 2.1 训练模型 -> 推理模型
+#### 1.2.1 训练模型 -> 推理模型
 
 在PaddleOCR模型的下载链接中，有训练模型和推理模型两种格式，如果提供的是训练模型，则需要将其转换为推理模型的格式。
 
@@ -169,7 +66,7 @@ python tools/export_model.py \
     Global.save_inference_dir=./det_db
 ```
 
-#### 2.2 推理模型 -> ONNX
+#### 1.2.2 推理模型 -> ONNX
 
 安装模型转换工具paddle2onnx：`pip install paddle2onnx==0.9.5`
 
@@ -190,136 +87,95 @@ paddle2onnx \
 
 参数中input_shape_dict的值，一般可以通过[Netron](https://github.com/lutzroeder/netron)工具打开推理模型查看，或者在上述[tools/export_model.py](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/tools/export_model.py)的代码中找到。
 
-#### 2.3 ONNX -> MindIR
+## 2. MindSpore Lite MindIR 转换
 
-使用converter_lite工具可以将ONNX模型转换为MindSpore Lite MindIR模型。工具的详细教程见[MindSpore Lite云侧推理离线模型转换](https://www.mindspore.cn/lite/docs/zh-CN/master/use/cloud_infer/converter_tool.html)。
+需要使用`converter_lite`工具，将上述导出的MindIR/ONNX文件进行离线转换，从而用于MindSpore Lite的推理。
 
-转换命令如下：
+`converter_lite`的详细教程见[推理模型离线转换](https://www.mindspore.cn/lite/docs/zh-CN/r2.2/use/converter_tool.html)。
+
+假设输入模型为model.mindir，经过`converter_lite`工具转换后的输出模型为model_lite.mindir，则模型转换命令如下：
 
 ```shell
 converter_lite \
     --saveType=MINDIR \
-    --fmk=ONNX \
+    --fmk={fmk} \
     --optimize=ascend_oriented \
-    --modelFile=det_db.onnx \
-    --outputFile=det_db_output \
+    --modelFile=model.mindir \
+    --outputFile=model_lite \
     --configFile=config.txt
 ```
 
-转换流程和[MindOCR模型](#1-mindocr模型)完全相同，仅有区别是`--fmk`需指定输入是ONNX模型，这里不再赘述。
+fmk为输入模型的原始格式，可以是MindIR或者ONNX。
 
-#### 2.4 ONNX -> OM
+`config.txt`为扩展功能的配置路径，在MindOCR里`config.txt`主要可以用来进行shape的设置和推理精度的配置，我们在下一章节细讲。
 
-使用ATC工具可以将ONNX模型转换为OM模型。
+### 2.1 shape的设置
 
-昇腾张量编译器（Ascend Tensor Compiler，简称ATC）是异构计算架构CANN体系下的模型转换工具，它可以将开源框架的网络模型转换为昇腾AI处理器支持的.om格式离线模型，详细教程见[ATC模型转换](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/atctool/atctool_000001.html)。
+#### 2.1.1 静态Shape
 
-##### 2.4.1 模型Shape配置
+如果导出模型的输入名为`x`，input_format为NCHW，输入Shape为`(1,3,736,1280)`，则config.txt如下：
 
-上述示例中导出的ONNX模型输入Shape为(-1, 3,-1,-1)。
-
-- **静态Shape**
-
-可以转换为静态Shape版的模型，NHW都使用固定值，命令如下：
-
-```shell
-atc --model=det_db.onnx \
-    --framework=5 \
-    --input_shape="x:1,3,736,1280" \
-    --input_format=ND \
-    --soc_version=Ascend310P3 \
-    --output=det_db_static \
-    --log=error
+```text
+[ascend_context]
+input_format=NCHW
+input_shape=x:[1,3,736,1280]
 ```
 
-- **动态Shape(分档)**
+转换生成的output.mindir为静态shape版，推理时的输入图像需要Resize到该input_shape以满足输入要求。
 
-    ATC工具通过设置参数 [dynamic_dims](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/63RC2alpha002/infacldevg/atctool/atlasatc_16_0056.html)来支持Shape的**分档**，可以在模型转换时设置一些可选值，以适应推理时各种Shape大小的输入图像，如下两种选择：
+#### 2.1.2 动态Shape(分档)
 
-    - **动态Image Size**
+**注意：ascend 310不支持动态shape。**
 
-        N使用固定值，HW使用多个可选值，命令如下：
+在某些推理场景（如检测出文本区域后，再执行文本识别网络），由于文本区域的个数和分辨率不固定，每次推理都按照最大的BatchSize或最大ImageSize进行计算，会造成计算资源浪费。
 
-        ```shell
-        atc --model=det_db.onnx \
-            --framework=5 \
-            --input_shape="x:1,3,-1,-1" \
-            --input_format=ND \
-            --dynamic_dims="736,1280;768,1280;896,1280;1024,1280" \
-            --soc_version=Ascend310P3 \
-            --output=det_db_dynamic_bs \
-            --log=error
-        ```
+假设导出模型输入Shape为(-1, 3, -1, -1)，NHW这3个轴是动态的，所以可以在模型转换时设置一些可选值，以适应推理时各种Shape大小的输入图像，详细信息可参考[动态shape配置](https://www.mindspore.cn/lite/docs/zh-CN/r2.2/use/cloud_infer/converter_tool_ascend.html#%E5%8A%A8%E6%80%81shape%E9%85%8D%E7%BD%AE) 。
 
-    - **动态Batch Size**
+- **动态Image Size**
 
-        N使用多个可选值，HW使用固定值，命令如下：
+    N使用固定值，HW使用多个可选值，config.txt如下：
 
-        ```shell
-        atc --model=det_db.onnx \
-            --framework=5 \
-            --input_shape="x:-1,3,736,1280" \
-            --input_format=ND \
-            --dynamic_dims="1;4;8;16;32" \
-            --soc_version=Ascend310P3 \
-            --output=det_db_dynamic_bs \
-            --log=error
-        ```
+    ```shell
+    [ascend_context]
+    input_format=NCHW
+    input_shape=x:[1,3,-1,-1]
+    dynamic_dims=[736,1280],[768,1280],[896,1280],[1024,1280]
+    ```
 
-    在转换动态Batch Size/Image Size模型时，NHW值的选择可以由用户根据经验值设定，也可以从数据集中统计而来。
+- **动态Batch Size**
 
-    如果模型转换时需要同时支持动态Batch Size和动态Image Size，可以组合多个不同Batch Size的模型，每个模型使用相同的动态Image Size。
+    N使用多个可选值，HW使用固定值，config.txt如下：
 
-    为了简化模型转换流程，我们开发了**自动分档工具**，可以一键式完成动态值选择和模型转换过程，详细教程请参考[模型Shape分档](convert_dynamic.md)。
+    ```shell
+    [ascend_context]
+    input_format=NCHW
+    input_shape=x:[-1,3,736,1280]
+    dynamic_dims=[1],[4],[8],[16],[32]
+    ```
 
-    **注意：**
+在转换动态Batch Size/Image Size模型时，NHW值的选择可以由用户根据经验值设定，也可以从数据集中统计而来。
 
-    如果导出的模型是静态Shape版的，则无法分档，需确保导出动态Shape版的模型。
+如果模型转换时需要同时支持动态Batch Size和动态Image Size，可以组合多个不同Batch Size的模型，每个模型使用相同的动态Image Size。
 
-##### 2.4.2 模型精度模式配置
+为了简化模型转换流程，我们开发了**自动分档工具**，可以从数据集中统计选择动态值和模型转换，详细教程请参考[模型Shape分档](convert_dynamic.md)。
 
-对于模型推理的精度，需要在转换模型时通过`ATC`设置。
+**注意：**
 
-请参考参数[precision_mode](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/atctool/atctool_000092.html)的说明，可选择`force_fp16`、`force_fp32`、`allow_fp32_to_fp16`、`must_keep_origin_dtype`和`allow_mix_precision`等。
+如果导出的模型是静态Shape版的，则无法分档，需确保导出动态Shape版的模型。
 
-故而，可以在上述`atc`命令中增加`precision_mode`参数来设置精度：
+### 2.2 模型精度模式配置
+
+对于模型推理的精度，需要在转换模型时通过`converter_lite`设置。
+
+请参考[Ascend转换工具功能说明](https://www.mindspore.cn/lite/docs/zh-CN/r2.2/use/cloud_infer/converter_tool_ascend.html#%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6) ，在配置文件的表格中描述了`precision_mode`参数的使用方法，可选择`enforce_fp16`、`enforce_fp32`、`preferred_fp32`和`enforce_origin`等。
+
+故而，可以在上述`config.txt`的`[ascend_context]`中增加`precision_mode`参数来设置精度：
 
 ```
-atc --model=det_db.onnx \
-    --framework=5 \
-    --input_shape="x:1,3,736,1280" \
-    --input_format=ND \
-    --precision_mode=force_fp32 \
-    --soc_version=Ascend310P3 \
-    --output=det_db_static \
-    --log=error
+[ascend_context]
+input_format=NCHW
+input_shape=x:[1,3,736,1280]
+precision_mode=enforce_fp32
 ```
 
-如不设置，默认为`force_fp16`。
-
-### 3. MMOCR模型
-
-MMOCR使用Pytorch，其模型文件一般是pth格式。
-
-需要先把它导出为ONNX格式，再转换为[ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html)/[MindSpore Lite](https://www.mindspore.cn/lite)支持的OM/MindIR格式。
-
-```mermaid
-graph LR;
-    MMOCR_pth -- export -->  ONNX;
-    ONNX -- converter_lite --> o2(MindSpore Lite MindIR);
-    ONNX -- atc --> o1(OM);
-```
-
-#### 3.1 MMOCR模型 -> ONNX
-
-[MMDeploy](https://github.com/open-mmlab/mmdeploy)提供了MMOCR模型导出ONNX的命令，详细教程见[如何转换模型](https://github.com/open-mmlab/mmdeploy/blob/main/docs/zh_cn/02-how-to-run/convert_model.md)。
-
-对于参数`deploy_cfg`需选择目录[mmdeploy/configs/mmocr](https://github.com/open-mmlab/mmdeploy/tree/main/configs/mmocr)下的`*_onnxruntime_dynamic.py`文件，从而导出为动态Shape版ONNX模型。
-
-#### 3.2 ONNX -> MindIR
-
-请参考上文PaddleOCR小节的[ONNX -> MIndIR](#23-onnx---mindir)。
-
-#### 3.3 ONNX -> OM
-
-请参考上文PaddleOCR小节的[ONNX -> OM](#24-onnx---om)。
+如不设置，默认为`enforce_fp16`。

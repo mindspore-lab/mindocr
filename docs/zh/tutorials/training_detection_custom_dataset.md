@@ -17,7 +17,7 @@
     - [3.3 推理](#33-推理)
       - [3.3.1 环境准备](#331-环境准备)
       - [3.3.2 模型转换](#332-模型转换)
-      - [3.3.3 推理 (Python)](#333-推理-python)
+      - [3.3.3 推理](#333-推理)
 
 ## 1. 数据集准备
 目前，MindOCR检测网络支持两种输入格式，分别是:
@@ -75,7 +75,7 @@ img_2.jpg\t[{"transcription": "guardian", "points": [[642, 250], [769, 230], [77
 
 ### 2.1 配置训练/测试数据集
 
-请选择 `configs/det/dbnet/dbnet_r50_icdar15.yaml` 作为初始配置文件，并修改其中的` train.dataset` 和 `eval.dataset` 字段。
+请选择 `configs/det/dbnet/db_r50_icdar15.yaml` 作为初始配置文件，并修改其中的` train.dataset` 和 `eval.dataset` 字段。
 
 ```yaml
 ...
@@ -253,18 +253,14 @@ python tools/train.py -c=configs/det/dbnet/db_r50_icdar15.yaml
 
 * 分布式训练
 
-在分布式训练中，yaml配置文件中的`system.distribute`应该为`True`。在GPU和Ascend设备上，用户可以使用`mpirun`来启动分布式训练。例如，使用`device:0`和`device:1`进行训练：
+在分布式训练中，yaml配置文件中的`system.distribute`应该为`True`。在Ascend设备上，用户可以使用`mpirun`来启动分布式训练。例如，使用`device:0`和`device:1`进行训练：
 
 ```Shell
-# n是GPU/NPU的数量
+# n是NPU的数量
 mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
 有时，用户可能想要指定设备id来进行分布式训练，例如，`device:2`和`device:3`。
 
-在GPU设备上，在运行上面的`mpirun`命令之前，用户可以运行以下命令：
-```
-export CUDA_VISIBLE_DEVICES=2,3
-```
 在Ascend设备上，用户应该创建一个像这样的`rank_table.json`：
 ```json
 Copy{
@@ -306,15 +302,15 @@ python tools/eval.py -c=configs/det/dbnet/db_r50_icdar15.yaml \
 
 ### 3.3 推理
 
-MindOCR推理支持Ascend310/Ascend310P设备，支持[MindSpore Lite](https://www.mindspore.cn/lite)和 [ACL](https://www.hiascend.com/document/detail/zh/canncommercial/63RC1/inferapplicationdev/aclcppdevg/aclcppdevg_000004.html) 推理后端。推理教程给出了如何使用MindOCR进行推理的详细步骤，主要包括三个步骤：环境准备、模型转换和推理。
+MindOCR推理支持Ascend310/Ascend310P设备，采用[MindSpore Lite](https://www.mindspore.cn/lite)推理。推理教程给出了如何使用MindOCR进行推理的详细步骤，主要包括三个步骤：环境准备、模型转换和推理。
 
 #### 3.3.1 环境准备
 
-请参考[环境安装](../inference/environment.md)获取更多信息，并根据模型注意选择ACL/Lite环境。
+请参考[环境安装](../inference/environment.md)获取更多信息。
 
 #### 3.3.2 模型转换
 
-在运行推理之前，用户需要从训练得到的checkpoint文件导出一个MindIR文件。MindSpore IR (MindIR)是基于图形表示的函数式IR。MindIR文件存储了推理所需的模型结构和权重参数。
+在运行推理之前，用户需要从训练得到的checkpoint文件导出一个MindIR文件。[MindSpore IR (MindIR)](https://www.mindspore.cn/docs/en/r2.2/design/mindir.html)是基于图形表示的函数式IR。MindIR文件存储了推理所需的模型结构和权重参数。
 
 根据训练好的dbnet checkpoint文件，用户可以使用以下命令导出MindIR：
 ```Shell
@@ -327,7 +323,7 @@ python tools/export.py --model_name_or_config configs/det/dbnet/db_r50_icdar15.y
 
 请参考[转换教程](../inference/convert_tutorial.md)获取更多关于模型转换的细节。
 
-#### 3.3.3 推理 (Python)
+#### 3.3.3 推理
 
 经过模型转换后， 用户能得到`output.mindir`文件。用户可以进入到`deploy/py_infer`目录，并使用以下命令进行推理：
 
