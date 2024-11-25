@@ -90,8 +90,21 @@ class Postprocessor(object):
                     conf_free=False,
                     multi_label=True,
                     time_limit=100)
+            elif algo == "YOLOv8":
+                postproc_cfg = dict(name="YOLOv8Postprocess", conf_thres=0.5, iou_thres=0.7, conf_free=True)
             else:
                 raise ValueError(f"No postprocess config defined for {algo}. Please check the algorithm name.")
+        elif task == "table":
+            table_char_dict_path = kwargs.get(
+                "table_char_dict_path", "mindocr/utils/dict/table_master_structure_dict.txt"
+            )
+            postproc_cfg = dict(
+                name="TableMasterLabelDecode",
+                character_dict_path=table_char_dict_path,
+                merge_no_span_structure=True,
+                box_shape="pad",
+            )
+
 
         postproc_cfg.update(kwargs)
         self.task = task
@@ -153,8 +166,9 @@ class Postprocessor(object):
                 pred, segment_offset_ids=kwargs.get("segment_offset_ids"), ocr_infos=kwargs.get("ocr_infos")
             )
             return output
+        elif self.task == "table":
+            output = self.postprocess(pred, labels=kwargs.get("labels"))
+            return output
         elif self.task == "layout":
-            output = self.postprocess(
-                pred, img_shape=kwargs.get("img_shape"), meta_info=kwargs.get("meta_info")
-            )
+            output = self.postprocess(pred, img_shape=kwargs.get("img_shape"), meta_info=kwargs.get("meta_info"))
             return output

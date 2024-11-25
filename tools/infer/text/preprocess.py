@@ -207,8 +207,30 @@ class Preprocessor(object):
                     {"ToCHWImage": None},
                     {"ImageStridePad": {"stride": 32}}
                 ]
+            elif algo == "YOLOv8":
+                pipeline = [
+                    letterbox(scaleup=False),
+                    image_norm(scale=255.0),
+                    image_transpose(bgr2rgb=True, hwc2chw=True),
+                ]
             else:
                 raise ValueError(f"No preprocess config defined for {algo}. Please check the algorithm name.")
+        elif task == "table":
+            table_max_len = kwargs.get("table_max_len", 480)
+            pipeline = [
+                {"DecodeImage": {"img_mode": "RGB", "keep_ori": True, "to_float32": False}},
+                {"ResizeTableImage": {"max_len": table_max_len}},
+                {"PaddingTableImage": {"size": [table_max_len, table_max_len]}},
+                {
+                    "TableImageNorm": {
+                        "std": [0.5, 0.5, 0.5],
+                        "mean": [0.5, 0.5, 0.5],
+                        "scale": "1./255.",
+                        "order": "hwc",
+                    }
+                },
+                {"ToCHWImage": None},
+            ]
 
         self.pipeline = pipeline
         self.transforms = create_transforms(pipeline)
