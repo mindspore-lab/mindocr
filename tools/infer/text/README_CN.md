@@ -7,27 +7,7 @@
 因此，在线推理更适合于演示和可视化评估模型对未知数据的泛化能力。
 
 ## 依赖关系和安装
-|环境| 版本     |
-|-------------|--------|
-|MindSpore | \>=1.9 |
-|Python | \>=3.7 |
-
-支持的平台：Linux、MacOS、Windows（未测试）
-
-支持的设备：CPU、GPU和Ascend。
-
-请先克隆MindOCR
-```shell
-git clone https://github.com/mindspore-lab/mindocr.git
-```
-
-然后安装依赖项
-```shell
-pip install -r requirements.txt
-```
-
-对于MindSpore（>=1.9）安装，请遵循官方[安装说明](https://www.mindspore.cn/install)为您的机器提供最佳匹配。
-
+与训练环境一致。
 
 ## 文本检测
 
@@ -73,7 +53,7 @@ paper_sam.png	[[[1161, 340], [1277, 340], [1277, 378], [1161, 378]], [[895, 335]
 
 ### 支持的检测算法和网络
 
-<div align="center">
+<center>
 
   |**算法名称**|**网络名称**|**语言**|
   | :------: | :------: | :------: |
@@ -82,7 +62,7 @@ paper_sam.png	[[[1161, 340], [1277, 340], [1277, 378], [1161, 378]], [[895, 335]
   |DB_MV3 | dbnet_mobilenetv3 |英语|
   |PSE | psenet_resnet152 |英语|
 
-</div>
+</center>
 
 算法网络在`tools/infer/text/predict_det.py`中定义。
 
@@ -144,7 +124,7 @@ doc_cn3.png 马拉松选手不会为短暂的领先感到满意，而是永远�
 
 ### 支持的识别算法和网络
 
-<div align="center">
+<center>
 
   |**算法名称**|**网络名称**|**语言**|
   | :------: | :------: | :------: |
@@ -154,7 +134,7 @@ doc_cn3.png 马拉松选手不会为短暂的领先感到满意，而是永远�
   | CRNN_CH | crnn_resnet34_ch | 中文|
   | RARE_CH | rare_resnet34_ch | 中文|
 
-</div>
+</center>
 
 算法网络在`tools/infer/text/predict_rec.py`中定义
 
@@ -206,7 +186,7 @@ web_cvpr.png	[{"transcription": "canada", "points": [[430, 148], [540, 148], [54
 
 ### 推理结果的评估
 
-为了推理整个(https://rrc.cvc.uab.es/?ch=4&com=downloads)测试集，请运行：
+为了推理整个[ICDAR15](https://rrc.cvc.uab.es/?ch=4&com=downloads)测试集，请运行：
 ```
 python tools/infer/text/predict_system.py --image_dir /path/to/icdar15/det/test_images  /
                                           --det_algorithm {DET_ALGO}    /
@@ -230,7 +210,7 @@ python deploy/eval_utils/eval_pipeline.py --gt_path path/to/gt.txt --pred_path p
 ```
 
 使用MindSpore 2.0rc1对Ascend 910上的文本定位推理结果的评估如下所示。
-<div align="center">
+<center>
 
 | Det. Algorithm| Rec. Algorithm |  Dataset     | Accuracy(%) | FPS (imgs/s) |
 |---------|----------|--------------|---------------|-------|
@@ -239,15 +219,208 @@ python deploy/eval_utils/eval_pipeline.py --gt_path path/to/gt.txt --pred_path p
 | PSENet (det_limit_side_len=1472 )  | CRNN    | ICDAR15 | 55.51 | 0.44 |
 | DBNet++   | RARE | ICDAR15 | 59.17  | 3.47 |
 | DBNet++   | SVTR | ICDAR15 | 64.42  | 2.49 |
-</div>
+
+</center>
 
 **注意事项：**
 
-1、目前在线推理流水线未进行效率优化，FPS仅用于模型间的比较。如果FPS是您的最高优先级，请参考[Ascend 310上的推断](https://github.com/mindspore-lab/mindocr/blob/main/docs/en/inference/inference_tutorial.md)，这要快得多。
+1、目前在线推理流水线未进行效率优化，FPS仅用于模型间的比较。如果FPS是您的最高优先级，请参考[Ascend 310上的推断](https://github.com/mindspore-lab/mindocr/blob/main/docs/zh/inference/inference_tutorial.md)，这要快得多。
 
 2、除非另有说明，所有实验均以`--det_limit_type`="min"和`--det_limit_side`=720运行。
 
 3、SVTR在混合精度模式下运行（amp_level=O2），因为它针对O2进行了优化。
+
+## 表格结构识别
+
+要对输入图像或包含多个图像的目录运行表格结构识别，请执行
+```shell
+python tools/infer/text/predict_table_structure.py --image_dir {path_to_img or dir_to_imgs} --table_algorithm TABLE_MASTER
+```
+
+运行后，推理结果保存在`{args.draw_img_save_dir}`中，其中`--draw_img_save_dir`是保存结果的目录，这是`./inference_results`的默认设置，这里是一些示例结果。
+
+示例1：
+
+样例图片为`configs/table/example.png`，运行结果如下：
+
+<p align="center">
+  <img src="../../../configs/table/example_structure.png" width=1000 />
+</p>
+<p align="center">
+  <em> example_structure.png </em>
+</p>
+
+**注意事项：**
+- 有关更多参数说明和用法，请运行`python tools/infer/text/predict_table_structure.py -h`或查看`tools/infer/text/config.py`
+
+### 支持的表格结构识别算法和网络
+
+<center>
+
+  |   **算法名称**   |**网络名称**| **语言** |
+  |:------------:| :------: |:------:|
+  | table_master | table_resnet_extra |   不区分    |
+
+</center>
+
+算法网络在`tools/infer/text/predict_table_structure.py`中定义。
+
+## 表格结构识别与文本检测识别级联
+
+要对输入图像或目录中的多个图像运行表格识别（即识别表格结构后，结合文本检测识别的结果，识别出完整的表格内容），并恢复成csv文件，请运行：
+
+```shell
+python tools/infer/text/predict_table_recognition.py --image_dir {path_to_img or dir_to_imgs} \
+                                          --det_algorithm DB_PPOCRv3  \
+                                          --rec_algorithm SVTR_PPOCRv3_CH \
+                                          --table_algorithm TABLE_MASTER
+```
+
+运行后，推理结果保存在`{args.draw_img_save_dir}`中，其中`--draw_img_save_dir`是保存结果的目录，这是`./inference_results`的默认设置。下面是一些结果的例子。
+
+示例1：
+
+样例图片为`configs/table/example.png`，在线推理后，得到csv文件内容如下：
+```txt
+Parameter,Non-smokers Mean± SD or N (3),Smokers Mean ± SD or N (C)
+N,24,
+Age (y),69.1 ± 7.0,61.5 ± 9.3 +
+Males/Females,24/0,11/0
+Race White/Black,19/5,9/2
+Weight (kg),97.8 ± 16.8,102.5 ± 23.4
+BMII (kg/m*),32.6 ± 4.9,32.6 ± 6.6
+Serum albumin (g/dL),3.8 ± 0.33,3.63 ± 0.30
+Serum Creatinine (mg/dL),2.75 ± 1.21,1.80 ± 0.74 *
+BUN (mg/dL),46.5 ± 25.6,38.3 ± 21.8
+Hemoglobin (g/dL),13.3 ± 1.6,13.5 ± 2.4
+24 hour urine protein (g/d),3393 ± 2522,4423 ± 4385
+lathae)mm,28.9 ± 13.8,47.2 ± 34.8 *
+Duration of diabetes (yr),15.7 ± 9.1,13.3 ± 9.0
+Insulin use,15 (63%),6 (55%)
+"Hemoglobin A, C (%)",7.57 ± 2.02,8.98 ± 2.93
+Waist/Hip Ratio,1.00 ± 0.07,1.04 ± 0.07
+Antihypertensive medications,4.3 ± 1.6,3.9 ± 1.9
+A,21 (88%),8 (73%)
+Total Cholesterol (mg/dL),184 ± 51,223 ± 87
+LDL Cholesterol (mg/dL),100 ± 44,116 ± 24
+HDL Cholesterol (mg/dL),42 ± 11.1,46 ± 11.4
+,17 (71%),7 (64%)
+
+```
+
+**注意事项：**
+1、如需更多参数说明和用法，请运行`python tools/infer/text/predict_table_recognition.py -h`或查看`tools/infer/text/config.py`
+
+## 版面分析
+
+要对输入图像或包含多个图像的目录运行版面分析，请执行
+```shell
+python tools/infer/text/predict_layout.py  --image_dir {path_to_img or dir_to_imgs} --layout_algorithm YOLOv8 --visualize_output True
+```
+运行后，推理结果保存在`{args.draw_img_save_dir}/det_results.txt`中，其中`--draw_img_save_dir`是保存结果的目录，这是`./inference_results`的默认设置，这里是一些示例结果。
+
+事例1:
+<p align="center">
+  <img src="../../../configs/layout/yolov8/images/result.png" width=480>
+</p>
+<p align="center">
+  <em> PMC4958442_00003.jpg的可视化结果</em>
+</p>
+
+其中保存的layout_result.txt文件如下
+```
+{"image_id": 0, "category_id": 1, "bbox": [308.649, 559.189, 240.211, 81.412], "score": 0.98431}
+{"image_id": 0, "category_id": 1, "bbox": [50.435, 673.018, 240.232, 70.262], "score": 0.98414}
+{"image_id": 0, "category_id": 3, "bbox": [322.805, 348.831, 225.949, 203.302], "score": 0.98019}
+{"image_id": 0, "category_id": 1, "bbox": [308.658, 638.657, 240.31, 70.583], "score": 0.97986}
+{"image_id": 0, "category_id": 1, "bbox": [50.616, 604.736, 240.044, 70.086], "score": 0.9797}
+{"image_id": 0, "category_id": 1, "bbox": [50.409, 423.237, 240.132, 183.652], "score": 0.97805}
+{"image_id": 0, "category_id": 1, "bbox": [308.66, 293.918, 240.181, 47.497], "score": 0.97471}
+{"image_id": 0, "category_id": 1, "bbox": [308.64, 707.13, 240.271, 36.028], "score": 0.97427}
+{"image_id": 0, "category_id": 1, "bbox": [308.697, 230.568, 240.062, 43.545], "score": 0.96921}
+{"image_id": 0, "category_id": 4, "bbox": [51.787, 100.444, 240.267, 273.653], "score": 0.96839}
+{"image_id": 0, "category_id": 5, "bbox": [308.637, 74.439, 237.878, 149.174], "score": 0.96707}
+{"image_id": 0, "category_id": 1, "bbox": [50.615, 70.667, 240.068, 22.0], "score": 0.94156}
+{"image_id": 0, "category_id": 2, "bbox": [50.549, 403.5, 67.392, 12.85], "score": 0.92577}
+{"image_id": 0, "category_id": 1, "bbox": [51.384, 374.84, 171.939, 10.736], "score": 0.76692}
+```
+其中，`image_id`为图像ID，`bbox`为检测出的边界框`[左上角的x坐标，右下角的y坐标，宽度，高度]`, `score`是检测的置信度，`category_id`的含义如下：
+- `1: text`
+- `2: title`
+- `3: list`
+- `4: table`
+- `5: figure`
+
+**注意事项：**
+- 有关更多参数说明和用法，请运行`python tools/infer/text/predict_layout.py -h`或查看`tools/infer/text/config.py`
+
+### 支持的检测算法和网络
+
+<center>
+
+  |**算法名称**|**网络名称**|**语言**|
+  | :------: | :------: | :------: |
+  |YOLOv8 | yolov8 |英语|
+
+</center>
+
+算法网络在`tools/infer/text/predict_layout.py`中定义。
+
+## 端到端文档分析及恢复
+
+要对输入图像或目录中的多个图像运行文档分析（即检测所有文本区域、表格区域、图像区域，并对这些区域进行文字识别，最终将结果按照图像原来的排版方式转换成Docx文件），请运行：
+
+```shell
+python tools/infer/text/predict_table_e2e.py --image_dir {path_to_img or dir_to_imgs} \
+                                             --det_algorithm {DET_ALGO} \
+                                             --rec_algorithm {REC_ALGO}
+```
+>注意：如果要可视化版面分析、表格识别和文字识别的结果，请设置`--visualize_output True`。
+
+运行后，推理结果保存在`{args.draw_img_save_dir}/{img_name}_e2e_result.txt`中，其中`--draw_img_save_dir`是保存结果的目录，这是`./inference_results`的默认设置。下面是一些结果的例子。
+
+示例1：
+
+<p align="center">
+  <img src="../../../configs/layout/yolov8/images/example_docx.png"/>
+</p>
+<p align="center">
+  <em> PMC4958442_00003.jpg转换成docx文件的效果 </em>
+</p>
+
+其中保存的txt文件如下
+```text
+{"type": "text", "bbox": [50.615, 70.667, 290.683, 92.667], "res": "tabley predictive value ofbasic clinical laboratory and suciode variables surney anc yea after tramphenins", "layout": "double"}
+{"type": "table", "bbox": [51.787, 100.444, 292.054, 374.09700000000004], "res": "<html><body><table><thead><tr><td><b>sign factor</b></td><td><b>prediction valucofthe the</b></td><td><b>from difereness significance levelaf the</b></td></tr></thead><tbody><tr><td>gender</td><td>0027 0021</td><td>o442</td></tr><tr><td></td><td>00z44</td><td>0480</td></tr><tr><td>cause</td><td>tooza 0017</td><td>o547</td></tr><tr><td>cadaverieilizing donorst</td><td>0013 aont</td><td>0740</td></tr><tr><td>induction transplantation before dialysis</td><td>doattoos</td><td>0125</td></tr><tr><td>depleting antibodies monoclomalor cn immunosuppression with</td><td>doista09</td><td>0230</td></tr><tr><td>ititis</td><td>0029</td><td>aaso</td></tr><tr><td>status itional</td><td>0047 toots</td><td></td></tr><tr><td>townfrillage</td><td>non</td><td></td></tr><tr><td>transplantations number</td><td>toos 0017</td><td>o5s1</td></tr><tr><td>creatinine</td><td>02400g</td><td>caoor</td></tr><tr><td>pressure bload systolic</td><td>aidaloloss</td><td>aoz</td></tr><tr><td>pressure diastolic blood</td><td>dobetods</td><td>ass</td></tr><tr><td>hemoglobin</td><td>0044 0255t</td><td>caoor</td></tr><tr><td></td><td>004</td><td>caoor</td></tr></tbody></table></body></html>", "layout": "double"}
+{"type": "text", "bbox": [51.384, 374.84, 223.32299999999998, 385.57599999999996], "res": "nanc rmeans more significant forecasting factor sign", "layout": "double"}
+{"type": "title", "bbox": [50.549, 403.5, 117.941, 416.35], "res": "discussion", "layout": "double"}
+{"type": "text", "bbox": [50.409, 423.237, 290.541, 606.889], "res": "determination of creatinine and hemoglobin level in the blood well aetho concentration of protein in the urine in one year atter kidney transplantation with the calculation of prognostic criterion predics the loss of renal allotransplant function in years fafter surgery advantages ff the method are the possibility oof quantitative forecasting of renal allotransplant losser which based not only its excretory function assessment but also on assessment other characteristics that may have important prognostic value and does not always directly correlate with changes in its excretors function in order the riskof death with transplant sfunctioning returntothe program hemodialysis the predictive model was implemented cabular processor excel forthe useofthe model litisquite enough the value ethel given indices calculation and prognosis will be automatically done in the electronic table figure 31", "layout": "double"}
+{"type": "text", "bbox": [50.616, 604.736, 290.66, 674.822], "res": "the calculator designed by us has been patented chttpell napatentscomy 68339 sposib prognozuvannys vtrati funk caniskovogo transplanatchti and disnvailable on the in ternet chitpsolivad skillwond the accuract ot prediction of renal transplant function loss three years after transplantation was 92x", "layout": "double"}
+{"type": "text", "bbox": [50.435, 673.018, 290.66700000000003, 743.28], "res": "progression of chronic renal dysfunctional the transplant accompanied the simultaneous losa the benefits of successful transplantation and the growth of problems due to immunosuppresson bosed on retrospective analysis nt resultsof treatment tofkidney transplantof the recipients with blood creatinine higher than d3 immold we adhere to the", "layout": "double"}
+{"type": "figure", "bbox": [308.637, 74.439, 546.515, 223.613], "res": "./inference_results/example_figure_10.png", "layout": "double"}
+{"type": "text", "bbox": [308.697, 230.568, 548.759, 274.113], "res": "figures the cnerhecadfmuthrnatical modeltor prognostication ofkidaey transplant function during the periodal three years after thetransplantation according oletectercipiolgaps after theoperation", "layout": "double"}
+{"type": "text", "bbox": [308.66, 293.918, 548.841, 341.415], "res": "following principles in thecorrectionod immunisuppresion which allow decreasing the rateofs chronic dysfunctionof the transplant development or edecreasing the risk fof compliea tions incaeoflasof function", "layout": "double"}
+{"type": "list", "bbox": [322.805, 348.831, 548.754, 552.133], "res": "wdo not prescribe hish doses steroids and do have the steroid pulse therapy cy do not increase the dose of received cyclosporine tacrolimus and stop medication ifthere isan increase in nephropathy tj continue immunosuppression with medicines ofmy cophenolic acid which are not nephrotoxic k4 enhance amonitoring of immunosuppression andpe vention infectious com cancel immunosuppression atreturning hemodi alysis treatment cancellation of steroids should done egradually sometimes for several months when thediscomfort eassociated transplant tempera ture main in the projection the transplanted kidney and hematurial short course of low doses of steroids administered orally of intravenously can be effective", "layout": "double"}
+{"type": "text", "bbox": [308.649, 559.189, 548.86, 640.601], "res": "according to plasma concentration of creatinine the return hemodialvsis the patients were divided into groups ln the first group the creatinine concentration in blood plasma waso mmoly in the 2nd groun con centration in blood plasma was azlommaty and in the third group concentration in blood plasma was more than commolt", "layout": "double"}
+{"type": "text", "bbox": [308.658, 638.657, 548.9680000000001, 709.24], "res": "dates or the return of transplant recipients with delaved rena transplant disfunction are largely dependent ion the psychological state ofthe patient severity of depression the desire to ensure the irreversibility the transplanted kidney dysfunction and fear that the dialysis will contribute to the deterioration of renal transplant function", "layout": "double"}
+{"type": "text", "bbox": [308.64, 707.13, 548.911, 743.158], "res": "the survival rateof patients ofthe first group after return in hemodialysis was years and in the second and third groups respectively 53132 and28426 years", "layout": "double"}
+
+```
+其中，`type`为检测区域的类型，`bbox`为检测出的边界框`[左上角的x坐标，右下角的y坐标，宽度，高度]`, `res`是检测的结果内容。
+
+**注意事项：**
+1. 如需更多参数说明和用法，请运行`python tools/infer/text/predict_table_e2e.py -h`或查看`tools/infer/text/config.py`
+2. 除了config.py中的参数，predict_table_e2e.py还接受如下参数：
+<center>
+
+  |   **参数名**   |**描述**| **默认值** |
+  |:------------:| :------: |:------:|
+  | layout | 版面分析任务 |   True    |
+  | ocr | 文字识别任务 |   True    |
+  | table | 表格识别任务 |   True    |
+  | recovery | 转换成Docx任务 |   True    |
+
+</center>
 
 ## 参数列表
 

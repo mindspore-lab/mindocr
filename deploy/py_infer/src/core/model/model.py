@@ -2,12 +2,12 @@ from typing import List, Tuple
 
 import numpy as np
 
-from .backend import LiteModel, MindXModel
+from .backend import LiteModel
 from .shape import ShapeType
 
 __all__ = ["Model"]
 
-_INFER_BACKEND_MAP = {"acl": MindXModel, "lite": LiteModel}
+_INFER_BACKEND_MAP = {"lite": LiteModel}
 
 
 class Model:

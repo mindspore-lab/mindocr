@@ -110,7 +110,11 @@ class DBPostprocess(DetBasePostprocess):
                     continue
 
             poly = Polygon(points)
-            poly = np.array(expand_poly(points, distance=poly.area * self._expand_ratio / poly.length))
+            poly_list = expand_poly(points, distance=poly.area * self._expand_ratio / poly.length)
+            if self._is_uneven_nested_list(poly_list):
+                poly = np.array(poly_list, dtype=object)
+            else:
+                poly = np.array(poly_list)
             if self._out_poly and len(poly) > 1:
                 continue
             poly = poly.reshape(-1, 2)
@@ -133,6 +137,18 @@ class DBPostprocess(DetBasePostprocess):
         if self._out_poly:
             return polys, scores
         return np.array(polys), np.array(scores).astype(np.float32)
+
+    def _is_uneven_nested_list(self, arr_list):
+        if not isinstance(arr_list, list):
+            return False
+
+        first_length = len(arr_list[0]) if isinstance(arr_list[0], list) else None
+
+        for sublist in arr_list:
+            if not isinstance(sublist, list) or len(sublist) != first_length:
+                return True
+
+        return False
 
     @staticmethod
     def _fit_box(contour):

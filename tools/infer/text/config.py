@@ -126,7 +126,7 @@ def create_parser():
         "--draw_img_save_dir",
         type=str,
         default="./inference_results",
-        help="Dir to save visualization and detection/recogintion/system prediction results",
+        help="Dir to save visualization and detection/recognition/system prediction results",
     )
     parser.add_argument(
         "--save_crop_res",
@@ -224,6 +224,60 @@ def create_parser():
         type=str,
         default="",
         help="YAML config file specifying default arguments (default=" ")",
+    )
+
+    parser.add_argument(
+        "--table_algorithm",
+        type=str,
+        default="TABLE_MASTER",
+        choices=["TABLE_MASTER"],
+        help="table structure recognition algorithm",
+    )
+    parser.add_argument(
+        "--table_model_dir",
+        type=str,
+        help="directory containing the table structure recognition model checkpoint best.ckpt, "
+        "or path to a specific checkpoint file.",
+    )
+    parser.add_argument(
+        "--table_amp_level",
+        type=str,
+        default="O2",
+        choices=["O0", "O1", "O2", "O3"],
+        help="Auto Mixed Precision level. This setting only works on GPU and Ascend",
+    )
+    parser.add_argument(
+        "--table_char_dict_path",
+        type=str,
+        default="./mindocr/utils/dict/table_master_structure_dict.txt",
+        help="path to character dictionary for table structure recognition. "
+        "If None, will pick according to table_algorithm and table_model_dir.",
+    )
+    parser.add_argument(
+        "--table_max_len", type=int, default=480, help="max length of the input image for table structure recognition."
+    )
+
+    parser.add_argument(
+        "--layout_algorithm", type=str, default="YOLOv8", choices=["YOLOv8"], help="layout analyzer algorithm"
+    )
+    parser.add_argument(
+        "--layout_model_dir",
+        type=str,
+        help="directory containing the layout model checkpoint best.ckpt, or path to a specific checkpoint file.",
+    )  # determine the network weights
+    parser.add_argument(
+        "--layout_category_dict_path",
+        type=str,
+        default="./mindocr/utils/dict/layout_category_dict.txt",
+        help="path to category dictionary for layout recognition. "
+        "If None, will pick according to layout_algorithm and layout_model_dir.",
+    )
+    parser.add_argument(
+        "--layout_amp_level",
+        type=str,
+        default="O0",
+        choices=["O0", "O1", "O2", "O3"],
+        help="Auto Mixed Precision level. This setting only works on GPU and Ascend",
     )
 
     return parser

@@ -215,10 +215,10 @@ If users do not need to use the pre-trained model, they can simply delete `model
 
 #### Distributed Training
 
-In the case of a large amount of data, we recommend that users use distributed training. For distributed training across multiple Ascend 910 devices or GPU devices, please modify the configuration parameter `system.distribute` to True, for example:
+In the case of a large amount of data, we recommend that users use distributed training. For distributed training across multiple Ascend 910 devices devices, please modify the configuration parameter `system.distribute` to True, for example:
 
 ```shell
-# To perform distributed training on 4 GPU/Ascend devices
+# To perform distributed training on 4 Ascend devices
 mpirun -n 4 python tools/train.py --config configs/rec/crnn/crnn_resnet34_ch.yaml
 ```
 
@@ -227,7 +227,7 @@ mpirun -n 4 python tools/train.py --config configs/rec/crnn/crnn_resnet34_ch.yam
 If you want to train or fine-tune the model on a smaller dataset without distributed training, please modify the configuration parameter `system.distribute` to `False` and run:
 
 ```shell
-# Training on single CPU/GPU/Ascend devices
+# Training on single CPU/Ascend devices
 python tools/train.py --config configs/rec/crnn/crnn_resnet34_ch.yaml
 ```
 

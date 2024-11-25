@@ -168,7 +168,7 @@ python tools/train.py --config configs/det/psenet/pse_r152_icdar15.yaml
 请确保yaml文件中的`distribute`参数为True。
 
 ```shell
-# n is the number of GPUs/NPUs
+# n is the number of NPUs
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/det/psenet/pse_r152_icdar15.yaml
 ```
 
@@ -184,11 +184,11 @@ python tools/eval.py --config configs/det/psenet/pse_r152_icdar15.yaml
 
 ### 3.6 MindSpore Lite 推理
 
-请参考[MindOCR 推理](../../../docs/cn/inference/inference_tutorial.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
+请参考[MindOCR 推理](../../../docs/zh/inference/inference_tutorial.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
 
 - 模型导出
 
-请先[下载](#2-实验结果)已导出的MindIR文件，或者参考[模型导出](../../README.md)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
+请先[下载](#2-实验结果)已导出的MindIR文件，或者参考[模型导出](../../../docs/zh/inference/convert_tutorial.md#1-模型导出)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
 
 ```shell
 python tools/export.py --model_name_or_config psenet_resnet152 --data_shape 1472 2624 --local_ckpt_path /path/to/local_ckpt.ckpt
@@ -200,11 +200,11 @@ python tools/export.py --model_name_or_config configs/det/psenet/pse_r152_icdar1
 
 - 环境搭建
 
-请参考[环境安装](../../../docs/cn/inference/environment.md#2-mindspore-lite推理)教程，配置MindSpore Lite推理运行环境。
+请参考[环境安装](../../../docs/zh/inference/environment.md)教程，配置MindSpore Lite推理运行环境。
 
 - 模型转换
 
-请参考[模型转换](../../../docs/cn/inference/convert_tutorial.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换。
+请参考[模型转换](../../../docs/zh/inference/convert_tutorial.md#2-mindspore-lite-mindir-转换)教程，使用`converter_lite`工具对MindIR模型进行离线转换。
 
 - 执行推理
 

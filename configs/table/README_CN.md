@@ -26,10 +26,10 @@ TableMaster是一种用于表格识别的模型，其独特之处在于能够同
 ### PubTabNet
 <div align="center">
 
-| **模型**      | **环境配置**        | **骨干网络**    | **Accuracy** | **训练时间**     | **每步耗时**    | **FPS**  | **配置文件**                  | 模型权重下载                                                                                                     |
-|-------------|-----------------|-------------|--------------|--------------|-------------|----------|---------------------------|------------------------------------------------------------------------------------------------------------|
-| TableMaster | D910*x8-MS2.4-F | TableResNetExtra   | 77.47%       | 4218 s/epoch | 675 ms/step | 15 img/s | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
-| TableMaster | D910*x8-MS2.3-G | TableResNetExtra   | 77.49%       | 1675 s/epoch | 268 ms/step | 37 img/s | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
+| **模型**      | **环境配置**        | **骨干网络**    | **Accuracy** | **训练时间**     | **每步耗时**    | **FPS**   | **配置文件**                  | 模型权重下载                                                                                                     |
+|-------------|-----------------|-------------|--------------|--------------|-------------|-----------|---------------------------|------------------------------------------------------------------------------------------------------------|
+| TableMaster | D910*x8-MS2.4-F | TableResNetExtra   | 77.47%       | 4218 s/epoch | 675 ms/step | 120 img/s | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
+| TableMaster | D910*x8-MS2.3-G | TableResNetExtra   | 77.49%       | 1675 s/epoch | 268 ms/step | 296 img/s | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
 
 </div>
 
@@ -142,7 +142,7 @@ python tools/train.py --config configs/table/table_master.yaml
 请确保yaml文件中的`distribute`参数为True。
 
 ```shell
-# n is the number of GPUs/NPUs
+# n is the number of NPUs
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/table/table_master.yaml
 ```
 

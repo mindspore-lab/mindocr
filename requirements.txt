@@ -21,3 +21,8 @@ requests>=2.31.0
 pycocotools>=2.0.2
 setuptools-scm
 albumentations
+beautifulsoup4
+pandas
+tablepyxl
+lxml
+python-docx

@@ -13,7 +13,6 @@ from time import time
 import cv2
 import numpy as np
 from config import parse_args
-from PIL import Image, ImageDraw, ImageFont
 from postprocess import Postprocessor
 from predict_system import TextSystem
 from preprocess import Preprocessor
@@ -23,6 +22,7 @@ from mindspore import Tensor, set_context
 
 from mindocr import build_model  # noqa
 from mindocr.utils.logger import set_logger  # noqa
+from mindocr.utils.visualize import draw_ser_results
 
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../../../")))
@@ -37,7 +37,7 @@ algo_to_model_name = {
 logger = logging.getLogger("mindocr")
 
 
-class SemanticEntityRecognition(object):
+class SemanticEntityRecognition:
     """
     Infer model for semantic entity recognition
     """
@@ -157,9 +157,10 @@ class SemanticEntityRecognition(object):
         return img_name, annot_str
 
     def get_from_file(self, label_file_list):
-        """Load data list from label_file which contains infomation of image paths and annotations
+        """
+        Load data list from label_file_list which contains information image path and annotation.
         Args:
-            label_file: annotation file path(s)
+            label_file_list: annotation file path(s)
         Returns:
             data_list (List[dict]): A list of annotation dict, which contains keys: img_path, annot...
         """
@@ -255,7 +256,7 @@ class SemanticEntityRecognition(object):
         """
         ser_res = []
         # preprocess
-        for i, img in enumerate(ocr_info_list):
+        for _, img in enumerate(ocr_info_list):
             data = self.preprocess(img)
             input_ids = data["input_ids"]
             bbox = data["bbox"]
@@ -308,57 +309,6 @@ class SemanticEntityRecognition(object):
         ser_time = time() - start_time
         time_report["ser"] = ser_time
         return results_ser, time_report
-
-
-def draw_ser_results(image, ocr_results, font_path="docs/fonts/simfang.ttf", font_size=14):
-    np.random.seed(2021)
-    color = (np.random.permutation(range(255)), np.random.permutation(range(255)), np.random.permutation(range(255)))
-    color_map = {idx: (color[0][idx], color[1][idx], color[2][idx]) for idx in range(1, 255)}
-    if isinstance(image, np.ndarray):
-        image = Image.fromarray(image)
-    elif isinstance(image, str) and os.path.isfile(image):
-        image = Image.open(image).convert("RGB")
-    img_new = image.copy()
-    draw = ImageDraw.Draw(img_new)
-
-    font = ImageFont.truetype(font_path, font_size, encoding="utf-8")
-    for ocr_info in ocr_results:
-        if ocr_info["pred_id"] not in color_map:
-            continue
-        color = color_map[ocr_info["pred_id"]]
-        text = "{}: {}".format(ocr_info["pred"], ocr_info["transcription"])
-
-        if "bbox" in ocr_info:
-            # draw with ocr engine
-            bbox = ocr_info["bbox"]
-        else:
-            # draw with ocr groundtruth
-            bbox = trans_poly_to_bbox(ocr_info["points"])
-        draw_box_txt(bbox, text, draw, font, font_size, color)
-
-    img_new = Image.blend(image, img_new, 0.7)
-    return np.array(img_new)
-
-
-def trans_poly_to_bbox(poly):
-    x1 = np.min([p[0] for p in poly])
-    x2 = np.max([p[0] for p in poly])
-    y1 = np.min([p[1] for p in poly])
-    y2 = np.max([p[1] for p in poly])
-    return [x1, y1, x2, y2]
-
-
-def draw_box_txt(bbox, text, draw, font, font_size, color):
-    # draw ocr results outline
-    bbox = ((bbox[0], bbox[1]), (bbox[2], bbox[3]))
-    draw.rectangle(bbox, fill=color)
-
-    # draw ocr results
-    left, top, right, bottom = font.getbbox(text)
-    tw, th = right - left, bottom - top
-    start_y = max(0, bbox[0][1] - th)
-    draw.rectangle([(bbox[0][0] + 1, start_y), (bbox[0][0] + tw + 1, start_y + th)], fill=(0, 0, 255))
-    draw.text((bbox[0][0] + 1, start_y), text, fill=(255, 255, 255), font=font)
 
 
 if __name__ == "__main__":

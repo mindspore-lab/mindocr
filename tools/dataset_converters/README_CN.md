@@ -1,1 +1,1 @@
-请参考[`docs/cn/datasets/converters.md`](../../docs/cn/datasets/converters.md)。
+请参考[`docs/zh/datasets/converters.md`](../../docs/zh/datasets/converters.md)。

@@ -132,7 +132,7 @@ python tools/train.py -c configs/cls/mobilenetv3/cls_mv3.yaml
 Please set `distribute` in yaml config file to be `True`.
 
 ```shell
-# n is the number of GPUs/NPUs
+# n is the number of NPUs
 mpirun --allow-run-as-root -n 4 python tools/train.py -c configs/cls/mobilenetv3/cls_mv3.yaml
 ```
 
