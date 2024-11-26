@@ -76,7 +76,7 @@ python tools/param_converter_from_torch.py \
 在采用动态图模式的ascend 910*上实验结果，mindspore版本为2.3.1
 <div align="center">
 
-| **model name** | **cards** | **batch size** | **img/s** | **map** | **recipe**                                                                                                     |
+| **model name** | **cards** | **batch size** | **img/s** | **map** | **config**                                                                                                     |
 |----------------|-----------|----------------|-----------|---------|----------------------------------------------------------------------------------------------------------------|
 | LayoutLMv3     | 1         | 1              | 2.7       | 94.3%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/layoutlmv3/layoutlmv3_publaynet.yaml) |
 </div>

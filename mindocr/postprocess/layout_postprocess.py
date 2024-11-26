@@ -197,12 +197,12 @@ def non_max_suppression(
             prediction on (bs, N, 4+nc) ndarray each point, the last dimension meaning
             [center_x, center_y, width, height, cls0, ...].
         conf_free (bool): Whether the prediction result include conf.
-        time_limit:
-        multi_label:
-        agnostic:
-        classes:
-        iou_thres:
-        conf_thres:
+        time_limit (float): Batch NMS maximum waiting time
+        multi_label (bool): Whether to use multiple labels
+        agnostic (bool): Whether the NMS is not aware of the category when executed
+        classes (list[int]): Filter for a specified category
+        iou_thres: (float): IoU threshold for NMS
+        conf_thres: (float): Confidence threshold for NMS
 
     Returns:
          list of detections, on (n,6) ndarray per image, the last dimension meaning [xyxy, conf, cls].
@@ -313,12 +313,12 @@ def non_max_suppression_for_layoutlmv3(
             prediction on (bs, N, 4+nc) ndarray each point, the last dimension meaning
             [center_x, center_y, width, height, cls0, ...].
         conf_free (bool): Whether the prediction result include conf.
-        time_limit:
-        multi_label:
-        agnostic:
-        classes:
-        iou_thres:
-        conf_thres:
+        time_limit (float): Batch NMS maximum waiting time
+        multi_label (bool): Whether to use multiple labels
+        agnostic (bool): Whether the NMS is not aware of the category when executed
+        classes (list[int]): Filter for a specified category
+        iou_thres: (float): IoU threshold for NMS
+        conf_thres: (float): Confidence threshold for NMS
 
     Returns:
          list of detections, on (n,6) ndarray per image, the last dimension meaning [xyxy, conf, cls].

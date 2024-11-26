@@ -84,7 +84,7 @@ class ProposalGenerator(nn.Cell):
 
     def find_top_rpn_proposals(self, proposals, pred_objectness_logits, image_sizes):
         """get top post_nms_top_n proposals"""
-        # nms实现方式和torch有精度差异，待替换接口
+        # The NMS implementation has a difference in accuracy from that of Torch, and the interface needs to be replaced
         # 1. Select top-k anchor after nms for every level and every image
         boxes = []
         for level_id, (proposals_i, logits_i) in enumerate(zip(proposals, pred_objectness_logits)):

@@ -73,7 +73,7 @@ The evaluation results on the public benchmark dataset (PublayNet) are as follow
 Experiments are tested on ascend 910* with mindspore 2.3.1 pynative mode
 <div align="center">
 
-| **model name** | **cards** | **batch size** | **img/s** | **map** | **recipe**                                                                                                     |
+| **model name** | **cards** | **batch size** | **img/s** | **map** | **config**                                                                                                     |
 |----------------|-----------|----------------|-----------|---------|----------------------------------------------------------------------------------------------------------------|
 | LayoutLMv3     | 1         | 1              | 2.7       | 94.3%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/layoutlmv3/layoutlmv3_publaynet.yaml) |
 </div>
