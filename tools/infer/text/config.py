@@ -225,7 +225,7 @@ def create_parser():
         "--cls_mode",
         type=str2bool,
         default=False,
-        help="whether to use cls model",
+        help="whether to enable the text direction classifier",
     )
     parser.add_argument(
         "--cls_algorithm",
@@ -252,7 +252,7 @@ def create_parser():
         "--save_cls_result",
         type=str2bool,
         default=True,
-        help="whether to use cls model",
+        help="whether to save the text direction classification result",
     )
 
     return parser

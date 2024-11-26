@@ -226,7 +226,7 @@ class TextClassifier(object):
                 img_pred = f"{fn}_crop_{i}" + "\t" + cls_res[0] + "\n"
             lines.append(img_pred)
 
-        with open(save_path, "w", encoding="utf-8") as f_cls:
+        with open(save_path, "a", encoding="utf-8") as f_cls:
             f_cls.writelines(lines)
             f_cls.close()
 
