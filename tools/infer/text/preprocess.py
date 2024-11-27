@@ -214,7 +214,6 @@ class Preprocessor(object):
                 image_transpose(bgr2rgb=True, hwc2chw=True),
             ]
 
-        
         elif task == "cls":
             pipeline = [
                 {"DecodeImage": {"img_mode": "BGR", "to_float32": False}},

@@ -10,6 +10,7 @@ Return:
 """
 import os
 import sys
+
 import cv2
 
 __dir__ = os.path.dirname(os.path.abspath(__file__))
@@ -24,7 +25,7 @@ def test_img_rotate(img_path, output_path):
     cv2.imwrite(output_path, img_180)
 
 
-if __name__=='__main__':
-    img_path= "path_to_img_file"
-    output_path="path_to_save_dir/output.png"
-    test_img_rotate(img_path,output_path)
+if __name__ == "__main__":
+    img_path = "path_to_img_file"
+    output_path = "path_to_save_dir/output.png"
+    test_img_rotate(img_path, output_path)
