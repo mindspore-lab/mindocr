@@ -8,7 +8,10 @@ The test script runs tests based on the following process:
     $ python tools/infer/text/test_cls.py  --image_dir {path_to_img} --cls_algorithm MV3
 
 In the example above, image_dir can be either the file directory of images set or the address of a single image file
+
+Test image files address see: https://github.com/zhangjunlongtech/Material/tree/main/CLS/test_for_cls
 """
+
 import logging
 import os
 import sys
