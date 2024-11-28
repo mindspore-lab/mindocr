@@ -5,6 +5,8 @@
 
 > [LayoutLMv3: Pre-training for Document AI with Unified Text and Image Masking](https://arxiv.org/abs/2204.08387)
 
+> [Original Repo](https://github.com/microsoft/unilm/tree/master/layoutlmv3)
+
 ## 1. 模型描述
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
