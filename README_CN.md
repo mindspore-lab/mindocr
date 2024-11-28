@@ -45,8 +45,8 @@ MindOCR是一个基于[MindSpore](https://www.mindspore.cn/en) 框架开发的OC
 
 | mindocr |  mindspore  |
 |:-------:|:-----------:|
-| master  |   master    |
-|   0.4   | 2.3.1/2.3.0 |
+|  main   |   master    |
+|   0.4   | 2.3.0/2.3.1 |
 |   0.3   |   2.2.10    |
 |   0.1   |     1.8     |
 
