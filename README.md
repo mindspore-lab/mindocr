@@ -43,12 +43,12 @@ MindOCR is an open-source toolbox for OCR development and application based on [
 The following is the corresponding `mindocr` versions and supported
 mindspore versions.
 
-| mindocr | mindspore |
-|:-------:|:---------:|
-| master  |  master   |
-|   0.4   |   2.3.0   |
-|   0.3   |  2.2.10   |
-|   0.1   |    1.8    |
+| mindocr |  mindspore  |
+|:-------:|:-----------:|
+|  main   |   master    |
+|   0.4   | 2.3.0/2.3.1 |
+|   0.3   |   2.2.10    |
+|   0.1   |     1.8     |
 
 
 ## Installation
