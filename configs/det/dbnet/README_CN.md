@@ -342,7 +342,11 @@ DBNet和DBNet++在ICDAR2015，MSRA-TD500，SCUT-CTW1500，Total-Text和MLT2017�
 
 #### SCUT-CTW1500
 
-*即将到来*
+| **model name** | **backbone** | **pretrained** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **recall** | **precision** | **f-score** | **recipe**                  | **weight**                                                                                        |
+|----------------|--------------|----------------|-----------|----------------|---------------|-------------------|-------------|-----------|------------|---------------|-------------|-----------------------------|---------------------------------------------------------------------------------------------------|
+| DBNet          | ResNet-18    | SynthText      | 1         | 20             | O2            | 73.18 s           | 163.80      | 122.1     | 85.68%     | 85.33%        | 85.50%      | [yaml](db_r18_ctw1500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_ctw1500-0864b040.ckpt) |
+| DBNet          | ResNet-50    | SynthText      | 1         | 20             | O2            | 110.34 s          | 180.11      | 71.4      | 87.83%     | 84.71%        | 86.25%      | [yaml](db_r50_ctw1500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_ctw1500-f637e3d3.ckpt) |
+
 
 #### Total-Text
 
