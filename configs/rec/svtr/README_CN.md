@@ -5,7 +5,7 @@
 
 > [SVTR: Scene Text Recognition with a Single Visual Model](https://arxiv.org/abs/2205.00159)
 
-## 1. 模型描述
+## 模型描述
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
 主流的场景文字识别模型通常包含两个基本构建部分，一个视觉模型用于特征提取和一个序列模型用于文本转换。虽然这种混合架构非常准确，但也相对复杂和低效。因此，作者提出了一种新的方法：单一视觉模型。这种方法在图形标记化（image tokenization）框架下建立，完全抛弃了顺序的建模方式。作者的方法将图像划分成小的补丁，并通过逐层组件级别的混合、合并和/或组合进行操作以实现层级。作者还设计了全局和局部混合块以识别多颗粒度的字符组件模式，从而进行字符识别。作者实验了英文和中文场景文本识别任务，结果表明作者的模型SVTR是有效的。作者的大型模型SVTR-L在英文方面能提供高准确度的性能，在中文方面也表现优越且速度更快。作者的小型模型SVTR-T在推断方面也有很好的表现。[<a href="#参考文献">1</a>]
@@ -19,58 +19,23 @@
   <em> 图1. SVTR结构 [<a href="#参考文献">1</a>] </em>
 </p>
 
-## 2. 评估结果
-<!--- Guideline:
-Table Format:
-- Model: model name in lower case with _ seperator.
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
-- Top-1 and Top-5: Keep 2 digits after the decimal point.
-- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
-- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
-- Download: url of the pretrained model weights. Use absolute url path.
--->
+## 配套版本
 
-### 精度结果
+| mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:-------------:|:-------------------:|
+|   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
 
-根据我们的实验，在公开基准数据集（IC03，IC13，IC15，IIIT，SVT，SVTP，CUTE）上的评估结果如下：
 
-<div align="center">
 
-|    **模型**    |    **环境配置**     | **平均准确率** |   **训练时间**   | **FPS** |                                           **配置文件**                                            |                                                                                       **模型权重下载**                                                                                        |
-|:------------:|:---------------:|:---------:|:------------:|:-------:|:---------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|  SVTR-Tiny   | D910x4-MS1.10-G |  90.23%   | 3638 s/epoch |  4560   |  [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml)   | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3-86ece8c8.mindir) |
-| SVTR-Tiny-8P | D910x8-MS2.2-G  |  90.32%   | 1646 s/epoch |  9840   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml) |  [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \| [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir |
+## 快速开始
+### 环境及数据准备
 
-</div>
-
-<details open markdown>
-  <div align="center">
-  <summary>在各个基准数据集上的准确率</summary>
-
-  |    **模型**    | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **平均准确率** |
-  |:------------:|:------------:|:------------:|:------------:|:-------------:|:-------------:|:-------------:|:---------------:|:-------:|:--------:|:----------:|:---------:|
-  |  SVTR-Tiny   |    95.70%    |    95.50%    |    95.33%    |    93.99%     |    83.60%     |    79.83%     |     94.70%      | 91.96%  |  85.58%  |   86.11%   |  90.23%   |
-  | SVTR-Tiny-8P |    95.93%    |    95.62%    |    95.33%    |    93.89%     |    84.32%     |    80.55%     |     94.33%      | 90.57%  |  86.20%  |   86.46%   |   90.32%   |
-
-  </div>
-</details>
-
-**注意:**
-- 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。例如，D910x4-MS1.10-G 用于使用图形模式在4张昇腾910 NPU上依赖Mindspore1.10版本进行训练。
-- 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
-- 模型所能识别的字符都是默认的设置，即所有英文小写字母a至z及数字0至9，详细请看[4. 字符词典](#4-字符词典)
-- 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[数据集下载及使用](#312-数据集下载)章节。
-- SVTR的MindIR导出时的输入Shape均为(1, 3, 64, 256)。
-
-## 3. 快速开始
-### 3.1 环境及数据准备
-
-#### 3.1.1 安装
+#### 安装
 环境安装教程请参考MindOCR的 [installation instruction](https://github.com/mindspore-lab/mindocr#installation).
 
-#### 3.1.2 数据集准备
+#### 数据集准备
 
-##### 3.1.2.1 MJSynth, 验证集和测试集
+##### MJSynth, 验证集和测试集
 部分LMDB格式的训练及验证数据集可以从[这里](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (出处: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here))下载。连接中的文件包含多个压缩文件，其中:
 - `data_lmdb_release.zip` 包含了了部分数据集，有训练集(training/），验证集(validation/)以及测试集(evaluation)。
     - `training.zip` 包括两个数据集，分别是 [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) 和 [SynthText (ST)](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c)。 这里我们只使用**MJSynth**。
@@ -79,7 +44,7 @@ Table Format:
 - `validation.zip`: 与 data_lmdb_release.zip 中的validation/ 一样。
 - `evaluation.zip`: 与 data_lmdb_release.zip 中的evaluation/ 一样。
 
-##### 3.1.2.2 SynthText dataset
+##### SynthText数据集
 
 我们不使用`data_lmdb_release.zip`提供的`SynthText`数据, 因为它只包含部分切割下来的图片。请从[此处](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c)下载原始数据, 并使用以下命令转换成LMDB格式
 
@@ -93,7 +58,7 @@ python tools/dataset_converters/convert.py \
 ```
 `ST_full` 包含了所有已切割的图片，以LMDB格式储存。 请将 `ST` 文件夹换成 `ST_full` 文件夹。
 
-#### 3.1.3 数据集使用
+#### 数据集使用
 
 最终数据文件夹结构如下：
 
@@ -286,7 +251,7 @@ eval:
 - 由于全局批大小 （batch_size x num_devices） 是对结果复现很重要，因此当NPU卡数发生变化时，调整`batch_size`以保持全局批大小不变，或将学习率线性调整为新的全局批大小。
 
 
-### 3.2 模型训练
+### 模型训练
 <!--- Guideline: Avoid using shell script in the command line. Python script preferred. -->
 
 * 分布式训练
@@ -310,7 +275,7 @@ python tools/train.py --config configs/rec/svtr/svtr_tiny.yaml
 
 训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的目录下，默认为`./tmp_rec`。
 
-### 3.3 模型评估
+### 模型评估
 
 若要评估已训练模型的准确性，可以使用`eval.py`。请在yaml配置文件的`eval`部分将参数`ckpt_load_path`设置为模型checkpoint的文件路径，设置`distribute`为False，然后运行：
 
@@ -318,7 +283,7 @@ python tools/train.py --config configs/rec/svtr/svtr_tiny.yaml
 python tools/eval.py --config configs/rec/svtr/svtr_tiny.yaml
 ```
 
-## 4. 字符词典
+## 字符词典
 
 ### 默认设置
 
@@ -345,7 +310,7 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 - 您可以通过将配置文件中的参数 `use_space_char` 设置为 True 来包含空格字符。
 - 请记住检查配置文件中的 `dataset->transform_pipeline->RecAttnLabelEncode->lower` 参数的值。如果词典中有大小写字母而且想区分大小写的话，请将其设置为 False。
 
-## 5. 中文识别模型训练
+## 中文识别模型训练
 
 目前，SVTR模型支持中英文字识别并提供相应的预训练权重。详细内容如下
 
@@ -363,55 +328,55 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/svtr/svtr_tiny_ch.yaml
 ```
 
-### 评估结果和预训练权重
-模型训练完成后，在测试集不同场景上的准确率评估结果如下。相应的模型配置和预训练权重可通过表中链接下载。
 
-<div align="center">
-
-| **模型** | **语种** | **环境配置** | **街景类** | **网页类** | **文档类** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** |
-| :-----: | :-----:  | :-------:  | :--------: | :--------: | :--------: | :---------: |:--------: | :---------: | :-----------: |
-| SVTR-Tiny    | 中文 | D910x4-MS1.10-G | 65.93% | 69.64% | 98.01% | 647 s/epoch | 1580 | [svtr_tiny_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4.ckpt) \| [mindir]() |
-</div>
 
 ### 使用自定义数据集进行训练
 您可以在自定义的数据集基于提供的预训练权重进行微调训练, 以在特定场景获得更高的识别准确率，具体步骤请参考文档 [使用自定义数据集训练识别网络](../../../docs/zh/tutorials/training_recognition_custom_dataset_CN.md)。
 
+## 性能表现
 
-## 6. MindSpore Lite 推理
+### 通用泛化中文模型
 
-请参考[MindOCR 推理](../../../docs/zh/inference/inference_tutorial.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
+在采用图模式的ascend 910*上实验结果，mindspore版本为2.3.1
 
-**1. 模型导出**
+*即将到来*
 
-请先[下载](#2-评估结果)已导出的MindIR文件，或者参考[模型导出](../../../docs/zh/inference/convert_tutorial.md#1-模型导出)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
+在采用图模式的ascend 910上实验结果，mindspore版本为2.3.1
 
-```shell
-python tools/export.py --model_name_or_config svtr_tiny --data_shape 64 256 --local_ckpt_path /path/to/local_ckpt.ckpt
-# or
-python tools/export.py --model_name_or_config configs/rec/svtr/svtr_tiny.yaml --data_shape 64 256 --local_ckpt_path /path/to/local_ckpt.ckpt
-```
 
-其中，`data_shape`是导出MindIR时的模型输入Shape的height和width，下载链接中MindIR对应的shape值见[注释](#2-评估结果)。
+| **model name** | **cards** | **batch size** | **languages** | **jit level** | **graph compile** | **ms/step** | **img/s** | **scene** | **web** | **document** |                                                 **recipe**                                                 |                                                                                          **weight**                                                                                           |
+| :------------: | :-------: | :------------: | :-----------: | :-----------: | :---------------: | :---------: | :-------: | :-------: | :-----: | :----------: | :--------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+|   SVTR-Tiny    |     4     |      256       |    Chinese    |      O2       |      235.1 s      |    37.75    |   1580    |  65.93%   | 69.64%  |    98.01%    | [svtr_tiny_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4-3e495768.mindir) |
 
-**2. 环境搭建**
+### 细分领域模型
 
-请参考[环境安装](../../../docs/zh/inference/environment.md)教程，配置MindSpore Lite推理运行环境。
+在采用图模式的ascend 910*上实验结果，mindspore版本为2.3.1
 
-**3. 模型转换**
+*即将到来*
 
-请参考[模型转换](../../../docs/zh/inference/convert_tutorial.md#2-mindspore-lite-mindir-转换)教程，使用`converter_lite`工具对MindIR模型进行离线转换。
+在采用图模式的ascend 910上实验结果，mindspore版本为2.3.1
 
-**4. 执行推理**
+| **model name** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |                                          **recipe**                                           |                                                                                                  **weight**                                                                                                   |
+| :------------: | :-------: | :------------: | :-----------: | :---------------: | :---------: | :-------: | :----------: | :-------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+|   SVTR-Tiny    |     4     |      512       |      O2       |     226.86 s      |    49.38    |   4560    |    90.23%    |  [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml)   |            [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3-86ece8c8.mindir)            |
+|  SVTR-Tiny-8P  |     8     |      512       |      O2       |     230.74 s      |    55.16    |   9840    |    90.32%    | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \| [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir) |
 
-假设在模型转换后得到output.mindir文件，在`deploy/py_infer`目录下使用以下命令进行推理：
 
-```shell
-python infer.py \
-    --input_images_dir=/your_path_to/test_images \
-    --rec_model_path=your_path_to/output.mindir \
-    --rec_model_name_or_config=../../configs/rec/svtr/svtr_tiny.yaml \
-    --res_save_dir=results_dir
-```
+在各个基准数据集上的准确率
+
+| **model name** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **average** |
+| :------------: | :----------: | :----------: | :----------: | :-----------: | :-----------: | :-----------: | :-------------: | :-----: | :------: | :--------: | :---------: |
+|   SVTR-Tiny    |    95.70%    |    95.50%    |    95.33%    |    93.99%     |    83.60%     |    79.83%     |     94.70%      | 91.96%  |  85.58%  |   86.11%   |   90.23%    |
+|  SVTR-Tiny-8P  |    95.93%    |    95.62%    |    95.33%    |    93.89%     |    84.32%     |    80.55%     |     94.33%      | 90.57%  |  86.20%  |   86.46%   |   90.32%    |
+
+
+
+**注意:**
+- 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。例如，D910x4-MS1.10-G 用于使用图形模式在4张昇腾910 NPU上依赖Mindspore1.10版本进行训练。
+- 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
+- 模型所能识别的字符都是默认的设置，即所有英文小写字母a至z及数字0至9，详细请看[4. 字符词典](#4-字符词典)
+- 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[数据集下载及使用](#312-数据集下载)章节。
+- SVTR的MindIR导出时的输入Shape均为(1, 3, 64, 256)。
 
 ## 参考文献
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
