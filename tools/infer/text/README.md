@@ -255,7 +255,7 @@ If there are non-upright text characters in the image, they can be classified an
 python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_imgs} \
                                           --det_algorithm DB++  \
                                           --rec_algorithm CRNN  \
-                                          --cls_mode True
+                                          --use_cls True
 ```
 During execution, the text orientation classifier will classify the direction of the text detected in the image list and correct the direction of non-upright images. Setting `--save_cls_result` to `True` will save the text orientation classification results to `{args.crop_res_save_dir}/cls_results.txt`, where `{args.crop_res_save_dir}` is the directory to save the results. Here are some examples of the results.
 

@@ -237,7 +237,7 @@ python deploy/eval_utils/eval_pipeline.py --gt_path path/to/gt.txt --pred_path p
 python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_imgs} \
                                           --det_algorithm DB++  \
                                           --rec_algorithm CRNN  \
-                                          --cls_mode True
+                                          --use_cls True
 ```
 执行过程中，文本方向分类器将对文本检测所得图像列表进行方向分类，并对非正向的图像进行方向矫正。设置`--save_cls_result`为`True`可将文本方向分类结果保存至`{args.crop_res_save_dir}/cls_results.txt`中，其中`--crop_res_save_dir`是保存结果的目录，以下为部分结果示例。
 

@@ -222,7 +222,7 @@ def create_parser():
     )
 
     parser.add_argument(
-        "--cls_mode",
+        "--use_cls",
         type=str2bool,
         default=False,
         help="whether to enable the text direction classifier",

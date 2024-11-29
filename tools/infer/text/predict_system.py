@@ -236,8 +236,8 @@ class TextSystem(object):
         self.text_detect = TextDetector(args)
         self.text_recognize = TextRecognizer(args)
 
-        self.cls_mode = args.cls_mode
-        if self.cls_mode:
+        self.use_cls = args.use_cls
+        if self.use_cls:
             self.text_classification = TextClassifier(args)
             self.save_cls_result = args.save_cls_result
             self.save_cls_dir = args.crop_res_save_dir
@@ -291,7 +291,7 @@ class TextSystem(object):
                 cv2.imwrite(os.path.join(self.crop_res_save_dir, f"{fn}_crop_{i}.jpg"), cropped_img)
         # show_imgs(crops, is_bgr_img=False)
 
-        if self.cls_mode:
+        if self.use_cls:
             img_or_path = crops
             ct = time()
             cls_res_all = self.text_classification(img_or_path)
