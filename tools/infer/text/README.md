@@ -255,9 +255,9 @@ If there are non-upright text characters in the image, they can be classified an
 python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_imgs} \
                                           --det_algorithm DB++  \
                                           --rec_algorithm CRNN  \
-                                          --use_cls True
+                                          --cls_algorithm M3
 ```
-During execution, the text orientation classifier will classify the direction of the text detected in the image list and correct the direction of non-upright images. Setting `--save_cls_result` to `True` will save the text orientation classification results to `{args.crop_res_save_dir}/cls_results.txt`, where `{args.crop_res_save_dir}` is the directory to save the results. Here are some examples of the results.
+The default parameter `--cls_alorithm` is None, which means that text direction classification is not performed. By setting `--cls_alorithm`, text direction classification is performed in the text detection and recognition flow. In the process of execution, the text direction classifier classifies the list of images detected by the text and corrects the direction of the non-upright images. Here are some examples of the results.
 
 - Text direction classification
 
@@ -280,15 +280,18 @@ Classification Results:：
 word_01.png   0     1.0
 word_02.png   180   1.0
 ```
-You can set the direction classification algorithm by `--cls_algorithm`, and set the automatic mixed precision level and weight file for the text direction classifier by `--cls_amp_level` and `--cls_model_dir`. Currently, the supported text direction classification network is `mobilnet_v3`, which is configured with default weight files. The network is set to automatic mixed precision level `O0` by default, and direction classification support 0 and 180 degrees by default. We will support other direction classification in the future.
+
+The currently supported text direction classification network is `mobilnet_v3`, which can be set by configuring `--cls_algorithm` for `M3`. And through `--cls_amp_level` and `--cls_model_dir` to set the text direction classifier automatic mixing precision and weight file. At present, the default weight file has been configured, the default mixing precision of the network is `O0`, and the direction classification supports `0` and `180` degrees under the default configuration. We will support the classification of other directions in the future.
 
 <center>
 
   |**Algorithm Name**|**Network Name**|**Language**|
   | :------: | :------: | :------: |
-  | MV3 | mobilenet_v3 | CH/EN|
+  | M3 | mobilenet_v3 | CH/EN|
 
 </center>
+
+In addition, by setting `--save_cls_result` to `True`, text orientation classification results can be saved to `{args.crop_res_save_dir}/cls_results.txt`, Where `--crop_res_save_dir` is the directory where the results are saved.
 
 For more parameter descriptions and usage information, please refer to `tools/infer/text/config.py`.
 

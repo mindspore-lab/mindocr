@@ -50,7 +50,7 @@ class TextClassifier(object):
 
     def __init__(self, args):
         algo_to_model_name = {
-            "MV3": "cls_mobilenet_v3_small_100_model",
+            "M3": "cls_mobilenet_v3_small_100_model",
         }
         self.batch_num = args.cls_batch_num
         logger.info("classify in {} mode {}".format("batch", "batch_size: " + str(self.batch_num)))
@@ -65,14 +65,14 @@ class TextClassifier(object):
             pretrained = False
 
         assert args.cls_algorithm in algo_to_model_name, (
-            f"Invalid cls_algorithm {args.cls_algorithm}. "
+            f"Invalid cls_algorithm: {args.cls_algorithm}. "
             f"Supported classification algorithms are {list(algo_to_model_name.keys())}"
         )
         model_name = algo_to_model_name[args.cls_algorithm]
 
         amp_level = args.cls_amp_level
-        if amp_level != "O0" and args.cls_algorithm == "MV3":
-            logger.warning("The MV3 model supports only amp_level O0")
+        if amp_level != "O0" and args.cls_algorithm == "M3":
+            logger.warning("The M3 model supports only amp_level O0")
             amp_level = "O0"
 
         self.model = build_model(model_name, pretrained=pretrained, ckpt_load_path=ckpt_load_path, amp_level=amp_level)
@@ -236,8 +236,8 @@ class TextSystem(object):
         self.text_detect = TextDetector(args)
         self.text_recognize = TextRecognizer(args)
 
-        self.use_cls = args.use_cls
-        if self.use_cls:
+        self.cls_algorithm = args.cls_algorithm
+        if self.cls_algorithm is not None:
             self.text_classification = TextClassifier(args)
             self.save_cls_result = args.save_cls_result
             self.save_cls_dir = args.crop_res_save_dir
@@ -291,7 +291,7 @@ class TextSystem(object):
                 cv2.imwrite(os.path.join(self.crop_res_save_dir, f"{fn}_crop_{i}.jpg"), cropped_img)
         # show_imgs(crops, is_bgr_img=False)
 
-        if self.use_cls:
+        if self.cls_algorithm is not None:
             img_or_path = crops
             ct = time()
             cls_res_all = self.text_classification(img_or_path)

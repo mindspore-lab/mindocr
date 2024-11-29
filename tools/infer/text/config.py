@@ -222,17 +222,12 @@ def create_parser():
     )
 
     parser.add_argument(
-        "--use_cls",
-        type=str2bool,
-        default=False,
-        help="whether to enable the text direction classifier",
-    )
-    parser.add_argument(
         "--cls_algorithm",
         type=str,
-        default="MV3",
-        choices=["MV3"],
-        help="classification algorithm",
+        default=None,
+        choices=["M3"],
+        help="classification algorithm. The default is None,"
+        "meaning that text orientation classification is not performed"
     )
     parser.add_argument(
         "--cls_amp_level",
