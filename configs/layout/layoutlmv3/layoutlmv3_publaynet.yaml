@@ -1,0 +1,136 @@
+system:
+  mode: 1 # 0 for graph mode, 1 for pynative mode in MindSpore
+  distribute: False
+  amp_level: "O0"
+  seed: 42
+  log_interval: 10
+  val_start_epoch: 50
+  val_while_train: True
+  drop_overflow_update: False
+
+model:
+  type: layout
+  transform: null
+  backbone:
+    name: build_layoutlmv3_fpn_backbone
+    out_features: ["layer3", "layer5", "layer7", "layer11"]
+    fpn:
+      in_features: ["layer3", "layer5", "layer7", "layer11"]
+      norm: ""
+      out_channels: 256
+      fuse_type: sum
+  neck:
+    name: RPN
+    in_features: ["p2", "p3", "p4", "p5", "p6"]
+    pre_nms_topk_train: 2000
+    pre_nms_topk_test: 1000
+    feat_channel: 256
+    anchor_generator:
+      aspect_ratios: [0.5, 1.0, 2.0]
+      anchor_sizes: [[32], [64], [128], [256], [512]]
+      strides: [4, 8, 16, 32, 64]
+    rpn_label_assignment:
+      rpn_sample_batch: 256
+      fg_fraction: 0.5
+      negative_overlap: 0.3
+      positive_overlap: 0.7
+      use_random: True
+    train_proposal:
+      min_size: 0
+      nms_thresh: 0.7
+      pre_nms_top_n: 2000
+      post_nms_top_n: 1000
+    test_proposal:
+      min_size: 0
+      nms_thresh: 0.7
+      pre_nms_top_n: 1000
+      post_nms_top_n: 1000
+  head:
+    name: CascadeROIHeads
+    mask_on: True
+    in_features: ["p2", "p3", "p4", "p5"]
+    num_classes: 5
+    bbox_loss: None
+    add_gt_as_proposals: True
+    roi_extractor:
+      featmap_strides: [4, 8, 16, 32]
+    roi_box_head:
+      cls_agnostic_bbox_reg: True
+      name: FastRCNNConvFCHead
+      conv_dims: []
+      fc_dims: [1024, 1024]
+      pooler_resolution: 7
+      pooler_sampling_ratio: 0
+      pooler_type: ROIAlignV2
+      in_channel: 256
+      out_channel: 1024
+    roi_mask_head:
+      name: MaskRCNNConvUpsampleHead
+      conv_dims: [256, 256, 256, 256, 256]
+      pooler_resolution: 14
+      pooler_sampling_ratio: 0
+      pooler_type: ROIAlignV2
+      in_channel: 256
+    roi_box_cascade_head:
+      bbox_reg_weights: [[10.0, 10.0, 5.0, 5.0], [20.0, 20.0, 10.0, 10.0], [30.0, 30.0, 15.0, 15.0]]
+      ious: [0.5, 0.6, 0.7]
+    bbox_assigner:
+      name: BBoxAssigner
+      rois_per_batch: 512
+      bg_thresh: 0.5
+      fg_thresh: 0.5
+      fg_fraction: 0.25
+  pretrained:
+
+postprocess:
+  name: Layoutlmv3Postprocess
+  conf_thres: 0.05
+  iou_thres: 0.5
+  conf_free: False
+  multi_label: True
+  time_limit: 100
+
+metric:
+  name: Layoutlmv3Metric
+  annotations_path: &annotations_path publaynet/val.json
+
+eval:
+  ckpt_load_path: "from_torch.ckpt"
+  dataset_sink_mode: False
+  dataset:
+    type: PublayNetDataset
+    dataset_path: publaynet/val.txt
+    annotations_path: *annotations_path
+    img_size: 800
+    model_name: layoutlmv3
+    transform_pipeline:
+      - func_name: letterbox
+      - func_name: label_norm
+        xyxy2xywh_: True
+      - func_name: label_pad
+        padding_size: 160
+        padding_value: -1
+      - func_name: image_normal
+        mean: [ 127.5, 127.5, 127.5 ]
+        std: [ 127.5, 127.5, 127.5 ]
+      - func_name: image_transpose
+        bgr2rgb: True
+        hwc2chw: True
+      - func_name: image_batch_pad
+        max_size: 1333
+    batch_size: &refine_batch_size 1
+    stride: 64
+    output_columns: ["image", "labels", "image_ids", "hw_ori", "hw_scale", "pad"]
+    net_input_column_index: [0, 3, 4] # input indices for network forward func in output_columns
+    meta_data_column_index: [2, 3, 4, 5] # input indices marked as label
+  loader:
+    shuffle: False
+    batch_size: *refine_batch_size
+    drop_remainder: False
+    max_rowsize: 12
+    num_workers: 1
+
+predict:
+  ckpt_load_path: "from_torch.ckpt"
+  category_dict: {1: 'text', 2: 'title', 3: 'list', 4: 'table', 5: 'figure'}
+  color_dict: {1: [255, 0, 0], 2: [0, 0, 255], 3: [0, 255, 0], 4: [0, 255, 255], 5: [255, 0, 255]}
