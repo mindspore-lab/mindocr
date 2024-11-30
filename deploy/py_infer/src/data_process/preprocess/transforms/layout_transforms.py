@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 
-def letterbox(scaleup):
+def letterbox(scaleup, model_name=""):
     def func(data):
         image = data["image"]
         hw_ori = data["raw_img_shape"]
@@ -17,7 +17,10 @@ def letterbox(scaleup):
             new_shape = (new_shape, new_shape)
 
         # Scale ratio (new / old)
-        r = min(new_shape[0] / shape[0], new_shape[1] / shape[1])
+        if model_name == "layoutlmv3":
+            r = max(new_shape[0] / shape[0], new_shape[1] / shape[1])
+        else:
+            r = min(new_shape[0] / shape[0], new_shape[1] / shape[1])
         if not scaleup:  # only scale down, do not scale up (for better test mAP)
             r = min(r, 1.0)
 
@@ -28,11 +31,12 @@ def letterbox(scaleup):
         dw, dh = dw / 2, dh / 2  # divide padding into 2 sides
         hw_pad = np.array([dh, dw])
 
-        if shape[::-1] != new_unpad:  # resize
-            image = cv2.resize(image, new_unpad, interpolation=cv2.INTER_LINEAR)
-        top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
-        left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
-        image = cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
+        if model_name != "layoutlmv3":
+            if shape[::-1] != new_unpad:  # resize
+                image = cv2.resize(image, new_unpad, interpolation=cv2.INTER_LINEAR)
+            top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
+            left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
+            image = cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
 
         data["image"] = image
         data["image_ids"] = 0

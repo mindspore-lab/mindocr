@@ -1,6 +1,7 @@
+import numpy as np
 from addict import Dict
 
-from mindspore import nn
+from mindspore import nn, ops
 
 from .backbones import build_backbone
 from .heads import build_head
@@ -27,6 +28,11 @@ class BaseModel(nn.Cell):
             self.is_kie = True
         else:
             self.is_kie = False
+
+        if config.type == "layout":
+            self.is_layout = True
+        else:
+            self.is_layout = False
 
         if config.transform:
             transform_name = config.transform.pop("name")
@@ -77,12 +83,32 @@ class BaseModel(nn.Cell):
         x = self.head(x, input_ids, question, question_label, answer, answer_label)
         return x
 
+    def layout(self, *inputs):
+        pixel_values = inputs[0]
+        hw_ori = inputs[1]
+        hw_scale = inputs[2]
+        pixel_values_unpad_shape = hw_ori * hw_scale
+
+        # fix batch
+        max_size = ops.reduce_max(pixel_values_unpad_shape, axis=0)
+        stride = self.backbone._size_divisibility
+        max_size = (max_size + (stride - 1)) // stride * stride
+        pixel_values = pixel_values[:, :, :int(max_size[0]), :int(max_size[1])]
+
+        features = self.backbone(pixel_values=pixel_values)
+        proposals, rois_mask = self.neck.predict(features, pixel_values_unpad_shape)
+        res = self.head.predict(features, proposals, rois_mask, pixel_values_unpad_shape)
+        return res
+
     def construct(self, *args):
         if self.is_kie is True:
             if self.head_name == "TokenClassificationHead":
                 return self.ser(*args)
             elif self.head_name == "RelationExtractionHead":
                 return self.re(*args)
+        elif self.is_layout:
+            if self.head_name == "CascadeROIHeads":
+                return self.layout(*args)
 
         x = args[0]
         if self.transform is not None:
@@ -117,8 +143,6 @@ if __name__ == "__main__":
     model = BaseModel(model_config)
 
     import time
-
-    import numpy as np
 
     import mindspore as ms
 

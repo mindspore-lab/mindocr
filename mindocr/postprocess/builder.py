@@ -18,7 +18,7 @@ from .det_fce_postprocess import *
 from .det_pse_postprocess import *
 from .kie_re_postprocess import VQAReTokenLayoutLMPostProcess
 from .kie_ser_postprocess import VQASerTokenLayoutLMPostProcess
-from .layout_postprocess import YOLOv8Postprocess
+from .layout_postprocess import *
 from .rec_abinet_postprocess import *
 from .rec_postprocess import *
 from .table_postprocess import *

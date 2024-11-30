@@ -81,6 +81,20 @@ class Postprocessor(object):
         elif task == "ser":
             class_path = "mindocr/utils/dict/class_list_xfun.txt"
             postproc_cfg = dict(name="VQASerTokenLayoutLMPostProcess", class_path=class_path)
+        elif task == "layout":
+            if algo == "LAYOUTLMV3":
+                postproc_cfg = dict(
+                    name="Layoutlmv3Postprocess",
+                    conf_thres=0.05,
+                    iou_thres=0.5,
+                    conf_free=False,
+                    multi_label=True,
+                    time_limit=100,
+                )
+            elif algo == "YOLOv8":
+                postproc_cfg = dict(name="YOLOv8Postprocess", conf_thres=0.5, iou_thres=0.7, conf_free=True)
+            else:
+                raise ValueError(f"No postprocess config defined for {algo}. Please check the algorithm name.")
         elif task == "table":
             table_char_dict_path = kwargs.get(
                 "table_char_dict_path", "mindocr/utils/dict/table_master_structure_dict.txt"
@@ -91,8 +105,6 @@ class Postprocessor(object):
                 merge_no_span_structure=True,
                 box_shape="pad",
             )
-        elif task == "layout":
-            postproc_cfg = dict(name="YOLOv8Postprocess", conf_thres=0.5, iou_thres=0.7, conf_free=True)
         elif task == "cls":
             postproc_cfg = dict(name="ClsPostprocess", label_list=["0", "180"])
 

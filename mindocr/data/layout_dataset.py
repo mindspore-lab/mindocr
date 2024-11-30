@@ -70,6 +70,7 @@ class PublayNetDataset:
         self.img_formats = ["bmp", "jpg", "jpeg", "png", "tif", "tiff", "dng", "webp", "mpo"]
         self.help_url = "https://github.com/ultralytics/yolov5/wiki/Train-Custom-Data"
 
+        self.model_name = kwargs.get("model_name", "")
         self.img_size = img_size
         self.augment = augment
         self.rect = rect
@@ -295,10 +296,14 @@ class PublayNetDataset:
             img = cv2.imread(path)  # BGR
             assert img is not None, "Image Not Found " + path
             h_ori, w_ori = img.shape[:2]  # orig hw
-            r = self.img_size / max(h_ori, w_ori)  # resize image to img_size
-            if r != 1:  # always resize down, only resize up if training with augmentation
-                interp = cv2.INTER_AREA if r < 1 and not self.augment else cv2.INTER_LINEAR
-                img = cv2.resize(img, (int(w_ori * r), int(h_ori * r)), interpolation=interp)
+            if self.model_name == "layoutlmv3":
+                r = self.img_size / min(h_ori, w_ori)
+                img = cv2.resize(img, (int(round(w_ori * r)), int(round(h_ori * r))), interpolation=cv2.INTER_LINEAR)
+            else:
+                r = self.img_size / max(h_ori, w_ori)  # resize image to img_size
+                if r != 1:  # always resize down, only resize up if training with augmentation
+                    interp = cv2.INTER_AREA if r < 1 and not self.augment else cv2.INTER_LINEAR
+                    img = cv2.resize(img, (int(w_ori * r), int(h_ori * r)), interpolation=interp)
 
             return img, np.array([h_ori, w_ori])  # img, hw_original
         else:
@@ -363,23 +368,28 @@ class PublayNetDataset:
             new_shape = (new_shape, new_shape)
 
         # Scale ratio (new / old)
-        r = min(new_shape[0] / shape[0], new_shape[1] / shape[1])
+        if self.model_name == "layoutlmv3":
+            r = max(new_shape[0] / shape[0], new_shape[1] / shape[1])
+        else:
+            r = min(new_shape[0] / shape[0], new_shape[1] / shape[1])
         if not scaleup:  # only scale down, do not scale up (for better test mAP)
             r = min(r, 1.0)
 
         # Compute padding
         new_unpad = int(round(shape[1] * r)), int(round(shape[0] * r))
-        dw, dh = new_shape[1] - new_unpad[0], new_shape[0] - new_unpad[1]  # wh padding
+        dw, dh = abs(new_shape[1] - new_unpad[0]), abs(new_shape[0] - new_unpad[1])  # wh padding
 
         dw /= 2  # divide padding into 2 sides
         dh /= 2
         hw_pad = np.array([dh, dw])
 
-        if shape[::-1] != new_unpad:  # resize
-            image = cv2.resize(image, new_unpad, interpolation=cv2.INTER_LINEAR)
-        top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
-        left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
-        image = cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
+        if self.model_name != "layoutlmv3":
+            if shape[::-1] != new_unpad:  # resize
+                image = cv2.resize(image, new_unpad, interpolation=cv2.INTER_LINEAR)
+
+            top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
+            left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
+            image = cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
 
         # convert labels
         if labels.size:  # normalized xywh to pixel xyxy format
@@ -412,6 +422,25 @@ class PublayNetDataset:
         image = image.astype(np.float32, copy=False)
         image /= scale
         return image, labels
+
+    def image_normal(self, image, labels, mean, std):
+        image = (image - mean) / std
+        image = image.astype(np.float32, copy=False)
+        return image, labels
+
+    def image_batch_pad(self, image, labels, max_size=None):
+        image_size = image.shape[-2:]
+        if max_size is None:
+            max_size = np.array(image_size)
+        else:
+            max_size = np.array([max_size, max_size])
+
+        h_pad = int(max_size[0] - image_size[0])
+        w_pad = int(max_size[1] - image_size[1])
+
+        padding_size = ((0, 0), (0, h_pad), (0, w_pad))
+        batched_imgs = np.pad(image, padding_size, mode="constant", constant_values=0)
+        return batched_imgs, labels
 
     def image_transpose(self, image, labels, bgr2rgb=True, hwc2chw=True):
         if bgr2rgb:

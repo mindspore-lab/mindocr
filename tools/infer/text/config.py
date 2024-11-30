@@ -168,6 +168,14 @@ def create_parser():
     parser.add_argument("--kie_batch_num", type=int, default=8)
 
     parser.add_argument(
+        "-c",
+        "--config",
+        type=str,
+        default="",
+        help="YAML config file specifying default arguments (default=" ")",
+    )
+
+    parser.add_argument(
         "--table_algorithm",
         type=str,
         default="TABLE_MASTER",
@@ -199,7 +207,11 @@ def create_parser():
     )
 
     parser.add_argument(
-        "--layout_algorithm", type=str, default="YOLOv8", choices=["YOLOv8"], help="layout analyzer algorithm"
+        "--layout_algorithm",
+        type=str,
+        default="YOLOv8",
+        choices=["YOLOv8", "LAYOUTLMV3"],
+        help="layout analyzer algorithm",
     )
     parser.add_argument(
         "--layout_model_dir",

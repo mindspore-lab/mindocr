@@ -40,7 +40,8 @@ class LastLevelMaxPool(nn.Cell):
         self.in_feature = "p5"
 
     def construct(self, x):
-        return [ops.max_pool2d(x, kernel_size=1, stride=2, padding=0)]
+        dtype = x.dtype
+        return [ops.max_pool2d(x.astype(ms.float16), kernel_size=1, stride=2, padding=0).astype(dtype)]
 
 
 class FPN(nn.Cell):

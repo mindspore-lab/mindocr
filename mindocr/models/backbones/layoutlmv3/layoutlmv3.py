@@ -1,12 +1,16 @@
 import collections
+import math
 
 import numpy as np
+from addict import Dict
 
 from mindspore import Parameter, Tensor, nn, ops
 from mindspore.common import dtype as mstype
+from mindspore.common.initializer import HeUniform
 
 from mindocr.models.backbones._registry import register_backbone, register_backbone_class
 
+from ..layoutxlm.visual_backbone import FPN, LastLevelMaxPool, ShapeSpec
 from ..transformer_common.layer import (
     LayoutXLMAttention,
     LayoutXLMEmbeddings,
@@ -50,6 +54,8 @@ class LayoutLMv3PatchEmbeddings(nn.Cell):
             position_embedding = position_embedding.view(1, self.patch_shape[0], self.patch_shape[1], -1)
             position_embedding = position_embedding.transpose(0, 3, 1, 2)
             patch_height, patch_width = embeddings.shape[2], embeddings.shape[3]
+            # There is a difference in accuracy between MindSpore's Bicubic mode and Torch,
+            # and the interface needs to be updated
             position_embedding = ops.interpolate(position_embedding, size=(patch_height, patch_width), mode="bicubic")
             embeddings = embeddings + position_embedding
 
@@ -213,22 +219,114 @@ class LayoutLMv3Layer(LayoutXLMLayer):
 
 
 class LayoutLMv3Encoder(LayoutXLMEncoder):
-    def __init__(self, config):
+    def __init__(self, config, detection=False, out_features=None):
         super().__init__(config)
+        self.detection = detection
+        self.out_features = out_features
         self.layer = nn.CellList([LayoutLMv3Layer(config) for _ in range(config.num_hidden_layers)])
+
+        if self.detection:
+            self.gradient_checkpointing = True
+            embed_dim = self.config.hidden_size
+            self.out_indices = [int(name[5:]) for name in self.out_features]
+            self.fpn1 = nn.SequentialCell(
+                nn.Conv2dTranspose(embed_dim, embed_dim, kernel_size=2, stride=2, has_bias=True),
+                # nn.SyncBatchNorm(embed_dim),
+                nn.BatchNorm2d(embed_dim),
+                nn.GELU(),
+                nn.Conv2dTranspose(embed_dim, embed_dim, kernel_size=2, stride=2, has_bias=True)
+            )
+
+            self.fpn2 = nn.SequentialCell(
+                nn.Conv2dTranspose(embed_dim, embed_dim, kernel_size=2, stride=2, has_bias=True)
+            )
+
+            self.fpn3 = nn.Identity()
+
+            self.fpn4 = nn.MaxPool2d(kernel_size=2, stride=2)
+            self.ops = [self.fpn1, self.fpn2, self.fpn3, self.fpn4]
+
+    def construct(
+        self,
+        hidden_states,
+        attention_mask=None,
+        head_mask=None,
+        encoder_hidden_states=None,
+        encoder_attention_mask=None,
+        past_key_values=None,
+        output_attentions=False,
+        output_hidden_states=False,
+        bbox=None,
+        position_ids=None,
+        Hp=None,
+        Wp=None
+    ):
+        all_hidden_states = () if output_hidden_states else None
+
+        rel_pos = self._cal_1d_pos_emb(hidden_states, position_ids) if self.has_relative_attention_bias else None
+        rel_2d_pos = self._cal_2d_pos_emb(hidden_states, bbox) if self.has_spatial_attention_bias else None
+
+        if self.detection:
+            feat_out = {}
+            j = 0
+
+        hidden_save = dict()
+        hidden_save["input_hidden_states"] = hidden_states
+
+        for i, layer_module in enumerate(self.layer):
+            if output_hidden_states:
+                all_hidden_states = all_hidden_states + (hidden_states,)
+
+            layer_head_mask = None
+            past_key_value = None
+            # gradient_checkpointing is set as False here so we remove some codes here
+            hidden_save["input_attention_mask"] = attention_mask
+            layer_outputs = layer_module(
+                hidden_states,
+                attention_mask,
+                layer_head_mask,
+                encoder_hidden_states,
+                encoder_attention_mask,
+                past_key_value,
+                output_attentions,
+                rel_pos=rel_pos,
+                rel_2d_pos=rel_2d_pos,
+            )
+
+            hidden_states = layer_outputs[0]
+
+            hidden_save["{}_data".format(i)] = hidden_states
+
+            if self.detection and i in self.out_indices:
+                xp = hidden_states[:, -Hp * Wp:, :].permute(0, 2, 1).reshape(len(hidden_states), -1, Hp, Wp)
+                feat_out[self.out_features[j]] = self.ops[j](xp.contiguous())
+                j += 1
+
+        if self.detection:
+            return feat_out
+
+        return hidden_states, hidden_save
 
 
 @register_backbone_class
 class LayoutLMv3Model(nn.Cell):
-    def __init__(self, config):
+    def __init__(self, config, detection=False, out_features=None):
         super().__init__(config)
         self.config = config
+        self.detection = detection
+        self.out_features = out_features
         self.num_hidden_layers = config.num_hidden_layers
         self.has_relative_attention_bias = config.has_relative_attention_bias
         self.has_spatial_attention_bias = config.has_spatial_attention_bias
         self.patch_size = config.patch_size
         self.use_float16 = config.use_float16
         self.dense_dtype = mstype.float32
+        if self.num_hidden_layers <= 12:
+            self._out_feature_strides = {"layer3": 4, "layer5": 8, "layer7": 16, "layer11": 32}
+            self._out_feature_channels = {"layer3": 768, "layer5": 768, "layer7": 768, "layer11": 768}
+        else:
+            self._out_feature_strides = {"layer7": 4, "layer11": 8, "layer15": 16, "layer23": 32}
+            self._out_feature_channels = {"layer7": 1024, "layer11": 1024, "layer15": 1024, "layer23": 1024}
         if self.use_float16 is True:
             self.dense_dtype = mstype.float16
         self.min = finfo(self.dense_dtype)
@@ -256,7 +354,7 @@ class LayoutLMv3Model(nn.Cell):
 
             self.norm = nn.LayerNorm((config.hidden_size,), epsilon=1e-6)
 
-        self.encoder = LayoutLMv3Encoder(config)
+        self.encoder = LayoutLMv3Encoder(config, detection=detection, out_features=out_features)
 
     def get_input_embeddings(self):
         return self.embeddings.word_embeddings
@@ -298,15 +396,21 @@ class LayoutLMv3Model(nn.Cell):
         return visual_bbox
 
     def visual_embeddings(self, pixel_values):
-        embeddings = self.patch_embed(pixel_values)
+        if self.detection:
+            embeddings = self.patch_embed(pixel_values,
+                                          self.pos_embed[:, 1:, :] if self.pos_embed is not None else None)
+        else:
+            embeddings = self.patch_embed(pixel_values)
 
         # add [CLS] token
         batch_size, seq_len, _ = embeddings.shape
         cls_tokens = self.cls_token.broadcast_to((batch_size, -1, -1))
+        if self.pos_embed is not None and self.detection:
+            cls_tokens = cls_tokens + self.pos_embed[:, :1, :]
         embeddings = ops.cat((cls_tokens, embeddings), axis=1)
 
         # add position embeddings
-        if self.pos_embed is not None:
+        if self.pos_embed is not None and not self.detection:
             embeddings = embeddings + self.pos_embed
 
         embeddings = self.pos_drop(embeddings)
@@ -382,6 +486,14 @@ class LayoutLMv3Model(nn.Cell):
         head_mask = head_mask.to(dtype=self.dtype)  # switch to float if need + fp16 compatibility
         return head_mask
 
+    def output_shape(self):
+        return {
+            name: ShapeSpec(
+                channels=self._out_feature_channels[name], stride=self._out_feature_strides[name]
+            )
+            for name in self.out_features
+        }
+
     def construct(
         self,
         input_ids=None,  # input_ids
@@ -450,7 +562,10 @@ class LayoutLMv3Model(nn.Cell):
                 inputs_embeds=inputs_embeds,
             )
         final_bbox = final_position_ids = None
+        Hp = Wp = None
         if pixel_values is not None:
+            patch_size = 16
+            Hp, Wp = int(pixel_values.shape[2] / patch_size), int(pixel_values.shape[3] / patch_size)
             visual_embeddings = self.visual_embeddings(pixel_values)
             visual_embeddings_shape = visual_embeddings.shape
             visual_attention_mask = ops.ones((batch_size, visual_embeddings_shape[1]), dtype=mstype.int64)
@@ -510,15 +625,133 @@ class LayoutLMv3Model(nn.Cell):
             head_mask=head_mask,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
+            Hp=Hp,
+            Wp=Wp
         )
+
+        if self.detection:
+            return encoder_outputs
 
         sequence_output = encoder_outputs[0]
 
         return (sequence_output,) + encoder_outputs[1:]
 
 
+class FPNForLayout(FPN):
+    def __init__(self,
+                 bottom_up,
+                 in_features,
+                 out_channels,
+                 norm="",
+                 top_block=None,
+                 fuse_type="sum",
+                 square_pad=0):
+        super(FPN, self).__init__()
+        assert in_features, in_features
+
+        input_shapes = bottom_up.output_shape()
+        strides = [input_shapes[f].stride for f in in_features]
+        in_channels_per_feature = [input_shapes[f].channels for f in in_features]
+
+        lateral_convs = []
+        output_convs = []
+
+        use_bias = norm == ""
+        for idx, in_channels in enumerate(in_channels_per_feature):
+            lateral_conv = nn.Conv2d(in_channels,
+                                     out_channels,
+                                     kernel_size=1,
+                                     weight_init=HeUniform(negative_slope=1),
+                                     has_bias=use_bias,
+                                     bias_init="zeros")
+            output_conv = nn.Conv2d(out_channels,
+                                    out_channels,
+                                    kernel_size=3,
+                                    padding=1,
+                                    weight_init=HeUniform(negative_slope=1),
+                                    has_bias=use_bias,
+                                    bias_init="zeros",
+                                    pad_mode='pad')
+            stage = int(math.log2(strides[idx]))
+            self.insert_child_to_cell("fpn_lateral{}".format(stage), lateral_conv)
+            self.insert_child_to_cell("fpn_output{}".format(stage), output_conv)
+
+            lateral_convs.append(lateral_conv)
+            output_convs.append(output_conv)
+
+        self.lateral_convs = nn.CellList(lateral_convs[::-1])
+        self.output_convs = nn.CellList(output_convs[::-1])
+
+        self.top_block = top_block
+        self.in_features = tuple(in_features)
+        self.bottom_up = bottom_up
+
+        self._out_feature_strides = {"p{}".format(int(math.log2(s))): s for s in strides}
+        if self.top_block is not None:
+            for s in range(stage, stage + self.top_block.num_levels):
+                self._out_feature_strides["p{}".format(s + 1)] = 2 ** (s + 1)
+
+        self._out_features = list(self._out_feature_strides.keys())
+        self._out_feature_channels = {k: out_channels for k in self._out_features}
+        self._size_divisibility = strides[-1]
+        self._square_pad = square_pad
+        self._fuse_type = fuse_type
+
+        self.out_channels = out_channels
+
+    def construct(self, **x):
+        bottom_up_features = self.bottom_up(**x)
+
+        results = []
+        bottom_up_feature = bottom_up_features.get(self.in_features[-1])
+        prev_features = self.lateral_convs[0](bottom_up_feature)
+        results.append(self.output_convs[0](prev_features))
+
+        for idx, (lateral_conv, output_conv) in enumerate(zip(self.lateral_convs, self.output_convs)):
+            if idx > 0:
+                features = self.in_features[-idx - 1]
+                features = bottom_up_features[features]
+                old_shape = list(prev_features.shape)[2:]
+                new_size = tuple([2 * i for i in old_shape])
+                top_down_features = ops.ResizeNearestNeighbor(size=new_size)(prev_features)
+                lateral_features = lateral_conv(features)
+                prev_features = lateral_features + top_down_features
+                if self._fuse_type == "avg":
+                    prev_features /= 2
+                results.insert(0, output_conv(prev_features))
+        if self.top_block is not None:
+            if self.top_block.in_feature in bottom_up_features:
+                top_block_in_feature = bottom_up_features[self.top_block.in_feature]
+            else:
+                top_block_in_feature = results[self._out_features.index(self.top_block.in_feature)]
+            results.extend(self.top_block(top_block_in_feature))
+
+        assert len(self._out_features) == len(results)
+
+        return {f: res for f, res in zip(self._out_features, results)}
+
+
 @register_backbone
 def layoutlmv3(use_float16: bool = True, **kwargs):
-    pretrained_config = LayoutLMv3PretrainedConfig(use_float16)
+    pretrained_config = LayoutLMv3PretrainedConfig(use_float16, **kwargs)
     model = LayoutLMv3Model(pretrained_config)
     return model
+
+
+@register_backbone
+def build_layoutlmv3_fpn_backbone(use_float16: bool = False, **kwargs):
+    pretrained_config = LayoutLMv3PretrainedConfig(use_float16, **kwargs)
+    pretrained_config.has_spatial_attention_bias = False
+    pretrained_config.has_relative_attention_bias = False
+    pretrained_config.text_embed = False
+    cfg = Dict(kwargs)
+    bottom_up = LayoutLMv3Model(pretrained_config, detection=True, out_features=cfg.out_features)
+    backbone = FPNForLayout(
+        bottom_up=bottom_up,
+        in_features=cfg.fpn.in_features,
+        out_channels=cfg.fpn.out_channels,
+        norm=cfg.fpn.norm,
+        top_block=LastLevelMaxPool(),
+        fuse_type=cfg.fpn.fuse_type
+    )
+    return backbone
