@@ -227,7 +227,7 @@ def create_parser():
         default=None,
         choices=["M3"],
         help="classification algorithm. The default is None,"
-        "meaning that text orientation classification is not performed"
+        "meaning that text orientation classification is not performed",
     )
     parser.add_argument(
         "--cls_amp_level",
