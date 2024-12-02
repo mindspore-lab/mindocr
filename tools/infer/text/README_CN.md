@@ -230,6 +230,52 @@ python deploy/eval_utils/eval_pipeline.py --gt_path path/to/gt.txt --pred_path p
 
 3、SVTR在混合精度模式下运行（amp_level=O2），因为它针对O2进行了优化。
 
+### 文本方向分类
+
+若图像中存在非正向的文字，可通过文本方向分类器对检测后的图像进行方向分类与矫正。若对输入图像运行文本方向分类与矫正，请执行
+```shell
+python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_imgs} \
+                                          --det_algorithm DB++  \
+                                          --rec_algorithm CRNN  \
+                                          --cls_algorithm M3
+```
+其中，参数`--cls_alorithm`默认配置为None，表示不执行文本方向分类，通过设置`--cls_alorithm`即可在文本检测识别流程中进行文本方向分类。执行过程中，文本方向分类器将对文本检测所得图像列表进行方向分类，并对非正向的图像进行方向矫正。以下为部分结果示例。
+
+- 文本方向分类
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/zhangjunlongtech/Material/refs/heads/main/CRNN_t1.png" width=150 />
+</p>
+<p align="center">
+  <em> word_01.png </em>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/zhangjunlongtech/Material/refs/heads/main/CRNN_t2.png" width=150 />
+</p>
+<p align="center">
+  <em> word_02.png </em>
+</p>
+
+分类结果：
+```text
+word_01.png   0     1.0
+word_02.png   180   1.0
+```
+当前支持的文本方向分类网络为`mobilnet_v3`，可通过配置`--cls_algorithm`为`M3`进行设置，并通过`--cls_amp_level`与`--cls_model_dir`来设置文本方向分类器的自动混合精度与权重文件。当前已配置默认权重文件，该网络默认混合精度为`O0`，默认配置下方向分类支持`0`与`180`度，对于其他方向的分类我们将在未来予以支持。
+
+<center>
+
+  |**算法名称**|**网络名称**|**语言**|
+  | :------: | :------: | :------: |
+  | M3 | mobilenet_v3 | 中/英|
+
+</center>
+
+此外，可通过设置`--save_cls_result`为`True`可将文本方向分类结果保存至`{args.crop_res_save_dir}/cls_results.txt`中，其中`--crop_res_save_dir`是保存结果的目录。
+
+有关更多参数说明和用法，请查看`tools/infer/text/config.py`
+
 ## 表格结构识别
 
 要对输入图像或包含多个图像的目录运行表格结构识别，请执行

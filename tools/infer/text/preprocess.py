@@ -232,6 +232,22 @@ class Preprocessor(object):
                 {"ToCHWImage": None},
             ]
 
+        elif task == "cls":
+            pipeline = [
+                {"DecodeImage": {"img_mode": "BGR", "to_float32": False}},
+                {"Rotate90IfVertical": {"threshold": 2.0, "direction": "counterclockwise"}},
+                {"RecResizeImg": {"image_shape": [48, 192], "padding": False}},
+                {
+                    "NormalizeImage": {
+                        "bgr_to_rgb": True,
+                        "is_hwc": True,
+                        "mean": [127.0, 127.0, 127.0],
+                        "std": [127.0, 127.0, 127.0],
+                    }
+                },
+                {"ToCHWImage": None},
+            ]
+
         self.pipeline = pipeline
         self.transforms = create_transforms(pipeline)
 

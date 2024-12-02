@@ -248,6 +248,53 @@ Evaluation of the text spotting inference results on Ascend 910 with MindSpore 2
 2. Unless extra inidication, all experiments are run with `--det_limit_type`="min" and `--det_limit_side`=720.
 3. SVTR is run in mixed precision mode (amp_level=O2) since it is optimized for O2.
 
+### Text direction classification
+
+If there are non-upright text characters in the image, they can be classified and corrected for orientation using a text direction classifier after the detection. If you run text direction classification and correction on an input image, please perform
+```shell
+python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_imgs} \
+                                          --det_algorithm DB++  \
+                                          --rec_algorithm CRNN  \
+                                          --cls_algorithm M3
+```
+The default parameter `--cls_alorithm` is None, which means that text direction classification is not performed. By setting `--cls_alorithm`, text direction classification is performed in the text detection and recognition flow. In the process of execution, the text direction classifier classifies the list of images detected by the text and corrects the direction of the non-upright images. Here are some examples of the results.
+
+- Text direction classification
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/zhangjunlongtech/Material/refs/heads/main/CRNN_t1.png" width=150 />
+</p>
+<p align="center">
+  <em> word_01.png </em>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/zhangjunlongtech/Material/refs/heads/main/CRNN_t2.png" width=150 />
+</p>
+<p align="center">
+  <em> word_02.png </em>
+</p>
+
+Classification Results:：
+```text
+word_01.png   0     1.0
+word_02.png   180   1.0
+```
+
+The currently supported text direction classification network is `mobilnet_v3`, which can be set by configuring `--cls_algorithm` for `M3`. And through `--cls_amp_level` and `--cls_model_dir` to set the text direction classifier automatic mixing precision and weight file. At present, the default weight file has been configured, the default mixing precision of the network is `O0`, and the direction classification supports `0` and `180` degrees under the default configuration. We will support the classification of other directions in the future.
+
+<center>
+
+  |**Algorithm Name**|**Network Name**|**Language**|
+  | :------: | :------: | :------: |
+  | M3 | mobilenet_v3 | CH/EN|
+
+</center>
+
+In addition, by setting `--save_cls_result` to `True`, text orientation classification results can be saved to `{args.crop_res_save_dir}/cls_results.txt`, Where `--crop_res_save_dir` is the directory where the results are saved.
+
+For more parameter descriptions and usage information, please refer to `tools/infer/text/config.py`.
+
 ## Table Structure Recognition
 
 To run table structure recognition on an input image or multiple images in a directory, please run:

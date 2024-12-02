@@ -235,3 +235,23 @@ def get_dict_from_file(file_path: str) -> dict:
     with open(file_path, "rb") as f:
         lines = f.readlines()
     return {i + 1: line.decode("utf-8").strip("\n").strip("\r\n") for i, line in enumerate(lines)}
+
+
+def img_rotate(image, angle):
+    """
+    Rotate the incoming image at a specified angle.
+
+    Args:
+        image: an encoded image that needs to be rotated.
+        angle: the target Angle at which the image is rotated
+
+    Returns:
+        rotated: the output image after rotation.
+    """
+
+    (h, w) = image.shape[:2]
+    center = (w / 2, h / 2)
+    M = cv2.getRotationMatrix2D(center, angle, 1.0)
+    rotated = cv2.warpAffine(image, M, (w, h))
+
+    return rotated
