@@ -5,7 +5,7 @@ English | [中文](https://github.com/mindspore-lab/mindocr/blob/main/configs/re
 
 > [SVTR: Scene Text Recognition with a Single Visual Model](https://arxiv.org/abs/2205.00159)
 
-## 1. Introduction
+## Introduction
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
 Dominant scene text recognition models commonly contain two building blocks, a visual model for feature extraction and a sequence model for text transcription. This hybrid architecture, although accurate, is complex and less efficient. This paper proposes a Single Visual model for Scene Text recognition within the patch-wise image tokenization framework, which dispenses with the sequential modeling entirely. The method, termed SVTR, firstly decomposes an image text into small patches named character components. Afterward, hierarchical stages are recurrently carried out by component-level mixing, merging and/or combining. Global and local mixing blocks are devised to perceive the inter-character and intra-character patterns, leading to a multi-grained character component perception. Thus, characters are recognized by a simple linear prediction. Experimental results on both English and Chinese scene text recognition tasks demonstrate the effectiveness of SVTR. SVTR-L (Large) achieves highly competitive accuracy in English and outperforms existing methods by a large margin in Chinese, while running faster. In addition, SVTR-T (Tiny) is an effective and much smaller model, which shows appealing speed at inference. [<a href="#references">1</a>]
@@ -19,59 +19,25 @@ Dominant scene text recognition models commonly contain two building blocks, a v
 </p>
 
 
-## 2. Results
-<!--- Guideline:
-Table Format:
-- Model: model name in lower case with _ seperator.
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
-- Top-1 and Top-5: Keep 2 digits after the decimal point.
-- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
-- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
-- Download: url of the pretrained model weights. Use absolute url path.
--->
 
-### Accuracy
+## Requirements
 
-According to our experiments, the evaluation results on public benchmark datasets (IC03, IC13, IC15, IIIT, SVT, SVTP, CUTE) is as follow:
-
-<details>
-  <summary>Performance tested on ascend 910 with graph mode</summary>
-
-  <div align="center">
-
-  | **Model** | **Device Card** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
-  | :-----: |:---------------:| :--------------: | :----------: | :--------: | :--------: |:----------: |
-  | SVTR-Tiny      |       4P        | 90.23%    | 3638 s/epoch       | 4560 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3-86ece8c8.mindir) |
-  | SVTR-Tiny-8P |       8P        |  90.32%   | 1646 s/epoch |  9840   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \| [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir)  |
-  </div>
-
-  Detailed accuracy results for each benchmark dataset
-  <div align="center">
-
-  | **Model** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
-  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-  | SVTR-Tiny  | 95.70% | 95.50% | 95.33% | 93.99% | 83.60% | 79.83% | 94.70% | 91.96% | 85.58% | 86.11% | 90.23% |
-  | SVTR-Tiny-8P |    95.93%    |    95.62%    |    95.33%    |    93.89%     |    84.32%     |    80.55%     |     94.33%      | 90.57%  |  86.20%  |   86.46%   |   90.32%   |
-  </div>
-</details>
-
-**Notes:**
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x4-MS1.10-G is for training on 4 pieces of Ascend 910 NPU using graph mode based on Minspore version 1.10.
-- To reproduce the result on other contexts, please ensure the global batch size is the same.
-- The characters supported by model are lowercase English characters from a to z and numbers from 0 to 9. More explanation on dictionary, please refer to [4. Character Dictionary](#4-character-dictionary).
-- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#312-dataset-download) section.
-- The input Shapes of MindIR of RARE is (1, 3, 64, 256).
+| mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:-------------:|:-------------------:|
+|   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
 
 
-## 3. Quick Start
-### 3.1 Preparation
 
-#### 3.1.1 Installation
+
+## Quick Start
+### Preparation
+
+#### Installation
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
-#### 3.1.2 Dataset Preparation
+#### Dataset Preparation
 
-##### 3.1.2.1 MJSynth, validation and evaluation dataset
+##### MJSynth, validation and evaluation dataset
 Part of the lmdb dataset for training and evaluation can be downloaded from [here](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (ref: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here)). There're several zip files:
 - `data_lmdb_release.zip` contains the datasets including training data, validation data and evaluation data.
     - `training/` contains two datasets: [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and [SynthText (ST)](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c). *Here we use **MJSynth only**.*
@@ -80,7 +46,7 @@ Part of the lmdb dataset for training and evaluation can be downloaded from [her
 - `validation.zip`: same as the validation/ within data_lmdb_release.zip
 - `evaluation.zip`: same as the evaluation/ within data_lmdb_release.zip
 
-##### 3.1.2.2 SynthText dataset
+##### SynthText dataset
 
 For `SynthText`, we do not use the given LMDB dataset in `data_lmdb_release.zip`, since it only contains part of the cropped images. Please download the raw dataset from [here](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c) and prepare the LMDB dataset using the following command
 
@@ -94,7 +60,7 @@ python tools/dataset_converters/convert.py \
 ```
 the `ST_full` contained the full cropped images of SynthText in LMDB data format. Please replace the `ST` folder with the `ST_full` folder.
 
-#### 3.1.3 Dataset Usage
+#### Dataset Usage
 
 Finally, the data structure should like this.
 
@@ -246,7 +212,7 @@ eval:
   ...
 ```
 
-#### 3.1.4 Check YAML Config Files
+#### Check YAML Config Files
 Apart from the dataset setting, please also check the following important args: `system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`,
 `eval.ckpt_load_path`, `eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.dataset.label_file`, `eval.loader.batch_size`. Explanations of these important args:
 
@@ -288,7 +254,7 @@ eval:
 - As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of NPUs, or adjust the learning rate linearly to a new global batch size.
 
 
-### 3.2 Model Training
+### Model Training
 <!--- Guideline: Avoid using shell script in the command line. Python script preferred. -->
 
 * Distributed Training
@@ -312,7 +278,7 @@ python tools/train.py --config configs/rec/svtr/svtr_tiny.yaml
 
 The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir`. The default directory is `./tmp_rec`.
 
-### 3.3 Model Evaluation
+### Model Evaluation
 
 To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 
@@ -320,7 +286,7 @@ To evaluate the accuracy of the trained model, you can use `eval.py`. Please set
 python tools/eval.py --config configs/rec/svtr/svtr_tiny.yaml
 ```
 
-## 4. Character Dictionary
+## Character Dictionary
 
 ### Default Setting
 
@@ -347,7 +313,7 @@ To use a specific dictionary, set the parameter `character_dict_path` to the pat
 - Remember to check the value of `dataset->transform_pipeline->RecAttnLabelEncode->lower` in the configuration yaml. Set it to False if you prefer case-sensitive encoding.
 
 
-## 5. Chinese Text Recognition Model Training
+## Chinese Text Recognition Model Training
 
 Currently, this model supports multilingual recognition and provides pre-trained models for different languages. Details are as follows:
 
@@ -365,58 +331,54 @@ To train with the prepared datsets and config file, please run:
 mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/svtr/svtr_tiny_ch.yaml
 ```
 
-### Results and Pretrained Weights
 
-After training, evaluation results on the benchmark test set are as follows, where we also provide the model config and pretrained weights.
-
-<div align="center">
-
-| **Model** | **Language** | **Context**  | **Scene** | **Web** | **Document** | **Train T.** | **FPS** | **Recipe** | **Download** |
-| :-----: | :-----:  | :--------: | :--------: | :--------: | :--------: | :---------: | :--------: | :---------: | :-----------: |
-| SVTR-Tiny    | Chinese | D910x4-MS1.10-G | 65.93% | 69.64% | 98.01% | 647 s/epoch | 1580 | [svtr_tiny_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4-3e495768.mindir) |
-</div>
 
 ### Training with Custom Datasets
 You can train models for different languages with your own custom datasets. Loading the pretrained Chinese model to finetune on your own dataset usually yields better results than training from scratch. Please refer to the tutorial [Training Recognition Network with Custom Datasets](../../../docs/en/tutorials/training_recognition_custom_dataset.md).
 
 
-## 6. MindSpore Lite Inference
+## Performance
 
-To inference with MindSpot Lite on Ascend 310, please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial.md). In short, the whole process consists of the following steps:
+### General Purpose Chinese Models
 
-**1. Model Export**
+Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode.
 
-Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../../docs/en/inference/convert_tutorial.md#1-model-export) tutorial and use the following command to export the trained ckpt model to  MindIR file:
+*coming soon*
 
-```shell
-python tools/export.py --model_name_or_config svtr_tiny --data_shape 64 256 --local_ckpt_path /path/to/local_ckpt.ckpt
-# or
-python tools/export.py --model_name_or_config configs/rec/svtr/svtr_tiny.yaml --data_shape 64 256 --local_ckpt_path /path/to/local_ckpt.ckpt
-```
+Experiments are tested on ascend 910 with mindspore 2.3.1 graph mode.
 
-The `data_shape` is the model input shape of height and width for MindIR file. The shape value of MindIR in the download link can be found in [Notes](#2-results) under results table.
+| **model name** | **cards** | **batch size** | **languages** | **jit level** | **graph compile** | **ms/step** | **img/s** | **scene** | **web** | **document** |                                                 **recipe**                                                 |                                                                                          **weight**                                                                                           |
+| :------------: | :-------: | :------------: | :-----------: | :-----------: | :---------------: | :---------: | :-------: | :-------: | :-----: | :----------: | :--------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+|   SVTR-Tiny    |     4     |      256       |    Chinese    |      O2       |      235.1 s      |    37.75    |   1580    |  65.93%   | 69.64%  |    98.01%    | [svtr_tiny_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4-3e495768.mindir) |
+
+### Specific Purpose Models
+
+Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode.
+
+*coming soon*
+
+Experiments are tested on ascend 910 with mindspore 2.3.1 graph mode.
+
+| **model name** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |                                          **recipe**                                           |                                                                                                  **weight**                                                                                                   |
+| :------------: | :-------: | :------------: | :-----------: | :---------------: | :---------: | :-------: | :----------: | :-------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+|   SVTR-Tiny    |     4     |      512       |      O2       |     226.86 s      |    49.38    |   4560    |    90.23%    |  [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml)   |            [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3-86ece8c8.mindir)            |
+|  SVTR-Tiny-8P  |     8     |      512       |      O2       |     230.74 s      |    55.16    |   9840    |    90.32%    | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \| [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir) |
 
 
-**2. Environment Installation**
+Detailed accuracy results for each benchmark dataset:
 
-Please refer to [Environment Installation](../../../docs/en/inference/environment.md) tutorial to configure the MindSpore Lite inference environment.
 
-**3. Model Conversion**
+| **model name** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **average** |
+| :------------: | :----------: | :----------: | :----------: | :-----------: | :-----------: | :-----------: | :-------------: | :-----: | :------: | :--------: | :---------: |
+|   SVTR-Tiny    |    95.70%    |    95.50%    |    95.33%    |    93.99%     |    83.60%     |    79.83%     |     94.70%      | 91.96%  |  85.58%  |   86.11%   |   90.23%    |
+|  SVTR-Tiny-8P  |    95.93%    |    95.62%    |    95.33%    |    93.89%     |    84.32%     |    80.55%     |     94.33%      | 90.57%  |  86.20%  |   86.46%   |   90.32%    |
 
-Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#2-mindspore-lite-mindir-convert),
-and use the `converter_lite` tool for offline conversion of the MindIR file.
 
-**4. Inference**
-
-Assuming that you obtain output.mindir after model conversion, go to the `deploy/py_infer` directory, and use the following command for inference:
-
-```shell
-python infer.py \
-    --input_images_dir=/your_path_to/test_images \
-    --rec_model_path=your_path_to/output.mindir \
-    --rec_model_name_or_config=../../configs/rec/svtr/svtr_tiny.yaml \
-    --res_save_dir=results_dir
-```
+### Notes
+- To reproduce the result on other contexts, please ensure the global batch size is the same.
+- The characters supported by model are lowercase English characters from a to z and numbers from 0 to 9. More explanation on dictionary, please refer to [4. Character Dictionary](#4-character-dictionary).
+- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#312-dataset-download) section.
+- The input Shapes of MindIR of RARE is (1, 3, 64, 256).
 
 
 ## References

@@ -11,13 +11,15 @@ supported_necks = [
     'MasterEncoder',
     'RSEFPN',
     'YOLOv8Neck',
-    'Identity'
+    'Identity',
+    'RPN'
 ]
 from .fpn import DBFPN, EASTFPN, FCEFPN, FPN, PSEFPN, RSEFPN
 from .identity import Identity
 from .img2seq import Img2Seq
 from .master_encoder import MasterEncoder
 from .rnn import RNNEncoder
+from .rpn.rpn import RPN
 from .select import Select
 from .yolov8_neck import YOLOv8Neck
 

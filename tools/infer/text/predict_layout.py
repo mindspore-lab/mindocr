@@ -1,5 +1,5 @@
 """
-Infer layout from images using yolov8 model.
+Layout analyzer inference
 
 Example:
     $ python tools/infer/text/predict_layout.py --image_dir {path_to_img} --layout_algorithm YOLOv8
@@ -7,10 +7,12 @@ Example:
 import json
 import logging
 import os
-from typing import Dict, List
+from typing import List
 
 import cv2
 import numpy as np
+import yaml
+from addict import Dict
 from postprocess import Postprocessor
 from preprocess import Preprocessor
 from utils import get_ckpt_file, get_image_paths
@@ -20,9 +22,7 @@ import mindspore as ms
 from mindocr import build_model
 from mindocr.utils.logger import set_logger
 
-algo_to_model_name = {
-    "YOLOv8": "yolov8",
-}
+algo_to_model_name = {"YOLOv8": "yolov8", "LAYOUTLMV3": "layoutlmv3"}
 logger = logging.getLogger("mindocr")
 
 
@@ -35,8 +35,16 @@ class LayoutAnalyzer(object):
         self.img_dir = os.path.dirname(args.image_dir)
         self.vis_dir = args.draw_img_save_dir
 
+        cfg = None
+        if args.config:
+            with open(args.config, "r") as f:
+                cfg = yaml.safe_load(f)
+        self.cfg = Dict(cfg)
+
         # build model for algorithm with pretrained weights or local checkpoint
         ckpt_dir = args.layout_model_dir
+        if self.cfg.predict.ckpt_load_path:
+            ckpt_dir = self.cfg.predict.ckpt_load_path
         if ckpt_dir is None:
             pretrained = True
             ckpt_load_path = None
@@ -51,6 +59,9 @@ class LayoutAnalyzer(object):
                 f"Supported layout algorithms are {list(algo_to_model_name.keys())}"
             )
         model_name = algo_to_model_name[args.layout_algorithm]
+        self.model_name = model_name
+        if self.cfg:
+            model_name = self.cfg.model
         self.model = build_model(
             model_name,
             pretrained=pretrained,
@@ -60,8 +71,8 @@ class LayoutAnalyzer(object):
         )
         self.model.set_train(False)
 
-        self.preprocess = Preprocessor(task="layout")
-        self.postprocess = Postprocessor(task="layout")
+        self.preprocess = Preprocessor(task="layout", algo=args.layout_algorithm)
+        self.postprocess = Postprocessor(task="layout", algo=args.layout_algorithm)
 
     def __call__(self, img_path: str, do_visualize: bool = False) -> List:
         """
@@ -89,7 +100,11 @@ class LayoutAnalyzer(object):
         self.img_shape = net_input.shape
 
         # infer
-        preds = self.model(net_input)
+        if self.model_name == "layoutlmv3":
+            input = [net_input, ms.Tensor(np.array([self.hw_ori])), ms.Tensor(np.array([self.hw_scale]))]
+            preds = self.model(*input)
+        else:
+            preds = self.model(net_input)
 
         # postprocess
         results = self.postprocess(
@@ -98,11 +113,13 @@ class LayoutAnalyzer(object):
 
         if do_visualize:
             img_name = os.path.basename(img_path).rsplit(".", 1)[0]
-            visualize_layout(img_path, results, save_path=os.path.join(self.vis_dir, img_name + "_layout_result.png"))
+            self.visualize_layout(
+                img_path, results, save_path=os.path.join(self.vis_dir, img_name + "_layout_result.png")
+            )
 
         return results
 
-    def _load_image(self, img_path: str) -> Dict:
+    def _load_image(self, img_path: str):
         """
         Load image from path
         """
@@ -110,65 +127,72 @@ class LayoutAnalyzer(object):
         h_ori, w_ori = image.shape[:2]  # orig hw
         hw_ori = np.array([h_ori, w_ori])
         target_size = 800
-        r = target_size / max(h_ori, w_ori)  # resize image to img_size
-        if r != 1:  # always resize down, only resize up if training with augmentation
-            interp = cv2.INTER_AREA if r < 1 else cv2.INTER_LINEAR
-            image = cv2.resize(image, (int(w_ori * r), int(h_ori * r)), interpolation=interp)
+        if self.model_name == "layoutlmv3":
+            r = target_size / min(h_ori, w_ori)
+            image = cv2.resize(image, (int(round(w_ori * r)), int(round(h_ori * r))), interpolation=cv2.INTER_LINEAR)
+        else:
+            r = target_size / max(h_ori, w_ori)  # resize image to img_size
+            if r != 1:  # always resize down, only resize up if training with augmentation
+                interp = cv2.INTER_AREA if r < 1 else cv2.INTER_LINEAR
+                image = cv2.resize(image, (int(w_ori * r), int(h_ori * r)), interpolation=interp)
 
         data = {"image": image, "raw_img_shape": hw_ori, "target_size": target_size}
         return data
 
+    def visualize_layout(self, image_path, results, conf_thres=0.8, save_path: str = ""):
+        """
+        Visualize layout analysis results
+        """
+        from matplotlib import pyplot as plt
+        from PIL import Image
 
-def visualize_layout(image_path, results, conf_thres=0.8, save_path: str = ""):
-    """
-    Visualize layout analysis results
-    """
-    from matplotlib import pyplot as plt
-    from PIL import Image
+        img = Image.open(image_path)
+        img_cv = cv2.imread(image_path)
 
-    img = Image.open(image_path)
-    img_cv = cv2.imread(image_path)
+        fig, ax = plt.subplots()
+        ax.imshow(img)
 
-    fig, ax = plt.subplots()
-    ax.imshow(img)
+        category_dict = {1: "text", 2: "title", 3: "list", 4: "table", 5: "figure"}
+        color_dict = {1: (255, 0, 0), 2: (0, 0, 255), 3: (0, 255, 0), 4: (0, 255, 255), 5: (255, 0, 255)}
+        if self.cfg.predict.category_dict:
+            category_dict = self.cfg.predict.category_dict
+        if self.cfg.predict.color_dict:
+            color_dict = self.cfg.predict.color_dict
 
-    category_dict = {1: "text", 2: "title", 3: "list", 4: "table", 5: "figure"}
-    color_dict = {1: (255, 0, 0), 2: (0, 0, 255), 3: (0, 255, 0), 4: (0, 255, 255), 5: (255, 0, 255)}
+        for item in results:
+            category_id = item["category_id"]
+            bbox = item["bbox"]
+            score = item["score"]
 
-    for item in results:
-        category_id = item["category_id"]
-        bbox = item["bbox"]
-        score = item["score"]
+            if score < conf_thres:
+                continue
 
-        if score < conf_thres:
-            continue
+            left, bottom, w, h = bbox
+            right = left + w
+            top = bottom + h
 
-        left, bottom, w, h = bbox
-        right = left + w
-        top = bottom + h
+            cv2.rectangle(img_cv, (int(left), int(bottom)), (int(right), int(top)), color_dict[category_id], 2)
 
-        cv2.rectangle(img_cv, (int(left), int(bottom)), (int(right), int(top)), color_dict[category_id], 2)
+            label = "{} {:.2f}".format(category_dict[category_id], score)
+            label_size, base_line = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
+            top = max(top, label_size[1])
+            cv2.rectangle(
+                img_cv,
+                (int(left), int(bottom - label_size[1] - base_line)),
+                (int(left + label_size[0]), int(bottom)),
+                color_dict[category_id],
+                cv2.FILLED,
+            )
+            cv2.putText(
+                img_cv, label, (int(left), int(bottom - base_line)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1
+            )
 
-        label = "{} {:.2f}".format(category_dict[category_id], score)
-        label_size, base_line = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
-        top = max(top, label_size[1])
-        cv2.rectangle(
-            img_cv,
-            (int(left), int(bottom - label_size[1] - base_line)),
-            (int(left + label_size[0]), int(bottom)),
-            color_dict[category_id],
-            cv2.FILLED,
-        )
-        cv2.putText(
-            img_cv, label, (int(left), int(bottom - base_line)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1
-        )
-
-    if save_path:
-        cv2.imwrite(save_path, img_cv)
-    else:
-        plt.axis("off")
-        plt.imshow(cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB))
-        plt.show()
+        if save_path:
+            cv2.imwrite(save_path, img_cv)
+        else:
+            plt.axis("off")
+            plt.imshow(cv2.cvtColor(img_cv, cv2.COLOR_BGR2RGB))
+            plt.show()
 
 
 def save_layout_res(layout_res: List, img_path: str, save_dir: str):

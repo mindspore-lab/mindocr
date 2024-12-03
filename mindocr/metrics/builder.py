@@ -2,7 +2,7 @@ from . import cls_metrics, det_metrics, kie_metrics, layout_metrics, rec_metrics
 from .cls_metrics import *
 from .det_metrics import *
 from .kie_metrics import VQAReTokenMetric, VQASerTokenMetric
-from .layout_metrics import YOLOv8Metric
+from .layout_metrics import *
 from .rec_metrics import *
 from .table_metrics import *
 

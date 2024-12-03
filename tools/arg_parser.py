@@ -84,14 +84,14 @@ def _merge_options(config, options):
     return config
 
 
-def parse_args_and_config():
+def parse_args_and_config(args=None):
     """
     Return:
         args: command line argments
         cfg: train/eval config dict
     """
     parser = create_parser()
-    args = parser.parse_args()  # CLI args
+    args = parser.parse_args(args)  # CLI args
 
     modelarts_setup(args)
 

@@ -191,6 +191,30 @@ class Preprocessor(object):
                 },
                 {"ToCHWImage": None},
             ]
+        elif task == "layout":
+            if algo == "LAYOUTLMV3":
+                pipeline = [
+                    letterbox(scaleup=True, model_name="layoutlmv3"),
+                    {
+                        "NormalizeImage": {
+                            "infer_mode": True,
+                            "bgr_to_rgb": True,
+                            "is_hwc": True,
+                            "mean": [127.5, 127.5, 127.5],
+                            "std": [127.5, 127.5, 127.5],
+                        }
+                    },
+                    {"ToCHWImage": None},
+                    {"ImageStridePad": {"stride": 32}},
+                ]
+            elif algo == "YOLOv8":
+                pipeline = [
+                    letterbox(scaleup=False),
+                    image_norm(scale=255.0),
+                    image_transpose(bgr2rgb=True, hwc2chw=True),
+                ]
+            else:
+                raise ValueError(f"No preprocess config defined for {algo}. Please check the algorithm name.")
         elif task == "table":
             table_max_len = kwargs.get("table_max_len", 480)
             pipeline = [
@@ -207,11 +231,21 @@ class Preprocessor(object):
                 },
                 {"ToCHWImage": None},
             ]
-        elif task == "layout":
+
+        elif task == "cls":
             pipeline = [
-                letterbox(scaleup=False),
-                image_norm(scale=255.0),
-                image_transpose(bgr2rgb=True, hwc2chw=True),
+                {"DecodeImage": {"img_mode": "BGR", "to_float32": False}},
+                {"Rotate90IfVertical": {"threshold": 2.0, "direction": "counterclockwise"}},
+                {"RecResizeImg": {"image_shape": [48, 192], "padding": False}},
+                {
+                    "NormalizeImage": {
+                        "bgr_to_rgb": True,
+                        "is_hwc": True,
+                        "mean": [127.0, 127.0, 127.0],
+                        "std": [127.0, 127.0, 127.0],
+                    }
+                },
+                {"ToCHWImage": None},
             ]
 
         self.pipeline = pipeline

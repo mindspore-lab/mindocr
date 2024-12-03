@@ -13,30 +13,234 @@ import logging
 import os
 import sys
 from time import time
-from typing import Union
+from typing import List, Union
 
 import cv2
 import numpy as np
 from config import parse_args
+from postprocess import Postprocessor
 from predict_det import TextDetector
 from predict_rec import TextRecognizer
-from utils import crop_text_region, get_image_paths
+from preprocess import Preprocessor
+from utils import crop_text_region, get_image_paths, img_rotate
 
 import mindspore as ms
+from mindspore import ops
 
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.abspath(os.path.join(__dir__, "../../../")))
 
+from mindocr import build_model
 from mindocr.utils.logger import set_logger
 from mindocr.utils.visualize import visualize  # noqa
+from tools.infer.text.utils import get_ckpt_file
 
 logger = logging.getLogger("mindocr")
+
+
+class TextClassifier(object):
+    """
+    Infer model for text orientation classification
+    Example:
+        >>> args = parse_args()
+        >>> text_classification = TextClassifier(args)
+        >>> img_path = "path/to/image.jpg"
+        >>> cls_res_all = text_classification(image_path)
+    """
+
+    def __init__(self, args):
+        algo_to_model_name = {
+            "M3": "cls_mobilenet_v3_small_100_model",
+        }
+        self.batch_num = args.cls_batch_num
+        logger.info("classify in {} mode {}".format("batch", "batch_size: " + str(self.batch_num)))
+
+        # build model for algorithm with pretrained weights or local checkpoint
+        ckpt_dir = args.cls_model_dir
+        if ckpt_dir is None:
+            pretrained = True
+            ckpt_load_path = None
+        else:
+            ckpt_load_path = get_ckpt_file(ckpt_dir)
+            pretrained = False
+
+        assert args.cls_algorithm in algo_to_model_name, (
+            f"Invalid cls_algorithm: {args.cls_algorithm}. "
+            f"Supported classification algorithms are {list(algo_to_model_name.keys())}"
+        )
+        model_name = algo_to_model_name[args.cls_algorithm]
+
+        amp_level = args.cls_amp_level
+        if amp_level != "O0" and args.cls_algorithm == "M3":
+            logger.warning("The M3 model supports only amp_level O0")
+            amp_level = "O0"
+
+        self.model = build_model(model_name, pretrained=pretrained, ckpt_load_path=ckpt_load_path, amp_level=amp_level)
+        self.model.set_train(False)
+        self.cast_pred_fp32 = amp_level != "O0"
+        if self.cast_pred_fp32:
+            self.cast = ops.Cast()
+        logger.info(
+            "Init classification model: {} --> {}. Model weights loaded from {}".format(
+                args.cls_algorithm, model_name, "pretrained url" if pretrained else ckpt_load_path
+            )
+        )
+
+        # build preprocess
+        self.preprocess = Preprocessor(
+            task="cls",
+            algo=args.cls_algorithm,
+        )
+
+        # build postprocess
+        self.postprocess = Postprocessor(task="cls", algo=args.cls_algorithm)
+
+    def __call__(self, img_or_path_list: list) -> List:
+        """
+        Run text classification serially for input images
+
+        Args:
+            img_or_path_list: list or str for img path or np.array for RGB image
+
+        Returns:
+            list of dict, each contains the follow keys for classification result.
+            e.g. [{'angle': 180, 'score': 1.0}, {'angle': 0, 'score': 1.0}]
+                - angle: text angle
+                - score: prediction confidence
+        """
+
+        assert isinstance(
+            img_or_path_list, (list, str)
+        ), "Input for text classification must be list of images or image paths."
+        logger.info(f"num images for cls: {len(img_or_path_list)}")
+
+        if isinstance(img_or_path_list, list):
+            cls_res_all_crops = self.run_batch(img_or_path_list)
+        else:
+            cls_res_all_crops = self.run_single(img_or_path_list)
+
+        return cls_res_all_crops
+
+    def run_batch(self, img_or_path_list: list):
+        """
+        Run text angle classification serially for input images
+
+        Args:
+            img_or_path_list: list of str for img path or np.array for RGB image
+
+        Return:
+            cls_res: list of tuple, where each tuple is  (angle, score)
+            - text angle classification result for each input image in order.
+                where text is the predicted text string, scores is its confidence score.
+                e.g. [(180, 0.9), (0, 1.0)]
+        """
+
+        cls_res = []
+        num_imgs = len(img_or_path_list)
+
+        for idx in range(0, num_imgs, self.batch_num):
+            batch_begin = idx
+            batch_end = min(idx + self.batch_num, num_imgs)
+            logger.info(f"CLS img idx range: [{batch_begin}, {batch_end})")
+            img_batch = []
+
+            # preprocess
+            for j in range(batch_begin, batch_end):
+                data = self.preprocess(img_or_path_list[j])
+                img_batch.append(data["image"])
+
+            # infer
+            img_batch = np.stack(img_batch) if len(img_batch) > 1 else np.expand_dims(img_batch[0], axis=0)
+
+            net_pred = self.model(ms.Tensor(img_batch))
+            if self.cast_pred_fp32:
+                if isinstance(net_pred, (list, tuple)):
+                    net_pred = [self.cast(p, ms.float32) for p in net_pred]
+                else:
+                    net_pred = self.cast(net_pred, ms.float32)
+
+            # postprocess
+            batch_res = self.postprocess(net_pred)
+            cls_res.extend(list(zip(batch_res["angles"], batch_res["scores"])))
+
+        return cls_res
+
+    def run_single(self, img_or_path: str):
+        """
+        Text angle classification inference on a single image
+
+        Args:
+            img_or_path: str for image path or np.array for image RGB value
+
+        Return:
+            dict with keys:
+            - angle: text angle
+            - score: prediction confidence
+        """
+
+        # preprocess
+        data = self.preprocess(img_or_path)
+
+        # infer
+        input_np = data["image"]
+        if len(input_np.shape) == 3:
+            net_input = np.expand_dims(input_np, axis=0)
+        net_pred = self.model(ms.Tensor(net_input))
+        if self.cast_pred_fp32:
+            if isinstance(net_pred, (list, tuple)):
+                net_pred = [self.cast(p, ms.float32) for p in net_pred]
+            else:
+                net_pred = self.cast(net_pred, ms.float32)
+
+        # postprocess
+        cls_res_raw = self.postprocess(net_pred)
+        cls_res = list(zip(cls_res_raw["angles"], cls_res_raw["scores"]))
+
+        return cls_res
+
+    def save_cls_res(
+        self,
+        cls_res_all,
+        fn="img",
+        save_path="./cls_results.txt",
+        include_score=True,
+    ):
+        """
+        Generate cls_results files that store the angle classification results.
+
+        Args:
+            cls_res_all: list of dict, each contains the follow keys for classification result.
+            fn: customize the prefix name for image information, default is "img".
+            save_path: file storage path
+            include_score: whether to write prediction confidence
+
+        Return:
+            lines: the content of angle information written to the document
+        """
+
+        lines = []
+        for i, cls_res in enumerate(cls_res_all):
+            if include_score:
+                img_pred = f"{fn}_crop_{i}" + "\t" + cls_res[0] + "\t" + str(cls_res[1]) + "\n"
+            else:
+                img_pred = f"{fn}_crop_{i}" + "\t" + cls_res[0] + "\n"
+            lines.append(img_pred)
+
+        with open(save_path, "a", encoding="utf-8") as f_cls:
+            f_cls.writelines(lines)
+            f_cls.close()
 
 
 class TextSystem(object):
     def __init__(self, args):
         self.text_detect = TextDetector(args)
         self.text_recognize = TextRecognizer(args)
+
+        self.cls_algorithm = args.cls_algorithm
+        if self.cls_algorithm is not None:
+            self.text_classification = TextClassifier(args)
+            self.save_cls_result = args.save_cls_result
+            self.save_cls_dir = args.crop_res_save_dir
 
         self.box_type = args.det_box_type
         self.drop_score = args.drop_score
@@ -86,6 +290,28 @@ class TextSystem(object):
             if self.save_crop_res:
                 cv2.imwrite(os.path.join(self.crop_res_save_dir, f"{fn}_crop_{i}.jpg"), cropped_img)
         # show_imgs(crops, is_bgr_img=False)
+
+        if self.cls_algorithm is not None:
+            img_or_path = crops
+            ct = time()
+            cls_res_all = self.text_classification(img_or_path)
+            time_profile["cls"] = time() - ct
+
+            cls_count = 0
+            for i, cls_res in enumerate(cls_res_all):
+                if cls_res[0] != "0":
+                    crops[i] = img_rotate(crops[i], -int(cls_res[0]))
+                    cls_count = cls_count + 1
+
+            logger.info(
+                f"The number of images corrected by rotation is {cls_count}/{len(cls_res_all)}"
+                f"\nCLS time: {time_profile['cls']}"
+            )
+
+            if self.save_cls_result:
+                os.makedirs(self.crop_res_save_dir, exist_ok=True)
+                save_fp = os.path.join(self.save_cls_dir, "cls_results.txt")
+                self.text_classification.save_cls_res(cls_res_all, fn=fn, save_path=save_fp)
 
         # recognize cropped images
         rs = time()
