@@ -4,9 +4,9 @@ English | [中文](./README_CN.md)
 
 # Dataset processing
 
-## Dataset introduction
+## Introduction to CCPD
 
-Due to the lack of publicly available large and diverse datasets, most current license plate detection and recognition methods are evaluated on small and often unrepresentative datasets. This paper propose a large and comprehensive license plate dataset, CCPD, where all images are manually captured and carefully annotated by workers from a roadside parking management company. CCPD is the largest publicly available license plate dataset to date, with more than 250,000 unique car images, and the only dataset that provides vertex position annotations.
+Due to the lack of publicly available large and diverse datasets, most current license plate detection and recognition methods are evaluated on small and often unrepresentative datasets. This paper propose a large and comprehensive license plate dataset, CCPD (Chinese City Parking Dataset), all images of which are manually captured and carefully annotated by workers from a roadside parking management company. CCPD is the largest publicly available license plate dataset to date, with more than 250,000 unique car images, and the only dataset that provides vertex position annotations.
 
 Paper: [Towards End-to-End License Plate Detection and Recognition: A Large Dataset and Baseline](https://openaccess.thecvf.com/content_ECCV_2018/papers/Zhenbo_Xu_Towards_End-to-End_License_ECCV_2018_paper.pdf)
 
@@ -14,15 +14,13 @@ Code repository: [https://github.com/detectRecog/CCPD](https://github.com/detect
 
 ## Dataset download
 
-Download the dataset following the instructions on the [CCPD official project website](https://github.com/detectRecog/CCPD):
-
-Unzip the dataset into the CCPD_Tutorial/datasets directory:
-
-```txt
-Decompression Command:
+Download the dataset following the instructions on the [CCPD official project website](https://github.com/detectRecog/CCPD), then unzip the dataset into the CCPD_Tutorial/datasets directory:
+```shell
 tar xf CCPD2019.tar.xz
+```
 
-Directory Structure:
+The directory structure are as follows:
+```text
 CCPD_Tutorial
 └── datasets
     └── CCPD2019                  #  Number of Images      Description
@@ -44,19 +42,19 @@ CCPD_Tutorial
 
 The CCPD dataset does not have a dedicated annotation file. The file name of each image is the corresponding data label.
 
-For example: 025-95_113-154&383_386&473-386&473_177&454_154&383_363&402-0_0_22_27_27_33_16-37-15.jpg is divided into seven parts by the separator '-':
+For example, `025-95_113-154&383_386&473-386&473_177&454_154&383_363&402-0_0_22_27_27_33_16-37-15.jpg` is divided into seven parts by the separator '-':
 
-* **Area: ​**The ratio of the license plate area to the entire image area. 025 means 2.5%.
-* **Tilt: ​**Horizontal tilt and vertical tilt. 95_113 corresponds to two angles, horizontal 95° and vertical 113°.
-* **Bounding box coordinates:** The coordinates of the upper left and lower right vertices. 154&383_386&473 correspond to the bounding box coordinates: upper left (154, 383), lower right (386, 473).
-* **Four vertex positions:** The exact (x, y) coordinates of the four vertices of the LP in the entire image. These coordinates start from the vertex in the lower right corner. 386&473_177&454_154&383_363&402 correspond to the coordinates of the four corner points.
-* **License plate number:** There is only one LP for each image in CCPD. Each LP number consists of a Chinese character, a letter, and five letters or numbers. A valid Chinese license plate consists of 7 characters: province (1 character), letter (1 character), letter + number (5 characters). "0_0_22_27_27_33_16" is the index of each character. The three arrays are defined as follows. The last character of each array is the letter O, not the number 0. We use O as a sign of "no character" because there is no O in the Chinese license plate characters.
-* **Brightness: ​**The brightness of the license plate area. 37 indicates brightness.
-* **Blur:** The blurriness of the license plate area. 15 indicates blurriness.
+* **Area: ​**The ratio of the license plate area to the entire image area. `025` means 2.5%.
+* **Tilt: ​**Horizontal tilt and vertical tilt. `95_113` corresponds to two angles, horizontal 95° and vertical 113°.
+* **Bounding box coordinates:** The coordinates of the upper left and lower right vertices. `154&383_386&473` corresponds to the bounding box coordinates: upper left (154, 383), lower right (386, 473).
+* **Four vertex positions:** The exact (x, y) coordinates of the four vertices of the LP (License Plate) in the entire image. These coordinates start from the vertex in the lower right corner. `386&473_177&454_154&383_363&402` correspond to the coordinates of the four corner points.
+* **License plate number:** There is only one LP in each image of CCPD. Each LP number consists of a Chinese character, a letter, and five letters or numbers. A valid Chinese license plate consists of 7 characters: province (1 character), letter (1 character), letter + number (5 characters). "0_0_22_27_27_33_16" is the index of each character. The three arrays are defined as follows. The last character of each array is the letter O, not the number 0. We use O as a sign of "no character" because there is no O in the Chinese license plate characters.
+* **Brightness: ​**The brightness of the license plate area. `37` indicates brightness.
+* **Blur:** The blurriness of the license plate area. `15` indicates blurriness.
 
 ## Map license plate character to array
 
-```txt
+```python
 provinces = ["皖", "沪", "津", "渝", "冀", "晋", "蒙", "辽", "吉", "黑", "苏", "浙", "京", "闽", "赣", "鲁", "豫", "鄂", "湘", "粤", "桂", "琼", "川", "贵", "云", "藏", "陕", "甘", "青", "宁", "新", "警", "学", "O"]
 alphabets = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
              'X', 'Y', 'Z', 'O']
@@ -73,21 +71,22 @@ Split the ccpd_base dataset into training, testing, and validation datasets acco
 ## Requirements
 
 ### Ascend
+
 |mindspore|ascend driver|firmware|cann toolkit/kernel|
 | :---------: | :-------------: | :-----------: | :-------------------: |
 |2.2.14|23.0.3|7.1.0.5.220|7.0.0.beta1|
 
 ### GPU
 
-|mindspore|gpu driver|cuda version|firmware|
-| :---------: | :----------: | :------------: | :----------------: |
-|2.2.14|535.183.06|cuda11.6|RTX 4090|
+|mindspore|gpu driver|cuda version|     gpu type     |
+| :---------: | :----------: | :------------: |:----------------:|
+|2.2.14|535.183.06|cuda11.6| GeForce RTX 4090 |
 
 ## Installation steps
 
 ### Installation environment dependencies
 
-1. Creating a Virtual Environment with Conda
+1. Creating a Python Virtual Environment with Conda
 
 ```shell
 conda create -n mindspore2.2.14_mindocr python=3.9
@@ -97,13 +96,13 @@ conda create -n mindspore2.2.14_mindocr python=3.9
 
 According to the guidelines on the [MindSpore official website](https://www.mindspore.cn/install/), install MindSpore version 2.2.14 along with the corresponding GPU or Ascend AI processor software packages.
 
-3. [Install openmpi 4.0.3](https://www.open-mpi.org/software/ompi/v4.0/) (For distributed training and evaluation, if distributed training is not required, you can skip it)
+3. [Install Open MPI 4.0.3](https://www.open-mpi.org/software/ompi/v4.0/) (For distributed training and evaluation, you can skip it if distributed training is not required)
 
-Find version 4.0.3 on the openmpi official website, download the tar.gz file and unzip it to the project-related folder:
+Download Open MPI v4.0.3 from the official website, and then unzip the tar.gz file to the project-related folder:
 
 ​![image](pic/install_openmpi.png)​
 
-Unzip the Openmpi source package:
+Unzip the Open MPI source package:
 
 ```shell
 tar -xvf openmpi-4.0.3.tar.gz
@@ -122,9 +121,15 @@ Configure environment variables:
 
 ```shell
 vim /etc/profile
+```
+
+```text
 ## OpenMPI ##
 export PATH=$PATH:/installation_directory/openmpi/bin
 export LD_LIBRARY_PATH=/installation_directory/openmpi/lib
+```
+
+```shell
 source /etc/profile
 ```
 
@@ -155,7 +160,7 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-# Training DBNet model for text detection
+# Training [DBNet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README.md) model for text detection
 
 ## Dataset preparation
 
@@ -223,7 +228,7 @@ dataset:
 
 5. Change the value of IOU from 0.5(default) to 0.7.
 
-Location of code:./mindocr/metrics/det_metrics.py 33
+Location of code:./mindocr/metrics/det_metrics.py:L33
 
 ```python
 ...
@@ -236,7 +241,7 @@ def __init__(self, min_iou: float = 0.7, min_intersect: float = 0.5):
 ## Train
 
 ```shell
-# Single Ascend/GPU Training (May Cause Memory Issues)
+# Single Ascend/GPU Training (May Failed Due to Insufficient GPU/NPU on-Device Memory)
 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend/GPU
 # Multi-Ascend/GPU Training (Requires Correct OpenMPI Installation and Root Privileges)
 mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend/GPU
@@ -258,8 +263,6 @@ Validation set test results:
 
 ## Inference
 
-### Inference command
-
 ```shell
 python tools/infer/text/predict_det.py 	--image_dir path/to/image or path/to/image_dir \
                                 --det_algorithm DB \
@@ -271,7 +274,7 @@ python tools/infer/text/predict_det.py 	--image_dir path/to/image or path/to/ima
 
 ​![1_det_res](pic/det.png)​
 
-# Training [SVTR model](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/README_CN.md) for text recognition
+# Training [SVTR](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/README.md) model for text recognition
 
 ## [Dataset processing](https://github.com/mindspore-lab/mindocr/blob/main/docs/zh/tutorials/training_recognition_custom_dataset.md)
 
@@ -288,7 +291,7 @@ Please place all training images in the same folder and specify a text file in t
 
 **Note:** Use `\tab`​ as the separator between the image name and label, avoiding spaces or other separators.
 
-The final structure of the training dataset will be as follows:
+Finally, directory structure of the training dataset will be as follows:
 
 ```txt
 |-data
@@ -304,9 +307,9 @@ The preparation method for the testing and validation datasets is the same.
 
 ## Dictionary preparation
 
-Run the code in `generate_dict.py`​ with the following character set to generate the dictionary `ccpd_dict.txt`​, and place it in the `mindocr/utils/dict`​ directory.
+Run the code in `generate_dict.py`​ with the following character set to generate the dictionary file `ccpd_dict.txt`​. Then place the dictionary file in the `mindocr/utils/dict`​ directory.
 
-```txt
+```python
 provinces = ["皖", "沪", "津", "渝", "冀", "晋", "蒙", "辽", "吉", "黑", "苏", "浙", "京", "闽", "赣", "鲁", "豫", "鄂", "湘", "粤", "桂", "琼", "川", "贵", "云", "藏", "陕", "甘", "青", "宁", "新", "警", "学", "O"]
 alphabets = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
              'X', 'Y', 'Z', 'O']
@@ -314,7 +317,7 @@ ads = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q'
        'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'O']
 ```
 
-## Configuration file preparation(Refer to the complete configuration file in `svtr_ccpd.yaml`​)
+## Prepare the configuration file (refer to the complete configuration file in `svtr_ccpd.yaml`​)
 
 1. Copy the file `mindocr/configs/rec/svtr/svtr_tiny_ch.yaml`​ to a new file.
 2. Modify the following parameters in the new configuration file:
@@ -349,7 +352,7 @@ eval:
   ...
 ```
 
-4. Add `lower: false`​ to the metric​ section​:
+4. Set `lower` under the `metric` section to `false`:
 
 ```yaml
 metric:
@@ -377,11 +380,11 @@ metric:
 python tools/train.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml --device_target Ascend/GPU
 ```
 
-### Training strategy
+### Modify training configurations
 
 1. **Modify the Configuration File**: Change `loss`​ section's `pred_seq_len`​ to 10.
 
-```java
+```text
 valid res:
 [2024-09-10 15:16:38] mindocr.metrics.rec_metrics INFO - correct num: 23, total num: 99996.0
 [2024-09-10 15:16:38] mindocr.eval INFO - Performance: {'acc': 0.00023000920191407204, 'norm_edit_distance': 0.5451045036315918}
@@ -389,7 +392,7 @@ valid res:
 
 2. **Adjust image_shape**​: Set the 'img_size' of the 'model' section to [32, 80].
 
-```java
+```text
 valid res:
 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1923/1923 [01:40<00:00, 19.07it/s]
 [2024-09-10 19:14:02] mindocr.metrics.rec_metrics INFO - correct num: 6940, total num: 99996.0
@@ -398,7 +401,7 @@ valid res:
 
 3. **Resize Strategy**: `Resize`​ all text images to `32 * 100`​ without considering the aspect ratio and without padding; set `max_text_length`​ to 25.
 
-```java
+```text
 valid res:
 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1923/1923 [01:59<00:00, 16.05it/s]
 [2024-09-10 19:16:59] mindocr.metrics.rec_metrics INFO - correct num: 98681, total num: 99996.0
@@ -407,7 +410,7 @@ valid res:
 
 4. **Modify the Base YAML File**: Change to `svtr_tiny.yaml`​ and add the STN module.
 
-```java
+```text
 valid res:
 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1923/1923 [05:02<00:00,  6.36it/s]
 [2024-09-10 23:01:26] mindocr.metrics.rec_metrics INFO - correct num: 97956, total num: 99996.0
@@ -416,7 +419,7 @@ valid res:
 
 5. **Increase the intensity of data augmentation**​: Set the `aug_type`​ in the 'SVTRRecAug' section of the configuration file to 1​.
 
-```java
+```text
 valid res:
 100%|████████████████████████████████████████████████████████████████████████████████████████| 1923/1923 [05:55<00:00,  5.42it/s]
 [2024-09-11 17:08:48] mindocr.metrics.rec_metrics INFO - correct num: 96064, total num: 99996.0
@@ -425,7 +428,7 @@ valid res:
 
 6. **Increase the intensity of data augmentation**: Set `deterioration_p`​ and `colorjitter_p`​ to 0.5 in the `SVTRRecAug` section of the configuration file​.
 
-```java
+```text
 valid res:
 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 1923/1923 [05:40<00:00,  5.65it/s]
 [2024-09-11 20:12:32] mindocr.metrics.rec_metrics INFO - correct num: 97973, total num: 99996.0
@@ -444,13 +447,9 @@ python tools/eval.py --config configs/rec/svtr/svtr_tiny_ccpd.yaml --device_targ
 
 ## Inference
 
-### Code modification
+### Modify inference codes
 
-Modify the file `/mindocr/tools/infer/text/predict_rec.py`​:
-
-1.  Locate the `algo_to_model_name`​ mapping.
-
-2. Change the module corresponding to SVTR to `svtr_ccpd`​.
+Locate the `algo_to_model_name` dict in the file `/mindocr/tools/infer/text/predict_rec.py`, and then modify the module corresponding to `SVTR` to `svtr_ccpd`​.
 
 ```python
 algo_to_model_name = {
@@ -525,7 +524,7 @@ def svtr_ccpd(pretrained=False, **kwargs):
     return model
 ```
 
-### Inference command
+### Execute inference command
 
 ```shell
 python tools/infer/text/predict_rec.py 	--image_dir path/to/image_path \
@@ -546,9 +545,7 @@ python tools/infer/text/predict_rec.py 	--image_dir path/to/image_path \
 
 ​![image](pic/rec_res.png)​
 
-# Joint inference of DBNet and SVTR
-
-**Inference Commands: ​**
+# DBNet and SVTR joint inference
 
 ```shell
 python tools/infer/text/predict_system.py 	--image_dir path/to/image_path or image_dir \
@@ -565,20 +562,20 @@ python tools/infer/text/predict_system.py 	--image_dir path/to/image_path or ima
 
 ​![image](pic/det_rec_res.png)​
 
-Visualizing Results:
+**Visualized Result**:
 
 ​![1_res](pic/det_res.png)​
 
 # Performance
 
-Experiments are tested on ascend 910* with mindspore 2.2.14 graph mode :
+Test results on Ascend 910* with MindSpore 2.2.14 graph mode :
 
 |model name|cards|batch size|resolution|jit level|graph compile|s/step|img/s|
 | :----------: | :-----: | :----------: | :----------: | :---------: | :-------------: | :------: | :------: |
 |dbnet|1|16|640x640|O0|43.50s|0.26|61.59|
 |svtr|1|256|64x256|O2|202.20s|0.77|331.70|
 
-Experiments are tested on GeForce RTX 4090 with mindspore 2.2.14 graph mode :
+Test results on GeForce RTX 4090 with MindSpore 2.2.14 graph mode :
 
 |model name|cards|batch size|resolution|jit level|graph compile|s/step|img/s|
 | :----------: | :-----: | :----------: | :----------: | :---------: | :-------------: | :------: | :------: |
