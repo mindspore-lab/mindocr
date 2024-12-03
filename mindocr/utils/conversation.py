@@ -12,6 +12,7 @@ class Conversation:
         roles: Tuple[str, str] = ("user", "assistant"),
         messages: List[Tuple[str, str]] = None,
         sep: str = "<|im_end|>",
+        generate_mode: bool = False,
     ):
         self.system = (
             "<|im_start|>{system}\n{message}{sep}\n".format(
@@ -25,11 +26,14 @@ class Conversation:
         self.roles = roles
         self.messages = list() if messages is None else messages
         self.sep = sep
+        self.generate_mode = generate_mode
 
     def get_messages(self):
         return self.messages
 
     def get_prompt(self):
+        if self.generate_mode:
+            return self.messages[-1][1]
         ret = self.system if self.system else ""
         for role, message in self.messages:
             ret += "<|im_start|>{role}\n{message}{sep}\n".format(role=role, message=message, sep=self.sep)
