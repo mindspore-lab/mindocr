@@ -1,12 +1,12 @@
 model:
-  name: VaryQwenForCausalLM
+  name: MonkeyQwenForCausalLM
   batch_size: 1
   seq_length: 2048
-  hidden_size: 2048
-  num_layers: 24
-  num_heads: 16
-  vocab_size: 151860
-  intermediate_size: 5504
+  hidden_size: 4096
+  num_layers: 32
+  num_heads: 32
+  vocab_size: 151936
+  intermediate_size: 11008
   rms_norm_eps: 1.0e-6
   emb_dropout_prob: 0.0
   eos_token_id: 151643
@@ -16,26 +16,40 @@ model:
   softmax_compute_type: "float16"
   rotary_dtype: "float16"
   param_init_type: "float16"
-  ln_param_init_type: "float16"
+  ln_param_init_type: "float32"
   use_past: True
   use_flash_attention: False
   use_past_shard: False
   offset: 0
-  checkpoint_name_or_path: "/path/to/vary_toy.ckpt"
+  checkpoint_name_or_path: "/path/to/monkey.ckpt"
   repetition_penalty: 1.5
   max_decode_length: 2048
   top_k: 0
   top_p: 0.8
   do_sample: False
-  max_new_tokens: 1024
-  temperature: 1.0
+  max_new_tokens: 250
+  temperature: 0.7
   num_beams: 1
-  num_patches: 256
+  length_penalty: 1
+  num_patches: 1280
 
   # configuration items copied from Qwen
   rotary_pct: 1.0
   rotary_emb_base: 10000
   kv_channels: 128
+
+  visual:
+    heads: 16
+    image_size: 896
+    image_start_id: 151857
+    layers: 48
+    mlp_ratio: 4.9231
+    output_dim: 4096
+    patch_size: 14
+    width: 1664
+    lora_repeat_num: 4
+    positional_embedding_size: 1024
+    model_type: open_clip
 
 processor:
   tokenizer:

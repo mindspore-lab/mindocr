@@ -222,9 +222,7 @@ class QwenConfig(BaseConfig):
         self.num_heads = num_heads
         self.max_position_embedding = max_position_embedding if max_position_embedding else seq_length
         self.intermediate_size = intermediate_size
-        self.multiple_of = multiple_of
         self.n_kv_heads = n_kv_heads
-        self.ffn_dim_multiplier = ffn_dim_multiplier
         self.rms_norm_eps = rms_norm_eps
         self.qkv_concat = qkv_concat
         self.param_init_type = convert_mstype(param_init_type)
@@ -264,6 +262,11 @@ class QwenConfig(BaseConfig):
 class VaryConfig(QwenConfig):
     def __init__(self, **kwargs):
         super(VaryConfig, self).__init__(**kwargs)
+
+
+class MonkeyConfig(QwenConfig):
+    def __init__(self, **kwargs):
+        super(MonkeyConfig, self).__init__(**kwargs)
 
 
 class SAMConfig(BaseConfig):

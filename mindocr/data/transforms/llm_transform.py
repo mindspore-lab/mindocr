@@ -28,6 +28,11 @@ def alb_wrapper(transform):
     return f
 
 
+def load_image(image_file):
+    image = Image.open(image_file).convert("RGB")
+    return image
+
+
 image_processor_high = alb_wrapper(
     alb.Compose(
         [
@@ -270,7 +275,7 @@ class VaryCLIPImageProcessor:
         self.batch_totensor = BatchToTensor()
         self.batch_normalizer = BatchNormalize()
 
-    def preprocess(self, images):
+    def __call__(self, images):
         if not self._bhwc_check(images):
             images = self.bchw2bhwc(images)
         images = self.batch_pilizer(images)
@@ -299,4 +304,64 @@ class VaryCLIPImageProcessor:
         return False
 
 
-image_processor = VaryCLIPImageProcessor().preprocess
+class VarySAMImageProcessor:
+    def __init__(self):
+        self.image_processor_high = alb_wrapper(
+            alb.Compose(
+                [
+                    alb.Resize(1024, 1024),
+                    alb.Normalize(IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD),
+                ]
+            )
+        )
+
+    def __call__(self, images):
+        images = self.image_processor_high(images)
+        return images
+
+
+class VaryImageProcessor:
+    def __init__(self):
+        self.sam_processor = VarySAMImageProcessor()
+        self.clip_processor = VaryCLIPImageProcessor()
+
+    def __call__(self, images):
+        if isinstance(images, str):
+            images = load_image(images)
+        image_clip = self.clip_processor(images)
+        image_sam = self.sam_processor(images)
+        return image_clip, image_sam
+
+
+class MonkeyImageProcessor:
+    def __init__(self):
+        self.resize1 = vision.c_transforms.Resize((896, 896), Inter.PILCUBIC)
+        self.resize2 = vision.Resize((448, 448), Inter.BICUBIC)
+        mean = (0.48145466, 0.4578275, 0.40821073)
+        std = (0.26862954, 0.26130258, 0.27577711)
+        self.normalize = vision.Normalize(mean=mean, std=std, is_hwc=False)
+
+    @staticmethod
+    def sliding_window(images, window_size=(448, 448), stride=448):
+        windows = []
+        for i in range(2):
+            for j in range(2):
+                window = images[
+                    :, :, i * stride : i * stride + window_size[0], j * stride : j * stride + window_size[1]
+                ]
+                windows.append(window)
+        return windows
+
+    def __call__(self, images):
+        if isinstance(images, str):
+            images = load_image(images)
+        images = self.resize1(images)  # hwc -> hwc
+        images = images / 255.0  # hwc -> hwc
+        images_trans = images.transpose(2, 0, 1)  # hwc -> chw
+        images_norm = self.normalize(images_trans)  # chw -> chw
+        images_nchw = np.expand_dims(images_norm, 0)  # chw -> nchw
+        windows = self.sliding_window(images_nchw, window_size=(448, 448), stride=448)  # nchw -> List[nchw]
+        images_norm = images_norm.transpose(1, 2, 0)
+        images_448 = self.resize2(images_norm)  # hwc -> hwc
+        images_448 = np.expand_dims(images_448.transpose(2, 0, 1), 0)  # hwc -> nchw
+        return windows, images_448

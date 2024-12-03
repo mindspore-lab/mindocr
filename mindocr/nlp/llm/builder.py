@@ -1,4 +1,5 @@
 from ._registry import is_llm, is_llm_class, list_llms, llm_class_entrypoint, llm_entrypoint
+from .configs import LLMConfig
 
 __all__ = ["build_llm_model"]
 
@@ -11,8 +12,16 @@ def build_llm_model(config):
         >>> llm_model = build_llm_model(dict(name='VaryQwenForCausalLM'))
         >>> print(llm_model)
     """
+    if isinstance(config, dict):
+        config = LLMConfig(**config)
+    elif isinstance(config, str):
+        config = LLMConfig(config)
+    else:
+        raise TypeError(f"config must be str or dict, but got {type(config)}")
+    if "model" in config:
+        config = LLMConfig(**config["model"], **config["processor"])
     if "name" not in config:
-        raise ValueError("name must in `config`.")
+        raise ValueError("`name` must in `config`.")
     name = config["name"]
     if is_llm(name):
         create_fn = llm_entrypoint(name)
