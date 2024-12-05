@@ -30,9 +30,10 @@ The representation of image vectors typically relies on CNN-extracted feature gr
 
 ### 2.1 Preparation
 
-| mindspore  |  ascend driver  |   firmware   | cann toolkit/kernel  |
-|:----------:|:---------------:|:------------:|:--------------------:|
-|   2.3.1    |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1     |
+| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
+|:---------:|:---------------:|:------------:|:-------------------:|
+|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
+|   2.4.0   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC3.beta1    |
 
 #### 2.1.1 Installation
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
@@ -69,6 +70,10 @@ python tools/param_converter_from_torch.py \
 ```
 
 ### 2.3 Model Evaluation
+
+```bash
+python tools/eval.py --config configs/layout/layoutlmv3/layoutlmv3_publaybet.yaml
+```
 The evaluation results on the public benchmark dataset (PublayNet) are as follows:
 
 Experiments are tested on ascend 910* with mindspore 2.3.1 pynative mode
