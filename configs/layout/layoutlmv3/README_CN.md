@@ -34,9 +34,10 @@ LayoutLMv3 还应用了文本——图像多模态 Transformer 架构来学习�
 
 ### 2.1 环境及数据准备
 
-| mindspore  |  ascend driver  |   firmware   | cann toolkit/kernel  |
-|:----------:|:---------------:|:------------:|:--------------------:|
-|   2.3.1    |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1     |
+| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
+|:---------:|:---------------:|:------------:|:-------------------:|
+|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
+|   2.4.0   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC3.beta1    |
 
 #### 2.1.1 安装
 环境安装教程请参考MindOCR的 [installation instruction](https://github.com/mindspore-lab/mindocr#installation).
@@ -73,6 +74,10 @@ python tools/param_converter_from_torch.py \
 ```
 
 ### 2.3 模型评估
+
+```bash
+python tools/eval.py --config configs/layout/layoutlmv3/layoutlmv3_publaybet.yaml
+```
 在公开基准数据集（PublayNet）上的-评估结果如下：
 
 在采用动态图模式的ascend 910*上实验结果，mindspore版本为2.3.1
