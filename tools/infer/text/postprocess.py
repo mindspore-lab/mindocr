@@ -79,7 +79,7 @@ class Postprocessor(object):
             else:
                 raise ValueError(f"No postprocess config defined for {algo}. Please check the algorithm name.")
         elif task == "ser":
-            class_path = "mindocr/utils/dict/class_list_xfun.txt"
+            class_path = kwargs.get("ser_class_dict_path", "mindocr/utils/dict/class_list_xfun.txt")
             postproc_cfg = dict(name="VQASerTokenLayoutLMPostProcess", class_path=class_path)
         elif task == "layout":
             if algo == "LAYOUTLMV3":

@@ -166,6 +166,7 @@ class Preprocessor(object):
                 {"ToCHWImage": None},
             ]
         elif task == "ser":
+            class_path = kwargs.get("ser_class_dict_path", "mindocr/utils/dict/class_list_xfun.txt")
             pipeline = [
                 {"DecodeImage": {"img_mode": "RGB", "infer_mode": True, "to_float32": False}},
                 {
@@ -173,7 +174,7 @@ class Preprocessor(object):
                         "contains_re": False,
                         "infer_mode": True,
                         "algorithm": "LayoutXLM",
-                        "class_path": "mindocr/utils/dict/class_list_xfun.txt",
+                        "class_path": class_path,
                         "order_method": "tb-yx",
                     }
                 },

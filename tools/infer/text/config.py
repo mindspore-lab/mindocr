@@ -159,6 +159,12 @@ def create_parser():
         help="directory containing the ser model checkpoint best.ckpt, or path to a specific checkpoint file.",
     )
     parser.add_argument(
+        "--ser_class_dict_path",
+        type=str,
+        default="./mindocr/utils/dict/class_list_xfun.txt",
+        help="path to class dictionary for structure recognition. ",
+    )
+    parser.add_argument(
         "--kie_batch_mode",
         type=str2bool,
         default=True,

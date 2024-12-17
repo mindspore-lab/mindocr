@@ -68,11 +68,9 @@ class SemanticEntityRecognition:
         )
         self.model.set_train(False)
 
-        self.preprocess = Preprocessor(
-            task="ser",
-        )
+        self.preprocess = Preprocessor(task="ser", ser_class_dict_path=args.ser_class_dict_path)
 
-        self.postprocess = Postprocessor(task="ser")
+        self.postprocess = Postprocessor(task="ser", ser_class_dict_path=args.ser_class_dict_path)
 
         self.batch_mode = args.kie_batch_mode
         self.batch_num = args.kie_batch_num
