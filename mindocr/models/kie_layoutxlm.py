@@ -8,6 +8,9 @@ def _cfg(url="", **kwargs):
 
 
 default_cfgs = {
+    "layoutxlm": _cfg(
+        url="https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt"
+    ),
     "vi_layoutxlm": _cfg(
         url="https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/ser_vi_layoutxlm-f3c83585.ckpt"
     ),
@@ -65,19 +68,25 @@ def layoutxlm_ser(
     }
     model = KieNet(model_config)
     if pretrained:
-        default_cfg = default_cfgs["vi_layoutxlm"]
+        default_cfg = default_cfgs["layoutxlm"]
         load_pretrained(model, default_cfg)
 
     return model
 
 
 @register_model
-def vi_layoutxlm_ser(pretrained: bool = True, use_visual_backbone: bool = False, use_float16: bool = False, **kwargs):
+def vi_layoutxlm_ser(
+    pretrained: bool = True,
+    pretrained_backbone: bool = False,
+    use_visual_backbone: bool = False,
+    use_float16: bool = False,
+    **kwargs
+):
     model_config = {
         "type": "kie",
         "backbone": {
             "name": "layoutxlm",
-            "pretrained": pretrained,  # backbone pretrained
+            "pretrained": pretrained_backbone,  # backbone pretrained
             "use_visual_backbone": use_visual_backbone,
             "use_float16": use_float16,
         },
@@ -90,5 +99,8 @@ def vi_layoutxlm_ser(pretrained: bool = True, use_visual_backbone: bool = False,
         },
     }
     model = KieNet(model_config)
+    if pretrained:
+        default_cfg = default_cfgs["vi_layoutxlm"]
+        load_pretrained(model, default_cfg)
 
     return model

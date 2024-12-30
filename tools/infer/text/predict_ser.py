@@ -50,7 +50,7 @@ class SemanticEntityRecognition:
         # build model for algorithm with pretrained weights or local checkpoint
         ckpt_dir = args.ser_model_dir
         if ckpt_dir is None:
-            pretrained = False
+            pretrained = True
             ckpt_load_path = None
             pretrained_backbone = False
         else:
@@ -64,7 +64,10 @@ class SemanticEntityRecognition:
             )
         model_name = algo_to_model_name[args.ser_algorithm]
         self.model = build_model(
-            model_name, pretrained=pretrained, pretrained_backbone=pretrained_backbone, ckpt_load_path=ckpt_load_path
+            model_name,
+            pretrained=pretrained,
+            pretrained_backbone=pretrained_backbone,
+            ckpt_load_path=ckpt_load_path,
         )
         self.model.set_train(False)
 
@@ -202,6 +205,7 @@ class SemanticEntityRecognition:
             token_type_ids_batch = []
             segment_offset_ids_batch = []
             ocr_infos_batch = []
+            image_batch = []
             for j in range(batch_begin, batch_end):  # image index j
                 data = self.preprocess(ocr_info_list[j])
                 input_ids_batch.append(data["input_ids"])
@@ -210,6 +214,7 @@ class SemanticEntityRecognition:
                 token_type_ids_batch.append(data["token_type_ids"])
                 segment_offset_ids_batch.append(data["segment_offset_id"])
                 ocr_infos_batch.append(data["ocr_info"])
+                image_batch.append(data["image"])
 
             input_ids_batch = (
                 np.stack(input_ids_batch) if len(input_ids_batch) > 1 else np.expand_dims(input_ids_batch[0], axis=0)
@@ -225,6 +230,7 @@ class SemanticEntityRecognition:
                 if len(token_type_ids_batch) > 1
                 else np.expand_dims(token_type_ids_batch[0], axis=0)
             )
+            image_batch = np.stack(image_batch) if len(image_batch) > 1 else np.expand_dims(image_batch[0], axis=0)
 
             # infer
             input_x = [
@@ -232,6 +238,7 @@ class SemanticEntityRecognition:
                 Tensor(bbox_batch),
                 Tensor(attention_mask_batch),
                 Tensor(token_type_ids_batch),
+                Tensor(image_batch),
             ]
             logits = self.model(input_x)
             # postprocess
@@ -262,13 +269,15 @@ class SemanticEntityRecognition:
             token_type_ids = data["token_type_ids"]
             segment_offset_id = data["segment_offset_id"]
             ocr_info = data["ocr_info"]
+            image = data["image"]
 
             input_ids = np.expand_dims(input_ids, axis=0)
             bbox = np.expand_dims(bbox, axis=0)
             attention_mask = np.expand_dims(attention_mask, axis=0)
             token_type_ids = np.expand_dims(token_type_ids, axis=0)
+            image = np.expand_dims(image, axis=0)
 
-            input_x = (Tensor(input_ids), Tensor(bbox), Tensor(attention_mask), Tensor(token_type_ids))
+            input_x = (Tensor(input_ids), Tensor(bbox), Tensor(attention_mask), Tensor(token_type_ids), Tensor(image))
 
             logits = self.model(input_x)
 
