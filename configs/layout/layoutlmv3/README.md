@@ -20,7 +20,7 @@ LayoutLMv3 also employs a text-image multimodal Transformer architecture to lear
 The representation of image vectors typically relies on CNN-extracted feature grid features or Faster R-CNN-extracted region features, which increase computational costs or depend on region annotations. Therefore, the authors obtain image features by linearly mapping image blocks, a representation method initially proposed in ViT, which incurs minimal computational cost and does not rely on region annotations, effectively addressing the aforementioned issues. Specifically, the image is first resized to a uniform size (e.g., 224x224), then divided into fixed-size blocks (e.g., 16x16), and image features are obtained through linear mapping to form an image feature sequence, followed by addition of a learnable one-dimensional positional vector to obtain the image vector.[[1](#references)]
 
 <p align="center">
-  <img src=../../kie/layoutlmv3/layoutlmv3_arch.jpg width=1000 />
+  <img src=layoutlmv3_arch.jpg width=1000 />
 </p>
 <p align="center">
   <em> Figure 1. LayoutLMv3 architecture [<a href="#references">1</a>] </em>
@@ -99,9 +99,6 @@ layout_res.png （Model inference visualization results）
 
 layout_results.txt  （Model inference text results）
 
-### 2.5 Model Training
-
-coming soon
 
 ## References
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
