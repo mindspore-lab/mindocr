@@ -24,17 +24,23 @@ Through this approach, TableMaster is able to simultaneously learn and predict t
 
 ## 2. Results
 
+| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
+|:---------:|:---------------:|:------------:|:-------------------:|
+|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
+
 ### PubTabNet
+
+Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode
 <div align="center">
 
-| **Model**   | **Context**    | **Backbone**    | **Accuracy** |  **Train T.** | **per step time** | **Throughput** | **Recipe**                            | Download                                                                                                 |
-|-------------|----------------|-------------|--------------|--------------|-----------------|----------------|---------------------------------------|--------------------------------------------------------------------------------------------------------|
-| TableMaster | D910x8-MS2.2-G | TableResNetExtra   | 77.43%       |  2100 s/epoch  | 335 ms/step |  238 img/s    | [yaml](table_master.yaml)         | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-25810c37.ckpt) |
-
+| **model name** | **cards** | **batch size** | **ms/step** | **img/s** | **accuracy** | **config**  | **weight**                                                                            |
+|----------------|-----------|----------------|-------------|-----------|--------------|-----------------------------------------------------|------------------------------------------------|
+| TableMaster         | 8         | 10             | 268         | 296       | 77.49%       | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
 </div>
 
+
+
 #### Notes：
-- Context: Training context denoted as {device}x{pieces}-{MS version}{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
 - The training time of EAST is highly affected by data processing and varies on different machines.
 - The input_shape for exported MindIR in the link is `(1,3,480,480)`.
 
@@ -74,7 +80,7 @@ PubTabNet
 ```
 
 
-### 3.3 配置说明
+### 3.3 Configuration Description
 
 Update `configs/table/table_master.yaml`configuration file with data paths,
 specifically`dataset_root` is the directory of training set images folder, `label_file_list` is a list of training set annotation file path, and it may include multiple annotation file paths.
@@ -146,7 +152,7 @@ python tools/train.py --config configs/table/table_master.yaml
 Please set `distribute` in yaml config file to be True.
 
 ```shell
-# n is the number of GPUs/NPUs
+# n is the number of NPUs
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/table/table_master.yaml
 ```
 

@@ -18,29 +18,23 @@ In order to adapt to the layout analysis task, we have made some improvements to
 ![](images/yolov8_structure.jpeg)
 
 ## 2. Results
-<!--- Guideline:
-Table Format:
-- Model: model name in lower case with _ seperator.
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
-- Top-1 and Top-5: Keep 2 digits after the decimal point.
-- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
-- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
-- Download: url of the pretrained model weights. Use absolute url path.
--->
+| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
+|:---------:|:---------------:|:------------:|:-------------------:|
+|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
 
 ### Accuracy
 
 According to our experiment, the evaluation results on the public benchmark dataset (PublayNet) are as follows:
 
+Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode
 <div align="center">
 
-| **Model** | **Context** | **Mean Average accuracy (mAP)** | **Train T.** | **FPS** | **Recipe** | **Download** |
-| :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |
-| YOLOv8 | D910x4-MS2.2-G | 94.4% | 335.31 ms/step | 47.01 img/s | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/yolov8/yolov8n.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-4b9e8004.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-2a1f68ab.mindir) |
+| **model name** | **cards** | **batch size** | **ms/step**   | **img/s** | **map** | **config**  | **weight**                                                                            |
+|----------------|-----------|----------------|---------------|-----------|---------|-----------------------------------------------------|------------------------------------------------|
+| YOLOv8         | 4         | 16             | 284.93| 56.15     | 94.4%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/yolov8/yolov8n.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-4b9e8004.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-2a1f68ab.mindir) |
 </div>
 
 **Notes:**
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x4-MS2.2-G is for training on 4 pieces of Ascend 910 NPU using graph mode based on MindSpore version 2.2.
 - To reproduce the result on other contexts, please ensure the global batch size is the same.
 - The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [PubLayNet Dataset Preparation](#3.1.2 PubLayNet Dataset Preparation) section.
 - The input Shapes of MindIR of YOLOv8 is (1, 3, 800, 800).
@@ -93,7 +87,7 @@ eval:
 ```
 
 **Notes:**
-- As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of GPUs/NPUs, or adjust the learning rate linearly to a new global batch size.
+- As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of NPUs, or adjust the learning rate linearly to a new global batch size.
 
 
 ### 3.2 Model Training
@@ -104,7 +98,7 @@ eval:
 It is easy to reproduce the reported results with the pre-defined training recipe. For distributed training on multiple Ascend 910 devices, please modify the configuration parameter `distribute` as True and run
 
 ```shell
-# distributed training on multiple GPU/Ascend devices
+# distributed training on multiple Ascend devices
 mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/layout/yolov8/yolov8n.yaml
 ```
 
@@ -114,7 +108,7 @@ mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/layout/yo
 If you want to train or finetune the model on a smaller dataset without distributed training, please modify the configuration parameter`distribute` as False and run:
 
 ```shell
-# standalone training on a CPU/GPU/Ascend device
+# standalone training on a CPU/Ascend device
 python tools/train.py --config configs/layout/yolov8/yolov8n.yaml
 ```
 
@@ -134,7 +128,7 @@ To inference with MindSpot Lite on Ascend 310, please refer to the tutorial [Min
 
 **1. Model Export**
 
-Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../README.md) tutorial and use the following command to export the trained ckpt model to  MindIR file:
+Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../../docs/en/inference/convert_tutorial.md#1-model-export) tutorial and use the following command to export the trained ckpt model to  MindIR file:
 
 ```shell
 python tools/export.py --model_name_or_config configs/layout/yolov8/yolov8n.yaml --data_shape 800 800 --local_ckpt_path /path/to/local_ckpt.ckpt
@@ -144,11 +138,11 @@ The `data_shape` is the model input shape of height and width for MindIR file. T
 
 **2. Environment Installation**
 
-Please refer to [Environment Installation](../../../docs/en/inference/environment.md#2-mindspore-lite-inference) tutorial to configure the MindSpore Lite inference environment.
+Please refer to [Environment Installation](../../../docs/en/inference/environment.md) tutorial to configure the MindSpore Lite inference environment.
 
 **3. Model Conversion**
 
-Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#1-mindocr-models),
+Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#2-mindspore-lite-mindir-convert),
 and use the `converter_lite` tool for offline conversion of the MindIR file.
 
 **4. Inference**

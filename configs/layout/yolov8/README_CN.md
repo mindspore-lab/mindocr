@@ -22,28 +22,23 @@ YOLOv8 是Ultralytics的YOLO的最新版本。作为一种前沿、最先进(SOT
 
 
 ## 2. 评估结果
-<!--- Guideline:
-Table Format:
-- Model: model name in lower case with _ seperator.
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
-- Top-1 and Top-5: Keep 2 digits after the decimal point.
-- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
-- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
-- Download: url of the pretrained model weights. Use absolute url path.
--->
+
+
+| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
+|:---------:|:---------------:|:------------:|:-------------------:|
+|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
 
 根据我们的实验，在公开基准数据集（PublayNet）上的-评估结果如下：
 
+在采用图模式的ascend 910*上实验结果，mindspore版本为2.3.1
 <div align="center">
 
-| **模型** | **环境配置** | **平均准确率（mAP）** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** |
-| :-----: | :-----:  | :-----: | :-----: | :-----: |:--------: | :-----: |
-| YOLOv8 | D910x4-MS2.2-G | 94.4% | 335.31 ms/step | 47.01 img/s | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/yolov8/yolov8n.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-4b9e8004.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-2a1f68ab.mindir) |
+| **model name** | **cards** | **batch size** | **ms/step**   | **img/s** | **map** | **config**  | **weight**                                                                            |
+|----------------|-----------|----------------|---------------|-----------|---------|-----------------------------------------------------|------------------------------------------------|
+| YOLOv8         | 4         | 16             | 284.93| 56.15     | 94.4%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/yolov8/yolov8n.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-4b9e8004.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-2a1f68ab.mindir) |
 </div>
 
 **注意:**
-
-- 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。例如，D910x4-MS2.2-G 用于使用图模式在4张昇腾910 NPU上依赖Mindspore2.2版本进行训练。
 - 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
 - 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[PubLayNet数据集准备](#3.1.2 PubLayNet数据集准备)章节。
 - YOLOv8的MindIR导出时的输入Shape均为(1, 3, 800, 800)。
@@ -106,7 +101,7 @@ eval:
 ```
 
 **注意:**
-- 由于全局批大小 （batch_size x num_devices） 对结果复现很重要，因此当GPU/NPU卡数发生变化时，调整`batch_size`以保持全局批大小不变，或根据新的全局批大小线性调整学习率。
+- 由于全局批大小 （batch_size x num_devices） 对结果复现很重要，因此当NPU卡数发生变化时，调整`batch_size`以保持全局批大小不变，或根据新的全局批大小线性调整学习率。
 
 
 ### 3.2 模型训练
@@ -117,7 +112,7 @@ eval:
 使用预定义的训练配置可以轻松重现报告的结果。对于在多个昇腾910设备上的分布式训练，请将配置参数`distribute`修改为True，并运行：
 
 ```shell
-# 在多个 GPU/Ascend 设备上进行分布式训练
+# 在多个 Ascend 设备上进行分布式训练
 mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/layout/yolov8/yolov8n.yaml
 ```
 
@@ -127,7 +122,7 @@ mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/layout/yo
 如果要在没有分布式训练的情况下在较小的数据集上训练或微调模型，请将配置参数`distribute`修改为False 并运行：
 
 ```shell
-# CPU/GPU/Ascend 设备上的单卡训练
+# CPU/Ascend 设备上的单卡训练
 python tools/train.py --config configs/layout/yolov8/yolov8n.yaml
 ```
 
@@ -144,11 +139,11 @@ python tools/eval.py --config configs/layout/yolov8/yolov8n.yaml
 
 ## 4. MindSpore Lite 推理
 
-请参考[MindOCR 推理](../../../docs/cn/inference/inference_tutorial.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
+请参考[MindOCR 推理](../../../docs/zh/inference/inference_tutorial.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
 
 **1. 模型导出**
 
-请先[下载](#2-评估结果)已导出的MindIR文件，或者参考[模型导出](../../README.md)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
+请先[下载](#2-评估结果)已导出的MindIR文件，或者参考[模型导出](../../../docs/zh/inference/convert_tutorial.md#1-模型导出)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
 
 ```shell
 python tools/export.py --model_name_or_config configs/layout/yolov8/yolov8n.yaml --data_shape 800 800 --local_ckpt_path /path/to/local_ckpt.ckpt
@@ -158,11 +153,11 @@ python tools/export.py --model_name_or_config configs/layout/yolov8/yolov8n.yaml
 
 **2. 环境搭建**
 
-请参考[环境安装](../../../docs/cn/inference/environment.md#2-mindspore-lite推理)教程，配置MindSpore Lite推理运行环境。
+请参考[环境安装](../../../docs/zh/inference/environment.md)教程，配置MindSpore Lite推理运行环境。
 
 **3. 模型转换**
 
-请参考[模型转换](../../../docs/cn/inference/convert_tutorial.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换。
+请参考[模型转换](../../../docs/zh/inference/convert_tutorial.md#2-mindspore-lite-mindir-转换)教程，使用`converter_lite`工具对MindIR模型进行离线转换。
 
 **4. 执行推理**
 

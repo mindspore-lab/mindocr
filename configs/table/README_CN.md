@@ -23,17 +23,21 @@ TableMaster是一种用于表格识别的模型，其独特之处在于能够同
 
 ## 2. 实验结果
 
+| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
+|:---------:|:---------------:|:------------:|:-------------------:|
+|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
+
 ### PubTabNet
+
+在采用图模式的ascend 910*上实验结果，mindspore版本为2.3.1
 <div align="center">
 
-| **模型**      | **环境配置**       | **骨干网络**    | **Accuracy** | **训练时间**     | **每步耗时**    | **FPS**   | **配置文件**                  | 模型权重下载                                                                                                     |
-|-------------|----------------|-------------|--------------|--------------|-------------|-----------|---------------------------|------------------------------------------------------------------------------------------------------------|
-| TableMaster | D910x8-MS2.2-G | TableResNetExtra   | 77.43%       | 2100 s/epoch | 335 ms/step | 238 img/s | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-25810c37.ckpt) |
-
+| **model name** | **cards** | **batch size** | **ms/step** | **img/s** | **accuracy** | **config**  | **weight**                                                                            |
+|----------------|-----------|----------------|-------------|-----------|--------------|-----------------------------------------------------|------------------------------------------------|
+| TableMaster         | 8         | 10             | 268         | 296       | 77.49%       | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
 </div>
 
 #### 注释：
-- 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。
 - TableMaster的训练时长受数据处理部分和不同运行环境的影响非常大。
 - 链接中MindIR导出时的输入Shape为`(1,3,480,480)` 。
 
@@ -141,7 +145,7 @@ python tools/train.py --config configs/table/table_master.yaml
 请确保yaml文件中的`distribute`参数为True。
 
 ```shell
-# n is the number of GPUs/NPUs
+# n is the number of NPUs
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/table/table_master.yaml
 ```
 
