@@ -34,18 +34,20 @@ MobileNetV3[[1](#参考文献)]于2019年发布，这个版本结合了V1的deep
 
 ## 2. 实验结果
 
+| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
+|:---------:|:---------------:|:------------:|:-------------------:|
+|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
+
 MobileNetV3在ImageNet上预训练。另外，我们进一步在RCTW17、MTWI和LSVT数据集上进行了文字方向分类任务的训练。
 
+在采用图模式的ascend 910*上实验结果，mindspore版本为2.3.1
 <div align="center">
 
-| **模型**         | **环境配置**    | **规格** | **预训练数据集** |  **训练数据集** | **准确率从** | **训练时间** | **吞吐量** | **配置文件**                  | **模型权重下载**                                                                                                                                                                                         |
-|-------------------|----------------|--------------|----------------|------------|---------------|---------------|----------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| MobileNetV3            | D910x4-MS2.0-G | small    | ImageNet | RCTW17, MTWI, LSVT | 94.59%     | 154.2 s/epoch  | 5923.5 img/s      | [yaml](cls_mv3.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/cls/cls_mobilenetv3-92db9c58.ckpt)  |
+| **model name** | **cards** | **batch size** | **img/s** | **accuracy** | **config**  | **weight**                                                                            |
+|----------------|-----------|----------------|-----------|--------------|-----------------------------------------------------|------------------------------------------------|
+| MobileNetV3    | 4         | 256            | 5923.5    | 94.59%       | [yaml](cls_mv3.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/cls/cls_mobilenetv3-92db9c58.ckpt) |
 </div>
 
-
-#### 注释：
-- 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 MS(MindSpore) 模式可以是 G-graph 模式或 F-pynative 模式。
 
 ## 3. 快速上手
 
@@ -57,7 +59,7 @@ MobileNetV3在ImageNet上预训练。另外，我们进一步在RCTW17、MTWI和
 
 #### 3.2.1 ICDAR2015 数据集
 
-请下载[RCTW17](https://rctw.vlrlab.net/dataset)、[MTWI](https://tianchi.aliyun.com/competition/entrance/231684/introduction)和[LSVT](https://rrc.cvc.uab.es/?ch=16&com=introduction)数据集，然后参考[数据转换](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README_CN.md)章节对数据集和标注进行格式转换（敬请期待）。
+请下载[RCTW17](https://rctw.vlrlab.net/dataset)、[MTWI](https://tianchi.aliyun.com/competition/entrance/231684/introduction)和[LSVT](https://rrc.cvc.uab.es/?ch=16&com=introduction)数据集，然后参考[数据转换](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README_CN.md)章节对数据集和标注进行格式转换。
 
 完成数据准备工作后，数据的目录结构应该如下所示：
 
@@ -118,30 +120,7 @@ model:
     num_classes: *num_classes  # 2 or 4
 ```
 
-
-### 3.4 训练
-
-* 单卡训练
-
-请确保yaml文件中的`distribute`参数为`False`。
-
-``` shell
-python tools/train.py -c configs/cls/mobilenetv3/cls_mv3.yaml
-```
-
-* 分布式训练
-
-请确保yaml文件中的`distribute`参数为`True`。
-
-```shell
-# n is the number of GPUs/NPUs
-mpirun --allow-run-as-root -n 4 python tools/train.py -c configs/cls/mobilenetv3/cls_mv3.yaml
-yaml
-```
-
-训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为`./tmp_cls`。
-
-### 3.5 评估
+### 3.4 评估
 
 评估环节，在yaml配置文件中将`ckpt_load_path`参数配置为checkpoint文件的路径，并设置`distribute`为`False`，然后运行：
 

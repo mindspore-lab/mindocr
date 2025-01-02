@@ -34,18 +34,20 @@ Currently we support the 0 and 180 degree classification. You can update the par
 
 ## 2. Results
 
+| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
+|:---------:|:---------------:|:------------:|:-------------------:|
+|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
+
 MobileNetV3 is pretrained on ImageNet. For text direction classification task, we further train MobileNetV3 on RCTW17, MTWI and LSVT datasets.
 
+Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode
 <div align="center">
 
-| **Model**         | **Context**    | **Specification** | **Pretrained dataset** |  **Training dataset** | **Accuracy** | **Train T.** | **Throughput** | **Recipe**                  | **Download**                                                                                                                                                                                         |
-|-------------------|----------------|--------------|----------------|------------|---------------|---------------|----------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| MobileNetV3            | D910x4-MS2.0-G | small    | ImageNet | RCTW17, MTWI, LSVT | 94.59%     | 154.2 s/epoch  | 5923.5 img/s      | [yaml](cls_mv3.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/cls/cls_mobilenetv3-92db9c58.ckpt)  |
+| **model name** | **cards** | **batch size** | **img/s** | **accuracy** | **config**  | **weight**                                                                            |
+|----------------|-----------|----------------|-----------|--------------|-----------------------------------------------------|------------------------------------------------|
+| MobileNetV3    | 4         | 256            | 5923.5    | 94.59%       | [yaml](cls_mv3.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/cls/cls_mobilenetv3-92db9c58.ckpt) |
 </div>
 
-
-#### Notes
-- Context: Training context denoted as {device}x{pieces}-{MS version}{MS mode}, where MS (MindSpore) mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
 
 
 
@@ -57,7 +59,7 @@ Please refer to the [installation instruction](https://github.com/mindspore-lab/
 
 ### 3.2 Dataset preparation
 
-Please download [RCTW17](https://rctw.vlrlab.net/dataset), [MTWI](https://tianchi.aliyun.com/competition/entrance/231684/introduction), and [LSVT](https://rrc.cvc.uab.es/?ch=16&com=introduction) datasets, and then process the images and labels in desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md) (Coming soon...).
+Please download [RCTW17](https://rctw.vlrlab.net/dataset), [MTWI](https://tianchi.aliyun.com/competition/entrance/231684/introduction), and [LSVT](https://rrc.cvc.uab.es/?ch=16&com=introduction) datasets, and then process the images and labels in desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
 
 The prepared dataset file struture is suggested to be as follows.
 
@@ -117,29 +119,8 @@ model:
     num_classes: *num_classes  # 2 or 4
 ```
 
-### 3.4 Training
 
-* Standalone training
-
-Please set `distribute` in yaml config file to be `False`.
-
-```shell
-python tools/train.py -c configs/cls/mobilenetv3/cls_mv3.yaml
-```
-
-* Distributed training
-
-Please set `distribute` in yaml config file to be `True`.
-
-```shell
-# n is the number of GPUs/NPUs
-mpirun --allow-run-as-root -n 4 python tools/train.py -c configs/cls/mobilenetv3/cls_mv3.yaml
-```
-
-The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir` in yaml config file. The default directory is `./tmp_cls`.
-
-
-### 3.5 Evaluation
+### 3.4 Evaluation
 
 Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be `False`, and then run:
 
