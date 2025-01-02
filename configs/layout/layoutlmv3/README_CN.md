@@ -23,7 +23,7 @@ LayoutLMv3 还应用了文本——图像多模态 Transformer 架构来学习�
 <!--- Guideline: If an architecture table/figure is available in the paper, put one here and cite for intuitive illustration. -->
 
 <p align="center">
-  <img src=../../kie/layoutlmv3/layoutlmv3_arch.jpg width=1000 />
+  <img src=layoutlmv3_arch.jpg width=1000 />
 </p>
 <p align="center">
   <em> 图1. LayoutLMv3架构图 [<a href="#参考文献">1</a>] </em>
@@ -103,9 +103,6 @@ layout_res.png （模型推理可视化结果）
 
 layout_results.txt  （模型推理文本结果）
 
-### 2.5 模型训练
-
-coming soon
 
 ## 参考文献
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->

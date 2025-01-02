@@ -22,28 +22,23 @@ YOLOv8 是Ultralytics的YOLO的最新版本。作为一种前沿、最先进(SOT
 
 
 ## 2. 评估结果
-<!--- Guideline:
-Table Format:
-- Model: model name in lower case with _ seperator.
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
-- Top-1 and Top-5: Keep 2 digits after the decimal point.
-- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
-- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
-- Download: url of the pretrained model weights. Use absolute url path.
--->
+
+
+| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
+|:---------:|:---------------:|:------------:|:-------------------:|
+|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
 
 根据我们的实验，在公开基准数据集（PublayNet）上的-评估结果如下：
 
+在采用图模式的ascend 910*上实验结果，mindspore版本为2.3.1
 <div align="center">
 
-| **模型** | **环境配置** | **平均准确率（mAP）** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** |
-| :-----: | :-----:  | :-----: | :-----: | :-----: |:--------: | :-----: |
-| YOLOv8 | D910x4-MS2.2-G | 94.4% | 335.31 ms/step | 47.01 img/s | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/yolov8/yolov8n.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-4b9e8004.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-2a1f68ab.mindir) |
+| **model name** | **cards** | **batch size** | **ms/step**   | **img/s** | **map** | **config**  | **weight**                                                                            |
+|----------------|-----------|----------------|---------------|-----------|---------|-----------------------------------------------------|------------------------------------------------|
+| YOLOv8         | 4         | 16             | 284.93| 56.15     | 94.4%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/yolov8/yolov8n.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-4b9e8004.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-2a1f68ab.mindir) |
 </div>
 
 **注意:**
-
-- 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。例如，D910x4-MS2.2-G 用于使用图模式在4张昇腾910 NPU上依赖Mindspore2.2版本进行训练。
 - 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
 - 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[PubLayNet数据集准备](#3.1.2 PubLayNet数据集准备)章节。
 - YOLOv8的MindIR导出时的输入Shape均为(1, 3, 800, 800)。
