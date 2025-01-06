@@ -162,7 +162,7 @@ class PP_Layer(nn.Cell):
     def construct(self, enc_output):
         # enc_output: b,256,512
         reading_order = Tensor(np.arange(self.character_len), dtype=ms.int64)
-        reading_order = mnp.repeat(reading_order[None, ...], enc_output.shape[0], 0)    # (S,) -> (B, S)
+        reading_order = ops.repeat_interleave(reading_order[None, ...], enc_output.shape[0], 0)    # (S,) -> (B, S)
         reading_order = self.f0_embedding(reading_order)      # b,max_len,512
         # calculate attention
         t = self.w0(reading_order.transpose((0, 2, 1)))     # b,512,256
