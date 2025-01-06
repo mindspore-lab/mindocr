@@ -229,8 +229,8 @@ class RepMLPBlock(nn.Cell):
 
     def _convert_conv_to_fc(self, conv_kernel, conv_bias):
         # noqa: E741
-        I = ops.eye(self.h * self.w).repeat_interleave(1, self.S).reshape(self.h * self.w, self.S, self.h, self.w)
-        fc_k = ops.Conv2D(I, conv_kernel, pad=(conv_kernel.size(2) // 2, conv_kernel.size(3) // 2), group=self.S)
+        x = ops.eye(self.h * self.w).repeat_interleave(1, self.S).reshape(self.h * self.w, self.S, self.h, self.w)
+        fc_k = ops.Conv2D(x, conv_kernel, pad=(conv_kernel.size(2) // 2, conv_kernel.size(3) // 2), group=self.S)
         fc_k = fc_k.reshape(self.h * self.w, self.S * self.h * self.w).t()
         fc_bias = conv_bias.repeat_interleave(self.h * self.w)
         return fc_k, fc_bias
