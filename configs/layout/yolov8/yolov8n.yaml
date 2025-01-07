@@ -56,6 +56,7 @@ postprocess:
 metric:
   name: YOLOv8Metric
   annotations_path: *annotations_path
+  main_indicator: map
 
 loss:
   name: YOLOv8Loss
