@@ -279,25 +279,7 @@ python tools/eval.py --config configs/det/dbnet/db_r50_icdar15.yaml
 
 ## 性能表现
 
-### 通用泛化模型
-
-本节提供了一些通过泛化模型，该模型使用中文和英文两种语言训练，针对各种不同的任务和挑战，包括真实世界图片，街景图片，文档，弯曲文本，长文本等。这些模型可直接用于下游任务，也可直接作为预训练权重。
-
-这些模型在12个公开数据集上训练，包括CTW，LSVT，RCTW-17，TextOCR等，其中训练集包含153511张图片，验证集包含9786张图片。<br/>
-从上述数据集中手动选择598张未被训练集和验证集使用的图片构成测试集。
-
-在采用图模式的ascend 910*上实验结果，mindspore版本为2.3.1
-
-*即将到来*
-
-在采用图模式的ascend 910上实验结果，mindspore版本为2.3.1
-
-*即将到来*
-
-
-### 细分领域模型
-
-DBNet和DBNet++在ICDAR2015，MSRA-TD500，SCUT-CTW1500，Total-Text和MLT2017数据集上训练。另外，我们在SynthText数据集上进行了预训练，并提供预训练权重下载链接。所有训练结果如下：
+DBNet和DBNet++在ICDAR2015，MSRA-TD500，SCUT-CTW1500，Total-Text和MLT2017数据集上训练。另外，我们在ImageNet和SynthText数据集上进行了预训练，并提供预训练权重下载链接。所有训练结果如下：
 
 在采用图模式的ascend 910*上实验结果，mindspore版本为2.3.1
 

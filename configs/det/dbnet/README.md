@@ -299,29 +299,12 @@ python tools/eval.py -c=configs/det/dbnet/db_r50_icdar15.yaml
 
 ## Performance
 
-### General Purpose Models
-
-Here we present general purpose models that were trained on wide variety of tasks (real-world photos, street views, documents, etc.) and challenges (straight texts, curved texts, long text lines, etc.) with two primary languages: Chinese and English. These models can be used right off-the-shelf in your applications or for initialization of your models.
-
-The models were trained on 12 public datasets (CTW, LSVT, RCTW-17, TextOCR, etc.) that contain wide range of images. The training set has 153,511 images and the validation set has 9,786 images.<br/>
-The test set consists of 598 images manually selected from the above-mentioned datasets.
+DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total-Text, and MLT2017 datasets. In addition, we conducted pre-training on the ImageNet or SynthText dataset and provided a URL to download pretrained weights. All training results are as follows:
 
 Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode.
-
-*coming soon*
-
-Experiments are tested on ascend 910 with mindspore 2.3.1 graph mode.
-
-*coming soon*
-
-
-### Specific Purpose Models
-
-DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total-Text, and MLT2017 datasets. In addition, we conducted pre-training on the SynthText dataset and provided a URL to download pretrained weights. All training results are as follows:
 
 #### ICDAR2015
 
-Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode.
 
 | **model name** | **backbone** | **pretrained** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **recall** | **precision** | **f-score** |               **recipe**               |                                                 **weight**                                                 |
 | :------------: | :----------: | :------------: | :-------: | :------------: | :-----------: | :---------------: | :---------: | :-------: | :--------: | :-----------: | :---------: | :------------------------------------: | :--------------------------------------------------------------------------------------------------------: |
