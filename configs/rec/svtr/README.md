@@ -27,8 +27,6 @@ Dominant scene text recognition models commonly contain two building blocks, a v
 |   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
 
 
-
-
 ## Quick Start
 ### Preparation
 
@@ -172,7 +170,7 @@ eval:
   ...
 ```
 
-By running `tools/eval.py` as noted in section [Model Evaluation](#33-model-evaluation) with the above config yaml, you can get the accuracy performance on dataset CUTE80.
+By running `tools/eval.py` as noted in section [Model Evaluation](#model-evaluation) with the above config yaml, you can get the accuracy performance on dataset CUTE80.
 
 
 2. Evaluate on multiple datasets under the same folder
@@ -323,19 +321,6 @@ We use a public Chinese text benchmark dataset [Benchmarking-Chinese-Text-Recogn
 
 For detailed instruction of data preparation and yaml configuration, please refer to [ch_dataeset](../../../docs/en/datasets/chinese_text_recognition.md).
 
-### Training
-
-To train with the prepared datsets and config file, please run:
-
-```shell
-mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/svtr/svtr_tiny_ch.yaml
-```
-
-
-
-### Training with Custom Datasets
-You can train models for different languages with your own custom datasets. Loading the pretrained Chinese model to finetune on your own dataset usually yields better results than training from scratch. Please refer to the tutorial [Training Recognition Network with Custom Datasets](../../../docs/en/tutorials/training_recognition_custom_dataset.md).
-
 
 ## Performance
 
@@ -343,41 +328,29 @@ You can train models for different languages with your own custom datasets. Load
 
 Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode.
 
-*coming soon*
-
-Experiments are tested on ascend 910 with mindspore 2.3.1 graph mode.
-
 | **model name** | **cards** | **batch size** | **languages** | **jit level** | **graph compile** | **ms/step** | **img/s** | **scene** | **web** | **document** |                                                 **recipe**                                                 |                                                                                          **weight**                                                                                           |
-| :------------: | :-------: | :------------: | :-----------: | :-----------: | :---------------: | :---------: | :-------: | :-------: | :-----: | :----------: | :--------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-|   SVTR-Tiny    |     4     |      256       |    Chinese    |      O2       |      235.1 s      |    37.75    |   1580    |  65.93%   | 69.64%  |    98.01%    | [svtr_tiny_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4-3e495768.mindir) |
+| :------------: | :-------: | :------------: | :-----------: | :-----------: | :---------------: | :---------: | :-------: |:---------:|:-------:| :----------: | :--------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+|   SVTR-Tiny    |     4     |      256       |    Chinese    |      O2       |      235.1 s      |    37.75    |   1580    |  66.19%   | 69.66%  |    98.01%    | [svtr_tiny_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny_ch-2ee6ade4-3e495768.mindir) |
 
 ### Specific Purpose Models
 
 Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode.
 
-*coming soon*
-
-Experiments are tested on ascend 910 with mindspore 2.3.1 graph mode.
-
-| **model name** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |                                          **recipe**                                           |                                                                                                  **weight**                                                                                                   |
-| :------------: | :-------: | :------------: | :-----------: | :---------------: | :---------: | :-------: | :----------: | :-------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-|   SVTR-Tiny    |     4     |      512       |      O2       |     226.86 s      |    49.38    |   4560    |    90.23%    |  [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny.yaml)   |            [ckpt](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/svtr/svtr_tiny-950be1c3-86ece8c8.mindir)            |
-|  SVTR-Tiny-8P  |     8     |      512       |      O2       |     230.74 s      |    55.16    |   9840    |    90.32%    | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \| [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir) |
-
+| **model name** | **backbone** |  **train dataset**   | **params(M)** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |                                           **recipe**                                           |                                                                                                  **weight**                                                                                                   |
+|:--------------:|:------------:|:--------------------:|:-------------:|:---------:|:--------------:| :-----------: |:-----------------:|:-----------:|:---------:|:------------:|:----------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|  SVTR-Tiny-8P  |     Tiny     |        MJ+ST         |     60.24     |     8     |      512       |      O2       |     230.39 s      |   685.68    |  5973.61  |     90.29%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml)  | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \|  [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir) |
 
 Detailed accuracy results for each benchmark dataset:
 
-
-| **model name** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **average** |
-| :------------: | :----------: | :----------: | :----------: | :-----------: | :-----------: | :-----------: | :-------------: | :-----: | :------: | :--------: | :---------: |
-|   SVTR-Tiny    |    95.70%    |    95.50%    |    95.33%    |    93.99%     |    83.60%     |    79.83%     |     94.70%      | 91.96%  |  85.58%  |   86.11%   |   90.23%    |
-|  SVTR-Tiny-8P  |    95.93%    |    95.62%    |    95.33%    |    93.89%     |    84.32%     |    80.55%     |     94.33%      | 90.57%  |  86.20%  |   86.46%   |   90.32%    |
+| **model name** | **backbone** | **cards** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **average** |
+|:--------------:|:------------:|:---------:|:------------:|:------------:|:------------:|:-------------:|:-------------:|:-------------:|:---------------:|:-------:|:--------:|:----------:|:-----------:|
+|  SVTR-Tiny-8P  |     Tiny     |     1     |    95.93%    |    95.62%    |    95.33%    |    93.89%     |    84.32%     |    80.55%     |     94.30%      | 90.42%  |  86.05%  |   86.46%   |   90.29%    |
 
 
 ### Notes
 - To reproduce the result on other contexts, please ensure the global batch size is the same.
-- The characters supported by model are lowercase English characters from a to z and numbers from 0 to 9. More explanation on dictionary, please refer to [4. Character Dictionary](#4-character-dictionary).
-- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#312-dataset-download) section.
+- The characters supported by model are lowercase English characters from a to z and numbers from 0 to 9. More explanation on dictionary, please refer to [Character Dictionary](#character-dictionary).
+- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#dataset-usage) section.
 - The input Shapes of MindIR of RARE is (1, 3, 64, 256).
 
 

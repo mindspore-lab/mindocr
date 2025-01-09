@@ -5,7 +5,7 @@
 > [Read Like Humans: Autonomous, Bidirectional and Iterative Language
 Modeling for Scene Text Recognition](https://arxiv.org/pdf/2103.06495)
 
-## 1. Abstract
+## Abstract
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 Linguistic knowledge is of great benefit to scene text recognition. However, how to effectively model linguistic rules in end-to-end deep networks remains a research challenge. In this paper, we argue that the limited capacity of language models comes from: 1) implicitly language modeling; 2) unidirectional feature representation; and 3) language model with noise input. Correspondingly, we propose an autonomous, bidirectional and iterative ABINet for scene text recognition. Firstly, the autonomous suggests to block gradient flow between vision and language models to enforce explicitly language modeling. Secondly, a novel bidirectional cloze network (BCN) as the language model is proposed based on bidirectional feature representation. Thirdly, we propose an execution manner of iterative correction for language model which can effectively alleviate the impact of noise input. Additionally, based on the ensemble of iterative predictions, we propose a self-training method which can learn from unlabeled images effectively. Extensive experiments indicate that ABINet has superiority on low-quality images and achieves state-of-the-art results on several mainstream benchmarks. Besides, the ABINet trained with ensemble self-training shows promising improvement in realizing human-level recognition. [<a href="#references">1</a>]
 
@@ -18,51 +18,19 @@ Linguistic knowledge is of great benefit to scene text recognition. However, how
   <em> Figure 1. Architecture of ABINet [<a href="#references">1</a>] </em>
 </p>
 
-## 2. Results
-<!--- Guideline:
-Table Format:
-- Model: model name in lower case with _ seperator.
-- Top-1 and Top-5: Keep 2 digits after the decimal point.
-- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
-- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
-- Download: url of the pretrained model weights. Use absolute url path.
--->
+## Requirements
 
-### Accuracy
+| mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:-------------:|:-------------------:|
+|   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
 
-According to our experiments, the evaluation results on public benchmark datasets ( IC13, IC15, IIIT, SVT, SVTP, CUTE) is as follow:
+## Quick Start
+### Preparation
 
-<details>
-  <summary>Performance tested on ascend 910 with graph mode</summary>
-
-  <div align="center">
-
-  | **Model** | **Device** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
-  | :-----: |:----------:| :--------------: | :----------: | :--------: | :--------: |:----------: |
-  | ABINet      |     8p     | 91.35%    | 14,867 s/epoch       | 628.11 | [yaml](abinet_resnet45_en.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en-7efa1184.ckpt)
-  </div>
-
-  Detailed accuracy results for each benchmark dataset
-  <div align="center">
-
-  | **Model**  | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
-  | :------:  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-  | ABINet  | 96.22% | 95.83% | 96.48% | 94.90% | 84.38% | 80.56% | 95.83% | 92.36%| 87.33% | 89.58% | 91.35% |
-  </div>
-</details>
-
-
-**Notes:**
-- The input Shapes of MindIR of ABINet is (1, 3, 32, 128).
-
-
-## 3. Quick Start
-### 3.1 Preparation
-
-#### 3.1.1 Installation
+#### Installation
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
-#### 3.1.2 Dataset Download
+#### Dataset Download
 Please download LMDB dataset for traininig and evaluation from
   - `training` contains two datasets: [MJSynth (MJ)](https://pan.baidu.com/s/1mgnTiyoR8f6Cm655rFI4HQ) and [SynthText (ST)](https://pan.baidu.com/s/1mgnTiyoR8f6Cm655rFI4HQ)
   - `evaluation` contains several benchmarking datasets, which are [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset), [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf), and [CUTE](http://cs-chan.com/downloads_CUTE80_dataset.html).
@@ -99,7 +67,7 @@ data_lmdb_release/
 │       └── lock.mdb
 ```
 
-#### 3.1.3 Dataset Usage
+#### Dataset Usage
 
 Here we used the datasets under `train/` folders for **train**. After training, we used the datasets under `evaluation/` to evluation model accuracy.
 
@@ -200,7 +168,7 @@ data_lmdb_release/
 then you can evaluate on each dataset by modifying the config yaml as follows, and execute the script `tools/benchmarking/multi_dataset_eval.py`.
 
 
-#### 3.1.4 Check YAML Config Files
+#### Check YAML Config Files
 Apart from the dataset setting, please also check the following important args: `system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`,
 `eval.ckpt_load_path`, `eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.dataset.label_file`, `eval.loader.batch_size`. Explanations of these important args:
 
@@ -240,11 +208,11 @@ eval:
 ```
 
 **Notes:**
-- As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of NPUs, or adjust the learning rate linearly to a new global batch size.
+- As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of GPUs/NPUs, or adjust the learning rate linearly to a new global batch size.
 - Dataset: The MJSynth and SynthText datasets come from [ABINet_repo](https://github.com/FangShancheng/ABINet).
 
 
-### 3.2 Model Training
+### Model Training
 <!--- Guideline: Avoid using shell script in the command line. Python script preferred. -->
 
 * Distributed Training
@@ -256,7 +224,7 @@ It is easy to reproduce the reported results with the pre-defined training recip
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
 The pre-trained model needs to be loaded during ABINet model training, and the weight of the pre-trained model is
-from https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_pretrain_en-821ca20b.ckpt. It is needed to add the path of the pretrained weight to the model pretrained in "configs/rec/abinet/abinet_resnet45_en.yaml".
+from [abinet_pretrain_en.ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_pretrain_en-821ca20b.ckpt). It is needed to add the path of the pretrained weight to the model pretrained in "configs/rec/abinet/abinet_resnet45_en.yaml".
 
 * Standalone Training
 
@@ -269,7 +237,7 @@ python tools/train.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 
 The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir`. The default directory is `./tmp_rec`.
 
-### 3.3 Model Evaluation
+### Model Evaluation
 
 To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 
@@ -300,6 +268,42 @@ if not is_train:
         )
         drop_remainder = True
 ```
+## Results
+<!--- Guideline:
+Table Format:
+- Model: model name in lower case with _ seperator.
+- Top-1 and Top-5: Keep 2 digits after the decimal point.
+- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
+- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
+- Download: url of the pretrained model weights. Use absolute url path.
+-->
+
+### Accuracy
+
+According to our experiments, the evaluation results on public benchmark datasets ( IC13, IC15, IIIT, SVT, SVTP, CUTE) is as follow:
+
+<summary>Performance tested on ascend 910* with graph mode</summary>
+
+<div align="center">
+
+| **model name** | **backbone** | **train dataset** | **params(M)** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |            **recipe**            |                                            **weight**                                            |
+|:--------------:| :----------: |:-----------------:| :-----------: |:---------:| :------------: |:-------------:|:-----------------:|:-----------:|:---------:| :----------: |:--------------------------------:|:------------------------------------------------------------------------------------------------:|
+|     ABINet     |   Resnet45   |       MJ+ST       |     36.93     |     8     |       96       |      O2       |     680.51 s      |   115.56    |  6646.07  |    91.35%    | [yaml](abinet_resnet45_en.yaml)  | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en-7efa1184.ckpt)   |
+</div>
+
+  Detailed accuracy results for each benchmark dataset
+<div align="center">
+
+| **model name** | **backbone** | **cards** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
+|:--------------:|:------------:|:---------:|:------------:|:------------:|:------------:|:-------------:|:-------------:|:-------------:|:---------------:|:-------:|:--------:|:----------:|:-----------:|
+|    ABINet      |   Resnet45   |     1     |    96.22%    |    95.83%    |    96.48%    |    94.90%     |    84.38%     |    80.56%     |     95.83%      | 92.36%  |  87.33%  |   89.58%   |   91.35%    |
+</div>
+
+
+**Notes:**
+- The input Shapes of MindIR of ABINet is (1, 3, 32, 128).
+
+
 ## References
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 
