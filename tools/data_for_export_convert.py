@@ -90,13 +90,6 @@ data_converte_static_model_from_download_mindir = {
         "data_shape": "x:[1,3,720,1280]",
         "infer_shape_list": ["1,3,720,1280"],
     },
-    "fcenet_resnet50": {
-        "mindir_url": "https://download.mindspore.cn/toolkits/mindocr/fcenet/"
-        + "fcenet_resnet50-43857f7f-dad7dfcc.mindir",
-        "mindir_name": "fcenet_resnet50-43857f7f-dad7dfcc.mindir",
-        "data_shape": "x:[1,3,736,1280]",
-        "infer_shape_list": ["1,3,736,1280"],
-    },
     "psenet_mobilenetv3": {
         "mindir_url": "https://download.mindspore.cn/toolkits/mindocr/psenet/"
         + "psenet_mobilenetv3_ic15-bf2c1907-da7cfe09.mindir",
@@ -229,11 +222,6 @@ data_converte_static_model_from_exported_mindir = {
         "mindir_name": "east_resnet50.mindir",
         "infer_shape_list": ["1,3,720,1280"],
     },
-    "fcenet_resnet50": {
-        "data_shape": "args0:[1,3,736,1280]",
-        "mindir_name": "fcenet_resnet50.mindir",
-        "infer_shape_list": ["1,3,736,1280"],
-    },
     "psenet_mobilenetv3": {
         "data_shape": "args0:[1,3,736,1312]",
         "mindir_name": "psenet_mobilenetv3.mindir",
@@ -353,11 +341,6 @@ data_converte_dynamic_model_from_exported_mindir = {
         "mindir_name": "east_resnet50.mindir",
         "infer_shape_list": ["1,3,720,1280", "1,3,816,1211"],
     },
-    "fcenet_resnet50": {
-        "data_shape": "args0:[-1,3,-1,-1]",
-        "mindir_name": "fcenet_resnet50.mindir",
-        "infer_shape_list": ["1,3,736,1280"],
-    },
     "psenet_mobilenetv3": {
         "data_shape": "args0:[-1,3,-1,-1]",
         "mindir_name": "psenet_mobilenetv3.mindir",
@@ -421,7 +404,6 @@ data_export_static_model = {
     "dbnetpp_resnet50_ch_en": {"model_name": "dbnetpp_resnet50_ch_en", "data_shape_h_w": [1152, 2048]},
     "east_mobilenetv3": {"model_name": "east_mobilenetv3", "data_shape_h_w": [720, 1280]},
     "east_resnet50": {"model_name": "east_resnet50", "data_shape_h_w": [720, 1280]},
-    "fcenet_resnet50": {"model_name": "fcenet_resnet50", "data_shape_h_w": [736, 1280]},
     "psenet_mobilenetv3": {"model_name": "psenet_mobilenetv3", "data_shape_h_w": [736, 1312]},
     "psenet_resnet50": {"model_name": "psenet_resnet50", "data_shape_h_w": [736, 1312]},
     "psenet_resnet152": {"model_name": "psenet_resnet152", "data_shape_h_w": [1472, 2624]},
@@ -449,7 +431,6 @@ data_export_dynamic_model = {
     "dbnetpp_resnet50_ch_en": {"model_name": "dbnetpp_resnet50", "model_type": "det"},
     "east_mobilenetv3": {"model_name": "east_mobilenetv3", "model_type": "det"},
     "east_resnet50": {"model_name": "east_resnet50", "model_type": "det"},
-    "fcenet_resnet50": {"model_name": "fcenet_resnet50", "model_type": "det"},
     "psenet_mobilenetv3": {"model_name": "psenet_mobilenetv3", "model_type": "det"},
     "psenet_resnet50": {"model_name": "psenet_resnet50", "model_type": "det"},
     "psenet_resnet152": {"model_name": "psenet_resnet152", "model_type": "det"},
