@@ -179,7 +179,7 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
   <em> 文本检测、识别结果可视化 </em>
 </p>
 
-可以看到图像中的文字块均被检测出来并正确识别。更详细的用法介绍，请参考推理[教程](./README_CN.md#使用教程)。
+可以看到图像中的文字块均被检测出来并正确识别。更详细的用法介绍，请参考推理[教程](#使用教程)。
 
 ### 2. 模型训练、评估与推理-快速指南
 

@@ -211,7 +211,7 @@ python tools/eval.py \
     --opt eval.dataset_root={path/to/your_dataset} eval.ckpt_load_path={path/to/ckpt_file}
 ```
 
-For more illustration and usage, please refer to the model training section in [Tutorials](./README.md#tutorials).
+For more illustration and usage, please refer to the model training section in [Tutorials](#tutorials).
 
 ### 3. Model Offline Inference
 
