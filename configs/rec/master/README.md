@@ -5,7 +5,7 @@ English | [中文](https://github.com/mindspore-lab/mindocr/blob/main/configs/re
 
 > [MASTER: Multi-Aspect Non-local Network for Scene Text Recognition](https://arxiv.org/abs/1910.02562)
 
-## 1. Introduction
+## Introduction
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
 Attention-based scene text recognizers have gained huge success, which leverages a more compact intermediate representation to learn 1d- or 2d- attention by a RNN-based encoder-decoder architecture. However, such methods suffer from attention-drift problem because high similarity among encoded features leads to attention confusion under the RNN-based local attention mechanism. Moreover, RNN-based methods have low efficiency due to poor parallelization. To overcome these problems, this paper proposes the MASTER, a self-attention based scene text recognizer that (1) not only encodes the input-output attention but also learns self-attention which encodes feature-feature and target-target relationships inside the encoder and decoder and (2) learns a more powerful and robust intermediate representation to spatial distortion, and (3) owns a great training efficiency because of high training parallelization and a high-speed inference because of an efficient memory-cache mechanism. Extensive experiments on various benchmarks demonstrate the superior performance of MASTER on both regular and irregular scene text. [<a href="#references">1</a>]
@@ -18,54 +18,22 @@ Attention-based scene text recognizers have gained huge success, which leverages
   <em> Figure 1. Architecture of MASTER [<a href="#references">1</a>] </em>
 </p>
 
-## 2. Results
-<!--- Guideline:
-Table Format:
-- Model: model name in lower case with _ seperator.
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
-- Top-1 and Top-5: Keep 2 digits after the decimal point.
-- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
-- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
-- Download: url of the pretrained model weights. Use absolute url path.
--->
+## Requirements
 
-### Accuracy
-
-According to our experiments, the evaluation results on public benchmark datasets (IC03, IC13, IC15, IIIT, SVT, SVTP, CUTE) is as follow:
-
-<div align="center">
-
-| **Model** | **Context** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
-| :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |
-| Master-Resnet31  | D910x4-MS1.10-G | 90.37%  | 6356 s/epoch   | 2741  | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/master/master_resnet31.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31-e7bfbc97.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31_ascend-e7bfbc97-b724ed55.mindir) |
-</div>
-
-<details open markdown>
-  <div align="center">
-  <summary>Detailed accuracy results for each benchmark dataset</summary>
-
-  | **Model** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
-  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-  | Master-ResNet31| 95.58% | 95.15%  | 96.85% | 95.17% | 81.94% | 78.48% | 95.56% | 90.88% | 84.19% | 89.93% | 90.37% |
-  </div>
-</details>
-
-**Notes:**
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x4-MS1.10-G is for training on 4 pieces of Ascend 910 NPU using graph mode based on Minspore version 1.10.
-- To reproduce the result on other contexts, please ensure the global batch size is the same.
-- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#312-dataset-download) section.
-- The input Shapes of MindIR of MASTER is (1, 3, 48, 160).
+| mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:-------------:|:-------------------:|
+|   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
 
 
-## 3. Quick Start
-### 3.1 Preparation
+## Quick Start
+### Preparation
 
-#### 3.1.1 Installation
+#### Installation
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
-#### 3.1.2 Dataset Preparation
+#### Dataset Preparation
 
-##### 3.1.2.1 MJSynth, validation and evaluation dataset
+##### MJSynth, validation and evaluation dataset
 Part of the lmdb dataset for training and evaluation can be downloaded from [here](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (ref: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here)). There're several zip files:
 - `data_lmdb_release.zip` contains the datasets including training data, validation data and evaluation data.
     - `training/` contains two datasets: [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and [SynthText (ST)](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c). *Here we use **MJSynth only**.*
@@ -74,7 +42,7 @@ Part of the lmdb dataset for training and evaluation can be downloaded from [her
 - `validation.zip`: same as the validation/ within data_lmdb_release.zip
 - `evaluation.zip`: same as the evaluation/ within data_lmdb_release.zip
 
-##### 3.1.2.2 SynthText dataset
+##### SynthText dataset
 
 For `SynthText`, we do not use the given LMDB dataset in `data_lmdb_release.zip`, since it only contains part of the cropped images. Please download the raw dataset from [here](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c) and prepare the LMDB dataset using the following command
 
@@ -88,7 +56,7 @@ python tools/dataset_converters/convert.py \
 ```
 the `ST_full` contained the full cropped images of SynthText in LMDB data format. Please replace the `ST` folder with the `ST_full` folder.
 
-##### 3.1.2.3 SynthAdd dataset
+##### SynthAdd dataset
 
 Please download the **SynthAdd** Dataset from [here](https://pan.baidu.com/s/1uV0LtoNmcxbO-0YA7Ch4dg) (code: 627x). This dataset is proposed in <https://arxiv.org/abs/1811.00751>. Please prepare the corresponding LMDB dataset using the following command
 
@@ -102,7 +70,7 @@ python tools/dataset_converters/convert.py \
 
 Please put the `SynthAdd` folder in `/training` directory.
 
-#### 3.1.3 Dataset Usage
+#### Dataset Usage
 
 Finally, the data structure should like this.
 
@@ -219,7 +187,7 @@ eval:
   ...
 ```
 
-By running `tools/eval.py` as noted in section [Model Evaluation](#33-model-evaluation) with the above config yaml, you can get the accuracy performance on dataset CUTE80.
+By running `tools/eval.py` as noted in section [Model Evaluation](#model-evaluation) with the above config yaml, you can get the accuracy performance on dataset CUTE80.
 
 
 2. Evaluate on multiple datasets under the same folder
@@ -259,7 +227,7 @@ eval:
   ...
 ```
 
-#### 3.1.4 Check YAML Config Files
+#### Check YAML Config Files
 Apart from the dataset setting, please also check the following important args: `system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`,
 `eval.ckpt_load_path`, `eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.dataset.label_file`, `eval.loader.batch_size`. Explanations of these important args:
 
@@ -270,7 +238,7 @@ system:
   amp_level_infer: "O2"
   seed: 42
   val_while_train: True                                               # Validate while training
-  drop_overflow_update: False
+  drop_overflow_update: True
 common:
   ...
   batch_size: &batch_size 512                                         # Batch size for training
@@ -301,7 +269,7 @@ eval:
 - As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of GPUs/NPUs, or adjust the learning rate linearly to a new global batch size.
 
 
-### 3.2 Model Training
+### Model Training
 <!--- Guideline: Avoid using shell script in the command line. Python script preferred. -->
 
 * Distributed Training
@@ -325,7 +293,7 @@ python tools/train.py --config configs/rec/master/master_resnet31.yaml
 
 The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir`. The default directory is `./tmp_rec`.
 
-### 3.3 Model Evaluation
+### Model Evaluation
 
 To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 
@@ -333,7 +301,46 @@ To evaluate the accuracy of the trained model, you can use `eval.py`. Please set
 python tools/eval.py --config configs/rec/master/master_resnet31.yaml
 ```
 
-## 4. Character Dictionary
+## Results
+<!--- Guideline:
+Table Format:
+- Model: model name in lower case with _ seperator.
+- Top-1 and Top-5: Keep 2 digits after the decimal point.
+- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
+- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
+- Download: url of the pretrained model weights. Use absolute url path.
+-->
+
+### Accuracy
+
+According to our experiments, the evaluation results on public benchmark datasets (IC03, IC13, IC15, IIIT, SVT, SVTP, CUTE) is as follow:
+
+<div align="center">
+
+| **model name**  | **backbone** |  **train dataset**  | **params(M)** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |                                             **recipe**                                              |                                                                                                   **weight**                                                                                                    |
+|:---------------:|:------------:|:-------------------:|:-------------:|:---------:| :------------: | :-----------: |:-----------------:|:-----------:|:---------:|:------------:|:---------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| Master-Resnet31 |   Resnet31   |   MJ+ST+SyAythAdd   |     68.23     |     4     |       16       |      O2       |     194.99 s      |   642.164   |  3189.22  |    90.34%    | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/master/master_resnet31.yaml)  | [ckpt](https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31-e7bfbc97.ckpt) \|  [mindir](https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31_ascend-e7bfbc97-b724ed55.mindir) |
+
+</div>
+
+<details open markdown>
+  <div align="center">
+  <summary>Detailed accuracy results for each benchmark dataset</summary>
+  
+| **model name** | **backbone** | **cards** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **average** |
+|:--------------:| :----------: | :-------: |:------------:|:------------:|:------------:|:-------------:|:-------------:|:-------------:|:---------------:|:-------:|:--------:|:----------:|:-----------:|
+|Master-ResNet31 |   ResNet31   |     1     |    93.72%    |    95.16%    |    96.85%    |    95.17%     |    81.94%     |    78.48%     |     95.57%      | 90.88%  |  84.19%  |   89.58%   |   90.34%    |
+
+  </div>
+</details>
+
+**Notes:**
+- To reproduce the result on other contexts, please ensure the global batch size is the same.
+- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#dataset-usage) section.
+- The input Shapes of MindIR of MASTER is (1, 3, 48, 160).
+
+
+## Character Dictionary
 
 ### Default Setting
 
@@ -360,11 +367,11 @@ To use a specific dictionary, set the parameter `character_dict_path` to the pat
 - Remember to check the value of `dataset->transform_pipeline->RecMasterLabelEncode->lower` in the configuration yaml. Set it to False if you prefer case-sensitive encoding.
 
 
-## 5. MindSpore Lite Inference
+## MindSpore Lite Inference
 
 To inference with MindSpot Lite on Ascend 310, please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial.md). In short, the whole process consists of the following steps:
 
-**1. Model Export**
+**Model Export**
 
 Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../README.md) tutorial and use the following command to export the trained ckpt model to  MindIR file:
 
@@ -377,16 +384,16 @@ python tools/export.py --model_name_or_config configs/rec/master/master_resnet31
 The `data_shape` is the model input shape of height and width for MindIR file. The shape value of MindIR in the download link can be found in [Notes](#2-results) under results table.
 
 
-**2. Environment Installation**
+**Environment Installation**
 
 Please refer to [Environment Installation](../../../docs/en/inference/environment.md#2-mindspore-lite-inference) tutorial to configure the MindSpore Lite inference environment.
 
-**3. Model Conversion**
+**Model Conversion**
 
 Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#1-mindocr-models),
 and use the `converter_lite` tool for offline conversion of the MindIR file.
 
-**4. Inference**
+**Inference**
 
 Assuming that you obtain output.mindir after model conversion, go to the `deploy/py_infer` directory, and use the following command for inference:
 

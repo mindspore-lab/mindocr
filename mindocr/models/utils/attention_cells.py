@@ -27,6 +27,23 @@ class MultiHeadAttention(nn.Cell):
 
         self.matmul = ops.BatchMatMul()
 
+        self.min_fp16 = ms.tensor(np.finfo(np.float16).min, dtype=ms.float16)
+        self.min_fp32 = ms.tensor(np.finfo(np.float32).min, dtype=ms.float32)
+        self.min_fp64 = ms.tensor(np.finfo(np.float64).min, dtype=ms.float64)
+        self.min_bf16 = ms.tensor(float.fromhex("-0x1.fe00000000000p+127"), dtype=ms.bfloat16)
+
+    def dtype_to_min(self, dtype):
+        if dtype == ms.float16:
+            return self.min_fp16
+        if dtype == ms.float32:
+            return self.min_fp32
+        if dtype == ms.float64:
+            return self.min_fp64
+        if dtype == ms.bfloat16:
+            return self.min_bf16
+        else:
+            raise ValueError(f"Only support get minimum value of (float16, ), but got {dtype}")
+
     def dot_product_attention(
         self, query: Tensor, key: Tensor, value: Tensor, mask: Optional[Tensor] = None
     ) -> Tuple[Tensor, Tensor]:
@@ -37,7 +54,7 @@ class MultiHeadAttention(nn.Cell):
 
         if mask is not None:
             score = ops.masked_fill(
-                score, mask == 0, ms.Tensor(-np.inf, score.dtype)
+                score, mask == 0, self.dtype_to_min(score.dtype)
             )  # score (N, h, seq_len, seq_len)
 
         p_attn = ops.softmax(score, axis=-1)
