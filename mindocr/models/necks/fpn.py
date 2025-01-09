@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
 from mindspore import Tensor, nn, ops
-from mindspore.common.initializer import TruncatedNormal, XavierUniform
+from mindspore.common.initializer import TruncatedNormal
 
 from ...utils.misc import is_ms_version_2
 from ..utils.attention_cells import SEModule
