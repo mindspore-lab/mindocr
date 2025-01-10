@@ -2,9 +2,9 @@ English | [中文](README_CN.md)
 
 # MobileNetV3 for text direction classification
 
-## 1. Introduction
+## Introduction
 
-### 1.1 MobileNetV3: [Searching for MobileNetV3](https://arxiv.org/abs/1905.02244)
+### MobileNetV3: [Searching for MobileNetV3](https://arxiv.org/abs/1905.02244)
 
 MobileNetV3[[1](#references)] was published in 2019, which combines the deep separable convolution of V1, the Inverted Residuals and Linear Bottleneck of V2, and the SE (Squeeze and Excitation) module to search the configuration and parameters of the network using NAS (Neural Architecture Search). MobileNetV3 first uses MnasNet to perform a coarse structure search, and then uses reinforcement learning to select the optimal configuration from a set of discrete choices. Besides, MobileNetV3 fine-tunes the architecture using NetAdapt. Overall, MobileNetV3 is a lightweight network having good performance in classification, detection and segmentation tasks.
 
@@ -16,7 +16,7 @@ MobileNetV3[[1](#references)] was published in 2019, which combines the deep sep
 </p>
 
 
-### 1.2 Text direction classifier
+### Text direction classifier
 
 The text directions in some images are revered, so that the text cannot be regconized correctly. Therefore. we use a text direction classifier to classify and rectify the text direction. The MobileNetV3 paper releases two versions of MobileNetV3: *MobileNetV3-Large* and *MobileNetV3-Small*. Taking the tradeoff between efficiency and accuracy, we adopt the *MobileNetV3-Small* as the text direction classifier.
 
@@ -32,7 +32,7 @@ Currently we support the 0 and 180 degree classification. You can update the par
 </div>
 
 
-## 2. Results
+## Results
 
 | mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
 |:---------:|:---------------:|:------------:|:-------------------:|
@@ -51,13 +51,13 @@ Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode
 
 
 
-## 3. Quick Start
+## Quick Start
 
-### 3.1 Installation
+### Installation
 
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
-### 3.2 Dataset preparation
+### Dataset preparation
 
 Please download [RCTW17](https://rctw.vlrlab.net/dataset), [MTWI](https://tianchi.aliyun.com/competition/entrance/231684/introduction), and [LSVT](https://rrc.cvc.uab.es/?ch=16&com=introduction) datasets, and then process the images and labels in desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
 
@@ -77,7 +77,7 @@ The prepared dataset file struture is suggested to be as follows.
 > If you want to use your own dataset for training, please convert the images and labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
 
 
-### 3.3 Update yaml config file
+### Update yaml config file
 
 Update the dataset directories in yaml config file. The `dataset_root` will be concatenated with `data_dir` and `label_file` respectively to be the complete image directory and label file path.
 
@@ -120,7 +120,7 @@ model:
 ```
 
 
-### 3.4 Evaluation
+### Evaluation
 
 Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be `False`, and then run:
 

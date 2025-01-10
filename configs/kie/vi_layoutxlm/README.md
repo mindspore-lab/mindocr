@@ -5,7 +5,7 @@ English| [中文](README_CN.md)
 
 > [LayoutXLM: Multimodal Pre-training for Multilingual Visually-rich Document Understanding](https://arxiv.org/abs/2104.08836)
 
-## 1. Introduction
+## Introduction
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 ****
 LayoutXLM is the multilingual version of LayoutLMv2[<a href="#References">2</a>]. Unlike the original LayoutLM, which integrates image embeddings during the fine-tuning stage, LayoutXLM integrates visual information during the pre-training stage and utilizes a Transformer architecture to learn cross-modal interactions between text and images. Additionally, inspired by 1-D relative positional representation, the paper proposes a spatial-aware self-attention mechanism, which provides 2-D relative positional representation for token pairs. Unlike using absolute 2-D position embeddings to model document layout, relative positional embeddings can provide a larger receptive field for modeling contextual spatial relationships clearly.
@@ -40,7 +40,7 @@ After obtaining αij from the original self-attention layer, considering the lar
   <em> Figure 1. LayoutXLM(LayoutLMv2) architecture [<a href="#References">1</a>] </em>
 </p>
 
-## 2. Results
+## Results
 <!--- Guideline:
 Table Format:
 - Model: model name in lower case with _ seperator.
@@ -71,13 +71,13 @@ Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode
 
 
 
-## 3. Quick Start
-### 3.1 Preparation
+## Quick Start
+### Preparation
 
-#### 3.1.1 Installation
+#### Installation
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
-#### 3.1.2 Dataset Download
+#### Dataset Download
 
 [The XFUND dataset](https://github.com/doc-analysis/XFUND) is used as the experimental dataset. The XFUND dataset is a multilingual dataset proposed by Microsoft for the Knowledge-Intensive Extraction (KIE) task. It consists of seven datasets, each containing 149 training samples and 50 validation samples.
 
@@ -92,7 +92,7 @@ wget https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/XFUND.tar && ta
 cd ..
 ```
 
-#### 3.1.3 Dataset Usage
+#### Dataset Usage
 
 After decompression, the data folder structure is as follows:
 
@@ -134,7 +134,7 @@ The annotation format of this dataset is:
 ```
 
 
-### 3.2 Model Evaluation
+### Model Evaluation
 
 To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 
@@ -143,7 +143,7 @@ python tools/eval.py --config configs/kie/vi_layoutxlm/ser_vi_layoutxlm_xfund_zh
 ```
 
 
-### 3.3 Model Inference
+### Model Inference
 
 To perform inference using a pre-trained model, you can utilize `tools/infer/text/predict_ser.py` for inference and visualize the results.
 

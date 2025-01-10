@@ -7,7 +7,7 @@
 
 > [Original Repo](https://github.com/microsoft/unilm/tree/master/layoutlmv3)
 
-## 1. 模型描述
+## 模型描述
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
 不同于以往的LayoutLM系列模型，在模型架构设计上，LayoutLMv3 不依赖复杂的 CNN 或 Faster R-CNN 网络来表征图像，而是直接利用文档图像的图像块，从而大大节省了参数并避免了复杂的文档预处理（如人工标注目标区域框和文档目标检测）。简单的统一架构和训练目标使 LayoutLMv3 成为通用的预训练模型，可适用于以文本为中心和以图像为中心的文档 AI 任务。
@@ -30,19 +30,19 @@ LayoutLMv3 还应用了文本——图像多模态 Transformer 架构来学习�
 </p>
 
 
-## 2. 快速开始
+## 快速开始
 
-### 2.1 环境及数据准备
+### 环境及数据准备
 
 | mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
 |:---------:|:---------------:|:------------:|:-------------------:|
 |   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
 |   2.4.0   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC3.beta1    |
 
-#### 2.1.1 安装
+#### 安装
 环境安装教程请参考MindOCR的 [installation instruction](https://github.com/mindspore-lab/mindocr#installation).
 
-#### 2.1.2 PubLayNet数据集准备
+#### PubLayNet数据集准备
 
 PubLayNet是一个用于文档布局分析的数据集。它包含研究论文和文章的图像，以及页面中各种元素的注释，如这些研究论文图像中的“文本”、“列表”、“图形”等。该数据集是通过自动匹配PubMed Central上公开的100多万篇PDF文章的XML表示和内容而获得的。
 
@@ -57,7 +57,7 @@ python tools/dataset_converters/convert.py \
 
 下载完成后，可以使用上述MindOCR提供的脚本将数据转换为layoutlmv3输入格式的数据类型。
 
-### 2.2 模型转换
+### 模型转换
 
 注：启动转换脚本前请安装torch
 ```bash
@@ -73,10 +73,10 @@ python tools/param_converter_from_torch.py \
     --output_path /path/to/layoutlmv3-base-finetuned-publaynet/from_torch.ckpt
 ```
 
-### 2.3 模型评估
+### 模型评估
 
 ```bash
-python tools/eval.py --config configs/layout/layoutlmv3/layoutlmv3_publaybet.yaml
+python tools/eval.py --config configs/layout/layoutlmv3/layoutlmv3_publaynet.yaml
 ```
 在公开基准数据集（PublayNet）上的-评估结果如下：
 
@@ -88,7 +88,7 @@ python tools/eval.py --config configs/layout/layoutlmv3/layoutlmv3_publaybet.yam
 | LayoutLMv3     | 1         | 1              | 2.7       | 94.3%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/layoutlmv3/layoutlmv3_publaynet.yaml) |
 </div>
 
-### 2.4 模型推理
+### 模型推理
 
 ```bash
 python tools/infer/text/predict_layout.py  \

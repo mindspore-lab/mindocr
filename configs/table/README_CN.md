@@ -5,7 +5,7 @@
 
 > [TableMaster: PINGAN-VCGROUP’S SOLUTION FOR ICDAR 2021 COMPETITION ON SCIENTIFIC LITERATURE PARSING TASK B: TABLE RECOGNITION TO HTML](https://arxiv.org/pdf/2105.01848.pdf)
 
-## 1. 模型描述
+## 模型描述
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
 TableMaster是一种用于表格识别的模型，其独特之处在于能够同时训练得到单元格内的文字块位置和表格结构。传统的表格识别方法通常先回归出单元格的坐标，然后根据坐标获取表格的行列信息。然而，对于无表格线的情况，直接获取单元格位置或表格线信息变得困难。TableMaster提出了一种新的解决思路，采用超文本标记语言(HTML)作为预测目标，在训练过程中同时学习单元格内的文字块位置和表格结构。
@@ -21,7 +21,7 @@ TableMaster是一种用于表格识别的模型，其独特之处在于能够同
   <em> 图1. TableMaster整体架构图 [<a href="#参考文献">1</a>] </em>
 </p>
 
-## 2. 实验结果
+## 实验结果
 
 | mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
 |:---------:|:---------------:|:------------:|:-------------------:|
@@ -42,13 +42,13 @@ TableMaster是一种用于表格识别的模型，其独特之处在于能够同
 - 链接中MindIR导出时的输入Shape为`(1,3,480,480)` 。
 
 
-## 3. 快速上手
+## 快速上手
 
-### 3.1 安装
+### 安装
 
 请参考MindOCR套件的[安装指南](https://github.com/mindspore-lab/mindocr#installation) 。
 
-### 3.2 数据准备
+### 数据准备
 
 请从[该网址](https://github.com/ibm-aur-nlp/PubTabNet)下载PubTabNet数据集，对zip文件进行解压，并根据标注文件`PubTabNet_2.0.0.jsonl`中的`split`字段将数据划分为训练集和验证集。
 
@@ -74,7 +74,7 @@ PubTabNet
 └── PubTabNet_2.0.0_val.jsonl
 ```
 
-### 3.3 配置说明
+### 配置说明
 
 在配置文件`configs/table/table_master.yaml`中更新如下文件路径。其中`dataset_root`为训练集图片文件夹目录，`label_file_list`为训练集标签文件路径列表，可包含多个标签文件路径。
 
@@ -129,7 +129,7 @@ model:
     loc_reg_num: &loc_reg_num 4
 ```
 
-### 3.4 训练
+### 训练
 
 * 单卡训练
 
@@ -151,7 +151,7 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/table/tab
 
 训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为`./tmp_table`。
 
-### 3.5 评估
+### 评估
 
 评估环节，在yml配置文件中将`ckpt_load_path`参数配置为checkpoint文件的路径，设置`distribute`为False，然后运行：
 
