@@ -5,7 +5,7 @@ English | [中文](https://github.com/mindspore-lab/mindocr/blob/main/configs/la
 
 > [YOLOv8: You Only Look Once Version 8](https://github.com/ultralytics/ultralytics)
 
-## 1. Introduction
+## Introduction
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
 YOLOv8 is the latest version of YOLO by Ultralytics. As a cutting-edge, state-of-the-art (SOTA) model, YOLOv8 builds on the success of previous versions, introducing new features and improvements for enhanced performance, flexibility, and efficiency. YOLOv8 supports a full range of vision AI tasks, including detection, segmentation, pose estimation, tracking, and classification. This versatility allows users to leverage YOLOv8's capabilities across diverse applications and domains.
@@ -17,7 +17,7 @@ In order to adapt to the layout analysis task, we have made some improvements to
 
 ![](images/yolov8_structure.jpeg)
 
-## 2. Results
+## Results
 | mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
 |:---------:|:---------------:|:------------:|:-------------------:|
 |   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
@@ -40,17 +40,17 @@ Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode
 - The input Shapes of MindIR of YOLOv8 is (1, 3, 800, 800).
 
 
-## 3. Quick Start
-### 3.1 Preparation
+## Quick Start
+### Preparation
 
-#### 3.1.1 Installation
+#### Installation
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
-#### 3.1.2 PubLayNet Dataset Preparation
+#### PubLayNet Dataset Preparation
 
 PubLayNet is a dataset for document layout analysis. It contains images of research papers and articles and annotations for various elements in a page such as "text", "list", "figure" etc in these research paper images. The dataset was obtained by automatically matching the XML representations and the content of over 1 million PDF articles that are publicly available on PubMed Central.
 
-#### 3.1.3 Check YAML Config Files
+#### Check YAML Config Files
 Apart from the dataset setting, please also check the following important args: `system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_path`, `eval.ckpt_load_path`, `eval.dataset.dataset_path`, `eval.loader.batch_size`. Explanations of these important args:
 
 ```yaml
@@ -90,7 +90,7 @@ eval:
 - As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of NPUs, or adjust the learning rate linearly to a new global batch size.
 
 
-### 3.2 Model Training
+### Model Training
 <!--- Guideline: Avoid using shell script in the command line. Python script preferred. -->
 
 * Distributed Training
@@ -114,7 +114,7 @@ python tools/train.py --config configs/layout/yolov8/yolov8n.yaml
 
 The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir`. The default directory is `./tmp_layout`.
 
-### 3.3 Model Evaluation
+### Model Evaluation
 
 To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 
@@ -122,7 +122,7 @@ To evaluate the accuracy of the trained model, you can use `eval.py`. Please set
 python tools/eval.py --config configs/layout/yolov8/yolov8n.yaml
 ```
 
-## 4. MindSpore Lite Inference
+## MindSpore Lite Inference
 
 To inference with MindSpot Lite on Ascend 310, please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial.md). In short, the whole process consists of the following steps:
 
@@ -157,7 +157,7 @@ python infer.py \
     --res_save_dir=results_dir
 ```
 
-## 6. Visualization
+## Visualization
 
 The inference results can be visualized using the following code:
 

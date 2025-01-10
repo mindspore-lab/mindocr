@@ -5,7 +5,7 @@
 
 > [YOLOv8: You Only Look Once Version 8](https://github.com/ultralytics/ultralytics)
 
-## 1. 模型描述
+## 模型描述
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
 YOLOv8 是Ultralytics的YOLO的最新版本。作为一种前沿、最先进(SOTA)的模型，YOLOv8在之前版本的成功基础上引入了新功能和改进，以提高性能、灵活性和效率。YOLOv8支持多领域的视觉AI任务，包括检测、分割、姿态估计、跟踪和分类。这种多功能性使用户能够利用YOLOv8的功能应对多种应用和领域的需求。
@@ -21,7 +21,7 @@ YOLOv8 是Ultralytics的YOLO的最新版本。作为一种前沿、最先进(SOT
 ![](images/yolov8_structure.jpeg)
 
 
-## 2. 评估结果
+## 评估结果
 
 
 | mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
@@ -43,13 +43,13 @@ YOLOv8 是Ultralytics的YOLO的最新版本。作为一种前沿、最先进(SOT
 - 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[PubLayNet数据集准备](#3.1.2 PubLayNet数据集准备)章节。
 - YOLOv8的MindIR导出时的输入Shape均为(1, 3, 800, 800)。
 
-## 3. 快速开始
-### 3.1 环境及数据准备
+## 快速开始
+### 环境及数据准备
 
-#### 3.1.1 安装
+#### 安装
 环境安装教程请参考MindOCR的 [installation instruction](https://github.com/mindspore-lab/mindocr#installation).
 
-#### 3.1.2 PubLayNet数据集准备
+#### PubLayNet数据集准备
 
 PubLayNet是一个用于文档布局分析的数据集。它包含研究论文和文章的图像，以及页面中各种元素的注释，如这些研究论文图像中的“文本”、“列表”、“图形”等。该数据集是通过自动匹配PubMed Central上公开的100多万篇PDF文章的XML表示和内容而获得的。
 
@@ -64,7 +64,7 @@ python tools/dataset_converters/convert.py \
 
 下载完成后，可以使用上述MindOCR提供的脚本将数据转换为YOLOv8输入格式的数据类型。
 
-#### 3.1.3 检查配置文件
+#### 检查配置文件
 除了数据集的设置，请同时重点关注以下变量的配置：`system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_path`, `eval.ckpt_load_path`, `eval.dataset.dataset_path`, `eval.loader.batch_size`。说明如下：
 
 ```yaml
@@ -104,7 +104,7 @@ eval:
 - 由于全局批大小 （batch_size x num_devices） 对结果复现很重要，因此当NPU卡数发生变化时，调整`batch_size`以保持全局批大小不变，或根据新的全局批大小线性调整学习率。
 
 
-### 3.2 模型训练
+### 模型训练
 <!--- Guideline: Avoid using shell script in the command line. Python script preferred. -->
 
 * 分布式训练
@@ -128,7 +128,7 @@ python tools/train.py --config configs/layout/yolov8/yolov8n.yaml
 
 训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的目录下，默认为`./tmp_layout`。
 
-### 3.3 模型评估
+### 模型评估
 
 若要评估已训练模型的准确性，可以使用`eval.py`。请在yaml配置文件的`eval`部分将参数`ckpt_load_path`设置为模型checkpoint的文件路径，设置`distribute`为False，然后运行：
 
@@ -137,7 +137,7 @@ python tools/eval.py --config configs/layout/yolov8/yolov8n.yaml
 ```
 
 
-## 4. MindSpore Lite 推理
+## MindSpore Lite 推理
 
 请参考[MindOCR 推理](../../../docs/zh/inference/inference_tutorial.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
 
@@ -171,7 +171,7 @@ python infer.py \
     --res_save_dir=results_dir
 ```
 
-## 6. 可视化
+## 可视化
 
 可以使用以下代码将推理结果进行可视化：
 

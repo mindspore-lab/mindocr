@@ -5,7 +5,7 @@
 
 > [LayoutXLM: Multimodal Pre-training for Multilingual Visually-rich Document Understanding](https://arxiv.org/abs/2104.08836)
 
-## 1. 模型描述
+## 模型描述
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
 LayoutXLM是LayoutLMv2[<a href="#参考文献">2</a>]的多语言版本，与初版LayoutLM（图像embedding在fine-tune阶段融合）不同，LayoutXLM在预训练阶段就整合视觉信息，并利用Transformer架构学习文本和图像的跨模态交互信息。此外，受到1-D相对位置表征的启发，论文提出spatial-aware self-attention（空间感知自注意力）机制，对token pair进行2-D相对位置表征。与利用绝对2-D位置embedding建模文档布局不同的是，相对位置embedding能够清晰地为上下文空间建模提供更大的感受野。
@@ -35,7 +35,7 @@ Encoder concat视觉embedding和文本embedding到一个统一的序列，并与
   <em> 图1. LayoutXLM(LayoutLMv2)架构图 [<a href="#参考文献">1</a>] </em>
 </p>
 
-## 2. 评估结果
+## 评估结果
 
 | mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
 |:---------:|:---------------:|:------------:|:-------------------:|
@@ -54,13 +54,13 @@ Encoder concat视觉embedding和文本embedding到一个统一的序列，并与
 
 
 
-## 3. 快速开始
-### 3.1 环境及数据准备
+## 快速开始
+### 环境及数据准备
 
-#### 3.1.1 安装
+#### 安装
 环境安装教程请参考MindOCR的 [installation instruction](https://github.com/mindspore-lab/mindocr#installation).
 
-#### 3.1.2 数据集下载
+#### 数据集下载
 这里使用[XFUND数据集](https://github.com/doc-analysis/XFUND)做为实验数据集。 XFUN数据集是微软提出的一个用于KIE任务的多语言数据集，共包含七个数据集，每个数据集包含149张训练集和50张验证集
 
 分别为：ZH(中文)、JA(日语)、ES(西班牙)、FR(法语)、IT(意大利)、DE(德语)、PT(葡萄牙)
@@ -74,7 +74,7 @@ wget https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/XFUND.tar && ta
 cd ..
 ```
 
-#### 3.1.3 数据集使用
+#### 数据集使用
 
 解压文件后，数据文件夹结构如下：
 
@@ -116,7 +116,7 @@ cd ..
 ```
 
 
-### 3.2 模型评估
+### 模型评估
 
 若要评估已训练模型的准确性，可以使用`eval.py`。请在yaml配置文件的`eval`部分将参数`ckpt_load_path`设置为模型checkpoint的文件路径，然后运行：
 
@@ -125,7 +125,7 @@ python tools/eval.py --config configs/kie/vi_layoutxlm/ser_vi_layoutxlm_xfund_zh
 ```
 
 
-### 3.3 模型推理
+### 模型推理
 
 若要使用已训练的模型进行推理，可使用`tools/infer/text/predict_ser.py`进行推理并将结果进行可视化展示。
 
