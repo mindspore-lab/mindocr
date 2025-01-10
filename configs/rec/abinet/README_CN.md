@@ -175,7 +175,7 @@ eval:
     # label_file:                                                     # 验证或评估数据集的标签文件路径，将与`dataset_root`拼接形成完整的验证或评估数据的标签文件路径。当数据集为LMDB格式时无需配置
   ...
 ```
-通过使用上述配置 yaml 运行 [模型评估](#33-model-evaluation) 部分中所述的`tools/eval.py`，您可以获得数据集 CUTE80 的准确度性能。
+通过使用上述配置 yaml 运行 [模型评估](#33-模型评估) 部分中所述的`tools/eval.py`，您可以获得数据集 CUTE80 的准确度性能。
 
 2.对同一文件夹下的多个数据集进行评估
 
@@ -268,7 +268,7 @@ eval:
 # 在多个 Ascend 设备上进行分布式训练
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
-ABINet模型训练时需要加载预训练模型，预训练模型的权重来自https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_pretrain_en-821ca20b.ckpt，需要在“configs/rec/abinet/abinet_resnet45_en.yaml”中model的pretrained添加预训练权重的路径。
+ABINet模型训练时需要加载预训练模型，预训练模型的权重来自<https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_pretrain_en-821ca20b.ckpt>，需要在“configs/rec/abinet/abinet_resnet45_en.yaml”中model的pretrained添加预训练权重的路径。
 
 * 单卡训练
 
@@ -291,29 +291,6 @@ python tools/train.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 python tools/eval.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
 
-**注意:**
-- 由于mindspore.nn.transformer在定义时需要固定的批处理大小，因此在选择val_while_train=True时，有必要确保验证集的批处理大小与模型的批处理大小相同。
-- 所以， minocr.data.builder.py中的第179-185行
-```
-if not is_train:
-    if drop_remainder and is_main_device:
-        _logger.warning(
-            "`drop_remainder` is forced to be False for evaluation "
-            "to include the last batch for accurate evaluation."
-        )
-        drop_remainder = False
-
-```
-应该被改为
-```
-if not is_train:
-    # if drop_remainder and is_main_device:
-        _logger.warning(
-            "`drop_remainder` is forced to be False for evaluation "
-            "to include the last batch for accurate evaluation."
-        )
-        drop_remainder = True
-```
 ## 参考文献
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 

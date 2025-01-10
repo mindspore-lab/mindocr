@@ -6,7 +6,7 @@
 
 在您首次向 MindOCR 社区提交代码之前，需要签署 CLA。
 
-对于个人贡献者，请参阅[ICLA在线文档]（https://www.mindspore.cn/icla）以获取详细信息。
+对于个人贡献者，请参阅[ICLA在线文档](https://www.mindspore.cn/icla)以获取详细信息。
 
 ## 贡献类型
 
@@ -46,7 +46,7 @@ MindOCR总是可以使用更多的文档，无论是作为官方MindOCR文档的
 
 准备好做出贡献了吗？以下是为本地开发设置“mindocr”的方法。
 
-1. 在 [GitHub]（https://github.com/mindspore-lab/mindocr）上fork 'mindocr' 仓库。
+1. 在 [GitHub](https://github.com/mindspore-lab/mindocr)上fork 'mindocr' 仓库。
 2. 在本地克隆你的 fork：
 
    ```shell
@@ -85,11 +85,11 @@ MindOCR总是可以使用更多的文档，无论是作为官方MindOCR文档的
 
    如果所有静态测试都通过了，您将得到如下输出：
 
-   ![提交成功前]（https://user-images.githubusercontent.com/74176172/221346245-ea868015-bb09-4e53-aa56-73b015e1e336.png）
+   ![提交成功前](https://user-images.githubusercontent.com/74176172/221346245-ea868015-bb09-4e53-aa56-73b015e1e336.png)
 
    否则，您需要根据输出修复警告：
 
-   ![提交前失败]（https://user-images.githubusercontent.com/74176172/221346251-7d8f531f-9094-474b-97f0-fd5a55e6d3de.png）
+   ![提交前失败](https://user-images.githubusercontent.com/74176172/221346251-7d8f531f-9094-474b-97f0-fd5a55e6d3de.png)
 
    要获取 pre-commit 和 pytest，只需将它们 pip 安装到您的 conda 环境中。
 

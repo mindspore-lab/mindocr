@@ -18,7 +18,8 @@ FCENet的一大亮点就是在任意不规则形状的文本场景上表现优�
 
 可变形卷积的思想非常简单，就是将原来固定形状的卷积核变成可变的，在原始卷积的位置基础上，可变形卷积会产生一个随机方向的位置偏移，如下图所示：
 
-<p align="center"><img alt="Figure 1" src="https://github.com/colawyee/mindocr-1/assets/15730439/5dfdbabd-a025-4789-89fb-4f2263e9deff" width="600"/></p>
+<p align="center"><img alt="Figure 1" src="https://github.com/user-attachments/assets/858357ca-02ff-46b4-8d4d-4c2e53f00ac5" width="600"/></p>
+
 <p align="center"><em>图 1. 可变形卷积</em></p>
 
 图(a)是原始的卷积核，图(b)是产生了随机方向位置偏移的可变形卷积核，图(c)(d)是图(b)的两种特殊情况。可以看出，这样做的好处是可以提升卷积核的几何变换能力，使其不仅局限于原始卷积核矩形的形状，而是可以支持更丰富的不规则形状。可变形卷积对不规则形状特征提取的效果会更好[[1](#参考文献)]，也更加适用于自然场景的文本识别场景。
@@ -27,7 +28,8 @@ FCENet的一大亮点就是在任意不规则形状的文本场景上表现优�
 
 傅里叶轮廓线是基于傅里叶变换的一种曲线拟合方法，随着傅里叶级数的项数k越大，就引入更多的高频信号，对轮廓刻画就越准确。下图展示了不同傅里叶级数情况下对不规则曲线的刻画能力：
 
-<p align="center"><img width="445" alt="Image" src="https://github.com/colawyee/mindocr-1/assets/15730439/23583dd8-0c67-4774-a4f3-9f5971e9ed93"></p>
+<p align="center"><img width="445" alt="Image" src="https://github.com/user-attachments/assets/33f2f7f3-91d6-4e6a-99ee-5930f36d013c"></p>
+
 <p align="center"><em>图 2. 傅里叶轮廓线渐进估计效果</em></p>
 
 可以看出，随着傅里叶级数的项数k越大，其可以刻画的曲线是可以变得非常精细的。
@@ -38,7 +40,8 @@ FCENet的一大亮点就是在任意不规则形状的文本场景上表现优�
 
 #### FCENet算法框架
 
-<p align="center"><img width="800" alt="Image" src="https://github.com/colawyee/mindocr-1/assets/15730439/cfe9f5b1-d22f-4d01-8f27-0856a930f78b"></p>
+<p align="center"><img width="800" alt="Image" src="https://github.com/user-attachments/assets/4cfbda01-84c6-43b1-8a60-4a2b20870c2a"></p>
+
 <p align="center"><em>图 3. FCENet算法框架图</em></p>
 
 像大多数OCR算法一样，FCENet的网络结构大体可以分为backbone，neck，head三个部分。其中backbone采用可变形卷积版本的Resnet50用于提取特征；neck部分采用特征金字塔[[2](#参考文献)]，特征金字塔是一组不同大小的卷积核，适用于提取原图中不同大小的特征，从而提高了目标检测的准确率，在一张图片中有不同大小的文本框的场景效果比较好；head部分有两条分支，一条是分类分支，用于预测文本区域和文本中心区域的热力图，通过比较该热力图与监督信号的交叉熵作为分类分支的损失值，另一条是回归分支，回归分支预测傅立叶特征向量，该向量用于通过傅立叶逆变换重构文本轮廓，通过计算重构文本轮廓线和监督信号的轮廓线在图像空间的smooth-l1 loss作为回归分支的损失值。

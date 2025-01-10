@@ -245,4 +245,6 @@ python deploy/eval_utils/eval_rec.py \
     --character_dict_path=/path/to/xxx_dict.txt
 ```
 
-请注意，character_dict_path是可选参数，默认字典仅支持数字和英文小写，其他语言请在对应模型列表页面下载character_dict。
+请注意，character_dict_path是可选参数，默认字典仅支持数字和英文小写。
+
+在进行PaddleOCR模型评估时，请参考[PPOCR模型列表](thirdparty_models_list.md)，使用对应的字典文件。

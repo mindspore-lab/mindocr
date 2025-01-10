@@ -247,4 +247,4 @@ python deploy/eval_utils/eval_rec.py \
 
 Please note that **character_dict_path** is an optional parameter, and the default dictionary only supports numbers and English lowercase.
 
-When evaluating the PaddleOCR series models, please refer to [Third-party Model Support List](inference_thirdparty_quickstart.md) to use the corresponding dictionary.
+When evaluating the PaddleOCR series models, please refer to [Third-party Model Support List](thirdparty_models_list.md) to use the corresponding dictionary.
