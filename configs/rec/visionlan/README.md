@@ -221,7 +221,6 @@ python tools/benchmarking/multi_dataset_eval.py --config $yaml_file --opt eval.d
 <!--- Guideline:
 Table Format:
 - Model: model name in lower case with _ seperator.
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
 - Top-1 and Top-5: Keep 2 digits after the decimal point.
 - Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
 - Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
@@ -260,87 +259,47 @@ According to our experiments, the evaluation results on ten public benchmark dat
 - The input Shape of MindIR of VisionLAN is (1, 3, 64, 256).
 
 
-## Inference
 
-### Prepare MINDIR file
+## MindSpore Lite Inference
 
-Please download the [MINDIR](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e-71b38d2d.mindir) file from the table above, or you can use `tools/export.py` to manually convert any checkpoint file into a MINDIR file:
-```bash
+To inference with MindSpot Lite on Ascend 310, please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial.md). In short, the whole process consists of the following steps:
+
+**Model Export**
+
+Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../../docs/en/inference/convert_tutorial.md#1-model-export) tutorial and use the following command to export the trained ckpt model to  MindIR file:
+
+```shell
 # For more parameter usage details, please execute `python tools/export.py -h`
 python tools/export.py --model_name_or_config visionlan_resnet45 --data_shape 64 256 --local_ckpt_path /path/to/visionlan-ckpt
 ```
 
-This command will save a `visionlan_resnet45.mindir` under the current working directory.
-
-> Learn more about [Model Export](../../../docs/en/inference/convert_tutorial.md#1-model-export).
-
-### Mindspore Lite Converter Tool
-
-If you haven't downloaded MindSpore Lite, please download it via this [link](https://www.mindspore.cn/lite/docs/en/master/use/downloads.html). More details on how to use MindSpore Lite in Linux Environment refer to [this document](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool.html#linux-environment-usage-instructions).
-
-`converter_lite` tool is an executable program under `mindspore-lite-{version}-linux-x64/tools/converter/converter`. Using `converter_lite`, we can convert the MindIR file to MindSpore Lite MindIR file.
-
-Run the following command:
-
-```bash
-converter_lite \
-     --saveType=MINDIR \
-     --fmk=MINDIR \
-     --optimize=ascend_oriented \
-     --modelFile=path/to/mindir/file \
-     --outputFile=visionlan_resnet45_lite
-```
-
-Running this command will save a `visionlan_resnet45_lite.mindir` under the current working directory. This is the MindSpore Lite MindIR file that we can run inference with on the Ascend310 or 310P platform. You can also define a different file name by changing the `--outputFile` argument.
-
-> Learn more about [Model Conversion](../../../docs/en/inference/convert_tutorial.md#2-mindspore-lite-mindir-convert).
-
-### Inference on A Folder of Images
-
-Taking `SVT` test set as an example, the data structure under the dataset folder is:
-
-```text
-svt_dataset
-├── test
-│   ├── 16_16_0_ORPHEUM.jpg
-│   ├── 12_13_4_STREET.jpg
-│   ├── 17_08_TOWN.jpg
-│   ├── ...
-└── test_gt.txt
-```
+The `data_shape` is the model input shape of height and width for MindIR file. The shape value of MindIR in the download link can be found in [Notes](#2-results) under results table.
 
 
-We run inference with the `visionlan_resnet45_lite.mindir` file with the command below:
+**Environment Installation**
 
-```bash
-python deploy/py_infer/infer.py  \
-    --input_images_dir=/path/to/svt_dataset/test  \
-    --rec_model_path=/path/to/visionlan_resnet45_lite.mindir  \
-    --rec_model_name_or_config=configs/rec/visionlan/visionlan_resnet45_LA.yaml \
-    --res_save_dir=rec_svt
-```
-Running this command will create a folder `rec_svt` under the current working directory, and save a prediction file `rec_svt/rec_results.txt`. Some examples of prediction in this file are shown below:
-```text
-16_16_0_ORPHEUM.jpg "orpheum"
-12_13_4_STREET.jpg  "street"
-17_08_TOWN.jpg  "town"
-...
-```
+Please refer to [Environment Installation](../../../docs/en/inference/environment.md) tutorial to configure the MindSpore Lite inference environment.
 
-Then, we can compute the prediction accuracy using:
+**Model Conversion**
 
-```bash
-python deploy/eval_utils/eval_rec.py  \
-    --pred_path=rec_svt/rec_results.txt  \
-    --gt_path=/path/to/svt_dataset/test_gt.txt
-```
-The evaluation results are shown below:
-```text
-{'acc': 0.9227202534675598, 'norm_edit_distance': 0.9720136523246765}
+Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#2-mindspore-lite-mindir-convert),
+and use the `converter_lite` tool for offline conversion of the MindIR file.
+
+**Inference**
+
+Assuming that you obtain output.mindir after model conversion, go to the `deploy/py_infer` directory, and use the following command for inference:
+
+```shell
+python infer.py \
+    --input_images_dir=/your_path_to/test_images \
+    --rec_model_path=your_path_to/output.mindir \
+    --rec_model_name_or_config=../../configs/rec/visionlan/visionlan_resnet45_LA.yaml \
+    --res_save_dir=results_dir
 ```
 
 
 ## References
+
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 
 [1] Yuxin Wang, Hongtao Xie, Shancheng Fang, Jing Wang, Shenggao Zhu, Yongdong Zhang: From Two to One: A New Scene Text Recognizer with Visual Language Modeling Network. ICCV 2021: 14174-14183

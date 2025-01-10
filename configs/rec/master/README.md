@@ -28,7 +28,9 @@ Attention-based scene text recognizers have gained huge success, which leverages
 ## Quick Start
 ### Preparation
 
+
 #### Installation
+
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
 #### Dataset Preparation
@@ -305,7 +307,6 @@ python tools/eval.py --config configs/rec/master/master_resnet31.yaml
 <!--- Guideline:
 Table Format:
 - Model: model name in lower case with _ seperator.
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
 - Top-1 and Top-5: Keep 2 digits after the decimal point.
 - Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
 - Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
@@ -372,7 +373,7 @@ To use a specific dictionary, set the parameter `character_dict_path` to the pat
 
 To inference with MindSpot Lite on Ascend 310, please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial.md). In short, the whole process consists of the following steps:
 
-**1. Model Export**
+**Model Export**
 
 Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../../docs/en/inference/convert_tutorial.md#1-model-export) tutorial and use the following command to export the trained ckpt model to  MindIR file:
 
@@ -385,16 +386,16 @@ python tools/export.py --model_name_or_config configs/rec/master/master_resnet31
 The `data_shape` is the model input shape of height and width for MindIR file. The shape value of MindIR in the download link can be found in [Notes](#2-results) under results table.
 
 
-**2. Environment Installation**
+**Environment Installation**
 
 Please refer to [Environment Installation](../../../docs/en/inference/environment.md#2-mindspore-lite-inference) tutorial to configure the MindSpore Lite inference environment.
 
-**3. Model Conversion**
+**Model Conversion**
 
 Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#2-mindspore-lite-mindir-convert),
 and use the `converter_lite` tool for offline conversion of the MindIR file.
 
-**4. Inference**
+**Inference**
 
 Assuming that you obtain output.mindir after model conversion, go to the `deploy/py_infer` directory, and use the following command for inference:
 

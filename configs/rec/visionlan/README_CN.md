@@ -26,7 +26,9 @@
 
 但在测试阶段，MLM不被使用。只有骨干网络和VRM被用于预测。
 
+
 ## 配套版本
+
 
 | mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
 |:----------:|:--------------:|:-------------:|:-------------------:|
@@ -242,76 +244,41 @@ python tools/benchmarking/multi_dataset_eval.py --config $yaml_file --opt eval.d
 - 这些模型是从头开始训练的，没有任何预训练。有关训练和评估的更多数据集详细信息，请参阅[数据集准备](#数据集准备)部分。
 - VisionLAN的MindIR导出时的输入Shape均为(1, 3, 64, 256)。
 
-## 推理
 
-### 准备 MINDIR 文件
+## MindSpore Lite 推理
 
-请从上面的表格中中下载[MINDIR](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e-71b38d2d.mindir)文件，或者您可以使用`tools/export.py`将任何检查点文件手动转换为 MINDIR 文件：
-```bash
+请参考[MindOCR 推理](../../../docs/zh/inference/inference_tutorial.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
+
+**模型导出**
+
+请先[下载](#2-评估结果)已导出的MindIR文件，或者参考[模型导出](../../../docs/zh/inference/convert_tutorial.md#1-模型导出)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
+
+```shell
 # 有关更多参数使用详细信息，请执行 `python tools/export.py -h`
 python tools/export.py --model_name_or_config visionlan_resnet45 --data_shape 64 256 --local_ckpt_path /path/to/visionlan-ckpt
 ```
 
-此命令将在当前工作目录下保存一个`visionlan_resnet45.mindir`文件。
+其中，`data_shape`是导出MindIR时的模型输入Shape的height和width，下载链接中MindIR对应的shape值见[注释](#2-评估结果)。
 
-### 4.2 Mindspore Lite Converter Tool
+**环境搭建**
 
-如果您尚未下载 MindSpore Lite，请通过此[链接](https://www.mindspore.cn/lite/docs/en/master/use/downloads.html)进行下载。有关如何在 Linux 环境中使用 MindSpore Lite 的更多详细信息，请参阅[此文档](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool.html#linux-environment-usage-instructions)。
+请参考[环境安装](../../../docs/zh/inference/environment.md)教程，配置MindSpore Lite推理运行环境。
 
-`converter_lite`工具是`mindspore-lite-{version}-linux-x64/tools/converter/converter`下的可执行程序。使用`converter_lite`，我们可以将 `MindIR`文件转换为`MindSpore Lite MindIR`文件。
+**模型转换**
 
-以运行以下命令：
-
-```bash
-converter_lite \
-     --saveType=MINDIR \
-     --fmk=MINDIR \
-     --optimize=ascend_oriented \
-     --modelFile=path/to/mindir/file \
-     --outputFile=visionlan_resnet45_lite
-```
-运行此命令将在当前工作目录下保存一个`visionlan_resnet45_lite.mindir`文件。这是我们可以在`Ascend310`或`310P`平台上进行推理的`MindSpore Lite MindIR`文件。您还可以通过更改`--outputFile`参数来定义不同的文件名。
+请参考[模型转换](../../../docs/zh/inference/convert_tutorial.md#2-mindspore-lite-mindir-转换)教程，使用`converter_lite`工具对MindIR模型进行离线转换。
 
 
-### 对图像文件夹进行推理
+**执行推理**
 
-以`SVT`测试集为例，数据集文件夹下的数据结构如下：
-```text
-svt_dataset
-├── test
-│   ├── 16_16_0_ORPHEUM.jpg
-│   ├── 12_13_4_STREET.jpg
-│   ├── 17_08_TOWN.jpg
-│   ├── ...
-└── test_gt.txt
+假设在模型转换后得到output.mindir文件，在`deploy/py_infer`目录下使用以下命令进行推理：
 
-```
-我们使用以下命令对`visionlan_resnet45_lite.mindir`文件进行推理：
-```bash
-python deploy/py_infer/infer.py  \
-    --input_images_dir=/path/to/svt_dataset/test  \
-    --rec_model_path=/path/to/visionlan_resnet45_lite.mindir  \
-    --rec_model_name_or_config=configs/rec/visionlan/visionlan_resnet45_LA.yaml \
-    --res_save_dir=rec_svt
-```
-
-运行此命令将在当前工作目录下创建一个名为`rec_svt`的文件夹，并保存一个预测文件`rec_svt/rec_results.txt`。该文件中的一些预测示例如下所示：
-```text
-16_16_0_ORPHEUM.jpg "orpheum"
-12_13_4_STREET.jpg  "street"
-17_08_TOWN.jpg  "town"
-...
-```
-
-然后，我们可以使用以下命令计算预测准确率：
-```bash
-python deploy/eval_utils/eval_rec.py  \
-    --pred_path=rec_svt/rec_results.txt  \
-    --gt_path=/path/to/svt_dataset/test_gt.txt
-```
-评估结果如下所示：
-```text
-{'acc': 0.9227202534675598, 'norm_edit_distance': 0.9720136523246765}
+```shell
+python infer.py \
+    --input_images_dir=/your_path_to/test_images \
+    --rec_model_path=your_path_to/output.mindir \
+    --rec_model_name_or_config=../../configs/rec/visionlan/visionlan_resnet45_LA.yaml \
+    --res_save_dir=results_dir
 ```
 
 ## 引用文献

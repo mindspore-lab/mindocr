@@ -72,7 +72,7 @@ python tools/param_converter_from_torch.py \
 ### 2.3 Model Evaluation
 
 ```bash
-python tools/eval.py --config configs/layout/layoutlmv3/layoutlmv3_publaybet.yaml
+python tools/eval.py --config configs/layout/layoutlmv3/layoutlmv3_publaynet.yaml
 ```
 The evaluation results on the public benchmark dataset (PublayNet) are as follows:
 

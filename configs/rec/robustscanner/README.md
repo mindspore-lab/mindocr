@@ -287,7 +287,7 @@ python tools/train.py --config configs/rec/robustscanner/robustscanner_resnet31.
 
 The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir`. The default directory is `./tmp_rec`.
 
-### 3.3 Model Evaluation
+### Model Evaluation
 
 To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 

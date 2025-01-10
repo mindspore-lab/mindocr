@@ -2,7 +2,7 @@ site_name: MindOCR Docs
 site_url: https://mindspore-lab.github.io/mindocr
 repo_url: https://github.com/mindspore-lab/mindocr
 repo_name: mindspore-lab/mindocr
-copyright: Copyright &copy; 2022 - 2024 MindSpore Lab
+copyright: Copyright &copy; 2022 - 2025 MindSpore Lab
 
 nav:
   - Home: index.md

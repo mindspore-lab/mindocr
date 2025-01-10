@@ -155,6 +155,7 @@ eval:
 通过使用上述配置 yaml 运行 [模型评估](#模型评估) 部分中所述的`tools/eval.py`，您可以获得数据集 CUTE80 的准确度性能。
 
 
+
 2. 对同一文件夹下的多个数据集进行评估
 
 假设您已将所有 benckmark 数据集置于 evaluation/ 下，如下所示：
@@ -268,7 +269,6 @@ python tools/eval.py --config configs/rec/rare/rare_resnet34.yaml
 <!--- Guideline:
 Table Format:
 - Model: model name in lower case with _ seperator.
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
 - Top-1 and Top-5: Keep 2 digits after the decimal point.
 - Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
 - Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
@@ -364,14 +364,14 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 - RARE的MindIR导出时的输入Shape均为(1, 3, 32, 320)，只能在昇腾卡上使用。
 
 ### 使用自定义数据集进行训练
-您可以在自定义的数据集基于提供的预训练权重进行微调训练, 以在特定场景获得更高的识别准确率，具体步骤请参考文档 [使用自定义数据集训练识别网络](../../../docs/zh/tutorials/training_recognition_custom_dataset_CN.md)。
+您可以在自定义的数据集基于提供的预训练权重进行微调训练, 以在特定场景获得更高的识别准确率，具体步骤请参考文档 [使用自定义数据集训练识别网络](../../../docs/zh/tutorials/training_recognition_custom_dataset.md)。
 
 
 ## MindSpore Lite 推理
 
 请参考[MindOCR 推理](../../../docs/zh/inference/inference_tutorial.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
 
-**1. 模型导出**
+**模型导出**
 
 请先[下载](#2-评估结果)已导出的MindIR文件，或者参考[模型导出](../../../docs/zh/inference/convert_tutorial.md#1-模型导出)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
 
@@ -383,15 +383,15 @@ python tools/export.py --model_name_or_config configs/rec/rare/rare_resnet34.yam
 
 其中，`data_shape`是导出MindIR时的模型输入Shape的height和width，下载链接中MindIR对应的shape值见[注释](#2-评估结果)。
 
-**2. 环境搭建**
+**环境搭建**
 
 请参考[环境安装](../../../docs/zh/inference/environment.md#)教程，配置MindSpore Lite推理运行环境。
 
-**3. 模型转换**
+**模型转换**
 
 请参考[模型转换](../../../docs/zh/inference/convert_tutorial.md#2-mindspore-lite-mindir-转换)教程，使用`converter_lite`工具对MindIR模型进行离线转换。
 
-**4. 执行推理**
+**执行推理**
 
 假设在模型转换后得到output.mindir文件，在`deploy/py_infer`目录下使用以下命令进行推理：
 

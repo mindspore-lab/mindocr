@@ -159,7 +159,7 @@ eval:
   ...
 ```
 
-By running `tools/eval.py` as noted in section [Model Evaluation](#33-model-evaluation) with the above config yaml, you can get the accuracy performance on dataset CUTE80.
+By running `tools/eval.py` as noted in section [Model Evaluation](#model-evaluation) with the above config yaml, you can get the accuracy performance on dataset CUTE80.
 
 
 2. Evaluate on multiple datasets under the same folder

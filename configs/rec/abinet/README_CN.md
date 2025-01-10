@@ -148,7 +148,7 @@ eval:
     # label_file:                                                     # 验证或评估数据集的标签文件路径，将与`dataset_root`拼接形成完整的验证或评估数据的标签文件路径。当数据集为LMDB格式时无需配置
   ...
 ```
-通过使用上述配置 yaml 运行 [模型评估](#33-model-evaluation) 部分中所述的`tools/eval.py`，您可以获得数据集 CUTE80 的准确度性能。
+通过使用上述配置 yaml 运行 [模型评估](#33-模型评估) 部分中所述的`tools/eval.py`，您可以获得数据集 CUTE80 的准确度性能。
 
 2.对同一文件夹下的多个数据集进行评估
 
@@ -243,6 +243,7 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/abine
 ```
 ABINet模型训练时需要加载预训练模型，预训练模型的权重来自[abinet_pretrain_en.ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_pretrain_en-821ca20b.ckpt)，需要在“configs/rec/abinet/abinet_resnet45_en.yaml”中model的pretrained添加预训练权重的路径。
 
+
 * 单卡训练
 
 如果要在没有分布式训练的情况下在较小的数据集上训练或微调模型，请将配置参数`distribute`修改为False 并运行：
@@ -264,35 +265,12 @@ python tools/train.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 python tools/eval.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
 
-**注意:**
-- 由于mindspore.nn.transformer在定义时需要固定的批处理大小，因此在选择val_while_train=True时，有必要确保验证集的批处理大小与模型的批处理大小相同。
-- 所以， minocr.data.builder.py中的第179-185行
-```
-if not is_train:
-    if drop_remainder and is_main_device:
-        _logger.warning(
-            "`drop_remainder` is forced to be False for evaluation "
-            "to include the last batch for accurate evaluation."
-        )
-        drop_remainder = False
 
-```
-应该被改为
-```
-if not is_train:
-    # if drop_remainder and is_main_device:
-        _logger.warning(
-            "`drop_remainder` is forced to be False for evaluation "
-            "to include the last batch for accurate evaluation."
-        )
-        drop_remainder = True
-```
 
 ## 评估结果
 <!--- Guideline:
 Table Format:
 - Model: model name in lower case with _ seperator.
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
 - Top-1 and Top-5: Keep 2 digits after the decimal point.
 - Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
 - Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
@@ -304,9 +282,9 @@ Table Format:
 
 <div align="center">
 
-| **f**  | **backbone** | **train dataset** | **params(M)** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |            **recipe**            |                                            **weight**                                            |
-|:------:| :----------: |:-----------------:| :-----------: |:---------:| :------------: |:-------------:|:-----------------:|:-----------:|:---------:| :----------: |:--------------------------------:|:------------------------------------------------------------------------------------------------:|
-| ABINet |   Resnet45   |       MJ+ST       |     36.93     |     8     |       96       |      O2       |     680.51 s      |   115.56    |  6646.07  |    91.35%    | [yaml](abinet_resnet45_en.yaml)  | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en-7efa1184.ckpt)   |
+| **model name** | **backbone** | **train dataset** | **params(M)** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |            **recipe**            |                                            **weight**                                            |
+|:--------------:| :----------: |:-----------------:| :-----------: |:---------:| :------------: |:-------------:|:-----------------:|:-----------:|:---------:| :----------: |:--------------------------------:|:------------------------------------------------------------------------------------------------:|
+|    ABINet      |   Resnet45   |       MJ+ST       |     36.93     |     8     |       96       |      O2       |     680.51 s      |   115.56    |  6646.07  |    91.35%    | [yaml](abinet_resnet45_en.yaml)  | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en-7efa1184.ckpt)   |
 
 </div>
 
@@ -321,6 +299,7 @@ Table Format:
 
   </div>
 </details>
+
 
 
 ## 参考文献

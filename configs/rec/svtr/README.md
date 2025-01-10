@@ -350,7 +350,7 @@ Detailed accuracy results for each benchmark dataset:
 ### Notes
 - To reproduce the result on other contexts, please ensure the global batch size is the same.
 - The characters supported by model are lowercase English characters from a to z and numbers from 0 to 9. More explanation on dictionary, please refer to [Character Dictionary](#character-dictionary).
-- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#dataset-usage) section.
+- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Preparation](#dataset-preparation) section.
 - The input Shapes of MindIR of RARE is (1, 3, 64, 256).
 
 

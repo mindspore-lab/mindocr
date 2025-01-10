@@ -224,7 +224,7 @@ python tools/infer/text/predict_ser.py --rec_algorithm CRNN_CH --image_dir {dir 
 以中文表单的实体识别为例，使用脚本识别`configs/kie/vi_layoutxlm/example.jpg`表单中的实体，结果将默认存放在`./inference_results`文件夹内，也可以通过`--draw_img_save_dir`命令行参数自定义结果存储路径。
 
 <p align="center">
-  <img src="example.jpg" width=1000 />
+  <img src="../vi_layoutxlm/example.jpg" width=1000 />
 </p>
 <p align="center">
   <em> example.jpg </em>
@@ -232,7 +232,7 @@ python tools/infer/text/predict_ser.py --rec_algorithm CRNN_CH --image_dir {dir 
 识别结果如图，图片保存为`inference_results/example_ser.jpg`：
 
 <p align="center">
-  <img src="example_ser.jpg" width=1000 />
+  <img src="../vi_layoutxlm/example_ser.jpg" width=1000 />
 </p>
 <p align="center">
   <em> example_ser.jpg </em>
