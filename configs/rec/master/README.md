@@ -53,7 +53,7 @@ According to our experiments, the evaluation results on public benchmark dataset
 **Notes:**
 - Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x4-MS1.10-G is for training on 4 pieces of Ascend 910 NPU using graph mode based on Minspore version 1.10.
 - To reproduce the result on other contexts, please ensure the global batch size is the same.
-- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#312-dataset-download) section.
+- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#312-dataset-preparation) section.
 - The input Shapes of MindIR of MASTER is (1, 3, 48, 160).
 
 

@@ -76,7 +76,7 @@ python tools/param_converter_from_torch.py \
 ### 2.3 模型评估
 
 ```bash
-python tools/eval.py --config configs/layout/layoutlmv3/layoutlmv3_publaybet.yaml
+python tools/eval.py --config configs/layout/layoutlmv3/layoutlmv3_publaynet.yaml
 ```
 在公开基准数据集（PublayNet）上的-评估结果如下：
 

@@ -184,7 +184,7 @@ eval:
   ...
 ```
 
-通过使用上述配置 yaml 运行 [模型评估](#33-model-evaluation) 部分中所述的`tools/eval.py`，您可以获得数据集 CUTE80 的准确度性能。
+通过使用上述配置 yaml 运行 [模型评估](#33-模型评估) 部分中所述的`tools/eval.py`，您可以获得数据集 CUTE80 的准确度性能。
 
 
 2. 对同一文件夹下的多个数据集进行评估
@@ -361,7 +361,7 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/rare/
 - RARE的MindIR导出时的输入Shape均为(1, 3, 32, 320)，只能在昇腾卡上使用。
 
 ### 使用自定义数据集进行训练
-您可以在自定义的数据集基于提供的预训练权重进行微调训练, 以在特定场景获得更高的识别准确率，具体步骤请参考文档 [使用自定义数据集训练识别网络](../../../docs/zh/tutorials/training_recognition_custom_dataset_CN.md)。
+您可以在自定义的数据集基于提供的预训练权重进行微调训练, 以在特定场景获得更高的识别准确率，具体步骤请参考文档 [使用自定义数据集训练识别网络](../../../docs/zh/tutorials/training_recognition_custom_dataset.md)。
 
 
 ## 6. MindSpore Lite 推理

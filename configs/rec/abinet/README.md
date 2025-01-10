@@ -277,29 +277,6 @@ To evaluate the accuracy of the trained model, you can use `eval.py`. Please set
 python tools/eval.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
 
-**Notes:**
-- Context for val_while_train: Since mindspore.nn.transformer requires a fixed batchsize when defined, when choosing val_while_train=True, it is necessary to ensure that the batchsize of the validation set is the same as that of the model.
-- So, line 179-185 in minocr.data.builder.py
-```
-if not is_train:
-    if drop_remainder and is_main_device:
-        _logger.warning(
-            "`drop_remainder` is forced to be False for evaluation "
-            "to include the last batch for accurate evaluation."
-        )
-        drop_remainder = False
-
-```
-should be changed to
-```
-if not is_train:
-    # if drop_remainder and is_main_device:
-        _logger.warning(
-            "`drop_remainder` is forced to be False for evaluation "
-            "to include the last batch for accurate evaluation."
-        )
-        drop_remainder = True
-```
 ## References
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 
