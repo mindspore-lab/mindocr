@@ -179,16 +179,12 @@ python infer.py \
 
 EAST在ICDAR2015数据集上训练。另外，我们在ImageNet数据集上进行了预训练，并提供预训练权重下载链接。所有训练结果如下：
 
-在采用图模式的ascend 910*上实验结果，mindspore版本为2.3.1。
-
 ### ICDAR2015
 
-
-| **model name** | **backbone** | **pretrained** | **cards** | **batch size** | **jit level** | **recall** | **precision** | **f-score** |              **recipe**               |                                           **weight**                                            |
-|:--------------:|:------------:| :------------: |:---------:|:--------------:| :-----------: |:----------:|:-------------:|:-----------:|:-------------------------------------:|:-----------------------------------------------------------------------------------------------:|
-|      EAST      |  ResNet-50   |    ImageNet    |     8     |       20       |      O2       |   80.48%   |    84.13%     |   82.26%    |   [yaml](east_r50_icdar15.yaml)       | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359.ckpt)  \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359-5f05cd42.mindir)   |
-|      EAST      | MobileNetV3  |    ImageNet    |     8     |       20       |      O2       |   73.56%   |    74.19%     |   73.87%    | [yaml](east_mobilenetv3_icdar15.yaml) |[ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1-5bf242c5.mindir)|
-
+| **model name** | **backbone** | **pretrained** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **recall** | **precision** | **f-score** |              **recipe**               |                                           **weight**                                          |
+|:--------------:|:------------:| :------------: |:---------:|:--------------:| :-----------: |:-----------------:|:-----------:|:---------:|:----------:|:-------------:|:-----------:|:-------------------------------------:|:---------------------------------------------------------------------------------------------:|
+|      EAST      | ResNet-50    |    ImageNet    |     8     |       20       |      O2       |     250.32 s      |   254.54    |  628.58   |   80.48%   |    84.13%     |   82.26%    |   [yaml](east_r50_icdar15.yaml)       | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359-5f05cd42.mindir)   |
+|      EAST      | MobileNetV3  |    ImageNet    |     8     |       20       |      O2       |     313.78 s      |    91.59    |  1746.92  |   73.56%   |    74.19%     |   73.87%    | [yaml](east_mobilenetv3_icdar15.yaml) |[ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1-5bf242c5.mindir)|
 
 #### 注释：
 - EAST的训练时长受数据处理部分和不同运行环境的影响非常大。
