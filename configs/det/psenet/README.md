@@ -204,20 +204,24 @@ python infer.py \
 
 PSENet were trained on the ICDAR2015 datasets. In addition, we conducted pre-training on the ImageNet dataset and provided a URL to download pretrained weights. All training results are as follows:
 
-Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode.
-
 ### ICDAR2015
 
-| **model name** | **backbone**  | **pretrained** | **cards** | **batch size** | **jit level** | **recall** | **precision** | **f-score** |               **recipe**               |                                             **weight**                                            |
-|:--------------:|:-------------:| :------------: |:---------:|:--------------:| :-----------: |:----------:|:-------------:|:-----------:|:--------------------------------------:|:-------------------------------------------------------------------------------------------------:|
-|     PSENet     |  ResNet-152   |    ImageNet    |     8     |       8        |      O2       |   81.15%   |    86.47%     |   83.72%    |    [yaml](pse_r152_icdar15.yaml)       | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)  |
-|     PSENet     |   ResNet-50   |    ImageNet    |     1     |       8        |      O2       |   76.75%   |    85.20%     |   80.75%    |      [yaml](pse_r50_icdar15.yaml)      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9-cfd2ee6c.mindir)   |
-|     PSENet     |  MobileNetV3  |    ImageNet    |     8     |       8        |      O2       |   73.89%   |    67.48%     |   70.54%    |      [yaml](pse_mv3_icdar15.yaml)      |[ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907-da7cfe09.mindir)|
+| **model name** | **backbone**  | **pretrained** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **recall** | **precision** | **f-score** |               **recipe**               |                                             **weight**                                            |
+|:--------------:|:-------------:| :------------: |:---------:|:--------------:| :-----------: |:-----------------:|:-----------:|:---------:|:----------:|:-------------:|:-----------:|:--------------------------------------:|:-------------------------------------------------------------------------------------------------:|
+|     PSENet     |  ResNet-152   |    ImageNet    |     8     |       8        |      O2       |     225.02 s      |   355.19    |  180.19   |   81.15%   |    86.47%     |   83.72%    |    [yaml](pse_r152_icdar15.yaml)       | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ic15-6058a798-0d755205.mindir)   |
+|     PSENet     |   ResNet-50   |    ImageNet    |     1     |       8        |      O2       |     185.16 s      |   280.21    |  228.40   |   76.75%   |    85.20%     |   80.75%    |      [yaml](pse_r50_icdar15.yaml)      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet50_ic15-7e36cab9-cfd2ee6c.mindir)    |
+|     PSENet     |  MobileNetV3  |    ImageNet    |     8     |       8        |      O2       |     181.54 s      |   175.23    |  365.23   |   73.89%   |    67.48%     |   70.54%    |      [yaml](pse_mv3_icdar15.yaml)      |[ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_mobilenetv3_ic15-bf2c1907-da7cfe09.mindir) |
+
+### SCUT-CTW1500
+
+| **model name** | **backbone**  | **pretrained** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **recall** | **precision** | **f-score** |               **recipe**               |                                             **weight**                                            |
+|:--------------:|:-------------:| :------------: |:---------:|:--------------:| :-----------: |:-----------------:|:-----------:|:---------:|:----------:|:-------------:|:-----------:|:--------------------------------------:|:-------------------------------------------------------------------------------------------------:|
+|     PSENet     |  ResNet-152   |    ImageNet    |     8     |       8        |      O2       |     193.59 s      |   318.94    |  200.66   |   74.76%   |    73.59%     |   74.17%    |    [yaml](pse_r152_ctw1500.yaml)       | [ckpt](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ctw1500-58b1b1ff.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/psenet/psenet_resnet152_ctw1500-58b1b1ff-b95c7f85.mindir)  |
 
 #### Notes：
 - The training time of PSENet is highly affected by data processing and varies on different machines.
 - The `input_shapes` to the exported MindIR models trained on ICDAR2015 are `(1,3,1472,2624)` for ResNet-152 backbone and `(1,3,736,1312)` for ResNet-50 or MobileNetV3 backbone.
-
+- On the SCUT-CTW1500 dataset, the input_shape for exported MindIR in the link is `(1,3,1024,1024)`.
 
 ## References
 
