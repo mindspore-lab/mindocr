@@ -201,7 +201,7 @@ python infer.py \
 
 ## 性能表现
 
-PSENet在ICDAR2015数据集上训练。另外，我们在ImageNet数据集上进行了预训练，并提供预训练权重下载链接。所有训练结果如下：
+PSENet在ICDAR2015，SCUT-CTW1500数据集上训练。另外，我们在ImageNet数据集上进行了预训练，并提供预训练权重下载链接。所有训练结果如下：
 
 ### ICDAR2015
 

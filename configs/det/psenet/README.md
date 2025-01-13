@@ -202,7 +202,7 @@ python infer.py \
 
 ## Performance
 
-PSENet were trained on the ICDAR2015 datasets. In addition, we conducted pre-training on the ImageNet dataset and provided a URL to download pretrained weights. All training results are as follows:
+PSENet were trained on the ICDAR2015, SCUT-CTW1500 datasets. In addition, we conducted pre-training on the ImageNet dataset and provided a URL to download pretrained weights. All training results are as follows:
 
 ### ICDAR2015
 
