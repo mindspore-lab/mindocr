@@ -32,9 +32,9 @@ TableMaster是一种用于表格识别的模型，其独特之处在于能够同
 在采用图模式的ascend 910*上实验结果，mindspore版本为2.3.1
 <div align="center">
 
-| **model name** | **cards** | **batch size** | **ms/step** | **img/s** | **accuracy** | **config**  | **weight**                                                                            |
-|----------------|-----------|----------------|-------------|-----------|--------------|-----------------------------------------------------|------------------------------------------------|
-| TableMaster         | 8         | 10             | 268         | 296       | 77.49%       | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
+| **模型名称**    | **卡数** | **单卡批量大小** | **ms/step** | **img/s** | **准确率** | **配置**                    | **权重**                                                                                                |
+|-------------|--------|------------|-------------|-----------|---------|---------------------------|-------------------------------------------------------------------------------------------------------|
+| TableMaster | 8      | 10         | 268         | 296       | 77.49%  | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
 </div>
 
 #### 注释：

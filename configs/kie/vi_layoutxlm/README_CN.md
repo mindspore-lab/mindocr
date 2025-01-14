@@ -46,10 +46,10 @@ Encoder concat视觉embedding和文本embedding到一个统一的序列，并与
 在采用图模式的ascend 910*上实验结果，mindspore版本为2.3.1
 <div align="center">
 
-| **model name** | **cards** | **batch size** | **img/s** | **hmean** | **config**  | **weight**                                                                            |
-|----------------|-----------|----------------|-----------|-----------|-----------------------------------------------------|------------------------------------------------|
-| LayoutXLM    | 1         | 8              | 73.26     | 90.34%    | [yaml](../layoutxlm/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt)  |
-| VI-LayoutXLM    | 1         | 8              | 110.6     | 93.31%    | [yaml](../layoutxlm/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt)  |
+| **模型名称**     | **卡数** | **单卡批量大小** | **img/s** | **hmean** | **配置**                                           | **权重**                                                                                            |
+|--------------|--------|------------|-----------|-----------|--------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| LayoutXLM    | 1      | 8          | 73.26     | 90.34%    | [yaml](../layoutxlm/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt) |
+| VI-LayoutXLM | 1      | 8          | 110.6     | 93.31%    | [yaml](../layoutxlm/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt) |
 </div>
 
 

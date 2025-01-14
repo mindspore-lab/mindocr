@@ -43,9 +43,9 @@ MobileNetV3在ImageNet上预训练。另外，我们进一步在RCTW17、MTWI和
 在采用图模式的ascend 910*上实验结果，mindspore版本为2.3.1
 <div align="center">
 
-| **model name** | **cards** | **batch size** | **img/s** | **accuracy** | **config**  | **weight**                                                                            |
-|----------------|-----------|----------------|-----------|--------------|-----------------------------------------------------|------------------------------------------------|
-| MobileNetV3    | 4         | 256            | 5923.5    | 94.59%       | [yaml](cls_mv3.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/cls/cls_mobilenetv3-92db9c58.ckpt) |
+| **模型名称**    | **卡数** | **单卡批量大小** | **img/s** | **准确率** | **配置**               | **权重**                                                                                   |
+|-------------|--------|------------|-----------|---------|----------------------|------------------------------------------------------------------------------------------|
+| MobileNetV3 | 4      | 256        | 5923.5    | 94.59%  | [yaml](cls_mv3.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/cls/cls_mobilenetv3-92db9c58.ckpt) |
 </div>
 
 
