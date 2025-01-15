@@ -5,7 +5,7 @@ English | [中文](https://github.com/mindspore-lab/mindocr/blob/main/configs/re
 
 > [Robust Scene Text Recognition with Automatic Rectification](https://arxiv.org/abs/1603.03915)
 
-## 1. Introduction
+## Introduction
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
 Recognizing text in natural images is a challenging task with many unsolved problems. Different from those in documents, words in natural images often possess irregular shapes, which are caused by perspective distortion, curved character placement, etc. The paper proposes RARE (Robust text recognizer with Automatic REctification), a recognition model that is robust to irregular text. RARE is a specially-designed deep neural network, which consists of a Spatial Transformer Network (STN) and a Sequence Recognition Network (SRN). In testing, an image is firstly rectified via a predicted Thin-Plate-Spline (TPS) transformation, into a more "readable" image for the following SRN, which recognizes text through a sequence recognition approach. It shows that the model is able to recognize several types of irregular text, including perspective text and curved text. RARE is end-to-end trainable, requiring only images and associated text labels, making it convenient to train and deploy the model in practical systems. State-of-the-art or highly-competitive performance achieved on several benchmarks well demonstrates the effectiveness of the proposed model. [<a href="#references">1</a>]
@@ -18,52 +18,20 @@ Recognizing text in natural images is a challenging task with many unsolved prob
   <em> Figure 1. Architecture of SRN in RARE [<a href="#references">1</a>] </em>
 </p>
 
-## 2. Results
-<!--- Guideline:
-Table Format:
-- Model: model name in lower case with _ seperator.
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
-- Top-1 and Top-5: Keep 2 digits after the decimal point.
-- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
-- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
-- Download: url of the pretrained model weights. Use absolute url path.
--->
+## Requirements
 
-### Accuracy
+| mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:-------------:|:-------------------:|
+|   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
 
-According to our experiments, the evaluation results on public benchmark datasets (IC03, IC13, IC15, IIIT, SVT, SVTP, CUTE) is as follow:
 
-<div align="center">
+## Quick Start
+### Preparation
 
-| **Model** | **Context**    | **Backbone** | **Transform Module** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
-| :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :-----: | :--------: |:-----: |
-| RARE     | D910x4-MS1.10-G | ResNet34_vd | None | 85.19%    | 3166 s/epoch         | 4561 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ascend-309dc63e-b96c2a4b.mindir) |
-</div>
-
-<details open markdown>
-  <div align="center">
-  <summary>Detailed accuracy results for each benchmark dataset</summary>
-
-  | **Model** | **Backbone** | **Transform Module** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
-  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-  | RARE | ResNet34_vd | None | 95.12% | 94.58% | 94.28% | 92.71% | 75.31% | 69.52% | 88.17% | 87.33% | 78.91% | 76.04% | 85.19% |
-  </div>
-</details>
-
-**Notes:**
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x4-MS1.10-G is for training on 4 pieces of Ascend 910 NPU using graph mode based on Minspore version 1.10.
-- To reproduce the result on other contexts, please ensure the global batch size is the same.
-- The characters supported by model are lowercase English characters from a to z and numbers from 0 to 9. More explanation on dictionary, please refer to [4. Character Dictionary](#4-character-dictionary).
-- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#312-dataset-download) section.
-- The input Shapes of MindIR of RARE is (1, 3, 32, 100) and it is for Ascend only.
-
-## 3. Quick Start
-### 3.1 Preparation
-
-#### 3.1.1 Installation
+#### Installation
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
-#### 3.1.2 Dataset Download
+#### Dataset Download
 Please download lmdb dataset for traininig and evaluation from  [here](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (ref: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here)). There're several zip files:
 - `data_lmdb_release.zip` contains the **entire** datasets including training data, validation data and evaluation data.
     - `training/` contains two datasets: [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and [SynthText (ST)](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c)
@@ -110,7 +78,7 @@ data_lmdb_release/
     └── lock.mdb
 ```
 
-#### 3.1.3 Dataset Usage
+#### Dataset Usage
 
 Here we used the datasets under `training/` folders for training, and the union dataset `validation/` for validation. After training, we used the datasets under `evaluation/` to evaluate model accuracy.
 
@@ -225,7 +193,7 @@ eval:
   ...
 ```
 
-#### 3.1.4 Check YAML Config Files
+#### Check YAML Config Files
 Apart from the dataset setting, please also check the following important args: `system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`,
 `eval.ckpt_load_path`, `eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.dataset.label_file`, `eval.loader.batch_size`. Explanations of these important args:
 
@@ -235,7 +203,7 @@ system:
   amp_level: 'O2'
   seed: 42
   val_while_train: True                                               # Validate while training
-  drop_overflow_update: False
+  drop_overflow_update: True
 common:
   ...
   batch_size: &batch_size 512                                         # Batch size for training
@@ -266,7 +234,7 @@ eval:
 - As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of NPUs, or adjust the learning rate linearly to a new global batch size.
 
 
-### 3.2 Model Training
+### Model Training
 <!--- Guideline: Avoid using shell script in the command line. Python script preferred. -->
 
 * Distributed Training
@@ -290,15 +258,53 @@ python tools/train.py --config configs/rec/rare/rare_resnet34.yaml
 
 The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir`. The default directory is `./tmp_rec`.
 
-### 3.3 Model Evaluation
+### Model Evaluation
 
 To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 
 ```shell
 python tools/eval.py --config configs/rec/rare/rare_resnet34.yaml
 ```
+## Results
+<!--- Guideline:
+Table Format:
+- Model: model name in lower case with _ seperator.
+- Top-1 and Top-5: Keep 2 digits after the decimal point.
+- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
+- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
+- Download: url of the pretrained model weights. Use absolute url path.
+-->
 
-## 4. Character Dictionary
+### Accuracy
+
+According to our experiments, the evaluation results on public benchmark datasets (IC03, IC13, IC15, IIIT, SVT, SVTP, CUTE) is as follow:
+
+<div align="center">
+
+| **model name** | **backbone** | **train dataset** | **params(M)** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |                                           **recipe**                                            |                                                                                              **weight**                                                                                               |
+|:--------------:|:------------:| :---------------: |:-------------:|:---------:|:--------------:| :-----------: |:-----------------:|:-----------:|:---------:|:------------:|:-----------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|      RARE      | ResNet34_vd  |       MJ+ST       |     25.31     |     4     |      512       |      O2       |     252.62 s      |   180.26    | 11361.43  |    85.24%    | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34.yaml)  | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34-309dc63e.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ascend-309dc63e-b96c2a4b.mindir)|
+
+</div>
+
+<details open markdown>
+  <div align="center">
+  <summary>Detailed accuracy results for each benchmark dataset</summary>
+
+| **model name** |  **backbone**  | **cards** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **average** |
+|:--------------:|:--------------:|:---------:|:------------:|:------------:|:------------:|:-------------:|:-------------:|:-------------:|:---------------:|:-------:|:--------:|:----------:|:-----------:|
+|      RARE      |  ResNet34_vd   |     1     |    95.12%    |    94.57%    |    94.40%    |    92.81%     |    75.43%     |    69.62%     |     88.17%      | 87.33%  |  78.91%  |   76.04%   |   85.24%    |
+
+  </div>
+</details>
+
+**Notes:**
+- To reproduce the result on other contexts, please ensure the global batch size is the same.
+- The characters supported by model are lowercase English characters from a to z and numbers from 0 to 9. More explanation on dictionary, please refer to [Character Dictionary](#character-dictionary).
+- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#dataset-usage) section.
+- The input Shapes of MindIR of RARE is (1, 3, 32, 100) and it is for Ascend only.
+
+## Character Dictionary
 
 ### Default Setting
 
@@ -325,7 +331,7 @@ To use a specific dictionary, set the parameter `character_dict_path` to the pat
 - Remember to check the value of `dataset->transform_pipeline->RecAttnLabelEncode->lower` in the configuration yaml. Set it to False if you prefer case-sensitive encoding.
 
 
-## 5. Chinese Text Recognition Model Training
+## Chinese Text Recognition Model Training
 
 Currently, this model supports multilingual recognition and provides pre-trained models for different languages. Details are as follows:
 
@@ -335,31 +341,20 @@ We use a public Chinese text benchmark dataset [Benchmarking-Chinese-Text-Recogn
 
 For detailed instruction of data preparation and yaml configuration, please refer to [ch_dataset](../../../docs/en/datasets/chinese_text_recognition.md).
 
-### Training
-
-To train with the prepared datsets and config file, please run:
-
-```shell
-mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/rare/rare_resnet34_ch.yaml
-```
-
 ### Results and Pretrained Weights
 
 After training, evaluation results on the benchmark test set are as follows, where we also provide the model config and pretrained weights.
 <div align="center">
 
-| **Model** | **Language** | **Backbone** | **Transform Module** | **Scene** | **Web** | **Document** | **Train T.** | **FPS** | **Recipe** | **Download** |
-| :-----: | :-----:  | :--------: | :------------: | :--------: | :--------: | :--------: | :--------: | :--------: |:---------: | :-----------: |
-| RARE    | Chinese | ResNet34_vd | None | 62.15% | 67.05% | 97.60% | 414 s/epoch | 2160 |  [rare_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-5f3023e2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch_ascend-5f3023e2-11f0d554.mindir) |
+| **Model** | **Language** | **Backbone** | **Transform Module** | **Scene** | **Web** | **Document** | **Train T.** | **FPS** |                                                     **Recipe**                                                     |                                                                                                **Download**                                                                                                 |
+|:---------:|:------------:|:------------:|:--------------------:|:---------:|:-------:|:------------:|:------------:|:-------:|:------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|   RARE    |   Chinese    | ResNet34_vd  |         None         |  62.39%   | 67.02%  |    97.60%    | 414 s/epoch  |  2160   | [rare_resnet34_ch.yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/rare/rare_resnet34_ch.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch-5f3023e2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/rare/rare_resnet34_ch_ascend-5f3023e2-11f0d554.mindir) |
 </div>
 
 - The input Shapes of MindIR of RARE is (1, 3, 32, 320) and it is for Ascend only.
 
-### Training with Custom Datasets
-You can train models for different languages with your own custom datasets. Loading the pretrained Chinese model to finetune on your own dataset usually yields better results than training from scratch. Please refer to the tutorial [Training Recognition Network with Custom Datasets](../../../docs/en/tutorials/training_recognition_custom_dataset.md).
 
-
-## 6. MindSpore Lite Inference
+## MindSpore Lite Inference
 
 To inference with MindSpot Lite on Ascend 310, please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial.md). In short, the whole process consists of the following steps:
 
@@ -378,7 +373,7 @@ The `data_shape` is the model input shape of height and width for MindIR file. T
 
 **2. Environment Installation**
 
-Please refer to [Environment Installation](../../../docs/en/inference/environment.md) tutorial to configure the MindSpore Lite inference environment.
+Please refer to [Environment Installation](../../../docs/en/inference/environment.md#) tutorial to configure the MindSpore Lite inference environment.
 
 **3. Model Conversion**
 

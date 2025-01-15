@@ -6,9 +6,9 @@ English | [中文](README_CN.md)
 
 > VisionLAN: [From Two to One: A New Scene Text Recognizer with Visual Language Modeling Network](https://arxiv.org/abs/2108.09661)
 
-## 1. Introduction
+## Introduction
 
-### 1.1 VisionLAN
+### VisionLAN
 
  Visual Language Modeling Network (VisionLAN) [<a href="#5-references">1</a>] is a text recognion model that learns the visual and linguistic information simultaneously via **character-wise occluded feature maps** in the training stage. This model does not require an extra language model to extract linguistic information, since the visual and linguistic information can be learned as a union.
 
@@ -32,57 +32,20 @@ As shown above, the training pipeline of VisionLAN consists of three modules:
 
 While in the test stage, MLM is not used. Only the backbone and VRM are used for prediction.
 
-## 2. Results
-<!--- Guideline:
-Table Format:
-- Model: model name in lower case with _ seperator.
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
-- Top-1 and Top-5: Keep 2 digits after the decimal point.
-- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
-- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
-- Download: url of the pretrained model weights. Use absolute url path.
--->
+## Requirements
 
-### 2.1 Accuracy
-
-According to our experiments, the evaluation results on ten public benchmark datasets is as follow:
-
-<div align="center">
-
-| **Model** | **Context** | **Backbone**|  **Train Dataset** | **Model Params**|**Avg Accuracy** | **Train Time** | **Per Step Time** | **FPS** | **Recipe** | **Download** |
-| :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |:--------: | :--------: |:--------: |:----------: |
-| visionlan  | D910x4-MS2.0-G | resnet45 | MJ+ST| 42.2M | 90.61%  |  7718 s/epoch  | 417 ms/step  | 1,840 img/s | [yaml(LF_1)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_1.yaml) [yaml(LF_2)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_2.yaml) [yaml(LA)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LA.yaml)| [ckpt files](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_ckpts-7d6e9c04.tar.gz) \| [mindir(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e-71b38d2d.mindir)|
-
-</div>
-
-<details open markdown>
-  <div align="center">
-  <summary>Detailed accuracy results for ten benchmark datasets</summary>
-
-  | **Model** |  **Context** | **IC03_860**| **IC03_867**| **IC13_857**|**IC13_1015** |  **IC15_1811** |**IC15_2077** | **IIIT5k_3000** |  **SVT** | **SVTP** | **CUTE80** | **Average** |
-  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |:------: |:------: | :------: |:------: |
-  | visionlan | D910x4-MS2.0-G | 96.16% | 95.16%  |  95.92%|   94.19%  | 84.04%  | 77.46%  | 95.53%  | 92.27%  | 85.74%  |89.58% | 90.61%  |
-
-  </div>
-
-</details>
-
-**Notes:**
-
-- Context: Training context denoted as `{device}x{pieces}-{MS version}-{MS mode}`. Mindspore mode can be either `G` (graph mode) or `F` (pynative mode). For example, `D910x4-MS2.0-G` denotes training on 4 pieces of 910 NPUs using graph mode based on MindSpore version 2.0.0.
-- Train datasets: MJ+ST stands for the combination of two synthetic datasets, SynthText(800k) and MJSynth.
-- To reproduce the result on other contexts, please ensure the global batch size is the same.
-- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [3.2 Dataset preparation](#32-dataset-preparation) section.
-- The input Shape of MindIR of VisionLAN is (1, 3, 64, 256).
+| mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:-------------:|:-------------------:|
+|   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
 
 
-## 3. Quick Start
+## Quick Start
 
-### 3.1 Installation
+### Installation
 
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
-### 3.2 Dataset preparation
+### Dataset preparation
 
 **Training sets**
 
@@ -156,7 +119,7 @@ datasets
     └── SynText
 ```
 
-### 3.3 Update yaml config file
+### Update yaml config file
 
 If the datasets are placed under `./datasets`, there is no need to change the `train.dataset.dataset_root` in the yaml configuration file `configs/rec/visionlan/visionlan_L*.yaml`.
 
@@ -205,7 +168,7 @@ common:
 - As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of NPUs, or adjust the learning rate linearly to a new global batch size.
 
 
-### 3.4 Training
+### Training
 
 The training stages include Language-free (LF) and Language-aware (LA) process, and in total three steps for training:
 
@@ -226,7 +189,7 @@ mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/visio
 The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir` in yaml config file. The default directory is `./tmp_visionlan`.
 
 
-### 3.5 Test
+### Test
 
 After all three steps training, change the `system.distribute` to `False` in `configs/rec/visionlan/visionlan_resnet45_LA.yaml` before testing.
 
@@ -254,12 +217,54 @@ training_step="LA"
 python tools/benchmarking/multi_dataset_eval.py --config $yaml_file --opt eval.dataset.data_dir="test" eval.ckpt_load_path="./tmp_visionlan/${training_step}/${model_name}.ckpt"
 ```
 
+## Results
+<!--- Guideline:
+Table Format:
+- Model: model name in lower case with _ seperator.
+- Top-1 and Top-5: Keep 2 digits after the decimal point.
+- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
+- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
+- Download: url of the pretrained model weights. Use absolute url path.
+-->
 
-## 4. MindSpore Lite Inference
+### Accuracy
+
+According to our experiments, the evaluation results on ten public benchmark datasets is as follow:
+
+<div align="center">
+
+| **model name** | **backbone** | **train dataset** | **params(M)** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |                                                                                                                                                                        **recipe**                                                                                                                                                                        |                                                                                                            **weight**                                                                                                             |
+|:--------------:|:------------:|:-----------------:|:-------------:|:---------:|:--------------:| :-----------: |:-----------------:|:-----------:|:---------:|:------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|   visionlan    |   Resnet45   |      MJ+ST        |     42.22     |     4     |      128       |      O2       |     191.52 s      |   280.29    |  1826.63  |    90.62%    | [yaml(LF_1)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_1.yaml) [yaml(LF_2)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_2.yaml) [yaml(LA)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LA.yaml)  | [ckpt files](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_ckpts-7d6e9c04.tar.gz) \| [mindir(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e-71b38d2d.mindir)|
+
+</div>
+
+<details open markdown>
+  <div align="center">
+  <summary>Detailed accuracy results for ten benchmark datasets</summary>
+
+| **model name** | **backbone** | **cards** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **average** |
+|:--------------:|:------------:|:---------:|:------------:|:------------:|:------------:|:-------------:|:-------------:|:-------------:|:---------------:|:-------:|:--------:|:----------:|:-----------:|
+|   visionlan    |  Resnet45    |     1     |    96.16%    |    95.16%    |    95.92%    |    94.19%     |    84.04%     |    77.47%     |     95.53%      | 92.27%  |  85.89%  |   89.58%   |   90.62%    |
+
+  </div>
+
+</details>
+
+**Notes:**
+
+- Train datasets: MJ+ST stands for the combination of two synthetic datasets, SynthText(800k) and MJSynth.
+- To reproduce the result on other contexts, please ensure the global batch size is the same.
+- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset preparation](#dataset-preparation) section.
+- The input Shape of MindIR of VisionLAN is (1, 3, 64, 256).
+
+
+
+## MindSpore Lite Inference
 
 To inference with MindSpot Lite on Ascend 310, please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial.md). In short, the whole process consists of the following steps:
 
-**4.1 Model Export**
+**Model Export**
 
 Please [download](#2-results) the exported MindIR file first, or refer to the [Model Export](../../../docs/en/inference/convert_tutorial.md#1-model-export) tutorial and use the following command to export the trained ckpt model to  MindIR file:
 
@@ -270,16 +275,17 @@ python tools/export.py --model_name_or_config visionlan_resnet45 --data_shape 64
 
 The `data_shape` is the model input shape of height and width for MindIR file. The shape value of MindIR in the download link can be found in [Notes](#2-results) under results table.
 
-**4.2 Environment Installation**
+
+**Environment Installation**
 
 Please refer to [Environment Installation](../../../docs/en/inference/environment.md) tutorial to configure the MindSpore Lite inference environment.
 
-**4.3 Model Conversion**
+**Model Conversion**
 
 Please refer to [Model Conversion](../../../docs/en/inference/convert_tutorial.md#2-mindspore-lite-mindir-convert),
 and use the `converter_lite` tool for offline conversion of the MindIR file.
 
-**4.4 Inference**
+**Inference**
 
 Assuming that you obtain output.mindir after model conversion, go to the `deploy/py_infer` directory, and use the following command for inference:
 
@@ -291,7 +297,9 @@ python infer.py \
     --res_save_dir=results_dir
 ```
 
-## 5. References
+
+## References
+
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 
 [1] Yuxin Wang, Hongtao Xie, Shancheng Fang, Jing Wang, Shenggao Zhu, Yongdong Zhang: From Two to One: A New Scene Text Recognizer with Visual Language Modeling Network. ICCV 2021: 14174-14183

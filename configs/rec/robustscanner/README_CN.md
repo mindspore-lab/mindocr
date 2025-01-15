@@ -5,7 +5,7 @@
 
 > [RobustScanner: Dynamically Enhancing Positional Clues for Robust Text Recognition](https://arxiv.org/pdf/2007.07542.pdf)
 
-## 1. 模型描述
+## 模型描述
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
 RobustScanner是具有注意力机制的编码器-解码器文字识别算法，本作作者通过对当时主流方法编解码器识别框架的研究，发现文字在解码过程中，不仅依赖上下文信息，还会利用位置信息。而大多数方法在解码过程中都过度依赖语义信息，导致存在较为严重的注意力偏移问题，对于没有语义信息或者弱语义信息的文本识别效果不佳。
@@ -21,55 +21,20 @@ RobustScanner是具有注意力机制的编码器-解码器文字识别算法，
   <em> 图1. RobustScanner整体架构图 [<a href="#参考文献">1</a>] </em>
 </p>
 
+## 配套版本
 
-## 2. 评估结果
-<!--- Guideline:
-Table Format:
-- Model: model name in lower case with _ seperator.
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
-- Top-1 and Top-5: Keep 2 digits after the decimal point.
-- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
-- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
-- Download: url of the pretrained model weights. Use absolute url path.
--->
-
-### 训练端
-根据我们的实验，在公开基准数据集（IC03，IC13，IC15，IIIT，SVT，SVTP，CUTE）上的评估结果如下：
+| mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:-------------:|:-------------------:|
+|   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
 
 
-<div align="center">
+## 快速开始
+### 环境及数据准备
 
-|    **模型**     |    **环境配置**    | **骨干网络**  | **平均准确率** |       **训练时间**        | **FPS** | **ms/step** |                                                     **配置文件**                                                     |                                                                                                             **模型权重下载**                                                                                                              |
-|:-------------:|:--------------:|:---------:|:---------:|:---------------------:|:-------:|:-----------:|:----------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| RobustScanner | D910x4-MS2.0-G | ResNet-31 |  87.86%   |     12702 s/epoch     |   550   |     465     | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner/robustscanner_resnet31.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37-158bde10.mindir) |
-</div>
-
-注：除了使用MJSynth（部分）和SynthText（部分）两个文字识别数据集外，还加入了SynthAdd数据，和部分真实数据，具体数据细节可以参考论文或[这里](#312-数据集下载)。
-
-<details open markdown>
-  <div align="center">
-  <summary>在各个基准数据集上的准确率</summary>
-
-  | **模型** | **骨干网络** | **IIIT5k** | **SVT** | **IC13** | **IC15** | **SVTP** | **CUTE80** | **平均准确率** |
-  | :------: | :------: |:----------:|:-------:|:--------:|:--------:|:--------:|:----------:|:---------:|
-  | RobustScanner  | ResNet-31 |   95.50%   | 92.12%  |  94.29%  |  73.33%  |  82.33%  |   89.58%   |  87.86%   |
-  </div>
-</details>
-
-**注意:**
-- 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。例如，D910x4-MS2.0-G 用于使用图形模式在4张昇腾910 NPU上依赖Mindspore2.0版本进行训练。
-- 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
-- 模型使用90个字符的英文字典en_dict90.txt，其中有数字，常用符号以及大小写的英文字母，详细请看[4. 字符词典](#4-字符词典)
-- 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[数据集下载及使用](#312-数据集下载)章节。
-- RobustScanner的MindIR导出时的输入Shape均为(1, 3, 48, 160)。
-
-## 3. 快速开始
-### 3.1 环境及数据准备
-
-#### 3.1.1 安装
+#### 安装
 环境安装教程请参考MindOCR的 [installation instruction](https://github.com/mindspore-lab/mindocr#installation).
 
-#### 3.1.2 数据集下载
+#### 数据集下载
 本RobustScanner训练、验证使用的数据集参考了mmocr和PaddleOCR所使用的数据集对文献算法进行复现，在此非常感谢mmocr和PaddleOCR，提高了本repo的复现效率。
 
 数据集细节如下：
@@ -98,7 +63,7 @@ Table Format:
   - `SynthText800K_shuffle_xxx_xxx.zip`: 1_200共5个zip文件，包含SynthText数据集中随机挑选的240万个样本。
 - 验证集
   - `testing_lmdb.zip`: 包含了评估模型使用的CUTE80, icdar2013, icdar2015, IIIT5k, SVT, SVTP六个数据集。
-#### 3.1.3 数据集使用
+#### 数据集使用
 
 数据文件夹按照如下结构进行解压：
 
@@ -216,7 +181,7 @@ eval:
   ...
 ```
 
-通过使用上述配置 yaml 运行 [模型评估](#33-模型评估) 部分中所述的`tools/eval.py`，您可以获得数据集 CUTE80 的准确度性能。
+通过使用上述配置 yaml 运行 [模型评估](#模型评估) 部分中所述的`tools/eval.py`，您可以获得数据集 CUTE80 的准确度性能。
 
 
 2. 对同一文件夹下的多个数据集进行评估
@@ -256,7 +221,7 @@ eval:
   ...
 ```
 
-#### 3.1.4 检查配置文件
+#### 检查配置文件
 除了数据集的设置，请同时重点关注以下变量的配置：`system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`,
 `eval.ckpt_load_path`, `eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.loader.batch_size`。说明如下：
 
@@ -297,10 +262,10 @@ eval:
 - 由于全局批大小 （batch_size * num_devices） 是对结果复现很重要，因此当NPU卡数发生变化时，调整`batch_size`以保持全局批大小不变，或根据新的全局批大小线性调整学习率。
 
 **使用自定义数据集进行训练**
-- 您可以在自定义的数据集基于提供的预训练权重进行微调训练, 以在特定场景获得更高的识别准确率，具体步骤请参考文档 [使用自定义数据集训练识别网络](../../../docs/zh/tutorials/training_recognition_custom_dataset.md)。
+- 您可以在自定义的数据集基于提供的预训练权重进行微调训练, 以在特定场景获得更高的识别准确率，具体步骤请参考文档 [使用自定义数据集训练识别网络](../../../docs/cn/tutorials/training_recognition_custom_dataset.md)。
 
 
-### 3.2 模型训练
+### 模型训练
 <!--- Guideline: Avoid using shell script in the command line. Python script preferred. -->
 
 * 分布式训练
@@ -324,7 +289,7 @@ python tools/train.py --config configs/rec/robustscanner/robustscanner_resnet31.
 
 训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的目录下，默认为`./tmp_rec`。
 
-### 3.3 模型评估
+### 模型评估
 
 若要评估已训练模型的准确性，可以使用`eval.py`。请在yaml配置文件的`eval`部分将参数`ckpt_load_path`设置为模型checkpoint的文件路径，设置`distribute`为False，然后运行：
 
@@ -332,7 +297,49 @@ python tools/train.py --config configs/rec/robustscanner/robustscanner_resnet31.
 python tools/eval.py --config configs/rec/robustscanner/robustscanner_resnet31.yaml
 ```
 
-## 4. 字符词典
+## 评估结果
+<!--- Guideline:
+Table Format:
+- Model: model name in lower case with _ seperator.
+- Top-1 and Top-5: Keep 2 digits after the decimal point.
+- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
+- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
+- Download: url of the pretrained model weights. Use absolute url path.
+-->
+
+### 训练端
+根据我们的实验，在公开基准数据集（IC03，IC13，IC15，IIIT，SVT，SVTP，CUTE）上的评估结果如下：
+
+
+<div align="center">
+
+| **model name** | **backbone** |  **train dataset**   | **params(M)** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |                                                    **recipe**                                                     |                                                                                                            **weight**                                                                                                             |
+|:--------------:|:------------:|:--------------------:|:-------------:|:---------:|:--------------:| :-----------: |:-----------------:|:-----------:|:---------:|:------------:|:-----------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| RobustScanner  |   ResNet31   | Real_data+Synth_data |     48.00     |     4     |       64       |      O2       |     325.35 s      |   142.95    |  1790.87  |    89.37%    | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner/robustscanner_resnet31.yaml)  | [ckpt](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37-158bde10.mindir)|
+
+</div>
+
+注：除了使用MJSynth（部分）和SynthText（部分）两个文字识别数据集外，还加入了SynthAdd数据，和部分真实数据，具体数据细节可以参考论文或[这里](#数据集下载)。
+
+<details open markdown>
+  <div align="center">
+  <summary>在各个基准数据集上的准确率</summary>
+
+| **model name** | **backbone** | **cards** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **average** |
+|:--------------:|:------------:|:---------:|:------------:|:------------:|:------------:|:-------------:|:-------------:|:-------------:|:---------------:|:-------:|:--------:|:----------:|:-----------:|
+| RobustScanner  |   ResNet31   |     1     |    94.77%    |    94.35%    |    95.22%    |    94.29%     |    82.16%     |    73.38%     |     95.53%      | 92.12%  |  82.33%  |   89.58%   |   89.37%    |
+
+</div>
+</details>
+
+**注意:**
+- 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
+- 模型使用90个字符的英文字典en_dict90.txt，其中有数字，常用符号以及大小写的英文字母，详细请看[字符词典](#字符词典)
+- 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[数据集下载及使用](#数据集下载)章节。
+- RobustScanner的MindIR导出时的输入Shape均为(1, 3, 48, 160)。
+
+
+## 字符词典
 
 ### 默认设置
 

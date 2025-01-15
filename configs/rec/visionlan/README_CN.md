@@ -6,9 +6,9 @@
 
 > VisionLAN: [From Two to One: A New Scene Text Recognizer with Visual Language Modeling Network](https://arxiv.org/abs/2108.09661)
 
-## 1. 简介
+## 简介
 
-### 1.1 VisionLAN
+### VisionLAN
 
 视觉语言建模网络（VisionLAN）[<a href="#5-引用文献">1</a>]是一种文本识别模型，它通过在训练阶段使用逐字符遮挡的特征图来同时学习视觉和语言信息。这种模型不需要额外的语言模型来提取语言信息，因为视觉和语言信息可以作为一个整体来学习。
 <p align="center">
@@ -26,45 +26,23 @@
 
 但在测试阶段，MLM不被使用。只有骨干网络和VRM被用于预测。
 
-## 2. 评估结果
 
-根据我们实验结果，在10个公开数据集上的评估结果如下：
+## 配套版本
 
-<div align="center">
 
-| **Model** | **Context** | **Backbone**|  **Train Dataset** | **Model Params**|**Avg Accuracy** | **Train Time** | **Per Step Time** | **FPS** | **Recipe** | **Download** |
-| :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |:--------: | :--------: |:--------: |:----------: |
-| visionlan  | D910x4-MS2.0-G | resnet45 | MJ+ST| 42.2M | 90.61%  |  7718s/epoch  | 417 ms/step  | 1,840 img/s | [yaml(LF_1)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_1.yaml) [yaml(LF_2)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_2.yaml) [yaml(LA)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LA.yaml)| [ckpt files](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_ckpts-7d6e9c04.tar.gz) \| [mindir(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e-71b38d2d.mindir)|
+| mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:-------------:|:-------------------:|
+|   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
 
-</div>
 
-<details open markdown>
-  <div align="center">
-  <summary>Detailed accuracy results for ten benchmark datasets</summary>
 
-  | **Model** |  **Context** | **IC03_860**| **IC03_867**| **IC13_857**|**IC13_1015** |  **IC15_1811** |**IC15_2077** | **IIIT5k_3000** |  **SVT** | **SVTP** | **CUTE80** | **Average** |
-  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |:------: |:------: | :------: |:------: |
-  | visionlan | D910x4-MS2.0-G | 96.16% | 95.16%  |  95.92%|   94.19%  | 84.04%  | 77.46%  | 95.53%  | 92.27%  | 85.74%  |89.58% | 90.61%  |
+## 快速入门
 
-  </div>
-
-</details>
-
-**注**
-
-- 训练环境表示为`{device}x{pieces}-{MS版本}-{MS模式}`。MindSpore模式可以是`G`（Graph模式）或`F`（Pynative模式）。例如，`D910x4-MS2.0-G`表示使用MindSpore版本2.0.0在4块910 NPUs上使用图模式进行训练。
-- 训练数据集：`MJ+ST`代表两个合成数据集SynthText（800k）和MJSynth的组合。
-- 要在其他训练环境中重现结果，请确保全局批量大小相同。
-- 这些模型是从头开始训练的，没有任何预训练。有关训练和评估的更多数据集详细信息，请参阅[3.2数据集准备](#32数据集准备)部分。
-- VisionLAN的MindIR导出时的输入Shape均为(1, 3, 64, 256)。
-
-## 3.快速入门
-
-### 3.1安装
+### 安装
 
 请参考[MindOCR中的安装说明](https://github.com/mindspore-lab/mindocr#installation)。
 
-### 3.2数据集准备
+### 数据集准备
 
 **训练集**
 
@@ -137,7 +115,7 @@ datasets
     └── SynText
 ```
 
-### 3.3 更新yaml配置文件
+### 更新yaml配置文件
 
 如果数据集放置在`./datasets`目录下，则无需更改yaml配置文件`configs/rec/visionlan/visionlan_L*.yaml`中的`train.dataset.dataset_root`。
 否则，请相应地更改以下字段：
@@ -185,7 +163,7 @@ common:
 **注意：**
 - 由于全局批大小 （batch_size x num_devices） 是对结果复现很重要，因此当NPU卡数发生变化时，调整batch_size以保持全局批大小不变，或将学习率线性调整为新的全局批大小。
 
-### 3.4 训练
+### 训练
 
 训练阶段包括无语言（LF）和有语言（LA）过程，总共有三个训练步骤：
 
@@ -206,7 +184,7 @@ mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/visio
 训练结果（包括checkpoints、每个阶段的性能和loss曲线）将保存在yaml配置文件中由参数`ckpt_save_dir`解析的目录中。默认目录为`./tmp_visionlan`。
 
 
-### 3.5 测试
+### 测试
 
 在完成上述三个训练步骤以后, 用户需要在测试前，将 `configs/rec/visionlan/visionlan_resnet45_LA.yaml` 文件中的`system.distribute`改为 `False`。
 
@@ -235,12 +213,43 @@ training_step="LA"
 python tools/benchmarking/multi_dataset_eval.py --config $yaml_file --opt eval.dataset.data_dir="test" eval.ckpt_load_path="./tmp_visionlan/${training_step}/${model_name}.ckpt"
 ```
 
+## 精度结果
 
-## 4. MindSpore Lite 推理
+根据我们实验结果，在10个公开数据集上的评估结果如下：
+
+<div align="center">
+
+| **model name** | **backbone** | **train dataset** | **params(M)** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |                                                                                                                                                                        **recipe**                                                                                                                                                                        |                                                                                                            **weight**                                                                                                             |
+|:--------------:|:------------:|:-----------------:|:-------------:|:---------:|:--------------:| :-----------: |:-----------------:|:-----------:|:---------:|:------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|   visionlan    |   Resnet45   |      MJ+ST        |     42.22     |     4     |      128       |      O2       |     191.52 s      |   280.29    |  1826.63  |    90.62%    | [yaml(LF_1)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_1.yaml) [yaml(LF_2)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LF_2.yaml) [yaml(LA)](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/visionlan/visionlan_resnet45_LA.yaml)  | [ckpt files](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_ckpts-7d6e9c04.tar.gz) \| [mindir(LA)](https://download.mindspore.cn/toolkits/mindocr/visionlan/visionlan_resnet45_LA-e9720d9e-71b38d2d.mindir)|
+
+</div>
+
+<details open markdown>
+  <div align="center">
+  <summary>Detailed accuracy results for ten benchmark datasets</summary>
+
+| **model name** | **backbone** | **cards** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **average** |
+|:--------------:|:------------:|:---------:|:------------:|:------------:|:------------:|:-------------:|:-------------:|:-------------:|:---------------:|:-------:|:--------:|:----------:|:-----------:|
+|   visionlan    |  Resnet45    |     1     |    96.16%    |    95.16%    |    95.92%    |    94.19%     |    84.04%     |    77.47%     |     95.53%      | 92.27%  |  85.89%  |   89.58%   |   90.62%    |
+
+  </div>
+
+</details>
+
+**注**
+
+- 训练数据集：`MJ+ST`代表两个合成数据集SynthText（800k）和MJSynth的组合。
+- 要在其他训练环境中重现结果，请确保全局批量大小相同。
+- 这些模型是从头开始训练的，没有任何预训练。有关训练和评估的更多数据集详细信息，请参阅[数据集准备](#数据集准备)部分。
+- VisionLAN的MindIR导出时的输入Shape均为(1, 3, 64, 256)。
+
+
+## MindSpore Lite 推理
 
 请参考[MindOCR 推理](../../../docs/zh/inference/inference_tutorial.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
 
-**4.1 模型导出**
+**模型导出**
 
 请先[下载](#2-评估结果)已导出的MindIR文件，或者参考[模型导出](../../../docs/zh/inference/convert_tutorial.md#1-模型导出)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
 
@@ -251,15 +260,16 @@ python tools/export.py --model_name_or_config visionlan_resnet45 --data_shape 64
 
 其中，`data_shape`是导出MindIR时的模型输入Shape的height和width，下载链接中MindIR对应的shape值见[注释](#2-评估结果)。
 
-**4.2 环境搭建**
+**环境搭建**
 
 请参考[环境安装](../../../docs/zh/inference/environment.md)教程，配置MindSpore Lite推理运行环境。
 
-**4.3 模型转换**
+**模型转换**
 
 请参考[模型转换](../../../docs/zh/inference/convert_tutorial.md#2-mindspore-lite-mindir-转换)教程，使用`converter_lite`工具对MindIR模型进行离线转换。
 
-**4.4 执行推理**
+
+**执行推理**
 
 假设在模型转换后得到output.mindir文件，在`deploy/py_infer`目录下使用以下命令进行推理：
 
@@ -271,7 +281,7 @@ python infer.py \
     --res_save_dir=results_dir
 ```
 
-## 5. 引用文献
+## 引用文献
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 
 [1] Yuxin Wang, Hongtao Xie, Shancheng Fang, Jing Wang, Shenggao Zhu, Yongdong Zhang: From Two to One: A New Scene Text Recognizer with Visual Language Modeling Network. ICCV 2021: 14174-14183

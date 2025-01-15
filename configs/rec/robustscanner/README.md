@@ -5,7 +5,7 @@ English | [中文](https://github.com/mindspore-lab/mindocr/blob/main/configs/re
 
 > [RobustScanner: Dynamically Enhancing Positional Clues for Robust Text Recognition](https://arxiv.org/pdf/2007.07542.pdf)
 
-## 1. Introduction
+## Introduction
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
 RobustScanner is an encoder-decoder text recognition algorithm with attention mechanism. The authors of this paper conducted research on the mainstream encoder-decoder recognition frameworks and found that during the decoding process, text not only relies on contextual information but also utilizes positional information. However, most methods rely too much on context information during the decoding process, leading to serious attention shifting problems and thus result in poor performance for text recognition with weak context information or contextless information.
@@ -21,54 +21,20 @@ Overall, the RobustScanner model consists of an encoder and a decoder. The encod
   <em> Figure 1. Overall RobustScanner architecture [<a href="#references">1</a>] </em>
 </p>
 
-## 2. Results
-<!--- Guideline:
-Table Format:
-- Model: model name in lower case with _ seperator.
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
-- Top-1 and Top-5: Keep 2 digits after the decimal point.
-- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
-- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
-- Download: url of the pretrained model weights. Use absolute url path.
--->
+## Requirements
 
-### Accuracy
+| mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:-------------:|:-------------------:|
+|   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
 
-According to our experiments, the evaluation results on public benchmark datasets (IC03, IC13, IC15, IIIT, SVT, SVTP, CUTE) is as follow:
 
-<div align="center">
+## Quick Start
+### Preparation
 
-|    **Model**     |    **Context**    | **Backbone**  | **Avg Accuracy** |       **Train T.**        | **FPS** | **ms/step** |                                                     **Recipe**                                                     |                                                                                                             **Download**                                                                                                              |
-|:-------------:|:--------------:|:---------:|:---------:|:---------------------:|:-------:|:-----------:|:----------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| RobustScanner | D910x4-MS2.0-G | ResNet-31 |  87.86%   |     12702 s/epoch     |   550   |     465     | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner/robustscanner_resnet31.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37-158bde10.mindir) |
-</div>
-
-Note: In addition to using the MJSynth (partial) and SynthText (partial) text recognition datasets, RobustScanner is also trained with the SynthAdd dataset and some real datasets. The specific details of the data can be found in the paper or [here](#312-Dataset-Download).
-
-<details open markdown>
-  <div align="center">
-  <summary>Detailed accuracy results for each benchmark dataset</summary>
-
-| **Model** | **Backbone** | **IIIT5k** | **SVT** | **IC13** | **IC15** | **SVTP** | **CUTE80** | **Average** |
-| :------: | :------: |:----------:|:-------:|:--------:|:--------:|:--------:|:----------:|:-----------:|
-| RobustScanner  | ResNet-31 |   95.50%   | 92.12%  |  94.29%  |  73.33%  |  82.33%  |   89.58%   |   87.86%    |
-  </div>
-</details>
-
-**Notes:**
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G-graph mode or F-pynative mode with ms function. For example, D910x4-MS1.10-G is for training on 4 pieces of Ascend 910 NPU using graph mode based on Minspore version 1.10.
-- To reproduce the result on other contexts, please ensure the global batch size is the same.
-- The model uses an English character dictionary, en_dict90.txt, consisting of 90 characters including digits, common symbols, and upper and lower case English letters. More explanation on dictionary, please refer to [4. Character Dictionary](#4-character-dictionary).
-- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#312-dataset-download) section.
-- The input Shapes of MindIR of RobustScanner is (1, 3, 48, 160) and it is for Ascend only.
-
-## 3. Quick Start
-### 3.1 Preparation
-
-#### 3.1.1 Installation
+#### Installation
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
-#### 3.1.2 Dataset Download
+#### Dataset Download
 The dataset used for training and validation in this work, was referenced from the datasets used by mmocr and PaddleOCR for reproducing the RobustScanner algorithms. We are very grateful to mmocr and PaddleOCR for improving the reproducibility efficiency of this repository.
 
 The details of the dataset are as follows:
@@ -99,7 +65,7 @@ The downloaded file contains several compressed files, including:
   - `testing_lmdb.zip`: contains six datasets used for evaluating the model, including CUTE80, icdar2013, icdar2015, IIIT5k, SVT, and SVTP.
 
 
-#### 3.1.3 Dataset Usage
+#### Dataset Usage
 
 The data folder should be unzipped following the directory structure below:
 
@@ -257,7 +223,7 @@ eval:
   ...
 ```
 
-#### 3.1.4 Check YAML Config Files
+#### Check YAML Config Files
 Apart from the dataset setting, please also check the following important args: `system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`,
 `eval.ckpt_load_path`, `eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.loader.batch_size`. Explanations of these important args:
 
@@ -297,7 +263,7 @@ eval:
 - As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of NPUs, or adjust the learning rate linearly to a new global batch size.
 
 
-### 3.2 Model Training
+### Model Training
 <!--- Guideline: Avoid using shell script in the command line. Python script preferred. -->
 
 * Distributed Training
@@ -321,7 +287,7 @@ python tools/train.py --config configs/rec/robustscanner/robustscanner_resnet31.
 
 The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir`. The default directory is `./tmp_rec`.
 
-### 3.3 Model Evaluation
+### Model Evaluation
 
 To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 
@@ -329,7 +295,49 @@ To evaluate the accuracy of the trained model, you can use `eval.py`. Please set
 python tools/eval.py --config configs/rec/robustscanner/robustscanner_resnet31.yaml
 ```
 
-## 4. Character Dictionary
+## Results
+<!--- Guideline:
+Table Format:
+- Model: model name in lower case with _ seperator.
+- Top-1 and Top-5: Keep 2 digits after the decimal point.
+- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
+- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
+- Download: url of the pretrained model weights. Use absolute url path.
+-->
+
+### Accuracy
+
+According to our experiments, the evaluation results on public benchmark datasets (IC03, IC13, IC15, IIIT, SVT, SVTP, CUTE) is as follow:
+
+<div align="center">
+
+| **model name** | **backbone** |  **train dataset**   | **params(M)** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |                                                    **recipe**                                                     |                                                                                                            **weight**                                                                                                             |
+|:--------------:|:------------:|:--------------------:|:-------------:|:---------:|:--------------:| :-----------: |:-----------------:|:-----------:|:---------:|:------------:|:-----------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| RobustScanner  |   ResNet31   | Real_data+Synth_data |     48.00     |     4     |       64       |      O2       |     325.35 s      |   142.95    |  1790.87  |    89.37%    | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/robustscanner/robustscanner_resnet31.yaml)  | [ckpt](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/robustscanner/robustscanner_resnet31-f27eab37-158bde10.mindir)|
+
+</div>
+
+Note: In addition to using the MJSynth (partial) and SynthText (partial) text recognition datasets, RobustScanner is also trained with the SynthAdd dataset and some real datasets. The specific details of the data can be found in the paper or [here](#312-Dataset-Download).
+
+<details open markdown>
+  <div align="center">
+  <summary>Detailed accuracy results for each benchmark dataset</summary>
+
+| **model name** | **backbone** | **cards** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **average** |
+|:--------------:|:------------:|:---------:|:------------:|:------------:|:------------:|:-------------:|:-------------:|:-------------:|:---------------:|:-------:|:--------:|:----------:|:-----------:|
+| RobustScanner  |   ResNet31   |     1     |    94.77%    |    94.35%    |    95.22%    |    94.29%     |    82.16%     |    73.38%     |     95.53%      | 92.12%  |  82.33%  |   89.58%   |   89.37%    |
+
+  </div>
+</details>
+
+**Notes:**
+- To reproduce the result on other contexts, please ensure the global batch size is the same.
+- The model uses an English character dictionary, en_dict90.txt, consisting of 90 characters including digits, common symbols, and upper and lower case English letters. More explanation on dictionary, please refer to [Character Dictionary](#character-dictionary).
+- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#dataset-usage) section.
+- The input Shapes of MindIR of RobustScanner is (1, 3, 48, 160) and it is for Ascend only.
+
+
+## Character Dictionary
 
 ### Default Setting
 
