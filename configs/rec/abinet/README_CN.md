@@ -5,7 +5,7 @@
 > [Read Like Humans: Autonomous, Bidirectional and Iterative Language
 Modeling for Scene Text Recognition](https://arxiv.org/pdf/2103.06495)
 
-## 1. 模型描述
+## 模型描述
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 语义知识对场景文本识别有很大的帮助。然而，如何在端到端深度网络中有效地建模语义规则仍然是一个研究挑战。在本文中，我们认为语言模型的能力有限来自于:1)隐式语言建模;2)单向特征表示;3)带噪声输入的语言模型。相应地，我们提出了一种自主、双向、迭代的场景文本识别ABINet。首先，自主阻塞视觉和语言模型之间的梯度流，以强制显式语言建模。其次，提出了一种基于双向特征表示的新型双向完形填空式网络作为语言模型。第三，提出了一种语言模型迭代修正的执行方式，可以有效缓解噪声输入的影响。此外，我们提出了一种基于迭代预测集合的自训练方法，可以有效地从未标记的图像中学习。大量的实验表明，ABINet在低质量图像上具有优势，并在几个主流基准上取得了最先进的结果。此外，集成自训练训练的ABINet在实现人类水平的识别方面也有很大的进步 [<a href="#references">1</a>]
 
@@ -18,48 +18,21 @@ Modeling for Scene Text Recognition](https://arxiv.org/pdf/2103.06495)
   <em> 图1.  ABINet结构图 [<a href="#references">1</a>] </em>
 </p>
 
-## 2. 评估结果
-<!--- Guideline:
-Table Format:
-- Model: model name in lower case with _ seperator.
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
-- Top-1 and Top-5: Keep 2 digits after the decimal point.
-- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
-- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
-- Download: url of the pretrained model weights. Use absolute url path.
--->
+## 配套版本
 
-### 精确度
-根据我们的实验，在公共基准数据集(IC13、IC15、IIIT、SVT、SVTP、CUTE)上的评估结果如下:
-
-<div align="center">
-
-| **Model** | **Context** | **Avg Accuracy** | **Train T.** | **FPS** | **Recipe** | **Download** |
-| :-----: | :-----------: | :--------------: | :----------: | :--------: | :--------: |:----------: |
-| ABINet      | D910x8-MS2.1-G | 91.35%    | 14,867 s/epoch       | 628.11 | [yaml](abinet_resnet45_en.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en-7efa1184.ckpt)
-</div>
-
-<details open>
-  <div align="center">
-  <summary>每个基准数据集的详细精度结果</summary>
-
-  | **Model**  | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
-  | :------:  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-  | ABINet  | 96.22% | 95.83% | 96.48% | 94.90% | 84.38% | 80.56% | 95.83% | 92.36%| 87.33% | 89.58% | 91.35% |
-  </div>
-</details>
+| mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:-------------:|:-------------------:|
+|   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
 
 
+## 快速开始
+### 环境及数据准备
 
-
-## 3. 快速开始
-### 3.1 环境及数据准备
-
-#### 3.1.1 安装
+#### 安装
 环境安装教程请参考MindOCR的 [installation instruction](https://github.com/mindspore-lab/mindocr#installation).
 
 
-#### 3.1.2 Dataset Download
+#### Dataset Download
 请下载LMDB数据集用于训练和评估
   - `training` 包含两个数据集: [MJSynth (MJ)](https://pan.baidu.com/s/1mgnTiyoR8f6Cm655rFI4HQ) 和 [SynthText (ST)](https://pan.baidu.com/s/1mgnTiyoR8f6Cm655rFI4HQ)
   - `evaluation` 包含几个基准数据集，它们是[IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset), [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf), 和 [CUTE](http://cs-chan.com/downloads_CUTE80_dataset.html).
@@ -96,7 +69,7 @@ data_lmdb_release/
 │       └── lock.mdb
 ```
 
-#### 3.1.3 数据集使用
+#### 数据集使用
 
 在这里，我们使用 `train/` 文件夹下的数据集进行训练，我们使用 `evaluation/` 下的数据集来评估模型的准确性。
 
@@ -213,7 +186,7 @@ eval:
     # label_file:                                                     # 验证或评估数据集的标签文件路径，将与`dataset_root`拼接形成完整的验证或评估数据的标签文件路径。当数据集为LMDB格式时无需配置
   ...
 ```
-#### 3.1.4 检查配置文件
+#### 检查配置文件
 除了数据集的设置，请同时重点关注以下变量的配置：`system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`,
 `eval.ckpt_load_path`, `eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.dataset.label_file`, `eval.loader.batch_size`。说明如下：
 
@@ -257,7 +230,7 @@ eval:
 - 数据集:MJSynth和SynthText数据集来自作者公布的代码仓[ABINet_repo](https://github.com/FangShancheng/ABINet).
 
 
-### 3.2 模型训练
+### 模型训练
 <!--- Guideline: Avoid using shell script in the command line. Python script preferred. -->
 
 * 分布式训练
@@ -268,7 +241,7 @@ eval:
 # 在多个 GPU/Ascend 设备上进行分布式训练
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
-ABINet模型训练时需要加载预训练模型，预训练模型的权重来自https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_pretrain_en-821ca20b.ckpt，需要在“configs/rec/abinet/abinet_resnet45_en.yaml”中model的pretrained添加预训练权重的路径。
+ABINet模型训练时需要加载预训练模型，预训练模型的权重来自[abinet_pretrain_en.ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_pretrain_en-821ca20b.ckpt)，需要在“configs/rec/abinet/abinet_resnet45_en.yaml”中model的pretrained添加预训练权重的路径。
 
 * 单卡训练
 
@@ -283,7 +256,7 @@ python tools/train.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 
 训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的目录下，默认为`./tmp_rec`。
 
-### 3.3 模型评估
+### 模型评估
 
 若要评估已训练模型的准确性，可以使用`eval.py`。请在yaml配置文件的`eval`部分将参数`ckpt_load_path`设置为模型checkpoint的文件路径，设置`distribute`为False，然后运行：
 
@@ -314,6 +287,41 @@ if not is_train:
         )
         drop_remainder = True
 ```
+
+## 评估结果
+<!--- Guideline:
+Table Format:
+- Model: model name in lower case with _ seperator.
+- Top-1 and Top-5: Keep 2 digits after the decimal point.
+- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
+- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
+- Download: url of the pretrained model weights. Use absolute url path.
+-->
+
+### 精确度
+根据我们的实验，在公共基准数据集(IC13、IC15、IIIT、SVT、SVTP、CUTE)上的评估结果如下:
+
+<div align="center">
+
+| **model name** | **backbone** | **train dataset** | **params(M)** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |            **recipe**            |                                            **weight**                                            |
+|:--------------:| :----------: |:-----------------:| :-----------: |:---------:| :------------: |:-------------:|:-----------------:|:-----------:|:---------:| :----------: |:--------------------------------:|:------------------------------------------------------------------------------------------------:|
+|    ABINet      |   Resnet45   |       MJ+ST       |     36.93     |     8     |       96       |      O2       |     680.51 s      |   115.56    |  6646.07  |    91.35%    | [yaml](abinet_resnet45_en.yaml)  | [ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_resnet45_en-7efa1184.ckpt)   |
+
+</div>
+
+
+<details open>
+  <div align="center">
+  <summary>每个基准数据集的详细精度结果</summary>
+
+| **model name** | **backbone** | **cards** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **Average** |
+|:--------------:|:------------:|:---------:|:------------:|:------------:|:------------:|:-------------:|:-------------:|:-------------:|:---------------:|:-------:|:--------:|:----------:|:-----------:|
+|    ABINet      |   Resnet45   |     1     |    96.22%    |    95.83%    |    96.48%    |    94.90%     |    84.38%     |    80.56%     |     95.83%      | 92.36%  |  87.33%  |   89.58%   |   91.35%    |
+
+  </div>
+</details>
+
+
 ## 参考文献
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
 

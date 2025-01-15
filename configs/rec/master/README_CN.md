@@ -5,7 +5,7 @@
 
 > [MASTER: Multi-Aspect Non-local Network for Scene Text Recognition](https://arxiv.org/abs/1910.02562)
 
-## 1. 模型描述
+## 模型描述
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
 基于注意力机制的场景文本识别器已经取得了巨大的成功，它利用仅占用更小中间表示的RNN编码器-解码器架构，来学习1维或2维的注意力。然而，这样的方法由于编码特征之间的相似度高，导致在基于RNN的局部注意力机制下出现了注意力失调问题。此外，基于RNN的方法由于并行化效率低而效率差。为了克服这些问题，本文提出了MASTER，一种基于自注意力机制的场景文本识别器，它(1)不仅编码了输入输出的注意力，还学习了Encoder和Decoder中的特征-特征和目标-目标关系，(2)学习了更强大和鲁棒的中间表示，以应对空间失真，(3)由于高度并行训练和高效的内存缓存机制，具有较高的训练效率和较快的推理速度。在各种基准测试中的广泛实验证明，MASTER在正常和不规则场景文本上表现出优异的性能。[<a href="#参考文献">1</a>]
@@ -19,53 +19,22 @@
   <em> 图1. MASTER结构 [<a href="#参考文献">1</a>] </em>
 </p>
 
-## 2. 评估结果
-<!--- Guideline:
-Table Format:
-- Model: model name in lower case with _ seperator.
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
-- Top-1 and Top-5: Keep 2 digits after the decimal point.
-- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
-- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
-- Download: url of the pretrained model weights. Use absolute url path.
--->
+## 配套版本
 
-### 精度结果
+| mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:-------------:|:-------------------:|
+|   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
 
-根据我们的实验，在公开基准数据集（IC03，IC13，IC15，IIIT，SVT，SVTP，CUTE）上的评估结果如下：
 
-<div align="center">
+## 快速开始
+### 环境及数据准备
 
-| **模型** | **环境配置** | **平均准确率** | **训练时间** | **FPS** | **配置文件** | **模型权重下载** |
-| :-----: | :-----:  | :-----: | :-----: | :-----: |:--------: | :-----: |
-| Master-Resnet31     | D910x4-MS1.10-G | 90.37%    | 6356 s/epoch        | 2741 | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/master/master_resnet31.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31-e7bfbc97.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31_ascend-e7bfbc97-b724ed55.mindir) |
-</div>
-
-<details open markdown>
-  <div align="center">
-  <summary>在各个基准数据集上的准确率</summary>
-
-  | **模型** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **平均准确率** |
-  | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: | :------: |
-  | Master-ResNet31| 95.58% | 95.15%  | 96.85% | 95.17% | 81.94% | 78.48% | 95.56% | 90.88% | 84.19% | 89.93% | 90.37% |
-  </div>
-</details>
-
-**注意:**
-- 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。例如，D910x8-MS1.10-G 用于使用图形模式在4张昇腾910 NPU上依赖Mindspore1.10版本进行训练。
-- 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
-- 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[数据集下载及使用](#312-数据集下载)章节。
-- Master的MindIR导出时的输入Shape均为(1, 3, 48, 160)。
-
-## 3. 快速开始
-### 3.1 环境及数据准备
-
-#### 3.1.1 安装
+#### 安装
 环境安装教程请参考MindOCR的 [installation instruction](https://github.com/mindspore-lab/mindocr#installation).
 
-#### 3.1.2 数据集准备
+#### 数据集准备
 
-##### 3.1.2.1 MJSynth, 验证集和测试集
+##### MJSynth, 验证集和测试集
 部分LMDB格式的训练及验证数据集可以从[这里](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (出处: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here))下载。连接中的文件包含多个压缩文件，其中:
 - `data_lmdb_release.zip` 包含了了部分数据集，有训练集(training/），验证集(validation/)以及测试集(evaluation)。
     - `training.zip` 包括两个数据集，分别是 [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) 和 [SynthText (ST)](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c)。 这里我们只使用**MJSynth**。
@@ -74,7 +43,7 @@ Table Format:
 - `validation.zip`: 与 data_lmdb_release.zip 中的validation/ 一样。
 - `evaluation.zip`: 与 data_lmdb_release.zip 中的evaluation/ 一样。
 
-##### 3.1.2.2 SynthText dataset
+##### SynthText dataset
 
 我们不使用`data_lmdb_release.zip`提供的`SynthText`数据, 因为它只包含部分切割下来的图片。请从[此处](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c)下载原始数据, 并使用以下命令转换成LMDB格式
 
@@ -88,7 +57,7 @@ python tools/dataset_converters/convert.py \
 ```
 `ST_full` 包含了所有已切割的图片，以LMDB格式储存。 请将 `ST` 文件夹换成 `ST_full` 文件夹。
 
-##### 3.1.2.3 SynthAdd dataset
+##### SynthAdd dataset
 
 另外请从[此处](https://pan.baidu.com/s/1uV0LtoNmcxbO-0YA7Ch4dg)（密码：627x）下载**SynthAdd**训练集. 这个训练集是由<https://arxiv.org/abs/1811.00751>提出。请使用以下命令转换成LMDB格式
 
@@ -102,7 +71,7 @@ python tools/dataset_converters/convert.py \
 
 并将转换完成的`SynthAdd`文件夹摆在`/training`里面.
 
-#### 3.1.3 数据集使用
+#### 数据集使用
 
 最终数据文件夹结构如下：
 
@@ -218,7 +187,7 @@ eval:
   ...
 ```
 
-通过使用上述配置 yaml 运行 [模型评估](#33-model-evaluation) 部分中所述的`tools/eval.py`，您可以获得数据集 CUTE80 的准确度性能。
+通过使用上述配置 yaml 运行 [模型评估](#模型评估) 部分中所述的`tools/eval.py`，您可以获得数据集 CUTE80 的准确度性能。
 
 
 2. 对同一文件夹下的多个数据集进行评估
@@ -258,7 +227,7 @@ eval:
   ...
 ```
 
-#### 3.1.4 检查配置文件
+#### 检查配置文件
 除了数据集的设置，请同时重点关注以下变量的配置：`system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`,
 `eval.ckpt_load_path`, `eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.dataset.label_file`, `eval.loader.batch_size`。说明如下：
 
@@ -269,7 +238,7 @@ system:
   amp_level_infer: "O2"
   seed: 42
   val_while_train: True                                               # 边训练边验证
-  drop_overflow_update: False
+  drop_overflow_update: True
 common:
   ...
   batch_size: &batch_size 512                                         # 训练批大小
@@ -300,7 +269,7 @@ eval:
 - 由于全局批大小 （batch_size x num_devices） 是对结果复现很重要，因此当GPU/NPU卡数发生变化时，调整`batch_size`以保持全局批大小不变，或根据新的全局批大小线性调整学习率。
 
 
-### 3.2 模型训练
+### 模型训练
 <!--- Guideline: Avoid using shell script in the command line. Python script preferred. -->
 
 * 分布式训练
@@ -324,7 +293,7 @@ python tools/train.py --config configs/rec/master/master_resnet31.yaml
 
 训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的目录下，默认为`./tmp_rec`。
 
-### 3.3 模型评估
+### 模型评估
 
 若要评估已训练模型的准确性，可以使用`eval.py`。请在yaml配置文件的`eval`部分将参数`ckpt_load_path`设置为模型checkpoint的文件路径，设置`distribute`为False，然后运行：
 
@@ -332,7 +301,47 @@ python tools/train.py --config configs/rec/master/master_resnet31.yaml
 python tools/eval.py --config configs/rec/master/master_resnet31.yaml
 ```
 
-## 4. 字符词典
+
+## 评估结果
+<!--- Guideline:
+Table Format:
+- Model: model name in lower case with _ seperator.
+- Top-1 and Top-5: Keep 2 digits after the decimal point.
+- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
+- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
+- Download: url of the pretrained model weights. Use absolute url path.
+-->
+
+### 精度结果
+
+根据我们的实验，在公开基准数据集（IC03，IC13，IC15，IIIT，SVT，SVTP，CUTE）上的评估结果如下：
+
+<div align="center">
+
+| **model name**  | **backbone** |  **train dataset**  | **params(M)** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |                                             **recipe**                                              |                                                                                                   **weight**                                                                                                    |
+|:---------------:|:------------:|:-------------------:|:-------------:|:---------:| :------------: | :-----------: |:-----------------:|:-----------:|:---------:|:------------:|:---------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| Master-Resnet31 |   Resnet31   |   MJ+ST+SyAythAdd   |     68.23     |     4     |       16       |      O2       |     194.99 s      |   642.164   |  3189.22  |    90.34%    | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/master/master_resnet31.yaml)  | [ckpt](https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31-e7bfbc97.ckpt) \|  [mindir](https://download.mindspore.cn/toolkits/mindocr/master/master_resnet31_ascend-e7bfbc97-b724ed55.mindir) |
+
+</div>
+
+<details open markdown>
+  <div align="center">
+  <summary>在各个基准数据集上的准确率</summary>
+
+| **model name** | **backbone** | **cards** | **IC03_860** | **IC03_867** | **IC13_857** | **IC13_1015** | **IC15_1811** | **IC15_2077** | **IIIT5k_3000** | **SVT** | **SVTP** | **CUTE80** | **average** |
+|:--------------:| :----------: | :-------: |:------------:|:------------:|:------------:|:-------------:|:-------------:|:-------------:|:---------------:|:-------:|:--------:|:----------:|:-----------:|
+|Master-ResNet31 |   ResNet31   |     1     |    93.72%    |    95.16%    |    96.85%    |    95.17%     |    81.94%     |    78.48%     |     95.57%      | 90.88%  |  84.19%  |   89.58%   |   90.34%    |
+
+  </div>
+</details>
+
+**注意:**
+- 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
+- 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[数据集下载及使用](#环境及数据准备)章节。
+- Master的MindIR导出时的输入Shape均为(1, 3, 48, 160)。
+
+
+## 字符词典
 
 ### 默认设置
 
@@ -360,11 +369,11 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 - 请记住检查配置文件中的 `dataset->transform_pipeline->RecMasterLabelEncode->lower` 参数的值。如果词典中有大小写字母而且想区分大小写的话，请将其设置为 False。
 
 
-## 5. MindSpore Lite 推理
+## MindSpore Lite 推理
 
 请参考[MindOCR 推理](../../../docs/cn/inference/inference_tutorial.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
 
-**1. 模型导出**
+**模型导出**
 
 请先[下载](#2-评估结果)已导出的MindIR文件，或者参考[模型导出](../../README.md)教程，使用以下命令将训练完成的ckpt导出为MindIR文件:
 
@@ -376,15 +385,15 @@ python tools/export.py --model_name_or_config configs/rec/master/master_resnet31
 
 其中，`data_shape`是导出MindIR时的模型输入Shape的height和width，下载链接中MindIR对应的shape值见[注释](#2-评估结果)。
 
-**2. 环境搭建**
+**环境搭建**
 
 请参考[环境安装](../../../docs/cn/inference/environment.md#2-mindspore-lite推理)教程，配置MindSpore Lite推理运行环境。
 
-**3. 模型转换**
+**模型转换**
 
 请参考[模型转换](../../../docs/cn/inference/convert_tutorial.md#1-mindocr模型)教程，使用`converter_lite`工具对MindIR模型进行离线转换。
 
-**4. 执行推理**
+**执行推理**
 
 假设在模型转换后得到output.mindir文件，在`deploy/py_infer`目录下使用以下命令进行推理：
 
