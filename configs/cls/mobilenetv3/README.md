@@ -2,9 +2,9 @@ English | [中文](README_CN.md)
 
 # MobileNetV3 for text direction classification
 
-## 1. Introduction
+## Introduction
 
-### 1.1 MobileNetV3: [Searching for MobileNetV3](https://arxiv.org/abs/1905.02244)
+### MobileNetV3: [Searching for MobileNetV3](https://arxiv.org/abs/1905.02244)
 
 MobileNetV3[[1](#references)] was published in 2019, which combines the deep separable convolution of V1, the Inverted Residuals and Linear Bottleneck of V2, and the SE (Squeeze and Excitation) module to search the configuration and parameters of the network using NAS (Neural Architecture Search). MobileNetV3 first uses MnasNet to perform a coarse structure search, and then uses reinforcement learning to select the optimal configuration from a set of discrete choices. Besides, MobileNetV3 fine-tunes the architecture using NetAdapt. Overall, MobileNetV3 is a lightweight network having good performance in classification, detection and segmentation tasks.
 
@@ -16,7 +16,7 @@ MobileNetV3[[1](#references)] was published in 2019, which combines the deep sep
 </p>
 
 
-### 1.2 Text direction classifier
+### Text direction classifier
 
 The text directions in some images are revered, so that the text cannot be regconized correctly. Therefore. we use a text direction classifier to classify and rectify the text direction. The MobileNetV3 paper releases two versions of MobileNetV3: *MobileNetV3-Large* and *MobileNetV3-Small*. Taking the tradeoff between efficiency and accuracy, we adopt the *MobileNetV3-Small* as the text direction classifier.
 
@@ -32,32 +32,34 @@ Currently we support the 0 and 180 degree classification. You can update the par
 </div>
 
 
-## 2. Results
+## Results
+
+| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
+|:---------:|:---------------:|:------------:|:-------------------:|
+|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
 
 MobileNetV3 is pretrained on ImageNet. For text direction classification task, we further train MobileNetV3 on RCTW17, MTWI and LSVT datasets.
 
+Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode
 <div align="center">
 
-| **Model**         | **Context**    | **Specification** | **Pretrained dataset** |  **Training dataset** | **Accuracy** | **Train T.** | **Throughput** | **Recipe**                  | **Download**                                                                                                                                                                                         |
-|-------------------|----------------|--------------|----------------|------------|---------------|---------------|----------------|-----------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| MobileNetV3            | D910x4-MS2.0-G | small    | ImageNet | RCTW17, MTWI, LSVT | 94.59%     | 154.2 s/epoch  | 5923.5 img/s      | [yaml](cls_mv3.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/cls/cls_mobilenetv3-92db9c58.ckpt)  |
+| **model name** | **cards** | **batch size** | **img/s** | **accuracy** | **config**  | **weight**                                                                            |
+|----------------|-----------|----------------|-----------|--------------|-----------------------------------------------------|------------------------------------------------|
+| MobileNetV3    | 4         | 256            | 5923.5    | 94.59%       | [yaml](cls_mv3.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/cls/cls_mobilenetv3-92db9c58.ckpt) |
 </div>
 
 
-#### Notes
-- Context: Training context denoted as {device}x{pieces}-{MS version}{MS mode}, where MS (MindSpore) mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
 
 
+## Quick Start
 
-## 3. Quick Start
-
-### 3.1 Installation
+### Installation
 
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
-### 3.2 Dataset preparation
+### Dataset preparation
 
-Please download [RCTW17](https://rctw.vlrlab.net/dataset), [MTWI](https://tianchi.aliyun.com/competition/entrance/231684/introduction), and [LSVT](https://rrc.cvc.uab.es/?ch=16&com=introduction) datasets, and then process the images and labels in desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md) (Coming soon...).
+Please download [RCTW17](https://rctw.vlrlab.net/dataset), [MTWI](https://tianchi.aliyun.com/competition/entrance/231684/introduction), and [LSVT](https://rrc.cvc.uab.es/?ch=16&com=introduction) datasets, and then process the images and labels in desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
 
 The prepared dataset file struture is suggested to be as follows.
 
@@ -75,7 +77,7 @@ The prepared dataset file struture is suggested to be as follows.
 > If you want to use your own dataset for training, please convert the images and labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
 
 
-### 3.3 Update yaml config file
+### Update yaml config file
 
 Update the dataset directories in yaml config file. The `dataset_root` will be concatenated with `data_dir` and `label_file` respectively to be the complete image directory and label file path.
 
@@ -117,29 +119,8 @@ model:
     num_classes: *num_classes  # 2 or 4
 ```
 
-### 3.4 Training
 
-* Standalone training
-
-Please set `distribute` in yaml config file to be `False`.
-
-```shell
-python tools/train.py -c configs/cls/mobilenetv3/cls_mv3.yaml
-```
-
-* Distributed training
-
-Please set `distribute` in yaml config file to be `True`.
-
-```shell
-# n is the number of GPUs/NPUs
-mpirun --allow-run-as-root -n 4 python tools/train.py -c configs/cls/mobilenetv3/cls_mv3.yaml
-```
-
-The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir` in yaml config file. The default directory is `./tmp_cls`.
-
-
-### 3.5 Evaluation
+### Evaluation
 
 Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be `False`, and then run:
 

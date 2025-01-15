@@ -5,7 +5,7 @@
 
 > [TableMaster: PINGAN-VCGROUP’S SOLUTION FOR ICDAR 2021 COMPETITION ON SCIENTIFIC LITERATURE PARSING TASK B: TABLE RECOGNITION TO HTML](https://arxiv.org/pdf/2105.01848.pdf)
 
-## 1. 模型描述
+## 模型描述
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 
 TableMaster是一种用于表格识别的模型，其独特之处在于能够同时训练得到单元格内的文字块位置和表格结构。传统的表格识别方法通常先回归出单元格的坐标，然后根据坐标获取表格的行列信息。然而，对于无表格线的情况，直接获取单元格位置或表格线信息变得困难。TableMaster提出了一种新的解决思路，采用超文本标记语言(HTML)作为预测目标，在训练过程中同时学习单元格内的文字块位置和表格结构。
@@ -21,30 +21,34 @@ TableMaster是一种用于表格识别的模型，其独特之处在于能够同
   <em> 图1. TableMaster整体架构图 [<a href="#参考文献">1</a>] </em>
 </p>
 
-## 2. 实验结果
+## 实验结果
+
+| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
+|:---------:|:---------------:|:------------:|:-------------------:|
+|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
 
 ### PubTabNet
+
+在采用图模式的ascend 910*上实验结果，mindspore版本为2.3.1
 <div align="center">
 
-| **模型**      | **环境配置**       | **骨干网络**    | **Accuracy** | **训练时间**     | **每步耗时**    | **FPS**   | **配置文件**                  | 模型权重下载                                                                                                     |
-|-------------|----------------|-------------|--------------|--------------|-------------|-----------|---------------------------|------------------------------------------------------------------------------------------------------------|
-| TableMaster | D910x8-MS2.2-G | TableResNetExtra   | 77.43%       | 2100 s/epoch | 335 ms/step | 238 img/s | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-25810c37.ckpt) |
-
+| **模型名称**    | **卡数** | **单卡批量大小** | **ms/step** | **img/s** | **准确率** | **配置**                    | **权重**                                                                                                |
+|-------------|--------|------------|-------------|-----------|---------|---------------------------|-------------------------------------------------------------------------------------------------------|
+| TableMaster | 8      | 10         | 268         | 296       | 77.49%  | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
 </div>
 
 #### 注释：
-- 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。
 - TableMaster的训练时长受数据处理部分和不同运行环境的影响非常大。
 - 链接中MindIR导出时的输入Shape为`(1,3,480,480)` 。
 
 
-## 3. 快速上手
+## 快速上手
 
-### 3.1 安装
+### 安装
 
 请参考MindOCR套件的[安装指南](https://github.com/mindspore-lab/mindocr#installation) 。
 
-### 3.2 数据准备
+### 数据准备
 
 请从[该网址](https://github.com/ibm-aur-nlp/PubTabNet)下载PubTabNet数据集，对zip文件进行解压，并根据标注文件`PubTabNet_2.0.0.jsonl`中的`split`字段将数据划分为训练集和验证集。
 
@@ -70,7 +74,7 @@ PubTabNet
 └── PubTabNet_2.0.0_val.jsonl
 ```
 
-### 3.3 配置说明
+### 配置说明
 
 在配置文件`configs/table/table_master.yaml`中更新如下文件路径。其中`dataset_root`为训练集图片文件夹目录，`label_file_list`为训练集标签文件路径列表，可包含多个标签文件路径。
 
@@ -125,7 +129,7 @@ model:
     loc_reg_num: &loc_reg_num 4
 ```
 
-### 3.4 训练
+### 训练
 
 * 单卡训练
 
@@ -141,13 +145,13 @@ python tools/train.py --config configs/table/table_master.yaml
 请确保yaml文件中的`distribute`参数为True。
 
 ```shell
-# n is the number of GPUs/NPUs
+# n is the number of NPUs
 mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/table/table_master.yaml
 ```
 
 训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为`./tmp_table`。
 
-### 3.5 评估
+### 评估
 
 评估环节，在yml配置文件中将`ckpt_load_path`参数配置为checkpoint文件的路径，设置`distribute`为False，然后运行：
 

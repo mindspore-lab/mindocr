@@ -5,7 +5,7 @@ English| [中文](README_CN.md)
 
 > [LayoutXLM: Multimodal Pre-training for Multilingual Visually-rich Document Understanding](https://arxiv.org/abs/2104.08836)
 
-## 1. Introduction
+## Introduction
 <!--- Guideline: Introduce the model and architectures. Cite if you use/adopt paper explanation from others. -->
 ****
 LayoutXLM is the multilingual version of LayoutLMv2[<a href="#References">2</a>]. Unlike the original LayoutLM, which integrates image embeddings during the fine-tuning stage, LayoutXLM integrates visual information during the pre-training stage and utilizes a Transformer architecture to learn cross-modal interactions between text and images. Additionally, inspired by 1-D relative positional representation, the paper proposes a spatial-aware self-attention mechanism, which provides 2-D relative positional representation for token pairs. Unlike using absolute 2-D position embeddings to model document layout, relative positional embeddings can provide a larger receptive field for modeling contextual spatial relationships clearly.
@@ -40,7 +40,7 @@ After obtaining αij from the original self-attention layer, considering the lar
   <em> Figure 1. LayoutXLM(LayoutLMv2) architecture [<a href="#References">1</a>] </em>
 </p>
 
-## 2. Results
+## Results
 <!--- Guideline:
 Table Format:
 - Model: model name in lower case with _ seperator.
@@ -53,26 +53,31 @@ Table Format:
 
 ### Accuracy
 
+| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
+|:---------:|:---------------:|:------------:|:-------------------:|
+|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
+
 According to our experiments, the performance and accuracy evaluation（[Model Evaluation](#33-Model-Evaluation)） results of training ([Model Training](#32-Model-Training)) on the XFUND Chinese dataset are as follows:
 
+
+Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode
 <div align="center">
 
-|   **Model**   | **Task** |  **Context**   | **Dateset** | **Model Params** | **Batch size** | **Graph train 1P (s/epoch)** | **Graph train 1P (ms/step)** | **Graph train 1P (FPS)** | **hmean** |                      **Config**                      |                                          **Download**                                          |
-| :----------: | :------: | :-------------: | :--------: | :--------: | :----------: | :--------------------------: | :--------------------------: | :----------------------: | :-------: | :----------------------------------------------------: | :------------------------------------------------------------------------------------------------: |
-|  LayoutXLM   |   SER    | D910Ax1-MS2.1-G |  XFUND_zh  |  352.0 M   |      8       |             3.41             |            189.50            |          42.24           |  90.41%   | [yaml](../layoutxlm/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt)  |
-| VI-LayoutXLM |   SER    | D910Ax1-MS2.1-G |  XFUND_zh  |  265.7 M   |      8       |             3.06             |            169.7             |           47.2           |  93.31%   |         [yaml](ser_vi_layoutxlm_xfund_zh.yaml)         | [ckpt](https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/ser_vi_layoutxlm-f3c83585.ckpt) |
-
+| **model name** | **cards** | **batch size** | **img/s** | **hmean** | **config**  | **weight**                                                                            |
+|----------------|-----------|----------------|-----------|-----------|-----------------------------------------------------|------------------------------------------------|
+| LayoutXLM    | 1         | 8              | 73.26     | 90.34%    | [yaml](../layoutxlm/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt)  |
+| VI-LayoutXLM    | 1         | 8              | 110.6     | 93.31%    | [yaml](../layoutxlm/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt)  |
 </div>
 
 
 
-## 3. Quick Start
-### 3.1 Preparation
+## Quick Start
+### Preparation
 
-#### 3.1.1 Installation
+#### Installation
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
-#### 3.1.2 Dataset Download
+#### Dataset Download
 
 [The XFUND dataset](https://github.com/doc-analysis/XFUND) is used as the experimental dataset. The XFUND dataset is a multilingual dataset proposed by Microsoft for the Knowledge-Intensive Extraction (KIE) task. It consists of seven datasets, each containing 149 training samples and 50 validation samples.
 
@@ -87,7 +92,7 @@ wget https://download.mindspore.cn/toolkits/mindocr/vi-layoutxlm/XFUND.tar && ta
 cd ..
 ```
 
-#### 3.1.3 Dataset Usage
+#### Dataset Usage
 
 After decompression, the data folder structure is as follows:
 
@@ -128,118 +133,8 @@ The annotation format of this dataset is:
 }
 ```
 
-**The data configuration for model training.**
 
-If you want to reproduce the training of the model, it is recommended to modify the dataset-related fields in the configuration YAML file as follows:
-
-```yaml
-...
-train:
-  ...
-  dataset:
-    type: KieDataset
-    dataset_root: path/to/dataset/                                      # Root directory of the training dataset
-    data_dir: XFUND/zh_train/image/                                     # Directory of the training dataset, concatenated with `dataset_root` to form the complete directory of the training dataset
-    label_file: XFUND/zh_train/train.json                               # Path to the label file of the training dataset, concatenated with `dataset_root` to form the complete path of the label file of the training dataset
-...
-eval:
-  dataset:
-    type: KieDataset
-    dataset_root: path/to/dataset/                                      # Root directory of the validation dataset
-    data_dir: XFUND/zh_val/image/                                       # Directory of the validation dataset, concatenated with `dataset_root` to form the complete directory of the validation dataset
-    label_file: XFUND/zh_val/val.json                                   # Path to the label file of the validation dataset, concatenated with `dataset_root` to form the complete path of the label file of the validation dataset
-  ...
-
-```
-
-#### 3.1.4 Check YAML Config Files
-Apart from the dataset setting, please also check the following important args: `system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_path`, `eval.ckpt_load_path`, `eval.dataset.dataset_path`, `eval.loader.batch_size`. Explanations of these important args:
-
-```yaml
-system:
-  mode:
-  distribute: False                                                     # `True` for distributed training, `False` for standalone training
-  amp_level: 'O0'
-  seed: 42
-  val_while_train: True                                                 # Validate while training
-  drop_overflow_update: False
-model:
-  type: kie
-  transform: null
-  backbone:
-    name: layoutxlm
-    pretrained: True
-    num_classes: &num_classes 7
-    use_visual_backbone: False
-    use_float16: True
-  head :
-    name: TokenClassificationHead
-    num_classes: 7
-    use_visual_backbone: False
-    use_float16: True
-  pretrained:
-...
-train:
-  ckpt_save_dir: './tmp_kie_ser'                                        # The training result (including checkpoints, per-epoch performance and curves) saving directory
-  dataset_sink_mode: False
-  dataset:
-    type: KieDataset
-    dataset_root: path/to/dataset/                                      # Path of training dataset
-    data_dir: XFUND/zh_train/image/                                     # Path of training dataset data dir
-    label_file: XFUND/zh_train/train.json                               # Path of training dataset label file
-...
-eval:
-  ckpt_load_path: './tmp_kie_ser/best.ckpt'                             # checkpoint file path
-  dataset_sink_mode: False
-  dataset:
-    type: KieDataset
-    dataset_root: path/to/dataset/                                      # Path of evaluation dataset
-    data_dir: XFUND/zh_val/image/                                       # Path of evaluation dataset data dir
-    label_file: XFUND/zh_val/val.json                                   # Path of evaluation dataset label file
-...
-  ...
-...
-```
-
-**Notes:**
-- As the global batch size  (batch_size x num_devices) is important for reproducing the result, please adjust `batch_size` accordingly to keep the global batch size unchanged for a different number of GPUs/NPUs, or adjust the learning rate linearly to a new global batch size.
-
-
-### 3.2 Model Training
-<!--- Guideline: Avoid using shell script in the command line. Python script preferred. -->
-* Convert PaddleOCR model
-
-If you want to import the PaddleOCR LayoutXLM model, you can use the `tools/param_converter.py` script to convert the pdparams file to the ckpt format supported by MindSpore, and then import it for further training.
-
-```shell
-python tools/param_converter.py \
- --input_path path/to/paddleocr.pdparams \
- --json_path mindocr/models/backbones/layoutxlm/ser_vi_layoutxlm_param_map.json \
- --output_path path/to/from_paddle.ckpt
-```
-
-* Distributed Training
-
-It is easy to reproduce the reported results with the pre-defined training recipe. For distributed training on multiple Ascend 910 devices, please modify the configuration parameter `distribute` as True and run:
-
-```shell
-# distributed training on multiple GPU/Ascend devices
-mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/kie/vi_layoutxlm/ser_vi_layoutxlm_xfund_zh.yaml
-```
-
-
-* Standalone Training
-
-If you want to train or finetune the model on a smaller dataset without distributed training, please modify the configuration parameter`distribute` as False and run:
-
-```shell
-# standalone training on a CPU/GPU/Ascend device
-python tools/train.py --config configs/kie/vi_layoutxlm/ser_vi_layoutxlm_xfund_zh.yaml
-```
-
-The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir`. The default directory is `./tmp_kie_ser`.
-
-### 3.3 Model Evaluation
+### Model Evaluation
 
 To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 
@@ -248,7 +143,7 @@ python tools/eval.py --config configs/kie/vi_layoutxlm/ser_vi_layoutxlm_xfund_zh
 ```
 
 
-### 3.4 Model Inference
+### Model Inference
 
 To perform inference using a pre-trained model, you can utilize `tools/infer/text/predict_ser.py` for inference and visualize the results.
 

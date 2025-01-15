@@ -7,7 +7,7 @@ __all__ = ["YOLOv8Metric"]
 class YOLOv8Metric(object):
     """Compute the mean average precision."""
 
-    def __init__(self, annotations_path, device_num=1):
+    def __init__(self, annotations_path, device_num=1, **kwargs):
         self.annotations_path = annotations_path
         self.anno = COCO(annotations_path)  # init annotations api
         self.metric_names = ["map"]
