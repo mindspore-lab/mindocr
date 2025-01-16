@@ -335,14 +335,6 @@ We use a public Chinese text benchmark dataset [Benchmarking-Chinese-Text-Recogn
 
 For detailed instruction of data preparation and yaml configuration, please refer to [ch_dataset](../../../docs/en/datasets/chinese_text_recognition.md).
 
-### Training
-
-To train with the prepared datsets and config file, please run:
-
-```shell
-mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/rare/rare_resnet34_ch.yaml
-```
-
 ### Results and Pretrained Weights
 
 After training, evaluation results on the benchmark test set are as follows, where we also provide the model config and pretrained weights.
