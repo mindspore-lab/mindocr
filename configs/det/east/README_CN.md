@@ -6,7 +6,9 @@
 
 > [EAST: An Efficient and Accurate Scene Text Detector](https://arxiv.org/abs/1704.03155)
 
-## 1. 概述
+## 概述
+
+### EAST
 
 EAST (Efficient and Accurate Scene Text Detection)是一种高效、准确且轻量级的OCR检测算法，主要用于在自然场景下的文本检测。该算法使用深度残差网络提取文本特征，在特征金字塔网络中进行特征融合，并采用二分类和定位两个分支来检测文本。EAST在文本检测的准确性和鲁棒性方面取得了显著的成果。
 
@@ -27,30 +29,19 @@ EAST的整体架构图如图1所示，包含以下阶段:
 4.**文本分支**:
 在确定了文本区域的位置和大小后，EAST模型会进一步将这些区域分类为文本或非文本区域。为此，模型采用了一条全卷积的文本分支，对文本区域进行二分类。
 
-## 2. 实验结果
+### 配套版本
 
-### ICDAR2015
-<div align="center">
+| mindspore  | ascend driver  |    firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:--------------:|:-------------------:|
+|   2.3.1    |    24.1.RC2    |  7.3.0.1.231   |    8.0.RC2.beta1    |
 
-| **模型**           | **环境配置**       | **骨干网络**    | **预训练数据集** | **Recall** | **Precision** | **F-score** | **训练时间**    | **每步耗时**    | **吞吐量**    | **配置文件**                   | 模型权重下载                                                                                                     |
-|------------------|----------------|-------------|------------|------------|---------------|-------------|-------------|-------------|------------|----------------------------|------------------------------------------------------------------------------------------------------------|
-| EAST             | D910x8-MS1.9-G | ResNet-50   | ImageNet   | 82.23%     | 87.68%        | 84.87%      | 1.6 s/epoch | 256 ms/step | 625 img/s  | [yaml](east_r50_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359-5f05cd42.mindir) |
-| EAST             | D910x8-MS1.9-G | MobileNetV3   | ImageNet   | 73.47%     | 77.27%        | 75.32%      | 0.79 s/epoch | 138 ms/step | 1185 img/s | [yaml](east_mobilenetv3_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1-5bf242c5.mindir) |
+## 快速上手
 
-</div>
-
-#### 注释：
-- 环境配置：训练的环境配置表示为 {处理器}x{处理器数量}-{MS模式}，其中 Mindspore 模式可以是 G-graph 模式或 F-pynative 模式。
-- EAST的训练时长受数据处理部分和不同运行环境的影响非常大。
-- 链接中MindIR导出时的输入Shape为`(1,3,720,1280)` 。
-
-## 3. 快速上手
-
-### 3.1 安装
+### 安装
 
 请参考MindOCR套件的[安装指南](https://github.com/mindspore-lab/mindocr#installation) 。
 
-### 3.2 数据准备
+### 数据准备
 
 请从[该网址](https://rrc.cvc.uab.es/?ch=4&com=downloads)下载ICDAR2015数据集，然后参考[数据转换](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README_CN.md)对数据集标注进行格式转换。
 
@@ -72,7 +63,7 @@ EAST的整体架构图如图1所示，包含以下阶段:
     └── train_det_gt.txt
 ```
 
-### 3.3 配置说明
+### 配置说明
 
 在配置文件`configs/det/east/east_r50_icdar15.yaml`中更新如下文件路径。其中`dataset_root`会分别和`dataset_root`以及`label_file`拼接构成完整的数据集目录和标签文件路径。
 
@@ -117,7 +108,7 @@ model:
     name: EASTHead
 ```
 
-### 3.4 训练
+### 训练
 
 * 单卡训练
 
@@ -139,7 +130,7 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/det/east/
 
 训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为`./tmp_det`。
 
-### 3.5 评估
+### 评估
 
 评估环节，在yaml配置文件中将`ckpt_load_path`参数配置为checkpoint文件的路径，设置`distribute`为False，然后运行：
 
@@ -147,7 +138,7 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/det/east/
 python tools/eval.py --config configs/det/east/east_r50_icdar15.yaml
 ```
 
-### 3.6 MindSpore Lite 推理
+### MindSpore Lite 推理
 
 请参考[MindOCR 推理](../../../docs/cn/inference/inference_tutorial.md)教程，基于MindSpore Lite在Ascend 310上进行模型的推理，包括以下步骤：
 
@@ -183,6 +174,21 @@ python infer.py \
     --det_model_name_or_config=../../configs/det/east/east_r50_icdar15.yaml \
     --res_save_dir=results_dir
 ```
+
+## 性能表现
+
+EAST在ICDAR2015数据集上训练。另外，我们在ImageNet数据集上进行了预训练，并提供预训练权重下载链接。所有训练结果如下：
+
+### ICDAR2015
+
+| **model name** | **backbone** | **pretrained** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **recall** | **precision** | **f-score** |              **recipe**               |                                           **weight**                                          |
+|:--------------:|:------------:| :------------: |:---------:|:--------------:| :-----------: |:-----------------:|:-----------:|:---------:|:----------:|:-------------:|:-----------:|:-------------------------------------:|:---------------------------------------------------------------------------------------------:|
+|      EAST      | ResNet-50    |    ImageNet    |     8     |       20       |      O2       |     250.32 s      |   254.54    |  628.58   |   80.36%   |    84.17%     |   82.22%    |   [yaml](east_r50_icdar15.yaml)       | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359-5f05cd42.mindir)   |
+|      EAST      | MobileNetV3  |    ImageNet    |     8     |       20       |      O2       |     313.78 s      |    91.59    |  1746.92  |   73.18%   |    74.07%     |   73.63%    | [yaml](east_mobilenetv3_icdar15.yaml) |[ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1-5bf242c5.mindir)|
+
+#### 注释：
+- EAST的训练时长受数据处理部分和不同运行环境的影响非常大。
+- 链接中MindIR导出时的输入Shape为`(1,3,720,1280)` 。
 
 ## 参考文献
 

@@ -2,7 +2,6 @@ from . import (  # rec_abinet_postprocess,
     cls_postprocess,
     det_db_postprocess,
     det_east_postprocess,
-    det_fce_postprocess,
     det_pse_postprocess,
     kie_re_postprocess,
     kie_ser_postprocess,
@@ -14,7 +13,6 @@ from . import (  # rec_abinet_postprocess,
 from .cls_postprocess import *
 from .det_db_postprocess import *
 from .det_east_postprocess import *
-from .det_fce_postprocess import *
 from .det_pse_postprocess import *
 from .kie_re_postprocess import VQAReTokenLayoutLMPostProcess
 from .kie_ser_postprocess import VQASerTokenLayoutLMPostProcess
@@ -32,7 +30,6 @@ supported_postprocess = (
     + rec_postprocess.__all__
     + cls_postprocess.__all__
     + rec_abinet_postprocess.__all__
-    + det_fce_postprocess.__all__
     + kie_ser_postprocess.__all__
     + kie_re_postprocess.__all__
     + layout_postprocess.__all__

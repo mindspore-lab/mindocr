@@ -253,7 +253,6 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 - [x] [DBNet++](configs/det/dbnet/README_CN.md) (TPAMI'2022)
 - [x] [PSENet](configs/det/psenet/README_CN.md) (CVPR'2019)
 - [x] [EAST](configs/det/east/README_CN.md)(CVPR'2017)
-- [x] [FCENet](configs/det/fcenet/README_CN.md) (CVPR'2021)
 </details>
 
 <details open markdown>

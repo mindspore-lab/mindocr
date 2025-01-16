@@ -6,7 +6,7 @@ English | [中文](README_CN.md)
 
 > [EAST: An Efficient and Accurate Scene Text Detector](https://arxiv.org/abs/1704.03155)
 
-## 1. Introduction
+## Introduction
 
 ### EAST
 
@@ -29,33 +29,15 @@ EAST uses regression for the position and rotation angle of the text box, enabli
 4. **Text detection branch**:
 After determining the location and size of the text region, EAST further classifies these regions as text or non-text areas. For this purpose, a fully convolutional text branch is employed for binary classification of the text areas.
 
+## Quick Start
 
-## 2. Results
-
-### ICDAR2015
-<div align="center">
-
-| **Model**           | **Context**       | **Backbone**    | **Pretrained** | **Recall** | **Precision** | **F-score** | **Train T.** | **per step time** | **Throughput** | **Recipe**                            | Download                                                                                                     |
-|------------------|----------------|-------------|------------|------------|---------------|-------------|--------------|-----------------|----------------|---------------------------------------|------------------------------------------------------------------------------------------------------------|
-| EAST             | D910x8-MS1.9-G | ResNet-50   | ImageNet   | 82.23%     | 87.68%        | 84.87%      | 1.6 s/epoch  | 256 ms/step |  625 img/s    | [yaml](east_r50_icdar15.yaml)         | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359-5f05cd42.mindir) |
-| EAST             | D910x8-MS1.9-G | MobileNetV3   | ImageNet   | 73.47%     | 77.27%        | 75.32%      | 0.79 s/epoch | 138 ms/step | 1185 img/s     | [yaml](east_mobilenetv3_icdar15.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1-5bf242c5.mindir) |
-
-</div>
-
-#### Notes：
-- Context: Training context denoted as {device}x{pieces}-{MS version}{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
-- The training time of EAST is highly affected by data processing and varies on different machines.
-- The input_shape for exported MindIR in the link is `(1,3,720,1280)`.
-
-## 3. Quick Start
-
-### 3.1 Installation
+### Installation
 
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
-### 3.2 Dataset preparation
+### Dataset preparation
 
-#### 3.2.1 ICDAR2015 dataset
+#### ICDAR2015 dataset
 
 Please download [ICDAR2015](https://rrc.cvc.uab.es/?ch=4&com=downloads) dataset, and convert the labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
 
@@ -77,7 +59,7 @@ The prepared dataset file struture should be:
     └── train_det_gt.txt
 ```
 
-### 3.3 Update yaml config file
+### Update yaml config file
 
 Update `configs/det/east/east_r50_icdar15.yaml` configuration file with data paths,
 specifically the following parts. The `dataset_root` will be concatenated with `data_dir` and `label_file` respectively to be the complete dataset directory and label file path.
@@ -122,7 +104,7 @@ model:
     name: EASTHead
 ```
 
-### 3.4 Training
+### Training
 
 * Standalone training
 
@@ -144,7 +126,7 @@ mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/det/east/
 
 The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir` in yaml config file. The default directory is `./tmp_det`.
 
-### 3.5 Evaluation
+### Evaluation
 
 To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 
@@ -152,7 +134,7 @@ To evaluate the accuracy of the trained model, you can use `eval.py`. Please set
 python tools/eval.py --config configs/det/east/east_r50_icdar15.yaml
 ```
 
-### 3.6 MindSpore Lite Inference
+### MindSpore Lite Inference
 
 Please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial.md) for model inference based on MindSpot Lite on Ascend 310, including the following steps:
 
@@ -188,6 +170,22 @@ python infer.py \
     --det_model_name_or_config=../../configs/det/east/east_r50_icdar15.yaml \
     --res_save_dir=results_dir
 ```
+
+## Performance
+
+EAST were trained on the ICDAR2015 datasets. In addition, we conducted pre-training on the ImageNet dataset and provided a URL to download pretrained weights. All training results are as follows:
+
+### ICDAR2015
+
+| **model name** | **backbone** | **pretrained** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **recall** | **precision** | **f-score** |              **recipe**               |                                           **weight**                                          |
+|:--------------:|:------------:| :------------: |:---------:|:--------------:| :-----------: |:-----------------:|:-----------:|:---------:|:----------:|:-------------:|:-----------:|:-------------------------------------:|:---------------------------------------------------------------------------------------------:|
+|      EAST      | ResNet-50    |    ImageNet    |     8     |       20       |      O2       |     250.32 s      |   254.54    |  628.58   |   80.36%   |    84.17%     |   82.22%    |   [yaml](east_r50_icdar15.yaml)       | [ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_resnet50_ic15-7262e359-5f05cd42.mindir)   |
+|      EAST      | MobileNetV3  |    ImageNet    |     8     |       20       |      O2       |     313.78 s      |    91.59    |  1746.92  |   73.18%   |    74.07%     |   73.63%    | [yaml](east_mobilenetv3_icdar15.yaml) |[ckpt](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/east/east_mobilenetv3_ic15-4288dba1-5bf242c5.mindir)|
+
+
+#### Notes：
+- The training time of EAST is highly affected by data processing and varies on different machines.
+- The input_shape for exported MindIR in the link is `(1,3,720,1280)`.
 
 ## References
 
