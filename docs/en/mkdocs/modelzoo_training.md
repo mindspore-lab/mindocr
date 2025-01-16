@@ -13,7 +13,6 @@
 | psenet_mobilenetv3   | icdar2015  | 8 | 8 | 70.56 | 173.604 | 368.66 | O0 | [mindocr_psenet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/psenet) |
 |  east_mobilenetv3   | icdar2015  | 20 | 8 |  75.32  |   138   | 1185 | O0 | [mindocr_east](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/east)   |
 | east_resnet50      | icdar2015  | 20 | 8 | 84.87 | 256 | 625 | O0 | [mindocr_east](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/east)   |
-| fcenet_resnet50    | icdar2015  | 8 | 4 | 84.12 | 2978.65 | 10.36 | O0 | [mindocr_fcenet](https://github.com/mindspore-lab/mindocr/tree/main/configs/det/fcenet)   |
 
 ### Text Recognition
 

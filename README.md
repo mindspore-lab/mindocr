@@ -247,7 +247,6 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 - [x] [DBNet++](configs/det/dbnet/README.md) (TPAMI'2022)
 - [x] [PSENet](configs/det/psenet/README.md) (CVPR'2019)
 - [x] [EAST](configs/det/east/README.md)(CVPR'2017)
-- [x] [FCENet](configs/det/fcenet/README.md) (CVPR'2021)
 
 </details>
 

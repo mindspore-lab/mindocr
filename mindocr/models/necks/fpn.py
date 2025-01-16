@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
 from mindspore import Tensor, nn, ops
-from mindspore.common.initializer import TruncatedNormal, XavierUniform
+from mindspore.common.initializer import TruncatedNormal
 
 from ...utils.misc import is_ms_version_2
 from ..utils.attention_cells import SEModule
@@ -82,55 +82,6 @@ def _conv(in_channels, out_channels, kernel_size=3, stride=1, padding=0, pad_mod
 
 def _bn(channels, momentum=0.1):
     return nn.BatchNorm2d(channels, momentum=momentum)
-
-
-class FCEFPN(nn.Cell):
-
-    def __init__(self, in_channels, out_channels):
-        in_channels = in_channels[1:]
-        super(FCEFPN, self).__init__()
-
-        self.reduce_conv_c3 = self.Xavier_conv(in_channels[0], out_channels, kernel_size=1, has_bias=True)
-
-        self.reduce_conv_c4 = self.Xavier_conv(in_channels[1], out_channels, kernel_size=1, has_bias=True)
-
-        self.reduce_conv_c5 = self.Xavier_conv(in_channels[2], out_channels, kernel_size=1, has_bias=True)
-
-        self.smooth_conv_p5 = self.Xavier_conv(out_channels, out_channels, kernel_size=3, padding=1, pad_mode='pad',
-                                               has_bias=True)
-
-        self.smooth_conv_p4 = self.Xavier_conv(out_channels, out_channels, kernel_size=3, padding=1, pad_mode='pad',
-                                               has_bias=True)
-
-        self.smooth_conv_p3 = self.Xavier_conv(out_channels, out_channels, kernel_size=3, padding=1, pad_mode='pad',
-                                               has_bias=True)
-
-        self.out_channels = out_channels
-
-    def construct(self, features):
-        _, c3, c4, c5 = features
-
-        p5 = self.reduce_conv_c5(c5)
-
-        c4 = self.reduce_conv_c4(c4)
-        p4 = ops.interpolate(p5, scale_factor=(2.0, 2.0), mode="area") + c4
-        c3 = self.reduce_conv_c3(c3)
-        p3 = ops.interpolate(p4, scale_factor=(2.0, 2.0), mode="area") + c3
-
-        p5 = self.smooth_conv_p5(p5)
-        p4 = self.smooth_conv_p4(p4)
-        p3 = self.smooth_conv_p3(p3)
-
-        out = [p3, p4, p5]  # self.concat((p3, p4, p5))
-
-        return out
-
-    def Xavier_conv(self, in_channels, out_channels, kernel_size=3, stride=1, padding=0, pad_mode='same',
-                    has_bias=False):
-        init_value = XavierUniform()
-        return nn.Conv2d(in_channels, out_channels,
-                         kernel_size=kernel_size, stride=stride, padding=padding,
-                         pad_mode=pad_mode, weight_init=init_value, has_bias=has_bias)
 
 
 class PSEFPN(nn.Cell):
