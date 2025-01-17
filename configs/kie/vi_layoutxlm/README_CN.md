@@ -42,7 +42,7 @@ Encoder concat视觉embedding和文本embedding到一个统一的序列，并与
 
 根据我们的实验，在XFUND中文数据集上训练的（[模型评估](#33-模型评估)）结果如下：
 
-在采用图模式的ascend 910*上实验结果，mindspore版本为2.2.14
+在采用图模式的ascend 910上实验结果，mindspore版本为2.2.14
 
 <div align="center">
 
