@@ -187,7 +187,6 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 - [x] [MASTER](configs/rec/master/README.md) (PR'2019)
 - [x] [VISIONLAN](configs/rec/visionlan/README.md) (ICCV'2021)
 - [x] [RobustScanner](configs/rec/robustscanner/README.md) (ECCV'2020)
-- [x] [ABINet](configs/rec/abinet/README.md) (CVPR'2021)
 
 </details>
 
@@ -293,7 +292,7 @@ Frequently asked questions about configuring environment and mindocr, please ref
     - [PP-OCRv3 DBNet](configs/det/dbnet/db_mobilenetv3_ppocrv3.yaml) for text detection and [PP-OCRv3 SVTR](configs/rec/svtr/svtr_ppocrv3_ch.yaml) for recognition, supporting online inferece and finetuning
 2. Add more benchmark datasets and their results
     - [XFUND](configs/kie/vi_layoutxlm/README_CN.md)
-3. Multiple specifications support for Ascend 910: DBNet ResNet-50, DBNet++ ResNet-50, CRNN VGG7, SVTR-Tiny, FCENet, ABINet
+3. Multiple specifications support for Ascend 910: DBNet ResNet-50, DBNet++ ResNet-50, CRNN VGG7, SVTR-Tiny, FCENet
 - 2023/11/28
 1. Add offline inference support for PP-OCRv4
     - [PP-OCRv4 DBNet](deploy/py_infer/src/configs/det/ppocr/ch_PP-OCRv4_det_cml.yaml) for text detection and [PP-OCRv4 CRNN](deploy/py_infer/src/configs/rec/ppocr/ch_PP-OCRv4_rec_distillation.yaml) for text recognition, supporting offline inferece
