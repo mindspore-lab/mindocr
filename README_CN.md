@@ -245,7 +245,6 @@ python tools/infer/text/predict_system.py --image_dir {path_to_img or dir_to_img
 - [x] [MASTER](configs/rec/master/README_CN.md) (PR'2019)
 - [x] [VISIONLAN](configs/rec/visionlan/README_CN.md) (ICCV'2021)
 - [x] [RobustScanner](configs/rec/robustscanner/README_CN.md) (ECCV'2020)
-- [x] [ABINet](configs/rec/abinet/README_CN.md) (CVPR'2021)
 </details>
 
 <details open markdown>
@@ -367,7 +366,7 @@ MindOCR提供了[数据格式转换工具](tools/dataset_converters) ，以支�
     - 文本检测[PP-OCRv3 DBNet](configs/det/dbnet/db_mobilenetv3_ppocrv3.yaml)和文本识别[PP-OCRv3 SVTR](configs/rec/svtr/svtr_ppocrv3_ch.yaml)，支持在线推理和微调训练
 2. 添加更多基准数据集及其结果
     - [XFUND](configs/kie/vi_layoutxlm/README_CN.md)
-3. 昇腾910硬件多规格支持：DBNet ResNet-50、DBNet++ ResNet-50、CRNN VGG7、SVTR-Tiny、FCENet、ABINet
+3. 昇腾910硬件多规格支持：DBNet ResNet-50、DBNet++ ResNet-50、CRNN VGG7、SVTR-Tiny、FCENet
 - 2023/11/28
 1. 增加支持PP-OCRv4模型离线推理
     - 文本检测 [PP-OCRv4 DBNet](deploy/py_infer/src/configs/det/ppocr/ch_PP-OCRv4_det_cml.yaml)和文本识别 [PP-OCRv4 CRNN](deploy/py_infer/src/configs/rec/ppocr/ch_PP-OCRv4_rec_distillation.yaml)，支持离线推理

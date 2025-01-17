@@ -6,7 +6,7 @@ English | [中文](README_CN.md)
 
 > [EAST: An Efficient and Accurate Scene Text Detector](https://arxiv.org/abs/1704.03155)
 
-## 1. Introduction
+## Introduction
 
 ### EAST
 
@@ -30,7 +30,7 @@ EAST uses regression for the position and rotation angle of the text box, enabli
 After determining the location and size of the text region, EAST further classifies these regions as text or non-text areas. For this purpose, a fully convolutional text branch is employed for binary classification of the text areas.
 
 
-## 2. Results
+## Results
 
 ### ICDAR2015
 <div align="center">
@@ -47,15 +47,15 @@ After determining the location and size of the text region, EAST further classif
 - The training time of EAST is highly affected by data processing and varies on different machines.
 - The input_shape for exported MindIR in the link is `(1,3,720,1280)`.
 
-## 3. Quick Start
+## Quick Start
 
-### 3.1 Installation
+### Installation
 
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
-### 3.2 Dataset preparation
+### Dataset preparation
 
-#### 3.2.1 ICDAR2015 dataset
+#### ICDAR2015 dataset
 
 Please download [ICDAR2015](https://rrc.cvc.uab.es/?ch=4&com=downloads) dataset, and convert the labels to the desired format referring to [dataset_converters](https://github.com/mindspore-lab/mindocr/blob/main/tools/dataset_converters/README.md).
 
@@ -77,7 +77,7 @@ The prepared dataset file struture should be:
     └── train_det_gt.txt
 ```
 
-### 3.3 Update yaml config file
+### Update yaml config file
 
 Update `configs/det/east/east_r50_icdar15.yaml` configuration file with data paths,
 specifically the following parts. The `dataset_root` will be concatenated with `data_dir` and `label_file` respectively to be the complete dataset directory and label file path.
@@ -122,29 +122,7 @@ model:
     name: EASTHead
 ```
 
-### 3.4 Training
-
-* Standalone training
-
-Please set `distribute` in yaml config file to be False.
-
-``` shell
-# train east on ic15 dataset
-python tools/train.py --config configs/det/east/east_r50_icdar15.yaml
-```
-
-* Distributed training
-
-Please set `distribute` in yaml config file to be True.
-
-```shell
-# n is the number of GPUs/NPUs
-mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/det/east/east_r50_icdar15.yaml
-```
-
-The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir` in yaml config file. The default directory is `./tmp_det`.
-
-### 3.5 Evaluation
+### Evaluation
 
 To evaluate the accuracy of the trained model, you can use `eval.py`. Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section of yaml config file, set `distribute` to be False, and then run:
 
@@ -152,7 +130,7 @@ To evaluate the accuracy of the trained model, you can use `eval.py`. Please set
 python tools/eval.py --config configs/det/east/east_r50_icdar15.yaml
 ```
 
-### 3.6 MindSpore Lite Inference
+### MindSpore Lite Inference
 
 Please refer to the tutorial [MindOCR Inference](../../../docs/en/inference/inference_tutorial.md) for model inference based on MindSpot Lite on Ascend 310, including the following steps:
 

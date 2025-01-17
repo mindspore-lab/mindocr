@@ -334,13 +334,6 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 
 详细的数据准备和config文件配置方式, 请参考 [中文识别数据集准备](../../../docs/cn/datasets/chinese_text_recognition.md)
 
-### 模型训练验证
-
-准备好数据集和配置文件后，执行以下命令开启多卡训练
-```shell
-mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/rec/rare/rare_resnet34_ch.yaml
-```
-
 ### 预训练模型数据集介绍
 不同语种的预训练模型采用不同数据集作为预训练，数据来源、训练方式和评估方式可参考 **数据说明**。
 
