@@ -303,7 +303,6 @@ DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total
 
 #### ICDAR2015
 
-
 | **model name** | **backbone** | **pretrained** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **recall** | **precision** | **f-score** |               **recipe**               |                                                 **weight**                                                 |
 | :------------: | :----------: | :------------: | :-------: | :------------: | :-----------: | :---------------: | :---------: | :-------: | :--------: | :-----------: | :---------: | :------------------------------------: | :--------------------------------------------------------------------------------------------------------: |
 |     DBNet      | MobileNetV3  |    ImageNet    |     1     |       10       |      O2       |     403.87 s      |    65.69    |  152.23   |   74.68%   |    79.38%     |   76.95%    |  [yaml](db_mobilenetv3_icdar15.yaml)   | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/dbnet/dbnet_mobilenetv3-e72f9b8b-910v2.ckpt) |
