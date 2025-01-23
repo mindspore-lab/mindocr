@@ -7,8 +7,8 @@ from shapely.geometry import Polygon
 from mindspore import Tensor
 
 from ..data.transforms.det_transforms import expand_poly
-from .det_base_postprocess import DetBasePostprocess
 from ..utils.misc import is_uneven_nested_list
+from .det_base_postprocess import DetBasePostprocess
 
 __all__ = ["DBPostprocess"]
 
