@@ -73,3 +73,15 @@ def is_ms_version_2():
     make compatibilities in differenct Mindspore version
     """
     return version.parse(ms.__version__) >= version.parse("2.0.0rc")
+
+def is_uneven_nested_list(arr_list):
+    if not isinstance(arr_list, list):
+        return False
+
+    first_length = len(arr_list[0]) if isinstance(arr_list[0], list) else None
+
+    for sublist in arr_list:
+        if not isinstance(sublist, list) or len(sublist) != first_length:
+            return True
+
+    return False

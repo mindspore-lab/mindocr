@@ -221,7 +221,7 @@ class PSEDiceLoss(nn.Cell):
         self.zeros_like = ops.ZerosLike()
         self.add = ops.Add()
         self.gather = ops.Gather()
-        self.upsample = nn.ResizeBilinear()
+        self.upsample = ops.interpolate
 
     def ohem_batch(self, scores, gt_texts, training_masks):
         """
@@ -334,8 +334,10 @@ class PSEDiceLoss(nn.Cell):
             Tensor: The computed loss value.
         """
         batch_size = model_predict.shape[0]
-        model_predict = self.upsample(model_predict, scale_factor=4)
-        h, w = model_predict.shape[2:]
+        scale_factor = 4
+        origin_h, origin_w = model_predict.shape[2:]
+        h, w = origin_h * scale_factor, origin_w * scale_factor
+        model_predict = self.upsample(model_predict, size=(h, w), mode="bilinear")
         texts = self.slice(model_predict, (0, 0, 0, 0), (batch_size, 1, h, w))
         texts = self.reshape(texts, (batch_size, h, w))
         selected_masks_text = self.ohem_batch(texts, gt_texts, training_masks)
