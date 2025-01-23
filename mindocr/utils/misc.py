@@ -74,6 +74,7 @@ def is_ms_version_2():
     """
     return version.parse(ms.__version__) >= version.parse("2.0.0rc")
 
+
 def is_uneven_nested_list(arr_list):
     if not isinstance(arr_list, list):
         return False
