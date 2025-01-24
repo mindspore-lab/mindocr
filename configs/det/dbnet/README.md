@@ -301,86 +301,20 @@ python tools/eval.py -c=configs/det/dbnet/db_r50_icdar15.yaml
 
 DBNet and DBNet++ were trained on the ICDAR2015, MSRA-TD500, SCUT-CTW1500, Total-Text, and MLT2017 datasets. In addition, we conducted pre-training on the ImageNet or SynthText dataset and provided a URL to download pretrained weights. All training results are as follows:
 
-Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode.
-
 #### ICDAR2015
 
 
 | **model name** | **backbone** | **pretrained** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **recall** | **precision** | **f-score** |               **recipe**               |                                                 **weight**                                                 |
 | :------------: | :----------: | :------------: | :-------: | :------------: | :-----------: | :---------------: | :---------: | :-------: | :--------: | :-----------: | :---------: | :------------------------------------: | :--------------------------------------------------------------------------------------------------------: |
-|     DBNet      | MobileNetV3  |    ImageNet    |     1     |       10       |      O2       |     403.87 s      |    65.69    |  152.23   |   74.68%   |    79.38%     |   76.95%    |  [yaml](db_mobilenetv3_icdar15.yaml)   | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/dbnet/dbnet_mobilenetv3-e72f9b8b-910v2.ckpt) |
+|     DBNet      | MobileNetV3  |    ImageNet    |     1     |       10       |      O2       |     403.87 s      |    65.69    |  152.23   |   74.68%   |    79.38%     |   76.95%    |  [yaml](db_mobilenetv3_icdar15.yaml)   | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/dbnet/dbnet_mobilenetv3-e72f9b8b-910v2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_mobilenetv3-62c44539-f14c6a13.mindir)|
 |     DBNet      | MobileNetV3  |    ImageNet    |     8     |       8        |      O2       |     405.35 s      |    54.46    |  1175.12  |   76.27%   |    76.06%     |   76.17%    | [yaml](db_mobilenetv3_icdar15_8p.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/dbnet/dbnet_mobilenetv3-7e89e1df-910v2.ckpt) |
-|     DBNet      |  ResNet-50   |    ImageNet    |     1     |       10       |      O2       |     147.81 s      |   155.62    |   64.25   |   84.50%   |    85.36%     |   84.93%    |      [yaml](db_r50_icdar15.yaml)       |  [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/dbnet/dbnet_resnet50-48153c3b-910v2.ckpt)   |
+|     DBNet      |  ResNet-50   |    ImageNet    |     1     |       10       |      O2       |     147.81 s      |   155.62    |   64.25   |   84.50%   |    85.36%     |   84.93%    |      [yaml](db_r50_icdar15.yaml)       |  [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/dbnet/dbnet_resnet50-48153c3b-910v2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24-fbf95c82.mindir)  |
 |     DBNet      |  ResNet-50   |    ImageNet    |     8     |       10       |      O2       |     151.23 s      |   159.22    |   502.4   |   81.15%   |    87.63%     |   84.26%    |     [yaml](db_r50_icdar15_8p.yaml)     |  [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/dbnet/dbnet_resnet50-e10bad35-910v2.ckpt)   |
-
-> The input_shape for exported DBNet MindIR and DBNet++ MindIR in the links are `(1,3,736,1280)` and `(1,3,1152,2048)`, respectively.
-
-Experiments are tested on ascend 910 with mindspore 2.3.1 graph mode.
-
-#### ICDAR2015
-
-| **model name** | **backbone** | **pretrained** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **recall** | **precision** | **f-score** |               **recipe**               |                                                                                                   **weight**                                                                                                    |
-| :------------: | :----------: | :------------: | :-------: | :------------: | :-----------: | :---------------: | :---------: |:---------:| :--------: | :-----------: | :---------: | :------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-|     DBNet      | MobileNetV3  |    ImageNet    |     1     |       10       |      O2       |     321.15 s      |     100     |    100    |   76.31%   |    78.27%     |   77.28%    |  [yaml](db_mobilenetv3_icdar15.yaml)   |    [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_mobilenetv3-62c44539.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_mobilenetv3-62c44539-f14c6a13.mindir)    |
-|     DBNet      | MobileNetV3  |    ImageNet    |     8     |       8        |      O2       |     309.39 s      |    66.64    |    960    |   76.22%   |    77.98%     |   77.09%    | [yaml](db_mobilenetv3_icdar15_8p.yaml) |                                                                                                   Coming soon                                                                                                   |
-|     DBNet      |  ResNet-18   |    ImageNet    |     1     |       20       |      O2       |      75.23 s      |   185.19    |    108    |   80.12%   |    83.41%     |   81.73%    |      [yaml](db_r18_icdar15.yaml)       |       [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18-0c0c4cfa.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18-0c0c4cfa-cf46eb8b.mindir)       |
-|     DBNet      |  ResNet-50   |    ImageNet    |     1     |       10       |      O2       |     110.54 s      |   132.98    |   75.2    |   83.53%   |    86.62%     |   85.05%    |      [yaml](db_r50_icdar15.yaml)       |       [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50-c3a4aa24-fbf95c82.mindir)       |
-|     DBNet      |  ResNet-50   |    ImageNet    |     8     |       10       |      O2       |     107.91 s      |   183.92    |    435    |   82.62%   |    88.54%     |   85.48%    |     [yaml](db_r50_icdar15_8p.yaml)     |                                                                                                   Coming soon                                                                                                   |
-|    DBNet++     |  ResNet-50   |   SynthText    |     1     |       32       |      O2       |     184.74 s      |   409.21    |   78.2    |   86.81%   |    86.85%     |   86.86%    |   [yaml](dbpp_r50_icdar15_910.yaml)    | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_910-35dc71f2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_910-35dc71f2-e61a9c37.mindir) |
-
-> The input_shape for exported DBNet MindIR and DBNet++ MindIR in the links are `(1,3,736,1280)` and `(1,3,1152,2048)`, respectively.
-
-#### MSRA-TD500
-
-
-| **model name** | **backbone** | **pretrained** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **recall** | **precision** | **f-score** |        **recipe**         |                                           **weight**                                            |
-| :------------: | :----------: | :------------: | :-------: | :------------: | :-----------: | :---------------: | :---------: | :-------: | :--------: | :-----------: | :---------: | :-----------------------: | :---------------------------------------------------------------------------------------------: |
-|     DBNet      |  ResNet-18   |   SynthText    |     1     |       20       |      O2       |      76.18 s      |   163.34    |   121.7   |   79.90%   |    88.07%     |   83.78%    | [yaml](db_r18_td500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_td500-b5abff68.ckpt) |
-|     DBNet      |  ResNet-50   |   SynthText    |     1     |       20       |      O2       |     108.45 s      |   280.90    |   71.2    |   84.02%   |    87.48%     |   85.71%    | [yaml](db_r50_td500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_td500-0d12b5e8.ckpt) |
-
-
-> MSRA-TD500 dataset has 300 training images and 200 testing images, reference paper [Real-time Scene Text Detection with Differentiable Binarization](https://arxiv.org/abs/1911.08947), we trained using an extra 400 traning images from HUST-TR400. You can down all [dataset](https://paddleocr.bj.bcebos.com/dataset/TD_TR.tar) for training.
-
-#### SCUT-CTW1500
-
-| **model name** | **backbone** | **pretrained** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **recall** | **precision** | **f-score** | **recipe**                  | **weight**                                                                                        |
-|----------------|--------------|----------------|-----------|----------------|---------------|-------------------|-------------|-----------|------------|---------------|-------------|-----------------------------|---------------------------------------------------------------------------------------------------|
-| DBNet          | ResNet-18    | SynthText      | 1         | 20             | O2            | 73.18 s           | 163.80      | 122.1     | 85.68%     | 85.33%        | 85.50%      | [yaml](db_r18_ctw1500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_ctw1500-0864b040.ckpt) |
-| DBNet          | ResNet-50    | SynthText      | 1         | 20             | O2            | 110.34 s          | 180.11      | 71.4      | 87.83%     | 84.71%        | 86.25%      | [yaml](db_r50_ctw1500.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_ctw1500-f637e3d3.ckpt) |
-
-
-#### Total-Text
-
-
-| **model name** | **backbone** | **pretrained** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **recall** | **precision** | **f-score** |          **recipe**           |                                             **weight**                                              |
-| :------------: | :----------: | :------------: | :-------: | :------------: | :-----------: | :---------------: | :---------: | :-------: | :--------: | :-----------: | :---------: | :---------------------------: | :-------------------------------------------------------------------------------------------------: |
-|     DBNet      |  ResNet-18   |   SynthText    |     1     |       20       |      O2       |      77.78 s      |   206.40    |   96.9    |   83.66%   |    87.61%     |   85.59%    | [yaml](db_r18_totaltext.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_totaltext-fb456ff4.ckpt) |
-|     DBNet      |  ResNet-50   |   SynthText    |     1     |       20       |      O2       |     109.15 s      |   289.44    |   69.1    |   84.79%   |    87.07%     |   85.91%    | [yaml](db_r50_totaltext.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_totaltext-76d6f421.ckpt) |
-
-
-#### MLT2017
-
-
-
-| **model name** | **backbone** | **pretrained** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **recall** | **precision** | **f-score** |         **recipe**          |                                            **weight**                                             |
-| :------------: | :----------: | :------------: | :-------: | :------------: | :-----------: | :---------------: | :---------: | :-------: | :--------: | :-----------: | :---------: | :-------------------------: | :-----------------------------------------------------------------------------------------------: |
-|     DBNet      |  ResNet-18   |   SynthText    |     8     |       20       |      O2       |      73.76 s      |   464.00    |   344.8   |   73.62%   |    83.93%     |   78.44%    | [yaml](db_r18_mlt2017.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_mlt2017-5af33809.ckpt) |
-|     DBNet      |  ResNet-50   |   SynthText    |     8     |       20       |      O2       |     105.12 s      |   523.60    |   305.6   |   76.04%   |    84.51%     |   80.05%    | [yaml](db_r50_mlt2017.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_mlt2017-3bd6e569.ckpt) |
-
-
-#### SynthText
-
-
-
-| **model name** | **backbone** | **pretrained** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **train loss** |          **recipe**           |                                             **weight**                                              |
-| :------------: | :----------: | :------------: | :-------: | :------------: | :-----------: | :---------------: | :---------: | :-------: | :------------: | :---------------------------: | :-------------------------------------------------------------------------------------------------: |
-|     DBNet      |  ResNet-18   |    ImageNet    |     1     |       16       |      O2       |      78.46 s      |   131.83    |  121.37   |      2.41      | [yaml](db_r18_synthtext.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet18_synthtext-251ef3dd.ckpt) |
-|     DBNet      |  ResNet-50   |    ImageNet    |     1     |       16       |      O2       |     108.93 s      |   195.07    |   82.02   |      2.25      | [yaml](db_r50_synthtext.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnet_resnet50_synthtext-40655acb.ckpt) |
-
-
+|    DBNet++     |  ResNet-50   |   SynthText    |     1     |       32       |      O2       |     191.93 s      |   549.24    |   58.26   |   86.81%   |    86.85%     |   86.86%    |     [yaml](dbpp_r50_icdar15.yaml)      | [ckpt](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_910-35dc71f2.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/dbnet/dbnetpp_resnet50_910-35dc71f2-e61a9c37.mindir)|
 
 ### Notes
 - Note that the training time of DBNet is highly affected by data processing and varies on different machines.
+- The input_shape for exported DBNet MindIR and DBNet++ MindIR in the links are `(1,3,736,1280)` and `(1,3,1152,2048)`, respectively.
 
 
 ## References
