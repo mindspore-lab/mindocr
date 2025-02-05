@@ -143,7 +143,7 @@ class SYNTHTEXT_Converter:
         wordBB, txt = zip(*data_list)
         for i in range(len(mat["wordBB"][0])):
             mat["wordBB"][0][i] = wordBB[i]
-        mat["txt"] = np.array(txt).reshape(1, -1)
+        mat["txt"] = np.array(txt, dtype=object).reshape(1, -1)
 
         data_list = defaultdict(list)
         for image, polys, texts in zip(mat["imnames"][0], mat["wordBB"][0], mat["txt"][0]):
@@ -168,8 +168,8 @@ class SYNTHTEXT_Converter:
             )
 
         images, labels = zip(*data_list)
-        images = iter(itertools.chain(*images))
-        labels = iter(itertools.chain(*labels))
+        images = list(itertools.chain(*images))
+        labels = list(itertools.chain(*labels))
 
         print("Creating the LMDB dataset.")
         create_lmdb_dataset(images, labels, output_path=output_path)
