@@ -13,6 +13,8 @@ import numpy as np
 import pyclipper
 from shapely.geometry import Polygon, box
 
+from ...utils.misc import is_uneven_nested_list
+
 __all__ = [
     "DetLabelEncode",
     "BorderMap",
@@ -595,9 +597,14 @@ class PSEGtDecode:
             if not shrinked_bbox:
                 shrinked_text_polys.append(bbox)
                 continue
-
-            shrinked_bbox = np.array(shrinked_bbox)[0]
-            shrinked_bbox = np.array(shrinked_bbox)
+            if is_uneven_nested_list(shrinked_bbox):
+                shrinked_bbox = np.array(shrinked_bbox, dtype=object)[0]
+            else:
+                shrinked_bbox = np.array(shrinked_bbox)[0]
+            if is_uneven_nested_list(shrinked_bbox):
+                shrinked_bbox = np.array(shrinked_bbox, dtype=object)
+            else:
+                shrinked_bbox = np.array(shrinked_bbox)
             if shrinked_bbox.shape[0] <= 2:
                 shrinked_text_polys.append(bbox)
                 continue
