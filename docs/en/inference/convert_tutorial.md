@@ -11,13 +11,13 @@ graph LR;
 - MindOCR checkpoint -> MindSpore MindIR -> MindSpore Lite MindIR;
 - PaddleOCR train model -> ONNX -> MindSpore Lite MindIR;
 
-## 1. Model Export
+## Model Export
 
 This chapter includes the process of exporting MindIR or ONNX files of training models.
 
 Some models provide download links for MIndIR/ONNX export files, as shown in [MindOCR Models List](mindocr_models_list.md), [PPOCR Models List](mindocr_models_list.md).
 
-### 1.1 MindOCR Model Export
+### MindOCR Model Export
 
 Export a MindIR file by checkpoint file after training. Please execute `tools/export.py`:
 
@@ -39,7 +39,7 @@ Some parameter descriptions:
 - data_shape: The data shape [H, W] for exporting mindir files. Required when arg `is_dynamic_shape` is False. It is recommended to be the same as the rescaled data shape in evaluation to get the best inference performance.
 - is_dynamic_shape: Whether the export data shape is dynamic or static.
 
-### 1.2 PaddleOCR Model Export
+### PaddleOCR Model Export
 
 [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) have two formats of Paddle models, training model and inference model, with the following differences:
 
@@ -50,7 +50,7 @@ Some parameter descriptions:
 
 Download the model file and extract it. Please distinguish whether it is a training model or an inference model based on the model format.
 
-#### 1.2.1 Training Model -> Inference Model
+#### Training Model -> Inference Model
 
 In the download link of PaddleOCR model, there are two formats: trained model and inference model. If a training model is provided, it needs to be converted to the format of inference model.
 
@@ -66,7 +66,7 @@ python tools/export_model.py \
     Global.save_inference_dir=./det_db
 ```
 
-#### 1.2.2 Inference Model -> ONNX
+#### Inference Model -> ONNX
 
 Install model conversion tool paddle2onnx：`pip install paddle2onnx==0.9.5`
 
@@ -88,7 +88,7 @@ paddle2onnx \
 The `input_shape_dict` in the parameter can generally be viewed by opening the inference model using the [Netron](https://github.com/lutzroeder/netron),
 or found in the code in [tools/export_model. py](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/tools/export_model.py) above.
 
-## 2. MindSpore Lite MindIR Convert
+## MindSpore Lite MindIR Convert
 
 You need to use the `converter_lite` tool to convert the above exported MindIR file offline so that it can be used for MindSpore Lite inference.
 
@@ -110,9 +110,9 @@ FMK is the original format of the input model, which can be MindIR or ONNX.
 
 `config.txt` is the configuration path for extended settings. In MindOCR, `config.txt` can be used to set dynamic shape format and precision mode. We will discuss it in detail in the next chapter.
 
-### 2.1 Shape Format Settings
+### Shape Format Settings
 
-#### 2.1.1 Static Shape
+#### Static Shape
 
 If the input name of the exported model is `x`, and the input shape is `(1,3,736,1280)`, then the `config.txt` is as follows:
 
@@ -124,7 +124,7 @@ input_shape=x:[1,3,736,1280]
 
 The generated output.mindir is a static shape version, and the input image during inference needs to be resized to this input_shape to meet the input requirements.
 
-#### 2.1.2 Dynamic Shape(scaling)
+#### Dynamic Shape(scaling)
 
 **Note: ascend 310 not support dynamic shape.**
 
@@ -132,7 +132,7 @@ In some inference scenarios, such as detecting a target and then executing the t
 
 Assuming the exported model input shape is (-1, 3, -1, -1), and the NHW axes are dynamic. Therefore, some optional values can be set during model conversion to adapt to input images of various size during inference.
 
-`converter_lite` achieves this by setting the `dynamic_dims` parameter in `[ascend_context]` through `--configFile`. Please refer to the [Dynamic Shape Configuration](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool_ascend.html#dynamic-shape-configuration) for details. We will refer to it as **Model Shape Scaling** for short.
+`converter_lite` achieves this by setting the `dynamic_dims` parameter in `[ascend_context]` through `--configFile`. Please refer to the [Dynamic Shape Configuration](https://www.mindspore.cn/lite/docs/en/r2.2/use/cloud_infer/converter_tool_ascend.html#dynamic-shape-configuration) for details. We will refer to it as **Model Shape Scaling** for short.
 
 So, there are two options for conversion, by setting different config.txt:
 
@@ -168,10 +168,10 @@ In order to simplify the model conversion process, we have developed an automati
 
 If the exported model is a static shape version, it cannot infer dynamic shape, and it is necessary to ensure that the exported model is a dynamic shape version.
 
-### 2.2 Model Precision Mode Setting
+### Model Precision Mode Setting
 
 For the precision of model inference, it is necessary to set it in `converter_lite` when converting the model.
-Please refer to the [Ascend Conversion Tool Description](https://www.mindspore.cn/lite/docs/en/master/use/cloud_infer/converter_tool_ascend.html#configuration-file), the usage of `precision_mode` parameter is described in the table of the configuration file, you can choose `enforce_fp16`, `enforce_fp32`, `preferred_fp32` and `enforce_origin` etc.
+Please refer to the [Ascend Conversion Tool Description](https://www.mindspore.cn/lite/docs/en/r2.2/use/cloud_infer/converter_tool_ascend.html#configuration-file), the usage of `precision_mode` parameter is described in the table of the configuration file, you can choose `enforce_fp16`, `enforce_fp32`, `preferred_fp32` and `enforce_origin` etc.
 So, you can add the `precision_mode` parameter in the `[Ascend_context]` of the above config.txt file to set the precision mode:
 
 ```

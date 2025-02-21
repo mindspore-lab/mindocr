@@ -29,4 +29,4 @@
 
 ### How to add your own data transformation
 
-Please refer to [Guideline for Developing Your Transformation](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/transforms/README.md)
+Please refer to [Guideline for Developing Your Transformation](transforms/README.md)

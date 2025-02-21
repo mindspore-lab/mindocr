@@ -2,25 +2,7 @@
 
 This document provides tutorials on how to train text detection networks using custom datasets.
 
-
-- [Training Detection Network with Custom Datasets](#training-detection-network-with-custom-datasets)
-  - [1. Dataset preperation](#1-dataset-preperation)
-    - [1.1 Preparing Training Data](#11-preparing-training-data)
-    - [1.2 Preparing Validation Data](#12-preparing-validation-data)
-  - [2. Configuration File Preperation](#2-configuration-file-preperation)
-    - [2.1 Configure train/validation datasets](#21-configure-trainvalidation-datasets)
-    - [2.2 Configure train/validation transform pipelines](#22-configure-trainvalidation-transform-pipelines)
-    - [2.3 Configure the model architecture](#23-configure-the-model-architecture)
-    - [2.4 Configure training hyperparameters](#24-configure-training-hyperparameters)
-  - [3. Model Training, Evaluation, and Inference](#3-model-training-evaluation-and-inference)
-    - [3.1 Training](#31-training)
-    - [3.2 Evaluation](#32-evaluation)
-    - [3.3 Inference](#33-inference)
-      - [3.3.1 Environment Preparation](#331-environment-preparation)
-      - [3.3.2 Model Conversion](#332-model-conversion)
-      - [3.3.3 Inference](#333-inference)
-
-## 1. Dataset preperation
+## Dataset preperation
 
 Currently, MindOCR detection network supports two input formats, namely
 - `Common Dataset`：A file format that stores images, text bounding boxes, and transcriptions. An example of the target file format is:
@@ -35,7 +17,7 @@ It is read by [DetDataset](https://github.com/mindspore-lab/mindocr/blob/main/mi
 We recommend users to prepare text detection datasets in the `Common Dataset` format, and then use [DetDataset](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/data/det_dataset.py) to load the data. The following tutorials further explain on the detailed steps.
 
 
-### 1.1 Preparing Training Data
+### Preparing Training Data
 Please place all training images in a single folder, and specify a txt file `train_det.txt` at a higher directory to label all training image names and corresponding labels. An example of the txt file is as follows:
 
 ```
@@ -58,7 +40,7 @@ The final training set will be stored in the following format:
         | ...
 ```
 
-### 1.2 Preparing Validation Data
+### Preparing Validation Data
 Similarly, please place all validation images in a single folder, and specify a txt file `val_det.txt` at a higher directory to label all validation image names and corresponding labels. The final validation set will be stored in the following format:
 
 ```
@@ -71,11 +53,11 @@ Similarly, please place all validation images in a single folder, and specify a 
         | ...
 ```
 
-## 2. Configuration File Preperation
+## Configuration File Preperation
 
 To prepare the corresponding configuration file, users should specify the directories for the training and validation datasets.
 
-### 2.1 Configure train/validation datasets
+### Configure train/validation datasets
 
 Please select `configs/det/dbnet/db_r50_icdar15.yaml` as the initial configuration file and modify the `train.dataset` and `eval.dataset` fields in it.
 
@@ -98,7 +80,7 @@ eval:
   ...
 ```
 
-### 2.2 Configure train/validation transform pipelines
+### Configure train/validation transform pipelines
 
 Take the `train.dataset.transform_pipeline` field in the `configs/det/dbnet/dbnet_r50_icdar15.yaml` as an example. It specifies a set of transformations applied on the image or labels to generate the data as the model inputs or the loss function inputs. These transform functions are defined in `mindocr/data/transforms`.
 
@@ -181,7 +163,7 @@ eval:
 ```
 More tutorials on transform functions can be found in the [transform tutorial](transform_tutorial.md).
 
-### 2.3 Configure the model architecture
+### Configure the model architecture
 
 Although different models have different architectures, MindOCR formulates them as a general three-stage architecture: `[backbone]->[neck]->[head]`. Take `configs/det/dbnet/dbnet_r50_icdar15.yaml` as an example:
 
@@ -205,7 +187,7 @@ model:
 ```
  The backbone, neck, and head modules are all defined under `mindocr/models/backbones`, `mindocr/models/necks`, and `mindocr/models/heads`.
 
-### 2.4 Configure training hyperparameters
+### Configure training hyperparameters
 
 Some training hyperparameters in `configs/det/dbnet/dbnet_r50_icdar15.yaml` are defined as follows:
 ```yaml
@@ -236,11 +218,11 @@ optimizer:
 It uses `SGD` optimizer (in `mindocr/optim/optim.factory.py`) and `polynomial_decay` (in `mindocr/scheduler/scheduler_factory.py`) as the learning scheduler. The loss function is `DBLoss` (in `mindocr/losses/det_loss.py`) and the evaluation metric is `DetMetric` ( in `mindocr/metrics/det_metrics.py`).
 
 
-## 3. Model Training, Evaluation, and Inference
+## Model Training, Evaluation, and Inference
 
 When all configurations have been specified, users can start training their models. MindOCR supports evaluation and inference after the model is trained.
 
-### 3.1 Training
+### Training
 
 * Standalone training
 
@@ -285,7 +267,7 @@ Copy{
 
 To get the `device_ip` of the target device, run `cat /etc/hccn.conf` and look for the value of `address_x`, which is the ip address. More details can be found in [distributed training tutorial](distribute_train.md).
 
-### 3.2 Evaluation
+### Evaluation
 
 To evaluate the accuracy of the trained model, users can use `tools/eval.py`.
 
@@ -305,15 +287,15 @@ python tools/eval.py -c=configs/det/dbnet/db_r50_icdar15.yaml \
 
 ```
 
-### 3.3 Inference
+### Inference
 
 MindOCR inference supports Ascend310/Ascend310P devices and adopts [MindSpore Lite](https://www.mindspore.cn/lite) inference backend. [Inference Tutorial](../inference/inference_tutorial.md) gives detailed steps on how to run inference with MindOCR, which include mainly three steps: environment preparation, model conversion, and inference.
 
-#### 3.3.1 Environment Preparation
+#### Environment Preparation
 
 Please refer to the [environment installation](../inference/environment.md) for more information.
 
-#### 3.3.2 Model Conversion
+#### Model Conversion
 
 Before runing infernence, users need to export a MindIR file from the trained checkpoint. [MindSpore IR (MindIR)](https://www.mindspore.cn/docs/en/r2.2/design/mindir.html) is a function-style IR based on graph representation. The MindIR filew stores the model structure and weight parameters needed for inference.
 
@@ -329,7 +311,7 @@ The `data_shape` is the model input shape of height and width for MindIR file. I
 
 Please refer to the [Conversion Tutorial](../inference/convert_tutorial.md) for more details about model conversion.
 
-#### 3.3.3 Inference
+#### Inference
 
 
  After model conversion, the `output.mindir` is obtained. Users can go to the `deploy/py_infer` directory, and use the following command for inference:
@@ -345,4 +327,4 @@ python infer.py \
     --res_save_dir=results_dir
 ```
 
-Please refer to the [Inference Tutorials](../inference/inference_tutorial.md) chapter `4.1 Command example` on more examples of inference commands.
+Please refer to the [Inference Tutorials](../inference/inference_tutorial.md) chapter `Inference(Python)` on more examples of inference commands.
