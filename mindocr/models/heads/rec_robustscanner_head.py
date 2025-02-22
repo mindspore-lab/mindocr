@@ -83,7 +83,7 @@ class DotProductAttentionLayer(nn.Cell):
                 logits_i = logits[i].squeeze(0)  # (c, h, w)
                 logits_i = logits_i.view((-1, w))  # (c*h, w)
                 ch = c * h
-                valid_width_mask = valid_width_mask.repeat(ch, axis=0)  # (c*h, w)
+                valid_width_mask = valid_width_mask.repeat_interleave(ch, 0)  # (c*h, w)
                 valid_width_mask = ops.cast(valid_width_mask, ms.bool_)
                 logits_i = ops.select(valid_width_mask, logits_i, float('-inf'))  # (c*h, w)
                 logits_list.append(logits_i.view((c, h, w)))  # (c, h, w)

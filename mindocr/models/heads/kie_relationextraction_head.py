@@ -49,12 +49,12 @@ class REDecoder(nn.Cell):
     def construct(self, hidden_states, question, question_label, answer, answer_label):
         __, _, hidden_size = hidden_states.shape
         q_label_repr = self.entity_emb(question_label)
-        question = question.expand_dims(-1).repeat(hidden_size, -1)
+        question = question.expand_dims(-1).repeat_interleave(hidden_size, -1)
         tmp_hidden_states = ops.gather_d(hidden_states, 1, question)
         q_repr = ops.concat((tmp_hidden_states, q_label_repr), axis=-1)
 
         a_label_repr = self.entity_emb(answer_label)
-        answer = answer.expand_dims(-1).repeat(hidden_size, -1)
+        answer = answer.expand_dims(-1).repeat_interleave(hidden_size, -1)
         tmp_hidden_states = ops.gather_d(hidden_states, 1, answer)
         a_repr = ops.concat((tmp_hidden_states, a_label_repr), axis=-1)
 

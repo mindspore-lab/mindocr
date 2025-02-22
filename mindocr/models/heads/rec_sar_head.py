@@ -232,7 +232,7 @@ class ParallelSARDecoder(BaseDecoder):
                 attn_weight_i = attn_weight_i.transpose((0, 1, 3, 2))  # (T, h, c, w)
                 attn_weight_i = attn_weight_i.view((-1, w))  # (T*h*c, w)
                 Tch = T * h * c
-                valid_width_mask = valid_width_mask.repeat(Tch, axis=0)  # (T*h*c, w)
+                valid_width_mask = valid_width_mask.repeat_interleave(Tch, 0)  # (T*h*c, w)
                 valid_width_mask = ops.cast(valid_width_mask, ms.bool_)
                 attn_weight_i = ops.select(
                     valid_width_mask, attn_weight_i.astype(ms.float32), float('-inf'))  # (T*h*c, w)
