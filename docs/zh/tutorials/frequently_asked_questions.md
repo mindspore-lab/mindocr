@@ -750,7 +750,7 @@ ImportError: /root/mindocr_env/lib/python3.8/site-packages/sklearn/__check_build
    ```bash
    /root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0
    ```
-   
+
  - 将so文件路径加入到环境变量`LD_PRELOAD`
    ```bash
    export LD_PRELOAD=/root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD

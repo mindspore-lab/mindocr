@@ -742,7 +742,7 @@ You can try the following steps to fix it:
    ```bash
    /root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0
    ```
-   
+
  - Add the so file to environment variable `LD_PRELOAD`
    ```bash
    export LD_PRELOAD=/root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
@@ -905,6 +905,6 @@ Some Python 3.7 environment may meet this problem when multiple python3 environm
    LDFLAGS = $(shell python3.7-config --ldflags)
    ...
    ```
-   save `Makefile`. So that the make process would exactly compile with python3.7 environment 
+   save `Makefile`. So that the make process would exactly compile with python3.7 environment
 
 - run `python setup.py install` and completely install lanms.

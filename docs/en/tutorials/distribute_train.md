@@ -20,8 +20,8 @@ On Ascend platform, some common restrictions on using the distributed service ar
 On Ascend hardware platform, users can use MindSpore's `msrun` to run distributed training with `n` devices. For example, in [DBNet Readme](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README.md#34-training), the following command is used to train the model on devices `0` and `1`:
 
 ```shell
-# worker_num is the total number of Worker processes participating in the distributed task. 
-# local_worker_num is the number of Worker processes pulled up on the current node. 
+# worker_num is the total number of Worker processes participating in the distributed task.
+# local_worker_num is the number of Worker processes pulled up on the current node.
 # The number of processes is equal to the number of NPUs used for training. In the case of single-machine multi-card worker_num and local_worker_num must be the same.
 msrun --worker_num 2 --local_worker_num 2 tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
 ```
