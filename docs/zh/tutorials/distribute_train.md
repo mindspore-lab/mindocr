@@ -1,17 +1,10 @@
 # 分布式并行训练
 
-本文档提供分布式并行训练的教程，在Ascend处理器上有两种方式可以进行单机多卡训练，通过OpenMPI运行脚本或通过配置RANK_TABLE_FILE进行单机多卡训练。
+本文档提供分布式并行训练的教程，在Ascend处理器上有三种方式可以进行单机多卡训练，通过MSRun或OpenMPI运行脚本或通过配置RANK_TABLE_FILE进行单机多卡训练，更多说明请参考[MindSpore分布式并行启动](https://www.mindspore.cn/docs/zh-CN/master/model_train/parallel/startup_method.html)。
 
 > 请确保在运行以下命令进行分布式训练之前，将 `yaml` 文件中的 `distribute` 参数设置为 `True`。
 
-- [分布式并行训练](#分布式并行训练)
-  - [1. Ascend](#1-ascend)
-    - [1.1 通过OpenMPI运行脚本进行训练](#11-通过openmpi运行脚本进行训练)
-    - [1.2 配置RANK\_TABLE\_FILE进行训练](#12-配置rank_table_file进行训练)
-      - [1.2.1 使用八个（全部）设备进行训练](#121-使用八个全部设备进行训练)
-      - [1.2.2 使用四个（部分）设备进行训练](#122-使用四个部分设备进行训练)
-
-## 1. Ascend
+## Ascend
 
 **注**:
 
@@ -21,9 +14,20 @@
 
 - 每台机器的0-3卡和4-7卡各为1个组网，2卡和4卡训练时卡必须相连且不支持跨组网创建集群。也就是说，四卡训练时，只能选择`{0, 1, 2, 3}` 或者 `{4, 5, 6, 7}`. 进行双卡训练时, 跨组网的设备, 例如 `{0, 4}`不支持创建集群。 不过, 同一组网内的设备，例如 `{0, 1}`和 `{1, 2}`支持创建集群。
 
+### 通过MSRun运行脚本进行训练
 
+在 Ascend 硬件平台上，用户可以使用 `MindSpore` 的 `msrun` 命令来运行 `n` 个设备的分布式训练。例如，在 [DBNet Readme](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README_CN.md#34-training) 中，使用以下命令在设备 `0` 和设备 `1` 上训练模型：
 
-### 1.1 通过OpenMPI运行脚本进行训练
+```shell
+# worker_num代表分布式总进程数量。
+# local_worker_num代表当前节点进程数量。
+# 进程数量即为训练使用的NPU的数量，单机多卡情况下worker_num和local_worker_num需保持一致。
+msrun --worker_num 2 --local_worker_num 2 tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
+```
+
+> 请注意，`msrun` 将从设备 `0` 开始按顺序在设备上运行训练。例如，`msrun --worker_num 4 --local_worker_num 4 start-script` 将在四个设备上运行训练：`{0, 1, 2, 3}`。
+
+### 通过OpenMPI运行脚本进行训练
 
 在 Ascend 硬件平台上，用户可以使用 `OpenMPI` 的 `mpirun` 命令来运行 `n` 个设备的分布式训练。例如，在 [DBNet Readme](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README_CN.md#34-training) 中，使用以下命令在设备 `0` 和设备 `1` 上训练模型：
 
@@ -35,9 +39,11 @@ mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet
 > 请注意，`mpirun` 将从设备 `0` 开始按顺序在设备上运行训练。例如，`mpirun -n 4 python-command` 将在四个设备上运行训练：`{0, 1, 2, 3}`。
 
 
-### 1.2 配置RANK_TABLE_FILE进行训练
+### 配置RANK_TABLE_FILE进行训练
 
-#### 1.2.1 使用八个（全部）设备进行训练
+> 请注意，rank_table 启动方式将在MindSpore 2.4版本废弃。
+
+#### 使用八个（全部）设备进行训练
 
 使用此种方法在进行分布式训练前需要创建json格式的HCCL配置文件，即生成RANK_TABLE_FILE文件，以下为生成8卡相应配置文件命令，更具体信息及相应脚本参见[hccl_tools](https://gitee.com/mindspore/models/tree/master/utils/hccl_tools)中的说明，
 ``` shell
@@ -135,7 +141,7 @@ done
 
 此时训练已经开始，可在`train.log`中查看训练日志。
 
-#### 1.2.2 使用四个（部分）设备进行训练
+#### 使用四个（部分）设备进行训练
 
 要在四个设备上运行训练，例如，`{4, 5, 6, 7}`，`RANK_TABLE_FILE`和运行脚本与在八个设备上运行使用的文件有所不同。
 

@@ -2,7 +2,7 @@
 
 This tutorial only covers the environment installation of MindOCR for offline inference on Atlas 300 series inference devices.
 
-### 1. Version Matching Table
+### Version Matching Table
 
 Please refer to the version matching table when setting up the inference environment. It is recommended to use MindSpore 2.2.14 for inference.
 
@@ -16,7 +16,7 @@ Now, we taking Atlas 300I Inference Card (Model: 3010) run on x86 CPU as an exam
 
 **Other MindSpore and Ascend software version matching please refer to [MindSpore Install](https://www.mindspore.cn/install).**
 
-### 2. Ascend Environment Installation
+### Ascend Environment Installation
 
 There are two versions of the Ascend software package, the commercial edition and the community edition. The commercial edition is only for commercial customers and download is restricted; The community edition can be freely downloaded, and the following examples all use the community edition.
 
@@ -52,7 +52,7 @@ reboot
 source /usr/local/Ascend/nnae/set_env.sh
 ```
 
-### 3. MindSpore Install
+### MindSpore Install
 
 ```shell
 pip install mindspore==2.2.14
@@ -61,7 +61,7 @@ pip install mindspore==2.2.14
 python -c "import mindspore;mindspore.set_context(device_target='CPU');mindspore.run_check()"
 ```
 
-### 4. MindSpore Lite Install
+### MindSpore Lite Install
 
 | software | version | package name | download |
 | --- | --- | --- | --- |
@@ -84,7 +84,7 @@ If interface with python, install the required whl package using pip.
 pip install mindspore_lite-2.2.14-{python_version}-linux_{arch}.whl
 ```
 
-### 5. MindOCR Install
+### MindOCR Install
 
 ```shell
 git clone https://github.com/mindspore-lab/mindocr.git

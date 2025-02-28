@@ -1,6 +1,6 @@
 ## Inference - Dynamic Shape Scaling
 
-### 1. Introduction
+### Introduction
 
 In some inference scenarios, such as object recognition after detection, the input batch size and image size of the
 recognition network are not fixed because the number of object and the size of the object are not fixed. If each
@@ -15,11 +15,11 @@ This tool integrates the function of dataset statistics, can count the appropria
 and `width` as candidate values, and encapsulates the model conversion tool, thus realizing the automatic model shape
 scaling.
 
-### 2. Environment
+### Environment
 
 Please refer to [Environment Installation](environment.md) to install MindSpore Lite environment.
 
-### 3. Model
+### Model
 
 Currently, ONNX model files are supported, and by MindSpore Lite, they are automatically shape scaling and
 converted to MIndIR model files.
@@ -28,7 +28,7 @@ Please make sure that the input model is the dynamic shape version. For example,
 shape scaling for H and W, make sure that at least the H and W axes are dynamic, and the shape can be `(1,3,-1,-1)` and
 `(-1,3,- 1,-1) `etc.
 
-### 4. Dataset
+### Dataset
 
 Two types of data are supported:
 
@@ -48,11 +48,11 @@ Two types of data are supported:
 
    - Suitable for text recognition models
 
-#### 5. Usages
+#### Usages
 
 `cd deploy/models_utils/auto_scaling`
 
-##### 5.1 Command example
+##### Command example
 
 - auto shape scaling for batch size
 
@@ -102,7 +102,7 @@ python converter.py \
 
 The output is a single MindIR model: `model_static.mindir`
 
-##### 5.2 Parameter Details
+##### Parameter Details
 
 | Name        | Default     | Required | Description                                      |
 |:------------|:------------|:---------|:-------------------------------------------------|
@@ -114,7 +114,7 @@ The output is a single MindIR model: `model_static.mindir`
 | output_path | ./output    | N        | Path to output model                             |
 | soc_version | Ascend310P3 | N        | soc_version for Ascend，Ascend310P3 or Ascend310 |
 
-##### 5.3 Configuration file
+##### Configuration file
 
 In addition to the above command line parameters, there are some parameters in
 [auto_scaling.yaml](https://github.com/mindspore-lab/mindocr/tree/main/deploy/models_utils/auto_scaling/configs/auto_scaling.yaml) to describe the statistics of

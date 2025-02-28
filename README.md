@@ -274,7 +274,7 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 <summary>Key Information Extraction</summary>
 
 - [x] [LayoutXLM](configs/kie/vi_layoutxlm/README.md) (arXiv'2021)
-- [x] [LayoutLMv3](configs/kie/layoutlmv3/README.md) (arXiv'2022)
+- [x] [LayoutLMv3](configs/layout/layoutlmv3/README.md) (arXiv'2022)
 
 </details>
 
@@ -292,7 +292,7 @@ You can do MindSpore Lite inference in MindOCR using **MindOCR models** or **Thi
 
 </details>
 
-For the detailed performance of the trained models, please refer to [https://github.com/mindspore-lab/mindocr/blob/main/configs](./configs).
+For the detailed performance of the trained models, please refer to [configs](configs).
 
 For details of MindSpore Lite inference models support, please refer to [MindOCR Models Support List](docs/en/inference/mindocr_models_list.md) and [Third-party Models Support List](docs/en/inference/thirdparty_models_list.md) (PaddleOCR etc.).
 
@@ -306,45 +306,45 @@ MindOCR provides a [dataset conversion tool](https://github.com/mindspore-lab/mi
 - [Born-Digital Images](https://rrc.cvc.uab.es/?ch=1) [[download](docs/en/datasets/borndigital.md)]
 - [CASIA-10K](http://www.nlpr.ia.ac.cn/pal/CASIA10K.html) [[download](docs/en/datasets/casia10k.md)]
 - [CCPD](https://github.com/detectRecog/CCPD) [[download](docs/en/datasets/ccpd.md)]
-- [Chinese Text Recognition Benchmark](https://github.com/FudanVI/benchmarking-chinese-text-recognition) [[paper](https://arxiv.org/abs/2112.15093)] [[download](docs/en/datasets/chinese_text_recognition.md)]
+- [Chinese Text Recognition Benchmark](https://github.com/FudanVI/benchmarking-chinese-text-recognition) [[paper](https://arxiv.org/abs/2112.15093)] \[[download](docs/en/datasets/chinese_text_recognition.md)]
 - [COCO-Text](https://rrc.cvc.uab.es/?ch=5) [[download](docs/en/datasets/cocotext.md)]
 - [CTW](https://ctwdataset.github.io/) [[download](docs/en/datasets/ctw.md)]
-- [ICDAR2015](https://rrc.cvc.uab.es/?ch=4) [[paper](https://rrc.cvc.uab.es/files/short_rrc_2015.pdf)] [[download](docs/en/datasets/icdar2015.md)]
+- [ICDAR2015](https://rrc.cvc.uab.es/?ch=4) [[paper](https://rrc.cvc.uab.es/files/short_rrc_2015.pdf)] \[[download](docs/en/datasets/icdar2015.md)]
 - [ICDAR2019 ArT](https://rrc.cvc.uab.es/?ch=14) [[download](docs/en/datasets/ic19_art.md)]
 - [LSVT](https://rrc.cvc.uab.es/?ch=16) [[download](docs/en/datasets/lsvt.md)]
-- [MLT2017](https://rrc.cvc.uab.es/?ch=8) [[paper](https://ieeexplore.ieee.org/abstract/document/8270168)] [[download](docs/en/datasets/mlt2017.md)]
-- [MSRA-TD500](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500)) [[paper](https://ieeexplore.ieee.org/abstract/document/6247787)] [[download](docs/en/datasets/td500.md)]
+- [MLT2017](https://rrc.cvc.uab.es/?ch=8) [[paper](https://ieeexplore.ieee.org/abstract/document/8270168)] \[[download](docs/en/datasets/mlt2017.md)]
+- [MSRA-TD500](http://www.iapr-tc11.org/mediawiki/index.php/MSRA_Text_Detection_500_Database_(MSRA-TD500)) [[paper](https://ieeexplore.ieee.org/abstract/document/6247787)] \[[download](docs/en/datasets/td500.md)]
 - [MTWI-2018](https://tianchi.aliyun.com/competition/entrance/231651/introduction) [[download](docs/en/datasets/mtwi2018.md)]
 - [RCTW-17](https://rctw.vlrlab.net/) [[download](docs/en/datasets/rctw17.md)]
 - [ReCTS](https://rrc.cvc.uab.es/?ch=12) [[download](docs/en/datasets/rects.md)]
-- [SCUT-CTW1500](https://github.com/Yuliang-Liu/Curve-Text-Detector) [[paper](https://www.sciencedirect.com/science/article/pii/S0031320319300664)] [[download](docs/en/datasets/ctw1500.md)]
+- [SCUT-CTW1500](https://github.com/Yuliang-Liu/Curve-Text-Detector) [[paper](https://www.sciencedirect.com/science/article/pii/S0031320319300664)] \[[download](docs/en/datasets/ctw1500.md)]
 - [SROIE](https://rrc.cvc.uab.es/?ch=13) [[download](docs/en/datasets/sroie.md)]
 - [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset) [[download](docs/en/datasets/svt.md)]
-- [SynText150k](https://github.com/aim-uofa/AdelaiDet) [[paper](https://arxiv.org/abs/2002.10200)] [[download](docs/en/datasets/syntext150k.md)]
-- [SynthText](https://www.robots.ox.ac.uk/~vgg/data/scenetext/) [[paper](https://www.robots.ox.ac.uk/~vgg/publications/2016/Gupta16/)] [[download](docs/en/datasets/synthtext.md)]
+- [SynText150k](https://github.com/aim-uofa/AdelaiDet) [[paper](https://arxiv.org/abs/2002.10200)] \[[download](docs/en/datasets/syntext150k.md)]
+- [SynthText](https://www.robots.ox.ac.uk/~vgg/data/scenetext/) [[paper](https://www.robots.ox.ac.uk/~vgg/publications/2016/Gupta16/)] \[[download](docs/en/datasets/synthtext.md)]
 - [TextOCR](https://textvqa.org/textocr/) [[download](docs/en/datasets/textocr.md)]
-- [Total-Text](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset) [[paper](https://arxiv.org/abs/1710.10400)] [[download](docs/en/datasets/totaltext.md)]
+- [Total-Text](https://github.com/cs-chan/Total-Text-Dataset/tree/master/Dataset) [[paper](https://arxiv.org/abs/1710.10400)] \[[download](docs/en/datasets/totaltext.md)]
 
 </details>
 
 <details close markdown>
 <summary>Layout Analysis Datasets</summary>
 
-- [PublayNet](https://github.com/ibm-aur-nlp/PubLayNet) [[paper](https://arxiv.org/abs/1908.07836)] [[download](https://dax-cdn.cdn.appdomain.cloud/dax-publaynet/1.0.0/publaynet.tar.gz)]
+- [PublayNet](https://github.com/ibm-aur-nlp/PubLayNet) [[paper](https://arxiv.org/abs/1908.07836)] \[[download](https://dax-cdn.cdn.appdomain.cloud/dax-publaynet/1.0.0/publaynet.tar.gz)]
 
 </details>
 
 <details close markdown>
 <summary>Key Information Extraction Datasets</summary>
 
-- [XFUND](https://github.com/doc-analysis/XFUND) [[paper](https://aclanthology.org/2022.findings-acl.253/)] [[download](https://github.com/doc-analysis/XFUND/releases/tag/v1.0)]
+- [XFUND](https://github.com/doc-analysis/XFUND) [[paper](https://aclanthology.org/2022.findings-acl.253/)] \[[download](https://github.com/doc-analysis/XFUND/releases/tag/v1.0)]
 
 </details>
 
 <details close markdown>
 <summary>Table Recognition Datasets</summary>
 
-- [PubTabNet](https://github.com/ibm-aur-nlp/PubTabNet) [[paper](https://arxiv.org/pdf/1911.10683.pdf)] [[download](https://dax-cdn.cdn.appdomain.cloud/dax-pubtabnet/2.0.0/pubtabnet.tar.gz)]
+- [PubTabNet](https://github.com/ibm-aur-nlp/PubTabNet) [[paper](https://arxiv.org/pdf/1911.10683.pdf)] \[[download](https://dax-cdn.cdn.appdomain.cloud/dax-pubtabnet/2.0.0/pubtabnet.tar.gz)]
 
 </details>
 
@@ -362,7 +362,7 @@ Frequently asked questions about configuring environment and mindocr, please ref
 
 - 2023/04/01
 1. Add new trained models
-    - [LayoutLMv3](configs/kie/layoutlmv3/) for key information extraction
+    - [LayoutLMv3](configs/layout/layoutlmv3/) for key information extraction
 
 - 2024/03/20
 1. Add new trained models

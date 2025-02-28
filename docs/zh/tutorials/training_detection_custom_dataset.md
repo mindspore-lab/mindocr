@@ -2,24 +2,7 @@
 
 本文档提供了如何使用自定义数据集训练文本检测网络的教程。
 
-- [使用自定义数据集训练检测网络](#使用自定义数据集训练检测网络)
-  - [1. 数据集准备](#1-数据集准备)
-    - [1.1 准备训练数据](#11-准备训练数据)
-    - [1.2 准备测试数据](#12-准备测试数据)
-  - [2. 配置文件准备](#2-配置文件准备)
-    - [2.1 配置训练/测试数据集](#21-配置训练测试数据集)
-    - [2.2 配置训练/测试转换函数](#22-配置训练测试转换函数)
-    - [2.3 配置模型架构](#23-配置模型架构)
-    - [2.4 配置训练超参数](#24-配置训练超参数)
-  - [3. 模型训练, 测试和推理](#3-模型训练-测试和推理)
-    - [3.1 训练](#31-训练)
-    - [3.2 评估](#32-评估)
-    - [3.3 推理](#33-推理)
-      - [3.3.1 环境准备](#331-环境准备)
-      - [3.3.2 模型转换](#332-模型转换)
-      - [3.3.3 推理](#333-推理)
-
-## 1. 数据集准备
+## 数据集准备
 目前，MindOCR检测网络支持两种输入格式，分别是:
 
 -  `Common Dataset`：一种文件格式，存储图像、文本边界框和文本标注。目标文件格式的一个示例是：
@@ -32,7 +15,7 @@ img_1.jpg\t[{"transcription": "MASA", "points": [[310, 104], [416, 141], [418, 2
 
 我们建议用户将文本检测数据集准备成 `Common Dataset `格式，然后使用 `DetDataset` 来加载数据。以下教程进一步解释了详细步骤。
 
-### 1.1 准备训练数据
+### 准备训练数据
 
 请将所有训练图像放在一个文件夹中，并在更高级别的目录中指定一个 txt 文件 `train_det.txt` ，来标记所有训练图像名称和对应的标签。txt 文件的一个示例如下：
 ```text
@@ -56,7 +39,7 @@ img_2.jpg\t[{"transcription": "guardian", "points": [[642, 250], [769, 230], [77
         | ...
 ```
 
-### 1.2 准备测试数据
+### 准备测试数据
 
 类似地，请将所有测试图像放在一个文件夹中，并在更高级别的目录中指定一个 txt 文件 `val_det.txt` ，来标记所有测试图像名称和对应的标签。最终，测试集的文件夹将会以以下格式存储：
 ```
@@ -69,11 +52,11 @@ img_2.jpg\t[{"transcription": "guardian", "points": [[642, 250], [769, 230], [77
         | ...
 ```
 
-## 2. 配置文件准备
+## 配置文件准备
 
 为了准备相应的配置文件，用户应该指定训练和测试数据集的目录。
 
-### 2.1 配置训练/测试数据集
+### 配置训练/测试数据集
 
 请选择 `configs/det/dbnet/db_r50_icdar15.yaml` 作为初始配置文件，并修改其中的` train.dataset` 和 `eval.dataset` 字段。
 
@@ -95,7 +78,7 @@ eval:
     label_file: val_det.txt                                     # 测试标签的路径。它将与 `dataset_root` 拼接成一个完整的路径。
   ...
 ```
-### 2.2 配置训练/测试转换函数
+### 配置训练/测试转换函数
 
 以 `configs/det/dbnet/dbnet_r50_icdar15.yaml` 中的 `train.dataset.transform_pipeline` 为例。它指定了一组应用于图像或标签的转换函数，用以生成作为模型输入或损失函数输入的数据。这些转换函数定义在 `mindocr/data/transforms` 中。
 
@@ -181,7 +164,7 @@ eval:
 
 更多关于转换函数的教程可以在 [转换教程](transform_tutorial.md) 中找到。
 
-### 2.3 配置模型架构
+### 配置模型架构
 
 虽然不同的模型有不同的架构，但 `MindOCR` 将它们形式化为一个通用的三阶段架构：`[backbone]->[neck]->[head]`。以 `configs/det/dbnet/dbnet_r50_icdar15.yaml` 为例：
 
@@ -206,7 +189,7 @@ model:
 
 `backbone`,`neck`和`head`定义在 `mindocr/models/backbones`、`mindocr/models/necks` 和 `mindocr/models/heads` 下。
 
-### 2.4 配置训练超参数
+### 配置训练超参数
 
 `configs/det/dbnet/dbnet_r50_icdar15.yaml` 中定义了一些训练超参数，如下所示：
 ```yaml
@@ -236,11 +219,11 @@ optimizer:
 ```
 它使用 `SGD` 优化器（在 `mindocr/optim/optim.factory.py` 中）和 `polynomial_decay`（在 `mindocr/scheduler/scheduler_factory.py` 中）作为学习率调整策略。损失函数是 `DBLoss`（在 `mindocr/losses/det_loss.py` 中），评估指标是 `DetMetric`（在 `mindocr/metrics/det_metrics.py` 中）。
 
-## 3. 模型训练, 测试和推理
+## 模型训练, 测试和推理
 
 当所有配置文件都已设置好后，用户就可以开始训练他们的模型。MindOCR支持在模型训练完成后进行测试和推理。
 
-### 3.1 训练
+### 训练
 
 * 单机训练
 
@@ -282,7 +265,7 @@ Copy{
 
 目标设备的`device_ip`可以通过运行`cat /etc/hccn.conf`获取。输出结果中的`address_x`就是`ip`地址。更多细节可以在[分布式训练教程](distribute_train.md)中找到。
 
-### 3.2 评估
+### 评估
 
 为了评估训练模型的准确性，用户可以使用`tools/eval.py`。
 
@@ -300,15 +283,15 @@ python tools/eval.py -c=configs/det/dbnet/db_r50_icdar15.yaml \
                   eval.label_file="val_set/label"
 ```
 
-### 3.3 推理
+### 推理
 
 MindOCR推理支持Ascend310/Ascend310P设备，采用[MindSpore Lite](https://www.mindspore.cn/lite)推理。推理教程给出了如何使用MindOCR进行推理的详细步骤，主要包括三个步骤：环境准备、模型转换和推理。
 
-#### 3.3.1 环境准备
+#### 环境准备
 
 请参考[环境安装](../inference/environment.md)获取更多信息。
 
-#### 3.3.2 模型转换
+#### 模型转换
 
 在运行推理之前，用户需要从训练得到的checkpoint文件导出一个MindIR文件。[MindSpore IR (MindIR)](https://www.mindspore.cn/docs/en/r2.2/design/mindir.html)是基于图形表示的函数式IR。MindIR文件存储了推理所需的模型结构和权重参数。
 
@@ -323,7 +306,7 @@ python tools/export.py --model_name_or_config configs/det/dbnet/db_r50_icdar15.y
 
 请参考[转换教程](../inference/convert_tutorial.md)获取更多关于模型转换的细节。
 
-#### 3.3.3 推理
+#### 推理
 
 经过模型转换后， 用户能得到`output.mindir`文件。用户可以进入到`deploy/py_infer`目录，并使用以下命令进行推理：
 
@@ -338,4 +321,4 @@ python infer.py \
     --res_save_dir=results_dir
 ```
 
-请参考[推理教程](../inference/inference_tutorial.md)的`4.1 命令示例`章节获取更多例子。
+请参考[推理教程](../inference/inference_tutorial.md)的`推理(Python)`章节获取更多例子。

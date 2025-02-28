@@ -1,20 +1,20 @@
 ## 常见问题
- - [未定义符号](#q1-未定义符号)
- - [Ascend so库找不到相关错误](#q2-ascend-so库找不到相关错误)
+ - [未定义符号](#q1)
+ - [Ascend so库找不到相关错误](#q2)
  - [关于错误码 a39999](#q3-ascend-error-message-a39999)
  - [关于错误 acl open device 0 failed](#q4-acl-open-device-0-failed)
- - [windows安装mindocr依赖失败相关问题](#q5-windows安装mindocr依赖失败)
+ - [windows安装mindocr依赖失败相关问题](#q5)
  - [关于 RunTimeError:The device address tpe is wrong](#q6-runtimeerror-the-device-address-type-is-wrong-type-name-in-addresscpu-type-name-in-contextascend)
- - [模型转换相关问题](#q7-模型转换相关问题)
- - [推理相关问题](#q8-推理时相关问题)
- - [DBNet训练速率不及预期](#q9-DBNet训练速率不及预期)
- - [libgomp-d22c30c5.so.1.0.0 相关错误](#q10-libgomp-d22c30c5so100相关错误)
- - [当在lmdb dataset上训练abinet报数据管道错误](#q11-当在lmdb-dataset上训练abinet报数据管道错误)
- - [当在synthtext数据集上训练dbnet报运行时错误](#q12-当在synthtext数据集上训练dbnet报运行时错误)
- - [安装seqeval相关错误](#q13-安装seqeval相关错误)
- - [安装lanms相关错误](#q14-安装lanms相关错误)
+ - [模型转换相关问题](#q7)
+ - [推理相关问题](#q8)
+ - [DBNet训练速率不及预期](#q9)
+ - [libgomp-d22c30c5.so.1.0.0 相关错误](#q10)
+ - [当在lmdb dataset上训练abinet报数据管道错误](#q11)
+ - [当在synthtext数据集上训练dbnet报运行时错误](#q12)
+ - [安装seqeval相关错误](#q13)
+ - [安装lanms相关错误](#q14)
 
-### Q1 未定义符号
+### <span id="q1">Q1 未定义符号</span>
 
 - `undefined symbol:_ZN9mindspore5tracel15GetDebugInfostrERKSt10shared_ptrINS_9DebugInfoEERKSsNS_13SourceLineTipE`
 
@@ -74,7 +74,7 @@
 - `mindspore_lite tar.gz`: [mindspore-lite-2.2.0-linux-x64.tar.gz](https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.2.0/MindSpore/lite/release/linux/x86_64/cloud_fusion/python37/mindspore-lite-2.2.0-linux-x64.tar.gz)
 - `mindspore whl`: [mindspore-2.2.0-cp37-cp37m-linux_x86_64.whl](https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.2.0/MindSpore/unified/x86_64/mindspore-2.2.0-cp37-cp37m-linux_x86_64.whl)
 
-### Q2 Ascend so库找不到相关错误
+### <span id="q2">Q2 Ascend so库找不到相关错误</span>
 
 - `dlopen mindspore_lite/lib/libascend_kernel_plugin.so` ，No such file or directory
 
@@ -311,7 +311,7 @@ export ASCEND_AICPU_PATH=$ASCEND_HOME/latest/x86_64-linux
 export LD_LIBRARY_PATH=$ASCEND_HOME/latest/x86_64-linux/lib64:$LD_LIBRARY_PATH
 ```
 
-### Q5 windows安装mindocr依赖失败
+### <span id="q5">Q5 windows安装mindocr依赖失败</span>
 
 windows下执行
 
@@ -446,7 +446,7 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
 - 将MindSpore模式调为CPU
 - 使用 [MindSpore Lite](https://www.mindspore.cn/lite)
 
-### Q7 模型转换相关问题
+### <span id="q7">Q7 模型转换相关问题</span>
 
 - 调用`converter_lite`转换模型到`mindir`端侧模型时，报`SetGraphInputShape] Failed to find input xxx in input_shape yyy:xxxxxxxxxxx`
 
@@ -652,7 +652,7 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
 - `converter_lite`转换工具版本与推理时`mindspore_lite`版本不一致。例如用`converter_lite 2.2`转换得到的`mindir`端侧模型，用于`mindspore_lite 2.1`下推理
 
 
-### Q8 推理时相关问题
+### <span id="q8">Q8 推理时相关问题</span>
 
 - 使用`deploy/py_infer/infer.py`推理时，报`TypeError: unhashable type: 'numpy.ndarray'`，具体错误为
 
@@ -681,7 +681,7 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
   - 使用恰当的模型。例如在 `--rec_model_path` 错误传入了检测模型，可触发此错误；
   - 使用推理模型（非训练模型），用`converter_lite`转换工具转为端侧`mindir`进行推理。
 
-### Q9 DBNet训练速率不及预期
+### <span id="q9">Q9 DBNet训练速率不及预期</span>
 
 执行以下命令，训练DBNet系列网络（包括DBNet MobileNetV3、DBNet ResNet-18、DBNet ResNet-50、DBNet++ ResNet-50等）时，训练帧率不及预期。例如，DBNet MobileNetV3在Ascend 910A上，训练速率仅80fps，不及预期的100fps。
 
@@ -735,7 +735,7 @@ python tools/train.py -c configs/det/dbnet/db_mobilenetv3_icdar15.yaml
     ...
     ```
 
-### Q10 `libgomp-d22c30c5.so.1.0.0`相关错误
+### <span id="q10">Q10 `libgomp-d22c30c5.so.1.0.0`相关错误</span>
 运行mindocr时，可能报以下错误
 ```bash
 ImportError: /root/mindocr_env/lib/python3.8/site-packages/sklearn/__check_build/../../scikit_learn.libs/libgomp-d22c30c5.so.1.0.0: cannot allocate memory in static TLS block
@@ -750,12 +750,13 @@ ImportError: /root/mindocr_env/lib/python3.8/site-packages/sklearn/__check_build
    ```bash
    /root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0
    ```
+
  - 将so文件路径加入到环境变量`LD_PRELOAD`
    ```bash
    export LD_PRELOAD=/root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
    ```
 
-### Q11 当在lmdb dataset上训练abinet报数据管道错误
+### <span id="q11">Q11 当在lmdb dataset上训练abinet报数据管道错误</span>
 当在lmdb dataset上训练abinet报以下数据管道错误
 ```bash
 mindocr.data.rec_lmdb_dataset WARNING - Error occurred during preprocess.
@@ -771,7 +772,8 @@ mindocr.data.rec_lmdb_dataset WARNING - Error occurred during preprocess.
 ------------------------------------------------------------------
 mindspore/ccsrc/minddata/dataset/kernels/py_func_op.cc(143).
 ```
-可以尝试用如下步骤修复
+可以尝试用如下步骤修复：
+
  - 找到mindspore的包路径
  - 打开文件: `mindspore/dataset/transforms/transform.py`
  - 跳转到93行，可以得到如下内容:
@@ -787,6 +789,7 @@ mindspore/ccsrc/minddata/dataset/kernels/py_func_op.cc(143).
   101           # add the executor the global EXECUTORS_LIST
   102           EXECUTORS_LIST[key] = executor
   ```
+
  - 使用`executor = cde.Execute(self.parse())`替换97行, 得到如下内容:
   ```bash
   93        if key in EXECUTORS_LIST:
@@ -800,9 +803,10 @@ mindspore/ccsrc/minddata/dataset/kernels/py_func_op.cc(143).
   101           # add the executor the global EXECUTORS_LIST
   102           EXECUTORS_LIST[key] = executor
   ```
+
   - 保存后再次尝试训练即可
 
-### Q12 当在synthtext数据集上训练dbnet报运行时错误
+### <span id="q12">Q12 当在synthtext数据集上训练dbnet报运行时错误</span>
 当在synthtext数据集上训练dbnet报以下数据管道错误
 ```bash
 Traceback (most recent call last):
@@ -815,7 +819,7 @@ RuntimeError: Run task for graph:kernel_graph_1 error! The details reger to 'Asc
 请尝试将CANN更新到7.1。
 
 
-### Q13 安装seqeval相关错误
+### <span id="q13">Q13 安装seqeval相关错误</span>
 当运行`pip install -r requirements.txt`时，报以下错误
 ```bash
 Collecting seqeval>=1.2.2 (from -r requirements.txt (line 19))
@@ -887,17 +891,19 @@ note: This is an issue with the package mentioned above, not pip.
 
 ```
 尝试以下步骤修复：
+
  - 更新`setuptools`: `pip3 install --upgrade setuptools`
  - 更新`setuptools_scm`: `pip3 install --upgrade setuptools_scm`
  - 安装`seqeval`：`pip3 install seqeval -i https://pypi.tuna.tsinghua.edu.cn/simple`
 
 
-### Q14 安装lanms相关错误
+### <span id="q14">Q14 安装lanms相关错误</span>
 当安装lanms时，报
 ```bash
 ImportError: Python version mismatch: module was compiled for version 3.8, while the interpreter is running version 3.7.
 ```
-该问题可能是当前存在多个python3环境导致，你可使用以下步骤解决该问题
+该问题可能是当前存在多个python3环境导致，你可使用以下步骤解决该问题：
+
  - 执行`pip3 install lanms -i https://pypi.tuna.tsinghua.edu.cn/simple`，得到`lanms-1.0.2.tar.gz`的下载链接（如https://pypi.tuna.tsinghua.edu.cn/packages/96/c0/50dc2c857ed060e907adaef31184413a7706e475c322236d346382e45195/lanms-1.0.2.tar.gz）
  - 使用该下载链接，下载`lanms-1.0.2.tar.gz`，执行`tar -zxvf lanms-1.0.2.tar.gz`以解压该包
  - `cd lanms-1.0.2`
@@ -908,4 +914,5 @@ ImportError: Python version mismatch: module was compiled for version 3.8, while
    ...
    ```
    保存该`Makefile`, 执行过程将匹配到python 3.7环境
+
  - 执行`python setup.py install`以安装`lanms`

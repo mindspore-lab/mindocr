@@ -2,9 +2,9 @@
 
 [![Download Notebook](https://mindspore-website.obs.cn-north-4.myhuaweicloud.com/website-images/r1.8/resource/_static/logo_notebook.png)](https://download.mindspore.cn/toolkits/mindocr/tutorials/transform_tutorial.ipynb)&emsp;
 
-### 机制
+## 机制
 
-1. 每个Transformation都是一个具有可调用函数的类。示例如下
+- 每个Transformation都是一个具有可调用函数的类。示例如下
 
 ```python
 class ToCHWImage(object):
@@ -24,9 +24,9 @@ class ToCHWImage(object):
         return data
 ```
 
-2. transformation的输入始终是dict，其中包含img_path、raw label等数据信息。
+- transformation的输入始终是dict，其中包含img_path、raw label等数据信息。
 
-3. transformation api应该明确输入中所需的key以及输出数据中修改或/和添加的key。
+- transformation api应该明确输入中所需的key以及输出数据中修改或/和添加的key。
 
 可用的transformation可以在`mindocr/data/transforms/*_transform.py`中发现
 
@@ -65,9 +65,9 @@ det_transforms.__all__
 
 
 
-### 文本检测
+## 文本检测
 
-### 1. 加载图像和注释
+### 加载图像和注释
 
 #### 准备
 
@@ -176,7 +176,7 @@ show_img(res)
 ![output_16_1](https://user-images.githubusercontent.com/20376974/228161131-c11209d1-f3f0-4a8c-a763-b72d729a4084.png)
 
 
-### 2. 图像和注释处理/增强
+### 图像和注释处理/增强
 
 #### RandomCrop - EastRandomCropData
 

@@ -290,7 +290,7 @@ python tools/infer/text/predict_table_structure.py --image_dir {path_to_img or d
 样例图片为`configs/table/example.png`，运行结果如下：
 
 <p align="center">
-  <img src="../../../configs/table/example_structure.png" width=1000 />
+  <img src="https://github.com/user-attachments/assets/753588ff-3c24-4bf9-95c5-61c4c87d03f3" width=1000 />
 </p>
 <p align="center">
   <em> example_structure.png </em>
@@ -367,7 +367,7 @@ python tools/infer/text/predict_layout.py  --image_dir {path_to_img or dir_to_im
 
 事例1:
 <p align="center">
-  <img src="../../../configs/layout/yolov8/images/result.png" width=480>
+  <img src="https://github.com/user-attachments/assets/0cc501a8-5764-4b3a-8080-3dbc0f3ecb5e" width=480>
 </p>
 <p align="center">
   <em> PMC4958442_00003.jpg的可视化结果</em>
@@ -428,7 +428,7 @@ python tools/infer/text/predict_table_e2e.py --image_dir {path_to_img or dir_to_
 示例1：
 
 <p align="center">
-  <img src="../../../configs/layout/yolov8/images/example_docx.png"/>
+  <img src="https://github.com/user-attachments/assets/f1578fda-c5c7-46ba-b446-d0dc65edf2d7"/>
 </p>
 <p align="center">
   <em> PMC4958442_00003.jpg转换成docx文件的效果 </em>

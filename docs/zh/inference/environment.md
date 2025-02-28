@@ -2,7 +2,7 @@
 
 本教程仅涉及MindOCR在Atlas 300系列推理芯片离线推理环境准备。
 
-### 1. 版本配套关系表
+### 版本配套关系表
 
 搭建推理环境请参考版本配套关系，推荐使用MindSpore 2.2.14版本进行推理。
 
@@ -16,7 +16,7 @@
 
 **其他MindSpore and Ascend 软件匹配关系请参考 [MindSpore 安装](https://www.mindspore.cn/install)。**
 
-### 2. Ascend 环境安装
+### Ascend 环境安装
 
 昇腾AI处理器配套软件包有两个版本，商用版和社区版。商用版仅供商业客户使用，下载受限；社区版本可自由下载，以下例子均使用社区版本。
 
@@ -52,7 +52,7 @@ reboot
 source /usr/local/Ascend/nnae/set_env.sh
 ```
 
-### 3. MindSpore 安装
+### MindSpore 安装
 
 ```shell
 pip install mindspore==2.2.14
@@ -61,7 +61,7 @@ pip install mindspore==2.2.14
 python -c "import mindspore;mindspore.set_context(device_target='CPU');mindspore.run_check()"
 ```
 
-### 4. MindSpore Lite 安装
+### MindSpore Lite 安装
 
 | software | version | package name | download |
 | --- | --- | --- | --- |
@@ -84,7 +84,7 @@ export PATH=$LITE_HOME/tools/converter/converter:$LITE_HOME/tools/benchmark:$PAT
 pip install mindspore_lite-2.2.14-{python_version}-linux_{arch}.whl
 ```
 
-### 5. 安装 MindOCR
+### 安装 MindOCR
 
 ```shell
 git clone https://github.com/mindspore-lab/mindocr.git

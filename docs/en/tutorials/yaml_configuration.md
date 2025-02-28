@@ -1,22 +1,8 @@
 # Configuration parameter description
 
-- [system](#1-environment-parameters-system)
-- [common](#2-shared-parameters-common)
-- [model](#3-model-architecture-model)
-- [postprocess](#4-postprocessing-postprocess)
-- [metric](#5-evaluation-metrics-metric)
-- [loss](#6-loss-function-loss)
-- [scheduler, optimizer, loss_scaler](#7-learning-rate-adjustment-strategy-and-optimizer-scheduler-optimizer-loss_scaler)
-  - [scheduler](#learning-rate-adjustment-strategy-scheduler)
-  - [optimizer](#optimizer)
-  - [loss_scaler](#loss-scaling-loss_scaler)
-- [train, eval](#8-training-evaluation-and-predict-process-train-eval-predict)
-  - [train](#training-process-train)
-  - [eval](#evaluation-process-eval)
-
 This document takes `configs/rec/crnn/crnn_icdar15.yaml` as an example to describe the usage of parameters in detail.
 
-## 1. Environment parameters (system)
+## Environment parameters (system)
 
 | Parameter | Description | Default | Optional Values ​​| Remarks |
 | ---- | ---- | ---- | ---- | ---- |
@@ -33,11 +19,11 @@ This document takes `configs/rec/crnn/crnn_icdar15.yaml` as an example to descri
 | val_interval   | Evaluation interval (unit: epoch)   | 1 | Interger |  |
 | drop_overflow_update | Whether not updating network parameters when loss/gradient overflows | True | True/False | If value is true, network parameters will not be updated when overflow occurs |
 
-## 2. Shared parameters (common)
+## Shared parameters (common)
 
 Because the same parameter may need to be reused in different configuration sections, you can customize some common parameters in this section for easy management.
 
-## 3. Model architecture (model)
+## Model architecture (model)
 
 In MindOCR, the network architecture of the model is divided into four modules: Transform, Backbone, Neck and Head. For details, please refer to [documentation](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/models/README.md), the following are the configuration instructions and examples of each module.
 
@@ -63,7 +49,7 @@ In MindOCR, the network architecture of the model is divided into four modules: 
 
 Reference example: [DBNet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/db_r50_mlt2017.yaml), [CRNN](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_icdar15.yaml)
 
-## 4. Postprocessing (postprocess)
+## Postprocessing (postprocess)
 
 Please see the code in [mindocr/postprocess](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/postprocess)
 
@@ -78,7 +64,7 @@ Please see the code in [mindocr/postprocess](https://github.com/mindspore-lab/mi
 Reference example: [DBNet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/db_r50_mlt2017.yaml), [PSENet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/psenet/pse_r152_icdar15.yaml)
 
 
-## 5. Evaluation metrics (metric)
+## Evaluation metrics (metric)
 
 Please see the code in [mindocr/metrics](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/metrics)
 
@@ -91,7 +77,7 @@ Please see the code in [mindocr/metrics](https://github.com/mindspore-lab/mindoc
 | print_flag | Whether to print log | False | If set True, then output information such as prediction results and standard answers |
 
 
-## 6. Loss function (loss)
+## Loss function (loss)
 
 Please see the code in [mindocr/losses](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/losses)
 
@@ -104,7 +90,7 @@ Please see the code in [mindocr/losses](https://github.com/mindspore-lab/mindocr
 
 > Note: For different loss functions (specified by name), the configurable parameters are different and determined by the input parameters of the selected loss function.
 
-## 7. Learning rate adjustment strategy and optimizer (scheduler, optimizer, loss_scaler)
+## Learning rate adjustment strategy and optimizer (scheduler, optimizer, loss_scaler)
 
 ### Learning rate adjustment strategy (scheduler)
 
@@ -143,7 +129,7 @@ Please see the code location: [mindocr/optim](https://github.com/mindspore-lab/m
 | scale_window | When using the dynamic loss scaler, when there is no overflow after the scale_window training step, enlarge the loss_scale by scale_factor times | 1000 | If the continuous `scale_window` steps does not overflow, the loss will be increased by `loss_scale` * `scale_factor` to update the scaling number |
 
 
-## 8. Training, evaluation and predict process (train, eval, predict)
+## Training, evaluation and predict process (train, eval, predict)
 
 The configuration of the training process is placed under `train`, and the configuration of the evaluation phase is placed under `eval`. Note that during model training, if the training-while-evaluation mode is turned on, that is, when val_while_train=True, an evaluation will be run according to the configuration under `eval` after each epoch is trained. During the non-training phase, only the `eval` configuration is read when only running model evaluation.
 

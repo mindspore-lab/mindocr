@@ -639,6 +639,7 @@ Ascend 310 or Ascend 310P3 may not support calculation in MindSpore Ascend mode.
   ```
 
 Reason:
+
 - Cloud-Side `mindir` model should convert to Device-Side `mindir` model first.
 - Mismatch version of `converter_lite` tool and `mindspore_lite`. For example, it may fail when using `converter_lite 2.2` to get Device-Side `mindir`, and do inference with `mindspore_lite 2.1`.
 
@@ -731,6 +732,7 @@ The following error may occur when running mindocr
 ImportError: /root/mindocr_env/lib/python3.8/site-packages/sklearn/__check_build/../../scikit_learn.libs/libgomp-d22c30c5.so.1.0.0: cannot allocate memory in static TLS block
 ```
 You can try the following steps to fix it:
+
  - search `libgomp-d22c30c5.so.1.0.0` in your python install path
    ```bash
    cd /root/mindocr_env/lib/python3.8
@@ -740,6 +742,7 @@ You can try the following steps to fix it:
    ```bash
    /root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0
    ```
+
  - Add the so file to environment variable `LD_PRELOAD`
    ```bash
    export LD_PRELOAD=/root/mindocr_env/lib/python3.8/site-packages/scikit_learn.libs/libgomp-d22c30c5.so.1.0.0:$LD_PRELOAD
@@ -762,6 +765,7 @@ mindocr.data.rec_lmdb_dataset WARNING - Error occurred during preprocess.
 mindspore/ccsrc/minddata/dataset/kernels/py_func_op.cc(143).
 ```
 You can try the following steps to fix it:
+
  - find the folder of mindspore package
  - open file: `mindspore/dataset/transforms/transform.py`
  - switch to line 93:
@@ -777,6 +781,7 @@ You can try the following steps to fix it:
   101           # add the executor the global EXECUTORS_LIST
   102           EXECUTORS_LIST[key] = executor
   ```
+
  - replace line 97 with `executor = cde.Execute(self.parse())`, and get
   ```bash
   93        if key in EXECUTORS_LIST:
@@ -790,6 +795,7 @@ You can try the following steps to fix it:
   101           # add the executor the global EXECUTORS_LIST
   102           EXECUTORS_LIST[key] = executor
   ```
+
   - save the file, and try to train the model.
 
 
@@ -876,10 +882,11 @@ error: metadata-generation-failed
 note: This is an issue with the package mentioned above, not pip.
 
 ```
-Please try the following steps to fix this problem：
+Please try the following steps to fix this problem:
+
  - Update `setuptools`: `pip3 install --upgrade setuptools`
  - Update `setuptools_scm`: `pip3 install --upgrade setuptools_scm`
- - Install `seqeval`：`pip3 install seqeval -i https://pypi.tuna.tsinghua.edu.cn/simple`
+ - Install `seqeval`: `pip3 install seqeval -i https://pypi.tuna.tsinghua.edu.cn/simple`
 
 
 ### Q14 Failed to install lanms
@@ -888,15 +895,16 @@ The following error occur when installing lanms
 ImportError: Python version mismatch: module was compiled for version 3.8, while the interpreter is running version 3.7.
 ```
 Some Python 3.7 environment may meet this problem when multiple python3 environment exists. You could try the following steps to solve this problem:
-1. run `pip3 install lanms -i https://pypi.tuna.tsinghua.edu.cn/simple`, and get the url for downloading `lanms-1.0.2.tar.gz`(like https://pypi.tuna.tsinghua.edu.cn/packages/96/c0/50dc2c857ed060e907adaef31184413a7706e475c322236d346382e45195/lanms-1.0.2.tar.gz)
-2. use this url and dowload the `lanms-1.0.2.tar.gz`, run `tar -zxvf lanms-1.0.2.tar.gz` to decompress the package.
-3. `cd lanms-1.0.2`
-4. edit the `Makefile`, replace `python3-config` with `python3.7-config` in line 1 and line 2, and you could get
+
+- run `pip3 install lanms -i https://pypi.tuna.tsinghua.edu.cn/simple`, and get the url for downloading `lanms-1.0.2.tar.gz`(like https://pypi.tuna.tsinghua.edu.cn/packages/96/c0/50dc2c857ed060e907adaef31184413a7706e475c322236d346382e45195/lanms-1.0.2.tar.gz)
+- use this url and dowload the `lanms-1.0.2.tar.gz`, run `tar -zxvf lanms-1.0.2.tar.gz` to decompress the package.
+- `cd lanms-1.0.2`
+- edit the `Makefile`, replace `python3-config` with `python3.7-config` in line 1 and line 2, and you could get
    ```text
    CXXFLAGS = -I include  -std=c++11 -O3 $(shell python3.7-config --cflags)
    LDFLAGS = $(shell python3.7-config --ldflags)
    ...
    ```
    save `Makefile`. So that the make process would exactly compile with python3.7 environment
-5. run `python setup.py install` and completely install lanms.
->>>>>>> dca11cc9989deabe86985f0729502266e5ba6f42
+
+- run `python setup.py install` and completely install lanms.

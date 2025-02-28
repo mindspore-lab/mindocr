@@ -1,6 +1,6 @@
 ## 推理 - 动态Shape分档
 
-### 1. 简介
+### 简介
 
 在某些推理场景，如检测出目标后再进行目标识别，由于目标个数和目标大小不固定，导致目标识别网络输入BatchSize和ImageSize不固定。如果每次推理都按照最大的BatchSize或最大ImageSize进行计算，会造成计算资源浪费。
 
@@ -8,17 +8,17 @@
 
 本工具集成了数据集统计的功能，可以统计出合适的`batch size`、`height`和`width`组合作为候选值，并封装了模型转换工具，从而实现了自动化分档功能。
 
-### 2. 运行环境
+### 运行环境
 
 请参考[环境安装](environment.md)，安装MindSpore Lite环境。
 
-### 3. 模型准备
+### 模型准备
 
 当前支持输入MindIR/ONNX模型文件，自动分档并转换为MIndIR模型文件。
 
 请确保输入模型为动态Shape版的。例如，文本检测模型如果需要对H和W分档，要确保至少H和W轴是动态的，Shape可以为`(1,3,-1,-1)`和`(-1,3,-1,-1)`等。
 
-### 4. 数据集准备
+### 数据集准备
 
 支持两种类型的数据：
 
@@ -36,11 +36,11 @@
 
    - 适合文本识别模型
 
-#### 5. 用法
+#### 用法
 
 `cd deploy/models_utils/auto_scaling`
 
-##### 5.1 命令示例
+##### 命令示例
 
 - 对batch size进行分档
 
@@ -89,7 +89,7 @@ python converter.py \
 
 输出结果为单个MindIR模型：`model_static.mindir`
 
-##### 5.2 详细参数
+##### 详细参数
 
 | 名称        | 默认值      | 必需 | 含义                                    |
 | ----------- | ----------- | ---- | --------------------------------------- |
@@ -101,7 +101,7 @@ python converter.py \
 | output_path | ./output    | 否   | 输出模型保存文件夹                      |
 | soc_version | Ascend310P3 | 否   | Ascend的soc型号，Ascend310P3或Ascend310 |
 
-##### 5.3 配置文件
+##### 配置文件
 
 除了上述命令行参数外，在[auto_scaling.yaml](https://github.com/mindspore-lab/mindocr/tree/main/deploy/models_utils/auto_scaling/configs/auto_scaling.yaml)中还有一些参数，用以描述数据集的统计方式，如有需要可自行修改：
 
