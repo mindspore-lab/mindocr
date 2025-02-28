@@ -25,16 +25,18 @@ Overall, the RobustScanner model consists of an encoder and a decoder. The encod
 
 | mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
 |:----------:|:--------------:|:-------------:|:-------------------:|
-|   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
-
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1    |
 
 ## Quick Start
-### Preparation
 
-#### Installation
+### Installation
+
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
+### Dataset preparation
+
 #### Dataset Download
+
 The dataset used for training and validation in this work, was referenced from the datasets used by mmocr and PaddleOCR for reproducing the RobustScanner algorithms. We are very grateful to mmocr and PaddleOCR for improving the reproducibility efficiency of this repository.
 
 The details of the dataset are as follows:
@@ -136,8 +138,9 @@ data/
 ```
 Here, we use the datasets under the `training/` folder for training and the datasets under the `evaluation/` folder for model evaluation. For convenience of storage and usage, all data is in the lmdb format.
 
+### Update yaml config file
 
-**Data configuration for model training**
+#### Data configuration for model training
 
 To reproduce the training of model, it is recommended that you modify the configuration yaml as follows:
 
@@ -158,7 +161,7 @@ eval:
   ...
 ```
 
-**Data configuration for model evaluation**
+## Data configuration for model evaluation
 
 We use the dataset under `evaluation/` as the benchmark dataset. On **each individual dataset** (e.g. CUTE80, IC13_1015, etc.), we perform a full evaluation by setting the dataset's directory to the evaluation dataset. This way, we get a list of the corresponding accuracies for each dataset, and then the reported accuracies are the average of these values.
 
@@ -224,6 +227,7 @@ eval:
 ```
 
 #### Check YAML Config Files
+
 Apart from the dataset setting, please also check the following important args: `system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`,
 `eval.ckpt_load_path`, `eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.loader.batch_size`. Explanations of these important args:
 
@@ -333,7 +337,7 @@ Note: In addition to using the MJSynth (partial) and SynthText (partial) text re
 **Notes:**
 - To reproduce the result on other contexts, please ensure the global batch size is the same.
 - The model uses an English character dictionary, en_dict90.txt, consisting of 90 characters including digits, common symbols, and upper and lower case English letters. More explanation on dictionary, please refer to [Character Dictionary](#character-dictionary).
-- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#dataset-usage) section.
+- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset preparation](#dataset-preparation) section.
 - The input Shapes of MindIR of RobustScanner is (1, 3, 48, 160) and it is for Ascend only.
 
 

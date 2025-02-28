@@ -29,6 +29,14 @@ EAST uses regression for the position and rotation angle of the text box, enabli
 4. **Text detection branch**:
 After determining the location and size of the text region, EAST further classifies these regions as text or non-text areas. For this purpose, a fully convolutional text branch is employed for binary classification of the text areas.
 
+
+## Requirements
+
+| mindspore  | ascend driver  |    firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:--------------:|:-------------------:|
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1     |
+
+
 ## Quick Start
 
 ### Installation

@@ -31,25 +31,11 @@ Currently we support the 0 and 180 degree classification. You can update the par
 
 </div>
 
+## Requirements
 
-## Results
-
-| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
-|:---------:|:---------------:|:------------:|:-------------------:|
-|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
-
-MobileNetV3 is pretrained on ImageNet. For text direction classification task, we further train MobileNetV3 on RCTW17, MTWI and LSVT datasets.
-
-Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode
-<div align="center">
-
-| **model name** | **cards** | **batch size** | **img/s** | **accuracy** | **config**  | **weight**                                                                            |
-|----------------|-----------|----------------|-----------|--------------|-----------------------------------------------------|------------------------------------------------|
-| MobileNetV3    | 4         | 256            | 5923.5    | 94.59%       | [yaml](cls_mv3.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/cls/cls_mobilenetv3-92db9c58.ckpt) |
-</div>
-
-
-
+| mindspore  | ascend driver  |    firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:--------------:|:-------------------:|
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1     |
 
 ## Quick Start
 
@@ -127,6 +113,18 @@ Please set the checkpoint path to the arg `ckpt_load_path` in the `eval` section
 ```shell
 python tools/eval.py -c configs/cls/mobilenetv3/cls_mv3.yaml
 ```
+
+## Performance
+
+MobileNetV3 is pretrained on ImageNet. For text direction classification task, we further train MobileNetV3 on RCTW17, MTWI and LSVT datasets.
+
+Experiments are tested on ascend 910* with mindspore 2.5.0 graph mode
+<div align="center">
+
+| **model name** | **cards** | **batch size** | **img/s** | **accuracy** | **config**  | **weight**                                                                            |
+|----------------|-----------|----------------|-----------|--------------|-----------------------------------------------------|------------------------------------------------|
+| MobileNetV3    | 4         | 256            | 5923.5    | 94.59%       | [yaml](cls_mv3.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/cls/cls_mobilenetv3-92db9c58.ckpt) |
+</div>
 
 ## References
 

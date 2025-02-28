@@ -22,27 +22,11 @@ Through this approach, TableMaster is able to simultaneously learn and predict t
   <em> Figure 1. Overall TableMaster architecture [<a href="#references">1</a>] </em>
 </p>
 
-## Results
+## Requirements
 
-| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
-|:---------:|:---------------:|:------------:|:-------------------:|
-|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
-
-### PubTabNet
-
-Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode
-<div align="center">
-
-| **model name** | **cards** | **batch size** | **ms/step** | **img/s** | **accuracy** | **config**  | **weight**                                                                            |
-|----------------|-----------|----------------|-------------|-----------|--------------|-----------------------------------------------------|------------------------------------------------|
-| TableMaster         | 8         | 10             | 268         | 296       | 77.49%       | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
-</div>
-
-
-
-#### Notes：
-- The training time of EAST is highly affected by data processing and varies on different machines.
-- The input_shape for exported MindIR in the link is `(1,3,480,480)`.
+| mindspore  | ascend driver  |    firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:--------------:|:-------------------:|
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1     |
 
 ## Quick Start
 
@@ -165,3 +149,19 @@ To evaluate the accuracy of the trained model, you can use `eval.py`. Please set
 ``` shell
 python tools/eval.py --config configs/table/table_master.yaml
 ```
+
+## Performance
+
+### PubTabNet
+
+Experiments are tested on ascend 910* with mindspore 2.5.0 graph mode
+<div align="center">
+
+| **model name** | **cards** | **batch size** | **ms/step** | **img/s** | **accuracy** | **config**  | **weight**                                                                            |
+|----------------|-----------|----------------|-------------|-----------|--------------|-----------------------------------------------------|------------------------------------------------|
+| TableMaster         | 8         | 10             | 268         | 296       | 77.49%       | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
+</div>
+
+#### Notes：
+- The training time of TableMaster is highly affected by data processing and varies on different machines.
+- The input_shape for exported MindIR in the link is `(1,3,480,480)`.

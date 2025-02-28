@@ -35,30 +35,19 @@ Encoder concat视觉embedding和文本embedding到一个统一的序列，并与
   <em> 图1. LayoutXLM(LayoutLMv2)架构图 [<a href="#参考文献">1</a>] </em>
 </p>
 
-## 评估结果
+### 配套版本
 
-| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
-|:---------:|:---------------:|:------------:|:-------------------:|
-|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
-
-根据我们的实验，在XFUND中文数据集上训练的（[模型评估](#33-模型评估)）结果如下：
-
-在采用图模式的ascend 910*上实验结果，mindspore版本为2.3.1
-<div align="center">
-
-| **模型名称**     | **卡数** | **单卡批量大小** | **img/s** | **hmean** | **配置**                                           | **权重**                                                                                            |
-|--------------|--------|------------|-----------|-----------|--------------------------------------------------|---------------------------------------------------------------------------------------------------|
-| LayoutXLM    | 1      | 8          | 73.26     | 90.34%    | [yaml](../layoutxlm/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt) |
-| VI-LayoutXLM | 1      | 8          | 110.6     | 93.31%    | [yaml](../layoutxlm/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt) |
-</div>
-
-
+| mindspore  | ascend driver  |    firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:--------------:|:-------------------:|
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1     |
 
 ## 快速开始
-### 环境及数据准备
 
-#### 安装
-环境安装教程请参考MindOCR的 [installation instruction](https://github.com/mindspore-lab/mindocr#installation).
+### 安装
+
+环境安装教程请参考MindOCR的 [安装指南](https://github.com/mindspore-lab/mindocr#installation).
+
+### 数据准备
 
 #### 数据集下载
 这里使用[XFUND数据集](https://github.com/doc-analysis/XFUND)做为实验数据集。 XFUN数据集是微软提出的一个用于KIE任务的多语言数据集，共包含七个数据集，每个数据集包含149张训练集和50张验证集
@@ -115,7 +104,6 @@ cd ..
 }
 ```
 
-
 ### 模型评估
 
 若要评估已训练模型的准确性，可以使用`eval.py`。请在yaml配置文件的`eval`部分将参数`ckpt_load_path`设置为模型checkpoint的文件路径，然后运行：
@@ -123,7 +111,6 @@ cd ..
 ```
 python tools/eval.py --config configs/kie/vi_layoutxlm/ser_vi_layoutxlm_xfund_zh.yaml
 ```
-
 
 ### 模型推理
 
@@ -150,8 +137,18 @@ python tools/infer/text/predict_ser.py --rec_algorithm CRNN_CH --image_dir {dir 
   <em> example_ser.jpg </em>
 </p>
 
+## 性能表现
 
+根据我们的实验，在XFUND中文数据集上训练的模型评估结果如下：
 
+在采用图模式的ascend 910*上实验结果，mindspore版本为2.5.0
+<div align="center">
+
+| **模型名称**     | **卡数** | **单卡批量大小** | **img/s** | **hmean** | **配置**                                           | **权重**                                                                                            |
+|--------------|--------|------------|-----------|-----------|--------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| LayoutXLM    | 1      | 8          | 73.26     | 90.34%    | [yaml](../layoutxlm/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt) |
+| VI-LayoutXLM | 1      | 8          | 110.6     | 93.31%    | [yaml](../layoutxlm/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt) |
+</div>
 
 ## 参考文献
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->
