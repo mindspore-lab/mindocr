@@ -120,9 +120,15 @@ python tools/train.py --config configs/det/east/east_r50_icdar15.yaml
 Please set `distribute` in yaml config file to be True.
 
 ```shell
-# n is the number of NPUs
-mpirun --allow-run-as-root -n 8 python tools/train.py --config configs/det/east/east_r50_icdar15.yaml
+# worker_num is the total number of Worker processes participating in the distributed task.
+# local_worker_num is the number of Worker processes pulled up on the current node.
+# The number of processes is equal to the number of NPUs used for training. In the case of single-machine multi-card worker_num and local_worker_num must be the same.
+msrun --worker_num=8 --local_worker_num=8 python tools/train.py --config configs/det/east/east_r50_icdar15.yaml
+
+# Based on verification,binding cores usually results in performance acceleration.Please configure the parameters and run.
+msrun --bind_core=True --worker_num=8 --local_worker_num=8 python tools/train.py --config configs/det/east/east_r50_icdar15.yaml
 ```
+**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/tutorials/experts/en/r2.3.1/parallel/msrun_launcher.html).
 
 The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir` in yaml config file. The default directory is `./tmp_det`.
 

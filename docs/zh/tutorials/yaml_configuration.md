@@ -1,23 +1,8 @@
 # 配置文件参数说明
 
-- [环境参数-system](#1-环境参数-system)
-- [共用参数-common](#2-共用参数-common)
-- [模型定义参数-model](#3-模型定义参数-model)
-- [后处理-postprocess](#4-后处理-postprocess)
-- [评估指标-metric](#5-评估指标-metric)
-- [损失函数-loss](#6-损失函数-loss)
-- [学习率调整策略和优化器(scheduler, optimizer, loss_scaler)](#7-学习率调整策略和优化器-scheduler-optimizer-loss_scaler)
-  - [学习率调整策略-scheduler](#学习率调整策略-scheduler)
-  - [优化器-optimizer](#优化器-optimizer)
-  - [损失缩放-loss_scaler](#损失缩放系数-loss_scaler)
-- [训练和评估流程(train, eval)](#8-训练评估流程-train-eval)
-  - [训练流程-train](#训练流程-train)
-  - [评估流程-eval](#评估流程-eval)
-
-
 本文档以 `configs/rec/crnn/crnn_icdar15.yaml` 为例，详细说明参数的用途。
 
-## 1. 环境参数 (system)
+## 环境参数 (system)
 
 | 字段 | 说明 | 默认值 | 可选值 | 备注 |
 | ---- | ---- | ---- | ---- | ---- |
@@ -35,12 +20,12 @@
 | drop_overflow_update | 当loss/梯度溢出时，是否放弃更新网络参数 | True | True/False | 如果值为True，则当出现溢出时，不会更新网络参数 |
 
 
-## 2. 共用参数 (common)
+## 共用参数 (common)
 
 因为同一个参数可能在不同的配置部分都需要重复利用，所以您可以在这个部分自定义一些通用的参数，以便管理。
 
 
-## 3. 模型定义参数 (model)
+## 模型定义参数 (model)
 
 在MindOCR中，模型的网络架构划分为 Transform, Backbone, Neck和Head四个模块。详细请参阅[文档](https://github.com/mindspore-lab/mindocr/blob/main/mindocr/models/README.md)，以下是各部分的配置说明与例子。
 
@@ -66,7 +51,7 @@
 
 参考例子: [DBNet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/db_r50_mlt2017.yaml), [CRNN](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/crnn/crnn_icdar15.yaml)
 
-## 4. 后处理 (postprocess)
+## 后处理 (postprocess)
 
 代码位置请看： [mindocr/postprocess](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/postprocess)
 
@@ -80,7 +65,7 @@
 
 参考例子: [DBNet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/db_r50_mlt2017.yaml), [PSENet](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/psenet/pse_r152_icdar15.yaml)
 
-## 5. 评估指标 (metric)
+## 评估指标 (metric)
 
 代码位置请看： [mindocr/metrics](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/metrics)
 
@@ -93,7 +78,7 @@
 | print_flag | 是否打印log | False | 如设置True，则输出预测结果和标准答案等信息 |
 
 
-## 6. 损失函数 (loss)
+## 损失函数 (loss)
 
 代码位置请看： [mindocr/losses](https://github.com/mindspore-lab/mindocr/tree/main/mindocr/losses)
 
@@ -106,7 +91,7 @@
 
 > 注意：对于不同损失函数（由name指定），可配置的参数有所不同，并由所选的损失函数的入参所决定。
 
-## 7. 学习率调整策略和优化器 (scheduler, optimizer, loss_scaler)
+## 学习率调整策略和优化器 (scheduler, optimizer, loss_scaler)
 
 ### 学习率调整策略 (scheduler)
 
@@ -145,7 +130,7 @@
 | scale_window | 当使用dynamic loss scaler时，经过scale_window训练步未出现溢出时，将loss_scale放大scale_factor倍 | 1000 | 如果连续的`scale_window`步数没有溢出，损失将增加`loss_scale`*`scale_factor`缩放 |
 
 
-## 8. 训练、评估流程 (train, eval)
+## 训练、评估流程 (train, eval)
 
 训练流程的配置放在 `train` 底下，评估阶段的配置放在 `eval` 底下。注意，在模型训练的时候，若打开边训练边评估模式，即val_while_train=True时，则在每个epoch训练完毕后按照 `eval` 底下的配置运行一次评估。在非训练阶段，只运行模型评估的时候，只读取 `eval` 配置。
 

@@ -261,8 +261,16 @@ It is easy to reproduce the reported results with the pre-defined training recip
 
 ```shell
 # distributed training on multiple Ascend devices
-mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/svtr/svtr_tiny.yaml
+# worker_num is the total number of Worker processes participating in the distributed task.
+# local_worker_num is the number of Worker processes pulled up on the current node.
+# The number of processes is equal to the number of NPUs used for training. In the case of single-machine multi-card worker_num and local_worker_num must be the same.
+msrun --worker_num=8 --local_worker_num=8 python tools/train.py --config configs/rec/svtr/svtr_tiny_8p.yaml
+
+# Based on verification,binding cores usually results in performance acceleration.Please configure the parameters and run.
+msrun --bind_core=True --worker_num=8 --local_worker_num=8 python tools/train.py --config configs/rec/svtr/svtr_tiny_8p.yaml
 ```
+**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/tutorials/experts/en/r2.3.1/parallel/msrun_launcher.html).
+
 
 
 * Standalone Training
@@ -338,7 +346,7 @@ Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode.
 
 | **model name** | **backbone** |  **train dataset**   | **params(M)** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |                                           **recipe**                                           |                                                                                                  **weight**                                                                                                   |
 |:--------------:|:------------:|:--------------------:|:-------------:|:---------:|:--------------:| :-----------: |:-----------------:|:-----------:|:---------:|:------------:|:----------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|  SVTR-Tiny-8P  |     Tiny     |        MJ+ST         |     60.24     |     8     |      512       |      O2       |     156.85 s      |   416.16    |  9842.36  |     90.29%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml)  | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \|  [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir) |
+|  SVTR-Tiny-8P  |     Tiny     |        MJ+ST         |     60.24     |     8     |      512       |      O2       |     156.85 s      |   410.16    |  9986.34  |     90.29%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml)  | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \|  [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir) |
 
 Detailed accuracy results for each benchmark dataset:
 

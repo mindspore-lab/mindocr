@@ -1,6 +1,6 @@
 # MindOCR 离线推理
 
-## 1. 简介
+## 简介
 
 MindOCR的推理支持Ascend310/Ascend310P设备，采用[MindSpore Lite](https://www.mindspore.cn/lite)推理，
 集成了文本检测、角度分类和文字识别模块，实现了端到端的OCR推理过程，并采用流水并行化方式优化推理性能。
@@ -17,19 +17,19 @@ graph LR;
     H[images] --input --> F[MindOCR Infer];
 ```
 
-## 2. 运行环境
+## 运行环境
 
 请参考[运行环境准备](environment.md)，配置MindOCR的推理运行环境。
 
-## 3. 模型转换
+## 模型转换
 
 请参考[模型转换教程](convert_tutorial.md)，将其转换为MindOCR推理支持的模型格式。
 
-## 4. 推理 (Python)
+## 推理 (Python)
 
 进入到MindOCR推理侧目录下：`cd deploy/py_infer`.
 
-### 4.1 检测+分类+识别
+### 检测+分类+识别
 
 ```shell
 python infer.py \
@@ -62,7 +62,7 @@ python infer.py \
   img_182.jpg	[{"transcription": "cocoa", "points": [[14.0, 284.0], [222.0, 274.0], [225.0, 325.0], [17.0, 335.0]]}, {...}]
   ```
 
-### 4.2 检测+识别
+### 检测+识别
 
 不传入方向分类相关的参数，就会跳过方向分类流程，只执行检测+识别
 
@@ -94,7 +94,7 @@ python infer.py \
 img_498.jpg	[{"transcription": "keep", "points": [[819.0, 71.0], [888.0, 67.0], [891.0, 104.0], [822.0, 108.0]]}, {...}]
 ```
 
-### 4.3 检测
+### 检测
 
 可以单独运行文本检测
 
@@ -122,7 +122,7 @@ python infer.py \
 img_108.jpg	[[[226.0, 442.0], [402.0, 416.0], [404.0, 433.0], [228.0, 459.0]], [...]]
 ```
 
-### 4.4 分类
+### 分类
 
 可以单独运行文本方向分类
 
@@ -143,7 +143,7 @@ word_1679.png  ["180", 0.6226]
 word_1189.png  ["0", 0.9360]
 ```
 
-### 4.5 识别
+### 识别
 
 可以单独运行文字识别
 
@@ -166,9 +166,9 @@ word_1657.png  "candy"
 word_1814.png  "cathay"
 ```
 
-### 4.6 详细推理参数解释
+### 详细推理参数解释
 
-<details>
+<details open markdown>
 <summary> 详情 </summary>
 
 - 基本设置
@@ -222,9 +222,9 @@ word_1814.png  "cathay"
 
 </details>
 
-## 5. 模型推理精度评估
+## 模型推理精度评估
 
-### 5.1 文本检测
+### 文本检测
 
 完成推理后，使用以下命令评估检测结果：
 
@@ -234,7 +234,7 @@ python deploy/eval_utils/eval_det.py \
     --pred_path=/path/to/prediction/det_results.txt
 ```
 
-### 5.2 文本识别
+### 文本识别
 
 完成推理后，使用以下命令评估识别结果：
 

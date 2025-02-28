@@ -11,7 +11,7 @@
 
 3. 两种方式定义模型
 
-    a. 编写一个模型py文件，其中包括模型类和规范函数。请遵循[模型格式指南](#模型py文件格式指南)。它允许用户方便地调用预定义的模型，例如`model = build_model('dbnet_resnet50', pretrained=True)` 。
+    a. 编写一个模型py文件，其中包括模型类和规范函数。请遵循[模型格式指南](#py型文件格式指南)。它允许用户方便地调用预定义的模型，例如`model = build_model('dbnet_resnet50', pretrained=True)` 。
 
     b. 在yaml文件中配置体系结构。请遵循[yaml格式指南](#yaml文件格式指南)。它允许用户在yaml文件中快速修改基本架构。
 
@@ -21,7 +21,7 @@
 python tests/ut/test_models.py --config /path/to/yaml_config_file
 ```
 
-## 编写新模块的格式指南
+## <span id="编写新模块的格式指南">编写新模块的格式指南</span>
 
 ### 主干
 * 文件命名格式：`models/backbones/{task}_{backbone}.py`，例如`det_resnet.py`（由于det和rec的同一主干可能不同，因此任务前缀是必需的）
@@ -48,7 +48,7 @@ python tests/ut/test_models.py --config /path/to/yaml_config_file
 
 **注：** 如果模型体系结构中没有像crnn这样的颈部，可以跳过颈部的编写。`BaseModel`将选择由主干输出的features (List(Tensor))的最后一个特征，并将其转发给Head模块。
 
-## Py型文件格式指南
+## <span id="py型文件格式指南">Py型文件格式指南</span>
 
 * 文件命名：`models/{task}_{model_class_name}.py`，例如`det_dbnet.py`
 * 类命名：{ModelName}，例如`class DBNet`
@@ -64,7 +64,7 @@ python tests/ut/test_models.py --config /path/to/yaml_config_file
 model = build_model('dbnet_resnet50', pretrained=False)
 ```
 
-## Yaml文件格式指南
+## <span id="yaml文件格式指南">Yaml文件格式指南</span>
 
 要在yaml文件中定义/配置模型体系结构，应该遵循以下示例中的键。
 

@@ -1,18 +1,11 @@
 # Distributed parallel training
 
 This document provides a tutorial on distributed parallel training.
-There are two ways to train on the Ascend AI processor: by running scripts with OpenMPI or configuring `RANK_TABLE_FILE` for training.
+There are three ways to train on the Ascend AI processor: by running scripts with MSRun or OpenMPI or configuring `RANK_TABLE_FILE` for training. Refer to [MindSpore Distributed Parallel Startup Methods](https://www.mindspore.cn/docs/en/master/model_train/parallel/startup_method.html) for more details.
 
 > Please ensure that the `distribute` parameter in the yaml file is set to `True` before running the following commands for distributed training.
 
-- [Distributed parallel training](#distributed-parallel-training)
-  - [1. Ascend](#1-ascend)
-    - [1.1 Run scripts with OpenMPI](#11-run-scripts-with-openmpi)
-    - [1.2 Configure RANK\_TABLE\_FILE for training](#12-configure-rank_table_file-for-training)
-      - [1.2.1 Running on Eight (All) Devices](#121-running-on-eight-all-devices)
-      - [1.2.2 Running on Four (Partial) Devices](#122-running-on-four-partial-devices)
-
-## 1. Ascend
+## Ascend
 
 **Notes**:
 
@@ -22,8 +15,20 @@ On Ascend platform, some common restrictions on using the distributed service ar
 
 - Each host has four devices numbered 0 to 3 and four devices numbered 4 to 7 deployed on two different networks. During training of 2 or 4 devices, the devices must be connected and clusters cannot be created across networks. This means, when training with 4 devices, only `{0, 1, 2, 3}` and  `{4, 5, 6, 7}` are available. While in training with 2 devices, devices cross networks, such as `{0, 4}` are not allowed. However, devices within networks, such as `{0, 1}`or `{1, 2}`, are allowed.
 
+### Run scripts with MSRun
 
-### 1.1 Run scripts with OpenMPI
+On Ascend hardware platform, users can use MindSpore's `msrun` to run distributed training with `n` devices. For example, in [DBNet Readme](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README.md#34-training), the following command is used to train the model on devices `0` and `1`:
+
+```shell
+# worker_num is the total number of Worker processes participating in the distributed task.
+# local_worker_num is the number of Worker processes pulled up on the current node.
+# The number of processes is equal to the number of NPUs used for training. In the case of single-machine multi-card worker_num and local_worker_num must be the same.
+msrun --worker_num 2 --local_worker_num 2 tools/train.py --config configs/det/dbnet/db_r50_icdar15.yaml
+```
+
+> Note that `msrun` will run training on sequential devices starting from device `0`. For example, `msrun --worker_num 4 --local_worker_num 4 start-scriptd` will run training on the four devices: `{0, 1, 2, 3}`.
+
+### Run scripts with OpenMPI
 
 On Ascend hardware platform, users can use OpenMPI's `mpirun` to run distributed training with `n` devices. For example, in [DBNet Readme](https://github.com/mindspore-lab/mindocr/blob/main/configs/det/dbnet/README.md#34-training), the following command is used to train the model on devices `0` and `1`:
 
@@ -34,9 +39,11 @@ mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet
 
 > Note that `mpirun` will run training on sequential devices starting from device `0`. For example, `mpirun -n 4 python-command` will run training on the four devices: `{0, 1, 2, 3}`.
 
-### 1.2 Configure RANK_TABLE_FILE for training
+### Configure RANK_TABLE_FILE for training
 
-#### 1.2.1 Running on Eight (All) Devices
+> Note that rank_table method will be deprecated in MindSpore 2.4 version.
+
+#### Running on Eight (All) Devices
 
 Before using this method for distributed training, it is necessary to create an HCCL configuration file in json format,
 i.e. generate RANK_TABLE_FILE. The following is the command to generate the corresponding configuration file for 8 devices
@@ -141,7 +148,7 @@ When training other models, simply replace the yaml config file path in the scri
 
 After the training has started, and you can find the training log `train.log` in the project root directory.
 
-#### 1.2.2 Running on Four (Partial) Devices
+#### Running on Four (Partial) Devices
 
 To run training on four devices, for example, `{4, 5, 6, 7}`, the `RANK_TABLE_FILE` and the run script are different from those for running on eight devices.
 

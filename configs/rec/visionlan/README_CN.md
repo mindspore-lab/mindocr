@@ -176,10 +176,19 @@ LA：使用MLM生成的掩码遮挡特征图，训练骨干网络、MLM和VRM
 我们接下来使用分布式训练进行这三个步骤。对于单卡训练，请参考[识别教程](../../../docs/zh/tutorials/training_recognition_custom_dataset.md#单卡训练)。
 
 ```shell
-mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/visionlan/visionlan_resnet45_LF_1.yaml
-mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/visionlan/visionlan_resnet45_LF_2.yaml
-mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/visionlan/visionlan_resnet45_LA.yaml
+# worker_num代表分布式总进程数量。
+# local_worker_num代表当前节点进程数量。
+# 进程数量即为训练使用的NPU的数量，单机多卡情况下worker_num和local_worker_num需保持一致。
+msrun --worker_num=4 --local_worker_num=4 python tools/train.py --config configs/rec/visionlan/visionlan_resnet45_LF_1.yaml
+msrun --worker_num=4 --local_worker_num=4 python tools/train.py --config configs/rec/visionlan/visionlan_resnet45_LF_2.yaml
+msrun --worker_num=4 --local_worker_num=4 python tools/train.py --config configs/rec/visionlan/visionlan_resnet45_LA.yaml
+
+# 经验证，绑核在大部分情况下有性能加速，请配置参数并运行
+msrun --bind_core=True --worker_num=4 --local_worker_num=4 python tools/train.py --config configs/rec/visionlan/visionlan_resnet45_LF_1.yaml
+msrun --bind_core=True --worker_num=4 --local_worker_num=4 python tools/train.py --config configs/rec/visionlan/visionlan_resnet45_LF_2.yaml
+msrun --bind_core=True --worker_num=4 --local_worker_num=4 python tools/train.py --config configs/rec/visionlan/visionlan_resnet45_LA.yaml
 ```
+**注意:** 有关 msrun 配置的更多信息，请参考[此处](https://www.mindspore.cn/tutorials/experts/zh-CN/r2.3.1/parallel/msrun_launcher.html).
 
 训练结果（包括checkpoints、每个阶段的性能和loss曲线）将保存在yaml配置文件中由参数`ckpt_save_dir`解析的目录中。默认目录为`./tmp_visionlan`。
 

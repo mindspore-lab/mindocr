@@ -65,9 +65,8 @@ python tests/ut/test_models.py --config /path/to/yaml_config_file
 * Spec. function return: model (nn.Cell), which is the model instance
 * Spec. function decorator: MUST add @register_model decorator, and import model file in `mindocr/models/__init__.py`, which is to register the model to the supported model list.
 
-
-After writing and registration, model can be created via the `build_model` func.
- ``` python
+* After writing and registration, model can be created via the `build_model` func.
+``` python
 # in a python script
 model = build_model('dbnet_resnet50', pretrained=False)
 ```

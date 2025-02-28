@@ -11,13 +11,13 @@ graph LR;
 - MindOCR训练ckpt文件 -> MindSpore MindIR -> MindSpore Lite MindIR;
 - PaddleOCR训练文件 -> ONNX -> MindSpore Lite MindIR;
 
-## 1. 模型导出
+## 模型导出
 
 本章节主要包含训练模型导出`MindIR`或者`ONNX`文件的过程。
 
 部分模型提供了MIndIR/ONNX导出文件的下载链接，见[MindOCR模型列表](mindocr_models_list.md)，[PPOCR模型列表](thirdparty_models_list.md)，可跳转到对应模型的介绍页面进行下载。
 
-### 1.1 MindOCR 模型导出
+### MindOCR 模型导出
 
 训练端的ckpt文件导出为MindIR文件，请执行`tools/export.py`：
 
@@ -39,7 +39,7 @@ python tools/export.py --model_name_or_config configs/rec/crnn/crnn_resnet34.yam
 - data_shape：静态shape的值。
 - is_dynamic_shape：动态分档配置项，默认是False，与data_shape二选一。
 
-### 1.2 PaddleOCR 模型导出
+### PaddleOCR 模型导出
 
 [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) 涉及到2种格式的Paddle模型，训练模型和推理模型，区别如下：
 
@@ -50,7 +50,7 @@ python tools/export.py --model_name_or_config configs/rec/crnn/crnn_resnet34.yam
 
 下载模型文件并解压，请根据模型格式来区别是训练模型还是推理模型。
 
-#### 1.2.1 训练模型 -> 推理模型
+#### 训练模型 -> 推理模型
 
 在PaddleOCR模型的下载链接中，有训练模型和推理模型两种格式，如果提供的是训练模型，则需要将其转换为推理模型的格式。
 
@@ -66,7 +66,7 @@ python tools/export_model.py \
     Global.save_inference_dir=./det_db
 ```
 
-#### 1.2.2 推理模型 -> ONNX
+#### 推理模型 -> ONNX
 
 安装模型转换工具paddle2onnx：`pip install paddle2onnx==0.9.5`
 
@@ -87,7 +87,7 @@ paddle2onnx \
 
 参数中input_shape_dict的值，一般可以通过[Netron](https://github.com/lutzroeder/netron)工具打开推理模型查看，或者在上述[tools/export_model.py](https://github.com/PaddlePaddle/PaddleOCR/blob/release/2.6/tools/export_model.py)的代码中找到。
 
-## 2. MindSpore Lite MindIR 转换
+## MindSpore Lite MindIR 转换
 
 需要使用`converter_lite`工具，将上述导出的MindIR/ONNX文件进行离线转换，从而用于MindSpore Lite的推理。
 
@@ -109,9 +109,9 @@ fmk为输入模型的原始格式，可以是MindIR或者ONNX。
 
 `config.txt`为扩展功能的配置路径，在MindOCR里`config.txt`主要可以用来进行shape的设置和推理精度的配置，我们在下一章节细讲。
 
-### 2.1 shape的设置
+### shape的设置
 
-#### 2.1.1 静态Shape
+#### 静态Shape
 
 如果导出模型的输入名为`x`，input_format为NCHW，输入Shape为`(1,3,736,1280)`，则config.txt如下：
 
@@ -123,7 +123,7 @@ input_shape=x:[1,3,736,1280]
 
 转换生成的output.mindir为静态shape版，推理时的输入图像需要Resize到该input_shape以满足输入要求。
 
-#### 2.1.2 动态Shape(分档)
+#### 动态Shape(分档)
 
 **注意：ascend 310不支持动态shape。**
 
@@ -163,7 +163,7 @@ input_shape=x:[1,3,736,1280]
 
 如果导出的模型是静态Shape版的，则无法分档，需确保导出动态Shape版的模型。
 
-### 2.2 模型精度模式配置
+### 模型精度模式配置
 
 对于模型推理的精度，需要在转换模型时通过`converter_lite`设置。
 

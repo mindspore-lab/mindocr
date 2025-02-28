@@ -2,9 +2,9 @@
 
 [![Download Notebook](https://mindspore-website.obs.cn-north-4.myhuaweicloud.com/website-images/r1.8/resource/_static/logo_notebook.png)](https://download.mindspore.cn/toolkits/mindocr/tutorials/transform_tutorial.ipynb)&emsp;
 
-### Mechanism
+## Mechanism
 
-1. Each transformation is a class with a callable function. An example is as follows
+- Each transformation is a class with a callable function. An example is as follows
 
 ```python
 class ToCHWImage(object):
@@ -24,9 +24,9 @@ class ToCHWImage(object):
         return data
 ```
 
-2. The input for transformation is always a dict, which contain data info like img_path, raw label, etc.
+- The input for transformation is always a dict, which contain data info like img_path, raw label, etc.
 
-3. The transformation api should have clarify the required keys in input and the modified or/and added keys in output the data dict.
+- The transformation api should have clarify the required keys in input and the modified or/and added keys in output the data dict.
 
 Available transformations can be checked in `mindocr/data/transforms/*_transform.py`
 
@@ -65,9 +65,9 @@ det_transforms.__all__
 
 
 
-### Text detection
+## Text detection
 
-### 1. Load image and annotations
+### Load image and annotations
 
 #### Preparation
 
@@ -176,7 +176,7 @@ show_img(res)
 ![output_16_1](https://user-images.githubusercontent.com/20376974/228161131-c11209d1-f3f0-4a8c-a763-b72d729a4084.png)
 
 
-### 2. Image and annotation processing/augmentation
+### Image and annotation processing/augmentation
 
 #### RandomCrop - EastRandomCropData
 

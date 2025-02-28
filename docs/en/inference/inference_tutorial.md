@@ -18,19 +18,19 @@ graph LR;
     H[images] --input --> F[MindOCR Infer];
 ```
 
-## 2. Environment Instalation
+## Environment Instalation
 
 Please refer to [Offline Inference Environment Installation](environment.md).
 
-## 3. Model conversion
+## Model conversion
 
 Please refer to [Model Converter Tutorial](convert_tutorial.md).
 
-## 4. Inference (Python)
+## Inference (Python)
 
 Enter the inference directory：`cd deploy/py_infer`.
 
-### 4.1 Detection + Classification + Recognition
+### Detection + Classification + Recognition
 
 ```shell
 python infer.py \
@@ -62,7 +62,7 @@ The results are saved in det_cls_rec/pipeline_results.txt in the following forma
 img_182.jpg	[{"transcription": "cocoa", "points": [[14.0, 284.0], [222.0, 274.0], [225.0, 325.0], [17.0, 335.0]]}, {...}]
 ```
 
-### 4.2 Detection + Recognition
+### Detection + Recognition
 
 If you don't enter the parameters related to classification, it will skip and only perform detection+recognition.
 
@@ -94,7 +94,7 @@ The recognition results are saved in det_rec/pipeline_results.txt in the followi
 img_498.jpg	[{"transcription": "keep", "points": [[819.0, 71.0], [888.0, 67.0], [891.0, 104.0], [822.0, 108.0]]}, {...}]
 ```
 
-### 4.3 Detection
+### Detection
 
 Run text detection alone.
 
@@ -122,7 +122,7 @@ The detection results are saved in the det/det_results.txt file in the following
 img_108.jpg	[[[226.0, 442.0], [402.0, 416.0], [404.0, 433.0], [228.0, 459.0]], [...]]
 ```
 
-### 4.4 Classification
+### Classification
 
 Run text angle classification alone.
 
@@ -143,7 +143,7 @@ word_1679.png  ["180", 0.6226]
 word_1189.png  ["0", 0.9360]
 ```
 
-### 4.5 Recognition
+### Recognition
 
 Run text recognition alone.
 
@@ -166,9 +166,9 @@ word_1657.png  "candy"
 word_1814.png  "cathay"
 ```
 
-### 4.6 Detail of inference parameter
+### Detail of inference parameter
 
-<details>
+<details open markdown>
 <summary> Details </summary>
 
 - Basic settings
@@ -222,9 +222,9 @@ Notes：
 
 </details>
 
-## 5. Model Inference Evaluation
+## Model Inference Evaluation
 
-### 5.1 Text detection
+### Text detection
 
 After inference, please use the following command to evaluate the results:
 
@@ -234,7 +234,7 @@ python deploy/eval_utils/eval_det.py \
     --pred_path=/path/to/prediction/det_results.txt
 ```
 
-### 5.2 Text recognition
+### Text recognition
 
 After inference, please use the following command to evaluate the results:
 
