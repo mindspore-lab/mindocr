@@ -260,8 +260,16 @@ eval:
 
 ```shell
 # 在多个 Ascend 设备上进行分布式训练
-mpirun --allow-run-as-root -n 4 python tools/train.py --config configs/rec/svtr/svtr_tiny.yaml
+# worker_num代表分布式总进程数量。
+# local_worker_num代表当前节点进程数量。
+# 进程数量即为训练使用的NPU的数量，单机多卡情况下worker_num和local_worker_num需保持一致。
+msrun --worker_num=8 --local_worker_num=8 python tools/train.py --config configs/rec/svtr/svtr_tiny_8p.yaml
+
+# 经验证，绑核在大部分情况下有性能加速，请配置参数并运行
+msrun --bind_core=True --worker_num=8 --local_worker_num=8 python tools/train.py --config configs/rec/svtr/svtr_tiny_8p.yaml
 ```
+**注意:** 有关 msrun 配置的更多信息，请参考[此处](https://www.mindspore.cn/tutorials/experts/zh-CN/r2.3.1/parallel/msrun_launcher.html).
+
 
 
 * 单卡训练
@@ -338,7 +346,7 @@ Mindocr内置了一部分字典，均放在了 `mindocr/utils/dict/` 位置，�
 
 | **model name** | **backbone** |  **train dataset**   | **params(M)** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |                                           **recipe**                                           |                                                                                                  **weight**                                                                                                   |
 |:--------------:|:------------:|:--------------------:|:-------------:|:---------:|:--------------:| :-----------: |:-----------------:|:-----------:|:---------:|:------------:|:----------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|  SVTR-Tiny-8P  |     Tiny     |        MJ+ST         |     60.24     |     8     |      512       |      O2       |     230.39 s      |   685.68    |  5973.61  |     90.29%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml)  | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \|  [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir) |
+|  SVTR-Tiny-8P  |     Tiny     |        MJ+ST         |     60.24     |     8     |      512       |      O2       |     156.85 s      |   410.16    |  9986.34  |     90.29%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/rec/svtr/svtr_tiny_8p.yaml)  | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6.ckpt) \|  [mindir](https://download-mindspore.osinfra.cn/toolkits/mindocr/svtr/svtr_tiny_8p-0afc75d6-255191ef.mindir) |
 
 
 在各个基准数据集上的准确率

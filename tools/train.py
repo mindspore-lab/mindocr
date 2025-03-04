@@ -40,6 +40,8 @@ logger = logging.getLogger("mindocr.train")
 
 def main(cfg):
     # init env
+    if args.cpu_affinity:
+        ms.runtime.set_cpu_affinity(True)
     ms.set_context(mode=cfg.system.mode)
     if cfg.train.max_call_depth:
         ms.set_context(max_call_depth=cfg.train.max_call_depth)
