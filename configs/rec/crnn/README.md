@@ -25,16 +25,18 @@ As shown in the architecture graph (Figure 1), CRNN firstly extracts a feature s
 
 | mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
 |:----------:|:--------------:|:-------------:|:-------------------:|
-|   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
-
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1    |
 
 ## Quick Start
-### Preparation
 
-#### Installation
+### Installation
+
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
+### Dataset preparation
+
 #### Dataset Download
+
 Please download lmdb dataset for traininig and evaluation from  [here](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (ref: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here)). There're several zip files:
 - `data_lmdb_release.zip` contains the **entire** datasets including training data, validation data and evaluation data.
     - `training/` contains two datasets: [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) and [SynthText (ST)](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c)
@@ -108,8 +110,9 @@ Here we used the datasets under `training/` folders for **training**, and the un
 - [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset): 2.4 MB, 647 samples
 - [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf): 1.8 MB, 645 samples
 
+### Update yaml config file
 
-**Data configuration for model training**
+#### Data configuration for model training
 
 To reproduce the training of model, it is recommended that you modify the configuration yaml as follows:
 
@@ -132,7 +135,7 @@ eval:
   ...
 ```
 
-**Data configuration for model evaluation**
+#### Data configuration for model evaluation
 
 We use the dataset under `evaluation/` as the benchmark dataset. On **each individual dataset** (e.g. CUTE80, IC03_860, etc.), we perform a full evaluation by setting the dataset's directory to the evaluation dataset. This way, we get a list of the corresponding accuracies for each dataset, and then the reported accuracies are the average of these values.
 
@@ -201,6 +204,7 @@ eval:
 ```
 
 #### Check YAML Config Files
+
 Apart from the dataset setting, please also check the following important args: `system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`,
 `eval.ckpt_load_path`, `eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.dataset.label_file`, `eval.loader.batch_size`. Explanations of these important args:
 
@@ -260,7 +264,7 @@ msrun --worker_num=8 --local_worker_num=8 python tools/train.py --config configs
 # Based on verification,binding cores usually results in performance acceleration.Please configure the parameters and run.
 msrun --bind_core=True --worker_num=8 --local_worker_num=8 python tools/train.py --config configs/rec/crnn/crnn_resnet34.yaml
 ```
-**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/tutorials/experts/en/r2.3.1/parallel/msrun_launcher.html).
+**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/docs/en/master/model_train/parallel/msrun_launcher.html).
 
 
 
@@ -330,7 +334,7 @@ For detailed instruction of data preparation and yaml configuration, please refe
 
 ### General Purpose Chinese Models
 
-Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode.
+Experiments are tested on ascend 910* with mindspore 2.5.0 graph mode.
 
 | **model name** | **backbone** | **cards** | **batch size** | **language** | **jit level** | **graph compile** | **ms/step** | **img/s** | **scene** | **web** | **document** |                                            **recipe**                                             |                                                                                              **weight**                                                                                               |
 | :------------: | :----------: | :-------: | :------------: | :----------: | :-----------: | :---------------: | :---------: | :-------: |:---------:|:-------:|:------------:|:-------------------------------------------------------------------------------------------------:| :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
@@ -343,7 +347,7 @@ Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode.
 
 #### Training Performance
 
-Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode.
+Experiments are tested on ascend 910* with mindspore 2.5.0 graph mode.
 
 | **model name** | **backbone** | **train dataset** | **params(M)** | **cards** | **batch size** | **jit level** | **graph compile** | **ms/step** | **img/s** | **accuracy** |                                          **recipe**                                           |                                                                                             **weight**                                                                                             |
 |:--------------:| :----------: | :---------------: | :-----------: | :-------: | :------------: | :-----------: |:-----------------:|:-----------:|:---------:|:------------:|:---------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
@@ -361,7 +365,7 @@ Detailed accuracy results for each benchmark dataset (IC03, IC13, IC15, IIIT, SV
 
 #### Inference Performance
 
-Experiments are tested on ascend 310P with mindspore lite 2.3.1 graph mode.
+Experiments are tested on ascend 310P with mindspore lite 2.5.0 graph mode.
 
 | model name |  backbone   | test dataset | params(M) | cards | batch size | **jit level** | **graph compile** | img/s  |
 | :--------: | :---------: | :----------: | :-------: | :---: | :--------: | :-----------: | :---------------: | :----: |
@@ -373,7 +377,7 @@ Experiments are tested on ascend 310P with mindspore lite 2.3.1 graph mode.
 
 - To reproduce the result on other contexts, please ensure the global batch size is the same.
 - The characters supported by model are lowercase English characters from a to z and numbers from 0 to 9. More explanation on dictionary, please refer to [Character Dictionary](#character-dictionary).
-- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset Download & Dataset Usage](#dataset-download) section.
+- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [Dataset preparation](#dataset-preparation) section.
 - The input Shapes of MindIR of CRNN_VGG7 and CRNN_ResNet34_vd are both (1, 3, 32, 100).
 
 

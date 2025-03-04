@@ -29,18 +29,19 @@ LayoutLMv3 还应用了文本——图像多模态 Transformer 架构来学习�
   <em> 图1. LayoutLMv3架构图 [<a href="#参考文献">1</a>] </em>
 </p>
 
+### 配套版本
 
-## 快速开始
+| mindspore  | ascend driver  |    firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:--------------:|:-------------------:|
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1     |
 
-### 环境及数据准备
+## 快速上手
 
-| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
-|:---------:|:---------------:|:------------:|:-------------------:|
-|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
-|   2.4.0   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC3.beta1    |
+### 安装
 
-#### 安装
-环境安装教程请参考MindOCR的 [installation instruction](https://github.com/mindspore-lab/mindocr#installation).
+环境安装教程请参考MindOCR的 [安装指南](https://github.com/mindspore-lab/mindocr#installation).
+
+### 数据准备
 
 #### PubLayNet数据集准备
 
@@ -78,15 +79,6 @@ python tools/param_converter_from_torch.py \
 ```bash
 python tools/eval.py --config configs/layout/layoutlmv3/layoutlmv3_publaynet.yaml
 ```
-在公开基准数据集（PublayNet）上的-评估结果如下：
-
-在采用动态图模式的ascend 910*上实验结果，mindspore版本为2.3.1
-<div align="center">
-
-| **model name** | **cards** | **batch size** | **img/s** | **map** | **config**                                                                                                     |
-|----------------|-----------|----------------|-----------|---------|----------------------------------------------------------------------------------------------------------------|
-| LayoutLMv3     | 1         | 1              | 2.7       | 94.3%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/layoutlmv3/layoutlmv3_publaynet.yaml) |
-</div>
 
 ### 模型推理
 
@@ -103,6 +95,17 @@ layout_res.png （模型推理可视化结果）
 
 layout_results.txt  （模型推理文本结果）
 
+## 性能表现
+
+在公开基准数据集（PublayNet）上的评估结果如下：
+
+在采用动态图模式的ascend 910*上实验结果，mindspore版本为2.5.0
+<div align="center">
+
+| **model name** | **cards** | **batch size** | **img/s** | **map** | **config**                                                                                                     |
+|----------------|-----------|----------------|-----------|---------|----------------------------------------------------------------------------------------------------------------|
+| LayoutLMv3     | 1         | 1              | 2.7       | 94.3%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/layoutlmv3/layoutlmv3_publaynet.yaml) |
+</div>
 
 ## 参考文献
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->

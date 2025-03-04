@@ -26,17 +26,19 @@ The representation of image vectors typically relies on CNN-extracted feature gr
   <em> Figure 1. LayoutLMv3 architecture [<a href="#references">1</a>] </em>
 </p>
 
+## Requirements
+
+| mindspore  | ascend driver  |    firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:--------------:|:-------------------:|
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1     |
+
 ## Quick Start
 
-### Preparation
+### Installation
 
-| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
-|:---------:|:---------------:|:------------:|:-------------------:|
-|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
-|   2.4.0   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC3.beta1    |
-
-#### Installation
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
+
+### Dataset preparation
 
 #### PubLayNet Dataset Preparation
 
@@ -74,15 +76,6 @@ python tools/param_converter_from_torch.py \
 ```bash
 python tools/eval.py --config configs/layout/layoutlmv3/layoutlmv3_publaynet.yaml
 ```
-The evaluation results on the public benchmark dataset (PublayNet) are as follows:
-
-Experiments are tested on ascend 910* with mindspore 2.3.1 pynative mode
-<div align="center">
-
-| **model name** | **cards** | **batch size** | **img/s** | **map** | **config**                                                                                                     |
-|----------------|-----------|----------------|-----------|---------|----------------------------------------------------------------------------------------------------------------|
-| LayoutLMv3     | 1         | 1              | 2.7       | 94.3%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/layoutlmv3/layoutlmv3_publaynet.yaml) |
-</div>
 
 ### Model Inference
 
@@ -99,6 +92,17 @@ layout_res.png （Model inference visualization results）
 
 layout_results.txt  （Model inference text results）
 
+## Performance
+
+The evaluation results on the public benchmark dataset (PublayNet) are as follows:
+
+Experiments are tested on ascend 910* with mindspore 2.5.0 pynative mode
+<div align="center">
+
+| **model name** | **cards** | **batch size** | **img/s** | **map** | **config**                                                                                                     |
+|----------------|-----------|----------------|-----------|---------|----------------------------------------------------------------------------------------------------------------|
+| LayoutLMv3     | 1         | 1              | 2.7       | 94.3%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/layoutlmv3/layoutlmv3_publaynet.yaml) |
+</div>
 
 ## References
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->

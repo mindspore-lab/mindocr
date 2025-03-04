@@ -26,15 +26,11 @@
 
 但在测试阶段，MLM不被使用。只有骨干网络和VRM被用于预测。
 
-
 ## 配套版本
-
 
 | mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
 |:----------:|:--------------:|:-------------:|:-------------------:|
-|   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
-
-
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1    |
 
 ## 快速入门
 
@@ -42,7 +38,7 @@
 
 请参考[MindOCR中的安装说明](https://github.com/mindspore-lab/mindocr#installation)。
 
-### 数据集准备
+### 数据准备
 
 **训练集**
 
@@ -115,7 +111,7 @@ datasets
     └── SynText
 ```
 
-### 更新yaml配置文件
+### 配置说明
 
 如果数据集放置在`./datasets`目录下，则无需更改yaml配置文件`configs/rec/visionlan/visionlan_L*.yaml`中的`train.dataset.dataset_root`。
 否则，请相应地更改以下字段：
@@ -188,7 +184,7 @@ msrun --bind_core=True --worker_num=4 --local_worker_num=4 python tools/train.py
 msrun --bind_core=True --worker_num=4 --local_worker_num=4 python tools/train.py --config configs/rec/visionlan/visionlan_resnet45_LF_2.yaml
 msrun --bind_core=True --worker_num=4 --local_worker_num=4 python tools/train.py --config configs/rec/visionlan/visionlan_resnet45_LA.yaml
 ```
-**注意:** 有关 msrun 配置的更多信息，请参考[此处](https://www.mindspore.cn/tutorials/experts/zh-CN/r2.3.1/parallel/msrun_launcher.html).
+**注意:** 有关 msrun 配置的更多信息，请参考[此处](https://www.mindspore.cn/docs/zh-CN/master/model_train/parallel/msrun_launcher.html).
 
 训练结果（包括checkpoints、每个阶段的性能和loss曲线）将保存在yaml配置文件中由参数`ckpt_save_dir`解析的目录中。默认目录为`./tmp_visionlan`。
 
@@ -250,7 +246,7 @@ python tools/benchmarking/multi_dataset_eval.py --config $yaml_file --opt eval.d
 
 - 训练数据集：`MJ+ST`代表两个合成数据集SynthText（800k）和MJSynth的组合。
 - 要在其他训练环境中重现结果，请确保全局批量大小相同。
-- 这些模型是从头开始训练的，没有任何预训练。有关训练和评估的更多数据集详细信息，请参阅[数据集准备](#数据集准备)部分。
+- 这些模型是从头开始训练的，没有任何预训练。有关训练和评估的更多数据集详细信息，请参阅[数据准备](#数据准备)部分。
 - VisionLAN的MindIR导出时的输入Shape均为(1, 3, 64, 256)。
 
 

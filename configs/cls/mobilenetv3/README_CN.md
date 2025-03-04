@@ -31,22 +31,11 @@ MobileNetV3[[1](#参考文献)]于2019年发布，这个版本结合了V1的deep
 
 </div>
 
+### 配套版本
 
-## 实验结果
-
-| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
-|:---------:|:---------------:|:------------:|:-------------------:|
-|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
-
-MobileNetV3在ImageNet上预训练。另外，我们进一步在RCTW17、MTWI和LSVT数据集上进行了文字方向分类任务的训练。
-
-在采用图模式的ascend 910*上实验结果，mindspore版本为2.3.1
-<div align="center">
-
-| **模型名称**    | **卡数** | **单卡批量大小** | **img/s** | **准确率** | **配置**               | **权重**                                                                                   |
-|-------------|--------|------------|-----------|---------|----------------------|------------------------------------------------------------------------------------------|
-| MobileNetV3 | 4      | 256        | 5923.5    | 94.59%  | [yaml](cls_mv3.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/cls/cls_mobilenetv3-92db9c58.ckpt) |
-</div>
+| mindspore  | ascend driver  |    firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:--------------:|:-------------------:|
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1     |
 
 
 ## 快速上手
@@ -127,6 +116,18 @@ model:
 ``` shell
 python tools/eval.py -c configs/cls/mobilenetv3/cls_mv3.yaml
 ```
+
+## 性能表现
+
+MobileNetV3在ImageNet上预训练。另外，我们进一步在RCTW17、MTWI和LSVT数据集上进行了文字方向分类任务的训练。
+
+在采用图模式的ascend 910*上实验结果，mindspore版本为2.5.0
+<div align="center">
+
+| **模型名称**    | **卡数** | **单卡批量大小** | **img/s** | **准确率** | **配置**               | **权重**                                                                                   |
+|-------------|--------|------------|-----------|---------|----------------------|------------------------------------------------------------------------------------------|
+| MobileNetV3 | 4      | 256        | 5923.5    | 94.59%  | [yaml](cls_mv3.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/cls/cls_mobilenetv3-92db9c58.ckpt) |
+</div>
 
 ## 参考文献
 

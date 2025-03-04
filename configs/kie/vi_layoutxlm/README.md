@@ -40,42 +40,19 @@ After obtaining αij from the original self-attention layer, considering the lar
   <em> Figure 1. LayoutXLM(LayoutLMv2) architecture [<a href="#References">1</a>] </em>
 </p>
 
-## Results
-<!--- Guideline:
-Table Format:
-- Model: model name in lower case with _ seperator.
-- Context: Training context denoted as {device}x{pieces}-{MS mode}, where mindspore mode can be G - graph mode or F - pynative mode with ms function. For example, D910x8-G is for training on 8 pieces of Ascend 910 NPU using graph mode.
-- Top-1 and Top-5: Keep 2 digits after the decimal point.
-- Params (M): # of model parameters in millions (10^6). Keep 2 digits after the decimal point
-- Recipe: Training recipe/configuration linked to a yaml config file. Use absolute url path.
-- Download: url of the pretrained model weights. Use absolute url path.
--->
+## Requirements
 
-### Accuracy
-
-| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
-|:---------:|:---------------:|:------------:|:-------------------:|
-|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
-
-According to our experiments, the performance and accuracy evaluation（[Model Evaluation](#33-Model-Evaluation)） results of training ([Model Training](#32-Model-Training)) on the XFUND Chinese dataset are as follows:
-
-
-Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode
-<div align="center">
-
-| **model name** | **cards** | **batch size** | **img/s** | **hmean** | **config**  | **weight**                                                                            |
-|----------------|-----------|----------------|-----------|-----------|-----------------------------------------------------|------------------------------------------------|
-| LayoutXLM    | 1         | 8              | 73.26     | 90.34%    | [yaml](../layoutxlm/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt)  |
-| VI-LayoutXLM    | 1         | 8              | 110.6     | 93.31%    | [yaml](../layoutxlm/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt)  |
-</div>
-
-
+| mindspore  | ascend driver  |    firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:--------------:|:-------------------:|
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1     |
 
 ## Quick Start
-### Preparation
 
-#### Installation
+### Installation
+
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
+
+### Dataset preparation
 
 #### Dataset Download
 
@@ -168,7 +145,18 @@ Recognition results are as shown in the image, and the image is saved as`inferen
   <em> example_ser.jpg </em>
 </p>
 
+## Performance
 
+According to our experiments, the performance of evaluation on the XFUND Chinese dataset are as follows:
+
+Experiments are tested on ascend 910* with mindspore 2.5.0 graph mode
+<div align="center">
+
+| **model name** | **cards** | **batch size** | **img/s** | **hmean** | **config**  | **weight**                                                                            |
+|----------------|-----------|----------------|-----------|-----------|-----------------------------------------------------|------------------------------------------------|
+| LayoutXLM    | 1         | 8              | 73.26     | 90.34%    | [yaml](../layoutxlm/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt)  |
+| VI-LayoutXLM    | 1         | 8              | 110.6     | 93.31%    | [yaml](../layoutxlm/ser_layoutxlm_xfund_zh.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/layoutxlm/ser_layoutxlm_base-a4ea148e.ckpt)  |
+</div>
 
 ## References
 <!--- Guideline: Citation format GB/T 7714 is suggested. -->

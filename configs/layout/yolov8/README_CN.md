@@ -20,34 +20,19 @@ YOLOv8 是Ultralytics的YOLO的最新版本。作为一种前沿、最先进(SOT
 
 ![](images/yolov8_structure.jpeg)
 
+### 配套版本
 
-## 评估结果
+| mindspore  | ascend driver  |    firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:--------------:|:-------------------:|
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1     |
 
+## 快速上手
 
-| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
-|:---------:|:---------------:|:------------:|:-------------------:|
-|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
+### 安装
 
-根据我们的实验，在公开基准数据集（PublayNet）上的-评估结果如下：
+环境安装教程请参考MindOCR的 [安装指南](https://github.com/mindspore-lab/mindocr#installation).
 
-在采用图模式的ascend 910*上实验结果，mindspore版本为2.3.1
-<div align="center">
-
-| **模型名称** | **卡数** | **单卡批量大小** | **ms/step**   | **img/s** | **map** | **配置**                                                                                        | **权重**                                                                                                                                                                         |
-|----------|--------|------------|---------------|-----------|---------|-----------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| YOLOv8   | 4      | 16         | 284.93| 56.15     | 94.4%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/yolov8/yolov8n.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-4b9e8004.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-2a1f68ab.mindir) |
-</div>
-
-**注意:**
-- 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
-- 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[PubLayNet数据集准备](#3.1.2 PubLayNet数据集准备)章节。
-- YOLOv8的MindIR导出时的输入Shape均为(1, 3, 800, 800)。
-
-## 快速开始
-### 环境及数据准备
-
-#### 安装
-环境安装教程请参考MindOCR的 [installation instruction](https://github.com/mindspore-lab/mindocr#installation).
+### 数据准备
 
 #### PubLayNet数据集准备
 
@@ -64,7 +49,8 @@ python tools/dataset_converters/convert.py \
 
 下载完成后，可以使用上述MindOCR提供的脚本将数据转换为YOLOv8输入格式的数据类型。
 
-#### 检查配置文件
+### 配置说明
+
 除了数据集的设置，请同时重点关注以下变量的配置：`system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_path`, `eval.ckpt_load_path`, `eval.dataset.dataset_path`, `eval.loader.batch_size`。说明如下：
 
 ```yaml
@@ -121,7 +107,7 @@ msrun --worker_num=4 --local_worker_num=4 python tools/train.py --config configs
 # 经验证，绑核在大部分情况下有性能加速，请配置参数并运行
 msrun --bind_core=True --worker_num=4 --local_worker_num=4 python tools/train.py --config configs/layout/yolov8/yolov8n.yaml
 ```
-**注意:** 有关 msrun 配置的更多信息，请参考[此处](https://www.mindspore.cn/tutorials/experts/zh-CN/r2.3.1/parallel/msrun_launcher.html).
+**注意:** 有关 msrun 配置的更多信息，请参考[此处](https://www.mindspore.cn/docs/zh-CN/master/model_train/parallel/msrun_launcher.html).
 
 
 * 单卡训练
@@ -143,6 +129,22 @@ python tools/train.py --config configs/layout/yolov8/yolov8n.yaml
 python tools/eval.py --config configs/layout/yolov8/yolov8n.yaml
 ```
 
+## 性能表现
+
+根据我们的实验，在公开基准数据集（PublayNet）上的评估结果如下：
+
+在采用图模式的ascend 910*上实验结果，mindspore版本为2.5.0
+<div align="center">
+
+| **模型名称** | **卡数** | **单卡批量大小** | **ms/step**   | **img/s** | **map** | **配置**                                                                                        | **权重**                                                                                                                                                                         |
+|----------|--------|------------|---------------|-----------|---------|-----------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| YOLOv8   | 4      | 16         | 284.93| 56.15     | 94.4%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/yolov8/yolov8n.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-4b9e8004.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-2a1f68ab.mindir) |
+</div>
+
+**注意:**
+- 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
+- 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[快速上手](#快速上手)章节。
+- YOLOv8的MindIR导出时的输入Shape均为(1, 3, 800, 800)。
 
 ## MindSpore Lite 推理
 

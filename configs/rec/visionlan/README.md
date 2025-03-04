@@ -36,7 +36,7 @@ While in the test stage, MLM is not used. Only the backbone and VRM are used for
 
 | mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
 |:----------:|:--------------:|:-------------:|:-------------------:|
-|   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1    |
 
 
 ## Quick Start
@@ -193,7 +193,7 @@ msrun --bind_core=True --worker_num=4 --local_worker_num=4 python tools/train.py
 msrun --bind_core=True --worker_num=4 --local_worker_num=4 python tools/train.py --config configs/rec/visionlan/visionlan_resnet45_LF_2.yaml
 msrun --bind_core=True --worker_num=4 --local_worker_num=4 python tools/train.py --config configs/rec/visionlan/visionlan_resnet45_LA.yaml
 ```
-**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/tutorials/experts/en/r2.3.1/parallel/msrun_launcher.html).
+**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/docs/en/master/model_train/parallel/msrun_launcher.html).
 
 The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir` in yaml config file. The default directory is `./tmp_visionlan`.
 

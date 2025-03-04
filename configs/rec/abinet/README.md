@@ -22,15 +22,18 @@ Linguistic knowledge is of great benefit to scene text recognition. However, how
 
 | mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
 |:----------:|:--------------:|:-------------:|:-------------------:|
-|   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1    |
 
 ## Quick Start
-### Preparation
 
-#### Installation
+### Installation
+
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
 
+### Dataset preparation
+
 #### Dataset Download
+
 Please download LMDB dataset for traininig and evaluation from
   - `training` contains two datasets: [MJSynth (MJ)](https://pan.baidu.com/s/1mgnTiyoR8f6Cm655rFI4HQ) and [SynthText (ST)](https://pan.baidu.com/s/1mgnTiyoR8f6Cm655rFI4HQ)
   - `evaluation` contains several benchmarking datasets, which are [IIIT](http://cvit.iiit.ac.in/projects/SceneTextUnderstanding/IIIT5K.html), [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset), [IC13](http://rrc.cvc.uab.es/?ch=2), [IC15](http://rrc.cvc.uab.es/?ch=4), [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf), and [CUTE](http://cs-chan.com/downloads_CUTE80_dataset.html).
@@ -91,8 +94,9 @@ Here we used the datasets under `train/` folders for **train**. After training, 
 - [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset): 2.4 MB, 647 samples
 - [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf): 1.8 MB, 645 samples
 
+### Update yaml config file
 
-**Data configuration for model training**
+#### Data configuration for model training
 
 To reproduce the training of model, it is recommended that you modify the configuration yaml as follows:
 
@@ -115,7 +119,7 @@ eval:
   ...
 ```
 
-**Data configuration for model evaluation**
+#### Data configuration for model evaluation
 
 We use the dataset under `evaluation/` as the benchmark dataset. On **each individual dataset** (e.g. CUTE80, IC13_857, etc.), we perform a full evaluation by setting the dataset's directory to the evaluation dataset. This way, we get a list of the corresponding accuracies for each dataset, and then the reported accuracies are the average of these values.
 
@@ -144,7 +148,7 @@ eval:
   ...
 ```
 
-By running `tools/eval.py` as noted in section [Model Evaluation](#33-model-evaluation) with the above config yaml, you can get the accuracy performance on dataset CUTE80.
+By running `tools/eval.py` as noted in section [Model Evaluation](#model-evaluation) with the above config yaml, you can get the accuracy performance on dataset CUTE80.
 
 2. Evaluate on multiple datasets under the same folder
 
@@ -166,7 +170,6 @@ data_lmdb_release/
 ```
 
 then you can evaluate on each dataset by modifying the config yaml as follows, and execute the script `tools/benchmarking/multi_dataset_eval.py`.
-
 
 #### Check YAML Config Files
 Apart from the dataset setting, please also check the following important args: `system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`,
@@ -229,7 +232,7 @@ msrun --worker_num=8 --local_worker_num=8 python tools/train.py --config configs
 # Based on verification,binding cores usually results in performance acceleration.Please configure the parameters and run.
 msrun --bind_core=True --worker_num=8 --local_worker_num=8 python tools/train.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
-**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/tutorials/experts/en/r2.3.1/parallel/msrun_launcher.html).
+**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/docs/en/master/model_train/parallel/msrun_launcher.html).
 
 The pre-trained model needs to be loaded during ABINet model training, and the weight of the pre-trained model is
 from [abinet_pretrain_en.ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_pretrain_en-821ca20b.ckpt). It is needed to add the path of the pretrained weight to the model pretrained in "configs/rec/abinet/abinet_resnet45_en.yaml".

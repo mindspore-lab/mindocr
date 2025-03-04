@@ -23,20 +23,18 @@
 
 | mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
 |:----------:|:--------------:|:-------------:|:-------------------:|
-|   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1    |
 
 
 ## 快速开始
-### 环境及数据准备
 
-
-#### 安装
+### 安装
 
 环境安装教程请参考MindOCR的 [installation instruction](https://github.com/mindspore-lab/mindocr#installation).
 
-#### 数据集准备
+### 数据准备
 
-##### MJSynth, 验证集和测试集
+#### MJSynth, 验证集和测试集
 部分LMDB格式的训练及验证数据集可以从[这里](https://www.dropbox.com/sh/i39abvnefllx2si/AAAbAYRvxzRp3cIE5HzqUw3ra?dl=0) (出处: [deep-text-recognition-benchmark](https://github.com/clovaai/deep-text-recognition-benchmark#download-lmdb-dataset-for-traininig-and-evaluation-from-here))下载。连接中的文件包含多个压缩文件，其中:
 - `data_lmdb_release.zip` 包含了了部分数据集，有训练集(training/），验证集(validation/)以及测试集(evaluation)。
     - `training.zip` 包括两个数据集，分别是 [MJSynth (MJ)](http://www.robots.ox.ac.uk/~vgg/data/text/) 和 [SynthText (ST)](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c)。 这里我们只使用**MJSynth**。
@@ -45,7 +43,7 @@
 - `validation.zip`: 与 data_lmdb_release.zip 中的validation/ 一样。
 - `evaluation.zip`: 与 data_lmdb_release.zip 中的evaluation/ 一样。
 
-##### SynthText dataset
+#### SynthText dataset
 
 我们不使用`data_lmdb_release.zip`提供的`SynthText`数据, 因为它只包含部分切割下来的图片。请从[此处](https://academictorrents.com/details/2dba9518166cbd141534cbf381aa3e99a087e83c)下载原始数据, 并使用以下命令转换成LMDB格式
 
@@ -59,7 +57,7 @@ python tools/dataset_converters/convert.py \
 ```
 `ST_full` 包含了所有已切割的图片，以LMDB格式储存。 请将 `ST` 文件夹换成 `ST_full` 文件夹。
 
-##### SynthAdd dataset
+#### SynthAdd dataset
 
 另外请从[此处](https://pan.baidu.com/s/1uV0LtoNmcxbO-0YA7Ch4dg)（密码：627x）下载**SynthAdd**训练集. 这个训练集是由<https://arxiv.org/abs/1811.00751>提出。请使用以下命令转换成LMDB格式
 
@@ -73,7 +71,7 @@ python tools/dataset_converters/convert.py \
 
 并将转换完成的`SynthAdd`文件夹摆在`/training`里面.
 
-#### 数据集使用
+### 数据集使用
 
 最终数据文件夹结构如下：
 
@@ -142,7 +140,9 @@ data_lmdb_release/
 - [SVT](http://www.iapr-tc11.org/mediawiki/index.php/The_Street_View_Text_Dataset): 2.4 MB, 647 samples
 - [SVTP](http://openaccess.thecvf.com/content_iccv_2013/papers/Phan_Recognizing_Text_with_2013_ICCV_paper.pdf): 1.8 MB, 645 samples
 
-**模型训练的数据配置**
+### 配置说明
+
+#### 模型训练的数据配置
 
 如欲重现模型的训练，建议修改配置yaml如下：
 
@@ -163,7 +163,7 @@ eval:
   ...
 ```
 
-**模型评估的数据配置**
+#### 模型评估的数据配置
 
 我们使用 `evaluation/` 下的数据集作为基准数据集。在**每个单独的数据集**（例如 CUTE80、IC03_860 等）上，我们通过将数据集的目录设置为评估数据集来执行完整评估。这样，我们就得到了每个数据集对应精度的列表，然后报告的精度是这些值的平均值。
 
@@ -231,6 +231,7 @@ eval:
 ```
 
 #### 检查配置文件
+
 除了数据集的设置，请同时重点关注以下变量的配置：`system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`, `train.dataset.label_file`,
 `eval.ckpt_load_path`, `eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.dataset.label_file`, `eval.loader.batch_size`。说明如下：
 
@@ -289,7 +290,7 @@ msrun --worker_num=4 --local_worker_num=4 python tools/train.py --config configs
 # 经验证，绑核在大部分情况下有性能加速，请配置参数并运行
 msrun --bind_core=True --worker_num=4 --local_worker_num=4 python tools/train.py --config configs/rec/master/master_resnet31.yaml
 ```
-**注意:** 有关 msrun 配置的更多信息，请参考[此处](https://www.mindspore.cn/tutorials/experts/zh-CN/r2.3.1/parallel/msrun_launcher.html).
+**注意:** 有关 msrun 配置的更多信息，请参考[此处](https://www.mindspore.cn/docs/zh-CN/master/model_train/parallel/msrun_launcher.html).
 
 
 
@@ -349,7 +350,7 @@ Table Format:
 
 **注意:**
 - 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
-- 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[数据集下载及使用](#环境及数据准备)章节。
+- 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[数据准备](#数据准备)章节。
 - Master的MindIR导出时的输入Shape均为(1, 3, 48, 160)。
 
 

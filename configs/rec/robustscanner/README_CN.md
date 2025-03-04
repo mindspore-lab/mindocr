@@ -25,16 +25,19 @@ RobustScanner是具有注意力机制的编码器-解码器文字识别算法，
 
 | mindspore  | ascend driver  |   firmware    | cann toolkit/kernel |
 |:----------:|:--------------:|:-------------:|:-------------------:|
-|   2.3.1    |    24.1.RC2    |  7.3.0.1.231  |   8.0.RC2.beta1     |
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1    |
 
 
 ## 快速开始
-### 环境及数据准备
 
-#### 安装
+### 安装
+
 环境安装教程请参考MindOCR的 [installation instruction](https://github.com/mindspore-lab/mindocr#installation).
 
+### 数据准备
+
 #### 数据集下载
+
 本RobustScanner训练、验证使用的数据集参考了mmocr和PaddleOCR所使用的数据集对文献算法进行复现，在此非常感谢mmocr和PaddleOCR，提高了本repo的复现效率。
 
 数据集细节如下：
@@ -63,6 +66,7 @@ RobustScanner是具有注意力机制的编码器-解码器文字识别算法，
   - `SynthText800K_shuffle_xxx_xxx.zip`: 1_200共5个zip文件，包含SynthText数据集中随机挑选的240万个样本。
 - 验证集
   - `testing_lmdb.zip`: 包含了评估模型使用的CUTE80, icdar2013, icdar2015, IIIT5k, SVT, SVTP六个数据集。
+
 #### 数据集使用
 
 数据文件夹按照如下结构进行解压：
@@ -134,7 +138,9 @@ data/
 ```
 在这里，我们使用 `training/` 文件夹下的数据集进行训练，并使用 `evaluation/` 下的数据集来进行模型的验证和评估。为方便存储和使用，所有数据均为lmdb格式
 
-**模型训练的数据配置**
+### 配置说明
+
+#### 模型训练的数据配置
 
 如欲重现模型的训练，建议修改配置yaml如下：
 
@@ -155,7 +161,7 @@ eval:
   ...
 ```
 
-**模型评估的数据配置**
+#### 模型评估的数据配置
 
 我们使用 `evaluation/` 下的数据集作为基准数据集。在**每个单独的数据集**（例如 CUTE80、IC13_1015 等）上，我们通过将数据集的目录设置为评估数据集来执行完整评估。这样，我们就得到了每个数据集对应精度的列表，然后报告的精度是这些值的平均值。
 
@@ -222,6 +228,7 @@ eval:
 ```
 
 #### 检查配置文件
+
 除了数据集的设置，请同时重点关注以下变量的配置：`system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_root`, `train.dataset.data_dir`,
 `eval.ckpt_load_path`, `eval.dataset.dataset_root`, `eval.dataset.data_dir`, `eval.loader.batch_size`。说明如下：
 
@@ -282,7 +289,7 @@ msrun --worker_num=4 --local_worker_num=4 python tools/train.py --config configs
 # 经验证，绑核在大部分情况下有性能加速，请配置参数并运行
 msrun --bind_core=True --worker_num=4 --local_worker_num=4 python tools/train.py --config configs/rec/robustscanner/robustscanner_resnet31.yaml
 ```
-**注意:** 有关 msrun 配置的更多信息，请参考[此处](https://www.mindspore.cn/tutorials/experts/zh-CN/r2.3.1/parallel/msrun_launcher.html).
+**注意:** 有关 msrun 配置的更多信息，请参考[此处](https://www.mindspore.cn/docs/zh-CN/master/model_train/parallel/msrun_launcher.html).
 
 
 * 单卡训练
@@ -342,7 +349,7 @@ Table Format:
 **注意:**
 - 如需在其他环境配置重现训练结果，请确保全局批量大小与原配置文件保持一致。
 - 模型使用90个字符的英文字典en_dict90.txt，其中有数字，常用符号以及大小写的英文字母，详细请看[字符词典](#字符词典)
-- 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[数据集下载及使用](#数据集下载)章节。
+- 模型都是从头开始训练的，无需任何预训练。关于训练和测试数据集的详细介绍，请参考[数据准备](#数据准备)章节。
 - RobustScanner的MindIR导出时的输入Shape均为(1, 3, 48, 160)。
 
 

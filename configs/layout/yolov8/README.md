@@ -17,40 +17,24 @@ In order to adapt to the layout analysis task, we have made some improvements to
 
 ![](images/yolov8_structure.jpeg)
 
-## Results
-| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
-|:---------:|:---------------:|:------------:|:-------------------:|
-|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
+## Requirements
 
-### Accuracy
-
-According to our experiment, the evaluation results on the public benchmark dataset (PublayNet) are as follows:
-
-Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode
-<div align="center">
-
-| **model name** | **cards** | **batch size** | **ms/step**   | **img/s** | **map** | **config**  | **weight**                                                                            |
-|----------------|-----------|----------------|---------------|-----------|---------|-----------------------------------------------------|------------------------------------------------|
-| YOLOv8         | 4         | 16             | 284.93| 56.15     | 94.4%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/yolov8/yolov8n.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-4b9e8004.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-2a1f68ab.mindir) |
-</div>
-
-**Notes:**
-- To reproduce the result on other contexts, please ensure the global batch size is the same.
-- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [PubLayNet Dataset Preparation](#3.1.2 PubLayNet Dataset Preparation) section.
-- The input Shapes of MindIR of YOLOv8 is (1, 3, 800, 800).
-
+| mindspore  | ascend driver  |    firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:--------------:|:-------------------:|
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1     |
 
 ## Quick Start
-### Preparation
 
-#### Installation
+### Installation
 Please refer to the [installation instruction](https://github.com/mindspore-lab/mindocr#installation) in MindOCR.
+
+### Dataset preparation
 
 #### PubLayNet Dataset Preparation
 
 PubLayNet is a dataset for document layout analysis. It contains images of research papers and articles and annotations for various elements in a page such as "text", "list", "figure" etc in these research paper images. The dataset was obtained by automatically matching the XML representations and the content of over 1 million PDF articles that are publicly available on PubMed Central.
 
-#### Check YAML Config Files
+### Check YAML Config Files
 Apart from the dataset setting, please also check the following important args: `system.distribute`, `system.val_while_train`, `common.batch_size`, `train.ckpt_save_dir`, `train.dataset.dataset_path`, `eval.ckpt_load_path`, `eval.dataset.dataset_path`, `eval.loader.batch_size`. Explanations of these important args:
 
 ```yaml
@@ -107,7 +91,7 @@ msrun --worker_num=4 --local_worker_num=4 python tools/train.py --config configs
 # Based on verification,binding cores usually results in performance acceleration.Please configure the parameters and run.
 msrun --bind_core=True --worker_num=4 --local_worker_num=4 python tools/train.py --config configs/layout/yolov8/yolov8n.yaml
 ```
-**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/tutorials/experts/en/r2.3.1/parallel/msrun_launcher.html).
+**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/docs/en/master/model_train/parallel/msrun_launcher.html).
 
 
 * Standalone Training
@@ -128,6 +112,23 @@ To evaluate the accuracy of the trained model, you can use `eval.py`. Please set
 ```shell
 python tools/eval.py --config configs/layout/yolov8/yolov8n.yaml
 ```
+
+## Performance
+
+According to our experiment, the evaluation results on the public benchmark dataset (PublayNet) are as follows:
+
+Experiments are tested on ascend 910* with mindspore 2.5.0 graph mode
+<div align="center">
+
+| **model name** | **cards** | **batch size** | **ms/step**   | **img/s** | **map** | **config**  | **weight**                                                                            |
+|----------------|-----------|----------------|---------------|-----------|---------|-----------------------------------------------------|------------------------------------------------|
+| YOLOv8         | 4         | 16             | 284.93| 56.15     | 94.4%   | [yaml](https://github.com/mindspore-lab/mindocr/blob/main/configs/layout/yolov8/yolov8n.yaml) | [ckpt](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-4b9e8004.ckpt) \| [mindir](https://download.mindspore.cn/toolkits/mindocr/yolov8/yolov8n-2a1f68ab.mindir) |
+</div>
+
+**Notes:**
+- To reproduce the result on other contexts, please ensure the global batch size is the same.
+- The models are trained from scratch without any pre-training. For more dataset details of training and evaluation, please refer to [quick start](#quick-start) section.
+- The input Shapes of MindIR of YOLOv8 is (1, 3, 800, 800).
 
 ## MindSpore Lite Inference
 

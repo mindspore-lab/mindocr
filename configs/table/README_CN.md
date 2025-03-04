@@ -21,26 +21,11 @@ TableMaster是一种用于表格识别的模型，其独特之处在于能够同
   <em> 图1. TableMaster整体架构图 [<a href="#参考文献">1</a>] </em>
 </p>
 
-## 实验结果
+### 配套版本
 
-| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
-|:---------:|:---------------:|:------------:|:-------------------:|
-|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
-
-### PubTabNet
-
-在采用图模式的ascend 910*上实验结果，mindspore版本为2.3.1
-<div align="center">
-
-| **模型名称**    | **卡数** | **单卡批量大小** | **ms/step** | **img/s** | **准确率** | **配置**                    | **权重**                                                                                                |
-|-------------|--------|------------|-------------|-----------|---------|---------------------------|-------------------------------------------------------------------------------------------------------|
-| TableMaster | 8      | 10         | 268         | 296       | 77.49%  | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
-</div>
-
-#### 注释：
-- TableMaster的训练时长受数据处理部分和不同运行环境的影响非常大。
-- 链接中MindIR导出时的输入Shape为`(1,3,480,480)` 。
-
+| mindspore  | ascend driver  |    firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:--------------:|:-------------------:|
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1     |
 
 ## 快速上手
 
@@ -153,7 +138,7 @@ msrun --worker_num=8 --local_worker_num=8 python tools/train.py --config configs
 # 经验证，绑核在大部分情况下有性能加速，请配置参数并运行
 msrun --bind_core=True --worker_num=8 --local_worker_num=8 python tools/train.py --config configs/table/table_master.yaml
 ```
-**注意:** 有关 msrun 配置的更多信息，请参考[此处](https://www.mindspore.cn/tutorials/experts/zh-CN/r2.3.1/parallel/msrun_launcher.html).
+**注意:** 有关 msrun 配置的更多信息，请参考[此处](https://www.mindspore.cn/docs/zh-CN/master/model_train/parallel/msrun_launcher.html).
 
 训练结果（包括checkpoint、每个epoch的性能和曲线图）将被保存在yaml配置文件的`ckpt_save_dir`参数配置的路径下，默认为`./tmp_table`。
 
@@ -164,3 +149,19 @@ msrun --bind_core=True --worker_num=8 --local_worker_num=8 python tools/train.py
 ``` shell
 python tools/eval.py --config configs/table/table_master.yaml
 ```
+
+## 性能表现
+
+### PubTabNet
+
+在采用图模式的ascend 910*上实验结果，mindspore版本为2.5.0
+<div align="center">
+
+| **模型名称**    | **卡数** | **单卡批量大小** | **ms/step** | **img/s** | **准确率** | **配置**                    | **权重**                                                                                                |
+|-------------|--------|------------|-------------|-----------|---------|---------------------------|-------------------------------------------------------------------------------------------------------|
+| TableMaster | 8      | 10         | 268         | 296       | 77.49%  | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
+</div>
+
+#### 注释：
+- TableMaster的训练时长受数据处理部分和不同运行环境的影响非常大。
+- 链接中MindIR导出时的输入Shape为`(1,3,480,480)` 。

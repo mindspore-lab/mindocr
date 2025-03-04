@@ -22,27 +22,11 @@ Through this approach, TableMaster is able to simultaneously learn and predict t
   <em> Figure 1. Overall TableMaster architecture [<a href="#references">1</a>] </em>
 </p>
 
-## Results
+## Requirements
 
-| mindspore |  ascend driver  |   firmware   | cann toolkit/kernel |
-|:---------:|:---------------:|:------------:|:-------------------:|
-|   2.3.1   |    24.1.RC2     | 7.3.0.1.231  |    8.0.RC2.beta1    |
-
-### PubTabNet
-
-Experiments are tested on ascend 910* with mindspore 2.3.1 graph mode
-<div align="center">
-
-| **model name** | **cards** | **batch size** | **ms/step** | **img/s** | **accuracy** | **config**  | **weight**                                                                            |
-|----------------|-----------|----------------|-------------|-----------|--------------|-----------------------------------------------------|------------------------------------------------|
-| TableMaster         | 8         | 10             | 268         | 296       | 77.49%       | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
-</div>
-
-
-
-#### Notes：
-- The training time of EAST is highly affected by data processing and varies on different machines.
-- The input_shape for exported MindIR in the link is `(1,3,480,480)`.
+| mindspore  | ascend driver  |    firmware    | cann toolkit/kernel |
+|:----------:|:--------------:|:--------------:|:-------------------:|
+|   2.5.0    |    24.1.0      |   7.5.0.3.220  |     8.0.0.beta1     |
 
 ## Quick Start
 
@@ -160,7 +144,7 @@ msrun --worker_num=8 --local_worker_num=8 python tools/train.py --config configs
 # Based on verification,binding cores usually results in performance acceleration.Please configure the parameters and run.
 msrun --bind_core=True --worker_num=8 --local_worker_num=8 python tools/train.py --config configs/table/table_master.yaml
 ```
-**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/tutorials/experts/en/r2.3.1/parallel/msrun_launcher.html).
+**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/docs/en/master/model_train/parallel/msrun_launcher.html).
 
 
 The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir` in yaml config file. The default directory is `./tmp_table`.
@@ -172,3 +156,19 @@ To evaluate the accuracy of the trained model, you can use `eval.py`. Please set
 ``` shell
 python tools/eval.py --config configs/table/table_master.yaml
 ```
+
+## Performance
+
+### PubTabNet
+
+Experiments are tested on ascend 910* with mindspore 2.5.0 graph mode
+<div align="center">
+
+| **model name** | **cards** | **batch size** | **ms/step** | **img/s** | **accuracy** | **config**  | **weight**                                                                            |
+|----------------|-----------|----------------|-------------|-----------|--------------|-----------------------------------------------------|------------------------------------------------|
+| TableMaster         | 8         | 10             | 268         | 296       | 77.49%       | [yaml](table_master.yaml) | [ckpt](https://download-mindspore.osinfra.cn/toolkits/mindocr/tablemaster/table_master-78bf35bb.ckpt) |
+</div>
+
+#### Notes：
+- The training time of TableMaster is highly affected by data processing and varies on different machines.
+- The input_shape for exported MindIR in the link is `(1,3,480,480)`.
