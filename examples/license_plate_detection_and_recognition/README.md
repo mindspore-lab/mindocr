@@ -243,9 +243,16 @@ def __init__(self, min_iou: float = 0.7, min_intersect: float = 0.5):
 ```shell
 # Single Ascend/GPU Training (May Failed Due to Insufficient GPU/NPU on-Device Memory)
 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend/GPU
-# Multi-Ascend/GPU Training (Requires Correct OpenMPI Installation and Root Privileges)
-mpirun --allow-run-as-root -n 2 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend/GPU
+# Multi-Ascend/GPU Training
+# worker_num is the total number of Worker processes participating in the distributed task.
+# local_worker_num is the number of Worker processes pulled up on the current node.
+# The number of processes is equal to the number of NPUs used for training. In the case of single-machine multi-card worker_num and local_worker_num must be the same.
+msrun --worker_num=2 --local_worker_num=2 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend/GPU
+
+# Based on verification,binding cores usually results in performance acceleration.Please configure the parameters and run.
+msrun --bind_core=True --worker_num=2 --local_worker_num=2 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend/GPU
 ```
+**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/tutorials/experts/en/r2.3.1/parallel/msrun_launcher.html).
 
 ## Test
 

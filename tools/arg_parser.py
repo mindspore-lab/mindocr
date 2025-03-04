@@ -16,6 +16,12 @@ def create_parser():
         help="YAML config file specifying default arguments (default=" ")",
     )
     parser.add_argument(
+        "--cpu_affinity",
+        type=bool,
+        default=False,
+        help="Enable thread-level core binding to assign specific CPU cores to MindSpore's main modules",
+    )
+    parser.add_argument(
         "-o",
         "--opt",
         nargs="+",
