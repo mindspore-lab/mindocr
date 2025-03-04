@@ -136,7 +136,7 @@ msrun --worker_num=8 --local_worker_num=8 python tools/train.py --config configs
 # Based on verification,binding cores usually results in performance acceleration.Please configure the parameters and run.
 msrun --bind_core=True --worker_num=8 --local_worker_num=8 python tools/train.py --config configs/det/east/east_r50_icdar15.yaml
 ```
-**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/tutorials/experts/en/r2.3.1/parallel/msrun_launcher.html).
+**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/docs/en/master/model_train/parallel/msrun_launcher.html).
 
 The training result (including checkpoints, per-epoch performance and curves) will be saved in the directory parsed by the arg `ckpt_save_dir` in yaml config file. The default directory is `./tmp_det`.
 

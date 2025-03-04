@@ -252,7 +252,7 @@ msrun --worker_num=2 --local_worker_num=2 python tools/train.py --config configs
 # Based on verification,binding cores usually results in performance acceleration.Please configure the parameters and run.
 msrun --bind_core=True --worker_num=2 --local_worker_num=2 python tools/train.py --config configs/det/dbnet/db_r50_ccpd.yaml --device_target Ascend/GPU
 ```
-**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/tutorials/experts/en/r2.3.1/parallel/msrun_launcher.html).
+**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/docs/en/master/model_train/parallel/msrun_launcher.html).
 
 ## Test
 

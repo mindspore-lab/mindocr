@@ -232,7 +232,7 @@ msrun --worker_num=8 --local_worker_num=8 python tools/train.py --config configs
 # Based on verification,binding cores usually results in performance acceleration.Please configure the parameters and run.
 msrun --bind_core=True --worker_num=8 --local_worker_num=8 python tools/train.py --config configs/rec/abinet/abinet_resnet45_en.yaml
 ```
-**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/tutorials/experts/en/r2.3.1/parallel/msrun_launcher.html).
+**Note:** For more information about msrun configuration, please refer to [here](https://www.mindspore.cn/docs/en/master/model_train/parallel/msrun_launcher.html).
 
 The pre-trained model needs to be loaded during ABINet model training, and the weight of the pre-trained model is
 from [abinet_pretrain_en.ckpt](https://download.mindspore.cn/toolkits/mindocr/abinet/abinet_pretrain_en-821ca20b.ckpt). It is needed to add the path of the pretrained weight to the model pretrained in "configs/rec/abinet/abinet_resnet45_en.yaml".
