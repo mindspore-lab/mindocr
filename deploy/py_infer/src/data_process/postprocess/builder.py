@@ -26,7 +26,7 @@ class Postprocessor:
         # if check device failed, set device_target="CPU"
         if get_device_status() == 1:
             # FIXME: set_context may be invalid sometimes, it's best to patch to XXXPostprocess.__init__
-            ms.set_context(device_target="CPU")
+            ms.set_device("CPU")
 
     def __call__(self, *args, **kwargs):
         return self._ops_func(*args, **kwargs)
