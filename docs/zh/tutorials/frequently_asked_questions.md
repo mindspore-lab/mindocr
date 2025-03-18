@@ -118,7 +118,7 @@
 - `Load dynamic library: libmindspore_ascend.so.2 failed. liboptiling.so: cannot open shared object file: No such file or directory`
 
   ```bash
-  python -c "import mindspore;mindspore.set_context(device_target='Ascend');mindspore.run_check()"
+  python -c "import mindspore;mindspore.set_device('Ascend');mindspore.run_check()"
   [WARNING] ME(60105:13981374421 1776, MainProcess):2023-10-25-08: 14:33.640.411 [mindspore/run_check/_check_version.py:348] Using custom Ascend AI software package (Ascend Data Center Solution) path, package version checking is skipped. Please make sure Ascend AI software package (Ascend Data Center Solution) version is supported. For details, refer to the installation guidelines https://www.mindspore.cn/install
   Traceback (most recent call last):
   File "<string>", line 1, in module>
@@ -418,7 +418,7 @@ ERROR: Could not build wheels for lanms-neo, which is required to install pyproj
   [WARNING] ME(44720:140507814819648,MainProcess):2023-11-01-03:01:38.884.384 [mindspore/run_check/_check_version.py:348] Using custom Ascend AI software package (Ascend Data Center Solution) path, package version checking is skipped. Please make sure Ascend AI software package (Ascend Data Center Solution) version is supported. For details, refer to the installation guidelines https://www.mindspore.cn/install
   [WARNING] ME(44720:140507814819648,MainProcess):2023-11-01-03:01:38.884.675 [mindspore/run_check/_check_version.py:466] Can not find driver so(need by mindspore-ascend). Please check whether the Environment Variable LD_LIBRARY_PATH is set. For details, refer to the installation guidelines: https://www.mindspore.cn/install
   >>> import mindspore.ops as ops
-  >>> ms.set_context(device_target="Ascend")
+  >>> ms.set_device("Ascend")
   >>> ms.run_check()
   MindSpore version:  2.2.0.20231025
   The result of multiplication calculation is correct, MindSpore has been installed on platform [Ascend] successfully!

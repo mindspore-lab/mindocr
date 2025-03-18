@@ -124,7 +124,8 @@ def yolov8_head(nc=5, reg_max=16, stride=None, in_channels=None) -> YOLOv8Head:
 
 
 def test_yolov8_head():
-    ms.set_context(mode=ms.PYNATIVE_MODE, device_target='Ascend', device_id=3)
+    ms.set_context(mode=ms.PYNATIVE_MODE)
+    ms.set_device("Ascend", 3)
     ms.set_seed(0)
 
     network = yolov8_head()

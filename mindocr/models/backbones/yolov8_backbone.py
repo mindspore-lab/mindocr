@@ -118,7 +118,8 @@ def yolov8_backbone(
 
 
 def test_yolo_backbone():
-    ms.set_context(mode=ms.PYNATIVE_MODE, device_target='Ascend', device_id=3)
+    ms.set_context(mode=ms.PYNATIVE_MODE)
+    ms.set_device("Ascend", 3)
     ms.set_seed(0)
 
     network = YOLOv8Backbone()

@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.8"] #["3.7", "3.8", "3.9"] TBA
+        python-version: ["3.9"] #["3.7", "3.8", "3.9"] TBA
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -35,7 +35,7 @@ jobs:
         pip install -r requirements/dev.txt
         # MindSpore must be installed following the instruction from official web, but not from pypi.
         # That's why we exclude mindspore from requirements.txt. Does this work?
-        pip install https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.3.0/MindSpore/unified/x86_64/mindspore-2.3.0-cp38-cp38-linux_x86_64.whl --trusted-host ms-release.obs.cn-north-4.myhuaweicloud.com -i https://pypi.tuna.tsinghua.edu.cn/simple
+        pip install https://ms-release.obs.cn-north-4.myhuaweicloud.com/2.5.0/MindSpore/unified/x86_64/mindspore-2.5.0-cp39-cp39-linux_x86_64.whl --trusted-host ms-release.obs.cn-north-4.myhuaweicloud.com -i https://pypi.tuna.tsinghua.edu.cn/simple
     - name: Lint with pre-commit
       uses: pre-commit/action@v3.0.0
     - name: Check_Cpplint
