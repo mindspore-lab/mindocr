@@ -45,17 +45,13 @@ class LLMGenerator(object):
         config = LLMConfig(config_path)
         ms.set_context(
             mode=ms.GRAPH_MODE,
-            device_target="Ascend",
-            enable_graph_kernel=False,
-            graph_kernel_flags="--disable_expand_ops=Softmax,Dropout --enable_parallel_fusion=true "
-            "--reduce_fuse_depth=8 --enable_auto_tensor_inplace=true",
-            ascend_config={"precision_mode": "must_keep_origin_dtype"},
-            max_call_depth=10000,
-            max_device_memory="58GB",
             save_graphs=False,
             save_graphs_path="./graph",
-            device_id=os.environ.get("DEVICE_ID", 0),
         )
+        ms.set_recursion_limit(10000)
+        ms.set_device("Ascend", os.environ.get("DEVICE_ID", 0))
+        ms.runtime.set_memory(max_size="58GB")
+        ms.device_context.ascend.op_precision.precision_mode("must_keep_origin_dtype")
         self.tokenizer = QwenTokenizer(**config.processor.tokenizer)
         self.model = VaryQwenForCausalLM.from_pretrained(config_path)
 

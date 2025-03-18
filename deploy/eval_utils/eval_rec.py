@@ -68,7 +68,7 @@ def read_gt_content(filename):
 
 
 if __name__ == "__main__":
-    ms.set_context(device_target="CPU")
+    ms.set_device("CPU")
     parser = argparse.ArgumentParser()
     parser.add_argument("--gt_path", required=True, type=str)
     parser.add_argument("--pred_path", required=True, type=str)
