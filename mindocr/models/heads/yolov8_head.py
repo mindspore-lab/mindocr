@@ -1,4 +1,5 @@
 import math
+import os
 
 import numpy as np
 
@@ -125,7 +126,7 @@ def yolov8_head(nc=5, reg_max=16, stride=None, in_channels=None) -> YOLOv8Head:
 
 def test_yolov8_head():
     ms.set_context(mode=ms.PYNATIVE_MODE)
-    ms.set_device("Ascend", 3)
+    ms.set_device("Ascend", os.environ.get("DEVICE_ID", 0))
     ms.set_seed(0)
 
     network = yolov8_head()
