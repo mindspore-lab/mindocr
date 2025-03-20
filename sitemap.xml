@@ -1,0 +1,689 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/borndigital/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/borndigital/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/borndigital/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/casia10k/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/casia10k/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/casia10k/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/ccpd/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/ccpd/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/ccpd/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/chinese_text_recognition/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/chinese_text_recognition/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/chinese_text_recognition/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/cocotext/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/cocotext/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/cocotext/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/converters/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/converters/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/converters/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/ctw/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/ctw/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/ctw/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/ctw1500/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/ctw1500/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/ctw1500/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/ic19_art/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/ic19_art/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/ic19_art/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/icdar2015/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/icdar2015/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/icdar2015/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/lsvt/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/lsvt/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/lsvt/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/mlt2017/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/mlt2017/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/mlt2017/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/mtwi2018/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/mtwi2018/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/mtwi2018/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/pubtabnet/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/pubtabnet/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/pubtabnet/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/rctw17/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/rctw17/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/rctw17/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/rects/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/rects/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/rects/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/sroie/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/sroie/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/sroie/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/svt/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/svt/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/svt/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/syntext150k/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/syntext150k/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/syntext150k/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/synthtext/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/synthtext/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/synthtext/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/td500/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/td500/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/td500/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/textocr/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/textocr/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/textocr/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/datasets/totaltext/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/totaltext/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/totaltext/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/inference/convert_dynamic/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/inference/convert_dynamic/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/inference/convert_dynamic/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/inference/convert_tutorial/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/inference/convert_tutorial/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/inference/convert_tutorial/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/inference/environment/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/inference/environment/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/inference/environment/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/inference/inference_tutorial/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/inference/inference_tutorial/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/inference/inference_tutorial/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/inference/mindocr_models_list/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/inference/mindocr_models_list/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/inference/mindocr_models_list/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/inference/thirdparty_models_list/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/inference/thirdparty_models_list/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/inference/thirdparty_models_list/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/mkdocs/contributing/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/contributing/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/mkdocs/customize_data_transform/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/customize_data_transform/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/customize_data_transform/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/mkdocs/customize_dataset/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/customize_dataset/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/customize_dataset/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/mkdocs/customize_model/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/customize_model/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/customize_model/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/mkdocs/customize_postprocess/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/customize_postprocess/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/customize_postprocess/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/mkdocs/license/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/license/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/license/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/mkdocs/mindocr_data_readme/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/mindocr_data_readme/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/mindocr_data_readme/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/mkdocs/mindocr_models_readme/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/mindocr_models_readme/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/mindocr_models_readme/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/mkdocs/modelzoo_training/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/modelzoo_training/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/modelzoo_training/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/mkdocs/online_inference/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/online_inference/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/online_inference/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/reference/api_doc/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/reference/api_doc/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/reference/api_doc/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/tutorials/advanced_train/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/tutorials/advanced_train/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/tutorials/advanced_train/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/tutorials/distribute_train/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/tutorials/distribute_train/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/tutorials/distribute_train/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/tutorials/frequently_asked_questions/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/tutorials/frequently_asked_questions/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/tutorials/frequently_asked_questions/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/tutorials/training_detection_custom_dataset/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/tutorials/training_detection_custom_dataset/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/tutorials/training_detection_custom_dataset/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/tutorials/training_on_openi/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/tutorials/training_on_openi/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/tutorials/training_on_openi/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/tutorials/training_recognition_custom_dataset/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/tutorials/training_recognition_custom_dataset/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/tutorials/training_recognition_custom_dataset/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/tutorials/transform_tutorial/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/tutorials/transform_tutorial/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/tutorials/transform_tutorial/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/tutorials/yaml_configuration/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/tutorials/yaml_configuration/"/>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/tutorials/yaml_configuration/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/borndigital/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/borndigital/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/borndigital/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/casia10k/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/casia10k/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/casia10k/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/ccpd/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/ccpd/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/ccpd/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/chinese_text_recognition/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/chinese_text_recognition/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/chinese_text_recognition/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/cocotext/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/cocotext/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/cocotext/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/converters/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/converters/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/converters/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/ctw/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/ctw/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/ctw/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/ctw1500/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/ctw1500/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/ctw1500/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/ic19_art/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/ic19_art/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/ic19_art/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/icdar2015/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/icdar2015/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/icdar2015/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/lsvt/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/lsvt/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/lsvt/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/mlt2017/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/mlt2017/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/mlt2017/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/mtwi2018/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/mtwi2018/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/mtwi2018/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/pubtabnet/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/pubtabnet/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/pubtabnet/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/rctw17/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/rctw17/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/rctw17/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/rects/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/rects/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/rects/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/sroie/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/sroie/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/sroie/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/svt/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/svt/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/svt/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/syntext150k/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/syntext150k/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/syntext150k/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/synthtext/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/synthtext/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/synthtext/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/td500/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/td500/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/td500/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/textocr/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/textocr/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/textocr/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/datasets/totaltext/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/datasets/totaltext/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/datasets/totaltext/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/inference/convert_dynamic/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/inference/convert_dynamic/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/inference/convert_dynamic/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/inference/convert_tutorial/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/inference/convert_tutorial/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/inference/convert_tutorial/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/inference/environment/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/inference/environment/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/inference/environment/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/inference/inference_tutorial/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/inference/inference_tutorial/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/inference/inference_tutorial/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/inference/mindocr_models_list/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/inference/mindocr_models_list/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/inference/mindocr_models_list/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/inference/thirdparty_models_list/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/inference/thirdparty_models_list/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/inference/thirdparty_models_list/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/mkdocs/contributing/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/contributing/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/contributing/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/mkdocs/customize_data_transform/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/customize_data_transform/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/customize_data_transform/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/mkdocs/customize_dataset/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/customize_dataset/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/customize_dataset/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/mkdocs/customize_model/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/customize_model/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/customize_model/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/mkdocs/customize_postprocess/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/customize_postprocess/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/customize_postprocess/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/mkdocs/license/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/license/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/license/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/mkdocs/mindocr_data_readme/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/mindocr_data_readme/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/mindocr_data_readme/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/mkdocs/mindocr_models_readme/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/mindocr_models_readme/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/mindocr_models_readme/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/mkdocs/modelzoo_training/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/modelzoo_training/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/modelzoo_training/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/mkdocs/online_inference/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/online_inference/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/mkdocs/online_inference/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/reference/api_doc/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/reference/api_doc/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/reference/api_doc/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/tutorials/advanced_train/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/tutorials/advanced_train/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/tutorials/advanced_train/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/tutorials/distribute_train/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/tutorials/distribute_train/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/tutorials/distribute_train/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/tutorials/frequently_asked_questions/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/tutorials/frequently_asked_questions/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/tutorials/frequently_asked_questions/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/tutorials/training_detection_custom_dataset/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/tutorials/training_detection_custom_dataset/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/tutorials/training_detection_custom_dataset/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/tutorials/training_on_openi/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/tutorials/training_on_openi/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/tutorials/training_on_openi/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/tutorials/training_recognition_custom_dataset/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/tutorials/training_recognition_custom_dataset/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/tutorials/training_recognition_custom_dataset/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/tutorials/transform_tutorial/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/tutorials/transform_tutorial/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/tutorials/transform_tutorial/"/>
+    </url>
+    <url>
+        <loc>https://mindspore-lab.github.io/mindocr/zh/tutorials/yaml_configuration/</loc>
+        <lastmod>2025-03-20</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="zh" href="https://mindspore-lab.github.io/mindocr/zh/tutorials/yaml_configuration/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://mindspore-lab.github.io/mindocr/tutorials/yaml_configuration/"/>
+    </url>
+</urlset>

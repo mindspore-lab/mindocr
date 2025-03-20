@@ -1,0 +1,2480 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://mindspore-lab.github.io/mindocr/zh/mkdocs/online_inference/">
+      
+      
+        <link rel="prev" href="../../tutorials/advanced_train/">
+      
+      
+        <link rel="next" href="../../inference/inference_tutorial/">
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.9">
+    
+    
+      
+        <title>基于Python的在线推理 - MindOCR Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.4af4bdda.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mindocr" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../" title="MindOCR Docs" class="md-header__button md-logo" aria-label="MindOCR Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MindOCR Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              基于Python的在线推理
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="选择当前语言">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="../../../mkdocs/online_inference/" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="zh" class="md-select__link">
+              中文
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/mindspore-lab/mindocr" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mindspore-lab/mindocr
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../" class="md-tabs__link">
+        
+  
+    
+  
+  主页
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../modelzoo_training/" class="md-tabs__link">
+          
+  
+    
+  
+  模型仓库
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../datasets/converters/" class="md-tabs__link">
+          
+  
+    
+  
+  教程
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/" class="md-tabs__link">
+          
+  
+    
+  
+  说明
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../" title="MindOCR Docs" class="md-nav__button md-logo" aria-label="MindOCR Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MindOCR Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/mindspore-lab/mindocr" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    mindspore-lab/mindocr
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    主页
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    模型仓库
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            模型仓库
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../modelzoo_training/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    训练
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../inference/mindocr_models_list/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    推理MindOCR原生模型
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../inference/thirdparty_models_list/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    推理第三方模型
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    教程
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            教程
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    1. 数据集
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            1. 数据集
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../datasets/converters/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    数据准备
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/transform_tutorial/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    数据转换
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    2. 模型训练
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            2. 模型训练
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/yaml_configuration/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Yaml 配置
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/training_detection_custom_dataset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    文本检测
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/training_recognition_custom_dataset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    文本识别
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/distribute_train/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    分布式训练
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/advanced_train/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    进阶训练
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    3. 推理和部署
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            3. 推理和部署
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    基于Python的在线推理
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    基于Python的在线推理
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      依赖关系和安装
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      文本检测
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="文本检测">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      支持的检测算法和网络
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      文本识别
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="文本识别">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      支持的识别算法和网络
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      文本检测与识别级联
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="文本检测与识别级联">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      推理结果的评估
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      文本方向分类
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      表格结构识别
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="表格结构识别">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      支持的表格结构识别算法和网络
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      表格结构识别与文本检测识别级联
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      版面分析
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="版面分析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      支持的检测算法和网络
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      端到端文档分析及恢复
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      参数列表
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-" class="md-nav__link">
+    <span class="md-ellipsis">
+      开发人员指南-如何添加新的推断模型
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="开发人员指南-如何添加新的推断模型">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      预处理
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      网络推理
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      后处理程序
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../inference/inference_tutorial/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    MindOCR 离线推理
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../inference/mindocr_models_list/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    推理MindOCR原生模型
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../inference/thirdparty_models_list/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    推理第三方模型
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../inference/convert_tutorial/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    模型转换
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    4. 开发指导
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            4. 开发指导
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../customize_dataset/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    定制化数据
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../customize_data_transform/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    定制化数据转换
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../customize_model/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    定制化一个新模型
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../customize_postprocess/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    定制化后处理方法
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    说明
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            说明
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    贡献
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/frequently_asked_questions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    常见问题
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      依赖关系和安装
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      文本检测
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="文本检测">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      支持的检测算法和网络
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      文本识别
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="文本识别">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      支持的识别算法和网络
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      文本检测与识别级联
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="文本检测与识别级联">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      推理结果的评估
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      文本方向分类
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      表格结构识别
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="表格结构识别">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      支持的表格结构识别算法和网络
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      表格结构识别与文本检测识别级联
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      版面分析
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="版面分析">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      支持的检测算法和网络
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      端到端文档分析及恢复
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      参数列表
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-" class="md-nav__link">
+    <span class="md-ellipsis">
+      开发人员指南-如何添加新的推断模型
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="开发人员指南-如何添加新的推断模型">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      预处理
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      网络推理
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      后处理程序
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/mindspore-lab/mindocr/edit/master/docs/zh/mkdocs/online_inference.md" title="编辑此页" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/mindspore-lab/mindocr/raw/master/docs/zh/mkdocs/online_inference.md" title="查看本页的源代码" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+<!-- BEGIN INCLUDE ../../../tools/infer/text/README_CN.md '&lt;!--start--&gt;' '&lt;!--end--&gt;' -->
+<h1 id="mindocr">MindOCR在线推理<a class="headerlink" href="#mindocr" title="Permanent link">&para;</a></h1>
+<p><strong>关于在线推理：</strong> 在线推理是基于原生MindSpore框架，通过加载模型文件，然后使用MindSpore API运行预测来进行推理。</p>
+<p>与离线推理（在MindOCR中的“deploy/py_infer”中实现）相比，在线推理不需要对目标平台进行模型转换，可以直接在训练设备（例如Ascend 910）上运行。但是它需要安装重型AI框架，并且模型没有针对部署进行优化。</p>
+<p>因此，在线推理更适合于演示和可视化评估模型对未知数据的泛化能力。</p>
+<h2 id="_1">依赖关系和安装<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<p>与训练环境一致。</p>
+<h2 id="_2">文本检测<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>要对输入图像或包含多个图像的目录运行文本检测，请执行
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>tools/infer/text/predict_det.py<span class="w">  </span>--image_dir<span class="w"> </span><span class="o">{</span>path_to_img<span class="w"> </span>or<span class="w"> </span>dir_to_imgs<span class="o">}</span><span class="w"> </span>--det_algorithm<span class="w"> </span>DB++
+</code></pre></div></p>
+<p>运行后，推理结果保存在<code>{args.draw_img_save_dir}/det_results.txt</code>中，其中<code>--draw_img_save_dir</code>是保存结果的目录，这是<code>./inference_results</code>的默认设置，这里是一些示例结果。</p>
+<p>示例1：</p>
+<p align="center">
+  <img src="https://github.com/SamitHuang/mindocr-1/assets/8156835/ce136b92-f0aa-4a05-b689-9f60d0b40db1" width=480 />
+</p>
+<p align="center">
+  <em> img_108.jpg的可视化结果</em>
+</p>
+
+<p>其中保存的txt文件如下
+<div class="highlight"><pre><span></span><code>img_108.jpg [[[228, 440], [403, 413], [406, 433], [231, 459]], [[282, 280], [493, 252], [499, 293], [288, 321]], [[500, 253], [636, 232], [641, 269], [505, 289]], ...]
+</code></pre></div></p>
+<p>示例2：</p>
+<p align="center">
+  <img src="https://github.com/SamitHuang/mindocr-1/assets/8156835/61066d4a-5922-471e-b702-2ea79c3cc525" width=480 />
+</p>
+<p align="center">
+  <em>paper_sam.png的可视化结果</em>
+</p>
+
+<p>其中保存的txt文件如下
+<div class="highlight"><pre><span></span><code>paper_sam.png   [[[1161, 340], [1277, 340], [1277, 378], [1161, 378]], [[895, 335], [1152, 340], [1152, 382], [894, 378]], ...]
+</code></pre></div></p>
+<p><strong>注意事项：</strong>
+- 对于高分辨率的输入图像，请将<code>--det_limit_side_len</code>设置得更大，例如1280。<code>--det_limit_type</code>可以设置为“min”或“max”，其中“min”表示限制图像大小至少为<code>--det_limit_side_len</code>，“max”表示限制图像大小最多为<code>--det_limit_side_len</code>。</p>
+<ul>
+<li>
+<p>有关更多参数说明和用法，请运行<code>python tools/infer/text/predict_det.py -h</code>或查看<code>tools/infer/text/config.py</code></p>
+</li>
+<li>
+<p>目前，该脚本可以持续运行以避免动态形状问题并获得更好的性能。</p>
+</li>
+</ul>
+<h3 id="_3">支持的检测算法和网络<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p><center></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><strong>算法名称</strong></th>
+<th style="text-align: center;"><strong>网络名称</strong></th>
+<th style="text-align: center;"><strong>语言</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">DB</td>
+<td style="text-align: center;">dbnet_resnet50</td>
+<td style="text-align: center;">英语</td>
+</tr>
+<tr>
+<td style="text-align: center;">DB++</td>
+<td style="text-align: center;">dbnet_resnet50</td>
+<td style="text-align: center;">英语</td>
+</tr>
+<tr>
+<td style="text-align: center;">DB_MV3</td>
+<td style="text-align: center;">dbnet_mobilenetv3</td>
+<td style="text-align: center;">英语</td>
+</tr>
+<tr>
+<td style="text-align: center;">PSE</td>
+<td style="text-align: center;">psenet_resnet152</td>
+<td style="text-align: center;">英语</td>
+</tr>
+</tbody>
+</table>
+<p></center></p>
+<p>算法网络在<code>tools/infer/text/predict_det.py</code>中定义。</p>
+<h2 id="_4">文本识别<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<p>要对输入图像或包含多个图像的目录运行文本识别，请执行
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>tools/infer/text/predict_rec.py<span class="w">  </span>--image_dir<span class="w"> </span><span class="o">{</span>path_to_img<span class="w"> </span>or<span class="w"> </span>dir_to_imgs<span class="o">}</span><span class="w"> </span>--rec_algorithm<span class="w"> </span>CRNN
+</code></pre></div>
+运行后，推理结果保存在<code>{args.draw_img_save_dir}/rec_results.txt</code>中，其中<code>--draw_img_save_dir</code>是保存结果的目录，这是<code>./inference_results</code>的默认设置。下面是一些结果的例子。</p>
+<ul>
+<li>英文文本识别</li>
+</ul>
+<p align="center">
+  <img src="https://github.com/SamitHuang/mindocr-1/assets/8156835/fa8c5e4e-0e05-4c93-b9a3-6e0327c1609f" width=150 />
+</p>
+<p align="center">
+  <em> word_1216.png </em>
+</p>
+
+<p align="center">
+  <img src="https://github.com/SamitHuang/mindocr-1/assets/8156835/8ec50bdf-ea6c-4bce-a799-2fdb8e9512b1" width=150 />
+</p>
+<p align="center">
+  <em> word_1217.png </em>
+</p>
+
+<p>识别结果：
+<div class="highlight"><pre><span></span><code>word_1216.png   coffee
+word_1217.png   club
+</code></pre></div></p>
+<ul>
+<li>中文文本识别：</li>
+</ul>
+<p align="center">
+  <img src="https://github.com/SamitHuang/mindocr-1/assets/8156835/e220ade5-89ae-47a4-927f-2c28941a5965" width=200 />
+</p>
+<p align="center">
+  <em> cert_id.png </em>
+</p>
+
+<p align="center">
+  <img src="https://github.com/SamitHuang/mindocr-1/assets/8156835/d7cfee90-d586-4796-9ebf-b56872832e71" width=400 />
+</p>
+<p align="center">
+  <em> doc_cn3.png </em>
+</p>
+
+<p>识别结果：
+<div class="highlight"><pre><span></span><code>cert_id.png 公民身份号码44052419
+doc_cn3.png 马拉松选手不会为短暂的领先感到满意，而是永远在奔跑。
+</code></pre></div></p>
+<p><strong>注意事项：</strong>
+- 有关更多参数说明和用法，请运行<code>python tools/infer/text/predict_rec.py -h</code>或查看<code>tools/infer/text/config.py</code>
+- 支持批量推理和单模推理。默认情况下启用批处理模式以提高速度。您可以通过<code>--rec_batch_size</code>设置批量大小。您还可以通过设置<code>--det_batch_mode</code> False在单一模式下运行，如果文本长度变化很大，这可能会提高准确性。</p>
+<h3 id="_5">支持的识别算法和网络<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<p><center></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><strong>算法名称</strong></th>
+<th style="text-align: center;"><strong>网络名称</strong></th>
+<th style="text-align: center;"><strong>语言</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">CRNN</td>
+<td style="text-align: center;">crnn_resnet34</td>
+<td style="text-align: center;">英语</td>
+</tr>
+<tr>
+<td style="text-align: center;">RARE</td>
+<td style="text-align: center;">rare_resnet34</td>
+<td style="text-align: center;">英语</td>
+</tr>
+<tr>
+<td style="text-align: center;">SVTR</td>
+<td style="text-align: center;">svtr_tiny</td>
+<td style="text-align: center;">英语</td>
+</tr>
+<tr>
+<td style="text-align: center;">CRNN_CH</td>
+<td style="text-align: center;">crnn_resnet34_ch</td>
+<td style="text-align: center;">中文</td>
+</tr>
+<tr>
+<td style="text-align: center;">RARE_CH</td>
+<td style="text-align: center;">rare_resnet34_ch</td>
+<td style="text-align: center;">中文</td>
+</tr>
+</tbody>
+</table>
+<p></center></p>
+<p>算法网络在<code>tools/infer/text/predict_rec.py</code>中定义</p>
+<p>目前，所列型号不支持空格字符识别。我们将很快予以支持。</p>
+<h2 id="_6">文本检测与识别级联<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<p>要对输入图像或目录中的多个图像运行文本定位（即检测所有文本区域，然后识别每个文本区域），请运行：</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>tools/infer/text/predict_system.py<span class="w"> </span>--image_dir<span class="w"> </span><span class="o">{</span>path_to_img<span class="w"> </span>or<span class="w"> </span>dir_to_imgs<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">                                          </span>--det_algorithm<span class="w"> </span>DB++<span class="w">  </span><span class="se">\</span>
+<span class="w">                                          </span>--rec_algorithm<span class="w"> </span>CRNN
+</code></pre></div>
+<blockquote>
+<p>注意：如果要可视化输入图像上的检测和识别结果，请设置<code>--visualize_output True</code>。</p>
+</blockquote>
+<p>运行后，推理结果保存在<code>{args.draw_img_save_dir}/system_results.txt</code>中，其中<code>--draw_img_save_dir</code>是保存结果的目录，这是<code>./inference_results</code>的默认设置。下面是一些结果的例子。</p>
+<p>示例1：</p>
+<p align="center">
+  <img src="https://github.com/SamitHuang/mindocr-1/assets/8156835/c1f53970-8618-4039-994f-9f6dc1eee1dd" width=600 />
+</p>
+<p align="center">
+  <em> img_10.jpg检测和识别的可视化结果 </em>
+</p>
+
+<p>其中保存的txt文件如下
+<div class="highlight"><pre><span></span><code>img_10.jpg  [{&quot;transcription&quot;: &quot;residential&quot;, &quot;points&quot;: [[43, 88], [149, 78], [151, 101], [44, 111]]}, {&quot;transcription&quot;: &quot;areas&quot;, &quot;points&quot;: [[152, 83], [201, 81], [202, 98], [153, 100]]}, {&quot;transcription&quot;: &quot;when&quot;, &quot;points&quot;: [[36, 56], [101, 56], [101, 78], [36, 78]]}, {&quot;transcription&quot;: &quot;you&quot;, &quot;points&quot;: [[99, 54], [143, 52], [144, 78], [100, 80]]}, {&quot;transcription&quot;: &quot;pass&quot;, &quot;points&quot;: [[140, 54], [186, 50], [188, 74], [142, 78]]}, {&quot;transcription&quot;: &quot;by&quot;, &quot;points&quot;: [[182, 52], [208, 52], [208, 75], [182, 75]]}, {&quot;transcription&quot;: &quot;volume&quot;, &quot;points&quot;: [[199, 30], [254, 30], [254, 46], [199, 46]]}, {&quot;transcription&quot;: &quot;your&quot;, &quot;points&quot;: [[164, 28], [203, 28], [203, 46], [164, 46]]}, {&quot;transcription&quot;: &quot;lower&quot;, &quot;points&quot;: [[109, 25], [162, 25], [162, 46], [109, 46]]}, {&quot;transcription&quot;: &quot;please&quot;, &quot;points&quot;: [[31, 18], [109, 20], [108, 48], [30, 46]]}]
+</code></pre></div></p>
+<p>示例2：</p>
+<p align="center">
+  <img src="https://github.com/SamitHuang/mindocr-1/assets/8156835/c58fb182-32b0-4b73-b4fd-7ba393e3f397" width=480 />
+</p>
+<p align="center">
+  <em> web_cvpr.png检测和识别的可视化结果 </em>
+</p>
+
+<p>其中保存的txt文件如下
+<div class="highlight"><pre><span></span><code>web_cvpr.png    [{&quot;transcription&quot;: &quot;canada&quot;, &quot;points&quot;: [[430, 148], [540, 148], [540, 171], [430, 171]]}, {&quot;transcription&quot;: &quot;vancouver&quot;, &quot;points&quot;: [[263, 148], [420, 148], [420, 171], [263, 171]]}, {&quot;transcription&quot;: &quot;cvpr&quot;, &quot;points&quot;: [[32, 69], [251, 63], [254, 174], [35, 180]]}, {&quot;transcription&quot;: &quot;2023&quot;, &quot;points&quot;: [[194, 44], [256, 45], [255, 72], [194, 70]]}, {&quot;transcription&quot;: &quot;june&quot;, &quot;points&quot;: [[36, 45], [110, 44], [110, 70], [37, 71]]}, {&quot;transcription&quot;: &quot;1822&quot;, &quot;points&quot;: [[114, 43], [190, 45], [190, 70], [113, 69]]}]
+</code></pre></div></p>
+<p><strong>注意事项：</strong>
+1、如需更多参数说明和用法，请运行<code>python tools/infer/text/predict_system.py -h</code>或查看<code>tools/infer/text/config.py</code></p>
+<h3 id="_7">推理结果的评估<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<p>为了推理整个<a href="https://rrc.cvc.uab.es/?ch=4&amp;com=downloads">ICDAR15</a>测试集，请运行：
+<div class="highlight"><pre><span></span><code>python tools/infer/text/predict_system.py --image_dir /path/to/icdar15/det/test_images  /
+                                          --det_algorithm {DET_ALGO}    /
+                                          --rec_algorithm {REC_ALGO}  /
+                                          --det_limit_type min  /
+                                          --det_limit_side_len 720
+</code></pre></div></p>
+<blockquote>
+<p>注意：由于ICDAR15中的输入图像具有高分辨率（720x1280），因此我们将<code>det_limit_type</code>设置为'min'以获得更好的性能。</p>
+</blockquote>
+<p>运行后，包括图像名称、边界框(<code>points</code>)和识别文本 (<code>transcription</code>)在内的结果将保存在<code>{args.draw_img_save_dir}/system_results.txt</code>中。预测结果格式如下：。</p>
+<div class="highlight"><pre><span></span><code>img_1.jpg   [{&quot;transcription&quot;: &quot;hello&quot;, &quot;points&quot;: [600, 150, 715, 157, 714, 177, 599, 170]}, {&quot;transcription&quot;: &quot;world&quot;, &quot;points&quot;: [622, 126, 695, 129, 694, 154, 621, 151]}, ...]
+img_2.jpg   [{&quot;transcription&quot;: &quot;apple&quot;, &quot;points&quot;: [553, 338, 706, 318, 709, 342, 556, 362]}, ...]
+   ...
+</code></pre></div>
+<p>准备 <strong>ground truth</strong> 文件（格式同上），可从<code>tools/dataset_converters</code>中的数据集转换脚本获取，运行以下命令对预测结果进行评估。
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>deploy/eval_utils/eval_pipeline.py<span class="w"> </span>--gt_path<span class="w"> </span>path/to/gt.txt<span class="w"> </span>--pred_path<span class="w"> </span>path/to/system_results.txt
+</code></pre></div></p>
+<p>使用MindSpore 2.0rc1对Ascend 910上的文本定位推理结果的评估如下所示。
+<center></p>
+<table>
+<thead>
+<tr>
+<th>Det. Algorithm</th>
+<th>Rec. Algorithm</th>
+<th>Dataset</th>
+<th>Accuracy(%)</th>
+<th>FPS (imgs/s)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DBNet</td>
+<td>CRNN</td>
+<td>ICDAR15</td>
+<td>57.82</td>
+<td>4.86</td>
+</tr>
+<tr>
+<td>PSENet</td>
+<td>CRNN</td>
+<td>ICDAR15</td>
+<td>47.91</td>
+<td>1.65</td>
+</tr>
+<tr>
+<td>PSENet (det_limit_side_len=1472 )</td>
+<td>CRNN</td>
+<td>ICDAR15</td>
+<td>55.51</td>
+<td>0.44</td>
+</tr>
+<tr>
+<td>DBNet++</td>
+<td>RARE</td>
+<td>ICDAR15</td>
+<td>59.17</td>
+<td>3.47</td>
+</tr>
+<tr>
+<td>DBNet++</td>
+<td>SVTR</td>
+<td>ICDAR15</td>
+<td>64.42</td>
+<td>2.49</td>
+</tr>
+</tbody>
+</table>
+<p></center></p>
+<p><strong>注意事项：</strong></p>
+<p>1、目前在线推理流水线未进行效率优化，FPS仅用于模型间的比较。如果FPS是您的最高优先级，请参考<a href="https://github.com/mindspore-lab/mindocr/blob/main/docs/zh/inference/inference_tutorial.md">Ascend 310上的推断</a>，这要快得多。</p>
+<p>2、除非另有说明，所有实验均以<code>--det_limit_type</code>="min"和<code>--det_limit_side</code>=720运行。</p>
+<p>3、SVTR在混合精度模式下运行（amp_level=O2），因为它针对O2进行了优化。</p>
+<h3 id="_8">文本方向分类<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<p>若图像中存在非正向的文字，可通过文本方向分类器对检测后的图像进行方向分类与矫正。若对输入图像运行文本方向分类与矫正，请执行
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>tools/infer/text/predict_system.py<span class="w"> </span>--image_dir<span class="w"> </span><span class="o">{</span>path_to_img<span class="w"> </span>or<span class="w"> </span>dir_to_imgs<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">                                          </span>--det_algorithm<span class="w"> </span>DB++<span class="w">  </span><span class="se">\</span>
+<span class="w">                                          </span>--rec_algorithm<span class="w"> </span>CRNN<span class="w">  </span><span class="se">\</span>
+<span class="w">                                          </span>--cls_algorithm<span class="w"> </span>M3
+</code></pre></div>
+其中，参数<code>--cls_alorithm</code>默认配置为None，表示不执行文本方向分类，通过设置<code>--cls_alorithm</code>即可在文本检测识别流程中进行文本方向分类。执行过程中，文本方向分类器将对文本检测所得图像列表进行方向分类，并对非正向的图像进行方向矫正。以下为部分结果示例。</p>
+<ul>
+<li>文本方向分类</li>
+</ul>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/zhangjunlongtech/Material/refs/heads/main/CRNN_t1.png" width=150 />
+</p>
+<p align="center">
+  <em> word_01.png </em>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/zhangjunlongtech/Material/refs/heads/main/CRNN_t2.png" width=150 />
+</p>
+<p align="center">
+  <em> word_02.png </em>
+</p>
+
+<p>分类结果：
+<div class="highlight"><pre><span></span><code>word_01.png   0     1.0
+word_02.png   180   1.0
+</code></pre></div>
+当前支持的文本方向分类网络为<code>mobilnet_v3</code>，可通过配置<code>--cls_algorithm</code>为<code>M3</code>进行设置，并通过<code>--cls_amp_level</code>与<code>--cls_model_dir</code>来设置文本方向分类器的自动混合精度与权重文件。当前已配置默认权重文件，该网络默认混合精度为<code>O0</code>，默认配置下方向分类支持<code>0</code>与<code>180</code>度，对于其他方向的分类我们将在未来予以支持。</p>
+<p><center></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><strong>算法名称</strong></th>
+<th style="text-align: center;"><strong>网络名称</strong></th>
+<th style="text-align: center;"><strong>语言</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">M3</td>
+<td style="text-align: center;">mobilenet_v3</td>
+<td style="text-align: center;">中/英</td>
+</tr>
+</tbody>
+</table>
+<p></center></p>
+<p>此外，可通过设置<code>--save_cls_result</code>为<code>True</code>可将文本方向分类结果保存至<code>{args.crop_res_save_dir}/cls_results.txt</code>中，其中<code>--crop_res_save_dir</code>是保存结果的目录。</p>
+<p>有关更多参数说明和用法，请查看<code>tools/infer/text/config.py</code></p>
+<h2 id="_9">表格结构识别<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
+<p>要对输入图像或包含多个图像的目录运行表格结构识别，请执行
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>tools/infer/text/predict_table_structure.py<span class="w"> </span>--image_dir<span class="w"> </span><span class="o">{</span>path_to_img<span class="w"> </span>or<span class="w"> </span>dir_to_imgs<span class="o">}</span><span class="w"> </span>--table_algorithm<span class="w"> </span>TABLE_MASTER
+</code></pre></div></p>
+<p>运行后，推理结果保存在<code>{args.draw_img_save_dir}</code>中，其中<code>--draw_img_save_dir</code>是保存结果的目录，这是<code>./inference_results</code>的默认设置，这里是一些示例结果。</p>
+<p>示例1：</p>
+<p>样例图片为<code>configs/table/example.png</code>，运行结果如下：</p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/753588ff-3c24-4bf9-95c5-61c4c87d03f3" width=1000 />
+</p>
+<p align="center">
+  <em> example_structure.png </em>
+</p>
+
+<p><strong>注意事项：</strong>
+- 有关更多参数说明和用法，请运行<code>python tools/infer/text/predict_table_structure.py -h</code>或查看<code>tools/infer/text/config.py</code></p>
+<h3 id="_10">支持的表格结构识别算法和网络<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<p><center></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><strong>算法名称</strong></th>
+<th style="text-align: center;"><strong>网络名称</strong></th>
+<th style="text-align: center;"><strong>语言</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">table_master</td>
+<td style="text-align: center;">table_resnet_extra</td>
+<td style="text-align: center;">不区分</td>
+</tr>
+</tbody>
+</table>
+<p></center></p>
+<p>算法网络在<code>tools/infer/text/predict_table_structure.py</code>中定义。</p>
+<h2 id="_11">表格结构识别与文本检测识别级联<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
+<p>要对输入图像或目录中的多个图像运行表格识别（即识别表格结构后，结合文本检测识别的结果，识别出完整的表格内容），并恢复成csv文件，请运行：</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>tools/infer/text/predict_table_recognition.py<span class="w"> </span>--image_dir<span class="w"> </span><span class="o">{</span>path_to_img<span class="w"> </span>or<span class="w"> </span>dir_to_imgs<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">                                          </span>--det_algorithm<span class="w"> </span>DB_PPOCRv3<span class="w">  </span><span class="se">\</span>
+<span class="w">                                          </span>--rec_algorithm<span class="w"> </span>SVTR_PPOCRv3_CH<span class="w"> </span><span class="se">\</span>
+<span class="w">                                          </span>--table_algorithm<span class="w"> </span>TABLE_MASTER
+</code></pre></div>
+<p>运行后，推理结果保存在<code>{args.draw_img_save_dir}</code>中，其中<code>--draw_img_save_dir</code>是保存结果的目录，这是<code>./inference_results</code>的默认设置。下面是一些结果的例子。</p>
+<p>示例1：</p>
+<p>样例图片为<code>configs/table/example.png</code>，在线推理后，得到csv文件内容如下：
+<div class="highlight"><pre><span></span><code>Parameter,Non-smokers Mean± SD or N (3),Smokers Mean ± SD or N (C)
+N,24,
+Age (y),69.1 ± 7.0,61.5 ± 9.3 +
+Males/Females,24/0,11/0
+Race White/Black,19/5,9/2
+Weight (kg),97.8 ± 16.8,102.5 ± 23.4
+BMII (kg/m*),32.6 ± 4.9,32.6 ± 6.6
+Serum albumin (g/dL),3.8 ± 0.33,3.63 ± 0.30
+Serum Creatinine (mg/dL),2.75 ± 1.21,1.80 ± 0.74 *
+BUN (mg/dL),46.5 ± 25.6,38.3 ± 21.8
+Hemoglobin (g/dL),13.3 ± 1.6,13.5 ± 2.4
+24 hour urine protein (g/d),3393 ± 2522,4423 ± 4385
+lathae)mm,28.9 ± 13.8,47.2 ± 34.8 *
+Duration of diabetes (yr),15.7 ± 9.1,13.3 ± 9.0
+Insulin use,15 (63%),6 (55%)
+&quot;Hemoglobin A, C (%)&quot;,7.57 ± 2.02,8.98 ± 2.93
+Waist/Hip Ratio,1.00 ± 0.07,1.04 ± 0.07
+Antihypertensive medications,4.3 ± 1.6,3.9 ± 1.9
+A,21 (88%),8 (73%)
+Total Cholesterol (mg/dL),184 ± 51,223 ± 87
+LDL Cholesterol (mg/dL),100 ± 44,116 ± 24
+HDL Cholesterol (mg/dL),42 ± 11.1,46 ± 11.4
+,17 (71%),7 (64%)
+</code></pre></div></p>
+<p><strong>注意事项：</strong>
+1、如需更多参数说明和用法，请运行<code>python tools/infer/text/predict_table_recognition.py -h</code>或查看<code>tools/infer/text/config.py</code></p>
+<h2 id="_12">版面分析<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h2>
+<p>要对输入图像或包含多个图像的目录运行版面分析，请执行
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>tools/infer/text/predict_layout.py<span class="w">  </span>--image_dir<span class="w"> </span><span class="o">{</span>path_to_img<span class="w"> </span>or<span class="w"> </span>dir_to_imgs<span class="o">}</span><span class="w"> </span>--layout_algorithm<span class="w"> </span>YOLOv8<span class="w"> </span>--visualize_output<span class="w"> </span>True
+</code></pre></div>
+运行后，推理结果保存在<code>{args.draw_img_save_dir}/det_results.txt</code>中，其中<code>--draw_img_save_dir</code>是保存结果的目录，这是<code>./inference_results</code>的默认设置，这里是一些示例结果。</p>
+<p>事例1:</p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/0cc501a8-5764-4b3a-8080-3dbc0f3ecb5e" width=480>
+</p>
+<p align="center">
+  <em> PMC4958442_00003.jpg的可视化结果</em>
+</p>
+
+<p>其中保存的layout_result.txt文件如下
+<div class="highlight"><pre><span></span><code>{&quot;image_id&quot;: 0, &quot;category_id&quot;: 1, &quot;bbox&quot;: [308.649, 559.189, 240.211, 81.412], &quot;score&quot;: 0.98431}
+{&quot;image_id&quot;: 0, &quot;category_id&quot;: 1, &quot;bbox&quot;: [50.435, 673.018, 240.232, 70.262], &quot;score&quot;: 0.98414}
+{&quot;image_id&quot;: 0, &quot;category_id&quot;: 3, &quot;bbox&quot;: [322.805, 348.831, 225.949, 203.302], &quot;score&quot;: 0.98019}
+{&quot;image_id&quot;: 0, &quot;category_id&quot;: 1, &quot;bbox&quot;: [308.658, 638.657, 240.31, 70.583], &quot;score&quot;: 0.97986}
+{&quot;image_id&quot;: 0, &quot;category_id&quot;: 1, &quot;bbox&quot;: [50.616, 604.736, 240.044, 70.086], &quot;score&quot;: 0.9797}
+{&quot;image_id&quot;: 0, &quot;category_id&quot;: 1, &quot;bbox&quot;: [50.409, 423.237, 240.132, 183.652], &quot;score&quot;: 0.97805}
+{&quot;image_id&quot;: 0, &quot;category_id&quot;: 1, &quot;bbox&quot;: [308.66, 293.918, 240.181, 47.497], &quot;score&quot;: 0.97471}
+{&quot;image_id&quot;: 0, &quot;category_id&quot;: 1, &quot;bbox&quot;: [308.64, 707.13, 240.271, 36.028], &quot;score&quot;: 0.97427}
+{&quot;image_id&quot;: 0, &quot;category_id&quot;: 1, &quot;bbox&quot;: [308.697, 230.568, 240.062, 43.545], &quot;score&quot;: 0.96921}
+{&quot;image_id&quot;: 0, &quot;category_id&quot;: 4, &quot;bbox&quot;: [51.787, 100.444, 240.267, 273.653], &quot;score&quot;: 0.96839}
+{&quot;image_id&quot;: 0, &quot;category_id&quot;: 5, &quot;bbox&quot;: [308.637, 74.439, 237.878, 149.174], &quot;score&quot;: 0.96707}
+{&quot;image_id&quot;: 0, &quot;category_id&quot;: 1, &quot;bbox&quot;: [50.615, 70.667, 240.068, 22.0], &quot;score&quot;: 0.94156}
+{&quot;image_id&quot;: 0, &quot;category_id&quot;: 2, &quot;bbox&quot;: [50.549, 403.5, 67.392, 12.85], &quot;score&quot;: 0.92577}
+{&quot;image_id&quot;: 0, &quot;category_id&quot;: 1, &quot;bbox&quot;: [51.384, 374.84, 171.939, 10.736], &quot;score&quot;: 0.76692}
+</code></pre></div>
+其中，<code>image_id</code>为图像ID，<code>bbox</code>为检测出的边界框<code>[左上角的x坐标，右下角的y坐标，宽度，高度]</code>, <code>score</code>是检测的置信度，<code>category_id</code>的含义如下：
+- <code>1: text</code>
+- <code>2: title</code>
+- <code>3: list</code>
+- <code>4: table</code>
+- <code>5: figure</code></p>
+<p><strong>注意事项：</strong>
+- 有关更多参数说明和用法，请运行<code>python tools/infer/text/predict_layout.py -h</code>或查看<code>tools/infer/text/config.py</code></p>
+<h3 id="_13">支持的检测算法和网络<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<p><center></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><strong>算法名称</strong></th>
+<th style="text-align: center;"><strong>网络名称</strong></th>
+<th style="text-align: center;"><strong>语言</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">YOLOv8</td>
+<td style="text-align: center;">yolov8</td>
+<td style="text-align: center;">英语</td>
+</tr>
+</tbody>
+</table>
+<p></center></p>
+<p>算法网络在<code>tools/infer/text/predict_layout.py</code>中定义。</p>
+<h2 id="_14">端到端文档分析及恢复<a class="headerlink" href="#_14" title="Permanent link">&para;</a></h2>
+<p>要对输入图像或目录中的多个图像运行文档分析（即检测所有文本区域、表格区域、图像区域，并对这些区域进行文字识别，最终将结果按照图像原来的排版方式转换成Docx文件），请运行：</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>tools/infer/text/predict_table_e2e.py<span class="w"> </span>--image_dir<span class="w"> </span><span class="o">{</span>path_to_img<span class="w"> </span>or<span class="w"> </span>dir_to_imgs<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">                                             </span>--det_algorithm<span class="w"> </span><span class="o">{</span>DET_ALGO<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">                                             </span>--rec_algorithm<span class="w"> </span><span class="o">{</span>REC_ALGO<span class="o">}</span>
+</code></pre></div>
+<blockquote>
+<p>注意：如果要可视化版面分析、表格识别和文字识别的结果，请设置<code>--visualize_output True</code>。</p>
+</blockquote>
+<p>运行后，推理结果保存在<code>{args.draw_img_save_dir}/{img_name}_e2e_result.txt</code>中，其中<code>--draw_img_save_dir</code>是保存结果的目录，这是<code>./inference_results</code>的默认设置。下面是一些结果的例子。</p>
+<p>示例1：</p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/f1578fda-c5c7-46ba-b446-d0dc65edf2d7"/>
+</p>
+<p align="center">
+  <em> PMC4958442_00003.jpg转换成docx文件的效果 </em>
+</p>
+
+<p>其中保存的txt文件如下
+<div class="highlight"><pre><span></span><code>{&quot;type&quot;: &quot;text&quot;, &quot;bbox&quot;: [50.615, 70.667, 290.683, 92.667], &quot;res&quot;: &quot;tabley predictive value ofbasic clinical laboratory and suciode variables surney anc yea after tramphenins&quot;, &quot;layout&quot;: &quot;double&quot;}
+{&quot;type&quot;: &quot;table&quot;, &quot;bbox&quot;: [51.787, 100.444, 292.054, 374.09700000000004], &quot;res&quot;: &quot;&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;sign factor&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;prediction valucofthe the&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;from difereness significance levelaf the&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;gender&lt;/td&gt;&lt;td&gt;0027 0021&lt;/td&gt;&lt;td&gt;o442&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;00z44&lt;/td&gt;&lt;td&gt;0480&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;cause&lt;/td&gt;&lt;td&gt;tooza 0017&lt;/td&gt;&lt;td&gt;o547&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;cadaverieilizing donorst&lt;/td&gt;&lt;td&gt;0013 aont&lt;/td&gt;&lt;td&gt;0740&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;induction transplantation before dialysis&lt;/td&gt;&lt;td&gt;doattoos&lt;/td&gt;&lt;td&gt;0125&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;depleting antibodies monoclomalor cn immunosuppression with&lt;/td&gt;&lt;td&gt;doista09&lt;/td&gt;&lt;td&gt;0230&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;ititis&lt;/td&gt;&lt;td&gt;0029&lt;/td&gt;&lt;td&gt;aaso&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;status itional&lt;/td&gt;&lt;td&gt;0047 toots&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;townfrillage&lt;/td&gt;&lt;td&gt;non&lt;/td&gt;&lt;td&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;transplantations number&lt;/td&gt;&lt;td&gt;toos 0017&lt;/td&gt;&lt;td&gt;o5s1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;creatinine&lt;/td&gt;&lt;td&gt;02400g&lt;/td&gt;&lt;td&gt;caoor&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;pressure bload systolic&lt;/td&gt;&lt;td&gt;aidaloloss&lt;/td&gt;&lt;td&gt;aoz&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;pressure diastolic blood&lt;/td&gt;&lt;td&gt;dobetods&lt;/td&gt;&lt;td&gt;ass&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;hemoglobin&lt;/td&gt;&lt;td&gt;0044 0255t&lt;/td&gt;&lt;td&gt;caoor&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;/td&gt;&lt;td&gt;004&lt;/td&gt;&lt;td&gt;caoor&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;&quot;, &quot;layout&quot;: &quot;double&quot;}
+{&quot;type&quot;: &quot;text&quot;, &quot;bbox&quot;: [51.384, 374.84, 223.32299999999998, 385.57599999999996], &quot;res&quot;: &quot;nanc rmeans more significant forecasting factor sign&quot;, &quot;layout&quot;: &quot;double&quot;}
+{&quot;type&quot;: &quot;title&quot;, &quot;bbox&quot;: [50.549, 403.5, 117.941, 416.35], &quot;res&quot;: &quot;discussion&quot;, &quot;layout&quot;: &quot;double&quot;}
+{&quot;type&quot;: &quot;text&quot;, &quot;bbox&quot;: [50.409, 423.237, 290.541, 606.889], &quot;res&quot;: &quot;determination of creatinine and hemoglobin level in the blood well aetho concentration of protein in the urine in one year atter kidney transplantation with the calculation of prognostic criterion predics the loss of renal allotransplant function in years fafter surgery advantages ff the method are the possibility oof quantitative forecasting of renal allotransplant losser which based not only its excretory function assessment but also on assessment other characteristics that may have important prognostic value and does not always directly correlate with changes in its excretors function in order the riskof death with transplant sfunctioning returntothe program hemodialysis the predictive model was implemented cabular processor excel forthe useofthe model litisquite enough the value ethel given indices calculation and prognosis will be automatically done in the electronic table figure 31&quot;, &quot;layout&quot;: &quot;double&quot;}
+{&quot;type&quot;: &quot;text&quot;, &quot;bbox&quot;: [50.616, 604.736, 290.66, 674.822], &quot;res&quot;: &quot;the calculator designed by us has been patented chttpell napatentscomy 68339 sposib prognozuvannys vtrati funk caniskovogo transplanatchti and disnvailable on the in ternet chitpsolivad skillwond the accuract ot prediction of renal transplant function loss three years after transplantation was 92x&quot;, &quot;layout&quot;: &quot;double&quot;}
+{&quot;type&quot;: &quot;text&quot;, &quot;bbox&quot;: [50.435, 673.018, 290.66700000000003, 743.28], &quot;res&quot;: &quot;progression of chronic renal dysfunctional the transplant accompanied the simultaneous losa the benefits of successful transplantation and the growth of problems due to immunosuppresson bosed on retrospective analysis nt resultsof treatment tofkidney transplantof the recipients with blood creatinine higher than d3 immold we adhere to the&quot;, &quot;layout&quot;: &quot;double&quot;}
+{&quot;type&quot;: &quot;figure&quot;, &quot;bbox&quot;: [308.637, 74.439, 546.515, 223.613], &quot;res&quot;: &quot;./inference_results/example_figure_10.png&quot;, &quot;layout&quot;: &quot;double&quot;}
+{&quot;type&quot;: &quot;text&quot;, &quot;bbox&quot;: [308.697, 230.568, 548.759, 274.113], &quot;res&quot;: &quot;figures the cnerhecadfmuthrnatical modeltor prognostication ofkidaey transplant function during the periodal three years after thetransplantation according oletectercipiolgaps after theoperation&quot;, &quot;layout&quot;: &quot;double&quot;}
+{&quot;type&quot;: &quot;text&quot;, &quot;bbox&quot;: [308.66, 293.918, 548.841, 341.415], &quot;res&quot;: &quot;following principles in thecorrectionod immunisuppresion which allow decreasing the rateofs chronic dysfunctionof the transplant development or edecreasing the risk fof compliea tions incaeoflasof function&quot;, &quot;layout&quot;: &quot;double&quot;}
+{&quot;type&quot;: &quot;list&quot;, &quot;bbox&quot;: [322.805, 348.831, 548.754, 552.133], &quot;res&quot;: &quot;wdo not prescribe hish doses steroids and do have the steroid pulse therapy cy do not increase the dose of received cyclosporine tacrolimus and stop medication ifthere isan increase in nephropathy tj continue immunosuppression with medicines ofmy cophenolic acid which are not nephrotoxic k4 enhance amonitoring of immunosuppression andpe vention infectious com cancel immunosuppression atreturning hemodi alysis treatment cancellation of steroids should done egradually sometimes for several months when thediscomfort eassociated transplant tempera ture main in the projection the transplanted kidney and hematurial short course of low doses of steroids administered orally of intravenously can be effective&quot;, &quot;layout&quot;: &quot;double&quot;}
+{&quot;type&quot;: &quot;text&quot;, &quot;bbox&quot;: [308.649, 559.189, 548.86, 640.601], &quot;res&quot;: &quot;according to plasma concentration of creatinine the return hemodialvsis the patients were divided into groups ln the first group the creatinine concentration in blood plasma waso mmoly in the 2nd groun con centration in blood plasma was azlommaty and in the third group concentration in blood plasma was more than commolt&quot;, &quot;layout&quot;: &quot;double&quot;}
+{&quot;type&quot;: &quot;text&quot;, &quot;bbox&quot;: [308.658, 638.657, 548.9680000000001, 709.24], &quot;res&quot;: &quot;dates or the return of transplant recipients with delaved rena transplant disfunction are largely dependent ion the psychological state ofthe patient severity of depression the desire to ensure the irreversibility the transplanted kidney dysfunction and fear that the dialysis will contribute to the deterioration of renal transplant function&quot;, &quot;layout&quot;: &quot;double&quot;}
+{&quot;type&quot;: &quot;text&quot;, &quot;bbox&quot;: [308.64, 707.13, 548.911, 743.158], &quot;res&quot;: &quot;the survival rateof patients ofthe first group after return in hemodialysis was years and in the second and third groups respectively 53132 and28426 years&quot;, &quot;layout&quot;: &quot;double&quot;}
+</code></pre></div>
+其中，<code>type</code>为检测区域的类型，<code>bbox</code>为检测出的边界框<code>[左上角的x坐标，右下角的y坐标，宽度，高度]</code>, <code>res</code>是检测的结果内容。</p>
+<p><strong>注意事项：</strong>
+1. 如需更多参数说明和用法，请运行<code>python tools/infer/text/predict_table_e2e.py -h</code>或查看<code>tools/infer/text/config.py</code>
+2. 除了config.py中的参数，predict_table_e2e.py还接受如下参数：
+<center></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><strong>参数名</strong></th>
+<th style="text-align: center;"><strong>描述</strong></th>
+<th style="text-align: center;"><strong>默认值</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">layout</td>
+<td style="text-align: center;">版面分析任务</td>
+<td style="text-align: center;">True</td>
+</tr>
+<tr>
+<td style="text-align: center;">ocr</td>
+<td style="text-align: center;">文字识别任务</td>
+<td style="text-align: center;">True</td>
+</tr>
+<tr>
+<td style="text-align: center;">table</td>
+<td style="text-align: center;">表格识别任务</td>
+<td style="text-align: center;">True</td>
+</tr>
+<tr>
+<td style="text-align: center;">recovery</td>
+<td style="text-align: center;">转换成Docx任务</td>
+<td style="text-align: center;">True</td>
+</tr>
+</tbody>
+</table>
+<p></center></p>
+<h2 id="_15">参数列表<a class="headerlink" href="#_15" title="Permanent link">&para;</a></h2>
+<p>所有CLI参数定义都可以通过<code>python tools/infer/text/predict_system.py -h</code>或<code>tools/infer/text/config.py</code>查看。</p>
+<h2 id="-">开发人员指南-如何添加新的推断模型<a class="headerlink" href="#-" title="Permanent link">&para;</a></h2>
+<h3 id="_16">预处理<a class="headerlink" href="#_16" title="Permanent link">&para;</a></h3>
+<p>最佳预处理策略可能因模型而异，特别是对于调整大小设置（keep_ratio, padding等）。对于不同的任务，我们在<code>tools/infer/text/preprocess.py</code>中为每个模型定义了预处理管道。</p>
+<p>如果发现默认的预处理管道或超参数不满足网络要求，请通过更改If-else条件或向<code>tools/infer/text/preprocess.py</code>中的<code>optimal_hparam</code> dict添加新的键值对进行扩展，其中key是算法名称，该值是用于目标网络推断的合适的超参数设置。</p>
+<h3 id="_17">网络推理<a class="headerlink" href="#_17" title="Permanent link">&para;</a></h3>
+<p>在<code>predict_det.py</code>和<code>predict_rec.py</code>中的<code>algo_to_model_name</code> dict中定义了支持的算法及其相应的网络名称（可使用<code>list_model()</code> API进行检查）。</p>
+<p>要添加新的检测模型进行推断，请在<code>algo_to_model_name</code> dict中添加一个新的键值对，其中键值是算法名称，该值是注册在<code>mindocr/models/{your_model}.py</code>中的相应网络名称。</p>
+<p>默认情况下，模型权重将从<code>mindocr/models/{your_model}.py</code>中的pro-defined URL加载。如果要加载本地检查点，请将<code>--det_model_dir</code>或<code>--rec_model_dir</code>设置为本地检查点的路径或包含模型检查点的目录。</p>
+<h3 id="_18">后处理程序<a class="headerlink" href="#_18" title="Permanent link">&para;</a></h3>
+<p>与预处理类似，每个算法的后处理方法可能会有所不同。每个算法的后处理方法在<code>tools/infer/text/postprocess.py</code>中定义。</p>
+<p>如果您发现默认的后处理方法或超参数不满足模型需要，请扩展If-else条件或在<code>tools/infer/text/postprocess.py</code>中的<code>optimal_hparam</code> dict中添加一个新的键值对，其中键是算法名称，值是超参数设置。</p>
+<!-- END INCLUDE -->
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../../tutorials/advanced_train/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 进阶训练">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                进阶训练
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../inference/inference_tutorial/" class="md-footer__link md-footer__link--next" aria-label="下一页: MindOCR 离线推理">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                MindOCR 离线推理
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2022 - 2025 MindSpore Lab
+    </div>
+  
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="mailto:mindspore-lab@huawei.com" target="_blank" rel="noopener" title="" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M498.1 5.6c10.1 7 15.4 19.1 13.5 31.2l-64 416c-1.5 9.7-7.4 18.2-16 23s-18.9 5.4-28 1.6L284 427.7l-68.5 74.1c-8.9 9.7-22.9 12.9-35.2 8.1S160 493.2 160 480v-83.6c0-4 1.5-7.8 4.2-10.8l167.6-182.8c5.8-6.3 5.6-16-.4-22s-15.7-6.4-22-.7L106 360.8l-88.3-44.2C7.1 311.3.3 300.7 0 288.9s5.9-22.8 16.1-28.7l448-256c10.7-6.1 23.9-5.5 34 1.4"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/mindspore-lab/mindocr" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.zhihu.com/people/mindsporelab" target="_blank" rel="noopener" title="www.zhihu.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M170.54 148.13v217.54l23.43.01 7.71 26.37 42.01-26.37h49.53V148.13zm97.75 193.93h-27.94l-27.9 17.51-5.08-17.47-11.9-.04V171.75h72.82zm-118.46-94.39H97.5c1.74-27.1 2.2-51.59 2.2-73.46h51.16s1.97-22.56-8.58-22.31h-88.5c3.49-13.12 7.87-26.66 13.12-40.67 0 0-24.07 0-32.27 21.57-3.39 8.9-13.21 43.14-30.7 78.12 5.89-.64 25.37-1.18 36.84-22.21 2.11-5.89 2.51-6.66 5.14-14.53h28.87c0 10.5-1.2 66.88-1.68 73.44H20.83c-11.74 0-15.56 23.62-15.56 23.62h65.58C66.45 321.1 42.83 363.12 0 396.34c20.49 5.85 40.91-.93 51-9.9 0 0 22.98-20.9 35.59-69.25l53.96 64.94s7.91-26.89-1.24-39.99c-7.58-8.92-28.06-33.06-36.79-41.81L87.9 311.95c4.36-13.98 6.99-27.55 7.87-40.67h61.65s-.09-23.62-7.59-23.62zm412.02-1.6c20.83-25.64 44.98-58.57 44.98-58.57s-18.65-14.8-27.38-4.06c-6 8.15-36.83 48.2-36.83 48.2zm-150.09-59.09c-9.01-8.25-25.91 2.13-25.91 2.13s39.52 55.04 41.12 57.45l19.46-13.73s-25.67-37.61-34.66-45.86h-.01zM640 258.35c-19.78 0-130.91.93-131.06.93v-101c4.81 0 12.42-.4 22.85-1.2 40.88-2.41 70.13-4 87.77-4.81 0 0 12.22-27.19-.59-33.44-3.07-1.18-23.17 4.58-23.17 4.58s-165.22 16.49-232.36 18.05c1.6 8.82 7.62 17.08 15.78 19.55 13.31 3.48 22.69 1.7 49.15.89 24.83-1.6 43.68-2.43 56.51-2.43v99.81H351.41s2.82 22.31 25.51 22.85h107.94v70.92c0 13.97-11.19 21.99-24.48 21.12-14.08.11-26.08-1.15-41.69-1.81 1.99 3.97 6.33 14.39 19.31 21.84 9.88 4.81 16.17 6.57 26.02 6.57 29.56 0 45.67-17.28 44.89-45.31v-73.32h122.36c9.68 0 8.7-23.78 8.7-23.78z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.top", "navigation.footer", "toc.follow", "search.highlight", "search.share", "search.suggest", "content.action.view", "content.action.edit", "content.tabs.link", "content.code.copy", "content.code.select", "content.code.annotations"], "search": "../../../assets/javascripts/workers/search.f8cc74c7.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>
